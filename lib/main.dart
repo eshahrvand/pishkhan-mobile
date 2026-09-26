@@ -2,6 +2,7 @@ import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_drawer.dart';
+import 'package:pishkhan_mobile/shared/widgets/app_deposit_list.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_invoice.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_service_grid_card.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_wallet_card.dart';
@@ -264,6 +265,8 @@ class _FakeDashboard extends StatelessWidget {
                 const SizedBox(height: 16),
                 const _WalletCardPreview(),
                 const SizedBox(height: 16),
+                const _DepositListPreview(),
+                const SizedBox(height: 16),
                 const _ServicesCard(),
                 const SizedBox(height: 16),
                 const _InvoicePreview(),
@@ -411,6 +414,30 @@ class _BalanceCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _DepositListPreview extends StatelessWidget {
+  const _DepositListPreview();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text('لیست سپرده‌ها', style: Theme.of(context).textTheme.titleMedium),
+        const SizedBox(height: 12),
+        const AppDepositList(
+          title: 'پس انداز حقیقی',
+          accountNumber: '۱۰-۱۲۲-۱۲۳۴۵۶۷-۱',
+        ),
+        const SizedBox(height: 16),
+        const AppDepositList(
+          title: 'جاری حقیقی',
+          accountNumber: '۱۰-۱۲۲-۱۲۳۴۵۶۷-۲',
+        ),
+      ],
     );
   }
 }
