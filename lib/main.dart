@@ -4,6 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_drawer.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_invoice.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_service_grid_card.dart';
+import 'package:pishkhan_mobile/shared/widgets/app_wallet_card.dart';
 
 void main() => runApp(const MyApp());
 
@@ -261,6 +262,8 @@ class _FakeDashboard extends StatelessWidget {
                 const SizedBox(height: 16),
                 const _BalanceCard(),
                 const SizedBox(height: 16),
+                const _WalletCardPreview(),
+                const SizedBox(height: 16),
                 const _ServicesCard(),
                 const SizedBox(height: 16),
                 const _InvoicePreview(),
@@ -408,6 +411,27 @@ class _BalanceCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _WalletCardPreview extends StatelessWidget {
+  const _WalletCardPreview();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text('کارت کیف پول', style: Theme.of(context).textTheme.titleMedium),
+        const SizedBox(height: 12),
+        const AppWalletCard(balance: '۱٬۲۰۰٬۰۰۰'),
+        const SizedBox(height: 16),
+        const AppWalletCard(
+          balance: '۱٬۲۰۰٬۰۰۰',
+          type: AppWalletCardType.desktop,
+        ),
+      ],
     );
   }
 }

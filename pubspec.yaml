@@ -66,6 +66,7 @@ flutter:
     - assets/images/drawer/
     - assets/images/invoice/
     - assets/images/service_grid/
+    - assets/images/wallet_card/
 
   # To add assets to your application, add an assets section, like this:
   # assets:
