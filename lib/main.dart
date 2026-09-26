@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_drawer.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_invoice.dart';
+import 'package:pishkhan_mobile/shared/widgets/app_service_grid_card.dart';
 
 void main() => runApp(const MyApp());
 
@@ -158,6 +159,7 @@ class _SharedComponentsPreviewState extends State<SharedComponentsPreview> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: context.colors.surfaceSubtle,
       body: Stack(
         children: [
           _FakeDashboard(
@@ -262,6 +264,8 @@ class _FakeDashboard extends StatelessWidget {
                 const _ServicesCard(),
                 const SizedBox(height: 16),
                 const _InvoicePreview(),
+                const SizedBox(height: 16),
+                const _ServiceGridPreview(),
               ],
             ),
           ),
@@ -404,6 +408,60 @@ class _BalanceCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _ServiceGridPreview extends StatelessWidget {
+  const _ServiceGridPreview();
+
+  static const _labels = [
+    'صورتحساب، معدل موجودی',
+    'گردش حساب',
+    'انتقال وجه',
+    'مدیریت کارت',
+  ];
+
+  List<AppServiceGridItem> _items(
+    Widget Function() icon, {
+    Size iconSize = const Size.square(32),
+  }) => [
+    for (var index = 0; index < _labels.length; index++)
+      AppServiceGridItem(
+        id: 'service-$index',
+        label: _labels[index],
+        icon: icon(),
+        iconSize: iconSize,
+        onTap: () {},
+      ),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          'کارت خدمات و دسترسی سریع',
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+        const SizedBox(height: 12),
+        AppServiceGridCard(
+          title: 'خدمات',
+          headerAction: AppServiceGridIcons.angleLeft(),
+          items: _items(AppServiceGridIcons.representativePurple),
+        ),
+        const SizedBox(height: 16),
+        AppServiceGridCard(
+          title: 'دسترسی سریع',
+          type: AppServiceGridCardType.quick,
+          headerAction: AppServiceGridIcons.quickAccess(),
+          items: _items(
+            AppServiceGridIcons.quickService,
+            iconSize: const Size(70, 70.5),
+          ),
+        ),
+      ],
     );
   }
 }
