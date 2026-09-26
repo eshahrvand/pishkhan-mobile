@@ -9,11 +9,17 @@ abstract final class AppInvoiceIcons {
   static Widget cost() => _svg('cost.svg');
   static Widget wallet() => _svg('wallet.svg');
   static Widget currency() => _svg('currency.svg', size: 18);
+  static Widget currencyPrimary() => _svg('currency_primary.svg', size: 18);
   static Widget chevronDown() => _svg('chevron_down.svg');
   static Widget chevronUp() => _svg('chevron_up.svg');
   static Widget print() => _svg('print.svg');
   static Widget identityVideo() => _svg('identity_video.svg');
   static Widget delivery() => _svg('delivery.svg');
+  static Widget divider() => SizedBox(
+    height: .5,
+    width: double.infinity,
+    child: SvgPicture.asset('${_basePath}divider.svg', fit: BoxFit.fill),
+  );
 
   static Widget _svg(String name, {double size = 20}) => SizedBox(
     width: size,
@@ -73,49 +79,57 @@ class AppInvoice extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    return Material(
-      type: MaterialType.transparency,
-      child: InkWell(
-        onTap: showToggle ? () => onExpandedChanged(!isExpanded) : null,
-        borderRadius: BorderRadius.circular(16),
-        child: AnimatedSize(
-          duration: const Duration(milliseconds: 180),
-          curve: Curves.easeOutCubic,
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: colors.surfaceSubtle,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Column(
-              children: [
-                _InvoiceHeader(
-                  title: title,
-                  totalAmount: totalAmount,
-                  costIcon: costIcon ?? AppInvoiceIcons.cost(),
-                  showToggle: showToggle,
-                  isExpanded: isExpanded,
-                ),
-                const SizedBox(height: 12),
-                Divider(height: 1, color: colors.border),
-                const SizedBox(height: 12),
-                if (isExpanded) ...[
-                  for (final line in lines) ...[
-                    _InvoiceLine(line: line),
-                    const SizedBox(height: 8),
-                  ],
-                  Divider(height: 1, color: colors.border),
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Material(
+        type: MaterialType.transparency,
+        child: InkWell(
+          onTap: showToggle ? () => onExpandedChanged(!isExpanded) : null,
+          borderRadius: BorderRadius.circular(16),
+          child: AnimatedSize(
+            duration: const Duration(milliseconds: 180),
+            curve: Curves.easeOutCubic,
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: colors.surfaceSubtle,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _InvoiceHeader(
+                    title: title,
+                    totalAmount: totalAmount,
+                    costIcon: costIcon ?? AppInvoiceIcons.cost(),
+                    showToggle: showToggle,
+                    isExpanded: isExpanded,
+                  ),
                   const SizedBox(height: 12),
+                  AppInvoiceIcons.divider(),
+                  const SizedBox(height: 12),
+                  if (isExpanded && lines.isNotEmpty) ...[
+                    _InvoiceLine(line: lines.first),
+                    for (final line in lines.skip(1)) ...[
+                      const SizedBox(height: 8),
+                      _InvoiceLine(line: line),
+                    ],
+                    const SizedBox(height: 12),
+                    AppInvoiceIcons.divider(),
+                    const SizedBox(height: 12),
+                  ],
+                  _WalletRow(
+                    label: walletLabel,
+                    amount: walletBalance,
+                    icon: walletIcon ?? AppInvoiceIcons.wallet(),
+                  ),
+                  const SizedBox(height: 12),
+                  AppWalletBalanceStatus(
+                    isSufficient: isWalletBalanceSufficient,
+                  ),
                 ],
-                _WalletRow(
-                  label: walletLabel,
-                  amount: walletBalance,
-                  icon: walletIcon ?? AppInvoiceIcons.wallet(),
-                ),
-                const SizedBox(height: 12),
-                AppWalletBalanceStatus(isSufficient: isWalletBalanceSufficient),
-              ],
+              ),
             ),
           ),
         ),
@@ -143,11 +157,13 @@ class _InvoiceHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     return Row(
+      textDirection: TextDirection.ltr,
       children: [
         Expanded(
           child: _Amount(
             amount: totalAmount,
             style: _amountStyle(colors.primary, FontWeight.w600),
+            isPrimary: true,
           ),
         ),
         const SizedBox(width: 8),
@@ -159,7 +175,11 @@ class _InvoiceHeader extends StatelessWidget {
                   ? AppInvoiceIcons.chevronUp()
                   : AppInvoiceIcons.chevronDown(),
             if (showToggle) const SizedBox(width: 4),
-            Text(title, style: _labelStyle(colors.textSecondary)),
+            Text(
+              title,
+              textDirection: TextDirection.rtl,
+              style: _labelStyle(colors.textSecondary),
+            ),
             const SizedBox(width: 4),
             SizedBox(width: 20, height: 20, child: Center(child: costIcon)),
           ],
@@ -177,6 +197,7 @@ class _InvoiceLine extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     return Row(
+      textDirection: TextDirection.ltr,
       children: [
         Expanded(
           child: _Amount(
@@ -188,11 +209,14 @@ class _InvoiceLine extends StatelessWidget {
         Expanded(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.end,
+            textDirection: TextDirection.ltr,
             children: [
               Flexible(
                 child: Text(
                   line.label,
                   overflow: TextOverflow.ellipsis,
+                  textDirection: TextDirection.rtl,
+                  textAlign: TextAlign.right,
                   style: _labelStyle(colors.textSecondary),
                 ),
               ),
@@ -220,6 +244,7 @@ class _WalletRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     return Row(
+      textDirection: TextDirection.ltr,
       children: [
         Expanded(
           child: _Amount(
@@ -231,11 +256,14 @@ class _WalletRow extends StatelessWidget {
         Expanded(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.end,
+            textDirection: TextDirection.ltr,
             children: [
               Flexible(
                 child: Text(
                   label,
                   overflow: TextOverflow.ellipsis,
+                  textDirection: TextDirection.rtl,
+                  textAlign: TextAlign.right,
                   style: _labelStyle(colors.textSecondary),
                 ),
               ),
@@ -250,16 +278,23 @@ class _WalletRow extends StatelessWidget {
 }
 
 class _Amount extends StatelessWidget {
-  const _Amount({required this.amount, required this.style});
+  const _Amount({
+    required this.amount,
+    required this.style,
+    this.isPrimary = false,
+  });
   final String amount;
   final TextStyle style;
+  final bool isPrimary;
 
   @override
   Widget build(BuildContext context) {
     return Row(
       textDirection: TextDirection.ltr,
       children: [
-        AppInvoiceIcons.currency(),
+        isPrimary
+            ? AppInvoiceIcons.currencyPrimary()
+            : AppInvoiceIcons.currency(),
         const SizedBox(width: 2),
         Flexible(
           child: Text(amount, overflow: TextOverflow.ellipsis, style: style),

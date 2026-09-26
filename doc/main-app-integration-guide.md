@@ -26,8 +26,8 @@ Install the package theme near the root of the app:
 
 ```dart
 MaterialApp(
-  theme: AppTheme.light(),
-  home: const MyScreen(),
+theme: AppTheme.light(),
+home: const MyScreen(),
 )
 ```
 
@@ -66,6 +66,50 @@ Unless a row explicitly says **Not implemented**, the component is implemented a
 | Slider | `1086:534` | `AppSlider` | Dual-thumb range slider based on `RangeValues`; optional label positions and extra bars. |
 | Avatar | `19:1012` | `AppAvatar` | Standard 24–64px avatar with photo, initials, placeholder, focus, online/company badge. |
 | Avatar profile photo | `1217:108477` | `AppAvatarProfilePhoto` | Large 96px/160px avatar profile-photo component. |
+
+## Typography
+
+`AppTheme.light()` installs the package-owned `IRANYekanX` family and the
+complete `AppTypography.textTheme`. The consuming app must not register,
+bundle, or set this font family again.
+
+For normal screen copy, use the themed semantic role:
+
+```dart
+Text(
+  'اطلاعات حساب',
+  style: Theme.of(context).textTheme.titleMedium,
+)
+```
+
+For a Figma-specific variation, derive it from an `AppTypography` semantic
+role. Do not create a new `TextStyle` or set `fontFamily` in a screen or
+component.
+
+```dart
+Text(
+  'ادامه',
+  style: AppTypography.titleMedium.copyWith(
+    color: context.colors.textPrimary,
+    letterSpacing: 0,
+  ),
+)
+```
+
+Use the role that describes the content, not a size-based name:
+
+| Content | Start with |
+| --- | --- |
+| Large page hero | `displayLarge`, `displayMedium`, `displaySmall` |
+| Page or section heading | `headlineLarge`, `headlineMedium`, `headlineSmall` |
+| Section title or prominent action | `titleLarge`, `titleMedium`, `titleSmall` |
+| Paragraph, field value, or supporting copy | `bodyLarge`, `bodyMedium`, `bodySmall` |
+| Field label, compact control, or metadata | `labelLarge`, `labelMedium`, `labelSmall` |
+
+`copyWith(...)` is for contextual properties—such as color, a Figma-required
+line-height, weight, or letter spacing. It retains the package font family and
+RTL-safe typography settings. Shared `avp_ui` components already apply these
+roles internally; application code only needs them for custom composition.
 
 ## Common usage patterns
 
@@ -153,6 +197,8 @@ For remote images, the main app owns loading, caching, failure, and authenticati
 ## Tokens and RTL
 
 - Use `AppTheme.light()` to install the package theme.
+- Use `Theme.of(context).textTheme` for normal screen typography and derive
+  Figma-specific variations from `AppTypography` with `.copyWith(...)`.
 - Prefer semantic theme colors in app-specific composition: `context.colors.primary`, `context.colors.textPrimary`, and related values from `AppThemeContextX`.
 - `AppPalette` is available for package-level design-system work, but app screens should prefer `context.colors`.
 - Use `DirectionalIcon` and `AlignmentDirectional` when an icon or placement must mirror in RTL.
@@ -160,7 +206,7 @@ For remote images, the main app owns loading, caching, failure, and authenticati
 
 ## Package assets and boundaries
 
-The package owns the SVG/PNG assets required by Figma components under `assets/icons/` and `assets/images/`. Consumers must not hard-code these paths or create copies in the main app.
+The package owns the SVG/PNG assets required by Figma components under `assets/icons/` and `assets/images/`, plus the registered `IRANYekanX` font files under `assets/fonts/`. Consumers must not hard-code these paths or create copies in the main app.
 
 The main app owns:
 
@@ -170,7 +216,7 @@ The main app owns:
 
 `avp_ui` owns:
 
-- Shared tokens, component visuals, interaction primitives, Figma assets, and component tests.
+- Shared tokens, typography and font registration, component visuals, interaction primitives, Figma assets, and component tests.
 
 ## Verification when changing `avp_ui`
 
