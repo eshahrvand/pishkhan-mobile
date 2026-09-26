@@ -8,8 +8,15 @@ abstract final class AppInvoiceIcons {
 
   static Widget cost() => _svg('cost.svg');
   static Widget wallet() => _svg('wallet.svg');
-  static Widget currency() => _svg('currency.svg', size: 18);
-  static Widget currencyPrimary() => _svg('currency_primary.svg', size: 18);
+  // Figma places the 12.8px money-unit glyph inside an 18px layout slot.
+  // Keeping those two dimensions separate prevents the glyph from scaling up.
+  static Widget currency() =>
+      _svg('currency.svg', size: 18, assetSize: const Size(12.7951, 12.7572));
+  static Widget currencyPrimary() => _svg(
+    'currency_primary.svg',
+    size: 18,
+    assetSize: const Size(12.7951, 12.7572),
+  );
   static Widget chevronDown() => _svg('chevron_down.svg');
   static Widget chevronUp() => _svg('chevron_up.svg');
   static Widget print() => _svg('print.svg');
@@ -21,11 +28,18 @@ abstract final class AppInvoiceIcons {
     child: SvgPicture.asset('${_basePath}divider.svg', fit: BoxFit.fill),
   );
 
-  static Widget _svg(String name, {double size = 20}) => SizedBox(
-    width: size,
-    height: size,
-    child: SvgPicture.asset('$_basePath$name', fit: BoxFit.contain),
-  );
+  static Widget _svg(String name, {double size = 20, Size? assetSize}) =>
+      SizedBox(
+        width: size,
+        height: size,
+        child: Center(
+          child: SizedBox(
+            width: assetSize?.width,
+            height: assetSize?.height,
+            child: SvgPicture.asset('$_basePath$name', fit: BoxFit.contain),
+          ),
+        ),
+      );
 }
 
 /// A configurable row in [AppInvoice].
@@ -93,7 +107,7 @@ class AppInvoice extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: colors.surfaceSubtle,
+                color: colors.surface,
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Column(
@@ -112,7 +126,9 @@ class AppInvoice extends StatelessWidget {
                   if (isExpanded && lines.isNotEmpty) ...[
                     _InvoiceLine(line: lines.first),
                     for (final line in lines.skip(1)) ...[
-                      const SizedBox(height: 8),
+                      // The Invoice Figma component uses the container's
+                      // 12px vertical rhythm between every direct row.
+                      const SizedBox(height: 12),
                       _InvoiceLine(line: line),
                     ],
                     const SizedBox(height: 12),
@@ -162,7 +178,11 @@ class _InvoiceHeader extends StatelessWidget {
         Expanded(
           child: _Amount(
             amount: totalAmount,
-            style: _amountStyle(colors.primary, FontWeight.w600),
+            style: _invoiceTextStyle(
+              AppTypography.bodySmall,
+              color: colors.primary,
+              fontWeight: FontWeight.w600,
+            ),
             isPrimary: true,
           ),
         ),
@@ -178,7 +198,10 @@ class _InvoiceHeader extends StatelessWidget {
             Text(
               title,
               textDirection: TextDirection.rtl,
-              style: _labelStyle(colors.textSecondary),
+              style: _invoiceTextStyle(
+                AppTypography.bodySmall,
+                color: colors.textSecondary,
+              ),
             ),
             const SizedBox(width: 4),
             SizedBox(width: 20, height: 20, child: Center(child: costIcon)),
@@ -202,7 +225,11 @@ class _InvoiceLine extends StatelessWidget {
         Expanded(
           child: _Amount(
             amount: line.amount,
-            style: _amountStyle(colors.textPrimary, FontWeight.w500),
+            style: _invoiceTextStyle(
+              AppTypography.bodySmall,
+              color: colors.textPrimary,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ),
         const SizedBox(width: 8),
@@ -217,7 +244,10 @@ class _InvoiceLine extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   textDirection: TextDirection.rtl,
                   textAlign: TextAlign.right,
-                  style: _labelStyle(colors.textSecondary),
+                  style: _invoiceTextStyle(
+                    AppTypography.bodySmall,
+                    color: colors.textSecondary,
+                  ),
                 ),
               ),
               const SizedBox(width: 4),
@@ -249,7 +279,11 @@ class _WalletRow extends StatelessWidget {
         Expanded(
           child: _Amount(
             amount: amount,
-            style: _amountStyle(colors.textPrimary, FontWeight.w500),
+            style: _invoiceTextStyle(
+              AppTypography.bodySmall,
+              color: colors.textPrimary,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ),
         const SizedBox(width: 12),
@@ -264,7 +298,10 @@ class _WalletRow extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   textDirection: TextDirection.rtl,
                   textAlign: TextAlign.right,
-                  style: _labelStyle(colors.textSecondary),
+                  style: _invoiceTextStyle(
+                    AppTypography.bodySmall,
+                    color: colors.textSecondary,
+                  ),
                 ),
               ),
               const SizedBox(width: 4),
@@ -327,21 +364,28 @@ class AppWalletBalanceStatus extends StatelessWidget {
       child: Text(
         isSufficient ? sufficientLabel : insufficientLabel,
         textAlign: TextAlign.center,
-        style: _amountStyle(
-          isSufficient ? colors.success : colors.error,
-          FontWeight.w500,
-        ).copyWith(height: 22 / 12),
+        style: _invoiceTextStyle(
+          AppTypography.bodySmall,
+          color: isSufficient ? colors.success : colors.error,
+          fontWeight: FontWeight.w500,
+          height: 22 / 12,
+        ),
       ),
     );
   }
 }
 
-TextStyle _labelStyle(Color color) => TextStyle(
+/// Applies the exact Figma 12px/18px invoice rhythm to the design-system
+/// typography token. The family, fallbacks, and all other defaults remain
+/// owned by `avp_ui`.
+TextStyle _invoiceTextStyle(
+  TextStyle base, {
+  required Color color,
+  FontWeight fontWeight = FontWeight.w400,
+  double height = 18 / 12,
+}) => base.copyWith(
   color: color,
-  fontSize: 12,
-  fontWeight: FontWeight.w400,
-  height: 18 / 12,
+  fontWeight: fontWeight,
+  height: height,
+  letterSpacing: 0,
 );
-
-TextStyle _amountStyle(Color color, FontWeight weight) =>
-    TextStyle(color: color, fontSize: 12, fontWeight: weight, height: 18 / 12);
