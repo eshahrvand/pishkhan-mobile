@@ -4,23 +4,49 @@ import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-/// Local Figma SVG assets used by [AppDepositList].
-abstract final class AppDepositListIcons {
-  static const _basePath = 'assets/images/deposit_list/';
+/// Figma CardsList variants.
+enum AppCardsListType { resalat, gift, virtual, coupon, family }
 
-  // The exported source asset is vertical; Figma rotates it -90° for this
-  // card's physical-left horizontal overflow affordance.
+/// Local Figma SVG assets used by [AppCardsList].
+abstract final class AppCardsListIcons {
+  static const _basePath = 'assets/images/cards_list/';
+
   static Widget moreHorizontal() =>
       Transform.rotate(angle: -math.pi / 2, child: _svg('more_horizontal.svg'));
-  static Widget deposit() => Transform.rotate(
-    angle: math.pi,
-    child: Transform.flip(flipY: true, child: _svg('deposit.svg')),
-  );
+
   static Widget divider() => SizedBox(
     height: .5,
     width: double.infinity,
     child: SvgPicture.asset('${_basePath}divider.svg', fit: BoxFit.fill),
   );
+
+  static Widget forType(AppCardsListType type) {
+    if (type == AppCardsListType.virtual) {
+      return SizedBox(
+        width: 20,
+        height: 20,
+        child: Center(
+          child: SizedBox(
+            width: 16.284,
+            height: 12.95,
+            child: SvgPicture.asset('${_basePath}virtual_card.svg'),
+          ),
+        ),
+      );
+    }
+
+    final name = switch (type) {
+      AppCardsListType.resalat => 'credit_card.svg',
+      AppCardsListType.gift => 'gift_card.svg',
+      AppCardsListType.coupon => 'coupon.svg',
+      AppCardsListType.family => 'family.svg',
+      AppCardsListType.virtual => throw StateError('Handled above.'),
+    };
+    return Transform.rotate(
+      angle: math.pi,
+      child: Transform.flip(flipY: true, child: _svg(name)),
+    );
+  }
 
   static Widget _svg(String name) => SizedBox(
     width: 20,
@@ -29,26 +55,36 @@ abstract final class AppDepositListIcons {
   );
 }
 
-/// App-owned, Figma-aligned item for a customer's deposit list.
-class AppDepositList extends StatelessWidget {
-  const AppDepositList({
+/// App-owned, Figma-aligned card-list row with five supported card types.
+class AppCardsList extends StatelessWidget {
+  const AppCardsList({
     super.key,
-    required this.title,
-    required this.accountNumber,
-    this.statusLabel = 'باز',
-    this.statusColor = AppBadgeColor.success,
+    required this.type,
+    required this.cardNumber,
+    required this.linkedDeposit,
+    this.title,
     this.moreIcon,
-    this.depositIcon,
+    this.cardIcon,
     this.onMoreTap,
   });
 
-  final String title;
-  final String accountNumber;
-  final String statusLabel;
-  final AppBadgeColor statusColor;
+  final AppCardsListType type;
+  final String cardNumber;
+  final String linkedDeposit;
+  final String? title;
   final Widget? moreIcon;
-  final Widget? depositIcon;
+  final Widget? cardIcon;
   final VoidCallback? onMoreTap;
+
+  String get _title =>
+      title ??
+      switch (type) {
+        AppCardsListType.resalat => 'رسالت کارت',
+        AppCardsListType.gift => 'کارت هدیه',
+        AppCardsListType.virtual => 'کارت مجازی',
+        AppCardsListType.coupon => 'بن کارت',
+        AppCardsListType.family => 'کارت خانواده',
+      };
 
   @override
   Widget build(BuildContext context) {
@@ -71,29 +107,11 @@ class AppDepositList extends StatelessWidget {
               children: [
                 _header(context),
                 const SizedBox(height: 8),
-                AppDepositListIcons.divider(),
+                AppCardsListIcons.divider(),
                 const SizedBox(height: 8),
-                _detailRow(
-                  context,
-                  leading: Text(
-                    accountNumber,
-                    overflow: TextOverflow.ellipsis,
-                    textDirection: TextDirection.ltr,
-                    style: _mediumStyle(colors.textPrimary),
-                  ),
-                  label: 'شماره سپرده',
-                ),
+                _detailRow(context, value: cardNumber, label: 'شماره کارت'),
                 const SizedBox(height: 8),
-                _detailRow(
-                  context,
-                  leading: AppBadge(
-                    label: statusLabel,
-                    color: statusColor,
-                    background: AppBadgeBackground.light,
-                    corner: AppBadgeCorner.rounded,
-                  ),
-                  label: 'وضعیت',
-                ),
+                _detailRow(context, value: linkedDeposit, label: 'سپرده متصل'),
               ],
             ),
           ),
@@ -103,11 +121,10 @@ class AppDepositList extends StatelessWidget {
   }
 
   Widget _header(BuildContext context) {
-    final colors = context.colors;
     final more = SizedBox(
       width: 20,
       height: 20,
-      child: Center(child: moreIcon ?? AppDepositListIcons.moreHorizontal()),
+      child: Center(child: moreIcon ?? AppCardsListIcons.moreHorizontal()),
     );
     return SizedBox(
       height: 20,
@@ -124,18 +141,18 @@ class AppDepositList extends StatelessWidget {
           const Spacer(),
           Flexible(
             child: Text(
-              title,
+              _title,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.end,
-              style: _mediumStyle(colors.textPrimary),
+              style: _mediumStyle(context.colors.textPrimary),
             ),
           ),
           const SizedBox(width: 4),
           SizedBox(
             width: 20,
             height: 20,
-            child: Center(child: depositIcon ?? AppDepositListIcons.deposit()),
+            child: Center(child: cardIcon ?? AppCardsListIcons.forType(type)),
           ),
         ],
       ),
@@ -144,15 +161,22 @@ class AppDepositList extends StatelessWidget {
 
   Widget _detailRow(
     BuildContext context, {
-    required Widget leading,
+    required String value,
     required String label,
   }) => SizedBox(
     height: 22,
     child: Row(
       textDirection: TextDirection.ltr,
       children: [
-        Flexible(child: leading),
-        const Spacer(),
+        Expanded(
+          child: Text(
+            value,
+            overflow: TextOverflow.ellipsis,
+            textDirection: TextDirection.ltr,
+            style: _mediumStyle(context.colors.textPrimary),
+          ),
+        ),
+        const SizedBox(width: 8),
         Text(label, style: _regularStyle(context.colors.textSecondary)),
       ],
     ),

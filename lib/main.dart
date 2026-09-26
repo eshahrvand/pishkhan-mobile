@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_drawer.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_deposit_list.dart';
+import 'package:pishkhan_mobile/shared/widgets/app_cards_list.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_invoice.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_service_grid_card.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_wallet_card.dart';
@@ -267,6 +268,8 @@ class _FakeDashboard extends StatelessWidget {
                 const SizedBox(height: 16),
                 const _DepositListPreview(),
                 const SizedBox(height: 16),
+                const _CardsListPreview(),
+                const SizedBox(height: 16),
                 const _ServicesCard(),
                 const SizedBox(height: 16),
                 const _InvoicePreview(),
@@ -414,6 +417,33 @@ class _BalanceCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _CardsListPreview extends StatelessWidget {
+  const _CardsListPreview();
+
+  @override
+  Widget build(BuildContext context) {
+    const cardNumber = '۵۰۴۱۷۲۱۴۵۶۷۸۳۴۰۷';
+    const linkedDeposit = '۱۰-۱۲۲-۱۲۳۴۵۶۷-۱';
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text('لیست کارت‌ها', style: Theme.of(context).textTheme.titleMedium),
+        const SizedBox(height: 12),
+        ...AppCardsListType.values.expand(
+          (type) => [
+            AppCardsList(
+              type: type,
+              cardNumber: cardNumber,
+              linkedDeposit: linkedDeposit,
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ],
     );
   }
 }
