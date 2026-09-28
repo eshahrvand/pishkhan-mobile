@@ -6,11 +6,16 @@ import 'package:pishkhan_mobile/shared/widgets/app_deposit_card.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_deposit_list.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_cards_list.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_arrow_button.dart';
+import 'package:pishkhan_mobile/shared/widgets/app_bottom_sheet_header.dart';
+import 'package:pishkhan_mobile/shared/widgets/app_confirmer_details_card.dart';
+import 'package:pishkhan_mobile/shared/widgets/app_delete_address_sheet.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_invoice.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_loan_card.dart';
+import 'package:pishkhan_mobile/shared/widgets/app_representative_cards.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_resalat_card.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_service_grid_card.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_wallet_card.dart';
+import 'package:pishkhan_mobile/shared/widgets/app_welcome_card.dart';
 
 void main() => runApp(const MyApp());
 
@@ -276,6 +281,8 @@ class _FakeDashboard extends StatelessWidget {
                 const SizedBox(height: 16),
                 const _FinancialCardsPreview(),
                 const SizedBox(height: 16),
+                const _DetailComponentsPreview(),
+                const SizedBox(height: 16),
                 const _ServicesCard(),
                 const SizedBox(height: 16),
                 const _InvoicePreview(),
@@ -498,6 +505,43 @@ class _FinancialCardsPreviewState extends State<_FinancialCardsPreview> {
               tooltip: 'بعدی',
             ),
           ],
+        ),
+      ],
+    );
+  }
+}
+
+class _DetailComponentsPreview extends StatelessWidget {
+  const _DetailComponentsPreview();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text('جزئیات و شیت‌ها', style: Theme.of(context).textTheme.titleMedium),
+        const SizedBox(height: 12),
+        const Center(child: AppWelcomeCard()),
+        const SizedBox(height: 20),
+        const AppBottomSheetHeader(),
+        const SizedBox(height: 20),
+        Center(
+          child: AppDeleteAddressSheet(
+            address: 'تهران - خیابان شریعتی - روبروی خیابان یخچال - بن بست شریف - پلاک ۴ - واحد ۱',
+            postalCode: '۱۹۴۴۶۲۹۱۲۳',
+            onConfirm: () {},
+            onCancel: () {},
+          ),
+        ),
+        const SizedBox(height: 20),
+        const Center(child: AppConfirmerDetailsCard()),
+        const SizedBox(height: 20),
+        const Center(child: AppMeAsRepresentativeCard()),
+        const SizedBox(height: 20),
+        const Center(
+          child: AppMyRepresentativeCard(
+            status: AppRepresentativeStatus.waiting,
+          ),
         ),
       ],
     );

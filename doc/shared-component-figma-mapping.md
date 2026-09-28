@@ -16,6 +16,12 @@ they do not change the public API of `avp_ui`.
 | DepositCard | `13906:3913` | `AppDepositCard` | `lib/shared/widgets/app_deposit_card.dart` | Single/multi, selected/unselected, optional logo, and copy actions. |
 | LoanCard | `13918:3460` | `AppLoanCard` | `lib/shared/widgets/app_loan_card.dart` | Single/multi layout, progress, copy, and arrow actions. |
 | Arrow | `13954:8942` | `AppArrowButton` | `lib/shared/widgets/app_arrow_button.dart` | Left/right 48px arrow plus the 28px compact card usage. |
+| Welcome card | `13869:8131` | `AppWelcomeCard` | `lib/shared/widgets/app_welcome_card.dart` | Translucent greeting card with a two-part timer. |
+| Bottom sheet header | `15769:17067` | `AppBottomSheetHeader` | `lib/shared/widgets/app_bottom_sheet_header.dart` | Header and handle-only variants with configurable actions and icons. |
+| Delete address sheet | `16634:46458` | `AppDeleteAddressSheet` | `lib/shared/widgets/app_delete_address_sheet.dart` | Address confirmation content with destructive and cancel actions. |
+| Confirmers details card | `16256:124134` | `AppConfirmerDetailsCard` | `lib/shared/widgets/app_confirmer_details_card.dart` | Approved and waiting status variants. |
+| Me as representative card | `15826:97055` | `AppMeAsRepresentativeCard` | `lib/shared/widgets/app_representative_cards.dart` | Active and expired states with representation details. |
+| My representative card | `15826:96343` | `AppMyRepresentativeCard` | `lib/shared/widgets/app_representative_cards.dart` | Active, waiting, and expired states with representative details. |
 
 ## Usage rules
 

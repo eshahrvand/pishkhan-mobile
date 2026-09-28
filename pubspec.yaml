@@ -73,6 +73,9 @@ flutter:
     - assets/images/deposit_card/
     - assets/images/loan_card/
     - assets/images/arrow_button/
+    - assets/images/welcome_card/
+    - assets/images/bottom_sheet_header/
+    - assets/images/representative_card/
 
   # To add assets to your application, add an assets section, like this:
   # assets:
