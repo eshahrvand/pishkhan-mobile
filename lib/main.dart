@@ -6,14 +6,18 @@ import 'package:pishkhan_mobile/shared/widgets/app_deposit_card.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_deposit_list.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_cards_list.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_arrow_button.dart';
+import 'package:pishkhan_mobile/shared/widgets/app_address_card.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_bottom_sheet_header.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_confirmer_details_card.dart';
+import 'package:pishkhan_mobile/shared/widgets/app_credit_card_mockup.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_delete_address_sheet.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_invoice.dart';
+import 'package:pishkhan_mobile/shared/widgets/app_file_upload_base.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_loan_card.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_representative_cards.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_resalat_card.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_service_grid_card.dart';
+import 'package:pishkhan_mobile/shared/widgets/app_transfer_destination_card.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_wallet_card.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_welcome_card.dart';
 
@@ -279,6 +283,8 @@ class _FakeDashboard extends StatelessWidget {
                 const SizedBox(height: 16),
                 const _CardsListPreview(),
                 const SizedBox(height: 16),
+                const _NewFigmaCardsPreview(),
+                const SizedBox(height: 16),
                 const _FinancialCardsPreview(),
                 const SizedBox(height: 16),
                 const _DetailComponentsPreview(),
@@ -459,6 +465,52 @@ class _CardsListPreview extends StatelessWidget {
       ],
     );
   }
+}
+
+class _NewFigmaCardsPreview extends StatelessWidget {
+  const _NewFigmaCardsPreview();
+
+  @override
+  Widget build(BuildContext context) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      Text(
+        'کارت‌ها و بارگذاری جدید',
+        style: Theme.of(context).textTheme.titleMedium,
+      ),
+      const SizedBox(height: 12),
+      const Center(child: AppCreditCardMockup()),
+      const SizedBox(height: 16),
+      const Center(
+        child: AppCreditCardMockup(
+          state: AppCreditCardMockupState.active,
+          channel: AppBankingChannel.web,
+        ),
+      ),
+      const SizedBox(height: 16),
+      const Center(
+        child: AppCreditCardMockup(state: AppCreditCardMockupState.wallet),
+      ),
+      const SizedBox(height: 16),
+      const Center(child: AppFileUploadBase()),
+      const SizedBox(height: 16),
+      const Center(
+        child: AppFileUploadBase(state: AppFileUploadState.uploading),
+      ),
+      const SizedBox(height: 16),
+      const Center(
+        child: AppTransferDestinationCard(method: AppTransferMethod.internal),
+      ),
+      const SizedBox(height: 16),
+      const Center(
+        child: AppTransferDestinationCard(method: AppTransferMethod.paya),
+      ),
+      const SizedBox(height: 16),
+      const Center(child: AppAddressCard()),
+      const SizedBox(height: 16),
+      const Center(child: AppAddressCard(type: AppAddressType.work)),
+    ],
+  );
 }
 
 class _FinancialCardsPreview extends StatefulWidget {

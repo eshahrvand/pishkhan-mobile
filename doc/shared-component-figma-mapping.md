@@ -22,6 +22,10 @@ they do not change the public API of `avp_ui`.
 | Confirmers details card | `16256:124134` | `AppConfirmerDetailsCard` | `lib/shared/widgets/app_confirmer_details_card.dart` | Approved and waiting status variants. |
 | Me as representative card | `15826:97055` | `AppMeAsRepresentativeCard` | `lib/shared/widgets/app_representative_cards.dart` | Active and expired states with representation details. |
 | My representative card | `15826:96343` | `AppMyRepresentativeCard` | `lib/shared/widgets/app_representative_cards.dart` | Active, waiting, and expired states with representative details. |
+| Credit card mockup | `15884:6299` | `AppCreditCardMockup` | `lib/shared/widgets/app_credit_card_mockup.dart` | Mobile, web, phone, active/inactive, and wallet variants. |
+| File upload base | `15907:44055` | `AppFileUploadBase` | `lib/shared/widgets/app_file_upload_base.dart` | Empty, uploading, and uploaded states. |
+| Transfer destination card | `16293:181820` | `AppTransferDestinationCard` | `lib/shared/widgets/app_transfer_destination_card.dart` | Internal, Satna, and Paya transfer details. |
+| Address card | `15939:10358` | `AppAddressCard` | `lib/shared/widgets/app_address_card.dart` | Home and Work address variants. |
 
 ## Usage rules
 
