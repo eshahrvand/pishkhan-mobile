@@ -14,9 +14,12 @@ import 'package:pishkhan_mobile/shared/widgets/app_delete_address_sheet.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_invoice.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_file_upload_base.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_loan_card.dart';
+import 'package:pishkhan_mobile/shared/widgets/app_occupation_card.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_representative_cards.dart';
+import 'package:pishkhan_mobile/shared/widgets/app_request_report_card.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_resalat_card.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_service_grid_card.dart';
+import 'package:pishkhan_mobile/shared/widgets/app_transaction_card.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_transfer_destination_card.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_wallet_card.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_welcome_card.dart';
@@ -509,6 +512,17 @@ class _NewFigmaCardsPreview extends StatelessWidget {
       const Center(child: AppAddressCard()),
       const SizedBox(height: 16),
       const Center(child: AppAddressCard(type: AppAddressType.work)),
+      const SizedBox(height: 16),
+      const Center(child: AppOccupationCard()),
+      const SizedBox(height: 16),
+      const Center(child: AppRequestReportCard()),
+      const SizedBox(height: 16),
+      ...AppTransactionType.values.expand(
+        (type) => [
+          Center(child: AppTransactionCard(type: type)),
+          const SizedBox(height: 16),
+        ],
+      ),
     ],
   );
 }

@@ -26,6 +26,9 @@ they do not change the public API of `avp_ui`.
 | File upload base | `15907:44055` | `AppFileUploadBase` | `lib/shared/widgets/app_file_upload_base.dart` | Empty, uploading, and uploaded states. |
 | Transfer destination card | `16293:181820` | `AppTransferDestinationCard` | `lib/shared/widgets/app_transfer_destination_card.dart` | Internal, Satna, and Paya transfer details. |
 | Address card | `15939:10358` | `AppAddressCard` | `lib/shared/widgets/app_address_card.dart` | Home and Work address variants. |
+| Occupation card | `15936:32739` | `AppOccupationCard` | `lib/shared/widgets/app_occupation_card.dart` | Occupation title and description with a configurable more action. |
+| Request report card | `15934:32160` | `AppRequestReportCard` | `lib/shared/widgets/app_request_report_card.dart` | Optional details row, date, status badge, and more action. |
+| Transaction card | `15924:41539` | `AppTransactionCard` | `lib/shared/widgets/app_transaction_card.dart` | Discharge, charge, transfer, and shopping variants. |
 
 ## Usage rules
 

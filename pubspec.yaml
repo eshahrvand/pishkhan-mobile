@@ -80,6 +80,9 @@ flutter:
     - assets/images/file_upload/
     - assets/images/transfer_destination_card/
     - assets/images/address_card/
+    - assets/images/occupation_card/
+    - assets/images/request_report_card/
+    - assets/images/transaction_card/
 
   # To add assets to your application, add an assets section, like this:
   # assets:
