@@ -34,7 +34,7 @@ dependencies:
     sdk: flutter
 
   avp_ui:
-    path: /Users/mahdi/StudioProjects/avp_ui
+    path: C:/Users/mahdi/StudioProjects/avp_ui
   flutter_svg: ^2.0.17
 
   # The following adds the Cupertino Icons font to your application.
@@ -69,6 +69,10 @@ flutter:
     - assets/images/wallet_card/
     - assets/images/deposit_list/
     - assets/images/cards_list/
+    - assets/images/resalat_card/
+    - assets/images/deposit_card/
+    - assets/images/loan_card/
+    - assets/images/arrow_button/
 
   # To add assets to your application, add an assets section, like this:
   # assets:

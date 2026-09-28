@@ -2,9 +2,13 @@ import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_drawer.dart';
+import 'package:pishkhan_mobile/shared/widgets/app_deposit_card.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_deposit_list.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_cards_list.dart';
+import 'package:pishkhan_mobile/shared/widgets/app_arrow_button.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_invoice.dart';
+import 'package:pishkhan_mobile/shared/widgets/app_loan_card.dart';
+import 'package:pishkhan_mobile/shared/widgets/app_resalat_card.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_service_grid_card.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_wallet_card.dart';
 
@@ -270,6 +274,8 @@ class _FakeDashboard extends StatelessWidget {
                 const SizedBox(height: 16),
                 const _CardsListPreview(),
                 const SizedBox(height: 16),
+                const _FinancialCardsPreview(),
+                const SizedBox(height: 16),
                 const _ServicesCard(),
                 const SizedBox(height: 16),
                 const _InvoicePreview(),
@@ -441,6 +447,56 @@ class _CardsListPreview extends StatelessWidget {
               linkedDeposit: linkedDeposit,
             ),
             const SizedBox(height: 16),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _FinancialCardsPreview extends StatefulWidget {
+  const _FinancialCardsPreview();
+
+  @override
+  State<_FinancialCardsPreview> createState() => _FinancialCardsPreviewState();
+}
+
+class _FinancialCardsPreviewState extends State<_FinancialCardsPreview> {
+  var _detailsVisible = true;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text('کارت‌های مالی', style: Theme.of(context).textTheme.titleMedium),
+        const SizedBox(height: 12),
+        Center(
+          child: AppResalatCard(
+            isVisible: _detailsVisible,
+            onVisibilityChanged: (value) =>
+                setState(() => _detailsVisible = value),
+          ),
+        ),
+        const SizedBox(height: 20),
+        const Center(child: AppDepositCard()),
+        const SizedBox(height: 20),
+        Center(child: AppLoanCard(onArrowPressed: () {})),
+        const SizedBox(height: 20),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            AppArrowButton(
+              onPressed: () {},
+              direction: AppArrowDirection.left,
+              tooltip: 'قبلی',
+            ),
+            const SizedBox(width: 20),
+            AppArrowButton(
+              onPressed: () {},
+              direction: AppArrowDirection.right,
+              tooltip: 'بعدی',
+            ),
           ],
         ),
       ],

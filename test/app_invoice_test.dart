@@ -20,15 +20,22 @@ void main() {
   }) {
     return MaterialApp(
       theme: AppTheme.light(),
-      home: Directionality(
-        textDirection: TextDirection.rtl,
-        child: AppInvoice(
-          totalAmount: '۱٬۳۰۰٬۰۰۰',
-          walletBalance: '۲٬۰۰۰٬۰۰۰',
-          lines: lines,
-          isExpanded: isExpanded,
-          isWalletBalanceSufficient: isSufficient,
-          onExpandedChanged: onExpandedChanged ?? (_) {},
+      home: Scaffold(
+        body: Center(
+          child: SizedBox(
+            width: 356,
+            child: Directionality(
+              textDirection: TextDirection.rtl,
+              child: AppInvoice(
+                totalAmount: '۱٬۳۰۰٬۰۰۰',
+                walletBalance: '۲٬۰۰۰٬۰۰۰',
+                lines: lines,
+                isExpanded: isExpanded,
+                isWalletBalanceSufficient: isSufficient,
+                onExpandedChanged: onExpandedChanged ?? (_) {},
+              ),
+            ),
+          ),
         ),
       ),
     );
@@ -51,6 +58,35 @@ void main() {
 
     await tester.tap(find.text('هزینه قابل پرداخت'));
     expect(requestedExpanded, isTrue);
+  });
+
+  testWidgets('matches the closed Figma surface and header geometry', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      buildSubject(isExpanded: false, isSufficient: true),
+    );
+
+    final container = tester.widget<Container>(
+      find.byKey(const Key('app_invoice_container')),
+    );
+    final decoration = container.decoration! as BoxDecoration;
+    expect(decoration.color, AppColors.light.surfaceSubtle);
+    expect(decoration.borderRadius, BorderRadius.circular(16));
+    expect(
+      tester.getSize(find.byKey(const Key('app_invoice_container'))).width,
+      356,
+    );
+
+    final angle = tester.getCenter(
+      find.byKey(const Key('app_invoice_toggle_icon')),
+    );
+    final title = tester.getCenter(find.byKey(const Key('app_invoice_title')));
+    final cost = tester.getCenter(
+      find.byKey(const Key('app_invoice_cost_icon')),
+    );
+    expect(angle.dx, lessThan(title.dx));
+    expect(title.dx, lessThan(cost.dx));
   });
 
   testWidgets('renders line details and the insufficient wallet variant', (

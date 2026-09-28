@@ -93,59 +93,62 @@ class AppInvoice extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final content = Container(
+      key: const Key('app_invoice_container'),
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        // Figma Gray/50 (#FAFAFA).
+        color: colors.surfaceSubtle,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _InvoiceHeader(
+            title: title,
+            totalAmount: totalAmount,
+            costIcon: costIcon ?? AppInvoiceIcons.cost(),
+            showToggle: showToggle,
+            isExpanded: isExpanded,
+          ),
+          const SizedBox(height: 12),
+          AppInvoiceIcons.divider(),
+          const SizedBox(height: 12),
+          if (isExpanded && lines.isNotEmpty) ...[
+            for (var index = 0; index < lines.length; index++) ...[
+              if (index > 0) const SizedBox(height: 12),
+              _InvoiceLine(line: lines[index]),
+            ],
+            const SizedBox(height: 12),
+            AppInvoiceIcons.divider(),
+            const SizedBox(height: 12),
+          ],
+          _WalletRow(
+            label: walletLabel,
+            amount: walletBalance,
+            icon: walletIcon ?? AppInvoiceIcons.wallet(),
+          ),
+          const SizedBox(height: 12),
+          AppWalletBalanceStatus(isSufficient: isWalletBalanceSufficient),
+        ],
+      ),
+    );
+
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Material(
         type: MaterialType.transparency,
-        child: InkWell(
-          onTap: showToggle ? () => onExpandedChanged(!isExpanded) : null,
-          borderRadius: BorderRadius.circular(16),
-          child: AnimatedSize(
-            duration: const Duration(milliseconds: 180),
-            curve: Curves.easeOutCubic,
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: colors.surface,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _InvoiceHeader(
-                    title: title,
-                    totalAmount: totalAmount,
-                    costIcon: costIcon ?? AppInvoiceIcons.cost(),
-                    showToggle: showToggle,
-                    isExpanded: isExpanded,
-                  ),
-                  const SizedBox(height: 12),
-                  AppInvoiceIcons.divider(),
-                  const SizedBox(height: 12),
-                  if (isExpanded && lines.isNotEmpty) ...[
-                    _InvoiceLine(line: lines.first),
-                    for (final line in lines.skip(1)) ...[
-                      // The Invoice Figma component uses the container's
-                      // 12px vertical rhythm between every direct row.
-                      const SizedBox(height: 12),
-                      _InvoiceLine(line: line),
-                    ],
-                    const SizedBox(height: 12),
-                    AppInvoiceIcons.divider(),
-                    const SizedBox(height: 12),
-                  ],
-                  _WalletRow(
-                    label: walletLabel,
-                    amount: walletBalance,
-                    icon: walletIcon ?? AppInvoiceIcons.wallet(),
-                  ),
-                  const SizedBox(height: 12),
-                  AppWalletBalanceStatus(
-                    isSufficient: isWalletBalanceSufficient,
-                  ),
-                ],
-              ),
+        child: Semantics(
+          button: showToggle,
+          expanded: showToggle ? isExpanded : null,
+          child: InkWell(
+            onTap: showToggle ? () => onExpandedChanged(!isExpanded) : null,
+            borderRadius: BorderRadius.circular(16),
+            child: AnimatedSize(
+              duration: const Duration(milliseconds: 180),
+              curve: Curves.easeOutCubic,
+              child: content,
             ),
           ),
         ),
@@ -188,14 +191,21 @@ class _InvoiceHeader extends StatelessWidget {
         ),
         const SizedBox(width: 8),
         Row(
+          // Figma pins the cost icon to the physical right and the angle to
+          // the physical left, regardless of the surrounding RTL direction.
+          textDirection: TextDirection.ltr,
           mainAxisSize: MainAxisSize.min,
           children: [
             if (showToggle)
-              isExpanded
-                  ? AppInvoiceIcons.chevronUp()
-                  : AppInvoiceIcons.chevronDown(),
+              KeyedSubtree(
+                key: const Key('app_invoice_toggle_icon'),
+                child: isExpanded
+                    ? AppInvoiceIcons.chevronUp()
+                    : AppInvoiceIcons.chevronDown(),
+              ),
             if (showToggle) const SizedBox(width: 4),
             Text(
+              key: const Key('app_invoice_title'),
               title,
               textDirection: TextDirection.rtl,
               style: _invoiceTextStyle(
@@ -204,7 +214,12 @@ class _InvoiceHeader extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 4),
-            SizedBox(width: 20, height: 20, child: Center(child: costIcon)),
+            SizedBox(
+              key: const Key('app_invoice_cost_icon'),
+              width: 20,
+              height: 20,
+              child: Center(child: costIcon),
+            ),
           ],
         ),
       ],
