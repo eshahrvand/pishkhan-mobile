@@ -182,15 +182,7 @@ class _SharedComponentsPreviewState extends State<SharedComponentsPreview> {
       body: Stack(
         children: [
           _FakeDashboard(
-            drawerOpen: _drawerOpen,
-            selectedItemId: _selectedItemId,
-            selectedSubItemId: _selectedSubItemId,
-            expandedItemId: _expandedItemId,
             onOpenDrawer: () => setState(() => _drawerOpen = true),
-            onToggleCards: () => setState(
-              () =>
-                  _expandedItemId = _expandedItemId == 'cards' ? null : 'cards',
-            ),
           ),
           AppDrawer(
             isOpen: _drawerOpen,
@@ -213,21 +205,9 @@ class _SharedComponentsPreviewState extends State<SharedComponentsPreview> {
 }
 
 class _FakeDashboard extends StatelessWidget {
-  const _FakeDashboard({
-    required this.drawerOpen,
-    required this.selectedItemId,
-    required this.selectedSubItemId,
-    required this.expandedItemId,
-    required this.onOpenDrawer,
-    required this.onToggleCards,
-  });
+  const _FakeDashboard({required this.onOpenDrawer});
 
-  final bool drawerOpen;
-  final String selectedItemId;
-  final String? selectedSubItemId;
-  final String? expandedItemId;
   final VoidCallback onOpenDrawer;
-  final VoidCallback onToggleCards;
 
   @override
   Widget build(BuildContext context) {
@@ -257,29 +237,10 @@ class _FakeDashboard extends StatelessWidget {
               padding: const EdgeInsets.all(20),
               children: [
                 Text(
-                  'منوی کناری',
+                  'کامپوننت‌های پروژه',
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  'داده‌ها ساختگی هستند و فقط برای بازبینی UX و حالت‌های کامپوننت استفاده می‌شوند.',
-                  style: TextStyle(
-                    color: AppColors.light.textTertiary,
-                    height: 1.5,
-                  ),
-                ),
                 const SizedBox(height: 24),
-                _PreviewCard(
-                  drawerOpen: drawerOpen,
-                  selectedItemId: selectedItemId,
-                  selectedSubItemId: selectedSubItemId,
-                  expandedItemId: expandedItemId,
-                  onOpenDrawer: onOpenDrawer,
-                  onToggleCards: onToggleCards,
-                ),
-                const SizedBox(height: 16),
-                const _BalanceCard(),
-                const SizedBox(height: 16),
                 const _WalletCardPreview(),
                 const SizedBox(height: 16),
                 const _DepositListPreview(),
@@ -292,149 +253,10 @@ class _FakeDashboard extends StatelessWidget {
                 const SizedBox(height: 16),
                 const _DetailComponentsPreview(),
                 const SizedBox(height: 16),
-                const _ServicesCard(),
-                const SizedBox(height: 16),
                 const _InvoicePreview(),
                 const SizedBox(height: 16),
                 const _ServiceGridPreview(),
               ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _PreviewCard extends StatelessWidget {
-  const _PreviewCard({
-    required this.drawerOpen,
-    required this.selectedItemId,
-    required this.selectedSubItemId,
-    required this.expandedItemId,
-    required this.onOpenDrawer,
-    required this.onToggleCards,
-  });
-
-  final bool drawerOpen;
-  final String selectedItemId;
-  final String? selectedSubItemId;
-  final String? expandedItemId;
-  final VoidCallback onOpenDrawer;
-  final VoidCallback onToggleCards;
-
-  @override
-  Widget build(BuildContext context) {
-    final subItem = selectedSubItemId ?? 'ندارد';
-    final expandedItem = expandedItemId ?? 'ندارد';
-    return Card(
-      elevation: 0,
-      color: AppColors.light.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: AppColors.light.borderSubtle),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Text(
-              'وضعیت فعلی',
-              style: TextStyle(fontWeight: FontWeight.w700),
-            ),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                _Chip(drawerOpen ? 'منو: باز' : 'منو: بسته'),
-                _Chip('انتخاب‌شده: $selectedItemId'),
-                _Chip('زیرمنو: $subItem'),
-                _Chip('بازشده: $expandedItem'),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: onToggleCards,
-                    child: const Text('تغییر زیرمنوی کارت'),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: FilledButton(
-                    onPressed: onOpenDrawer,
-                    child: const Text('باز کردن منو'),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _Chip extends StatelessWidget {
-  const _Chip(this.label);
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: AppColors.light.primarySubtle,
-        borderRadius: BorderRadius.circular(99),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        child: Text(
-          label,
-          style: TextStyle(color: AppColors.light.primaryHover, fontSize: 12),
-        ),
-      ),
-    );
-  }
-}
-
-class _BalanceCard extends StatelessWidget {
-  const _BalanceCard();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppColors.light.primary,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'خوش آمدید، کاربر نمونه',
-            style: TextStyle(
-              color: AppColors.light.textOnPrimary.withValues(alpha: .7),
-            ),
-          ),
-          SizedBox(height: 12),
-          Text(
-            '۱۲٬۴۵۰٬۰۰۰ ریال',
-            style: TextStyle(
-              color: AppColors.light.textOnPrimary,
-              fontSize: 24,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          SizedBox(height: 4),
-          Text(
-            'مانده قابل نمایش',
-            style: TextStyle(
-              color: AppColors.light.textOnPrimary.withValues(alpha: .7),
             ),
           ),
         ],
@@ -777,70 +599,6 @@ class _InvoicePreviewState extends State<_InvoicePreview> {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _ServicesCard extends StatelessWidget {
-  const _ServicesCard();
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 0,
-      color: AppColors.light.surface,
-      child: Padding(
-        padding: EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'خدمات پرکاربرد',
-              style: TextStyle(fontWeight: FontWeight.w700),
-            ),
-            SizedBox(height: 12),
-            Row(
-              children: [
-                _Service(icon: Icons.credit_card_outlined, label: 'کارت مجازی'),
-                _Service(icon: Icons.receipt_long_outlined, label: 'دسته‌چک'),
-                _Service(icon: Icons.savings_outlined, label: 'تسهیلات'),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _Service extends StatelessWidget {
-  const _Service({required this.icon, required this.label});
-  final IconData icon;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Column(
-        children: [
-          DecoratedBox(
-            decoration: BoxDecoration(
-              color: AppColors.light.primarySubtle,
-              shape: BoxShape.circle,
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(10),
-              child: Icon(icon, color: AppColors.light.primary),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            label,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 12),
-          ),
-        ],
-      ),
     );
   }
 }
