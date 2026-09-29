@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 enum AppAddressType { home, work }
 
@@ -24,8 +25,6 @@ class AppAddressCard extends StatelessWidget {
   final String? address;
   final VoidCallback? onMoreTap;
   final VoidCallback? onReviewTap;
-
-  static const _assetPath = 'assets/images/address_card/';
 
   bool get _isHome => type == AppAddressType.home;
 
@@ -65,7 +64,7 @@ class AppAddressCard extends StatelessWidget {
                   child: Transform.rotate(
                     angle: -math.pi / 2,
                     child: SvgPicture.asset(
-                      '${_assetPath}more_horizontal.svg',
+                      AppAssets.iconMoreVertical20Gray700,
                       width: 20,
                       height: 20,
                     ),
@@ -85,7 +84,9 @@ class AppAddressCard extends StatelessWidget {
                   child: Transform.flip(
                     flipY: true,
                     child: SvgPicture.asset(
-                      '$_assetPath${_isHome ? 'home_heart.svg' : 'buildings.svg'}',
+                      _isHome
+                          ? AppAssets.addressCardHomeHeart
+                          : AppAssets.addressCardBuildings,
                       width: 20,
                       height: 20,
                     ),
@@ -98,7 +99,7 @@ class AppAddressCard extends StatelessWidget {
           SizedBox(
             height: .5,
             child: SvgPicture.asset(
-              '${_assetPath}divider.svg',
+              AppAssets.dividerCardGray200,
               fit: BoxFit.fill,
             ),
           ),
@@ -129,7 +130,7 @@ class AppAddressCard extends StatelessWidget {
                       textDirection: TextDirection.ltr,
                       children: [
                         SvgPicture.asset(
-                          '${_assetPath}angle_left.svg',
+                          AppAssets.addressCardAngleLeft,
                           width: 20,
                           height: 20,
                         ),

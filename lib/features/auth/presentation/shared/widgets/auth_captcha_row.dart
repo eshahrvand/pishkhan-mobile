@@ -24,7 +24,7 @@ class AuthCaptchaRow extends StatelessWidget {
           child: AppTextField(
             key: ValueKey('${step.name}-captcha'),
             hintText: context.l10n.captchaHint,
-            suffixIcon: const AuthFieldIcon('$authAssetPath/refresh.svg'),
+            suffixIcon: const AuthFieldIcon(AuthAssets.refresh),
             keyboardType: TextInputType.number,
             textInputAction: TextInputAction.done,
             normalizeDigits: true,
@@ -55,7 +55,7 @@ class _CaptchaImage extends StatelessWidget {
         boxShadow: AppShadows.xs,
       ),
       child: Image.asset(
-        '$authAssetPath/captcha.png',
+        AuthAssets.captcha,
         width: 100,
         height: 34,
         fit: BoxFit.contain,

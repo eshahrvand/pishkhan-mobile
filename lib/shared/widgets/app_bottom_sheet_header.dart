@@ -1,6 +1,7 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 enum AppBottomSheetHeaderType { withHeader, handleOnly }
 
@@ -100,7 +101,7 @@ class AppBottomSheetHeader extends StatelessWidget {
                   child:
                       leftIcon ??
                       SvgPicture.asset(
-                        'assets/images/bottom_sheet_header/close.svg',
+                        AppAssets.iconClose24Gray700,
                         fit: BoxFit.contain,
                       ),
                 ),
@@ -135,7 +136,7 @@ class AppBottomSheetHeader extends StatelessWidget {
                 child:
                     rightIcon ??
                     SvgPicture.asset(
-                      'assets/images/bottom_sheet_header/wallet.svg',
+                      AppAssets.bottomSheetHeaderWallet,
                       fit: BoxFit.contain,
                     ),
               ),

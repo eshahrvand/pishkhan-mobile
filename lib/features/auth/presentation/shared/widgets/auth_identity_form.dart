@@ -52,7 +52,7 @@ class AuthIdentityForm extends StatelessWidget {
           hintText: changePhone
               ? l10n.changeNationalIdHint
               : l10n.loginNationalIdHint,
-          prefixIcon: const AuthFieldIcon('$authAssetPath/user.svg'),
+          prefixIcon: const AuthFieldIcon(AuthAssets.user),
           keyboardType: TextInputType.number,
           textInputAction: TextInputAction.next,
           normalizeDigits: true,
@@ -64,7 +64,7 @@ class AuthIdentityForm extends StatelessWidget {
         AppTextField(
           key: ValueKey('${state.step.name}-phone'),
           hintText: changePhone ? l10n.changePhoneHint : l10n.loginPhoneHint,
-          prefixIcon: const AuthFieldIcon('$authAssetPath/mobile.svg'),
+          prefixIcon: const AuthFieldIcon(AuthAssets.mobile),
           keyboardType: TextInputType.phone,
           textInputAction: TextInputAction.next,
           normalizeDigits: true,

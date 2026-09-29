@@ -1,34 +1,36 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 /// Local Figma SVG assets used by [AppInvoice].
 abstract final class AppInvoiceIcons {
-  static const _basePath = 'assets/images/invoice/';
-
-  static Widget cost() => _svg('cost.svg');
-  static Widget wallet() => _svg('wallet.svg');
+  static Widget cost() => _svg(AppAssets.invoiceCost);
+  static Widget wallet() => _svg(AppAssets.iconWallet20Gray600);
   // Figma places the 12.8px money-unit glyph inside an 18px layout slot.
   // Keeping those two dimensions separate prevents the glyph from scaling up.
-  static Widget currency() =>
-      _svg('currency.svg', size: 18, assetSize: const Size(12.7951, 12.7572));
-  static Widget currencyPrimary() => _svg(
-    'currency_primary.svg',
+  static Widget currency() => _svg(
+    AppAssets.invoiceCurrency,
     size: 18,
     assetSize: const Size(12.7951, 12.7572),
   );
-  static Widget chevronDown() => _svg('chevron_down.svg');
-  static Widget chevronUp() => _svg('chevron_up.svg');
-  static Widget print() => _svg('print.svg');
-  static Widget identityVideo() => _svg('identity_video.svg');
-  static Widget delivery() => _svg('delivery.svg');
+  static Widget currencyPrimary() => _svg(
+    AppAssets.invoiceCurrencyPrimary,
+    size: 18,
+    assetSize: const Size(12.7951, 12.7572),
+  );
+  static Widget chevronDown() => _svg(AppAssets.invoiceChevronDown);
+  static Widget chevronUp() => _svg(AppAssets.invoiceChevronUp);
+  static Widget print() => _svg(AppAssets.invoicePrint);
+  static Widget identityVideo() => _svg(AppAssets.invoiceIdentityVideo);
+  static Widget delivery() => _svg(AppAssets.invoiceDelivery);
   static Widget divider() => SizedBox(
     height: .5,
     width: double.infinity,
-    child: SvgPicture.asset('${_basePath}divider.svg', fit: BoxFit.fill),
+    child: SvgPicture.asset(AppAssets.invoiceDivider, fit: BoxFit.fill),
   );
 
-  static Widget _svg(String name, {double size = 20, Size? assetSize}) =>
+  static Widget _svg(String path, {double size = 20, Size? assetSize}) =>
       SizedBox(
         width: size,
         height: size,
@@ -36,7 +38,7 @@ abstract final class AppInvoiceIcons {
           child: SizedBox(
             width: assetSize?.width,
             height: assetSize?.height,
-            child: SvgPicture.asset('$_basePath$name', fit: BoxFit.contain),
+            child: SvgPicture.asset(path, fit: BoxFit.contain),
           ),
         ),
       );

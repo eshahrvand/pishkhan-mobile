@@ -1,7 +1,6 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/shared/auth_assets.dart';
 
 class AuthServicesSectionTitle extends StatelessWidget {
   const AuthServicesSectionTitle({
@@ -95,11 +94,7 @@ class _ServiceItem extends StatelessWidget {
                 borderRadius: AppRadius.borderMd,
                 boxShadow: AppShadows.sm,
               ),
-              child: SvgPicture.asset(
-                '$authAssetPath/${item.asset}',
-                width: 32,
-                height: 32,
-              ),
+              child: SvgPicture.asset(item.asset, width: 32, height: 32),
             ),
             const SizedBox(height: 8),
             Text(

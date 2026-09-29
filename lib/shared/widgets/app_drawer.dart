@@ -1,6 +1,7 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 /// The Figma-exported icons used by the Pishkhan drawer examples.
 ///
@@ -8,37 +9,33 @@ import 'package:flutter_svg/flutter_svg.dart';
 /// helpers provide the canonical local assets for the shared-component gallery
 /// and for product areas that use the same navigation vocabulary.
 abstract final class AppDrawerIcons {
-  static const _assetPath = 'assets/images/drawer';
-
-  static Widget close() => _svg('close.svg', width: 24, height: 24);
-  static Widget resalat() => _svg('resalat.svg', width: 30.108, height: 30);
-  static Widget chevronDown() => _svg('chevron_down.svg');
-  static Widget chevronUp() => _svg('chevron_up.svg');
-  static Widget home() => _svg('home.svg');
-  static Widget modernBanking() => _svg('modern_banking.svg');
-  static Widget card() => _svg('card.svg');
-  static Widget cheque() => _svg('cheque.svg');
-  static Widget moneyTransfer() => _svg('money_transfer.svg');
-  static Widget loan() => _svg('loan.svg');
-  static Widget deposit() => _svg('deposit.svg');
-  static Widget wallet() => _svg('wallet.svg');
-  static Widget personalInformation() => _svg('personal_information.svg');
+  static Widget close() => _svg(AppAssets.drawerClose, width: 24, height: 24);
+  static Widget resalat() =>
+      _svg(AppAssets.drawerResalat, width: 30.108, height: 30);
+  static Widget chevronDown() => _svg(AppAssets.drawerChevronDown);
+  static Widget chevronUp() => _svg(AppAssets.drawerChevronUp);
+  static Widget home() => _svg(AppAssets.drawerHome);
+  static Widget modernBanking() => _svg(AppAssets.drawerModernBanking);
+  static Widget card() => _svg(AppAssets.drawerCard);
+  static Widget cheque() => _svg(AppAssets.drawerCheque);
+  static Widget moneyTransfer() => _svg(AppAssets.drawerMoneyTransfer);
+  static Widget loan() => _svg(AppAssets.drawerLoan);
+  static Widget deposit() => _svg(AppAssets.drawerDeposit);
+  static Widget wallet() => _svg(AppAssets.iconWallet20Gray600);
+  static Widget personalInformation() =>
+      _svg(AppAssets.drawerPersonalInformation);
   static Widget personalInformationDeselected() =>
-      _svg('personal_information_deselected.svg');
-  static Widget myRequests() => _svg('my_requests.svg');
+      _svg(AppAssets.drawerPersonalInformationDeselected);
+  static Widget myRequests() => _svg(AppAssets.drawerMyRequests);
   static Widget submenuLine({required double height}) => SizedBox(
     width: 2,
     height: height,
-    child: SvgPicture.asset('$_assetPath/submenu_line.svg', fit: BoxFit.fill),
+    child: SvgPicture.asset(AppAssets.drawerSubmenuLine, fit: BoxFit.fill),
   );
 
-  static Widget _svg(
-    String assetName, {
-    double width = 20,
-    double height = 20,
-  }) {
+  static Widget _svg(String path, {double width = 20, double height = 20}) {
     return SvgPicture.asset(
-      '$_assetPath/$assetName',
+      path,
       width: width,
       height: height,
       fit: BoxFit.contain,

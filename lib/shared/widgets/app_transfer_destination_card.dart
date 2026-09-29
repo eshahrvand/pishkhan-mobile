@@ -1,6 +1,7 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 enum AppTransferMethod { internal, satna, paya }
 
@@ -24,8 +25,6 @@ class AppTransferDestinationCard extends StatelessWidget {
   final String purpose;
   final String depositIdentifier;
   final VoidCallback? onDelete;
-
-  static const _assetPath = 'assets/images/transfer_destination_card/';
 
   bool get _isExternal => method != AppTransferMethod.internal;
 
@@ -64,7 +63,7 @@ class AppTransferDestinationCard extends StatelessWidget {
                   key: const Key('app_transfer_destination_delete'),
                   onTap: onDelete,
                   child: SvgPicture.asset(
-                    '${_assetPath}trash.svg',
+                    AppAssets.transferDestinationCardTrash,
                     width: 20,
                     height: 20,
                   ),
@@ -90,34 +89,44 @@ class AppTransferDestinationCard extends StatelessWidget {
             ),
             child: Column(
               children: [
-                _row(depositNumber, 'شماره سپرده', 'divider_1.svg'),
+                _row(
+                  depositNumber,
+                  'شماره سپرده',
+                  AppAssets.transferDestinationCardDivider1,
+                ),
                 const SizedBox(height: 10),
                 _row(
                   _amount,
                   'مبلغ (ریال)',
                   method == AppTransferMethod.satna
-                      ? 'divider_5.svg'
-                      : 'divider_2.svg',
+                      ? AppAssets.transferDestinationCardDivider5
+                      : AppAssets.transferDestinationCardDivider2,
                 ),
                 const SizedBox(height: 10),
                 _row(
                   _methodLabel,
                   'روش انتقال',
                   method == AppTransferMethod.paya
-                      ? 'divider_8.svg'
+                      ? AppAssets.transferDestinationCardDivider8
                       : method == AppTransferMethod.satna
-                      ? 'divider_6.svg'
-                      : 'divider_3.svg',
+                      ? AppAssets.transferDestinationCardDivider6
+                      : AppAssets.transferDestinationCardDivider3,
                 ),
                 const SizedBox(height: 10),
                 _row(
                   _isExternal ? purpose : depositIdentifier,
                   _isExternal ? 'بابت' : 'شناسه واریز',
-                  _isExternal ? 'divider_7.svg' : 'divider_4.svg',
+                  _isExternal
+                      ? AppAssets.transferDestinationCardDivider7
+                      : AppAssets.transferDestinationCardDivider4,
                 ),
                 if (_isExternal) ...[
                   const SizedBox(height: 10),
-                  _row(depositIdentifier, 'شناسه واریز', 'divider_4.svg'),
+                  _row(
+                    depositIdentifier,
+                    'شناسه واریز',
+                    AppAssets.transferDestinationCardDivider4,
+                  ),
                 ],
               ],
             ),
@@ -148,7 +157,7 @@ class AppTransferDestinationCard extends StatelessWidget {
         Expanded(
           child: SizedBox(
             height: .5,
-            child: SvgPicture.asset('$_assetPath$divider', fit: BoxFit.fill),
+            child: SvgPicture.asset(divider, fit: BoxFit.fill),
           ),
         ),
         const SizedBox(width: 8),

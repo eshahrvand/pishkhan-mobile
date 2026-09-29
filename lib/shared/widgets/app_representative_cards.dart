@@ -1,6 +1,7 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_compact_status_badge.dart';
 
 enum AppRepresentativeStatus { active, waiting, expired }
@@ -122,7 +123,7 @@ class _RepresentativeCard extends StatelessWidget {
                         child: SizedBox.square(
                           dimension: 20,
                           child: SvgPicture.asset(
-                            'assets/images/representative_card/more_vertical.svg',
+                            AppAssets.representativeCardMoreVertical,
                             fit: BoxFit.contain,
                           ),
                         ),

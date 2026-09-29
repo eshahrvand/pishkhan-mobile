@@ -1,6 +1,7 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 enum AppTransactionType { discharge, charge, transfer, shopping }
 
@@ -21,8 +22,6 @@ class AppTransactionCard extends StatelessWidget {
   final String? title;
   final VoidCallback? onTap;
 
-  static const _assetPath = 'assets/images/transaction_card/';
-
   String get _title =>
       title ??
       switch (type) {
@@ -33,10 +32,10 @@ class AppTransactionCard extends StatelessWidget {
       };
 
   String get _icon => switch (type) {
-    AppTransactionType.discharge => 'send.svg',
-    AppTransactionType.charge => 'received.svg',
-    AppTransactionType.transfer => 'transport.svg',
-    AppTransactionType.shopping => 'shopping_cart_check.svg',
+    AppTransactionType.discharge => AppAssets.transactionCardSend,
+    AppTransactionType.charge => AppAssets.transactionCardReceived,
+    AppTransactionType.transfer => AppAssets.transactionCardTransport,
+    AppTransactionType.shopping => AppAssets.transactionCardShoppingCartCheck,
   };
 
   @override
@@ -90,7 +89,7 @@ class AppTransactionCard extends StatelessWidget {
                     color: AppPalette.white,
                     shape: BoxShape.circle,
                   ),
-                  child: SvgPicture.asset('$_assetPath$_icon'),
+                  child: SvgPicture.asset(_icon),
                 ),
               ],
             ),

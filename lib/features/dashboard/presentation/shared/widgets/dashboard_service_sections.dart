@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/dashboard_assets.dart';
 import 'package:pishkhan_mobile/l10n/l10n.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_service_grid_card.dart';
@@ -102,7 +103,7 @@ class DashboardSelectedServices extends StatelessWidget {
       title: l10n.selectedServices,
       type: AppServiceGridCardType.quick,
       headerAction: SvgPicture.asset(
-        'assets/images/service_grid/setting.svg',
+        AppAssets.serviceGridSetting,
         width: 20,
         height: 20,
       ),

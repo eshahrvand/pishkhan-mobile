@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 /// Translucent welcome card with the two-part Figma timer.
 class AppWelcomeCard extends StatelessWidget {
@@ -117,7 +118,7 @@ class _Timer extends StatelessWidget {
         width: 2,
         height: 6,
         child: SvgPicture.asset(
-          'assets/images/welcome_card/timer_separator.svg',
+          AppAssets.welcomeCardTimerSeparator,
           fit: BoxFit.contain,
         ),
       ),

@@ -37,6 +37,12 @@ they do not change the public API of `avp_ui`.
 - Keep every new shared component RTL-first and use `avp_ui` tokens and public
   primitives (`AppBadge`, typography, colors, spacing, radius, shadows) where
   available.
-- Store app-owned Figma SVGs under `assets/images/<component_name>/` and add
-  the folder to this app's `pubspec.yaml`.
+- Store every app-owned SVG/PNG directly under the flat `assets/images/`
+  directory, which is registered once in this app's `pubspec.yaml`.
+- Reuse an existing file only when its binary content is identical. Give true
+  shared assets a semantic name; prefix unique assets with their feature or
+  component name to prevent collisions.
+- Add every path to `AppAssets` and reference that registry (or a thin
+  feature-scoped alias) from Dart code. Do not hard-code asset paths in UI
+  widgets.
 - Add a focused widget test in `test/` for each interactive state.

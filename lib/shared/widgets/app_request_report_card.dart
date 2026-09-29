@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 enum AppRequestReportCardType { standard, dashboard }
 
@@ -52,8 +53,6 @@ class AppRequestReportCard extends StatelessWidget {
   final double dividerHeight;
   final VoidCallback? onMoreTap;
 
-  static const _assetPath = 'assets/images/request_report_card/';
-
   @override
   Widget build(BuildContext context) => Directionality(
     textDirection: TextDirection.rtl,
@@ -89,7 +88,9 @@ class AppRequestReportCard extends StatelessWidget {
                   onTap: onMoreTap,
                   child: Transform.rotate(
                     angle: math.pi / 2,
-                    child: SvgPicture.asset('${_assetPath}more_horizontal.svg'),
+                    child: SvgPicture.asset(
+                      AppAssets.iconMoreVertical20Gray700,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -110,7 +111,10 @@ class AppRequestReportCard extends StatelessWidget {
             height: dividerHeight,
             child:
                 divider ??
-                SvgPicture.asset('${_assetPath}divider.svg', fit: BoxFit.fill),
+                SvgPicture.asset(
+                  AppAssets.dividerCardGray200,
+                  fit: BoxFit.fill,
+                ),
           ),
           SizedBox(height: sectionSpacing),
           _detailRow(value: requestNumber, label: identifierLabel),

@@ -1,6 +1,7 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 enum AppResalatCardSize { single, multi }
 
@@ -102,7 +103,7 @@ class AppResalatCard extends StatelessWidget {
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
       _assetAction(
-        path: 'assets/images/resalat_card/more_vertical.svg',
+        path: AppAssets.resalatCardMoreVertical,
         size: 24,
         onTap: onMorePressed,
         key: const Key('app_resalat_card_more'),
@@ -149,7 +150,7 @@ class AppResalatCard extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           _assetAction(
-            path: 'assets/images/resalat_card/copy.svg',
+            path: AppAssets.iconCopy16White,
             size: 16,
             onTap: onCopyCardNumber,
             key: const Key('app_resalat_card_copy_number'),
@@ -174,7 +175,7 @@ class AppResalatCard extends StatelessWidget {
       ),
       const SizedBox(width: 8),
       _assetAction(
-        path: 'assets/images/resalat_card/copy.svg',
+        path: AppAssets.iconCopy16White,
         size: 16,
         onTap: onCopyIban,
         key: const Key('app_resalat_card_copy_iban'),
@@ -226,8 +227,8 @@ class AppResalatCard extends StatelessWidget {
           alignment: Alignment.centerRight,
           child: _assetAction(
             path: isVisible
-                ? 'assets/images/resalat_card/eye.svg'
-                : 'assets/images/resalat_card/eye_slash.svg',
+                ? AppAssets.resalatCardEye
+                : AppAssets.resalatCardEyeSlash,
             size: 20,
             onTap: onVisibilityChanged == null
                 ? null

@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 /// Figma occupation summary card used by the personal-information flow.
 class AppOccupationCard extends StatelessWidget {
@@ -18,8 +19,6 @@ class AppOccupationCard extends StatelessWidget {
   final String description;
   final String? headerTitle;
   final VoidCallback? onMoreTap;
-
-  static const _assetPath = 'assets/images/occupation_card/';
 
   @override
   Widget build(BuildContext context) => Directionality(
@@ -47,7 +46,9 @@ class AppOccupationCard extends StatelessWidget {
                   onTap: onMoreTap,
                   child: Transform.rotate(
                     angle: -math.pi / 2,
-                    child: SvgPicture.asset('${_assetPath}more_horizontal.svg'),
+                    child: SvgPicture.asset(
+                      AppAssets.iconMoreVertical20Gray700,
+                    ),
                   ),
                 ),
                 const Spacer(),
@@ -67,7 +68,7 @@ class AppOccupationCard extends StatelessWidget {
                   angle: math.pi,
                   child: Transform.flip(
                     flipY: true,
-                    child: SvgPicture.asset('${_assetPath}briefcase.svg'),
+                    child: SvgPicture.asset(AppAssets.occupationCardBriefcase),
                   ),
                 ),
               ],
@@ -77,7 +78,7 @@ class AppOccupationCard extends StatelessWidget {
           SizedBox(
             height: .5,
             child: SvgPicture.asset(
-              '${_assetPath}divider.svg',
+              AppAssets.dividerCardGray200,
               fit: BoxFit.fill,
             ),
           ),

@@ -1,6 +1,7 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 enum AppBankingChannel { mobile, web, phone }
 
@@ -27,8 +28,6 @@ class AppCreditCardMockup extends StatelessWidget {
   final VoidCallback? onActivate;
   final VoidCallback? onRefresh;
 
-  static const _assetPath = 'assets/images/banking_channel_card/';
-
   bool get _isWallet => state == AppCreditCardMockupState.wallet;
 
   String get _channelTitle => switch (channel) {
@@ -38,9 +37,9 @@ class AppCreditCardMockup extends StatelessWidget {
   };
 
   String get _channelIcon => switch (channel) {
-    AppBankingChannel.mobile => 'mobile.svg',
-    AppBankingChannel.web => 'globe.svg',
-    AppBankingChannel.phone => 'phone.svg',
+    AppBankingChannel.mobile => AppAssets.bankingChannelCardMobile,
+    AppBankingChannel.web => AppAssets.bankingChannelCardGlobe,
+    AppBankingChannel.phone => AppAssets.bankingChannelCardPhone,
   };
 
   @override
@@ -60,7 +59,7 @@ class AppCreditCardMockup extends StatelessWidget {
         children: [
           Positioned.fill(
             child: Image.asset(
-              '${_assetPath}background.png',
+              AppAssets.bankingChannelCardBackground,
               fit: BoxFit.cover,
             ),
           ),
@@ -84,7 +83,7 @@ class AppCreditCardMockup extends StatelessWidget {
                     SizedBox(
                       height: 1,
                       child: SvgPicture.asset(
-                        '${_assetPath}divider.svg',
+                        AppAssets.bankingChannelCardDivider,
                         fit: BoxFit.fill,
                       ),
                     ),
@@ -101,7 +100,7 @@ class AppCreditCardMockup extends StatelessWidget {
             width: 40,
             height: 40,
             child: SvgPicture.asset(
-              '$_assetPath${_isWallet ? 'wallet.svg' : _channelIcon}',
+              _isWallet ? AppAssets.bankingChannelCardWallet : _channelIcon,
             ),
           ),
         ],
@@ -201,7 +200,11 @@ class AppCreditCardMockup extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       textDirection: TextDirection.ltr,
       children: [
-        SvgPicture.asset('${_assetPath}angle_left.svg', width: 20, height: 20),
+        SvgPicture.asset(
+          AppAssets.bankingChannelCardAngleLeft,
+          width: 20,
+          height: 20,
+        ),
         const SizedBox(width: 8),
         Text('فعالسازی', style: _mediumStyle(AppPalette.brand600)),
       ],
@@ -214,7 +217,11 @@ class AppCreditCardMockup extends StatelessWidget {
     child: Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        SvgPicture.asset('${_assetPath}refresh.svg', width: 17, height: 17),
+        SvgPicture.asset(
+          AppAssets.bankingChannelCardRefresh,
+          width: 17,
+          height: 17,
+        ),
         const SizedBox(width: 8.5),
         Text('موجودی', style: _walletRegularStyle),
       ],

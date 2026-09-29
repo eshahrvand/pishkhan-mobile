@@ -1,6 +1,7 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 enum AppFileUploadState { empty, uploading, uploaded }
 
@@ -22,8 +23,6 @@ class AppFileUploadBase extends StatelessWidget {
   final double progress;
   final VoidCallback? onSelect;
   final VoidCallback? onDelete;
-
-  static const _assetPath = 'assets/images/file_upload/';
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +68,7 @@ class AppFileUploadBase extends StatelessWidget {
         ),
         child: Center(
           child: SvgPicture.asset(
-            '${_assetPath}upload_cloud.svg',
+            AppAssets.fileUploadUploadCloud,
             width: 20,
             height: 20,
           ),
@@ -129,7 +128,7 @@ class AppFileUploadBase extends StatelessWidget {
             ),
             child: Center(
               child: SvgPicture.asset(
-                '${_assetPath}file.svg',
+                AppAssets.fileUploadFile,
                 width: 16,
                 height: 16,
               ),
@@ -175,7 +174,7 @@ class AppFileUploadBase extends StatelessWidget {
         key: const Key('app_file_upload_delete'),
         onTap: onDelete,
         child: SvgPicture.asset(
-          '${_assetPath}trash.svg',
+          AppAssets.fileUploadTrash,
           width: 20,
           height: 20,
         ),

@@ -3,29 +3,33 @@ import 'dart:math' as math;
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 /// Local Figma SVG assets used by [AppDepositList].
 abstract final class AppDepositListIcons {
-  static const _basePath = 'assets/images/deposit_list/';
-
   // The exported source asset is vertical; Figma rotates it -90° for this
   // card's physical-left horizontal overflow affordance.
-  static Widget moreHorizontal() =>
-      Transform.rotate(angle: -math.pi / 2, child: _svg('more_horizontal.svg'));
+  static Widget moreHorizontal() => Transform.rotate(
+    angle: -math.pi / 2,
+    child: _svg(AppAssets.iconMoreVertical20Gray700),
+  );
   static Widget deposit() => Transform.rotate(
     angle: math.pi,
-    child: Transform.flip(flipY: true, child: _svg('deposit.svg')),
+    child: Transform.flip(
+      flipY: true,
+      child: _svg(AppAssets.depositListDeposit),
+    ),
   );
   static Widget divider() => SizedBox(
     height: .5,
     width: double.infinity,
-    child: SvgPicture.asset('${_basePath}divider.svg', fit: BoxFit.fill),
+    child: SvgPicture.asset(AppAssets.dividerCardGray200, fit: BoxFit.fill),
   );
 
-  static Widget _svg(String name) => SizedBox(
+  static Widget _svg(String path) => SizedBox(
     width: 20,
     height: 20,
-    child: SvgPicture.asset('$_basePath$name', fit: BoxFit.contain),
+    child: SvgPicture.asset(path, fit: BoxFit.contain),
   );
 }
 

@@ -47,7 +47,7 @@ class AuthHeader extends StatelessWidget {
                     alignment: Alignment.centerRight,
                     child: _HeaderIconButton(
                       key: const Key('auth_back_button'),
-                      asset: '$authAssetPath/back.svg',
+                      asset: AuthAssets.back,
                       label: l10n.backLabel,
                       onPressed: onBack,
                     ),
@@ -56,7 +56,7 @@ class AuthHeader extends StatelessWidget {
                   alignment: Alignment.centerLeft,
                   child: _HeaderIconButton(
                     key: const Key('auth_close_button'),
-                    asset: '$authAssetPath/close.svg',
+                    asset: AuthAssets.close,
                     label: l10n.closeLabel,
                     onPressed: onClose,
                   ),
@@ -69,7 +69,7 @@ class AuthHeader extends StatelessWidget {
                 const Spacer(),
                 _HeaderIconButton(
                   key: const Key('auth_menu_button'),
-                  asset: '$authAssetPath/menu.svg',
+                  asset: AuthAssets.menu,
                   label: l10n.servicesMenuLabel,
                   onPressed: onMenu,
                 ),
@@ -96,14 +96,14 @@ class _BrandLogo extends StatelessWidget {
             shape: BoxShape.circle,
           ),
           child: SvgPicture.asset(
-            '$authAssetPath/resalat_logo.svg',
+            AuthAssets.resalatLogo,
             width: 32,
             height: 32,
           ),
         ),
         const SizedBox(width: 10),
         SvgPicture.asset(
-          '$authAssetPath/resalat_wordmark.svg',
+          AuthAssets.resalatWordmark,
           width: 152,
           height: 17,
           fit: BoxFit.contain,

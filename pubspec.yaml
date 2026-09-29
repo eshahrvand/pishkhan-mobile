@@ -67,28 +67,7 @@ flutter:
   # the material Icons class.
   uses-material-design: true
   assets:
-    - assets/images/drawer/
-    - assets/images/invoice/
-    - assets/images/service_grid/
-    - assets/images/wallet_card/
-    - assets/images/deposit_list/
-    - assets/images/cards_list/
-    - assets/images/resalat_card/
-    - assets/images/deposit_card/
-    - assets/images/loan_card/
-    - assets/images/arrow_button/
-    - assets/images/welcome_card/
-    - assets/images/bottom_sheet_header/
-    - assets/images/representative_card/
-    - assets/images/banking_channel_card/
-    - assets/images/file_upload/
-    - assets/images/transfer_destination_card/
-    - assets/images/address_card/
-    - assets/images/occupation_card/
-    - assets/images/request_report_card/
-    - assets/images/transaction_card/
-    - assets/images/auth/
-    - assets/images/dashboard/
+    - assets/images/
 
   # To add assets to your application, add an assets section, like this:
   # assets:

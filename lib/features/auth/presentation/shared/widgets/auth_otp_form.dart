@@ -39,7 +39,7 @@ class AuthOtpForm extends StatelessWidget {
               child: AppTextField(
                 key: ValueKey('${state.step.name}-otp'),
                 hintText: l10n.otpHint,
-                prefixIcon: const AuthFieldIcon('$authAssetPath/lock.svg'),
+                prefixIcon: const AuthFieldIcon(AuthAssets.lock),
                 keyboardType: TextInputType.number,
                 textInputAction: TextInputAction.done,
                 normalizeDigits: true,
@@ -83,11 +83,7 @@ class _OtpTimer extends StatelessWidget {
         key: const Key('otp_timer_button'),
         onPressed: expired ? context.read<AuthCubit>().resendOtp : () {},
         label: expired ? context.l10n.resendOtp : '00:$seconds',
-        trailingIcon: SvgPicture.asset(
-          '$authAssetPath/clock.svg',
-          width: 20,
-          height: 20,
-        ),
+        trailingIcon: SvgPicture.asset(AuthAssets.clock, width: 20, height: 20),
         variant: AppButtonVariant.text,
         size: AppButtonSize.lg,
       ),

@@ -1,21 +1,20 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 /// Figma WalletCard layouts.
 enum AppWalletCardType { mobile, desktop }
 
 /// Local Figma SVG assets used by [AppWalletCard].
 abstract final class AppWalletCardIcons {
-  static const _basePath = 'assets/images/wallet_card/';
+  static Widget wallet() => _svg(AppAssets.walletCardWallet, size: 32);
+  static Widget angleLeft() => _svg(AppAssets.iconAngleLeft20Gray700, size: 20);
 
-  static Widget wallet() => _svg('wallet.svg', size: 32);
-  static Widget angleLeft() => _svg('angle_left.svg', size: 20);
-
-  static Widget _svg(String name, {required double size}) => SizedBox(
+  static Widget _svg(String path, {required double size}) => SizedBox(
     width: size,
     height: size,
-    child: SvgPicture.asset('$_basePath$name', fit: BoxFit.contain),
+    child: SvgPicture.asset(path, fit: BoxFit.contain),
   );
 }
 

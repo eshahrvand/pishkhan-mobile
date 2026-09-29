@@ -1,6 +1,7 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 enum AppDepositCardSize { single, multi }
 
@@ -111,7 +112,7 @@ class AppDepositCard extends StatelessWidget {
           child:
               logo ??
               SvgPicture.asset(
-                'assets/images/deposit_card/resalat_logo.svg',
+                AppAssets.depositCardResalatLogo,
                 fit: BoxFit.contain,
               ),
         ),
@@ -197,10 +198,7 @@ class AppDepositCard extends StatelessWidget {
   Widget _copyButton({required VoidCallback? onTap, required Key key}) {
     final icon = SizedBox.square(
       dimension: 16,
-      child: SvgPicture.asset(
-        'assets/images/deposit_card/copy.svg',
-        fit: BoxFit.contain,
-      ),
+      child: SvgPicture.asset(AppAssets.iconCopy16White, fit: BoxFit.contain),
     );
     return onTap == null
         ? KeyedSubtree(key: key, child: icon)

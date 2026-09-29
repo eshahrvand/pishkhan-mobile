@@ -3,21 +3,22 @@ import 'dart:math' as math;
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 /// Figma CardsList variants.
 enum AppCardsListType { resalat, gift, virtual, coupon, family }
 
 /// Local Figma SVG assets used by [AppCardsList].
 abstract final class AppCardsListIcons {
-  static const _basePath = 'assets/images/cards_list/';
-
-  static Widget moreHorizontal() =>
-      Transform.rotate(angle: -math.pi / 2, child: _svg('more_horizontal.svg'));
+  static Widget moreHorizontal() => Transform.rotate(
+    angle: -math.pi / 2,
+    child: _svg(AppAssets.iconMoreVertical20Gray700),
+  );
 
   static Widget divider() => SizedBox(
     height: .5,
     width: double.infinity,
-    child: SvgPicture.asset('${_basePath}divider.svg', fit: BoxFit.fill),
+    child: SvgPicture.asset(AppAssets.dividerCardGray200, fit: BoxFit.fill),
   );
 
   static Widget forType(AppCardsListType type) {
@@ -29,29 +30,29 @@ abstract final class AppCardsListIcons {
           child: SizedBox(
             width: 16.284,
             height: 12.95,
-            child: SvgPicture.asset('${_basePath}virtual_card.svg'),
+            child: SvgPicture.asset(AppAssets.cardsListVirtualCard),
           ),
         ),
       );
     }
 
-    final name = switch (type) {
-      AppCardsListType.resalat => 'credit_card.svg',
-      AppCardsListType.gift => 'gift_card.svg',
-      AppCardsListType.coupon => 'coupon.svg',
-      AppCardsListType.family => 'family.svg',
+    final path = switch (type) {
+      AppCardsListType.resalat => AppAssets.cardsListCreditCard,
+      AppCardsListType.gift => AppAssets.cardsListGiftCard,
+      AppCardsListType.coupon => AppAssets.cardsListCoupon,
+      AppCardsListType.family => AppAssets.cardsListFamily,
       AppCardsListType.virtual => throw StateError('Handled above.'),
     };
     return Transform.rotate(
       angle: math.pi,
-      child: Transform.flip(flipY: true, child: _svg(name)),
+      child: Transform.flip(flipY: true, child: _svg(path)),
     );
   }
 
-  static Widget _svg(String name) => SizedBox(
+  static Widget _svg(String path) => SizedBox(
     width: 20,
     height: 20,
-    child: SvgPicture.asset('$_basePath$name', fit: BoxFit.contain),
+    child: SvgPicture.asset(path, fit: BoxFit.contain),
   );
 }
 

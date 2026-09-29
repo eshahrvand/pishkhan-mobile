@@ -18,11 +18,7 @@ class AuthPhoneOwnershipNotice extends StatelessWidget {
       ),
       child: Row(
         children: [
-          SvgPicture.asset(
-            '$authAssetPath/info_circle.svg',
-            width: 20,
-            height: 20,
-          ),
+          SvgPicture.asset(AuthAssets.infoCircle, width: 20, height: 20),
           const SizedBox(width: 8),
           Expanded(
             child: Text(

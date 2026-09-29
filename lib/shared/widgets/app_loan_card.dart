@@ -1,6 +1,7 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_arrow_button.dart';
 
 enum AppLoanCardSize { single, multi }
@@ -197,8 +198,8 @@ class AppLoanCard extends StatelessWidget {
       maxHeight: 1,
       child: SvgPicture.asset(
         _isSingle
-            ? 'assets/images/loan_card/divider_single.svg'
-            : 'assets/images/loan_card/divider_multi.svg',
+            ? AppAssets.loanCardDividerSingle
+            : AppAssets.loanCardDividerMulti,
         fit: BoxFit.fill,
       ),
     ),
@@ -255,10 +256,7 @@ class AppLoanCard extends StatelessWidget {
   Widget _copyButton() {
     final icon = SizedBox.square(
       dimension: 16,
-      child: SvgPicture.asset(
-        'assets/images/loan_card/copy.svg',
-        fit: BoxFit.contain,
-      ),
+      child: SvgPicture.asset(AppAssets.loanCardCopy, fit: BoxFit.contain),
     );
     return onCopyLoanNumber == null
         ? KeyedSubtree(key: const Key('app_loan_card_copy'), child: icon)

@@ -28,7 +28,7 @@ Future<void> showAuthServicesSheet(BuildContext context) async {
             AppBottomSheetHeader(
               title: l10n.servicesList,
               showRightIcon: false,
-              leftIcon: SvgPicture.asset('$authAssetPath/sheet_close.svg'),
+              leftIcon: SvgPicture.asset(AuthAssets.sheetClose),
               onLeftAction: () => Navigator.of(sheetContext).pop(),
             ),
             Expanded(
@@ -37,15 +37,18 @@ Future<void> showAuthServicesSheet(BuildContext context) async {
                 children: [
                   AuthServicesSectionTitle(
                     title: l10n.guestServices,
-                    dividerAsset: '$authAssetPath/section_divider_1.svg',
+                    dividerAsset: AuthAssets.sectionDivider1,
                   ),
                   const SizedBox(height: 16),
                   AuthServicesRow(
                     items: [
-                      AuthServiceItemData(l10n.assetReport, 'asset_report.svg'),
+                      AuthServiceItemData(
+                        l10n.assetReport,
+                        AuthAssets.assetReport,
+                      ),
                       AuthServiceItemData(
                         l10n.changeMobileService,
-                        'change_mobile.svg',
+                        AuthAssets.changeMobile,
                         onTap: () {
                           Navigator.of(sheetContext).pop();
                           cubit.openChangePhone();
@@ -53,31 +56,37 @@ Future<void> showAuthServicesSheet(BuildContext context) async {
                       ),
                       AuthServiceItemData(
                         l10n.requestStatus,
-                        'request_status.svg',
+                        AuthAssets.requestStatus,
                       ),
-                      AuthServiceItemData(l10n.inheritance, 'inheritance.svg'),
+                      AuthServiceItemData(
+                        l10n.inheritance,
+                        AuthAssets.inheritance,
+                      ),
                     ],
                   ),
                   const SizedBox(height: 28),
                   AuthServicesSectionTitle(
                     title: l10n.relatedLinks,
-                    dividerAsset: '$authAssetPath/section_divider_2.svg',
+                    dividerAsset: AuthAssets.sectionDivider2,
                   ),
                   const SizedBox(height: 16),
                   AuthServicesRow(
                     items: [
-                      AuthServiceItemData(l10n.mobileBank, 'mobile_bank.svg'),
+                      AuthServiceItemData(
+                        l10n.mobileBank,
+                        AuthAssets.mobileBank,
+                      ),
                       AuthServiceItemData(
                         l10n.internetBank,
-                        'internet_bank.svg',
+                        AuthAssets.internetBank,
                       ),
                       AuthServiceItemData(
                         l10n.memberContactCenter,
-                        'call_center.svg',
+                        AuthAssets.callCenter,
                       ),
                       AuthServiceItemData(
                         l10n.resalatApp,
-                        'resalat_service.svg',
+                        AuthAssets.resalatService,
                       ),
                     ],
                   ),
@@ -85,8 +94,14 @@ Future<void> showAuthServicesSheet(BuildContext context) async {
                   AuthServicesRow(
                     fillEmptySlots: true,
                     items: [
-                      AuthServiceItemData(l10n.securityTips, 'security.svg'),
-                      AuthServiceItemData(l10n.updateGuide, 'update_guide.svg'),
+                      AuthServiceItemData(
+                        l10n.securityTips,
+                        AuthAssets.security,
+                      ),
+                      AuthServiceItemData(
+                        l10n.updateGuide,
+                        AuthAssets.updateGuide,
+                      ),
                     ],
                   ),
                 ],
