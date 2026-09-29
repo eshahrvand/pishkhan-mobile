@@ -88,6 +88,7 @@ flutter:
     - assets/images/request_report_card/
     - assets/images/transaction_card/
     - assets/images/auth/
+    - assets/images/dashboard/
 
   # To add assets to your application, add an assets section, like this:
   # assets:

@@ -10,9 +10,10 @@ import 'package:pishkhan_mobile/features/auth/presentation/shared/widgets/auth_f
 import 'package:pishkhan_mobile/l10n/l10n.dart';
 
 class AuthOtpForm extends StatelessWidget {
-  const AuthOtpForm({required this.state, super.key});
+  const AuthOtpForm({required this.state, this.onAuthenticated, super.key});
 
   final AuthState state;
+  final VoidCallback? onAuthenticated;
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +55,11 @@ class AuthOtpForm extends StatelessWidget {
         const SizedBox(height: 24),
         AppButton(
           key: const Key('submit_otp_button'),
-          onPressed: state.isOtpValid ? () {} : null,
+          onPressed: state.isOtpValid
+              ? isChangePhone
+                    ? () {}
+                    : onAuthenticated ?? () {}
+              : null,
           label: isChangePhone ? l10n.submitRequest : l10n.enterDashboard,
           size: AppButtonSize.lg,
         ),

@@ -114,4 +114,103 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get updateGuide => 'راهنمای بروزرسانی';
+
+  @override
+  String get dashboardGreeting => 'مانی عزیز، صبح بخیر';
+
+  @override
+  String get dashboardWelcomeMessage => 'به پیشخوان مجازی رسالت خوش آمدید';
+
+  @override
+  String get walletBalanceTitle => 'موجودی کیف پول';
+
+  @override
+  String get rialCurrency => 'ریال';
+
+  @override
+  String get dashboardWalletBalance => '۱٬۲۰۰٬۰۰۰';
+
+  @override
+  String get depositServices => 'خدمات سپرده';
+
+  @override
+  String get smsSettings => 'تنظیمات ارسال پیامک';
+
+  @override
+  String get introduceRepresentative => 'معرفی نماینده';
+
+  @override
+  String get financialCertificate => 'گواهی تمکن مالی';
+
+  @override
+  String get balanceAverageStatement => 'صورتحساب، معدل موجودی';
+
+  @override
+  String get cardServices => 'خدمات کارت';
+
+  @override
+  String get blockCard => 'مسدودی کارت';
+
+  @override
+  String get changeCardDeposit => 'تغییر سپرده متصل به کارت';
+
+  @override
+  String get cardPasswordIssue => 'صدور رمز اول /دوم کارت';
+
+  @override
+  String get issueResalatCard => 'صدور رسالت کارت';
+
+  @override
+  String get loanServices => 'خدمات وام';
+
+  @override
+  String get changeInstallmentDeposit => 'تغییر سپرده جهت کسر اقساط';
+
+  @override
+  String get consolidateDepositCredit => 'تجمیع اعتبار سپرده';
+
+  @override
+  String get introduceLoan => 'معرفی وام';
+
+  @override
+  String get loanEstimate => 'برآورد وام';
+
+  @override
+  String get selectedServices => 'خدمات منتخب';
+
+  @override
+  String get proxyDeposit => 'سپرده وکالتی';
+
+  @override
+  String get issueChequeBook => 'صدور دسته چک';
+
+  @override
+  String get internetBankSettings => 'تنظیمات اینترنت بانک';
+
+  @override
+  String get mobileBankSettings => 'تنظیمات موبایل بانک';
+
+  @override
+  String get latestUpdatedRequests => 'آخرین درخواست‌های بروز شده';
+
+  @override
+  String get dashboardRequestTitle => 'درخواست تغییر سپرده جهت کسر اقساط';
+
+  @override
+  String get requestIdentifier => 'شناسه درخواست';
+
+  @override
+  String get automaticCompleted => 'انجام شده خودکار';
+
+  @override
+  String get dashboardRequestNumber => '۱۳۷/۴۸۷۵۶۷';
+
+  @override
+  String get dashboardRequestDate => '2024/09/16 | ۱۲:۴۵';
+
+  @override
+  String get profileLabel => 'پروفایل';
+
+  @override
+  String get notificationsLabel => 'اعلان‌ها';
 }

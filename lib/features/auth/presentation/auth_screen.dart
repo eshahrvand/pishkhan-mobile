@@ -9,7 +9,9 @@ import 'package:pishkhan_mobile/features/auth/presentation/shared/widgets/auth_o
 import 'package:pishkhan_mobile/features/auth/presentation/shared/widgets/auth_services_sheet.dart';
 
 class AuthScreen extends StatelessWidget {
-  const AuthScreen({super.key});
+  const AuthScreen({super.key, this.onAuthenticated});
+
+  final VoidCallback? onAuthenticated;
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +43,7 @@ class AuthScreen extends StatelessWidget {
                               ? AuthOtpForm(
                                   key: ValueKey(state.step),
                                   state: state,
+                                  onAuthenticated: onAuthenticated,
                                 )
                               : AuthIdentityForm(
                                   key: ValueKey(state.step),

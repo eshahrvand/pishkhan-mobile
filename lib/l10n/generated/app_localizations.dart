@@ -303,6 +303,204 @@ abstract class AppLocalizations {
   /// In fa, this message translates to:
   /// **'راهنمای بروزرسانی'**
   String get updateGuide;
+
+  /// No description provided for @dashboardGreeting.
+  ///
+  /// In fa, this message translates to:
+  /// **'مانی عزیز، صبح بخیر'**
+  String get dashboardGreeting;
+
+  /// No description provided for @dashboardWelcomeMessage.
+  ///
+  /// In fa, this message translates to:
+  /// **'به پیشخوان مجازی رسالت خوش آمدید'**
+  String get dashboardWelcomeMessage;
+
+  /// No description provided for @walletBalanceTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'موجودی کیف پول'**
+  String get walletBalanceTitle;
+
+  /// No description provided for @rialCurrency.
+  ///
+  /// In fa, this message translates to:
+  /// **'ریال'**
+  String get rialCurrency;
+
+  /// No description provided for @dashboardWalletBalance.
+  ///
+  /// In fa, this message translates to:
+  /// **'۱٬۲۰۰٬۰۰۰'**
+  String get dashboardWalletBalance;
+
+  /// No description provided for @depositServices.
+  ///
+  /// In fa, this message translates to:
+  /// **'خدمات سپرده'**
+  String get depositServices;
+
+  /// No description provided for @smsSettings.
+  ///
+  /// In fa, this message translates to:
+  /// **'تنظیمات ارسال پیامک'**
+  String get smsSettings;
+
+  /// No description provided for @introduceRepresentative.
+  ///
+  /// In fa, this message translates to:
+  /// **'معرفی نماینده'**
+  String get introduceRepresentative;
+
+  /// No description provided for @financialCertificate.
+  ///
+  /// In fa, this message translates to:
+  /// **'گواهی تمکن مالی'**
+  String get financialCertificate;
+
+  /// No description provided for @balanceAverageStatement.
+  ///
+  /// In fa, this message translates to:
+  /// **'صورتحساب، معدل موجودی'**
+  String get balanceAverageStatement;
+
+  /// No description provided for @cardServices.
+  ///
+  /// In fa, this message translates to:
+  /// **'خدمات کارت'**
+  String get cardServices;
+
+  /// No description provided for @blockCard.
+  ///
+  /// In fa, this message translates to:
+  /// **'مسدودی کارت'**
+  String get blockCard;
+
+  /// No description provided for @changeCardDeposit.
+  ///
+  /// In fa, this message translates to:
+  /// **'تغییر سپرده متصل به کارت'**
+  String get changeCardDeposit;
+
+  /// No description provided for @cardPasswordIssue.
+  ///
+  /// In fa, this message translates to:
+  /// **'صدور رمز اول /دوم کارت'**
+  String get cardPasswordIssue;
+
+  /// No description provided for @issueResalatCard.
+  ///
+  /// In fa, this message translates to:
+  /// **'صدور رسالت کارت'**
+  String get issueResalatCard;
+
+  /// No description provided for @loanServices.
+  ///
+  /// In fa, this message translates to:
+  /// **'خدمات وام'**
+  String get loanServices;
+
+  /// No description provided for @changeInstallmentDeposit.
+  ///
+  /// In fa, this message translates to:
+  /// **'تغییر سپرده جهت کسر اقساط'**
+  String get changeInstallmentDeposit;
+
+  /// No description provided for @consolidateDepositCredit.
+  ///
+  /// In fa, this message translates to:
+  /// **'تجمیع اعتبار سپرده'**
+  String get consolidateDepositCredit;
+
+  /// No description provided for @introduceLoan.
+  ///
+  /// In fa, this message translates to:
+  /// **'معرفی وام'**
+  String get introduceLoan;
+
+  /// No description provided for @loanEstimate.
+  ///
+  /// In fa, this message translates to:
+  /// **'برآورد وام'**
+  String get loanEstimate;
+
+  /// No description provided for @selectedServices.
+  ///
+  /// In fa, this message translates to:
+  /// **'خدمات منتخب'**
+  String get selectedServices;
+
+  /// No description provided for @proxyDeposit.
+  ///
+  /// In fa, this message translates to:
+  /// **'سپرده وکالتی'**
+  String get proxyDeposit;
+
+  /// No description provided for @issueChequeBook.
+  ///
+  /// In fa, this message translates to:
+  /// **'صدور دسته چک'**
+  String get issueChequeBook;
+
+  /// No description provided for @internetBankSettings.
+  ///
+  /// In fa, this message translates to:
+  /// **'تنظیمات اینترنت بانک'**
+  String get internetBankSettings;
+
+  /// No description provided for @mobileBankSettings.
+  ///
+  /// In fa, this message translates to:
+  /// **'تنظیمات موبایل بانک'**
+  String get mobileBankSettings;
+
+  /// No description provided for @latestUpdatedRequests.
+  ///
+  /// In fa, this message translates to:
+  /// **'آخرین درخواست‌های بروز شده'**
+  String get latestUpdatedRequests;
+
+  /// No description provided for @dashboardRequestTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'درخواست تغییر سپرده جهت کسر اقساط'**
+  String get dashboardRequestTitle;
+
+  /// No description provided for @requestIdentifier.
+  ///
+  /// In fa, this message translates to:
+  /// **'شناسه درخواست'**
+  String get requestIdentifier;
+
+  /// No description provided for @automaticCompleted.
+  ///
+  /// In fa, this message translates to:
+  /// **'انجام شده خودکار'**
+  String get automaticCompleted;
+
+  /// No description provided for @dashboardRequestNumber.
+  ///
+  /// In fa, this message translates to:
+  /// **'۱۳۷/۴۸۷۵۶۷'**
+  String get dashboardRequestNumber;
+
+  /// No description provided for @dashboardRequestDate.
+  ///
+  /// In fa, this message translates to:
+  /// **'2024/09/16 | ۱۲:۴۵'**
+  String get dashboardRequestDate;
+
+  /// No description provided for @profileLabel.
+  ///
+  /// In fa, this message translates to:
+  /// **'پروفایل'**
+  String get profileLabel;
+
+  /// No description provided for @notificationsLabel.
+  ///
+  /// In fa, this message translates to:
+  /// **'اعلان‌ها'**
+  String get notificationsLabel;
 }
 
 class _AppLocalizationsDelegate

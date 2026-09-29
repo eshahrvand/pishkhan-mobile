@@ -114,4 +114,103 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get updateGuide => 'دليل التحديث';
+
+  @override
+  String get dashboardGreeting => 'صباح الخير، ماني';
+
+  @override
+  String get dashboardWelcomeMessage => 'مرحباً بك في شباك رسالت الافتراضي';
+
+  @override
+  String get walletBalanceTitle => 'رصيد المحفظة';
+
+  @override
+  String get rialCurrency => 'ريال';
+
+  @override
+  String get dashboardWalletBalance => '١٬٢٠٠٬٠٠٠';
+
+  @override
+  String get depositServices => 'خدمات الودائع';
+
+  @override
+  String get smsSettings => 'إعدادات الرسائل النصية';
+
+  @override
+  String get introduceRepresentative => 'تعريف ممثل';
+
+  @override
+  String get financialCertificate => 'شهادة الملاءة المالية';
+
+  @override
+  String get balanceAverageStatement => 'كشف متوسط الرصيد';
+
+  @override
+  String get cardServices => 'خدمات البطاقة';
+
+  @override
+  String get blockCard => 'حظر البطاقة';
+
+  @override
+  String get changeCardDeposit => 'تغيير الوديعة المرتبطة';
+
+  @override
+  String get cardPasswordIssue => 'إصدار الرقم السري الأول / الثاني';
+
+  @override
+  String get issueResalatCard => 'إصدار بطاقة رسالت';
+
+  @override
+  String get loanServices => 'خدمات القروض';
+
+  @override
+  String get changeInstallmentDeposit => 'تغيير وديعة خصم الأقساط';
+
+  @override
+  String get consolidateDepositCredit => 'دمج رصيد الوديعة';
+
+  @override
+  String get introduceLoan => 'تعريف القرض';
+
+  @override
+  String get loanEstimate => 'تقدير القرض';
+
+  @override
+  String get selectedServices => 'الخدمات المختارة';
+
+  @override
+  String get proxyDeposit => 'الوديعة بالوكالة';
+
+  @override
+  String get issueChequeBook => 'إصدار دفتر شيكات';
+
+  @override
+  String get internetBankSettings => 'إعدادات الخدمات المصرفية عبر الإنترنت';
+
+  @override
+  String get mobileBankSettings => 'إعدادات الخدمات المصرفية عبر الهاتف';
+
+  @override
+  String get latestUpdatedRequests => 'آخر الطلبات المحدثة';
+
+  @override
+  String get dashboardRequestTitle => 'طلب تغيير وديعة خصم الأقساط';
+
+  @override
+  String get requestIdentifier => 'معرف الطلب';
+
+  @override
+  String get automaticCompleted => 'اكتمل تلقائياً';
+
+  @override
+  String get dashboardRequestNumber => '١٣٧/٤٨٧٥٦٧';
+
+  @override
+  String get dashboardRequestDate => '2024/09/16 | ١٢:٤٥';
+
+  @override
+  String get profileLabel => 'الملف الشخصي';
+
+  @override
+  String get notificationsLabel => 'الإشعارات';
 }

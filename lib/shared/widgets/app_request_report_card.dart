@@ -4,6 +4,8 @@ import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+enum AppRequestReportCardType { standard, dashboard }
+
 /// Figma request report card with an optional details row.
 class AppRequestReportCard extends StatelessWidget {
   const AppRequestReportCard({
@@ -15,6 +17,19 @@ class AppRequestReportCard extends StatelessWidget {
     this.statusLabel = 'لیبل',
     this.statusColor = AppBadgeColor.success,
     this.showDetails = true,
+    this.width = 343,
+    this.contentPadding = const EdgeInsets.symmetric(
+      horizontal: 16,
+      vertical: 12,
+    ),
+    this.sectionSpacing = 8,
+    this.footerSpacing = 8,
+    this.headerHeight = 20,
+    this.identifierLabel = 'شناسه:',
+    this.detailsLabel = 'جزئیات:',
+    this.type = AppRequestReportCardType.standard,
+    this.divider,
+    this.dividerHeight = .5,
     this.onMoreTap,
   });
 
@@ -25,6 +40,16 @@ class AppRequestReportCard extends StatelessWidget {
   final String statusLabel;
   final AppBadgeColor statusColor;
   final bool showDetails;
+  final double width;
+  final EdgeInsetsGeometry contentPadding;
+  final double sectionSpacing;
+  final double footerSpacing;
+  final double headerHeight;
+  final String identifierLabel;
+  final String detailsLabel;
+  final AppRequestReportCardType type;
+  final Widget? divider;
+  final double dividerHeight;
   final VoidCallback? onMoreTap;
 
   static const _assetPath = 'assets/images/request_report_card/';
@@ -34,19 +59,28 @@ class AppRequestReportCard extends StatelessWidget {
     textDirection: TextDirection.rtl,
     child: Container(
       key: const Key('app_request_report_card'),
-      width: 343,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: AppPalette.gray25,
-        border: Border.all(color: AppPalette.gray200),
-        borderRadius: AppRadius.borderMd,
-      ),
+      width: width,
+      padding: contentPadding,
+      decoration: type == AppRequestReportCardType.dashboard
+          ? BoxDecoration(
+              color: context.colors.surface,
+              border: Border.all(
+                color: context.colors.surface.withValues(alpha: .8),
+              ),
+              borderRadius: AppRadius.borderLg,
+              boxShadow: AppShadows.sm,
+            )
+          : BoxDecoration(
+              color: AppPalette.gray25,
+              border: Border.all(color: AppPalette.gray200),
+              borderRadius: AppRadius.borderMd,
+            ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           SizedBox(
-            height: 20,
+            height: headerHeight,
             child: Row(
               textDirection: TextDirection.ltr,
               children: [
@@ -71,21 +105,20 @@ class AppRequestReportCard extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: sectionSpacing),
           SizedBox(
-            height: .5,
-            child: SvgPicture.asset(
-              '${_assetPath}divider.svg',
-              fit: BoxFit.fill,
-            ),
+            height: dividerHeight,
+            child:
+                divider ??
+                SvgPicture.asset('${_assetPath}divider.svg', fit: BoxFit.fill),
           ),
-          const SizedBox(height: 8),
-          _detailRow(value: requestNumber, label: 'شناسه:'),
+          SizedBox(height: sectionSpacing),
+          _detailRow(value: requestNumber, label: identifierLabel),
           if (showDetails) ...[
-            const SizedBox(height: 8),
-            _detailRow(value: details, label: 'جزئیات:'),
+            SizedBox(height: sectionSpacing),
+            _detailRow(value: details, label: detailsLabel),
           ],
-          const SizedBox(height: 8),
+          SizedBox(height: footerSpacing),
           SizedBox(
             height: 22,
             child: Row(

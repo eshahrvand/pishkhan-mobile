@@ -116,4 +116,105 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get updateGuide => 'Update guide';
+
+  @override
+  String get dashboardGreeting => 'Good morning, Mani';
+
+  @override
+  String get dashboardWelcomeMessage =>
+      'Welcome to the Resalat Virtual Counter';
+
+  @override
+  String get walletBalanceTitle => 'Wallet balance';
+
+  @override
+  String get rialCurrency => 'Rial';
+
+  @override
+  String get dashboardWalletBalance => '1,200,000';
+
+  @override
+  String get depositServices => 'Deposit services';
+
+  @override
+  String get smsSettings => 'SMS settings';
+
+  @override
+  String get introduceRepresentative => 'Introduce representative';
+
+  @override
+  String get financialCertificate => 'Financial certificate';
+
+  @override
+  String get balanceAverageStatement => 'Balance average statement';
+
+  @override
+  String get cardServices => 'Card services';
+
+  @override
+  String get blockCard => 'Block card';
+
+  @override
+  String get changeCardDeposit => 'Change linked deposit';
+
+  @override
+  String get cardPasswordIssue => 'Issue first / second PIN';
+
+  @override
+  String get issueResalatCard => 'Issue Resalat card';
+
+  @override
+  String get loanServices => 'Loan services';
+
+  @override
+  String get changeInstallmentDeposit => 'Change installment deposit';
+
+  @override
+  String get consolidateDepositCredit => 'Consolidate deposit credit';
+
+  @override
+  String get introduceLoan => 'Introduce loan';
+
+  @override
+  String get loanEstimate => 'Loan estimate';
+
+  @override
+  String get selectedServices => 'Selected services';
+
+  @override
+  String get proxyDeposit => 'Proxy deposit';
+
+  @override
+  String get issueChequeBook => 'Issue cheque book';
+
+  @override
+  String get internetBankSettings => 'Internet bank settings';
+
+  @override
+  String get mobileBankSettings => 'Mobile bank settings';
+
+  @override
+  String get latestUpdatedRequests => 'Latest updated requests';
+
+  @override
+  String get dashboardRequestTitle =>
+      'Request to change the installment deposit';
+
+  @override
+  String get requestIdentifier => 'Request identifier';
+
+  @override
+  String get automaticCompleted => 'Completed automatically';
+
+  @override
+  String get dashboardRequestNumber => '137/487567';
+
+  @override
+  String get dashboardRequestDate => '2024/09/16 | 12:45';
+
+  @override
+  String get profileLabel => 'Profile';
+
+  @override
+  String get notificationsLabel => 'Notifications';
 }

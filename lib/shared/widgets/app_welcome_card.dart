@@ -46,41 +46,48 @@ class AppWelcomeCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(
-                    greeting,
-                    textAlign: TextAlign.right,
-                    style: AppTypography.titleSmall.copyWith(
-                      color: AppPalette.gray800,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      height: 20 / 14,
-                      letterSpacing: 0,
+                  SizedBox(
+                    height: 20,
+                    child: Text(
+                      greeting,
+                      textAlign: TextAlign.right,
+                      overflow: TextOverflow.clip,
+                      style: AppTypography.titleSmall.copyWith(
+                        color: AppPalette.gray800,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        height: 20 / 14,
+                        letterSpacing: 0,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Row(
-                    textDirection: TextDirection.ltr,
-                    children: [
-                      _Timer(minutes: minutes, seconds: seconds),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          alignment: Alignment.centerRight,
-                          child: Text(
-                            message,
-                            maxLines: 1,
-                            textAlign: TextAlign.right,
-                            textDirection: TextDirection.rtl,
-                            style: AppTypography.bodySmall.copyWith(
-                              color: AppPalette.gray600,
-                              height: 18 / 12,
-                              letterSpacing: 0,
+                  SizedBox(
+                    height: 28,
+                    child: Row(
+                      textDirection: TextDirection.ltr,
+                      children: [
+                        _Timer(minutes: minutes, seconds: seconds),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              message,
+                              maxLines: 1,
+                              textAlign: TextAlign.right,
+                              textDirection: TextDirection.rtl,
+                              style: AppTypography.bodySmall.copyWith(
+                                color: AppPalette.gray600,
+                                height: 18 / 12,
+                                letterSpacing: 0,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ],
               ),

@@ -110,18 +110,35 @@ class AppServiceGridCard extends StatelessWidget {
                         child: header,
                       ),
                 const SizedBox(height: AppSpacing.mdLg),
-                Wrap(
-                  alignment: WrapAlignment.start,
-                  spacing: 6,
-                  runSpacing: AppSpacing.mdLg,
-                  children: [
-                    for (final item in items)
-                      _AppServiceGridItemView(
-                        item: item,
-                        usesIconTile: type == AppServiceGridCardType.service,
-                      ),
-                  ],
-                ),
+                if (items.length <= 4)
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      for (final item in items)
+                        Expanded(
+                          child: Center(
+                            child: _AppServiceGridItemView(
+                              item: item,
+                              usesIconTile:
+                                  type == AppServiceGridCardType.service,
+                            ),
+                          ),
+                        ),
+                    ],
+                  )
+                else
+                  Wrap(
+                    alignment: WrapAlignment.start,
+                    spacing: 6,
+                    runSpacing: AppSpacing.mdLg,
+                    children: [
+                      for (final item in items)
+                        _AppServiceGridItemView(
+                          item: item,
+                          usesIconTile: type == AppServiceGridCardType.service,
+                        ),
+                    ],
+                  ),
               ],
             ),
           ),
@@ -147,6 +164,7 @@ class _AppServiceGridItemView extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         SizedBox(
+          key: Key('app_service_grid_icon_${item.id}'),
           width: 64,
           height: 64,
           child: usesIconTile
@@ -195,9 +213,13 @@ class _AppServiceGridItemView extends StatelessWidget {
     );
   }
 
-  Widget _icon() => SizedBox(
-    width: item.iconSize.width,
-    height: item.iconSize.height,
-    child: Center(child: item.icon),
+  Widget _icon() => OverflowBox(
+    maxWidth: item.iconSize.width,
+    maxHeight: item.iconSize.height,
+    child: SizedBox(
+      width: item.iconSize.width,
+      height: item.iconSize.height,
+      child: Center(child: item.icon),
+    ),
   );
 }

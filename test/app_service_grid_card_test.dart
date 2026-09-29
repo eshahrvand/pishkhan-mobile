@@ -51,4 +51,55 @@ void main() {
 
     expect(find.text('دسترسی سریع'), findsOneWidget);
   });
+
+  testWidgets('aligns icon cards independently from label line count', (
+    tester,
+  ) async {
+    const items = [
+      AppServiceGridItem(
+        id: 'one-line',
+        label: 'معرفی وام',
+        icon: Icon(Icons.calculate_outlined),
+      ),
+      AppServiceGridItem(
+        id: 'two-lines',
+        label: 'تغییر سپرده جهت کسر اقساط',
+        icon: Icon(Icons.account_balance_outlined),
+      ),
+      AppServiceGridItem(
+        id: 'short',
+        label: 'برآورد وام',
+        icon: Icon(Icons.wallet_outlined),
+      ),
+      AppServiceGridItem(
+        id: 'long',
+        label: 'تجمیع اعتبار سپرده',
+        icon: Icon(Icons.more_horiz),
+      ),
+    ];
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light(),
+        home: const Scaffold(
+          body: Directionality(
+            textDirection: TextDirection.rtl,
+            child: SizedBox(
+              width: 328,
+              child: AppServiceGridCard(title: 'خدمات وام', items: items),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final iconTopPositions = items
+        .map(
+          (item) => tester
+              .getTopLeft(find.byKey(Key('app_service_grid_icon_${item.id}')))
+              .dy,
+        )
+        .toSet();
+    expect(iconTopPositions, hasLength(1));
+  });
 }
