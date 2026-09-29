@@ -7,6 +7,7 @@ import 'package:pishkhan_mobile/features/auth/presentation/cubit/auth_state.dart
 import 'package:pishkhan_mobile/features/auth/presentation/shared/auth_assets.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/shared/widgets/auth_captcha_row.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/shared/widgets/auth_field_icon.dart';
+import 'package:pishkhan_mobile/features/auth/presentation/shared/widgets/auth_inline_action.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/shared/widgets/auth_phone_ownership_notice.dart';
 import 'package:pishkhan_mobile/l10n/l10n.dart';
 
@@ -74,20 +75,16 @@ class AuthIdentityForm extends StatelessWidget {
           const AuthPhoneOwnershipNotice(),
           const SizedBox(height: 24),
         ] else ...[
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           Align(
             alignment: Alignment.centerLeft,
-            child: IntrinsicWidth(
-              child: AppButton(
-                key: const Key('change_phone_button'),
-                onPressed: cubit.openChangePhone,
-                label: l10n.changePhoneAction,
-                variant: AppButtonVariant.text,
-                size: AppButtonSize.sm,
-              ),
+            child: AuthInlineAction(
+              key: const Key('change_phone_button'),
+              onTap: cubit.openChangePhone,
+              label: l10n.changePhoneAction,
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 24),
         ],
         AuthCaptchaRow(step: state.step, onChanged: cubit.captchaChanged),
         const SizedBox(height: 24),
