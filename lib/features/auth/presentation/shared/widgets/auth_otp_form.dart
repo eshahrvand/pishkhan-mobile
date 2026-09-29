@@ -42,6 +42,7 @@ class AuthOtpForm extends StatelessWidget {
                 keyboardType: TextInputType.number,
                 textInputAction: TextInputAction.done,
                 normalizeDigits: true,
+                focusRing: AppTextFieldFocusRing.subtle,
                 inputFormatters: [LengthLimitingTextInputFormatter(4)],
                 onChanged: cubit.otpChanged,
               ),

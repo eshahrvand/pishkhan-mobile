@@ -28,6 +28,7 @@ class AuthCaptchaRow extends StatelessWidget {
             keyboardType: TextInputType.number,
             textInputAction: TextInputAction.done,
             normalizeDigits: true,
+            focusRing: AppTextFieldFocusRing.subtle,
             inputFormatters: [LengthLimitingTextInputFormatter(6)],
             onChanged: onChanged,
           ),
