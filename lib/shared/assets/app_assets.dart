@@ -223,7 +223,23 @@ abstract final class AppAssets {
   static const dashboardCatalogSearch = '$_root/dashboard_catalog_search.svg';
 
   /// Every registered file, used by the asset integrity test.
+  static const notificationBack = '$_root/notification_back.svg';
+  static const notificationDivider = '$_root/notification_divider.svg';
+  static const notificationUnread = '$_root/notification_unread.svg';
+  static const notificationReadAll = '$_root/notification_read_all.svg';
+  static const notificationLogoGray = '$_root/notification_logo_gray.svg';
+  static const notificationLogoBlue = '$_root/notification_logo_blue.svg';
+  static const notificationSecurity = '$_root/notification_security.png';
+
   static const all = <String>[
+    notificationBack,
+    notificationDivider,
+    notificationUnread,
+    notificationReadAll,
+    notificationLogoGray,
+    notificationLogoBlue,
+    notificationSecurity,
+
     dashboardCatalogSms,
     dashboardCatalogSearch,
     dashboardAssistantSpark,

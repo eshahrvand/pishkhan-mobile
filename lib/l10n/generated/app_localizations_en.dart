@@ -285,4 +285,80 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dashboardLoansTab => 'Loans';
+
+  @override
+  String get notificationTitle => 'Notifications';
+
+  @override
+  String get notificationReadAll => 'Read all';
+
+  @override
+  String get notificationNew => 'New messages';
+
+  @override
+  String get notificationRead => 'Read messages';
+
+  @override
+  String get notificationSubject => 'Subject';
+
+  @override
+  String get notificationEmpty => 'No messages';
+
+  @override
+  String get notificationToday => 'Today';
+
+  @override
+  String get notificationYesterday => 'Yesterday';
+
+  @override
+  String get notificationFiveDays => '5 days ago';
+
+  @override
+  String get notificationSevenDays => '7 days ago';
+
+  @override
+  String get notificationSampleDate => '16 Shahrivar 1405';
+
+  @override
+  String get notificationLoanTitle => 'Borrow against your savings';
+
+  @override
+  String get notificationLoanSubtitle => 'Secured loan';
+
+  @override
+  String get notificationInvestmentTitle => 'Invest in gold';
+
+  @override
+  String get notificationInvestmentSubtitle =>
+      'Easy, fast gold trading with instant settlement';
+
+  @override
+  String get notificationSecurityTitle => 'Watch out for scammers ⚠️';
+
+  @override
+  String get notificationSecuritySubtitle => 'Tips to keep your account secure';
+
+  @override
+  String get notificationSecurityIntro =>
+      'Hi! You may receive messages from scammers pretending to be our support team. Keep these tips in mind to protect your account:';
+
+  @override
+  String get notificationSecurityAdvice =>
+      'To avoid scams and keep your account safe, remember:';
+
+  @override
+  String get notificationSecurityCode =>
+      'Never share your login code: our support team will never ask for your password or verification code.';
+
+  @override
+  String get notificationSecurityLinks =>
+      'Do not open suspicious links: avoid unknown links claiming your account is blocked or that you won a prize.';
+
+  @override
+  String get notificationSecurityOfficial =>
+      'Use official channels: make sure messages come from our official numbers or accounts.';
+
+  @override
+  String get notificationSecurityClosing =>
+      'If you notice anything suspicious, let us know so we can check it promptly.';
 }

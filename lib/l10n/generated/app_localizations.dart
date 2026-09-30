@@ -633,6 +633,144 @@ abstract class AppLocalizations {
   /// In fa, this message translates to:
   /// **'وام'**
   String get dashboardLoansTab;
+
+  /// No description provided for @notificationTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'اعلانات'**
+  String get notificationTitle;
+
+  /// No description provided for @notificationReadAll.
+  ///
+  /// In fa, this message translates to:
+  /// **'خواندن همه'**
+  String get notificationReadAll;
+
+  /// No description provided for @notificationNew.
+  ///
+  /// In fa, this message translates to:
+  /// **'پیام‌های جدید'**
+  String get notificationNew;
+
+  /// No description provided for @notificationRead.
+  ///
+  /// In fa, this message translates to:
+  /// **'پیام‌های خوانده شده'**
+  String get notificationRead;
+
+  /// No description provided for @notificationSubject.
+  ///
+  /// In fa, this message translates to:
+  /// **'عنوان'**
+  String get notificationSubject;
+
+  /// No description provided for @notificationEmpty.
+  ///
+  /// In fa, this message translates to:
+  /// **'پیامی ندارید'**
+  String get notificationEmpty;
+
+  /// No description provided for @notificationToday.
+  ///
+  /// In fa, this message translates to:
+  /// **'امروز'**
+  String get notificationToday;
+
+  /// No description provided for @notificationYesterday.
+  ///
+  /// In fa, this message translates to:
+  /// **'دیروز'**
+  String get notificationYesterday;
+
+  /// No description provided for @notificationFiveDays.
+  ///
+  /// In fa, this message translates to:
+  /// **'۵ روز پیش'**
+  String get notificationFiveDays;
+
+  /// No description provided for @notificationSevenDays.
+  ///
+  /// In fa, this message translates to:
+  /// **'۷ روز پیش'**
+  String get notificationSevenDays;
+
+  /// No description provided for @notificationSampleDate.
+  ///
+  /// In fa, this message translates to:
+  /// **'۱۶ شهريور ۱۴۰۵'**
+  String get notificationSampleDate;
+
+  /// No description provided for @notificationLoanTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'با سرمایه خودت وام بگیر'**
+  String get notificationLoanTitle;
+
+  /// No description provided for @notificationLoanSubtitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'وام با وثیقه'**
+  String get notificationLoanSubtitle;
+
+  /// No description provided for @notificationInvestmentTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'سرمایه گداری تمام عیار'**
+  String get notificationInvestmentTitle;
+
+  /// No description provided for @notificationInvestmentSubtitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'معامله راحت و سریع طلا با تسویه آنی'**
+  String get notificationInvestmentSubtitle;
+
+  /// No description provided for @notificationSecurityTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'مراقب کلاهبرداران باشید⚠️'**
+  String get notificationSecurityTitle;
+
+  /// No description provided for @notificationSecuritySubtitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'نکاتی برای افزایش امنیت حساب'**
+  String get notificationSecuritySubtitle;
+
+  /// No description provided for @notificationSecurityIntro.
+  ///
+  /// In fa, this message translates to:
+  /// **'سلام! این روزا ممکنه پیام‌هایی از طرف آدمای سودجو به دستتون برسه که خودشون رو جای تیم پشتیبانی جا می‌زنن. برای اینکه حسابتون همیشه امن بمونه، حواستون به این چند تا نکته باشه:'**
+  String get notificationSecurityIntro;
+
+  /// No description provided for @notificationSecurityAdvice.
+  ///
+  /// In fa, this message translates to:
+  /// **'برای اینکه گیر کلاهبردارها نیفتی و حسابت همیشه امن بمونه، حواست به این چند تا مورد باشه:'**
+  String get notificationSecurityAdvice;
+
+  /// No description provided for @notificationSecurityCode.
+  ///
+  /// In fa, this message translates to:
+  /// **'کد ورودت رو به کسی نده: ما تو تیم پشتیبانی هیچ‌وقت رمز یا کد تاییدی که برات پیامک می‌شه رو ازت نمی‌خوایم.'**
+  String get notificationSecurityCode;
+
+  /// No description provided for @notificationSecurityLinks.
+  ///
+  /// In fa, this message translates to:
+  /// **'لینک‌های مشکوک رو باز نکن: اگه پیامی با یه لینک ناشناس برات اومد که می‌گفت «حسابت مسدود شده» یا «برنده شدی»، اصلاً روش کلیک نکن.'**
+  String get notificationSecurityLinks;
+
+  /// No description provided for @notificationSecurityOfficial.
+  ///
+  /// In fa, this message translates to:
+  /// **'فقط از راه‌های رسمی در ارتباط باش: همیشه مطمئن شو پیامی که می‌گیری از طرف شماره‌ها یا اکانت‌های رسمی خودمون باشه.'**
+  String get notificationSecurityOfficial;
+
+  /// No description provided for @notificationSecurityClosing.
+  ///
+  /// In fa, this message translates to:
+  /// **'اگه با مورد مشکوکی برخورد کردی، همون لحظه به ما خبر بده تا سریع چکش کنیم.'**
+  String get notificationSecurityClosing;
 }
 
 class _AppLocalizationsDelegate

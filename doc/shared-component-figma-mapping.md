@@ -63,3 +63,16 @@ assistant flows. Category navigation opens the corresponding service sheet.
 
 The replaced dashboard banners, category sections, latest-request preview, and
 welcome/timer card have been removed along with their unused assets.
+
+## Notifications
+
+- List: Figma `27850:12086`; detail: `27850:12163`.
+- Dashboard bell pushes `NotificationsScreen`; cards push `NotificationDetailScreen`.
+- `NotificationHeader` and `NotificationCard` compose `avp_ui` typography, colors,
+  radii, shadows, and the existing `AppButton`. Exact notification SVGs and the
+  detail illustration are registered in `AppAssets`.
+- `NotificationsScreen.messages` accepts `NotificationMessage` data; `onChanged`
+  returns read-state updates. Opening a message marks it read, and “Read all”
+  marks every message read. The dashboard retains updates for its lifetime.
+- Default content comes from the Figma examples. Repository fetching and durable
+  storage are not connected in this UI implementation.

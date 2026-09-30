@@ -282,4 +282,80 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get dashboardLoansTab => 'وام';
+
+  @override
+  String get notificationTitle => 'اعلانات';
+
+  @override
+  String get notificationReadAll => 'خواندن همه';
+
+  @override
+  String get notificationNew => 'پیام‌های جدید';
+
+  @override
+  String get notificationRead => 'پیام‌های خوانده شده';
+
+  @override
+  String get notificationSubject => 'عنوان';
+
+  @override
+  String get notificationEmpty => 'پیامی ندارید';
+
+  @override
+  String get notificationToday => 'امروز';
+
+  @override
+  String get notificationYesterday => 'دیروز';
+
+  @override
+  String get notificationFiveDays => '۵ روز پیش';
+
+  @override
+  String get notificationSevenDays => '۷ روز پیش';
+
+  @override
+  String get notificationSampleDate => '۱۶ شهريور ۱۴۰۵';
+
+  @override
+  String get notificationLoanTitle => 'با سرمایه خودت وام بگیر';
+
+  @override
+  String get notificationLoanSubtitle => 'وام با وثیقه';
+
+  @override
+  String get notificationInvestmentTitle => 'سرمایه گداری تمام عیار';
+
+  @override
+  String get notificationInvestmentSubtitle =>
+      'معامله راحت و سریع طلا با تسویه آنی';
+
+  @override
+  String get notificationSecurityTitle => 'مراقب کلاهبرداران باشید⚠️';
+
+  @override
+  String get notificationSecuritySubtitle => 'نکاتی برای افزایش امنیت حساب';
+
+  @override
+  String get notificationSecurityIntro =>
+      'سلام! این روزا ممکنه پیام‌هایی از طرف آدمای سودجو به دستتون برسه که خودشون رو جای تیم پشتیبانی جا می‌زنن. برای اینکه حسابتون همیشه امن بمونه، حواستون به این چند تا نکته باشه:';
+
+  @override
+  String get notificationSecurityAdvice =>
+      'برای اینکه گیر کلاهبردارها نیفتی و حسابت همیشه امن بمونه، حواست به این چند تا مورد باشه:';
+
+  @override
+  String get notificationSecurityCode =>
+      'کد ورودت رو به کسی نده: ما تو تیم پشتیبانی هیچ‌وقت رمز یا کد تاییدی که برات پیامک می‌شه رو ازت نمی‌خوایم.';
+
+  @override
+  String get notificationSecurityLinks =>
+      'لینک‌های مشکوک رو باز نکن: اگه پیامی با یه لینک ناشناس برات اومد که می‌گفت «حسابت مسدود شده» یا «برنده شدی»، اصلاً روش کلیک نکن.';
+
+  @override
+  String get notificationSecurityOfficial =>
+      'فقط از راه‌های رسمی در ارتباط باش: همیشه مطمئن شو پیامی که می‌گیری از طرف شماره‌ها یا اکانت‌های رسمی خودمون باشه.';
+
+  @override
+  String get notificationSecurityClosing =>
+      'اگه با مورد مشکوکی برخورد کردی، همون لحظه به ما خبر بده تا سریع چکش کنیم.';
 }

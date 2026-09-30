@@ -234,3 +234,6 @@ flutter test
 ```
 
 Add or update a focused widget test in `test/widgets/`. Keep the mapping table in this document updated whenever a new Figma component is implemented or an existing mapping changes.
+
+`AppButton.horizontalPadding` optionally adjusts horizontal inset for compact
+text actions, such as the notification header. Omit it to keep the size defaults.

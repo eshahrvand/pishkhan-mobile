@@ -281,4 +281,80 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get dashboardLoansTab => 'القروض';
+
+  @override
+  String get notificationTitle => 'الإشعارات';
+
+  @override
+  String get notificationReadAll => 'قراءة الكل';
+
+  @override
+  String get notificationNew => 'الرسائل الجديدة';
+
+  @override
+  String get notificationRead => 'الرسائل المقروءة';
+
+  @override
+  String get notificationSubject => 'العنوان';
+
+  @override
+  String get notificationEmpty => 'لا توجد رسائل';
+
+  @override
+  String get notificationToday => 'اليوم';
+
+  @override
+  String get notificationYesterday => 'أمس';
+
+  @override
+  String get notificationFiveDays => 'قبل ٥ أيام';
+
+  @override
+  String get notificationSevenDays => 'قبل ٧ أيام';
+
+  @override
+  String get notificationSampleDate => '١٦ شهريور ١٤٠٥';
+
+  @override
+  String get notificationLoanTitle => 'اقترض بضمان مدخراتك';
+
+  @override
+  String get notificationLoanSubtitle => 'قرض بضمان';
+
+  @override
+  String get notificationInvestmentTitle => 'استثمر في الذهب';
+
+  @override
+  String get notificationInvestmentSubtitle =>
+      'تداول الذهب بسهولة وسرعة مع تسوية فورية';
+
+  @override
+  String get notificationSecurityTitle => 'احذر المحتالين ⚠️';
+
+  @override
+  String get notificationSecuritySubtitle => 'نصائح لحماية حسابك';
+
+  @override
+  String get notificationSecurityIntro =>
+      'مرحباً! قد تصلك رسائل من محتالين ينتحلون صفة فريق الدعم. لحماية حسابك، انتبه للنصائح التالية:';
+
+  @override
+  String get notificationSecurityAdvice =>
+      'لتجنب الاحتيال والحفاظ على أمان حسابك، تذكر:';
+
+  @override
+  String get notificationSecurityCode =>
+      'لا تشارك رمز الدخول: لن يطلب فريق الدعم كلمة المرور أو رمز التحقق منك أبداً.';
+
+  @override
+  String get notificationSecurityLinks =>
+      'لا تفتح روابط مشبوهة: تجنب الروابط المجهولة التي تدعي حظر حسابك أو فوزك بجائزة.';
+
+  @override
+  String get notificationSecurityOfficial =>
+      'استخدم القنوات الرسمية: تأكد من أن الرسائل تأتي من أرقامنا أو حساباتنا الرسمية.';
+
+  @override
+  String get notificationSecurityClosing =>
+      'إذا لاحظت أمراً مشبوهاً، أخبرنا فوراً للتحقق منه.';
 }

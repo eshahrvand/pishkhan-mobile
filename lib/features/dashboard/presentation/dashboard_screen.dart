@@ -10,6 +10,8 @@ import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/d
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_reso_banner.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_service_tile.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_services_sheet.dart';
+import 'package:pishkhan_mobile/features/notifications/models/notification_message.dart';
+import 'package:pishkhan_mobile/features/notifications/presentation/notifications_screen.dart';
 import 'package:pishkhan_mobile/l10n/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_wallet_card.dart';
@@ -37,6 +39,19 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   late final DashboardCubit _cubit;
   final _promptFocus = FocusNode();
+  List<NotificationMessage>? _notifications;
+
+  void _openNotifications() {
+    _notifications ??= NotificationMessage.examples(context.l10n);
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => NotificationsScreen(
+          messages: _notifications!,
+          onChanged: (messages) => _notifications = messages,
+        ),
+      ),
+    );
+  }
 
   @override
   void initState() {
@@ -103,6 +118,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             child: Column(
               children: [
                 DashboardHeader(
+                  onNotificationsPressed: _openNotifications,
                   onMenuPressed: widget.onMenuPressed ?? () => _catalog(),
                 ),
                 Expanded(
