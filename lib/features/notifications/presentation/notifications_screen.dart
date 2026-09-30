@@ -14,6 +14,7 @@ class NotificationsScreen extends StatefulWidget {
     required this.messages,
     this.onChanged,
   });
+
   final List<NotificationMessage> messages;
   final ValueChanged<List<NotificationMessage>>? onChanged;
 
