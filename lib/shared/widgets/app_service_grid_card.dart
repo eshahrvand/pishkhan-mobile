@@ -54,6 +54,9 @@ class AppServiceGridCard extends StatelessWidget {
     this.type = AppServiceGridCardType.service,
     this.headerAction,
     this.onHeaderTap,
+    this.footer,
+    this.itemSpacing = 0,
+    this.footerSpacing = AppSpacing.mdLg,
   });
 
   final String title;
@@ -61,6 +64,9 @@ class AppServiceGridCard extends StatelessWidget {
   final AppServiceGridCardType type;
   final Widget? headerAction;
   final VoidCallback? onHeaderTap;
+  final Widget? footer;
+  final double itemSpacing;
+  final double footerSpacing;
 
   @override
   Widget build(BuildContext context) {
@@ -114,16 +120,18 @@ class AppServiceGridCard extends StatelessWidget {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      for (final item in items)
+                      for (var index = 0; index < items.length; index++) ...[
+                        if (index > 0) SizedBox(width: itemSpacing),
                         Expanded(
                           child: Center(
-                            child: _AppServiceGridItemView(
-                              item: item,
+                            child: AppServiceGridItemView(
+                              item: items[index],
                               usesIconTile:
                                   type == AppServiceGridCardType.service,
                             ),
                           ),
                         ),
+                      ],
                     ],
                   )
                 else
@@ -133,12 +141,16 @@ class AppServiceGridCard extends StatelessWidget {
                     runSpacing: AppSpacing.mdLg,
                     children: [
                       for (final item in items)
-                        _AppServiceGridItemView(
+                        AppServiceGridItemView(
                           item: item,
                           usesIconTile: type == AppServiceGridCardType.service,
                         ),
                     ],
                   ),
+                if (footer != null) ...[
+                  SizedBox(height: footerSpacing),
+                  footer!,
+                ],
               ],
             ),
           ),
@@ -148,14 +160,17 @@ class AppServiceGridCard extends StatelessWidget {
   }
 }
 
-class _AppServiceGridItemView extends StatelessWidget {
-  const _AppServiceGridItemView({
+class AppServiceGridItemView extends StatelessWidget {
+  const AppServiceGridItemView({
     required this.item,
-    required this.usesIconTile,
+    this.usesIconTile = true,
+    this.tileColor,
+    super.key,
   });
 
   final AppServiceGridItem item;
   final bool usesIconTile;
+  final Color? tileColor;
 
   @override
   Widget build(BuildContext context) {
@@ -170,7 +185,7 @@ class _AppServiceGridItemView extends StatelessWidget {
           child: usesIconTile
               ? DecoratedBox(
                   decoration: BoxDecoration(
-                    color: colors.surfaceSubtle,
+                    color: tileColor ?? colors.surfaceSubtle,
                     borderRadius: AppRadius.borderMd,
                     boxShadow: AppShadows.sm,
                   ),

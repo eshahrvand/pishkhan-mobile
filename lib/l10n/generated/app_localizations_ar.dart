@@ -213,4 +213,72 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get notificationsLabel => 'الإشعارات';
+
+  @override
+  String get dashboardAssistant => 'المساعد الذكي';
+
+  @override
+  String get dashboardResoTitle => 'اتركها لرِسو!';
+
+  @override
+  String get dashboardResoDescription =>
+      'رِسو لا يجيب فقط؛ بل يتولى العمل بنفسه.';
+
+  @override
+  String get dashboardPromptHint => 'اكتب سؤالك...';
+
+  @override
+  String get dashboardSendPrompt => 'إرسال السؤال';
+
+  @override
+  String get dashboardBankServices => 'خدمات بنك رسالت';
+
+  @override
+  String get dashboardCustomize => 'تخصيص الخدمات';
+
+  @override
+  String get dashboardYourFavorites => 'خدماتك المفضلة';
+
+  @override
+  String get dashboardFavoritesLimit => 'يمكنك اختيار ٤ خدمات كحد أقصى.';
+
+  @override
+  String get dashboardAddService => 'إضافة خدمة جديدة';
+
+  @override
+  String get dashboardRemoveService => 'حذف';
+
+  @override
+  String get dashboardConfirm => 'تأكيد';
+
+  @override
+  String get dashboardCancel => 'إلغاء';
+
+  @override
+  String get dashboardResetTitle => 'إعادة ضبط الإعدادات';
+
+  @override
+  String get dashboardResetDescription =>
+      'ستؤدي إعادة الضبط إلى إزالة تغييراتك واستعادة الإعدادات الأصلية.\nهل تريد إعادة الضبط؟';
+
+  @override
+  String get dashboardResetConfirm => 'إرسال التقييم';
+
+  @override
+  String get dashboardSearchHint => 'بحث';
+
+  @override
+  String get dashboardNoServices => 'لم يتم العثور على خدمات';
+
+  @override
+  String get dashboardTab => 'الرئيسية';
+
+  @override
+  String get dashboardCardsTab => 'البطاقات';
+
+  @override
+  String get dashboardDepositsTab => 'الودائع';
+
+  @override
+  String get dashboardLoansTab => 'القروض';
 }

@@ -48,7 +48,7 @@ class AppWalletCard extends StatelessWidget {
       height: _isDesktop ? 88 : 56,
       child: Padding(
         // Figma pins the wallet affordance to the physical right edge.
-        padding: const EdgeInsetsDirectional.only(end: 12),
+        padding: const EdgeInsets.only(right: 12),
         child: Row(
           textDirection: TextDirection.ltr,
           children: [
@@ -96,7 +96,7 @@ class AppWalletCard extends StatelessWidget {
       ),
     ),
     child: Padding(
-      padding: EdgeInsetsDirectional.only(start: _isDesktop ? 16 : 20, end: 16),
+      padding: EdgeInsets.only(left: _isDesktop ? 16 : 20, right: 16),
       child: _isDesktop ? _desktopContent() : _mobileContent(),
     ),
   );
@@ -131,7 +131,7 @@ class AppWalletCard extends StatelessWidget {
     title,
     maxLines: 1,
     overflow: TextOverflow.ellipsis,
-    textAlign: TextAlign.end,
+    textAlign: TextAlign.start,
     style: AppTypography.bodySmall.copyWith(
       color: context.colors.textPrimary,
       height: 18 / 12,
@@ -145,10 +145,10 @@ class AppWalletCard extends StatelessWidget {
       children: [
         Expanded(
           child: Align(
-            alignment: AlignmentDirectional.centerStart,
+            alignment: Alignment.centerLeft,
             child: FittedBox(
               fit: BoxFit.scaleDown,
-              alignment: AlignmentDirectional.centerStart,
+              alignment: Alignment.centerLeft,
               child: _amount(context),
             ),
           ),
@@ -156,7 +156,7 @@ class AppWalletCard extends StatelessWidget {
         const SizedBox(width: AppSpacing.sm),
         Flexible(
           child: Align(
-            alignment: AlignmentDirectional.centerEnd,
+            alignment: Alignment.centerRight,
             child: _title(context),
           ),
         ),
@@ -182,10 +182,7 @@ class AppWalletCard extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 14),
-        Align(
-          alignment: AlignmentDirectional.centerEnd,
-          child: _amount(context),
-        ),
+        Align(alignment: Alignment.centerRight, child: _amount(context)),
       ],
     ),
   );

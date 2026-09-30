@@ -16,7 +16,6 @@ they do not change the public API of `avp_ui`.
 | DepositCard | `13906:3913` | `AppDepositCard` | `lib/shared/widgets/app_deposit_card.dart` | Single/multi, selected/unselected, optional logo, and copy actions. |
 | LoanCard | `13918:3460` | `AppLoanCard` | `lib/shared/widgets/app_loan_card.dart` | Single/multi layout, progress, copy, and arrow actions. |
 | Arrow | `13954:8942` | `AppArrowButton` | `lib/shared/widgets/app_arrow_button.dart` | Left/right 48px arrow plus the 28px compact card usage. |
-| Welcome card | `13869:8131` | `AppWelcomeCard` | `lib/shared/widgets/app_welcome_card.dart` | Translucent greeting card with a two-part timer. |
 | Bottom sheet header | `15769:17067` | `AppBottomSheetHeader` | `lib/shared/widgets/app_bottom_sheet_header.dart` | Header and handle-only variants with configurable actions and icons. |
 | Delete address sheet | `16634:46458` | `AppDeleteAddressSheet` | `lib/shared/widgets/app_delete_address_sheet.dart` | Address confirmation content with destructive and cancel actions. |
 | Confirmers details card | `16256:124134` | `AppConfirmerDetailsCard` | `lib/shared/widgets/app_confirmer_details_card.dart` | Approved and waiting status variants. |
@@ -46,3 +45,21 @@ they do not change the public API of `avp_ui`.
   feature-scoped alias) from Dart code. Do not hard-code asset paths in UI
   widgets.
 - Add a focused widget test in `test/` for each interactive state.
+
+## Dashboard composition (updated design)
+
+The dashboard uses the frames `27850:10690`, `27850:10768`, `27850:10872`,
+`27850:11009`, `27850:11147`, and `27850:11293` in the Mobile Figma file.
+`AppServiceGridCard` accepts a `footer` and `itemSpacing`; its public
+`AppServiceGridItemView` is reused for the shortcut editor and service catalog.
+The dashboard owns the Reso artwork, transactional shortcut state (at most four
+unique services), reset confirmation, and searchable category sheet.
+
+`DashboardScreen.initialFavorites` supplies saved service IDs and
+`onFavoritesChanged` reports confirmed or reset selections. The screen keeps
+these selections for its lifetime; durable storage belongs to its caller.
+`onServiceRequested` and `onPromptSubmitted` connect the UI to service and
+assistant flows. Category navigation opens the corresponding service sheet.
+
+The replaced dashboard banners, category sections, latest-request preview, and
+welcome/timer card have been removed along with their unused assets.

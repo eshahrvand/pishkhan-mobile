@@ -135,6 +135,12 @@ AppSelect<String>(
 )
 ```
 
+`AppTextField` also accepts `textStyle` for a Figma typography variation and
+`onSubmitted` for keyboard actions. `AppSearchField` accepts `textStyle` and
+`searchIcon` when the design supplies an exact icon asset. Derive text overrides
+from `AppTypography`; the field retains its package font when an override omits
+the font family. Existing callers keep their current defaults.
+
 ### Boolean controls
 
 ```dart

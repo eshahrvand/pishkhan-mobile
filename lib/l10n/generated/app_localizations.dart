@@ -501,6 +501,138 @@ abstract class AppLocalizations {
   /// In fa, this message translates to:
   /// **'اعلان‌ها'**
   String get notificationsLabel;
+
+  /// No description provided for @dashboardAssistant.
+  ///
+  /// In fa, this message translates to:
+  /// **'دستیار هوشمند'**
+  String get dashboardAssistant;
+
+  /// No description provided for @dashboardResoTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'به رِسو بسپار!'**
+  String get dashboardResoTitle;
+
+  /// No description provided for @dashboardResoDescription.
+  ///
+  /// In fa, this message translates to:
+  /// **'رِسو فقط جواب نمی‌ده؛ خودش دست‌به‌کار می‌شه.'**
+  String get dashboardResoDescription;
+
+  /// No description provided for @dashboardPromptHint.
+  ///
+  /// In fa, this message translates to:
+  /// **'سوالت رو بنویس...'**
+  String get dashboardPromptHint;
+
+  /// No description provided for @dashboardSendPrompt.
+  ///
+  /// In fa, this message translates to:
+  /// **'ارسال سوال'**
+  String get dashboardSendPrompt;
+
+  /// No description provided for @dashboardBankServices.
+  ///
+  /// In fa, this message translates to:
+  /// **'خدمات بانک رسالت'**
+  String get dashboardBankServices;
+
+  /// No description provided for @dashboardCustomize.
+  ///
+  /// In fa, this message translates to:
+  /// **'تنظیم خدمات منتخب'**
+  String get dashboardCustomize;
+
+  /// No description provided for @dashboardYourFavorites.
+  ///
+  /// In fa, this message translates to:
+  /// **'منتخب شما'**
+  String get dashboardYourFavorites;
+
+  /// No description provided for @dashboardFavoritesLimit.
+  ///
+  /// In fa, this message translates to:
+  /// **'حداکثر ۴ تا مورد رو می‌تونی انتخاب کنی.'**
+  String get dashboardFavoritesLimit;
+
+  /// No description provided for @dashboardAddService.
+  ///
+  /// In fa, this message translates to:
+  /// **'افزودن مورد جدید'**
+  String get dashboardAddService;
+
+  /// No description provided for @dashboardRemoveService.
+  ///
+  /// In fa, this message translates to:
+  /// **'حذف'**
+  String get dashboardRemoveService;
+
+  /// No description provided for @dashboardConfirm.
+  ///
+  /// In fa, this message translates to:
+  /// **'تایید'**
+  String get dashboardConfirm;
+
+  /// No description provided for @dashboardCancel.
+  ///
+  /// In fa, this message translates to:
+  /// **'انصراف'**
+  String get dashboardCancel;
+
+  /// No description provided for @dashboardResetTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'بازنشانی تنظیمات'**
+  String get dashboardResetTitle;
+
+  /// No description provided for @dashboardResetDescription.
+  ///
+  /// In fa, this message translates to:
+  /// **'با بازنشانی تنظیمات، همه تغییراتت از بین می‌ره و به حالت اولیه برمی‌گرده.\nمطمئنی می‌خوای به تنظیمات اولیه برگردی؟'**
+  String get dashboardResetDescription;
+
+  /// No description provided for @dashboardResetConfirm.
+  ///
+  /// In fa, this message translates to:
+  /// **'ثبت امتیاز'**
+  String get dashboardResetConfirm;
+
+  /// No description provided for @dashboardSearchHint.
+  ///
+  /// In fa, this message translates to:
+  /// **'جستجو'**
+  String get dashboardSearchHint;
+
+  /// No description provided for @dashboardNoServices.
+  ///
+  /// In fa, this message translates to:
+  /// **'خدمتی پیدا نشد'**
+  String get dashboardNoServices;
+
+  /// No description provided for @dashboardTab.
+  ///
+  /// In fa, this message translates to:
+  /// **'داشبورد'**
+  String get dashboardTab;
+
+  /// No description provided for @dashboardCardsTab.
+  ///
+  /// In fa, this message translates to:
+  /// **'کارت'**
+  String get dashboardCardsTab;
+
+  /// No description provided for @dashboardDepositsTab.
+  ///
+  /// In fa, this message translates to:
+  /// **'سپرده'**
+  String get dashboardDepositsTab;
+
+  /// No description provided for @dashboardLoansTab.
+  ///
+  /// In fa, this message translates to:
+  /// **'وام'**
+  String get dashboardLoansTab;
 }
 
 class _AppLocalizationsDelegate

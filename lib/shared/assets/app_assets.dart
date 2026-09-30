@@ -56,36 +56,11 @@ abstract final class AppAssets {
   static const cardsListFamily = '$_root/cards_list_family.svg';
   static const cardsListGiftCard = '$_root/cards_list_gift_card.svg';
   static const cardsListVirtualCard = '$_root/cards_list_virtual_card.svg';
-  static const dashboardBannerBlue = '$_root/dashboard_banner_blue.png';
-  static const dashboardBannerYellow = '$_root/dashboard_banner_yellow.png';
-  static const dashboardCardBlock = '$_root/dashboard_card_block.svg';
-  static const dashboardCardIssue = '$_root/dashboard_card_issue.svg';
-  static const dashboardCardLinkedDeposit =
-      '$_root/dashboard_card_linked_deposit.svg';
-  static const dashboardCardPassword = '$_root/dashboard_card_password.svg';
-  static const dashboardDepositCertificate =
-      '$_root/dashboard_deposit_certificate.svg';
-  static const dashboardDepositSms = '$_root/dashboard_deposit_sms.svg';
-  static const dashboardDepositStatement =
-      '$_root/dashboard_deposit_statement.svg';
   static const dashboardHeaderBell = '$_root/dashboard_header_bell.svg';
   static const dashboardHeaderMenu = '$_root/dashboard_header_menu.svg';
   static const dashboardHeaderUser = '$_root/dashboard_header_user.svg';
-  static const dashboardLoanCalculator = '$_root/dashboard_loan_calculator.svg';
-  static const dashboardLoanConsolidation =
-      '$_root/dashboard_loan_consolidation.svg';
-  static const dashboardLoanLinkedDeposit =
-      '$_root/dashboard_loan_linked_deposit.svg';
-  static const dashboardLoanTransfer = '$_root/dashboard_loan_transfer.svg';
   static const dashboardPatternDown = '$_root/dashboard_pattern_down.svg';
   static const dashboardPatternUp = '$_root/dashboard_pattern_up.svg';
-  static const dashboardRequestDivider = '$_root/dashboard_request_divider.png';
-  static const dashboardSectionDivider = '$_root/dashboard_section_divider.png';
-  static const dashboardSelectedCheque = '$_root/dashboard_selected_cheque.svg';
-  static const dashboardSelectedInternet =
-      '$_root/dashboard_selected_internet.svg';
-  static const dashboardSelectedMobile = '$_root/dashboard_selected_mobile.svg';
-  static const dashboardSelectedProxy = '$_root/dashboard_selected_proxy.svg';
   static const depositCardResalatLogo = '$_root/deposit_card_resalat_logo.svg';
   static const depositListDeposit = '$_root/deposit_list_deposit.svg';
   static const dividerCardGray200 = '$_root/divider_card_gray200.svg';
@@ -181,11 +156,122 @@ abstract final class AppAssets {
   static const transferDestinationCardTrash =
       '$_root/transfer_destination_card_trash.svg';
   static const walletCardWallet = '$_root/wallet_card_wallet.svg';
-  static const welcomeCardTimerSeparator =
-      '$_root/welcome_card_timer_separator.svg';
+
+  static const dashboardAssistantSpark = '$_root/dashboard_assistant_spark.svg';
+  static const dashboardAssistantStar = '$_root/dashboard_assistant_star.svg';
+  static const dashboardBlockEditTile = '$_root/dashboard_block_edit_tile.svg';
+  static const dashboardBlockFullTile = '$_root/dashboard_block_full_tile.svg';
+  static const dashboardBlockSelectedTile =
+      '$_root/dashboard_block_selected_tile.svg';
+  static const dashboardCardDivider = '$_root/dashboard_card_divider.svg';
+  static const dashboardCatalogBlock = '$_root/dashboard_catalog_block.svg';
+  static const dashboardCatalogCardDeposit =
+      '$_root/dashboard_catalog_card_deposit.svg';
+  static const dashboardCatalogCertificate =
+      '$_root/dashboard_catalog_certificate.svg';
+  static const dashboardCatalogConsolidation =
+      '$_root/dashboard_catalog_consolidation.svg';
+  static const dashboardCatalogEstimate =
+      '$_root/dashboard_catalog_estimate.svg';
+  static const dashboardCatalogIntroduce =
+      '$_root/dashboard_catalog_introduce.svg';
+  static const dashboardCatalogIssue = '$_root/dashboard_catalog_issue.svg';
+  static const dashboardCatalogLoanDeposit =
+      '$_root/dashboard_catalog_loan_deposit.svg';
+  static const dashboardCatalogPassword =
+      '$_root/dashboard_catalog_password.svg';
+  static const dashboardCatalogRepresentative =
+      '$_root/dashboard_catalog_representative.svg';
+  static const dashboardCatalogStatement =
+      '$_root/dashboard_catalog_statement.svg';
+  static const dashboardDepositDivider = '$_root/dashboard_deposit_divider.svg';
+  static const dashboardEditDivider = '$_root/dashboard_edit_divider.png';
+  static const dashboardEstimateFullTile =
+      '$_root/dashboard_estimate_full_tile.svg';
+  static const dashboardEstimateSelectedTile =
+      '$_root/dashboard_estimate_selected_tile.svg';
+  static const dashboardEstimateTile = '$_root/dashboard_estimate_tile.svg';
+  static const dashboardFabSpark = '$_root/dashboard_fab_spark.svg';
+  static const dashboardFabStar = '$_root/dashboard_fab_star.svg';
+  static const dashboardGlowLarge = '$_root/dashboard_glow_large.svg';
+  static const dashboardGlowSmall = '$_root/dashboard_glow_small.svg';
+  static const dashboardIssueEditTile = '$_root/dashboard_issue_edit_tile.svg';
+  static const dashboardIssueSelectedTile =
+      '$_root/dashboard_issue_selected_tile.svg';
+  static const dashboardLoanDivider = '$_root/dashboard_loan_divider.svg';
+  static const dashboardMinus = '$_root/dashboard_minus.svg';
+  static const dashboardNavCard = '$_root/dashboard_nav_card.svg';
+  static const dashboardNavDeposit = '$_root/dashboard_nav_deposit.svg';
+  static const dashboardNavHome = '$_root/dashboard_nav_home.svg';
+  static const dashboardNavLoan = '$_root/dashboard_nav_loan.svg';
+  static const dashboardPasswordEditTile =
+      '$_root/dashboard_password_edit_tile.svg';
+  static const dashboardPasswordFullTile =
+      '$_root/dashboard_password_full_tile.svg';
+  static const dashboardPasswordSelectedTile =
+      '$_root/dashboard_password_selected_tile.svg';
+  static const dashboardPasswordTile = '$_root/dashboard_password_tile.svg';
+  static const dashboardPlus = '$_root/dashboard_plus.svg';
+  static const dashboardPromptArrow = '$_root/dashboard_prompt_arrow.svg';
+  static const dashboardReset = '$_root/dashboard_reset.svg';
+  static const dashboardReso = '$_root/dashboard_reso.png';
+  static const dashboardSms = '$_root/dashboard_sms.svg';
+  static const dashboardTexture = '$_root/dashboard_texture.png';
+  static const dashboardTileWave = '$_root/dashboard_tile_wave.svg';
+
+  static const dashboardCatalogSms = '$_root/dashboard_catalog_sms.svg';
+  static const dashboardCatalogSearch = '$_root/dashboard_catalog_search.svg';
 
   /// Every registered file, used by the asset integrity test.
   static const all = <String>[
+    dashboardCatalogSms,
+    dashboardCatalogSearch,
+    dashboardAssistantSpark,
+    dashboardAssistantStar,
+    dashboardBlockEditTile,
+    dashboardBlockFullTile,
+    dashboardBlockSelectedTile,
+    dashboardCardDivider,
+    dashboardCatalogBlock,
+    dashboardCatalogCardDeposit,
+    dashboardCatalogCertificate,
+    dashboardCatalogConsolidation,
+    dashboardCatalogEstimate,
+    dashboardCatalogIntroduce,
+    dashboardCatalogIssue,
+    dashboardCatalogLoanDeposit,
+    dashboardCatalogPassword,
+    dashboardCatalogRepresentative,
+    dashboardCatalogStatement,
+    dashboardDepositDivider,
+    dashboardEditDivider,
+    dashboardEstimateFullTile,
+    dashboardEstimateSelectedTile,
+    dashboardEstimateTile,
+    dashboardFabSpark,
+    dashboardFabStar,
+    dashboardGlowLarge,
+    dashboardGlowSmall,
+    dashboardIssueEditTile,
+    dashboardIssueSelectedTile,
+    dashboardLoanDivider,
+    dashboardMinus,
+    dashboardNavCard,
+    dashboardNavDeposit,
+    dashboardNavHome,
+    dashboardNavLoan,
+    dashboardPasswordEditTile,
+    dashboardPasswordFullTile,
+    dashboardPasswordSelectedTile,
+    dashboardPasswordTile,
+    dashboardPlus,
+    dashboardPromptArrow,
+    dashboardReset,
+    dashboardReso,
+    dashboardSms,
+    dashboardTexture,
+    dashboardTileWave,
+
     addressCardAngleLeft,
     addressCardBuildings,
     addressCardHomeHeart,
@@ -227,30 +313,11 @@ abstract final class AppAssets {
     cardsListFamily,
     cardsListGiftCard,
     cardsListVirtualCard,
-    dashboardBannerBlue,
-    dashboardBannerYellow,
-    dashboardCardBlock,
-    dashboardCardIssue,
-    dashboardCardLinkedDeposit,
-    dashboardCardPassword,
-    dashboardDepositCertificate,
-    dashboardDepositSms,
-    dashboardDepositStatement,
     dashboardHeaderBell,
     dashboardHeaderMenu,
     dashboardHeaderUser,
-    dashboardLoanCalculator,
-    dashboardLoanConsolidation,
-    dashboardLoanLinkedDeposit,
-    dashboardLoanTransfer,
     dashboardPatternDown,
     dashboardPatternUp,
-    dashboardRequestDivider,
-    dashboardSectionDivider,
-    dashboardSelectedCheque,
-    dashboardSelectedInternet,
-    dashboardSelectedMobile,
-    dashboardSelectedProxy,
     depositCardResalatLogo,
     depositListDeposit,
     dividerCardGray200,
@@ -321,6 +388,5 @@ abstract final class AppAssets {
     transferDestinationCardDivider8,
     transferDestinationCardTrash,
     walletCardWallet,
-    welcomeCardTimerSeparator,
   ];
 }

@@ -5,32 +5,12 @@ import 'package:pishkhan_mobile/shared/widgets/app_bottom_sheet_header.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_confirmer_details_card.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_delete_address_sheet.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_representative_cards.dart';
-import 'package:pishkhan_mobile/shared/widgets/app_welcome_card.dart';
 
 void main() {
   Widget subject(Widget child) => MaterialApp(
     theme: AppTheme.light(),
     home: Scaffold(body: Center(child: child)),
   );
-
-  testWidgets('welcome card matches the Figma dimensions and timer values', (
-    tester,
-  ) async {
-    await tester.pumpWidget(
-      subject(const AppWelcomeCard(minutes: '11', seconds: '00')),
-    );
-
-    expect(
-      tester.getSize(find.byKey(const Key('app_welcome_card'))),
-      const Size(343, 88),
-    );
-    expect(find.text('11'), findsOneWidget);
-    expect(find.text('00'), findsOneWidget);
-    expect(
-      tester.getSize(find.byKey(const Key('app_welcome_timer'))),
-      const Size(66, 28),
-    );
-  });
 
   testWidgets('bottom sheet header renders both exact variants', (
     tester,

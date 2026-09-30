@@ -23,7 +23,9 @@ class DashboardHeader extends StatelessWidget {
     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
     decoration: BoxDecoration(
       color: context.colors.surface,
-      boxShadow: AppShadows.sm,
+      border: Border(
+        bottom: BorderSide(color: context.colors.border, width: .8),
+      ),
     ),
     child: Row(
       textDirection: TextDirection.ltr,
@@ -43,7 +45,7 @@ class DashboardHeader extends StatelessWidget {
             context.l10n.appTitle,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.center,
+            textAlign: TextAlign.start,
             style: AppTypography.titleSmall.copyWith(
               color: context.colors.textPrimary,
               fontWeight: FontWeight.w600,
@@ -52,9 +54,10 @@ class DashboardHeader extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(width: 40),
+        const SizedBox(width: 10),
         _HeaderAction(
           key: const Key('dashboard_menu_button'),
+          dimension: 24,
           asset: DashboardAssets.headerMenu,
           tooltip: context.l10n.servicesMenuLabel,
           onPressed: onMenuPressed,
@@ -70,18 +73,20 @@ class _HeaderAction extends StatelessWidget {
     required this.tooltip,
     required this.onPressed,
     super.key,
+    this.dimension = 40,
   });
 
+  final double dimension;
   final String asset;
   final String tooltip;
   final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) => SizedBox.square(
-    dimension: 40,
+    dimension: dimension,
     child: IconButton(
       onPressed: onPressed ?? () {},
-      padding: const EdgeInsets.all(8),
+      padding: EdgeInsets.all(dimension == 24 ? 0 : 8),
       tooltip: tooltip,
       icon: SvgPicture.asset(asset, width: 24, height: 24),
     ),

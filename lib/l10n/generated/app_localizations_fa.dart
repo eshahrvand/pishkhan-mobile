@@ -213,4 +213,73 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get notificationsLabel => 'اعلان‌ها';
+
+  @override
+  String get dashboardAssistant => 'دستیار هوشمند';
+
+  @override
+  String get dashboardResoTitle => 'به رِسو بسپار!';
+
+  @override
+  String get dashboardResoDescription =>
+      'رِسو فقط جواب نمی‌ده؛ خودش دست‌به‌کار می‌شه.';
+
+  @override
+  String get dashboardPromptHint => 'سوالت رو بنویس...';
+
+  @override
+  String get dashboardSendPrompt => 'ارسال سوال';
+
+  @override
+  String get dashboardBankServices => 'خدمات بانک رسالت';
+
+  @override
+  String get dashboardCustomize => 'تنظیم خدمات منتخب';
+
+  @override
+  String get dashboardYourFavorites => 'منتخب شما';
+
+  @override
+  String get dashboardFavoritesLimit =>
+      'حداکثر ۴ تا مورد رو می‌تونی انتخاب کنی.';
+
+  @override
+  String get dashboardAddService => 'افزودن مورد جدید';
+
+  @override
+  String get dashboardRemoveService => 'حذف';
+
+  @override
+  String get dashboardConfirm => 'تایید';
+
+  @override
+  String get dashboardCancel => 'انصراف';
+
+  @override
+  String get dashboardResetTitle => 'بازنشانی تنظیمات';
+
+  @override
+  String get dashboardResetDescription =>
+      'با بازنشانی تنظیمات، همه تغییراتت از بین می‌ره و به حالت اولیه برمی‌گرده.\nمطمئنی می‌خوای به تنظیمات اولیه برگردی؟';
+
+  @override
+  String get dashboardResetConfirm => 'ثبت امتیاز';
+
+  @override
+  String get dashboardSearchHint => 'جستجو';
+
+  @override
+  String get dashboardNoServices => 'خدمتی پیدا نشد';
+
+  @override
+  String get dashboardTab => 'داشبورد';
+
+  @override
+  String get dashboardCardsTab => 'کارت';
+
+  @override
+  String get dashboardDepositsTab => 'سپرده';
+
+  @override
+  String get dashboardLoansTab => 'وام';
 }

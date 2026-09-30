@@ -217,4 +217,72 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notificationsLabel => 'Notifications';
+
+  @override
+  String get dashboardAssistant => 'AI assistant';
+
+  @override
+  String get dashboardResoTitle => 'Leave it to Reso!';
+
+  @override
+  String get dashboardResoDescription =>
+      'Reso does more than answer; it takes action.';
+
+  @override
+  String get dashboardPromptHint => 'Write your question...';
+
+  @override
+  String get dashboardSendPrompt => 'Send question';
+
+  @override
+  String get dashboardBankServices => 'Resalat Bank services';
+
+  @override
+  String get dashboardCustomize => 'Customize services';
+
+  @override
+  String get dashboardYourFavorites => 'Your favorites';
+
+  @override
+  String get dashboardFavoritesLimit => 'You can select up to 4 services.';
+
+  @override
+  String get dashboardAddService => 'Add a new service';
+
+  @override
+  String get dashboardRemoveService => 'Remove';
+
+  @override
+  String get dashboardConfirm => 'Confirm';
+
+  @override
+  String get dashboardCancel => 'Cancel';
+
+  @override
+  String get dashboardResetTitle => 'Reset settings';
+
+  @override
+  String get dashboardResetDescription =>
+      'Resetting settings removes your changes and restores the original configuration.\nAre you sure you want to reset?';
+
+  @override
+  String get dashboardResetConfirm => 'Submit rating';
+
+  @override
+  String get dashboardSearchHint => 'Search';
+
+  @override
+  String get dashboardNoServices => 'No services found';
+
+  @override
+  String get dashboardTab => 'Dashboard';
+
+  @override
+  String get dashboardCardsTab => 'Cards';
+
+  @override
+  String get dashboardDepositsTab => 'Deposits';
+
+  @override
+  String get dashboardLoansTab => 'Loans';
 }
