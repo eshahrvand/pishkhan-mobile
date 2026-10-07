@@ -6,7 +6,7 @@
   "closeLabel": "إغلاق",
   "servicesMenuLabel": "قائمة الخدمات",
   "changeMobileDescription": "أدخل المعلومات التالية للدخول إلى الشباك وتغيير رقم الهاتف المحمول",
-  "loginTitle": "الدخول إلى الشباك الافتراضي",
+  "loginTitle": "الدخول برقم الهوية",
   "loginNationalIdHint": "الرقم الوطني | رقم الهوية | رمز الأجانب",
   "changeNationalIdHint": "أدخل الرقم الوطني أو رقم الهوية",
   "loginPhoneHint": "أدخل رقم هاتفك المحمول",
@@ -111,5 +111,11 @@
   "notificationSecurityCode": "لا تشارك رمز الدخول: لن يطلب فريق الدعم كلمة المرور أو رمز التحقق منك أبداً.",
   "notificationSecurityLinks": "لا تفتح روابط مشبوهة: تجنب الروابط المجهولة التي تدعي حظر حسابك أو فوزك بجائزة.",
   "notificationSecurityOfficial": "استخدم القنوات الرسمية: تأكد من أن الرسائل تأتي من أرقامنا أو حساباتنا الرسمية.",
-  "notificationSecurityClosing": "إذا لاحظت أمراً مشبوهاً، أخبرنا فوراً للتحقق منه."
+  "notificationSecurityClosing": "إذا لاحظت أمراً مشبوهاً، أخبرنا فوراً للتحقق منه.",
+  "loginDescription": "أدخل المعلومات التالية للدخول إلى حسابك",
+  "otpSentTitle": "تم إرسال الرمز.",
+  "refreshCaptcha": "تحديث رمز الأمان",
+  "authInvalidNationalId": "أدخل رقم الهوية المكون من 10 أرقام",
+  "authInvalidPhone": "أدخل رقم الهاتف المكون من 11 رقماً ويبدأ بـ 09",
+  "authInvalidCaptcha": "أدخل رمز الأمان المكون من 6 أرقام"
 }

@@ -6,7 +6,7 @@
   "closeLabel": "Close",
   "servicesMenuLabel": "Services menu",
   "changeMobileDescription": "Enter the following information to access the counter and change your mobile number",
-  "loginTitle": "Sign in to the virtual counter",
+  "loginTitle": "Sign in with national ID",
   "loginNationalIdHint": "National ID | Identity number | Foreigner code",
   "changeNationalIdHint": "Enter your national ID or identity number",
   "loginPhoneHint": "Enter your mobile number",
@@ -111,5 +111,11 @@
   "notificationSecurityCode": "Never share your login code: our support team will never ask for your password or verification code.",
   "notificationSecurityLinks": "Do not open suspicious links: avoid unknown links claiming your account is blocked or that you won a prize.",
   "notificationSecurityOfficial": "Use official channels: make sure messages come from our official numbers or accounts.",
-  "notificationSecurityClosing": "If you notice anything suspicious, let us know so we can check it promptly."
+  "notificationSecurityClosing": "If you notice anything suspicious, let us know so we can check it promptly.",
+  "loginDescription": "Enter the following information to sign in to your account",
+  "otpSentTitle": "Code sent.",
+  "refreshCaptcha": "Refresh security code",
+  "authInvalidNationalId": "Enter a 10-digit national ID",
+  "authInvalidPhone": "Enter an 11-digit mobile number starting with 09",
+  "authInvalidCaptcha": "Enter the 6-digit security code"
 }

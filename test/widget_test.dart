@@ -8,7 +8,7 @@ void main() {
   ) async {
     await tester.pumpWidget(const MyApp());
 
-    expect(find.text('ورود به پیشخوان مجازی'), findsOneWidget);
+    expect(find.text('ورود با کد ملی'), findsOneWidget);
     expect(find.text('درخواست ارسال رمز'), findsOneWidget);
 
     final changePhoneAction = find.byKey(const Key('change_phone_button'));
@@ -30,11 +30,27 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('تغییر شماره همراه'), findsOneWidget);
-    expect(find.text('درخواست کد دو عاملی'), findsOneWidget);
+    expect(find.text('درخواست ارسال رمز'), findsOneWidget);
 
-    await tester.tap(find.bySemanticsLabel('بستن'));
+    await tester.binding.handlePopRoute();
     await tester.pumpAndSettle();
 
-    expect(find.text('ورود به پیشخوان مجازی'), findsOneWidget);
+    expect(find.text('ورود با کد ملی'), findsOneWidget);
+  });
+  testWidgets('guest service tile opens the change-phone form', (tester) async {
+    await tester.pumpWidget(const MyApp());
+    await tester.tap(find.byKey(const Key('auth_menu_button')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('خدمات بدون نیاز به لاگین'), findsOneWidget);
+    await tester.tap(find.text('تغییر تلفن همراه'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('لیست خدمات'), findsNothing);
+    expect(find.text('درخواست ارسال رمز'), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey<String>('changePhone-national-id')),
+      findsOneWidget,
+    );
   });
 }

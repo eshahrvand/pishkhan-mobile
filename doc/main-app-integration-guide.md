@@ -237,3 +237,10 @@ Add or update a focused widget test in `test/widgets/`. Keep the mapping table i
 
 `AppButton.horizontalPadding` optionally adjusts horizontal inset for compact
 text actions, such as the notification header. Omit it to keep the size defaults.
+
+## Updated login support
+
+Use the public AppLoginColors semantic tokens for login canvas, ownership notice,
+service labels, and section labels. AppTextField accepts textAlign (default:
+TextAlign.start), so numeric values can use TextDirection.ltr and TextAlign.end
+without changing the surrounding RTL icon layout.

@@ -8,6 +8,7 @@ class AuthState {
     this.captcha = '',
     this.otp = '',
     this.secondsRemaining = 60,
+    this.invalidFields = const {},
   });
 
   final AuthStep step;
@@ -16,6 +17,7 @@ class AuthState {
   final String captcha;
   final String otp;
   final int secondsRemaining;
+  final Set<String> invalidFields;
 
   bool get isLoginForm => step == AuthStep.login;
   bool get isOtp =>
@@ -23,11 +25,14 @@ class AuthState {
   bool get isChangePhone =>
       step == AuthStep.changePhone || step == AuthStep.changePhoneOtp;
   bool get isFormValid =>
-      nationalId.length == 10 && phone.length == 11 && captcha.length == 6;
-  bool get isOtpValid => otp.length == 4;
+      nationalId.length == 10 &&
+      phone.length == 11 &&
+      phone.startsWith('09') &&
+      captcha.length == 6;
+  bool get isOtpValid => otp.length == 4 && secondsRemaining > 0;
 
   String get maskedPhone {
-    if (phone.length != 11) return '۴۲*******۰۹۱۲';
+    if (phone.length != 11) return '0912*******42';
     return '${phone.substring(0, 4)}*******${phone.substring(9)}';
   }
 
@@ -38,14 +43,16 @@ class AuthState {
     String? captcha,
     String? otp,
     int? secondsRemaining,
-  }) {
-    return AuthState(
-      step: step ?? this.step,
-      nationalId: nationalId ?? this.nationalId,
-      phone: phone ?? this.phone,
-      captcha: captcha ?? this.captcha,
-      otp: otp ?? this.otp,
-      secondsRemaining: secondsRemaining ?? this.secondsRemaining,
-    );
-  }
+    Set<String>? invalidFields,
+  }) => AuthState(
+    step: step ?? this.step,
+    nationalId: nationalId ?? this.nationalId,
+    phone: phone ?? this.phone,
+    captcha: captcha ?? this.captcha,
+    otp: otp ?? this.otp,
+    secondsRemaining: secondsRemaining ?? this.secondsRemaining,
+    invalidFields: invalidFields == null
+        ? this.invalidFields
+        : Set.unmodifiable(invalidFields),
+  );
 }

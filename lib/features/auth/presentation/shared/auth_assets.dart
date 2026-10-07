@@ -2,6 +2,9 @@ import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 /// Auth-scoped aliases for the application asset registry.
 abstract final class AuthAssets {
+  static const background = AppAssets.authBackground;
+  static const headerDivider = AppAssets.authHeaderDivider;
+  static const sectionMark = AppAssets.authSectionMark;
   static const assetReport = AppAssets.authAssetReport;
   static const back = AppAssets.iconMenuLeft24;
   static const callCenter = AppAssets.authCallCenter;
@@ -13,7 +16,7 @@ abstract final class AuthAssets {
   static const inheritance = AppAssets.authInheritance;
   static const internetBank = AppAssets.authInternetBank;
   static const lock = AppAssets.authLock;
-  static const menu = AppAssets.iconMenuLeft24;
+  static const menu = AppAssets.authMenu;
   static const mobile = AppAssets.authMobile;
   static const mobileBank = AppAssets.authMobileBank;
   static const refresh = AppAssets.authRefresh;
@@ -24,7 +27,7 @@ abstract final class AuthAssets {
   static const sectionDivider1 = AppAssets.authSectionDivider1;
   static const sectionDivider2 = AppAssets.authSectionDivider2;
   static const security = AppAssets.authSecurity;
-  static const sheetClose = AppAssets.iconClose24Gray700;
+  static const sheetClose = AppAssets.authSheetClose;
   static const updateGuide = AppAssets.authUpdateGuide;
   static const user = AppAssets.authUser;
 }

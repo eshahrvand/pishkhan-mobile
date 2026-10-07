@@ -165,12 +165,17 @@ class AppServiceGridItemView extends StatelessWidget {
     required this.item,
     this.usesIconTile = true,
     this.tileColor,
+    this.labelStyle,
     super.key,
   });
 
   final AppServiceGridItem item;
   final bool usesIconTile;
   final Color? tileColor;
+
+  /// Instance typography override for the Figma micro-service component.
+  /// Derive overrides from [AppTypography] to retain the package font.
+  final TextStyle? labelStyle;
 
   @override
   Widget build(BuildContext context) {
@@ -201,13 +206,15 @@ class AppServiceGridItemView extends StatelessWidget {
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.center,
-            style: AppTypography.labelSmall.copyWith(
-              color: colors.textPrimary,
-              fontSize: 10,
-              fontWeight: FontWeight.w400,
-              height: 16 / 10,
-              letterSpacing: 0,
-            ),
+            style: AppTypography.labelSmall
+                .copyWith(
+                  color: colors.textPrimary,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w400,
+                  height: 16 / 10,
+                  letterSpacing: 0,
+                )
+                .merge(labelStyle),
           ),
         ),
       ],

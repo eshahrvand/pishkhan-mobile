@@ -139,7 +139,7 @@ abstract class AppLocalizations {
   /// No description provided for @loginTitle.
   ///
   /// In fa, this message translates to:
-  /// **'ورود به پیشخوان مجازی'**
+  /// **'ورود با کد ملی'**
   String get loginTitle;
 
   /// No description provided for @loginNationalIdHint.
@@ -193,7 +193,7 @@ abstract class AppLocalizations {
   /// No description provided for @captchaHint.
   ///
   /// In fa, this message translates to:
-  /// **'کد را وارد کنید'**
+  /// **'کد روبرو را وارد کنید'**
   String get captchaHint;
 
   /// No description provided for @otpSentMessage.
@@ -771,6 +771,42 @@ abstract class AppLocalizations {
   /// In fa, this message translates to:
   /// **'اگه با مورد مشکوکی برخورد کردی، همون لحظه به ما خبر بده تا سریع چکش کنیم.'**
   String get notificationSecurityClosing;
+
+  /// No description provided for @loginDescription.
+  ///
+  /// In fa, this message translates to:
+  /// **'برای ورود به حساب کاربری اطلاعات زیر را وارد کنید'**
+  String get loginDescription;
+
+  /// No description provided for @otpSentTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'کد ارسال شد.'**
+  String get otpSentTitle;
+
+  /// No description provided for @refreshCaptcha.
+  ///
+  /// In fa, this message translates to:
+  /// **'تازه‌سازی کد امنیتی'**
+  String get refreshCaptcha;
+
+  /// No description provided for @authInvalidNationalId.
+  ///
+  /// In fa, this message translates to:
+  /// **'کد ملی ۱۰ رقمی را وارد کنید'**
+  String get authInvalidNationalId;
+
+  /// No description provided for @authInvalidPhone.
+  ///
+  /// In fa, this message translates to:
+  /// **'شماره همراه ۱۱ رقمی با ۰۹ را وارد کنید'**
+  String get authInvalidPhone;
+
+  /// No description provided for @authInvalidCaptcha.
+  ///
+  /// In fa, this message translates to:
+  /// **'کد امنیتی ۶ رقمی را وارد کنید'**
+  String get authInvalidCaptcha;
 }
 
 class _AppLocalizationsDelegate

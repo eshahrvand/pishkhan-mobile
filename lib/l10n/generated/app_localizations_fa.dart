@@ -29,7 +29,7 @@ class AppLocalizationsFa extends AppLocalizations {
       'برای تغییر شماره همراه ورود به پیشخوان اطلاعات زیر را وارد کنید';
 
   @override
-  String get loginTitle => 'ورود به پیشخوان مجازی';
+  String get loginTitle => 'ورود با کد ملی';
 
   @override
   String get loginNationalIdHint => 'کد ملی | شماره ملی | کد اتباع';
@@ -57,7 +57,7 @@ class AppLocalizationsFa extends AppLocalizations {
       'شماره باید با کد ملی دارنده حساب مطابقت داشته باشد';
 
   @override
-  String get captchaHint => 'کد را وارد کنید';
+  String get captchaHint => 'کد روبرو را وارد کنید';
 
   @override
   String otpSentMessage(String phone) {
@@ -358,4 +358,23 @@ class AppLocalizationsFa extends AppLocalizations {
   @override
   String get notificationSecurityClosing =>
       'اگه با مورد مشکوکی برخورد کردی، همون لحظه به ما خبر بده تا سریع چکش کنیم.';
+
+  @override
+  String get loginDescription =>
+      'برای ورود به حساب کاربری اطلاعات زیر را وارد کنید';
+
+  @override
+  String get otpSentTitle => 'کد ارسال شد.';
+
+  @override
+  String get refreshCaptcha => 'تازه‌سازی کد امنیتی';
+
+  @override
+  String get authInvalidNationalId => 'کد ملی ۱۰ رقمی را وارد کنید';
+
+  @override
+  String get authInvalidPhone => 'شماره همراه ۱۱ رقمی با ۰۹ را وارد کنید';
+
+  @override
+  String get authInvalidCaptcha => 'کد امنیتی ۶ رقمی را وارد کنید';
 }

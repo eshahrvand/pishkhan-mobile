@@ -29,7 +29,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Enter the following information to access the counter and change your mobile number';
 
   @override
-  String get loginTitle => 'Sign in to the virtual counter';
+  String get loginTitle => 'Sign in with national ID';
 
   @override
   String get loginNationalIdHint =>
@@ -361,4 +361,24 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get notificationSecurityClosing =>
       'If you notice anything suspicious, let us know so we can check it promptly.';
+
+  @override
+  String get loginDescription =>
+      'Enter the following information to sign in to your account';
+
+  @override
+  String get otpSentTitle => 'Code sent.';
+
+  @override
+  String get refreshCaptcha => 'Refresh security code';
+
+  @override
+  String get authInvalidNationalId => 'Enter a 10-digit national ID';
+
+  @override
+  String get authInvalidPhone =>
+      'Enter an 11-digit mobile number starting with 09';
+
+  @override
+  String get authInvalidCaptcha => 'Enter the 6-digit security code';
 }

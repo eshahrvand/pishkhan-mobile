@@ -6,7 +6,7 @@
   "closeLabel": "بستن",
   "servicesMenuLabel": "فهرست خدمات",
   "changeMobileDescription": "برای تغییر شماره همراه ورود به پیشخوان اطلاعات زیر را وارد کنید",
-  "loginTitle": "ورود به پیشخوان مجازی",
+  "loginTitle": "ورود با کد ملی",
   "loginNationalIdHint": "کد ملی | شماره ملی | کد اتباع",
   "changeNationalIdHint": "کد ملی | شماره ملی خود را وارد کنید",
   "loginPhoneHint": "شماره همراه خود را وارد کنید",
@@ -15,11 +15,13 @@
   "requestTwoFactorCode": "درخواست کد دو عاملی",
   "requestOtp": "درخواست ارسال رمز",
   "phoneOwnershipNotice": "شماره باید با کد ملی دارنده حساب مطابقت داشته باشد",
-  "captchaHint": "کد را وارد کنید",
+  "captchaHint": "کد روبرو را وارد کنید",
   "otpSentMessage": "رمز پویای ارسال شده به شماره {phone} را وارد کنید.",
   "@otpSentMessage": {
     "placeholders": {
-      "phone": { "type": "String" }
+      "phone": {
+        "type": "String"
+      }
     }
   },
   "otpHint": "وارد کردن رمز",
@@ -116,5 +118,11 @@
   "notificationSecurityCode": "کد ورودت رو به کسی نده: ما تو تیم پشتیبانی هیچ‌وقت رمز یا کد تاییدی که برات پیامک می‌شه رو ازت نمی‌خوایم.",
   "notificationSecurityLinks": "لینک‌های مشکوک رو باز نکن: اگه پیامی با یه لینک ناشناس برات اومد که می‌گفت «حسابت مسدود شده» یا «برنده شدی»، اصلاً روش کلیک نکن.",
   "notificationSecurityOfficial": "فقط از راه‌های رسمی در ارتباط باش: همیشه مطمئن شو پیامی که می‌گیری از طرف شماره‌ها یا اکانت‌های رسمی خودمون باشه.",
-  "notificationSecurityClosing": "اگه با مورد مشکوکی برخورد کردی، همون لحظه به ما خبر بده تا سریع چکش کنیم."
+  "notificationSecurityClosing": "اگه با مورد مشکوکی برخورد کردی، همون لحظه به ما خبر بده تا سریع چکش کنیم.",
+  "loginDescription": "برای ورود به حساب کاربری اطلاعات زیر را وارد کنید",
+  "otpSentTitle": "کد ارسال شد.",
+  "refreshCaptcha": "تازه‌سازی کد امنیتی",
+  "authInvalidNationalId": "کد ملی ۱۰ رقمی را وارد کنید",
+  "authInvalidPhone": "شماره همراه ۱۱ رقمی با ۰۹ را وارد کنید",
+  "authInvalidCaptcha": "کد امنیتی ۶ رقمی را وارد کنید"
 }

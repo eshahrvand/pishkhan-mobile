@@ -9,6 +9,7 @@ they do not change the public API of `avp_ui`.
 | Drawer menu | `16345:98596`, `16345:98461` | `AppDrawer` | `lib/shared/widgets/app_drawer.dart` | Open/closed, selected/unselected item, expandable sub-items, controlled state. |
 | Invoice | `16662:53720` | `AppInvoice`, `AppInvoiceLine` | `lib/shared/widgets/app_invoice.dart` | Open/closed detail list and sufficient/insufficient wallet status. |
 | Cards / SingleCard / HomeCard | `16634:22500` | `AppServiceGridCard`, `AppServiceGridItem` | `lib/shared/widgets/app_service_grid_card.dart` | `service` and `quick` visual variants; data, icon, and action are supplied by the caller. |
+| Micro service | `13899:3298` | `AppServiceGridItemView` | `lib/shared/widgets/app_service_grid_card.dart` | 72px item, 64px tile, 32px supplied icon, 8px gap, and 10px/16px Regular label. `tileColor` and `labelStyle` support instance overrides; the login service sheet uses white tiles and DemiBold labels. |
 | WalletCard | `13953:13960` | `AppWalletCard` | `lib/shared/widgets/app_wallet_card.dart` | `mobile` and `desktop` layouts. |
 | DepositList | `15973:77374` | `AppDepositList` | `lib/shared/widgets/app_deposit_list.dart` | Configurable deposit title, number, status badge, and more action. |
 | CardsList | `15962:66343` | `AppCardsList` | `lib/shared/widgets/app_cards_list.dart` | `resalat`, `gift`, `virtual`, `coupon`, and `family` card types. |
@@ -76,3 +77,8 @@ welcome/timer card have been removed along with their unused assets.
   marks every message read. The dashboard retains updates for its lifetime.
 - Default content comes from the Figma examples. Repository fetching and durable
   storage are not connected in this UI implementation.
+
+## Login (updated design)
+
+See [login-implementation-review.md](login-implementation-review.md) for all nine
+frame mappings, component composition, interaction behavior, and visual previews.

@@ -8,30 +8,30 @@ class AuthPhoneOwnershipNotice extends StatelessWidget {
   const AuthPhoneOwnershipNotice({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      constraints: const BoxConstraints(minHeight: 44),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      decoration: BoxDecoration(
-        color: context.colors.surfaceSubtle,
-        borderRadius: AppRadius.borderSm,
-      ),
-      child: Row(
-        children: [
-          SvgPicture.asset(AuthAssets.infoCircle, width: 20, height: 20),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              context.l10n.phoneOwnershipNotice,
-              style: AppTypography.labelMedium.copyWith(
-                color: context.colors.textSecondary,
-                height: 18 / 12,
-                letterSpacing: 0,
-              ),
+  Widget build(BuildContext context) => Container(
+    key: const Key('auth_phone_ownership_notice'),
+    constraints: const BoxConstraints(minHeight: 44),
+    padding: const EdgeInsetsDirectional.fromSTEB(14, 6, 14, 6),
+    decoration: const BoxDecoration(
+      color: AppLoginColors.noticeSurface,
+      borderRadius: AppRadius.borderSm,
+    ),
+    child: Row(
+      children: [
+        SvgPicture.asset(AuthAssets.infoCircle, width: 20, height: 20),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            context.l10n.phoneOwnershipNotice,
+            style: AppTypography.labelMedium.copyWith(
+              color: AppLoginColors.noticeText,
+              fontWeight: FontWeight.w500,
+              height: 18 / 12,
+              letterSpacing: 0,
             ),
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
 }

@@ -11,6 +11,11 @@ abstract final class AppAssets {
   static const addressCardHomeHeart = '$_root/address_card_home_heart.svg';
   static const arrowButtonArrowLeft = '$_root/arrow_button_arrow_left.svg';
   static const arrowButtonArrowRight = '$_root/arrow_button_arrow_right.svg';
+  static const authBackground = '$_root/auth_background.png';
+  static const authHeaderDivider = '$_root/auth_header_divider.svg';
+  static const authMenu = '$_root/auth_menu.svg';
+  static const authSectionMark = '$_root/auth_section_mark.svg';
+  static const authSheetClose = '$_root/auth_sheet_close.svg';
   static const authAssetReport = '$_root/auth_asset_report.svg';
   static const authCallCenter = '$_root/auth_call_center.svg';
   static const authCaptcha = '$_root/auth_captcha.png';
@@ -293,6 +298,11 @@ abstract final class AppAssets {
     addressCardHomeHeart,
     arrowButtonArrowLeft,
     arrowButtonArrowRight,
+    authBackground,
+    authHeaderDivider,
+    authMenu,
+    authSectionMark,
+    authSheetClose,
     authAssetReport,
     authCallCenter,
     authCaptcha,

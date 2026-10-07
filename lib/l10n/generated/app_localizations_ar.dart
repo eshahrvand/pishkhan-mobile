@@ -29,7 +29,7 @@ class AppLocalizationsAr extends AppLocalizations {
       'أدخل المعلومات التالية للدخول إلى الشباك وتغيير رقم الهاتف المحمول';
 
   @override
-  String get loginTitle => 'الدخول إلى الشباك الافتراضي';
+  String get loginTitle => 'الدخول برقم الهوية';
 
   @override
   String get loginNationalIdHint => 'الرقم الوطني | رقم الهوية | رمز الأجانب';
@@ -357,4 +357,23 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get notificationSecurityClosing =>
       'إذا لاحظت أمراً مشبوهاً، أخبرنا فوراً للتحقق منه.';
+
+  @override
+  String get loginDescription => 'أدخل المعلومات التالية للدخول إلى حسابك';
+
+  @override
+  String get otpSentTitle => 'تم إرسال الرمز.';
+
+  @override
+  String get refreshCaptcha => 'تحديث رمز الأمان';
+
+  @override
+  String get authInvalidNationalId => 'أدخل رقم الهوية المكون من 10 أرقام';
+
+  @override
+  String get authInvalidPhone =>
+      'أدخل رقم الهاتف المكون من 11 رقماً ويبدأ بـ 09';
+
+  @override
+  String get authInvalidCaptcha => 'أدخل رمز الأمان المكون من 6 أرقام';
 }
