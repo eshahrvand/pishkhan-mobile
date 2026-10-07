@@ -227,6 +227,102 @@ abstract final class AppAssets {
   static const dashboardCatalogSms = '$_root/dashboard_catalog_sms.svg';
   static const dashboardCatalogSearch = '$_root/dashboard_catalog_search.svg';
 
+  static const dashboardAllAngle = '$_root/dashboard_all_angle.svg';
+  static const dashboardFixedSms = '$_root/dashboard_fixed_sms.svg';
+  static const dashboardFixedEstimate = '$_root/dashboard_fixed_estimate.svg';
+  static const dashboardFixedPassword = '$_root/dashboard_fixed_password.svg';
+  static const dashboardFixedRepresentative =
+      '$_root/dashboard_fixed_representative.svg';
+  static const dashboardFixedCertificate =
+      '$_root/dashboard_fixed_certificate.svg';
+  static const dashboardFixedStatement = '$_root/dashboard_fixed_statement.svg';
+  static const dashboardFixedBlock = '$_root/dashboard_fixed_block.svg';
+  static const dashboardAddFavorites = '$_root/dashboard_add_favorites.svg';
+  static const dashboardEdit = '$_root/dashboard_edit.svg';
+  static const dashboardFavoriteCardDeposit =
+      '$_root/dashboard_favorite_card_deposit.svg';
+  static const dashboardFavoriteChequeIcon =
+      '$_root/dashboard_favorite_cheque_icon.svg';
+  static const dashboardFavoriteConsolidation =
+      '$_root/dashboard_favorite_consolidation.svg';
+  static const dashboardFavoriteIssue = '$_root/dashboard_favorite_issue.svg';
+  static const dashboardFavoriteProxy = '$_root/dashboard_favorite_proxy.svg';
+  static const dashboardFavoriteMobile = '$_root/dashboard_favorite_mobile.svg';
+  static const dashboardFavoriteCardDepositEdit =
+      '$_root/dashboard_favorite_card_deposit_edit.svg';
+  static const dashboardFavoriteConsolidationEdit =
+      '$_root/dashboard_favorite_consolidation_edit.svg';
+  static const dashboardFavoriteIssueEdit =
+      '$_root/dashboard_favorite_issue_edit.svg';
+  static const dashboardFavoriteLoanDepositEdit =
+      '$_root/dashboard_favorite_loan_deposit_edit.svg';
+  static const dashboardFavoriteInternetEdit =
+      '$_root/dashboard_favorite_internet_edit.svg';
+  static const dashboardFavoriteProxyEdit =
+      '$_root/dashboard_favorite_proxy_edit.svg';
+  static const dashboardFavoriteMobileEdit =
+      '$_root/dashboard_favorite_mobile_edit.svg';
+  static const dashboardOptionMore = '$_root/dashboard_option_more.svg';
+  static const dashboardCategoryModern = '$_root/dashboard_category_modern.svg';
+  static const dashboardCategoryCardActive =
+      '$_root/dashboard_category_card_active.svg';
+  static const dashboardCategoryCheque = '$_root/dashboard_category_cheque.svg';
+  static const dashboardCategoryCollapse =
+      '$_root/dashboard_category_collapse.svg';
+  static const dashboardOptionIssue = '$_root/dashboard_option_issue.svg';
+  static const dashboardOptionPassword = '$_root/dashboard_option_password.svg';
+  static const dashboardOptionCardDeposit =
+      '$_root/dashboard_option_card_deposit.svg';
+  static const dashboardOptionBlock = '$_root/dashboard_option_block.svg';
+  static const dashboardCatalogMore = '$_root/dashboard_catalog_more.svg';
+  static const dashboardCatalogRequests =
+      '$_root/dashboard_catalog_requests.svg';
+  static const dashboardCatalogCategoryModern =
+      '$_root/dashboard_catalog_category_modern.svg';
+  static const dashboardCatalogCategoryCard =
+      '$_root/dashboard_catalog_category_card.svg';
+  static const dashboardCatalogCategoryCheque =
+      '$_root/dashboard_catalog_category_cheque.svg';
+  static const dashboardCatalogCategoryTransfer =
+      '$_root/dashboard_catalog_category_transfer.svg';
+  static const dashboardCatalogCategoryLoan =
+      '$_root/dashboard_catalog_category_loan.svg';
+  static const dashboardCatalogCategoryDeposit =
+      '$_root/dashboard_catalog_category_deposit.svg';
+  static const dashboardCatalogCategoryWallet =
+      '$_root/dashboard_catalog_category_wallet.svg';
+  static const dashboardCatalogCategoryIdentity =
+      '$_root/dashboard_catalog_category_identity.svg';
+  static const dashboardCatalogCategoryRequests =
+      '$_root/dashboard_catalog_category_requests.svg';
+  static const dashboardSearchClear = '$_root/dashboard_search_clear.svg';
+  static const dashboardGreenPlus = '$_root/dashboard_green_plus.svg';
+
+  static const dashboardSearchCard = '$_root/dashboard_search_card.svg';
+  static const dashboardSearchWallet = '$_root/dashboard_search_wallet.svg';
+  static const dashboardSearchIdentity = '$_root/dashboard_search_identity.svg';
+
+  static const dashboardCatalogBack = '$_root/dashboard_catalog_back.svg';
+
+  static const dashboardDividerModern = '$_root/dashboard_divider_modern.svg';
+  static const dashboardDividerCard = '$_root/dashboard_divider_card.svg';
+  static const dashboardDividerCheque = '$_root/dashboard_divider_cheque.svg';
+  static const dashboardDividerTransfer =
+      '$_root/dashboard_divider_transfer.svg';
+  static const dashboardDividerLoan = '$_root/dashboard_divider_loan.svg';
+  static const dashboardDividerDeposit = '$_root/dashboard_divider_deposit.svg';
+  static const dashboardDividerWallet = '$_root/dashboard_divider_wallet.svg';
+  static const dashboardDividerIdentity =
+      '$_root/dashboard_divider_identity.svg';
+  static const dashboardDividerRequests =
+      '$_root/dashboard_divider_requests.svg';
+  static const dashboardDividerSheetModern =
+      '$_root/dashboard_divider_sheet_modern.svg';
+  static const dashboardDividerSheetCard =
+      '$_root/dashboard_divider_sheet_card.svg';
+  static const dashboardDividerSheetCheque =
+      '$_root/dashboard_divider_sheet_cheque.svg';
+
   /// Every registered file, used by the asset integrity test.
   static const notificationBack = '$_root/notification_back.svg';
   static const notificationDivider = '$_root/notification_divider.svg';
@@ -237,6 +333,67 @@ abstract final class AppAssets {
   static const notificationSecurity = '$_root/notification_security.png';
 
   static const all = <String>[
+    dashboardAllAngle,
+    dashboardFixedSms,
+    dashboardFixedEstimate,
+    dashboardFixedPassword,
+    dashboardFixedRepresentative,
+    dashboardFixedCertificate,
+    dashboardFixedStatement,
+    dashboardFixedBlock,
+    dashboardAddFavorites,
+    dashboardEdit,
+    dashboardFavoriteCardDeposit,
+    dashboardFavoriteChequeIcon,
+    dashboardFavoriteConsolidation,
+    dashboardFavoriteIssue,
+    dashboardFavoriteProxy,
+    dashboardFavoriteMobile,
+    dashboardFavoriteCardDepositEdit,
+    dashboardFavoriteConsolidationEdit,
+    dashboardFavoriteIssueEdit,
+    dashboardFavoriteLoanDepositEdit,
+    dashboardFavoriteInternetEdit,
+    dashboardFavoriteProxyEdit,
+    dashboardFavoriteMobileEdit,
+    dashboardOptionMore,
+    dashboardCategoryModern,
+    dashboardCategoryCardActive,
+    dashboardCategoryCheque,
+    dashboardCategoryCollapse,
+    dashboardOptionIssue,
+    dashboardOptionPassword,
+    dashboardOptionCardDeposit,
+    dashboardOptionBlock,
+    dashboardCatalogMore,
+    dashboardCatalogRequests,
+    dashboardCatalogCategoryModern,
+    dashboardCatalogCategoryCard,
+    dashboardCatalogCategoryCheque,
+    dashboardCatalogCategoryTransfer,
+    dashboardCatalogCategoryLoan,
+    dashboardCatalogCategoryDeposit,
+    dashboardCatalogCategoryWallet,
+    dashboardCatalogCategoryIdentity,
+    dashboardCatalogCategoryRequests,
+    dashboardDividerModern,
+    dashboardDividerCard,
+    dashboardDividerCheque,
+    dashboardDividerTransfer,
+    dashboardDividerLoan,
+    dashboardDividerDeposit,
+    dashboardDividerWallet,
+    dashboardDividerIdentity,
+    dashboardDividerRequests,
+    dashboardDividerSheetModern,
+    dashboardDividerSheetCard,
+    dashboardDividerSheetCheque,
+    dashboardCatalogBack,
+    dashboardSearchClear,
+    dashboardSearchCard,
+    dashboardSearchWallet,
+    dashboardSearchIdentity,
+    dashboardGreenPlus,
     notificationBack,
     notificationDivider,
     notificationUnread,

@@ -553,7 +553,7 @@ abstract class AppLocalizations {
   /// No description provided for @dashboardFavoritesLimit.
   ///
   /// In fa, this message translates to:
-  /// **'حداکثر ۴ تا مورد رو می‌تونی انتخاب کنی.'**
+  /// **'حداکثر ۸ تا مورد رو می‌تونی انتخاب کنی.'**
   String get dashboardFavoritesLimit;
 
   /// No description provided for @dashboardAddService.
@@ -595,7 +595,7 @@ abstract class AppLocalizations {
   /// No description provided for @dashboardResetConfirm.
   ///
   /// In fa, this message translates to:
-  /// **'ثبت امتیاز'**
+  /// **'بازنشانی تنظیمات'**
   String get dashboardResetConfirm;
 
   /// No description provided for @dashboardSearchHint.
@@ -807,6 +807,264 @@ abstract class AppLocalizations {
   /// In fa, this message translates to:
   /// **'کد امنیتی ۶ رقمی را وارد کنید'**
   String get authInvalidCaptcha;
+
+  /// No description provided for @dashboardModernBanking.
+  ///
+  /// In fa, this message translates to:
+  /// **'بانکداری مدرن'**
+  String get dashboardModernBanking;
+
+  /// No description provided for @dashboardChequeServices.
+  ///
+  /// In fa, this message translates to:
+  /// **'چک'**
+  String get dashboardChequeServices;
+
+  /// No description provided for @dashboardTransferServices.
+  ///
+  /// In fa, this message translates to:
+  /// **'انتقال وجه'**
+  String get dashboardTransferServices;
+
+  /// No description provided for @dashboardWalletServices.
+  ///
+  /// In fa, this message translates to:
+  /// **'کیف پول'**
+  String get dashboardWalletServices;
+
+  /// No description provided for @dashboardIdentityServices.
+  ///
+  /// In fa, this message translates to:
+  /// **'اطلاعات فردی'**
+  String get dashboardIdentityServices;
+
+  /// No description provided for @dashboardRequestServices.
+  ///
+  /// In fa, this message translates to:
+  /// **'درخواست‌های من'**
+  String get dashboardRequestServices;
+
+  /// No description provided for @dashboardAllServices.
+  ///
+  /// In fa, this message translates to:
+  /// **'همه خدمات'**
+  String get dashboardAllServices;
+
+  /// No description provided for @dashboardViewAll.
+  ///
+  /// In fa, this message translates to:
+  /// **'مشاهده همه'**
+  String get dashboardViewAll;
+
+  /// No description provided for @dashboardEdit.
+  ///
+  /// In fa, this message translates to:
+  /// **'ویرایش'**
+  String get dashboardEdit;
+
+  /// No description provided for @dashboardAddFavorites.
+  ///
+  /// In fa, this message translates to:
+  /// **'افزودن خدمات منتخب'**
+  String get dashboardAddFavorites;
+
+  /// No description provided for @dashboardManageInstallments.
+  ///
+  /// In fa, this message translates to:
+  /// **'مدیریت کسر اقساط'**
+  String get dashboardManageInstallments;
+
+  /// No description provided for @dashboardEstimateCredit.
+  ///
+  /// In fa, this message translates to:
+  /// **'برآورد اعتبار وام'**
+  String get dashboardEstimateCredit;
+
+  /// No description provided for @dashboardPromptCertificate.
+  ///
+  /// In fa, this message translates to:
+  /// **'گواهی تمکن مالی می‌خوام...'**
+  String get dashboardPromptCertificate;
+
+  /// No description provided for @dashboardPromptCard.
+  ///
+  /// In fa, this message translates to:
+  /// **'چطور کارت رسالت بگیرم؟'**
+  String get dashboardPromptCard;
+
+  /// No description provided for @dashboardPhoneBank.
+  ///
+  /// In fa, this message translates to:
+  /// **'تلفن بانک'**
+  String get dashboardPhoneBank;
+
+  /// No description provided for @dashboardCardsList.
+  ///
+  /// In fa, this message translates to:
+  /// **'لیست کارت‌ها'**
+  String get dashboardCardsList;
+
+  /// No description provided for @dashboardVirtualCard.
+  ///
+  /// In fa, this message translates to:
+  /// **'درخواست کارت مجازی'**
+  String get dashboardVirtualCard;
+
+  /// No description provided for @dashboardUnblockCard.
+  ///
+  /// In fa, this message translates to:
+  /// **'رفع مسدودی کارت'**
+  String get dashboardUnblockCard;
+
+  /// No description provided for @dashboardExpiredGift.
+  ///
+  /// In fa, this message translates to:
+  /// **'واریز مانده کارت هدیه منقضی'**
+  String get dashboardExpiredGift;
+
+  /// No description provided for @dashboardClearCheque.
+  ///
+  /// In fa, this message translates to:
+  /// **'رفع سوء اثر چک'**
+  String get dashboardClearCheque;
+
+  /// No description provided for @dashboardCancelCheque.
+  ///
+  /// In fa, this message translates to:
+  /// **'ابطال چک'**
+  String get dashboardCancelCheque;
+
+  /// No description provided for @dashboardLocalTransfer.
+  ///
+  /// In fa, this message translates to:
+  /// **'انتقال وجه خدمت در محل'**
+  String get dashboardLocalTransfer;
+
+  /// No description provided for @dashboardMyLoans.
+  ///
+  /// In fa, this message translates to:
+  /// **'وام‌های من'**
+  String get dashboardMyLoans;
+
+  /// No description provided for @dashboardLoanReport.
+  ///
+  /// In fa, this message translates to:
+  /// **'گزارش معرفی وام'**
+  String get dashboardLoanReport;
+
+  /// No description provided for @dashboardCorrectInstallments.
+  ///
+  /// In fa, this message translates to:
+  /// **'اصلاح اقساط پرداختی'**
+  String get dashboardCorrectInstallments;
+
+  /// No description provided for @dashboardDeferLoan.
+  ///
+  /// In fa, this message translates to:
+  /// **'امهال وام'**
+  String get dashboardDeferLoan;
+
+  /// No description provided for @dashboardDepositsList.
+  ///
+  /// In fa, this message translates to:
+  /// **'لیست سپرده‌ها'**
+  String get dashboardDepositsList;
+
+  /// No description provided for @dashboardOpenCurrent.
+  ///
+  /// In fa, this message translates to:
+  /// **'افتتاح سپرده جاری'**
+  String get dashboardOpenCurrent;
+
+  /// No description provided for @dashboardCloseExtras.
+  ///
+  /// In fa, this message translates to:
+  /// **'بستن سپرده‌های مازاد'**
+  String get dashboardCloseExtras;
+
+  /// No description provided for @dashboardRepresentationSettings.
+  ///
+  /// In fa, this message translates to:
+  /// **'تنظیمات نمایندگی'**
+  String get dashboardRepresentationSettings;
+
+  /// No description provided for @dashboardUnblockDeposit.
+  ///
+  /// In fa, this message translates to:
+  /// **'رفع مسدودی سپرده'**
+  String get dashboardUnblockDeposit;
+
+  /// No description provided for @dashboardBlockDeposit.
+  ///
+  /// In fa, this message translates to:
+  /// **'مسدودی سپرده'**
+  String get dashboardBlockDeposit;
+
+  /// No description provided for @dashboardWalletInfo.
+  ///
+  /// In fa, this message translates to:
+  /// **'اطلاعات کیف پول'**
+  String get dashboardWalletInfo;
+
+  /// No description provided for @dashboardWalletCharge.
+  ///
+  /// In fa, this message translates to:
+  /// **'افزایش موجودی'**
+  String get dashboardWalletCharge;
+
+  /// No description provided for @dashboardWalletWithdraw.
+  ///
+  /// In fa, this message translates to:
+  /// **'برداشت موجودی'**
+  String get dashboardWalletWithdraw;
+
+  /// No description provided for @dashboardWalletTransfer.
+  ///
+  /// In fa, this message translates to:
+  /// **'واریز کیف به کیف'**
+  String get dashboardWalletTransfer;
+
+  /// No description provided for @dashboardWalletHistory.
+  ///
+  /// In fa, this message translates to:
+  /// **'گردش کیف پول'**
+  String get dashboardWalletHistory;
+
+  /// No description provided for @dashboardWalletDeposit.
+  ///
+  /// In fa, this message translates to:
+  /// **'تغییر سپرده متصل به کیف'**
+  String get dashboardWalletDeposit;
+
+  /// No description provided for @dashboardChangeIdentity.
+  ///
+  /// In fa, this message translates to:
+  /// **'تغییر مشخصات هویتی'**
+  String get dashboardChangeIdentity;
+
+  /// No description provided for @dashboardOccupation.
+  ///
+  /// In fa, this message translates to:
+  /// **'مدیریت شغل'**
+  String get dashboardOccupation;
+
+  /// No description provided for @dashboardAddresses.
+  ///
+  /// In fa, this message translates to:
+  /// **'مدیریت آدرس'**
+  String get dashboardAddresses;
+
+  /// No description provided for @dashboardChangePhone.
+  ///
+  /// In fa, this message translates to:
+  /// **'تغییر شماره تلفن همراه'**
+  String get dashboardChangePhone;
+
+  /// No description provided for @dashboardRequests.
+  ///
+  /// In fa, this message translates to:
+  /// **'درخواست‌های من'**
+  String get dashboardRequests;
 }
 
 class _AppLocalizationsDelegate

@@ -241,7 +241,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get dashboardFavoritesLimit =>
-      'حداکثر ۴ تا مورد رو می‌تونی انتخاب کنی.';
+      'حداکثر ۸ تا مورد رو می‌تونی انتخاب کنی.';
 
   @override
   String get dashboardAddService => 'افزودن مورد جدید';
@@ -263,7 +263,7 @@ class AppLocalizationsFa extends AppLocalizations {
       'با بازنشانی تنظیمات، همه تغییراتت از بین می‌ره و به حالت اولیه برمی‌گرده.\nمطمئنی می‌خوای به تنظیمات اولیه برگردی؟';
 
   @override
-  String get dashboardResetConfirm => 'ثبت امتیاز';
+  String get dashboardResetConfirm => 'بازنشانی تنظیمات';
 
   @override
   String get dashboardSearchHint => 'جستجو';
@@ -377,4 +377,133 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get authInvalidCaptcha => 'کد امنیتی ۶ رقمی را وارد کنید';
+
+  @override
+  String get dashboardModernBanking => 'بانکداری مدرن';
+
+  @override
+  String get dashboardChequeServices => 'چک';
+
+  @override
+  String get dashboardTransferServices => 'انتقال وجه';
+
+  @override
+  String get dashboardWalletServices => 'کیف پول';
+
+  @override
+  String get dashboardIdentityServices => 'اطلاعات فردی';
+
+  @override
+  String get dashboardRequestServices => 'درخواست‌های من';
+
+  @override
+  String get dashboardAllServices => 'همه خدمات';
+
+  @override
+  String get dashboardViewAll => 'مشاهده همه';
+
+  @override
+  String get dashboardEdit => 'ویرایش';
+
+  @override
+  String get dashboardAddFavorites => 'افزودن خدمات منتخب';
+
+  @override
+  String get dashboardManageInstallments => 'مدیریت کسر اقساط';
+
+  @override
+  String get dashboardEstimateCredit => 'برآورد اعتبار وام';
+
+  @override
+  String get dashboardPromptCertificate => 'گواهی تمکن مالی می‌خوام...';
+
+  @override
+  String get dashboardPromptCard => 'چطور کارت رسالت بگیرم؟';
+
+  @override
+  String get dashboardPhoneBank => 'تلفن بانک';
+
+  @override
+  String get dashboardCardsList => 'لیست کارت‌ها';
+
+  @override
+  String get dashboardVirtualCard => 'درخواست کارت مجازی';
+
+  @override
+  String get dashboardUnblockCard => 'رفع مسدودی کارت';
+
+  @override
+  String get dashboardExpiredGift => 'واریز مانده کارت هدیه منقضی';
+
+  @override
+  String get dashboardClearCheque => 'رفع سوء اثر چک';
+
+  @override
+  String get dashboardCancelCheque => 'ابطال چک';
+
+  @override
+  String get dashboardLocalTransfer => 'انتقال وجه خدمت در محل';
+
+  @override
+  String get dashboardMyLoans => 'وام‌های من';
+
+  @override
+  String get dashboardLoanReport => 'گزارش معرفی وام';
+
+  @override
+  String get dashboardCorrectInstallments => 'اصلاح اقساط پرداختی';
+
+  @override
+  String get dashboardDeferLoan => 'امهال وام';
+
+  @override
+  String get dashboardDepositsList => 'لیست سپرده‌ها';
+
+  @override
+  String get dashboardOpenCurrent => 'افتتاح سپرده جاری';
+
+  @override
+  String get dashboardCloseExtras => 'بستن سپرده‌های مازاد';
+
+  @override
+  String get dashboardRepresentationSettings => 'تنظیمات نمایندگی';
+
+  @override
+  String get dashboardUnblockDeposit => 'رفع مسدودی سپرده';
+
+  @override
+  String get dashboardBlockDeposit => 'مسدودی سپرده';
+
+  @override
+  String get dashboardWalletInfo => 'اطلاعات کیف پول';
+
+  @override
+  String get dashboardWalletCharge => 'افزایش موجودی';
+
+  @override
+  String get dashboardWalletWithdraw => 'برداشت موجودی';
+
+  @override
+  String get dashboardWalletTransfer => 'واریز کیف به کیف';
+
+  @override
+  String get dashboardWalletHistory => 'گردش کیف پول';
+
+  @override
+  String get dashboardWalletDeposit => 'تغییر سپرده متصل به کیف';
+
+  @override
+  String get dashboardChangeIdentity => 'تغییر مشخصات هویتی';
+
+  @override
+  String get dashboardOccupation => 'مدیریت شغل';
+
+  @override
+  String get dashboardAddresses => 'مدیریت آدرس';
+
+  @override
+  String get dashboardChangePhone => 'تغییر شماره تلفن همراه';
+
+  @override
+  String get dashboardRequests => 'درخواست‌های من';
 }

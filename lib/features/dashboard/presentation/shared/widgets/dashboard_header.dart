@@ -54,10 +54,10 @@ class DashboardHeader extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(width: 10),
+        const SizedBox(width: 4),
         _HeaderAction(
           key: const Key('dashboard_menu_button'),
-          dimension: 24,
+          dimension: 40,
           asset: DashboardAssets.headerMenu,
           tooltip: context.l10n.servicesMenuLabel,
           onPressed: onMenuPressed,
@@ -84,9 +84,9 @@ class _HeaderAction extends StatelessWidget {
   @override
   Widget build(BuildContext context) => SizedBox.square(
     dimension: dimension,
-    child: IconButton(
+    child: AppButton(
       onPressed: onPressed ?? () {},
-      padding: EdgeInsets.all(dimension == 24 ? 0 : 8),
+      variant: AppButtonVariant.text,
       tooltip: tooltip,
       icon: SvgPicture.asset(asset, width: 24, height: 24),
     ),

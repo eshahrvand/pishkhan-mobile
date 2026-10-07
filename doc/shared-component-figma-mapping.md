@@ -9,7 +9,7 @@ they do not change the public API of `avp_ui`.
 | Drawer menu | `16345:98596`, `16345:98461` | `AppDrawer` | `lib/shared/widgets/app_drawer.dart` | Open/closed, selected/unselected item, expandable sub-items, controlled state. |
 | Invoice | `16662:53720` | `AppInvoice`, `AppInvoiceLine` | `lib/shared/widgets/app_invoice.dart` | Open/closed detail list and sufficient/insufficient wallet status. |
 | Cards / SingleCard / HomeCard | `16634:22500` | `AppServiceGridCard`, `AppServiceGridItem` | `lib/shared/widgets/app_service_grid_card.dart` | `service` and `quick` visual variants; data, icon, and action are supplied by the caller. |
-| Micro service | `13899:3298` | `AppServiceGridItemView` | `lib/shared/widgets/app_service_grid_card.dart` | 72px item, 64px tile, 32px supplied icon, 8px gap, and 10px/16px Regular label. `tileColor` and `labelStyle` support instance overrides; the login service sheet uses white tiles and DemiBold labels. |
+| Micro service | `13899:3298` | `AppServiceGridItemView` | `lib/shared/widgets/app_service_grid_card.dart` | 72px item, 64px tile, 32px supplied icon, 8px gap, and 10px/16px Regular label. `tileColor`, `width`, `tileSize` and `labelStyle` support instance overrides; the login service sheet uses white tiles and DemiBold labels. |
 | WalletCard | `13953:13960` | `AppWalletCard` | `lib/shared/widgets/app_wallet_card.dart` | `mobile` and `desktop` layouts. |
 | DepositList | `15973:77374` | `AppDepositList` | `lib/shared/widgets/app_deposit_list.dart` | Configurable deposit title, number, status badge, and more action. |
 | CardsList | `15962:66343` | `AppCardsList` | `lib/shared/widgets/app_cards_list.dart` | `resalat`, `gift`, `virtual`, `coupon`, and `family` card types. |
@@ -49,21 +49,7 @@ they do not change the public API of `avp_ui`.
 
 ## Dashboard composition (updated design)
 
-The dashboard uses the frames `27850:10690`, `27850:10768`, `27850:10872`,
-`27850:11009`, `27850:11147`, and `27850:11293` in the Mobile Figma file.
-`AppServiceGridCard` accepts a `footer` and `itemSpacing`; its public
-`AppServiceGridItemView` is reused for the shortcut editor and service catalog.
-The dashboard owns the Reso artwork, transactional shortcut state (at most four
-unique services), reset confirmation, and searchable category sheet.
-
-`DashboardScreen.initialFavorites` supplies saved service IDs and
-`onFavoritesChanged` reports confirmed or reset selections. The screen keeps
-these selections for its lifetime; durable storage belongs to its caller.
-`onServiceRequested` and `onPromptSubmitted` connect the UI to service and
-assistant flows. Category navigation opens the corresponding service sheet.
-
-The replaced dashboard banners, category sections, latest-request preview, and
-welcome/timer card have been removed along with their unused assets.
+See [dashboard-implementation-review.md](dashboard-implementation-review.md) for all nine updated frame mappings, the eight-service transactional editor, service sheet and search, full service catalog, motion, shared-component changes and rendered previews.
 
 ## Notifications
 

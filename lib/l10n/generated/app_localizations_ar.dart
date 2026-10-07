@@ -240,7 +240,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get dashboardYourFavorites => 'خدماتك المفضلة';
 
   @override
-  String get dashboardFavoritesLimit => 'يمكنك اختيار ٤ خدمات كحد أقصى.';
+  String get dashboardFavoritesLimit => 'يمكنك اختيار ٨ خدمات كحد أقصى.';
 
   @override
   String get dashboardAddService => 'إضافة خدمة جديدة';
@@ -262,7 +262,7 @@ class AppLocalizationsAr extends AppLocalizations {
       'ستؤدي إعادة الضبط إلى إزالة تغييراتك واستعادة الإعدادات الأصلية.\nهل تريد إعادة الضبط؟';
 
   @override
-  String get dashboardResetConfirm => 'إرسال التقييم';
+  String get dashboardResetConfirm => 'إعادة ضبط الإعدادات';
 
   @override
   String get dashboardSearchHint => 'بحث';
@@ -376,4 +376,133 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get authInvalidCaptcha => 'أدخل رمز الأمان المكون من 6 أرقام';
+
+  @override
+  String get dashboardModernBanking => 'الخدمات المصرفية الحديثة';
+
+  @override
+  String get dashboardChequeServices => 'الشيكات';
+
+  @override
+  String get dashboardTransferServices => 'التحويلات';
+
+  @override
+  String get dashboardWalletServices => 'المحفظة';
+
+  @override
+  String get dashboardIdentityServices => 'المعلومات الشخصية';
+
+  @override
+  String get dashboardRequestServices => 'طلباتي';
+
+  @override
+  String get dashboardAllServices => 'جميع الخدمات';
+
+  @override
+  String get dashboardViewAll => 'عرض الكل';
+
+  @override
+  String get dashboardEdit => 'تعديل';
+
+  @override
+  String get dashboardAddFavorites => 'إضافة خدمات مفضلة';
+
+  @override
+  String get dashboardManageInstallments => 'إدارة خصم الأقساط';
+
+  @override
+  String get dashboardEstimateCredit => 'تقدير رصيد القرض';
+
+  @override
+  String get dashboardPromptCertificate => 'أحتاج إلى شهادة مالية…';
+
+  @override
+  String get dashboardPromptCard => 'كيف أحصل على بطاقة رسالت؟';
+
+  @override
+  String get dashboardPhoneBank => 'الخدمات المصرفية الهاتفية';
+
+  @override
+  String get dashboardCardsList => 'قائمة البطاقات';
+
+  @override
+  String get dashboardVirtualCard => 'طلب بطاقة افتراضية';
+
+  @override
+  String get dashboardUnblockCard => 'إلغاء حظر البطاقة';
+
+  @override
+  String get dashboardExpiredGift => 'تحويل رصيد بطاقة هدية منتهية';
+
+  @override
+  String get dashboardClearCheque => 'تسوية سجل الشيك';
+
+  @override
+  String get dashboardCancelCheque => 'إلغاء شيك';
+
+  @override
+  String get dashboardLocalTransfer => 'تحويل في الموقع';
+
+  @override
+  String get dashboardMyLoans => 'قروضي';
+
+  @override
+  String get dashboardLoanReport => 'تقرير إحالة القرض';
+
+  @override
+  String get dashboardCorrectInstallments => 'تصحيح الأقساط المدفوعة';
+
+  @override
+  String get dashboardDeferLoan => 'تأجيل القرض';
+
+  @override
+  String get dashboardDepositsList => 'قائمة الودائع';
+
+  @override
+  String get dashboardOpenCurrent => 'فتح حساب جارٍ';
+
+  @override
+  String get dashboardCloseExtras => 'إغلاق الودائع الزائدة';
+
+  @override
+  String get dashboardRepresentationSettings => 'إعدادات التمثيل';
+
+  @override
+  String get dashboardUnblockDeposit => 'إلغاء حظر الوديعة';
+
+  @override
+  String get dashboardBlockDeposit => 'حظر الوديعة';
+
+  @override
+  String get dashboardWalletInfo => 'معلومات المحفظة';
+
+  @override
+  String get dashboardWalletCharge => 'إضافة رصيد';
+
+  @override
+  String get dashboardWalletWithdraw => 'سحب الرصيد';
+
+  @override
+  String get dashboardWalletTransfer => 'تحويل بين المحافظ';
+
+  @override
+  String get dashboardWalletHistory => 'سجل المحفظة';
+
+  @override
+  String get dashboardWalletDeposit => 'تغيير الوديعة المرتبطة بالمحفظة';
+
+  @override
+  String get dashboardChangeIdentity => 'تغيير بيانات الهوية';
+
+  @override
+  String get dashboardOccupation => 'إدارة الوظيفة';
+
+  @override
+  String get dashboardAddresses => 'إدارة العناوين';
+
+  @override
+  String get dashboardChangePhone => 'تغيير رقم الهاتف';
+
+  @override
+  String get dashboardRequests => 'طلباتي';
 }

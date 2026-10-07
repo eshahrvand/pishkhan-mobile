@@ -244,3 +244,7 @@ Use the public AppLoginColors semantic tokens for login canvas, ownership notice
 service labels, and section labels. AppTextField accepts textAlign (default:
 TextAlign.start), so numeric values can use TextDirection.ltr and TextAlign.end
 without changing the surrounding RTL icon layout.
+
+## Dashboard instance styling
+
+The shared package exports AppDashboardColors for dashboard-specific semantic styling. AppButton.foregroundColor supports text-action instance colors while preserving disabled styling. AppSearchField.clearIcon supplies the exact Figma clear icon while preserving automatic clearing and callbacks. See [dashboard-implementation-review.md](dashboard-implementation-review.md) for the page composition and shared micro-service instance sizing.

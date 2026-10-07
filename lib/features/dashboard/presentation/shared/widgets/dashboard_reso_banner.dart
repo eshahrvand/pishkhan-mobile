@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
@@ -12,32 +13,66 @@ class DashboardResoBanner extends StatefulWidget {
     super.key,
     this.onPromptSubmitted,
     this.focusNode,
+    this.enableAnimations = true,
   });
   final ValueChanged<String>? onPromptSubmitted;
   final FocusNode? focusNode;
+  final bool enableAnimations;
 
   @override
   State<DashboardResoBanner> createState() => _DashboardResoBannerState();
 }
 
-class _DashboardResoBannerState extends State<DashboardResoBanner> {
+class _DashboardResoBannerState extends State<DashboardResoBanner>
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
+  static const _typingInterval = Duration(milliseconds: 90);
+  static const _colorCycle = Duration(seconds: 12);
   final _controller = TextEditingController();
+  final _ownedFocus = FocusNode();
+  late final AnimationController _glow;
+  FocusNode get _focus => widget.focusNode ?? _ownedFocus;
+  Timer? _typingTimer;
+  List<String> _phrases = [];
+  String _typedHint = '';
+  int _phraseIndex = 0, _position = 0, _holdTicks = 0;
+  bool _erasing = false, _motionEnabled = false, _foreground = true;
   ImageStream? _textureStream;
   ImageStreamListener? _textureListener;
   ui.Image? _texture;
 
   @override
+  void initState() {
+    super.initState();
+    _glow = AnimationController(vsync: this, duration: _colorCycle);
+    _focus.addListener(_inputChanged);
+    _controller.addListener(_inputChanged);
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didUpdateWidget(covariant DashboardResoBanner oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.focusNode != widget.focusNode) {
+      (oldWidget.focusNode ?? _ownedFocus).removeListener(_inputChanged);
+      _focus.addListener(_inputChanged);
+    }
+    _syncMotion();
+  }
+
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (_textureStream != null) {
-      return;
-    }
+    _phrases = [
+      context.l10n.dashboardPromptHint,
+      context.l10n.dashboardPromptCertificate,
+      context.l10n.dashboardPromptCard,
+    ];
+    _syncMotion();
+    if (_textureStream != null) return;
     _textureStream = const AssetImage(AppAssets.dashboardTexture)
         .resolve(createLocalImageConfiguration(context));
     _textureListener = ImageStreamListener((info, _) {
-      if (!mounted) {
-        return;
-      }
+      if (!mounted) return;
       setState(() {
         _texture?.dispose();
         _texture = info.image.clone();
@@ -46,19 +81,107 @@ class _DashboardResoBannerState extends State<DashboardResoBanner> {
     _textureStream!.addListener(_textureListener!);
   }
 
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    _foreground = state == AppLifecycleState.resumed;
+    _syncMotion();
+    if (mounted) setState(() {});
+  }
+
+  void _syncMotion() {
+    if (!mounted || _phrases.isEmpty) return;
+    _motionEnabled =
+        widget.enableAnimations &&
+        !MediaQuery.disableAnimationsOf(context) &&
+        TickerMode.valuesOf(context).enabled &&
+        _foreground;
+    if (_motionEnabled) {
+      if (!_glow.isAnimating) _glow.repeat();
+    } else {
+      _glow.stop();
+      _glow.value = 0;
+    }
+    final canType =
+        _motionEnabled && !_focus.hasFocus && _controller.text.isEmpty;
+    if (canType) {
+      _typingTimer ??= Timer.periodic(_typingInterval, (_) => _typeNext());
+    } else {
+      _typingTimer?.cancel();
+      _typingTimer = null;
+    }
+  }
+
+  void _inputChanged() {
+    _syncMotion();
+    if (mounted) setState(() {});
+  }
+
+  void _typeNext() {
+    if (!mounted) return;
+    if (_holdTicks > 0) {
+      _holdTicks--;
+      return;
+    }
+    final phrase = _phrases[_phraseIndex];
+    final length = phrase.characters.length;
+    if (_erasing) {
+      _position--;
+      if (_position <= 0) {
+        _position = 0;
+        _erasing = false;
+        _phraseIndex = (_phraseIndex + 1) % _phrases.length;
+        _holdTicks = 5;
+      }
+    } else {
+      _position++;
+      if (_position >= length) {
+        _position = length;
+        _erasing = true;
+        _holdTicks = 24;
+      }
+    }
+    setState(() => _typedHint = phrase.characters.take(_position).toString());
+  }
+
   void _submit(String value) {
     final text = value.trim();
-    if (text.isNotEmpty) {
-      widget.onPromptSubmitted?.call(text);
-    }
+    if (text.isNotEmpty) widget.onPromptSubmitted?.call(text);
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _typingTimer?.cancel();
+    _glow.dispose();
+    _focus.removeListener(_inputChanged);
+    _ownedFocus.dispose();
     _textureStream?.removeListener(_textureListener!);
     _texture?.dispose();
     _controller.dispose();
     super.dispose();
+  }
+
+  double _captionHeight(BuildContext context, double width) {
+    double measure(String text, TextStyle style) {
+      final painter = TextPainter(
+        text: TextSpan(text: text, style: style),
+        textDirection: TextDirection.rtl,
+        textScaler: MediaQuery.textScalerOf(context),
+      )..layout(maxWidth: width);
+      final height = painter.height;
+      painter.dispose();
+      return height;
+    }
+
+    return measure(
+          context.l10n.dashboardResoTitle,
+          AppTypography.titleSmall.copyWith(height: 20 / 14, letterSpacing: 0),
+        ) +
+        6 +
+        measure(
+          context.l10n.dashboardResoDescription,
+          AppTypography.bodySmall.copyWith(height: 18 / 12, letterSpacing: 0),
+        );
   }
 
   @override
@@ -71,66 +194,19 @@ class _DashboardResoBannerState extends State<DashboardResoBanner> {
       borderRadius: AppRadius.borderLg,
       child: ColoredBox(
         color: context.colors.surface,
-        child: SizedBox(
-          key: const Key('dashboard_reso_banner'),
-          height: 194,
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final scale = constraints.maxWidth / 343;
-              return Stack(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final scale = constraints.maxWidth / 343;
+            final extra = math.max(
+              0.0,
+              _captionHeight(context, 173 * scale) - 62,
+            );
+            return SizedBox(
+              key: const Key('dashboard_reso_banner'),
+              height: 194 + extra,
+              child: Stack(
                 children: [
-                  Positioned.fill(
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: context.colors.surface,
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            AppPalette.brand200.withValues(alpha: .051),
-                            context.colors.primary.withValues(alpha: .461),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  if (_texture != null)
-                    Positioned.fill(
-                      child: CustomPaint(
-                        painter: _ResoTexturePainter(_texture!),
-                      ),
-                    ),
-                  Positioned(
-                    left: (-68.6 - 152.033) * scale,
-                    top: -59.33 - 152.033,
-                    width: 487.616 * scale,
-                    height: 487.616,
-                    child: ImageFiltered(
-                      imageFilter: ui.ImageFilter.blur(
-                        sigmaX: 76.0162,
-                        sigmaY: 76.0162,
-                      ),
-                      child: SvgPicture.asset(AppAssets.dashboardGlowLarge),
-                    ),
-                  ),
-                  Positioned(
-                    left: (218.78 - 57.4755) * scale,
-                    top: 164.08 - 57.4755,
-                    width: 213.216 * scale,
-                    height: 213.216,
-                    child: ImageFiltered(
-                      imageFilter: ui.ImageFilter.blur(
-                        sigmaX: 28.7378,
-                        sigmaY: 28.7378,
-                      ),
-                      child: SvgPicture.asset(AppAssets.dashboardGlowSmall),
-                    ),
-                  ),
-                  Positioned.fill(
-                    child: ColoredBox(
-                      color: context.colors.surface.withValues(alpha: .01),
-                    ),
-                  ),
+                  _backdrop(context, scale),
                   Positioned(
                     left: -20 * scale,
                     top: 7,
@@ -139,6 +215,7 @@ class _DashboardResoBannerState extends State<DashboardResoBanner> {
                     child: Image.asset(
                       AppAssets.dashboardReso,
                       fit: BoxFit.cover,
+                      excludeFromSemantics: true,
                     ),
                   ),
                   Positioned(
@@ -152,7 +229,7 @@ class _DashboardResoBannerState extends State<DashboardResoBanner> {
                           context.l10n.dashboardResoTitle,
                           textAlign: TextAlign.start,
                           style: AppTypography.titleSmall.copyWith(
-                            color: AppPalette.brand900,
+                            color: AppDashboardColors.heroTitle,
                             height: 20 / 14,
                             letterSpacing: 0,
                           ),
@@ -162,7 +239,7 @@ class _DashboardResoBannerState extends State<DashboardResoBanner> {
                           context.l10n.dashboardResoDescription,
                           textAlign: TextAlign.justify,
                           style: AppTypography.bodySmall.copyWith(
-                            color: AppPalette.gray600,
+                            color: AppDashboardColors.heroSupporting,
                             height: 18 / 12,
                             letterSpacing: 0,
                           ),
@@ -173,7 +250,7 @@ class _DashboardResoBannerState extends State<DashboardResoBanner> {
                   Positioned(
                     left: 16,
                     right: 16,
-                    top: 126,
+                    top: 126 + extra,
                     child: AppTextField(
                       key: const Key('dashboard_assistant_prompt'),
                       controller: _controller,
@@ -182,8 +259,13 @@ class _DashboardResoBannerState extends State<DashboardResoBanner> {
                         letterSpacing: 0,
                       ),
                       onSubmitted: _submit,
-                      focusNode: widget.focusNode,
-                      hintText: context.l10n.dashboardPromptHint,
+                      focusNode: _focus,
+                      hintText:
+                          _motionEnabled &&
+                              !_focus.hasFocus &&
+                              _controller.text.isEmpty
+                          ? _typedHint
+                          : context.l10n.dashboardPromptHint,
                       focusRing: AppTextFieldFocusRing.subtle,
                       textDirection: TextDirection.rtl,
                       textInputAction: TextInputAction.send,
@@ -197,11 +279,10 @@ class _DashboardResoBannerState extends State<DashboardResoBanner> {
                             width: 48,
                             height: 44,
                             child: Center(
-                              child: SizedBox.square(
-                                dimension: 20,
-                                child: SvgPicture.asset(
-                                  AppAssets.dashboardPromptArrow,
-                                ),
+                              child: SvgPicture.asset(
+                                AppAssets.dashboardPromptArrow,
+                                width: 20,
+                                height: 20,
                               ),
                             ),
                           ),
@@ -210,10 +291,88 @@ class _DashboardResoBannerState extends State<DashboardResoBanner> {
                     ),
                   ),
                 ],
-              );
-            },
-          ),
+              ),
+            );
+          },
         ),
+      ),
+    ),
+  );
+
+  Widget _backdrop(BuildContext context, double scale) => Positioned.fill(
+    child: RepaintBoundary(
+      child: AnimatedBuilder(
+        animation: _glow,
+        builder: (context, _) {
+          final phase = _glow.value * 2 * math.pi;
+          final wave = (1 - math.cos(phase)) / 2;
+          return Stack(
+            children: [
+              Positioned.fill(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: AppGradients.fromAngle(
+                      angleInDegrees: 112.62564745992552 + 16 * math.sin(phase),
+                      colors: [
+                        Color.lerp(
+                          AppDashboardColors.heroHaze.withValues(alpha: .051),
+                          AppDashboardColors.heroWarmHaze.withValues(
+                            alpha: .14,
+                          ),
+                          wave,
+                        )!,
+                        Color.lerp(
+                          context.colors.primary.withValues(alpha: .461),
+                          AppDashboardColors.heroCoolAccent.withValues(
+                            alpha: .5,
+                          ),
+                          wave,
+                        )!,
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              if (_texture != null)
+                Positioned.fill(
+                  child: CustomPaint(painter: _ResoTexturePainter(_texture!)),
+                ),
+              Positioned(
+                key: const Key('dashboard_banner_glow_large'),
+                left: (-68.6 - 152.033 + 42 * wave) * scale,
+                top: -59.33 - 152.033 + 18 * math.sin(phase),
+                width: 487.616 * scale,
+                height: 487.616,
+                child: ImageFiltered(
+                  imageFilter: ui.ImageFilter.blur(
+                    sigmaX: 76.0162,
+                    sigmaY: 76.0162,
+                  ),
+                  child: SvgPicture.asset(AppAssets.dashboardGlowLarge),
+                ),
+              ),
+              Positioned(
+                key: const Key('dashboard_banner_glow_small'),
+                left: (218.78 - 57.4755 - 28 * wave) * scale,
+                top: 164.08 - 57.4755 - 16 * math.sin(phase),
+                width: 213.216 * scale,
+                height: 213.216,
+                child: ImageFiltered(
+                  imageFilter: ui.ImageFilter.blur(
+                    sigmaX: 28.7378,
+                    sigmaY: 28.7378,
+                  ),
+                  child: SvgPicture.asset(AppAssets.dashboardGlowSmall),
+                ),
+              ),
+              Positioned.fill(
+                child: ColoredBox(
+                  color: context.colors.surface.withValues(alpha: .01),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     ),
   );

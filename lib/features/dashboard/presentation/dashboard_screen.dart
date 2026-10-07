@@ -6,6 +6,7 @@ import 'package:pishkhan_mobile/features/dashboard/presentation/cubit/dashboard_
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/dashboard_assets.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/dashboard_services.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_bank_services.dart';
+import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_all_services_screen.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_header.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_reso_banner.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_service_tile.dart';
@@ -20,13 +21,16 @@ class DashboardScreen extends StatefulWidget {
   const DashboardScreen({
     super.key,
     this.onMenuPressed,
+    this.onProfilePressed,
+    this.enableAnimations = true,
     this.onServiceRequested,
     this.onPromptSubmitted,
     this.onFavoritesChanged,
     this.initialFavorites = const [],
   });
 
-  final VoidCallback? onMenuPressed;
+  final VoidCallback? onMenuPressed, onProfilePressed;
+  final bool enableAnimations;
   final ValueChanged<String>? onServiceRequested;
   final ValueChanged<String>? onPromptSubmitted;
   final ValueChanged<List<String>>? onFavoritesChanged;
@@ -119,6 +123,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               children: [
                 DashboardHeader(
                   onNotificationsPressed: _openNotifications,
+                  onProfilePressed: widget.onProfilePressed,
                   onMenuPressed: widget.onMenuPressed ?? () => _catalog(),
                 ),
                 Expanded(
@@ -169,12 +174,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   const SizedBox(height: 16),
                                   DashboardResoBanner(
                                     focusNode: _promptFocus,
+                                    enableAnimations: widget.enableAnimations,
                                     onPromptSubmitted: widget.onPromptSubmitted,
                                   ),
                                   const SizedBox(height: 16),
                                   DashboardBankServices(
                                     state: state,
-                                    onEdit: _cubit.edit,
+                                    onEdit: () => _cubit.edit(
+                                      suggestions: DashboardService.recommended
+                                          .map((service) => service.id),
+                                    ),
+                                    onAllServices: () => Navigator.of(context)
+                                        .push(
+                                          MaterialPageRoute<void>(
+                                            builder: (_) =>
+                                                DashboardAllServicesScreen(
+                                                  onServiceRequested:
+                                                      _openService,
+                                                ),
+                                          ),
+                                        ),
                                     onReset: _reset,
                                     onAdd: () => _catalog(adding: true),
                                     onRemove: _cubit.remove,
@@ -200,7 +219,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           button: true,
                           label: context.l10n.dashboardAssistant,
                           child: Material(
-                            color: AppPalette.pink.shade500,
+                            color: AppDashboardColors.assistantAccent,
                             shape: const CircleBorder(),
                             clipBehavior: Clip.antiAlias,
                             child: InkWell(
@@ -295,7 +314,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }) => SizedBox(
     width: width,
     child: Material(
-      color: selected ? AppPalette.brand500 : Colors.transparent,
+      color: selected ? AppDashboardColors.navActive : Colors.transparent,
       borderRadius: AppRadius.borderSm,
       child: InkWell(
         onTap: onTap,

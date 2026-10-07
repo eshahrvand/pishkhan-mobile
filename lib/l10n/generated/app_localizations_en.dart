@@ -244,7 +244,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dashboardYourFavorites => 'Your favorites';
 
   @override
-  String get dashboardFavoritesLimit => 'You can select up to 4 services.';
+  String get dashboardFavoritesLimit => 'You can select up to 8 services.';
 
   @override
   String get dashboardAddService => 'Add a new service';
@@ -266,7 +266,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Resetting settings removes your changes and restores the original configuration.\nAre you sure you want to reset?';
 
   @override
-  String get dashboardResetConfirm => 'Submit rating';
+  String get dashboardResetConfirm => 'Reset settings';
 
   @override
   String get dashboardSearchHint => 'Search';
@@ -381,4 +381,133 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get authInvalidCaptcha => 'Enter the 6-digit security code';
+
+  @override
+  String get dashboardModernBanking => 'Modern banking';
+
+  @override
+  String get dashboardChequeServices => 'Cheques';
+
+  @override
+  String get dashboardTransferServices => 'Transfers';
+
+  @override
+  String get dashboardWalletServices => 'Wallet';
+
+  @override
+  String get dashboardIdentityServices => 'Personal information';
+
+  @override
+  String get dashboardRequestServices => 'My requests';
+
+  @override
+  String get dashboardAllServices => 'All services';
+
+  @override
+  String get dashboardViewAll => 'View all';
+
+  @override
+  String get dashboardEdit => 'Edit';
+
+  @override
+  String get dashboardAddFavorites => 'Add favorite services';
+
+  @override
+  String get dashboardManageInstallments => 'Manage installment deductions';
+
+  @override
+  String get dashboardEstimateCredit => 'Estimate loan credit';
+
+  @override
+  String get dashboardPromptCertificate => 'I need a financial certificate…';
+
+  @override
+  String get dashboardPromptCard => 'How do I get a Resalat card?';
+
+  @override
+  String get dashboardPhoneBank => 'Phone banking';
+
+  @override
+  String get dashboardCardsList => 'Cards list';
+
+  @override
+  String get dashboardVirtualCard => 'Request virtual card';
+
+  @override
+  String get dashboardUnblockCard => 'Unblock card';
+
+  @override
+  String get dashboardExpiredGift => 'Transfer expired gift card balance';
+
+  @override
+  String get dashboardClearCheque => 'Clear cheque record';
+
+  @override
+  String get dashboardCancelCheque => 'Cancel cheque';
+
+  @override
+  String get dashboardLocalTransfer => 'On-site transfer';
+
+  @override
+  String get dashboardMyLoans => 'My loans';
+
+  @override
+  String get dashboardLoanReport => 'Loan referral report';
+
+  @override
+  String get dashboardCorrectInstallments => 'Correct paid installments';
+
+  @override
+  String get dashboardDeferLoan => 'Defer loan';
+
+  @override
+  String get dashboardDepositsList => 'Deposits list';
+
+  @override
+  String get dashboardOpenCurrent => 'Open current account';
+
+  @override
+  String get dashboardCloseExtras => 'Close surplus deposits';
+
+  @override
+  String get dashboardRepresentationSettings => 'Representation settings';
+
+  @override
+  String get dashboardUnblockDeposit => 'Unblock deposit';
+
+  @override
+  String get dashboardBlockDeposit => 'Block deposit';
+
+  @override
+  String get dashboardWalletInfo => 'Wallet information';
+
+  @override
+  String get dashboardWalletCharge => 'Add funds';
+
+  @override
+  String get dashboardWalletWithdraw => 'Withdraw funds';
+
+  @override
+  String get dashboardWalletTransfer => 'Wallet to wallet transfer';
+
+  @override
+  String get dashboardWalletHistory => 'Wallet history';
+
+  @override
+  String get dashboardWalletDeposit => 'Change linked wallet deposit';
+
+  @override
+  String get dashboardChangeIdentity => 'Change identity details';
+
+  @override
+  String get dashboardOccupation => 'Manage occupation';
+
+  @override
+  String get dashboardAddresses => 'Manage addresses';
+
+  @override
+  String get dashboardChangePhone => 'Change mobile number';
+
+  @override
+  String get dashboardRequests => 'My requests';
 }

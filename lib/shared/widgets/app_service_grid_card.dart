@@ -166,12 +166,16 @@ class AppServiceGridItemView extends StatelessWidget {
     this.usesIconTile = true,
     this.tileColor,
     this.labelStyle,
+    this.width = 72,
+    this.tileSize = 64,
     super.key,
   });
 
   final AppServiceGridItem item;
   final bool usesIconTile;
   final Color? tileColor;
+  final double width;
+  final double tileSize;
 
   /// Instance typography override for the Figma micro-service component.
   /// Derive overrides from [AppTypography] to retain the package font.
@@ -185,8 +189,8 @@ class AppServiceGridItemView extends StatelessWidget {
       children: [
         SizedBox(
           key: Key('app_service_grid_icon_${item.id}'),
-          width: 64,
-          height: 64,
+          width: tileSize,
+          height: tileSize,
           child: usesIconTile
               ? DecoratedBox(
                   decoration: BoxDecoration(
@@ -200,7 +204,7 @@ class AppServiceGridItemView extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.sm),
         SizedBox(
-          width: 72,
+          width: width,
           child: Text(
             item.label,
             maxLines: 2,
@@ -225,7 +229,7 @@ class AppServiceGridItemView extends StatelessWidget {
       enabled: item.enabled,
       label: item.label,
       child: SizedBox(
-        width: 72,
+        width: width,
         child: InkWell(
           onTap: item.enabled ? item.onTap : null,
           borderRadius: AppRadius.borderMd,
