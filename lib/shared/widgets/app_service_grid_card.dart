@@ -56,6 +56,8 @@ class AppServiceGridCard extends StatelessWidget {
     this.onHeaderTap,
     this.footer,
     this.itemSpacing = 0,
+    this.stretchItems = true,
+    this.titleColor,
     this.footerSpacing = AppSpacing.mdLg,
   });
 
@@ -66,6 +68,8 @@ class AppServiceGridCard extends StatelessWidget {
   final VoidCallback? onHeaderTap;
   final Widget? footer;
   final double itemSpacing;
+  final bool stretchItems;
+  final Color? titleColor;
   final double footerSpacing;
 
   @override
@@ -78,7 +82,7 @@ class AppServiceGridCard extends StatelessWidget {
             title,
             textAlign: TextAlign.start,
             style: AppTypography.titleSmall.copyWith(
-              color: colors.textPrimary,
+              color: titleColor ?? colors.textPrimary,
               fontWeight: FontWeight.w600,
               height: 20 / 14,
               letterSpacing: 0,
@@ -116,7 +120,7 @@ class AppServiceGridCard extends StatelessWidget {
                         child: header,
                       ),
                 const SizedBox(height: AppSpacing.mdLg),
-                if (items.length <= 4)
+                if (items.length <= 4 && stretchItems)
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -137,7 +141,7 @@ class AppServiceGridCard extends StatelessWidget {
                 else
                   Wrap(
                     alignment: WrapAlignment.start,
-                    spacing: 6,
+                    spacing: itemSpacing == 0 ? 6 : itemSpacing,
                     runSpacing: AppSpacing.mdLg,
                     children: [
                       for (final item in items)

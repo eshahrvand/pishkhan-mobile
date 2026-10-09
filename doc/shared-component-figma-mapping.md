@@ -68,3 +68,9 @@ See [dashboard-implementation-review.md](dashboard-implementation-review.md) for
 
 See [login-implementation-review.md](login-implementation-review.md) for all nine
 frame mappings, component composition, interaction behavior, and visual previews.
+
+## My Cards (second primary tab)
+
+See [cards-implementation-review.md](cards-implementation-review.md) for the two Phase 1 frame mappings, rendered previews, shared component reuse, card carousel/visibility/copying behavior, and integration callbacks.
+
+AppServiceGridCard.stretchItems defaults to true; set false and itemSpacing to 6 for compact RTL rows. AppResalatCard accepts responsive width and semantic labels and masks expiry/CVV2 when isVisible is false. The shared AppTopBar, AppPrimaryNavigation, AppAssistantButton and AppServiceArtworkTile reuse the dashboard visuals.

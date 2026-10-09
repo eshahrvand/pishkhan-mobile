@@ -506,4 +506,67 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get dashboardRequests => 'درخواست‌های من';
+
+  @override
+  String get cardsMyTitle => 'کارت‌های من';
+
+  @override
+  String get cardsOperations => 'عملیات کارت';
+
+  @override
+  String get cardsPinOperations => 'عملیات رمز';
+
+  @override
+  String get cardsQuickAccess => 'دسترسی سریع';
+
+  @override
+  String get cardsReissue => 'صدور مجدد کارت';
+
+  @override
+  String get cardsForgotFirst => 'فراموشی رمز اول';
+
+  @override
+  String get cardsSetSecond => 'تعیین رمز دوم';
+
+  @override
+  String get cardsForgotSecond => 'فراموشی رمز دوم';
+
+  @override
+  String get cardsChangeFirst => 'تغییر رمز اول';
+
+  @override
+  String get cardsGiftBalance => 'واریز مانده کارت هدیه';
+
+  @override
+  String get cardsBuyGift => 'خرید کارت هدیه';
+
+  @override
+  String get cardsVirtual => 'کارت مجازی';
+
+  @override
+  String get cardsCurrent => 'رسالت کارت (جاری)';
+
+  @override
+  String get cardsQarz => 'رسالت کارت (قرض الحسنه)';
+
+  @override
+  String get cardsExpiry => ': انقضا';
+
+  @override
+  String get cardsCopyNumber => 'کپی شماره کارت';
+
+  @override
+  String get cardsCopyIban => 'کپی شماره شبا';
+
+  @override
+  String get cardsShowDetails => 'نمایش اطلاعات کارت';
+
+  @override
+  String get cardsHideDetails => 'پنهان کردن اطلاعات کارت';
+
+  @override
+  String get cardsMore => 'گزینه‌های کارت';
+
+  @override
+  String get cardsEmpty => 'هنوز کارتی ندارید';
 }

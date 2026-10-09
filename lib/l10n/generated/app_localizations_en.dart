@@ -510,4 +510,67 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dashboardRequests => 'My requests';
+
+  @override
+  String get cardsMyTitle => 'My cards';
+
+  @override
+  String get cardsOperations => 'Card operations';
+
+  @override
+  String get cardsPinOperations => 'PIN operations';
+
+  @override
+  String get cardsQuickAccess => 'Quick access';
+
+  @override
+  String get cardsReissue => 'Reissue card';
+
+  @override
+  String get cardsForgotFirst => 'Forgot first PIN';
+
+  @override
+  String get cardsSetSecond => 'Set second PIN';
+
+  @override
+  String get cardsForgotSecond => 'Forgot second PIN';
+
+  @override
+  String get cardsChangeFirst => 'Change first PIN';
+
+  @override
+  String get cardsGiftBalance => 'Transfer gift card balance';
+
+  @override
+  String get cardsBuyGift => 'Buy gift card';
+
+  @override
+  String get cardsVirtual => 'Virtual card';
+
+  @override
+  String get cardsCurrent => 'Resalat card (current)';
+
+  @override
+  String get cardsQarz => 'Resalat card (Qarz)';
+
+  @override
+  String get cardsExpiry => 'Expiry:';
+
+  @override
+  String get cardsCopyNumber => 'Copy card number';
+
+  @override
+  String get cardsCopyIban => 'Copy IBAN';
+
+  @override
+  String get cardsShowDetails => 'Show card details';
+
+  @override
+  String get cardsHideDetails => 'Hide card details';
+
+  @override
+  String get cardsMore => 'Card options';
+
+  @override
+  String get cardsEmpty => 'No cards yet';
 }

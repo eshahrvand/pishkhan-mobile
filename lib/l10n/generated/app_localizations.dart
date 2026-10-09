@@ -1065,6 +1065,132 @@ abstract class AppLocalizations {
   /// In fa, this message translates to:
   /// **'درخواست‌های من'**
   String get dashboardRequests;
+
+  /// No description provided for @cardsMyTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'کارت‌های من'**
+  String get cardsMyTitle;
+
+  /// No description provided for @cardsOperations.
+  ///
+  /// In fa, this message translates to:
+  /// **'عملیات کارت'**
+  String get cardsOperations;
+
+  /// No description provided for @cardsPinOperations.
+  ///
+  /// In fa, this message translates to:
+  /// **'عملیات رمز'**
+  String get cardsPinOperations;
+
+  /// No description provided for @cardsQuickAccess.
+  ///
+  /// In fa, this message translates to:
+  /// **'دسترسی سریع'**
+  String get cardsQuickAccess;
+
+  /// No description provided for @cardsReissue.
+  ///
+  /// In fa, this message translates to:
+  /// **'صدور مجدد کارت'**
+  String get cardsReissue;
+
+  /// No description provided for @cardsForgotFirst.
+  ///
+  /// In fa, this message translates to:
+  /// **'فراموشی رمز اول'**
+  String get cardsForgotFirst;
+
+  /// No description provided for @cardsSetSecond.
+  ///
+  /// In fa, this message translates to:
+  /// **'تعیین رمز دوم'**
+  String get cardsSetSecond;
+
+  /// No description provided for @cardsForgotSecond.
+  ///
+  /// In fa, this message translates to:
+  /// **'فراموشی رمز دوم'**
+  String get cardsForgotSecond;
+
+  /// No description provided for @cardsChangeFirst.
+  ///
+  /// In fa, this message translates to:
+  /// **'تغییر رمز اول'**
+  String get cardsChangeFirst;
+
+  /// No description provided for @cardsGiftBalance.
+  ///
+  /// In fa, this message translates to:
+  /// **'واریز مانده کارت هدیه'**
+  String get cardsGiftBalance;
+
+  /// No description provided for @cardsBuyGift.
+  ///
+  /// In fa, this message translates to:
+  /// **'خرید کارت هدیه'**
+  String get cardsBuyGift;
+
+  /// No description provided for @cardsVirtual.
+  ///
+  /// In fa, this message translates to:
+  /// **'کارت مجازی'**
+  String get cardsVirtual;
+
+  /// No description provided for @cardsCurrent.
+  ///
+  /// In fa, this message translates to:
+  /// **'رسالت کارت (جاری)'**
+  String get cardsCurrent;
+
+  /// No description provided for @cardsQarz.
+  ///
+  /// In fa, this message translates to:
+  /// **'رسالت کارت (قرض الحسنه)'**
+  String get cardsQarz;
+
+  /// No description provided for @cardsExpiry.
+  ///
+  /// In fa, this message translates to:
+  /// **': انقضا'**
+  String get cardsExpiry;
+
+  /// No description provided for @cardsCopyNumber.
+  ///
+  /// In fa, this message translates to:
+  /// **'کپی شماره کارت'**
+  String get cardsCopyNumber;
+
+  /// No description provided for @cardsCopyIban.
+  ///
+  /// In fa, this message translates to:
+  /// **'کپی شماره شبا'**
+  String get cardsCopyIban;
+
+  /// No description provided for @cardsShowDetails.
+  ///
+  /// In fa, this message translates to:
+  /// **'نمایش اطلاعات کارت'**
+  String get cardsShowDetails;
+
+  /// No description provided for @cardsHideDetails.
+  ///
+  /// In fa, this message translates to:
+  /// **'پنهان کردن اطلاعات کارت'**
+  String get cardsHideDetails;
+
+  /// No description provided for @cardsMore.
+  ///
+  /// In fa, this message translates to:
+  /// **'گزینه‌های کارت'**
+  String get cardsMore;
+
+  /// No description provided for @cardsEmpty.
+  ///
+  /// In fa, this message translates to:
+  /// **'هنوز کارتی ندارید'**
+  String get cardsEmpty;
 }
 
 class _AppLocalizationsDelegate

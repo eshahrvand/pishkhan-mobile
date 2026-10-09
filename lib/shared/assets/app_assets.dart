@@ -323,6 +323,23 @@ abstract final class AppAssets {
   static const dashboardDividerSheetCheque =
       '$_root/dashboard_divider_sheet_cheque.svg';
 
+  static const cardsActionBlock = '$_root/cards_action_block.svg';
+  static const cardsActionDeposit = '$_root/cards_action_deposit.svg';
+  static const cardsActionReissue = '$_root/cards_action_reissue.svg';
+  static const cardsActionForgotFirst = '$_root/cards_action_forgot_first.svg';
+  static const cardsActionSetSecond = '$_root/cards_action_set_second.svg';
+  static const cardsActionChangeFirst = '$_root/cards_action_change_first.svg';
+  static const cardsQuickAccess = '$_root/cards_quick_access.svg';
+  static const cardsQuickGiftBalance = '$_root/cards_quick_gift_balance.svg';
+  static const cardsQuickGiftBuy = '$_root/cards_quick_gift_buy.svg';
+  static const cardsQuickVirtual = '$_root/cards_quick_virtual.svg';
+  static const cardsQuickIssue = '$_root/cards_quick_issue.svg';
+  static const cardsNavActive = '$_root/cards_nav_active.svg';
+  static const cardsNavHome = '$_root/cards_nav_home.svg';
+  static const cardsPatternUp = '$_root/cards_pattern_up.svg';
+  static const cardsActionForgotSecond =
+      '$_root/cards_action_forgot_second.svg';
+
   /// Every registered file, used by the asset integrity test.
   static const notificationBack = '$_root/notification_back.svg';
   static const notificationDivider = '$_root/notification_divider.svg';
@@ -388,6 +405,21 @@ abstract final class AppAssets {
     dashboardDividerSheetModern,
     dashboardDividerSheetCard,
     dashboardDividerSheetCheque,
+    cardsActionBlock,
+    cardsActionDeposit,
+    cardsActionReissue,
+    cardsActionForgotFirst,
+    cardsActionSetSecond,
+    cardsActionChangeFirst,
+    cardsQuickAccess,
+    cardsQuickGiftBalance,
+    cardsQuickGiftBuy,
+    cardsQuickVirtual,
+    cardsQuickIssue,
+    cardsNavActive,
+    cardsNavHome,
+    cardsPatternUp,
+    cardsActionForgotSecond,
     dashboardCatalogBack,
     dashboardSearchClear,
     dashboardSearchCard,

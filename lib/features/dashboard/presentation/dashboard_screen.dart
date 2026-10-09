@@ -1,3 +1,7 @@
+import 'package:pishkhan_mobile/features/cards/models/bank_card.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/cards_screen.dart';
+import 'package:pishkhan_mobile/shared/widgets/app_primary_navigation.dart';
+import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,12 +13,11 @@ import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/d
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_all_services_screen.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_header.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_reso_banner.dart';
-import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_service_tile.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_services_sheet.dart';
 import 'package:pishkhan_mobile/features/notifications/models/notification_message.dart';
 import 'package:pishkhan_mobile/features/notifications/presentation/notifications_screen.dart';
 import 'package:pishkhan_mobile/l10n/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
+
 import 'package:pishkhan_mobile/shared/widgets/app_wallet_card.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -27,6 +30,9 @@ class DashboardScreen extends StatefulWidget {
     this.onPromptSubmitted,
     this.onFavoritesChanged,
     this.initialFavorites = const [],
+    this.cards = BankCard.examples,
+    this.onCardActionRequested,
+    this.onCardMorePressed,
   });
 
   final VoidCallback? onMenuPressed, onProfilePressed;
@@ -35,6 +41,9 @@ class DashboardScreen extends StatefulWidget {
   final ValueChanged<String>? onPromptSubmitted;
   final ValueChanged<List<String>>? onFavoritesChanged;
   final List<String> initialFavorites;
+  final List<BankCard> cards;
+  final ValueChanged<CardActionRequest>? onCardActionRequested;
+  final ValueChanged<BankCard>? onCardMorePressed;
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -43,6 +52,7 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   late final DashboardCubit _cubit;
   final _promptFocus = FocusNode();
+  AppPrimaryTab _selectedTab = AppPrimaryTab.dashboard;
   List<NotificationMessage>? _notifications;
 
   void _openNotifications() {
@@ -106,15 +116,64 @@ class _DashboardScreenState extends State<DashboardScreen> {
     widget.onFavoritesChanged?.call(_cubit.state.favorites);
   }
 
+  void _selectTab(AppPrimaryTab tab) {
+    if (tab == AppPrimaryTab.cards || tab == AppPrimaryTab.dashboard) {
+      _promptFocus.unfocus();
+      setState(() => _selectedTab = tab);
+    } else {
+      _catalog(
+        category: tab == AppPrimaryTab.deposits
+            ? DashboardService.deposits
+            : DashboardService.loans,
+      );
+    }
+  }
+
   @override
-  Widget build(BuildContext context) => Directionality(
+  Widget build(BuildContext context) => IndexedStack(
+    index: _selectedTab == AppPrimaryTab.cards ? 1 : 0,
+    children: [
+      TickerMode(
+        enabled: _selectedTab == AppPrimaryTab.dashboard,
+        child: _dashboard(context),
+      ),
+      TickerMode(
+        enabled: _selectedTab == AppPrimaryTab.cards,
+        child: CardsScreen(
+          cards: widget.cards,
+          onTabSelected: _selectTab,
+          onMenuPressed: widget.onMenuPressed ?? () => _catalog(),
+          onAssistantPressed: () {
+            _selectTab(AppPrimaryTab.dashboard);
+            _openService(DashboardService.assistant);
+          },
+          onMorePressed: widget.onCardMorePressed,
+          onActionRequested: (request) {
+            if (widget.onCardActionRequested != null) {
+              widget.onCardActionRequested!(request);
+            } else {
+              widget.onServiceRequested?.call(request.action.id);
+            }
+          },
+        ),
+      ),
+    ],
+  );
+
+  Widget _dashboard(BuildContext context) => Directionality(
     textDirection: TextDirection.rtl,
     child: BlocBuilder<DashboardCubit, DashboardState>(
       bloc: _cubit,
       builder: (context, state) => PopScope(
-        canPop: !state.isEditing,
+        canPop: !state.isEditing && _selectedTab != AppPrimaryTab.cards,
         onPopInvokedWithResult: (didPop, _) {
-          if (!didPop) _cubit.cancel();
+          if (!didPop) {
+            if (_selectedTab == AppPrimaryTab.cards) {
+              _selectTab(AppPrimaryTab.dashboard);
+            } else {
+              _cubit.cancel();
+            }
+          }
         },
         child: Scaffold(
           backgroundColor: context.colors.surfaceSubtle,
@@ -215,25 +274,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       Positioned(
                         left: 16,
                         bottom: 82,
-                        child: Semantics(
-                          button: true,
-                          label: context.l10n.dashboardAssistant,
-                          child: Material(
-                            color: AppDashboardColors.assistantAccent,
-                            shape: const CircleBorder(),
-                            clipBehavior: Clip.antiAlias,
-                            child: InkWell(
-                              key: const Key('dashboard_assistant_button'),
-                              onTap: () =>
-                                  _openService(DashboardService.assistant),
-                              child: const SizedBox.square(
-                                dimension: 44,
-                                child: Center(
-                                  child: DashboardAssistantIcon(floating: true),
-                                ),
-                              ),
-                            ),
-                          ),
+                        child: AppAssistantButton(
+                          key: const Key('dashboard_assistant_button'),
+                          onPressed: () =>
+                              _openService(DashboardService.assistant),
                         ),
                       ),
                       Positioned(
@@ -253,97 +297,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
     ),
   );
 
-  Widget _navigation(BuildContext context) => Container(
+  Widget _navigation(BuildContext context) => AppPrimaryNavigation(
     key: const Key('dashboard_navigation'),
-    padding: const EdgeInsets.all(8),
-    decoration: BoxDecoration(
-      color: context.colors.surface,
-      borderRadius: AppRadius.borderMd,
-      boxShadow: AppShadows.sm,
-    ),
-    child: LayoutBuilder(
-      builder: (context, constraints) {
-        final width = (constraints.maxWidth - 24 - 16) / 4;
-        return Row(
-          children: [
-            _navItem(
-              context,
-              context.l10n.dashboardTab,
-              AppAssets.dashboardNavHome,
-              width: width + 16,
-              selected: true,
-              onTap: () {},
-            ),
-            const SizedBox(width: 8),
-            _navItem(
-              context,
-              context.l10n.dashboardCardsTab,
-              AppAssets.dashboardNavCard,
-              width: width,
-              onTap: () => _catalog(category: DashboardService.cards),
-            ),
-            const SizedBox(width: 8),
-            _navItem(
-              context,
-              context.l10n.dashboardDepositsTab,
-              AppAssets.dashboardNavDeposit,
-              width: width,
-              onTap: () => _catalog(category: DashboardService.deposits),
-            ),
-            const SizedBox(width: 8),
-            _navItem(
-              context,
-              context.l10n.dashboardLoansTab,
-              AppAssets.dashboardNavLoan,
-              width: width,
-              onTap: () => _catalog(category: DashboardService.loans),
-            ),
-          ],
-        );
-      },
-    ),
-  );
-
-  Widget _navItem(
-    BuildContext context,
-    String label,
-    String asset, {
-    bool selected = false,
-    required double width,
-    required VoidCallback onTap,
-  }) => SizedBox(
-    width: width,
-    child: Material(
-      color: selected ? AppDashboardColors.navActive : Colors.transparent,
-      borderRadius: AppRadius.borderSm,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: AppRadius.borderSm,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SvgPicture.asset(asset, width: selected ? 20 : 21, height: 20),
-              const SizedBox(width: 2),
-              Flexible(
-                child: Text(
-                  label,
-                  maxLines: 1,
-                  style: AppTypography.bodySmall.copyWith(
-                    color: selected
-                        ? context.colors.textOnPrimary
-                        : context.colors.textDisabled,
-                    fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
-                    height: 18 / 12,
-                    letterSpacing: 0,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    ),
+    selectedTab: AppPrimaryTab.dashboard,
+    onSelected: _selectTab,
   );
 }

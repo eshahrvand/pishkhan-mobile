@@ -505,4 +505,67 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get dashboardRequests => 'طلباتي';
+
+  @override
+  String get cardsMyTitle => 'بطاقاتي';
+
+  @override
+  String get cardsOperations => 'عمليات البطاقة';
+
+  @override
+  String get cardsPinOperations => 'عمليات الرقم السري';
+
+  @override
+  String get cardsQuickAccess => 'الوصول السريع';
+
+  @override
+  String get cardsReissue => 'إعادة إصدار البطاقة';
+
+  @override
+  String get cardsForgotFirst => 'نسيت الرقم السري الأول';
+
+  @override
+  String get cardsSetSecond => 'تعيين الرقم السري الثاني';
+
+  @override
+  String get cardsForgotSecond => 'نسيت الرقم السري الثاني';
+
+  @override
+  String get cardsChangeFirst => 'تغيير الرقم السري الأول';
+
+  @override
+  String get cardsGiftBalance => 'تحويل رصيد بطاقة الهدية';
+
+  @override
+  String get cardsBuyGift => 'شراء بطاقة هدية';
+
+  @override
+  String get cardsVirtual => 'بطاقة افتراضية';
+
+  @override
+  String get cardsCurrent => 'بطاقة رسالت (جارية)';
+
+  @override
+  String get cardsQarz => 'بطاقة رسالت (قرض حسن)';
+
+  @override
+  String get cardsExpiry => 'الانتهاء:';
+
+  @override
+  String get cardsCopyNumber => 'نسخ رقم البطاقة';
+
+  @override
+  String get cardsCopyIban => 'نسخ رقم الآيبان';
+
+  @override
+  String get cardsShowDetails => 'عرض بيانات البطاقة';
+
+  @override
+  String get cardsHideDetails => 'إخفاء بيانات البطاقة';
+
+  @override
+  String get cardsMore => 'خيارات البطاقة';
+
+  @override
+  String get cardsEmpty => 'لا توجد بطاقات بعد';
 }

@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/shared/widgets/app_service_artwork_tile.dart';
+import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -67,22 +69,7 @@ class DashboardServiceTile extends StatelessWidget {
               ),
             ),
           )
-        : DecoratedBox(
-            decoration: BoxDecoration(
-              color: AppDashboardColors.tileSurface,
-              borderRadius: AppRadius.borderMd,
-              boxShadow: AppShadows.sm,
-            ),
-            child: SizedBox.square(
-              dimension: 64,
-              child: Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  Positioned(left: -3, top: -2, child: SvgPicture.asset(asset)),
-                ],
-              ),
-            ),
-          );
+        : AppServiceArtworkTile(asset: asset);
     if (!editing) return tile;
     return Container(
       width: 66,
@@ -97,40 +84,4 @@ class DashboardServiceTile extends StatelessWidget {
   }
 }
 
-class DashboardAssistantIcon extends StatelessWidget {
-  const DashboardAssistantIcon({super.key, this.floating = false});
-  final bool floating;
-  @override
-  Widget build(BuildContext context) {
-    final size = floating ? 24.0 : 32.0;
-    return SizedBox.square(
-      dimension: size,
-      child: Stack(
-        children: [
-          Positioned(
-            left: size * (floating ? .534 : .5079),
-            top: size * (floating ? .125 : .099),
-            right: size * (floating ? .1175 : .0915),
-            bottom: size * (floating ? .5265 : .5005),
-            child: SvgPicture.asset(
-              floating
-                  ? AppAssets.dashboardFabStar
-                  : AppAssets.dashboardAssistantStar,
-            ),
-          ),
-          Positioned(
-            left: size * (floating ? .1175 : .0915),
-            top: size * (floating ? .3035 : .2774),
-            right: size * (floating ? .296 : .27),
-            bottom: size * (floating ? .1101 : .084),
-            child: SvgPicture.asset(
-              floating
-                  ? AppAssets.dashboardFabSpark
-                  : AppAssets.dashboardAssistantSpark,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
+typedef DashboardAssistantIcon = AppAssistantIcon;
