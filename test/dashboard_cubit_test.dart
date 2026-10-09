@@ -1,9 +1,13 @@
+import 'package:pishkhan_mobile/features/dashboard/data/mock/mock_dashboard_repositories.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/cubit/dashboard_cubit.dart';
 
 void main() {
   test('draft edits are unique, limited to eight, and transactional', () async {
-    final cubit = DashboardCubit(favorites: ['one']);
+    final cubit = DashboardCubit(
+      repository: const MockDashboardHomeRepository(favorites: ['one']),
+    );
+    await cubit.load();
     cubit.add('ignored');
     cubit.edit();
     for (final id in [
@@ -53,7 +57,10 @@ void main() {
     await cubit.close();
   });
   test('suggestions remain uncommitted until confirmation', () async {
-    final cubit = DashboardCubit();
+    final cubit = DashboardCubit(
+      repository: const MockDashboardHomeRepository(),
+    );
+    await cubit.load();
     cubit.edit(suggestions: ['a', 'b', 'c']);
     expect(cubit.state.favorites, isEmpty);
     expect(cubit.state.draft, ['a', 'b', 'c']);

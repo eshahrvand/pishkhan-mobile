@@ -191,5 +191,15 @@
   "depositsLinkedLoans": "حالة القروض المرتبطة",
   "depositsLocalTransfer": "تحويل الأموال في الموقع",
   "depositsMobileBank": "الخدمات المصرفية عبر الهاتف المحمول",
-  "depositsCopyNumber": "نسخ رقم الوديعة"
+  "depositsCopyNumber": "نسخ رقم الوديعة",
+  "loansOperations": "عمليات القروض",
+  "loansEmpty": "لا توجد قروض بعد",
+  "loansPayInstallments": "دفع الأقساط",
+  "loansRelationships": "علاقات القرابة والمصاهرة",
+  "loansDefaultName": "قرض حسن عادي (بدون رسوم)",
+  "loansChangeDeposit": "تغيير وديعة خصم الأقساط",
+  "dashboardLoading": "جارٍ تحميل المعلومات…",
+  "dashboardLoadError": "تعذر تحميل المعلومات",
+  "dashboardRetry": "حاول مرة أخرى",
+  "dashboardEmpty": "لا توجد معلومات للعرض"
 }

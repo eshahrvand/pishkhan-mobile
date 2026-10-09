@@ -1,4 +1,4 @@
-import 'package:pishkhan_mobile/features/deposits/models/bank_deposit.dart';
+import 'package:pishkhan_mobile/features/dashboard/domain/entities/bank_deposit.dart';
 import 'package:pishkhan_mobile/l10n/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 

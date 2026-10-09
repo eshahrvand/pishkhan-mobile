@@ -1,50 +1,110 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pishkhan_mobile/core/result/result.dart';
 
-class DashboardState {
-  DashboardState({Iterable<String> favorites = const [], List<String>? draft})
-    : favorites = List.unmodifiable(favorites),
-      draft = draft == null ? null : List.unmodifiable(draft);
+import '../../domain/repositories/dashboard_repositories.dart';
+import '../../domain/usecases/load_dashboard_home.dart';
+import 'dashboard_state.dart';
+export 'dashboard_state.dart';
 
-  final List<String> favorites;
-  final List<String>? draft;
-  bool get isEditing => draft != null;
-  List<String> get visibleFavorites => draft ?? favorites;
-}
-
-/// Keeps customization transactional: cancel discards the draft.
+/// Home loading and transactional favorite editing share one state owner.
 class DashboardCubit extends Cubit<DashboardState> {
+  DashboardCubit({required DashboardHomeRepository repository})
+    : _loadHome = LoadDashboardHome(repository),
+      super(const DashboardInitial());
   static const maxFavorites = 8;
-  DashboardCubit({Iterable<String> favorites = const []})
-    : super(DashboardState(favorites: favorites.toSet().take(maxFavorites)));
-
-  void edit({Iterable<String> suggestions = const []}) => emit(
-    DashboardState(
-      favorites: state.favorites,
-      draft: state.favorites.isEmpty
-          ? suggestions.toSet().take(maxFavorites).toList()
-          : state.favorites,
-    ),
-  );
-
-  void add(String id) {
-    final draft = state.draft;
-    if (draft == null || draft.length >= maxFavorites || draft.contains(id)) {
+  LoadDashboardHome _loadHome;
+  int _request = 0;
+  Future<void> load() async {
+    final token = ++_request;
+    emit(const DashboardLoading());
+    final result = await _loadHome();
+    if (isClosed || token != _request) {
       return;
     }
-    emit(DashboardState(favorites: state.favorites, draft: [...draft, id]));
+    switch (result) {
+      case Err(:final failure):
+        emit(DashboardError(failure));
+      case Success(:final data):
+        emit(
+          data == null
+              ? const DashboardEmpty()
+              : DashboardLoaded(
+                  data: data.withFavorites(
+                    data.favorites.toSet().take(maxFavorites),
+                  ),
+                ),
+        );
+    }
   }
 
-  void remove(String id) {
-    if (!state.isEditing) return;
+  Future<void> changeRepository(DashboardHomeRepository repository) {
+    _loadHome = LoadDashboardHome(repository);
+    return load();
+  }
+
+  void edit({Iterable<String> suggestions = const []}) {
+    final current = state;
+    if (current is! DashboardLoaded) return;
     emit(
-      DashboardState(
-        favorites: state.favorites,
-        draft: state.draft!.where((item) => item != id).toList(),
+      DashboardLoaded(
+        data: current.data,
+        draft: current.favorites.isEmpty
+            ? suggestions.toSet().take(maxFavorites)
+            : current.favorites,
       ),
     );
   }
 
-  void confirm() => emit(DashboardState(favorites: state.visibleFavorites));
-  void cancel() => emit(DashboardState(favorites: state.favorites));
-  void reset() => emit(DashboardState());
+  void add(String id) {
+    final current = state;
+    if (current is! DashboardLoaded ||
+        current.draft == null ||
+        current.draft!.length >= maxFavorites ||
+        current.draft!.contains(id)) {
+      return;
+    }
+    emit(DashboardLoaded(data: current.data, draft: [...current.draft!, id]));
+  }
+
+  void remove(String id) {
+    final current = state;
+    if (current is! DashboardLoaded || current.draft == null) return;
+    emit(
+      DashboardLoaded(
+        data: current.data,
+        draft: current.draft!.where((item) => item != id),
+      ),
+    );
+  }
+
+  void confirm() {
+    final current = state;
+    if (current is DashboardLoaded) {
+      emit(
+        DashboardLoaded(
+          data: current.data.withFavorites(current.visibleFavorites),
+        ),
+      );
+    }
+  }
+
+  void cancel() {
+    final current = state;
+    if (current is DashboardLoaded) {
+      emit(DashboardLoaded(data: current.data));
+    }
+  }
+
+  void reset() {
+    final current = state;
+    if (current is DashboardLoaded) {
+      emit(DashboardLoaded(data: current.data.withFavorites([])));
+    }
+  }
+
+  @override
+  Future<void> close() {
+    _request++;
+    return super.close();
+  }
 }

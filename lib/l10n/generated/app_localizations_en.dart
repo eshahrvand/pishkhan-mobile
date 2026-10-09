@@ -603,4 +603,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get depositsCopyNumber => 'Copy deposit number';
+
+  @override
+  String get loansOperations => 'Loan operations';
+
+  @override
+  String get loansEmpty => 'No loans yet';
+
+  @override
+  String get loansPayInstallments => 'Pay installments';
+
+  @override
+  String get loansRelationships => 'Family relationships';
+
+  @override
+  String get loansDefaultName => 'Standard Qarz al-Hasaneh loan (no fee)';
+
+  @override
+  String get loansChangeDeposit => 'Change installment debit deposit';
+
+  @override
+  String get dashboardLoading => 'Loading…';
+
+  @override
+  String get dashboardLoadError => 'Could not load your information';
+
+  @override
+  String get dashboardRetry => 'Try again';
+
+  @override
+  String get dashboardEmpty => 'No information to display';
 }

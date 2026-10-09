@@ -1,0 +1,9 @@
+export 'presentation/dashboard_screen.dart';
+export 'domain/repositories/dashboard_repositories.dart';
+export 'domain/entities/bank_card.dart';
+export 'domain/entities/bank_deposit.dart';
+export 'domain/entities/bank_loan.dart';
+export 'domain/entities/dashboard_home_data.dart';
+export 'presentation/tabs/cards/card_actions.dart';
+export 'presentation/tabs/deposits/deposit_actions.dart';
+export 'presentation/tabs/loans/loan_actions.dart';

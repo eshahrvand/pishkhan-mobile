@@ -55,4 +55,12 @@ Previews exclude native status/navigation bars and the system keyboard.
 
 ## Development architecture and Deposits tab
 
-See [Dashboard development document](dashboard-development.md) for the complete 21-section feature architecture, file map, data and icon inventory, server contract proposal and known shared-component differences. The [deposit review gallery](deposits-review/index.html) covers single and multiple deposits.
+See [Dashboard development document](dashboard/dashboard-development.md) for the complete 21-section feature architecture, file map, data and icon inventory, server contract proposal and known shared-component differences. The [deposit review gallery](deposits-review/index.html) covers single and multiple deposits.
+
+## Loans tab
+
+Both Loans phases are now integrated as the fourth retained primary tab. See [Loans implementation review](loans-implementation-review.md), [loan previews](loans-review/index.html) and [Dashboard development document](dashboard/dashboard-development.md) for model/state architecture, selected-loan callback contracts, server readiness and shared-component differences.
+
+## Dashboard folder and state migration
+
+All four dashboard surfaces are owned by lib/features/dashboard. Home and the three banking tabs use Cubit/state classes with domain repository interfaces and asynchronous mock implementations. Dedicated card/deposit/loan folders are reserved for standalone pages. The relocated [Dashboard architecture document](dashboard/dashboard-development.md) contains the complete file map, lifecycle/selection rules, service replacement steps and avp_ui Figma audit. Application tests: 119; package tests: 102 pass; both analyzers report no issues.

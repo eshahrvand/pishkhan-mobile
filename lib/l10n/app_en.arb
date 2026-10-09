@@ -191,5 +191,15 @@
   "depositsLinkedLoans": "Linked loan status",
   "depositsLocalTransfer": "On-site transfer",
   "depositsMobileBank": "Mobile banking",
-  "depositsCopyNumber": "Copy deposit number"
+  "depositsCopyNumber": "Copy deposit number",
+  "loansOperations": "Loan operations",
+  "loansEmpty": "No loans yet",
+  "loansPayInstallments": "Pay installments",
+  "loansRelationships": "Family relationships",
+  "loansDefaultName": "Standard Qarz al-Hasaneh loan (no fee)",
+  "loansChangeDeposit": "Change installment debit deposit",
+  "dashboardLoading": "Loading…",
+  "dashboardLoadError": "Could not load your information",
+  "dashboardRetry": "Try again",
+  "dashboardEmpty": "No information to display"
 }

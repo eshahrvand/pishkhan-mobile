@@ -6,6 +6,15 @@
 abstract final class AppAssets {
   static const _root = 'assets/images';
 
+  static const loansChangeDeposit = '$_root/loans_change_deposit.svg';
+  static const loansCorrectInstallments =
+      '$_root/loans_correct_installments.svg';
+  static const loansDefer = '$_root/loans_defer.svg';
+  static const loansPatternUp = '$_root/loans_pattern_up.svg';
+  static const loansPay = '$_root/loans_pay.svg';
+  static const loansQuickConsolidate = '$_root/loans_quick_consolidate.svg';
+  static const loansQuickRelationships = '$_root/loans_quick_relationships.svg';
+
   static const depositsBlock = '$_root/deposits_block.svg';
   static const depositsCards = '$_root/deposits_cards.svg';
   static const depositsCertificate = '$_root/deposits_certificate.svg';
@@ -372,6 +381,13 @@ abstract final class AppAssets {
   static const notificationSecurity = '$_root/notification_security.png';
 
   static const all = <String>[
+    loansChangeDeposit,
+    loansCorrectInstallments,
+    loansDefer,
+    loansPatternUp,
+    loansPay,
+    loansQuickConsolidate,
+    loansQuickRelationships,
     depositsBlock,
     depositsCards,
     depositsCertificate,

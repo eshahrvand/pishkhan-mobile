@@ -1,6 +1,6 @@
 # My Deposits — Phases 1 and 2 implementation review
 
-[Rendered previews](deposits-review/index.html) · [Full Dashboard development document](dashboard-development.md)
+[Rendered previews](deposits-review/index.html) · [Full Dashboard development document](dashboard/dashboard-development.md)
 
 | Phase | Screen | Figma node | Preview |
 | --- | --- | --- | --- |
@@ -13,11 +13,11 @@ AppDepositCard, AppPrimaryNavigation, AppTopBar, AppServiceGridCard, AppServiceG
 
 ## Behavior and integration
 
-DashboardScreen now opens DepositsScreen as the third retained tab. One deposit uses the single card; multiple deposits use a snapping RTL carousel with neighboring previews and indicator navigation. Switching tabs retains selection; system back returns to Dashboard. Loans continues to open the existing service catalog.
+DashboardScreen now opens DepositsTab as the third retained tab. One deposit uses the single card; multiple deposits use a snapping RTL carousel with neighboring previews and indicator navigation. Switching tabs retains selection; system back returns to Dashboard. Loans continues to open the existing service catalog.
 
 BankDeposit.hasChequeOperations drives cheque-section visibility independently of list length. The single Figma fixture enables it; the three multi fixtures disable it. Mixed caller data changes visible operations as selection changes. Data reorder retains selection by ID; removal falls back to the first remaining deposit; empty data renders safely.
 
-Supply DashboardScreen.deposits and onDepositActionRequested for selected-deposit action context. onSelectedDepositChanged reports page changes. The existing onServiceRequested is a string-ID fallback and does not preserve deposit context. Standalone DepositsScreen also supports original-value copy overrides, menu, assistant and tab callbacks. Fetching data, durable storage and executing bank operations remain caller-owned.
+Supply DashboardScreen.deposits and onDepositActionRequested for selected-deposit action context. onSelectedDepositChanged reports page changes. The existing onServiceRequested is a string-ID fallback and does not preserve deposit context. Standalone DepositsTab also supports original-value copy overrides, menu, assistant and tab callbacks. Fetching data, durable storage and executing bank operations remain caller-owned.
 
 ## Accepted component differences
 
@@ -25,6 +25,10 @@ Per the user decision, AppDepositCard retains its existing corner-aligned gradie
 
 ## Validation
 
-Nine focused deposit tests and all 94 app tests pass. Analysis reports only the existing absolute Windows avp_ui path warning. Preview geometry, assets, capabilities, selected callback context, copying, retained tab state, back navigation, data replacement and narrow-screen/larger-text use were verified.
+Nine focused deposit tests and all 119 app tests pass. Application and avp_ui analysis report no issues. Preview geometry, assets, capabilities, selected callback context, copying, retained tab state, back navigation, data replacement and narrow-screen/larger-text use were verified.
 
 Regenerate with UPDATE_DEPOSITS_PREVIEWS=1 and flutter test test/deposits_screen_test.dart. The gallery includes safe-area spacing but excludes native system bar controls.
+
+## Dashboard ownership and Cubit migration
+
+The tab, summary entity and action mapping now live under lib/features/dashboard. Dedicated feature folders are reserved for standalone pages. DepositsTab requires DashboardDepositsRepository; DepositsCubit/DepositsState own load outcomes and selected deposit. DashboardScreen keeps optional list seeds for its default mocks and accepts an injected DashboardRepositories bundle for service integration. See [current architecture and complete Figma audit](dashboard/dashboard-development.md) for loading/error/empty/single/multiple states, immutable selection, mock flow and future adapter requirements.

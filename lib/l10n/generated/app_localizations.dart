@@ -1251,6 +1251,66 @@ abstract class AppLocalizations {
   /// In fa, this message translates to:
   /// **'کپی شماره سپرده'**
   String get depositsCopyNumber;
+
+  /// No description provided for @loansOperations.
+  ///
+  /// In fa, this message translates to:
+  /// **'عملیات وام'**
+  String get loansOperations;
+
+  /// No description provided for @loansEmpty.
+  ///
+  /// In fa, this message translates to:
+  /// **'هنوز وامی ندارید'**
+  String get loansEmpty;
+
+  /// No description provided for @loansPayInstallments.
+  ///
+  /// In fa, this message translates to:
+  /// **'پرداخت اقساط'**
+  String get loansPayInstallments;
+
+  /// No description provided for @loansRelationships.
+  ///
+  /// In fa, this message translates to:
+  /// **'روابط سببی نسبی'**
+  String get loansRelationships;
+
+  /// No description provided for @loansDefaultName.
+  ///
+  /// In fa, this message translates to:
+  /// **'تسهیلات قرض الحسنه عادی (بدون کارمزد)'**
+  String get loansDefaultName;
+
+  /// No description provided for @loansChangeDeposit.
+  ///
+  /// In fa, this message translates to:
+  /// **'تغییر سپرده کسر اقساط'**
+  String get loansChangeDeposit;
+
+  /// No description provided for @dashboardLoading.
+  ///
+  /// In fa, this message translates to:
+  /// **'در حال دریافت اطلاعات…'**
+  String get dashboardLoading;
+
+  /// No description provided for @dashboardLoadError.
+  ///
+  /// In fa, this message translates to:
+  /// **'دریافت اطلاعات انجام نشد'**
+  String get dashboardLoadError;
+
+  /// No description provided for @dashboardRetry.
+  ///
+  /// In fa, this message translates to:
+  /// **'تلاش دوباره'**
+  String get dashboardRetry;
+
+  /// No description provided for @dashboardEmpty.
+  ///
+  /// In fa, this message translates to:
+  /// **'اطلاعاتی برای نمایش وجود ندارد'**
+  String get dashboardEmpty;
 }
 
 class _AppLocalizationsDelegate

@@ -248,3 +248,11 @@ without changing the surrounding RTL icon layout.
 ## Dashboard instance styling
 
 The shared package exports AppDashboardColors for dashboard-specific semantic styling. AppButton.foregroundColor supports text-action instance colors while preserving disabled styling. AppSearchField.clearIcon supplies the exact Figma clear icon while preserving automatic clearing and callbacks. See [dashboard-implementation-review.md](dashboard-implementation-review.md) for the page composition and shared micro-service instance sizing.
+
+## Loan progress alignment
+
+AppProgressIndicator.fillAlignment optionally selects the origin. Default: AlignmentDirectional.centerStart. AppLoanCard passes Alignment.centerLeft for the loan frames in RTL. The foreground now keeps the full 8px track height. Calculate installment progress from validated numeric paid/total counts, with zero-total handling.
+
+## Dashboard tab repository composition
+
+Import package:pishkhan_mobile/features/dashboard/dashboard.dart for DashboardScreen and its public data/action contracts. DashboardScreen.repositories accepts DashboardRepositories with Home/Cards/Deposits/Loans implementations. Leaving it unset builds mocks from the optional list/favorite seed arguments. Tab widgets and their Cubits receive typed repository interfaces rather than raw lists. Standalone feature folders no longer export dashboard tab screens. See the [Dashboard architecture and Figma audit](dashboard/dashboard-development.md) for exact paths, states and live-service adapter requirements.

@@ -77,6 +77,12 @@ AppServiceGridCard.stretchItems defaults to true; set false and itemSpacing to 6
 
 ## My Deposits (third primary tab)
 
-Figma single deposit: `27902:82476`; multiple deposits: `27902:82503`. `DepositsScreen` composes the existing `AppDepositCard`, `AppTopBar`, `AppServiceGridCard`, `AppServiceArtworkTile`, `AppAssistantButton` and `AppPrimaryNavigation` without modifying their source. The selected `BankDeposit.hasChequeOperations` controls cheque operations, independently of deposit count.
+Figma single deposit: `27902:82476`; multiple deposits: `27902:82503`. `DepositsTab` composes the existing `AppDepositCard`, `AppTopBar`, `AppServiceGridCard`, `AppServiceArtworkTile`, `AppAssistantButton` and `AppPrimaryNavigation` without modifying their source. The selected `BankDeposit.hasChequeOperations` controls cheque operations, independently of deposit count.
 
-See [Deposits implementation review](deposits-implementation-review.md) and [Dashboard development document](dashboard-development.md) for exact component differences, integration callbacks, data/icon sources and future server mapping, and [rendered previews](deposits-review/index.html).
+See [Deposits implementation review](deposits-implementation-review.md) and [Dashboard development document](dashboard/dashboard-development.md) for exact component differences, integration callbacks, data/icon sources and future server mapping, and [rendered previews](deposits-review/index.html).
+
+## My Loans (fourth primary tab)
+
+Figma single loan: `27902:82623`; multiple loans: `27902:82592`. `LoansTab` reuses `AppLoanCard` and the shared top bar, operation/quick grids, assistant and navigation without changing shared source. `BankLoan` supplies summary values; `LoanActionRequest` supplies selected-loan callback context.
+
+See [Loans implementation review](loans-implementation-review.md), [Dashboard development document](dashboard/dashboard-development.md) (including all retained shared-component issues in Section 13.6), and [rendered previews](loans-review/index.html).

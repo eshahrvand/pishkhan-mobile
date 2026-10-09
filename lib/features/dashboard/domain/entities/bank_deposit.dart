@@ -1,5 +1,7 @@
+import 'dashboard_item.dart';
+
 /// Presentation data for the deposits prototype; no bank API is connected.
-class BankDeposit {
+class BankDeposit extends DashboardItem {
   const BankDeposit({
     required this.id,
     this.typeLabel = 'جاری حقیقی',
@@ -9,16 +11,20 @@ class BankDeposit {
     this.hasChequeOperations = false,
   });
 
-  final String id, typeLabel, number, iban, openingDate;
+  @override
+  final String id;
+  final String typeLabel, number, iban, openingDate;
   final bool hasChequeOperations;
 
-  static const singleExample = BankDeposit(
-    id: 'current-single',
-    hasChequeOperations: true,
-  );
-  static const examples = [
-    BankDeposit(id: 'current-1'),
-    BankDeposit(id: 'current-2'),
-    BankDeposit(id: 'current-3'),
+  @override
+  List<Object?> get props => [
+    id,
+    typeLabel,
+    number,
+    iban,
+    openingDate,
+    hasChequeOperations,
   ];
+  @override
+  BankDeposit snapshot() => this;
 }

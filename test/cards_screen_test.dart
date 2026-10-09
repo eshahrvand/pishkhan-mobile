@@ -1,3 +1,6 @@
+import 'package:pishkhan_mobile/features/dashboard/data/mock/mock_dashboard_repositories.dart';
+import 'package:pishkhan_mobile/features/dashboard/data/mock/dashboard_mock_data.dart';
+
 import 'dart:io';
 import 'dart:ui' as ui;
 
@@ -6,8 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:pishkhan_mobile/features/cards/models/bank_card.dart';
-import 'package:pishkhan_mobile/features/cards/presentation/cards_screen.dart';
+import 'package:pishkhan_mobile/features/dashboard/domain/entities/bank_card.dart';
+import 'package:pishkhan_mobile/features/dashboard/presentation/tabs/cards/cards_tab.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/dashboard_screen.dart';
 import 'package:pishkhan_mobile/l10n/l10n.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_resalat_card.dart';
@@ -72,10 +75,12 @@ void main() {
           await mount(
             tester,
             subject(
-              CardsScreen(
-                cards: single
-                    ? const [BankCard.singleExample]
-                    : BankCard.examples,
+              CardsTab(
+                repository: MockDashboardCardsRepository(
+                  cards: single
+                      ? const [DashboardMockData.singleCard]
+                      : DashboardMockData.cards,
+                ),
               ),
             ),
           );
@@ -178,8 +183,8 @@ void main() {
       await mount(
         tester,
         subject(
-          CardsScreen(
-            cards: const [card],
+          CardsTab(
+            repository: MockDashboardCardsRepository(cards: const [card]),
             onCopyNumber: (v) => copiedNumber = v,
             onCopyIban: (v) => copiedIban = v,
             onMorePressed: (v) => more = v,
@@ -214,8 +219,8 @@ void main() {
       await mount(
         tester,
         subject(
-          CardsScreen(
-            cards: cards,
+          CardsTab(
+            repository: MockDashboardCardsRepository(cards: cards),
             onSelectedCardChanged: (v) => selected = v,
             onActionRequested: (v) => request = v,
           ),
@@ -280,7 +285,10 @@ void main() {
   ) async {
     await mount(
       tester,
-      subject(const CardsScreen(), scale: 1.5),
+      subject(
+        const CardsTab(repository: MockDashboardCardsRepository()),
+        scale: 1.5,
+      ),
       size: const Size(320, 640),
     );
     await tap(tester, 'app_service_grid_icon_card-gift-balance');
@@ -289,7 +297,12 @@ void main() {
   testWidgets('an empty card list renders without a selected-card lookup', (
     tester,
   ) async {
-    await mount(tester, subject(const CardsScreen(cards: [])));
+    await mount(
+      tester,
+      subject(
+        const CardsTab(repository: MockDashboardCardsRepository(cards: [])),
+      ),
+    );
     expect(find.text('هنوز کارتی ندارید'), findsOneWidget);
     expect(find.byType(AppResalatCard), findsNothing);
     expect(tester.takeException(), isNull);

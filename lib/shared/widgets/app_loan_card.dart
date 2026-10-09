@@ -16,7 +16,7 @@ class AppLoanCard extends StatelessWidget {
     this.installmentAmount = '۵۰٬۰۰۰٬۰۰۰',
     this.installmentsPaid = '۴/۱۰',
     this.nextInstallment = '۱۴۰۴/۰۸/۰۳',
-    this.progress = .49,
+    this.progress = .4,
     this.size = AppLoanCardSize.single,
     this.onArrowPressed,
     this.onCopyLoanNumber,
@@ -109,6 +109,7 @@ class AppLoanCard extends StatelessWidget {
                         builder: (context, constraints) => AppProgressIndicator(
                           value: progress,
                           width: constraints.maxWidth,
+                          fillAlignment: Alignment.centerLeft,
                         ),
                       ),
                       const SizedBox(height: 12),

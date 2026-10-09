@@ -598,4 +598,34 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get depositsCopyNumber => 'نسخ رقم الوديعة';
+
+  @override
+  String get loansOperations => 'عمليات القروض';
+
+  @override
+  String get loansEmpty => 'لا توجد قروض بعد';
+
+  @override
+  String get loansPayInstallments => 'دفع الأقساط';
+
+  @override
+  String get loansRelationships => 'علاقات القرابة والمصاهرة';
+
+  @override
+  String get loansDefaultName => 'قرض حسن عادي (بدون رسوم)';
+
+  @override
+  String get loansChangeDeposit => 'تغيير وديعة خصم الأقساط';
+
+  @override
+  String get dashboardLoading => 'جارٍ تحميل المعلومات…';
+
+  @override
+  String get dashboardLoadError => 'تعذر تحميل المعلومات';
+
+  @override
+  String get dashboardRetry => 'حاول مرة أخرى';
+
+  @override
+  String get dashboardEmpty => 'لا توجد معلومات للعرض';
 }

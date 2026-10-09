@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/auth_screen.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/cubit/auth_cubit.dart';
-import 'package:pishkhan_mobile/features/dashboard/presentation/dashboard_screen.dart';
+import 'package:pishkhan_mobile/features/dashboard/dashboard.dart';
 import 'package:pishkhan_mobile/l10n/l10n.dart';
 
 Future<void> main() async {

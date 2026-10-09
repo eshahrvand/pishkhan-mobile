@@ -34,7 +34,7 @@ dependencies:
     sdk: flutter
 
   avp_ui:
-    path: C:\Users\mahdi\StudioProjects\avp_ui
+    path: ../avp_ui
   flutter_svg: ^2.0.17
 
   # The following adds the Cupertino Icons font to your application.
@@ -42,6 +42,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   flutter_bloc: ^9.1.1
   intl: ^0.20.3
+  equatable: 2.0.7
 
 dev_dependencies:
   flutter_test:

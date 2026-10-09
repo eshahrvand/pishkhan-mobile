@@ -12,6 +12,7 @@ class DashboardBankServices extends StatelessWidget {
   const DashboardBankServices({
     super.key,
     required this.state,
+    this.fixedServices = DashboardService.fixed,
     required this.onEdit,
     required this.onReset,
     required this.onAdd,
@@ -22,6 +23,7 @@ class DashboardBankServices extends StatelessWidget {
     required this.onAllServices,
   });
   final DashboardState state;
+  final List<DashboardService> fixedServices;
   final VoidCallback onEdit, onReset, onAdd, onConfirm, onCancel, onAllServices;
   final ValueChanged<String> onRemove;
   final ValueChanged<DashboardService> onService;
@@ -81,7 +83,7 @@ class DashboardBankServices extends StatelessWidget {
                   spacing: 6,
                   runSpacing: 12,
                   children: [
-                    for (final service in DashboardService.fixed)
+                    for (final service in fixedServices)
                       SizedBox(
                         width: width,
                         child: Center(
@@ -308,10 +310,9 @@ class DashboardBankServices extends StatelessWidget {
       final columns = constraints.maxWidth >= 274 ? 4 : 3;
       final width = (constraints.maxWidth - (columns - 1) * 6) / columns;
       final services = state.visibleFavorites
-          .map(
-            (id) => DashboardService.values.firstWhere(
-              (service) => service.id == id,
-            ),
+          .expand(
+            (id) =>
+                DashboardService.values.where((service) => service.id == id),
           )
           .toList();
       return Wrap(

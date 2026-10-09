@@ -599,4 +599,34 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get depositsCopyNumber => 'کپی شماره سپرده';
+
+  @override
+  String get loansOperations => 'عملیات وام';
+
+  @override
+  String get loansEmpty => 'هنوز وامی ندارید';
+
+  @override
+  String get loansPayInstallments => 'پرداخت اقساط';
+
+  @override
+  String get loansRelationships => 'روابط سببی نسبی';
+
+  @override
+  String get loansDefaultName => 'تسهیلات قرض الحسنه عادی (بدون کارمزد)';
+
+  @override
+  String get loansChangeDeposit => 'تغییر سپرده کسر اقساط';
+
+  @override
+  String get dashboardLoading => 'در حال دریافت اطلاعات…';
+
+  @override
+  String get dashboardLoadError => 'دریافت اطلاعات انجام نشد';
+
+  @override
+  String get dashboardRetry => 'تلاش دوباره';
+
+  @override
+  String get dashboardEmpty => 'اطلاعاتی برای نمایش وجود ندارد';
 }

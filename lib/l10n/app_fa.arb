@@ -198,5 +198,15 @@
   "depositsLinkedLoans": "وضعیت وام‌های متصل",
   "depositsLocalTransfer": "انتقال وجه خدمت در محل",
   "depositsMobileBank": "موبایل بانک",
-  "depositsCopyNumber": "کپی شماره سپرده"
+  "depositsCopyNumber": "کپی شماره سپرده",
+  "loansOperations": "عملیات وام",
+  "loansEmpty": "هنوز وامی ندارید",
+  "loansPayInstallments": "پرداخت اقساط",
+  "loansRelationships": "روابط سببی نسبی",
+  "loansDefaultName": "تسهیلات قرض الحسنه عادی (بدون کارمزد)",
+  "loansChangeDeposit": "تغییر سپرده کسر اقساط",
+  "dashboardLoading": "در حال دریافت اطلاعات…",
+  "dashboardLoadError": "دریافت اطلاعات انجام نشد",
+  "dashboardRetry": "تلاش دوباره",
+  "dashboardEmpty": "اطلاعاتی برای نمایش وجود ندارد"
 }

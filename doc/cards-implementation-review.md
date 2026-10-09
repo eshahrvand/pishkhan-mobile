@@ -18,7 +18,7 @@ All static assets are local and registered in `AppAssets`. The virtual-card artw
 
 ## Behavior and integration
 
-The second primary tab now opens `CardsScreen` from `DashboardScreen`.
+The second primary tab now opens `CardsTab` from `DashboardScreen`.
 Single-card data automatically selects the single layout; multiple cards use a snapping RTL carousel with neighboring-card previews and indicators.
 
 Each card keeps its own visibility state. Hidden details mask expiry and CVV2 while retaining the card number and IBAN, matching Figma.
@@ -30,11 +30,11 @@ The more/menu actions have caller callbacks; additional menu/service screens are
 
 Supply `DashboardScreen.cards`, `onCardActionRequested` and `onCardMorePressed` for integration.
 The existing `onServiceRequested` remains a fallback for action IDs.
-`CardsScreen` also exposes copy overrides and selected-card/tab/assistant callbacks.
-Default data are the Figma examples; fetching real cards and executing bank services belong to the caller.
+`CardsTab` also exposes copy overrides and selected-card/tab/assistant callbacks.
+Default data come from DashboardMockData through MockDashboardCardsRepository. CardsTab requires DashboardCardsRepository; CardsCubit/CardsState own loading/error/empty/single/multiple states, selection and immutable per-card visibility. Inject live repositories through DashboardScreen.repositories; executing bank services still belongs to the host.
 
 Tab switching retains dashboard favorites and card state. Back from Cards returns to Dashboard.
-Deposits/Loans continue to open their existing service catalogs until their tab designs are implemented.
+Deposits and Loans now open their retained feature tabs; see [Deposits review](deposits-implementation-review.md) and [Loans review](loans-implementation-review.md). Their menu fallbacks still open the respective service catalogs.
 
 ## Validation
 
@@ -43,3 +43,5 @@ The dashboard and notification regression tests are included because navigation 
 
 To regenerate previews, set `UPDATE_CARDS_PREVIEWS=1` and run `flutter test test/cards_screen_test.dart`.
 Native status/navigation bars are excluded from the PNGs.
+
+The [Dashboard architecture document](dashboard/dashboard-development.md) records the folder move, mock repository/Cubit design and complete component audit. All 119 app tests and 102 avp_ui tests pass; both analyzers report no issues.
