@@ -701,4 +701,171 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get cardFeatureUnavailable => 'این خدمت در حال حاضر در دسترس نیست.';
+
+  @override
+  String get issuanceTitle => 'صدور رسالت کارت';
+
+  @override
+  String get issuanceSelectionTitle => 'انتخاب سپرده و نوع صدور کارت';
+
+  @override
+  String get issuanceDeliveryTitle => 'اطلاعات دریافت کارت';
+
+  @override
+  String get issuanceConfirmTitle => 'تایید اطلاعات و پرداخت کارمزد';
+
+  @override
+  String get issuanceNextDelivery => 'بعدی: اطلاعات دریافت کارت';
+
+  @override
+  String get issuanceNextConfirm => 'بعدی: تایید اطلاعات و پرداخت کارمزد';
+
+  @override
+  String get issuanceEnd => 'پایان';
+
+  @override
+  String get issuanceDeposit => 'انتخاب سپرده';
+
+  @override
+  String get issuanceDepositHint => 'سپرده مورد نظر خود را انتخاب کنید';
+
+  @override
+  String get issuanceType => 'نوع صدور کارت';
+
+  @override
+  String get issuanceTypeHint => 'نوع صدور کارت را مشخص کنید';
+
+  @override
+  String get issuanceNewNumber => 'صدور کارت با شماره جدید';
+
+  @override
+  String get issuanceExistingNumber => 'صدور کارت با شماره فعلی';
+
+  @override
+  String get issuanceCurrentCard => 'شماره کارت فعلی';
+
+  @override
+  String get issuanceExpiry => 'تاریخ انقضا';
+
+  @override
+  String get issuanceNoPhysical => 'نیازی به دریافت کارت فیزیکی ندارم';
+
+  @override
+  String get issuanceNext => 'مرحله بعد';
+
+  @override
+  String get issuanceAddress => 'آدرس';
+
+  @override
+  String get issuanceSelectAddress => 'انتخاب آدرس';
+
+  @override
+  String get issuanceAddressHint => 'آدرس دریافت کارت را انتخاب کنید';
+
+  @override
+  String get issuanceAddAddress => 'افزودن آدرس جدید';
+
+  @override
+  String get issuanceDeleteAddress => 'حذف آدرس';
+
+  @override
+  String get issuanceOtherRecipient => 'دریافت توسط شخص دیگر';
+
+  @override
+  String get issuanceIncludeAgent => 'وارد کردن مشخصات کارشناس بانکی';
+
+  @override
+  String get issuanceRecipientName => 'نام و نام خانوادگی گیرنده';
+
+  @override
+  String get issuanceNationalId => 'کد ملی گیرنده';
+
+  @override
+  String get issuanceRecipientMobile => 'شماره همراه گیرنده';
+
+  @override
+  String get issuanceAgentName => 'نام و نام خانوادگی کارشناس';
+
+  @override
+  String get issuanceAgentCode => 'کد کارشناس';
+
+  @override
+  String get issuanceAddressTitle => 'عنوان آدرس';
+
+  @override
+  String get issuanceAddressDetail => 'نشانی کامل';
+
+  @override
+  String get issuancePostalCode => 'کد پستی';
+
+  @override
+  String get issuanceSaveAddress => 'ثبت آدرس';
+
+  @override
+  String get issuanceAddressInvalid =>
+      'عنوان، نشانی کامل و کد پستی ۱۰ رقمی را وارد کنید.';
+
+  @override
+  String get issuanceSummary => 'خلاصه اطلاعات';
+
+  @override
+  String get issuanceDepositNumber => 'شماره سپرده';
+
+  @override
+  String get issuanceOperation => 'نوع عملیات';
+
+  @override
+  String get issuancePayable => 'هزینه قابل پرداخت';
+
+  @override
+  String get issuanceWallet => 'موجودی کیف پول';
+
+  @override
+  String get issuancePrintFee => 'هزینه چاپ گزارش';
+
+  @override
+  String get issuanceIdentityFee => 'کارمزد احراز هویت';
+
+  @override
+  String get issuanceDeliveryFee => 'هزینه ارسال';
+
+  @override
+  String get issuanceTerms => 'قوانین و مقررات';
+
+  @override
+  String get issuanceTermsPrompt => 'درخواست را مطالعه و تایید می‌نمایم.';
+
+  @override
+  String get issuanceTermsUnavailable =>
+      'متن رسمی قوانین پس از اتصال به سرویس نمایش داده می‌شود.';
+
+  @override
+  String get issuanceSubmit => 'تایید و ثبت درخواست';
+
+  @override
+  String get issuanceSubmitError => 'ثبت درخواست انجام نشد. دوباره تلاش کنید.';
+
+  @override
+  String get issuanceEmpty => 'سپرده‌ای برای صدور کارت در دسترس نیست.';
+
+  @override
+  String get issuanceMockComplete =>
+      'پیش‌نمایش درخواست تکمیل شد؛ پرداخت یا صدور واقعی انجام نشده است.';
+
+  @override
+  String get issuanceComplete => 'درخواست ثبت شد.';
+
+  @override
+  String get issuanceDone => 'بازگشت';
+
+  @override
+  String get issuanceWalletSufficient => 'موجودی کیف پول کافی است';
+
+  @override
+  String get issuanceWalletInsufficient => 'موجودی کیف پول کافی نیست';
+
+  @override
+  String issuanceStepSemantic(int current, int total, String title) {
+    return 'مرحله $current از $total، $title';
+  }
 }

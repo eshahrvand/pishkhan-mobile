@@ -48,6 +48,7 @@ Unless a row explicitly says **Not implemented**, the component is implemented a
 
 | Figma component | Figma node | Flutter component | Notes |
 | --- | --- | --- | --- |
+| Stepper | `27984:8986` | `AppStepper` | Controlled step count, title, next/end text; see issuance notes below. |
 | Chips (default / selected) | `27902:85120`, `27902:85127` | `AppChips` | 40px category chips; optional icon and labelStyle for reviewed frame instances. |
 | Button | `15699:34979` | `AppButton` | Variants, sizes, destructive, loading, icons, tooltip, disabled state. |
 | Badge | `15743:28288` | `AppBadge` | Background, color, size, corner, icon/dot/avatar options. |
@@ -261,3 +262,23 @@ Import package:pishkhan_mobile/features/dashboard/dashboard.dart for DashboardSc
 ## Standalone Cards feature
 
 See [Cards architecture](cards/card-features-development.md) and [rendered flow](card-features-review/index.html). Import features/cards/cards.dart for CardFeaturesScreen, CardsRepository, ListedCard and typed CardFeatureRequest. Dashboard card summaries remain a separate feature. Compatible new package APIs are documented in avp_ui/docs/main-app-integration-guide.md; deploy the sibling package changes together with this app.
+
+## Stepper and card issuance instances
+
+| Figma name | Node | Public widget | Source |
+| --- | --- | --- | --- |
+| Stepper / stepper | `27984:8986` | `AppStepper` | `lib/widgets/layout/app_stepper.dart` |
+
+Use `AppStepper(currentStep: 1, totalSteps: 3, title: title, supportingText: nextLabel)`. Step numbers are one-based; total must be positive. State, navigation, validation, localized title/next/end labels and accessibility copy belong to the app. The 42px ring stays on the physical left in RTL, with a 24px gap, 4px warning dot, 12px/18px DemiBold title and 10px/16px Light supporting copy. The original 42px Figma ring SVGs live in package assets; dynamic progress clips the full foreground ring. Default progress is current/total. `progress` optionally reproduces authored samples: the library first 1/5 frame uses .1, and issuance frames use .3/.6/1 despite displaying 1/3, 2/3, 3/3. This visual override does not alter step numbering or validation. Long copy wraps and can increase the component height.
+
+The example gallery's `FigmaNameMapper` registers Stepper → AppStepper and previews it; the Components tab also renders first/last variants.
+
+`AppToggle.appearance: AppToggleAppearance.issuance` opts into Gray/100 off track, the two Shadow/sm thumb layers and physical off-left/on-right alignment. Default `standard` retains existing colors, shadow and direction-aware alignment. Disabled behavior is unchanged.
+
+`AppCardIssuanceColors` owns the summary Brand/25 surface, summary title, terms surface and input hint instance tokens. The main app composes them with existing semantic colors. No bank workflow or payment behavior lives in avp_ui.
+
+### Shared app composition for issuance
+
+The app-owned `AppInvoice` opts into a white surface with `backgroundColor: context.colors.surface`, Gray/500 labels with `labelColor: context.colors.textTertiary`, and localized wallet-status copy through `walletSufficientLabel`/`walletInsufficientLabel`. Its existing defaults remain unchanged. `AppAddressCard.variant: AppAddressCardVariant.delivery` renders the compact white address/delete row; `full` remains the default. These widgets remain in the main app's shared layer and are not exports of avp_ui. The issuance toggle clips the thumb shadows to its rounded track, matching the original SVG.
+
+Known retained state differences: the existing primary button disabled surface is Gray/100 with no shadow, while issuance frames use Gray/200 with Shadow/xs; loading keeps the existing package spinner treatment. The shared invoice retains .5px divider layout slots, adding 1px to expanded and .5px to collapsed height compared with Figma's zero-height divider layout. See the main app's `doc/card-issuance/card-issuance-development.md` for the complete flow and design audit.

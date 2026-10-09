@@ -261,7 +261,7 @@ The existing assistant visual invokes a callback or returns from the route. No n
 
 - Supply authoritative card/deposit IDs, statuses, product types and service contracts.
 - Define supported actions per card type/status; the four-row menu is a UI prototype.
-- Supply reissue/change-deposit/block/gift-transfer/virtual-request subsequent flow designs and service handlers.
+- Reissue now opens the [Resalat issuance flow](../card-issuance/card-issuance-development.md) by default; real execution remains unconnected. Supply change-deposit/block/gift-transfer/virtual-request flow designs and handlers.
 - Decide whether query/filter should persist across route sessions; today they persist only within this route and across its category changes.
 - Replace preformatted dates/amounts with validated service mapping where needed.
 - Confirm whether sheet drag dismissal is required: current sheets support outside tap/back/explicit buttons; drag is disabled for the full-screen authored backdrop composition.
@@ -273,3 +273,7 @@ The existing assistant visual invokes a callback or returns from the route. No n
 | Version | Date | Change |
 | --- | --- | --- |
 | 1.0.0 | 2026-10-09 | Implement six-phase standalone Cards flow, connected sheets, Cubit/mock repository, allowlisted routes and reviewed compatible shared/package variants; add tests and nine rendered review states |
+
+## Resalat issuance integration (2026-10-09)
+
+Without a supplied onActionRequested callback, the reissue sheet action opens CardIssuanceScreen with linkedDeposit context. Explicit host callbacks retain precedence. The nested assistant path pops issuance and then invokes the Cards host callback. See [complete flow architecture and component audit](../card-issuance/card-issuance-development.md) and [nine issuance/Stepper previews](../card-issuance-review/index.html).

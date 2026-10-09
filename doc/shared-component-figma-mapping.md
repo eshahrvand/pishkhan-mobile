@@ -90,3 +90,7 @@ See [Loans implementation review](loans-implementation-review.md), [Dashboard de
 ## Dedicated Cards flow variants
 
 Figma27997:10059–11563: AppCardsList coloredHeader uses the new instance colors/geometry without changing its legacy default. AppTopBar and AppBottomSheetHeader accept compatible trailing/action styling; avp_ui adds AppChips and compact input/button instance parameters. See [complete audit and flow architecture](cards/card-features-development.md) and [nine previews](card-features-review/index.html).
+
+## Resalat card issuance
+
+Stepper is owned/exported by avp_ui (27984:8986) and registered in both integration guides and its FigmaNameMapper example widget. AppInvoice gains optional backgroundColor/labelColor and wallet-status copy; AppAddressCard adds an opt-in delivery variant with delete action/copy. Existing defaults are retained. See [flow architecture and exact design audit](card-issuance/card-issuance-development.md) and [review gallery](card-issuance-review/index.html).

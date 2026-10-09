@@ -78,6 +78,10 @@ class AppInvoice extends StatelessWidget {
     this.walletIcon,
     this.costIcon,
     this.showToggle = true,
+    this.backgroundColor,
+    this.labelColor,
+    this.walletSufficientLabel,
+    this.walletInsufficientLabel,
   });
 
   final String title;
@@ -91,6 +95,9 @@ class AppInvoice extends StatelessWidget {
   final Widget? walletIcon;
   final Widget? costIcon;
   final bool showToggle;
+  final Color? backgroundColor;
+  final Color? labelColor;
+  final String? walletSufficientLabel, walletInsufficientLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -101,7 +108,7 @@ class AppInvoice extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         // Figma Gray/50 (#FAFAFA).
-        color: colors.surfaceSubtle,
+        color: backgroundColor ?? colors.surfaceSubtle,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -113,6 +120,7 @@ class AppInvoice extends StatelessWidget {
             costIcon: costIcon ?? AppInvoiceIcons.cost(),
             showToggle: showToggle,
             isExpanded: isExpanded,
+            labelColor: labelColor ?? colors.textSecondary,
           ),
           const SizedBox(height: 12),
           AppInvoiceIcons.divider(),
@@ -120,7 +128,10 @@ class AppInvoice extends StatelessWidget {
           if (isExpanded && lines.isNotEmpty) ...[
             for (var index = 0; index < lines.length; index++) ...[
               if (index > 0) const SizedBox(height: 12),
-              _InvoiceLine(line: lines[index]),
+              _InvoiceLine(
+                line: lines[index],
+                labelColor: labelColor ?? colors.textSecondary,
+              ),
             ],
             const SizedBox(height: 12),
             AppInvoiceIcons.divider(),
@@ -130,9 +141,15 @@ class AppInvoice extends StatelessWidget {
             label: walletLabel,
             amount: walletBalance,
             icon: walletIcon ?? AppInvoiceIcons.wallet(),
+            labelColor: labelColor ?? colors.textSecondary,
           ),
           const SizedBox(height: 12),
-          AppWalletBalanceStatus(isSufficient: isWalletBalanceSufficient),
+          AppWalletBalanceStatus(
+            isSufficient: isWalletBalanceSufficient,
+            sufficientLabel: walletSufficientLabel ?? 'موجودی کیف پول کافی است',
+            insufficientLabel:
+                walletInsufficientLabel ?? 'موجودی کیف پول کافی نیست',
+          ),
         ],
       ),
     );
@@ -160,12 +177,14 @@ class AppInvoice extends StatelessWidget {
 }
 
 class _InvoiceHeader extends StatelessWidget {
+  final Color labelColor;
   const _InvoiceHeader({
     required this.title,
     required this.totalAmount,
     required this.costIcon,
     required this.showToggle,
     required this.isExpanded,
+    required this.labelColor,
   });
 
   final String title;
@@ -212,7 +231,7 @@ class _InvoiceHeader extends StatelessWidget {
               textDirection: TextDirection.rtl,
               style: _invoiceTextStyle(
                 AppTypography.bodySmall,
-                color: colors.textSecondary,
+                color: labelColor,
               ),
             ),
             const SizedBox(width: 4),
@@ -230,7 +249,8 @@ class _InvoiceHeader extends StatelessWidget {
 }
 
 class _InvoiceLine extends StatelessWidget {
-  const _InvoiceLine({required this.line});
+  const _InvoiceLine({required this.line, required this.labelColor});
+  final Color labelColor;
   final AppInvoiceLine line;
 
   @override
@@ -263,7 +283,7 @@ class _InvoiceLine extends StatelessWidget {
                   textAlign: TextAlign.right,
                   style: _invoiceTextStyle(
                     AppTypography.bodySmall,
-                    color: colors.textSecondary,
+                    color: labelColor,
                   ),
                 ),
               ),
@@ -282,7 +302,9 @@ class _WalletRow extends StatelessWidget {
     required this.label,
     required this.amount,
     required this.icon,
+    required this.labelColor,
   });
+  final Color labelColor;
   final String label;
   final String amount;
   final Widget icon;
@@ -317,7 +339,7 @@ class _WalletRow extends StatelessWidget {
                   textAlign: TextAlign.right,
                   style: _invoiceTextStyle(
                     AppTypography.bodySmall,
-                    color: colors.textSecondary,
+                    color: labelColor,
                   ),
                 ),
               ),

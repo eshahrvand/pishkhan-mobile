@@ -46,6 +46,7 @@ Complete these steps **before writing UI code**:
 | Checkbox | `AppCheckbox` |
 | Badge, tooltip, help | `AppBadge`, `AppTooltip`, `AppHelp` |
 | Avatar | `AppAvatar`, `AppAvatarProfilePhoto` |
+| Workflow Stepper | `AppStepper` |
 | Progress and slider | `AppProgressIndicator`, `AppProgressCircle`, `AppSlider` |
 
 The complete supported-component inventory is maintained in `main-app-integration-guide.md` and must be consulted instead of assuming a widget is unavailable.

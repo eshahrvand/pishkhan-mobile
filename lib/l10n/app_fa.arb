@@ -232,5 +232,72 @@
   "cardFeatureCardStatus": "وضعیت کارت",
   "cardFeatureGiftTransfer": "واریز مانده کارت هدیه منقضی",
   "cardFeatureVirtualRequest": "درخواست کارت مجازی",
-  "cardFeatureUnavailable": "این خدمت در حال حاضر در دسترس نیست."
+  "cardFeatureUnavailable": "این خدمت در حال حاضر در دسترس نیست.",
+  "issuanceTitle": "صدور رسالت کارت",
+  "issuanceSelectionTitle": "انتخاب سپرده و نوع صدور کارت",
+  "issuanceDeliveryTitle": "اطلاعات دریافت کارت",
+  "issuanceConfirmTitle": "تایید اطلاعات و پرداخت کارمزد",
+  "issuanceNextDelivery": "بعدی: اطلاعات دریافت کارت",
+  "issuanceNextConfirm": "بعدی: تایید اطلاعات و پرداخت کارمزد",
+  "issuanceEnd": "پایان",
+  "issuanceDeposit": "انتخاب سپرده",
+  "issuanceDepositHint": "سپرده مورد نظر خود را انتخاب کنید",
+  "issuanceType": "نوع صدور کارت",
+  "issuanceTypeHint": "نوع صدور کارت را مشخص کنید",
+  "issuanceNewNumber": "صدور کارت با شماره جدید",
+  "issuanceExistingNumber": "صدور کارت با شماره فعلی",
+  "issuanceCurrentCard": "شماره کارت فعلی",
+  "issuanceExpiry": "تاریخ انقضا",
+  "issuanceNoPhysical": "نیازی به دریافت کارت فیزیکی ندارم",
+  "issuanceNext": "مرحله بعد",
+  "issuanceAddress": "آدرس",
+  "issuanceSelectAddress": "انتخاب آدرس",
+  "issuanceAddressHint": "آدرس دریافت کارت را انتخاب کنید",
+  "issuanceAddAddress": "افزودن آدرس جدید",
+  "issuanceDeleteAddress": "حذف آدرس",
+  "issuanceOtherRecipient": "دریافت توسط شخص دیگر",
+  "issuanceIncludeAgent": "وارد کردن مشخصات کارشناس بانکی",
+  "issuanceRecipientName": "نام و نام خانوادگی گیرنده",
+  "issuanceNationalId": "کد ملی گیرنده",
+  "issuanceRecipientMobile": "شماره همراه گیرنده",
+  "issuanceAgentName": "نام و نام خانوادگی کارشناس",
+  "issuanceAgentCode": "کد کارشناس",
+  "issuanceAddressTitle": "عنوان آدرس",
+  "issuanceAddressDetail": "نشانی کامل",
+  "issuancePostalCode": "کد پستی",
+  "issuanceSaveAddress": "ثبت آدرس",
+  "issuanceAddressInvalid": "عنوان، نشانی کامل و کد پستی ۱۰ رقمی را وارد کنید.",
+  "issuanceSummary": "خلاصه اطلاعات",
+  "issuanceDepositNumber": "شماره سپرده",
+  "issuanceOperation": "نوع عملیات",
+  "issuancePayable": "هزینه قابل پرداخت",
+  "issuanceWallet": "موجودی کیف پول",
+  "issuancePrintFee": "هزینه چاپ گزارش",
+  "issuanceIdentityFee": "کارمزد احراز هویت",
+  "issuanceDeliveryFee": "هزینه ارسال",
+  "issuanceTerms": "قوانین و مقررات",
+  "issuanceTermsPrompt": "درخواست را مطالعه و تایید می‌نمایم.",
+  "issuanceTermsUnavailable": "متن رسمی قوانین پس از اتصال به سرویس نمایش داده می‌شود.",
+  "issuanceSubmit": "تایید و ثبت درخواست",
+  "issuanceSubmitError": "ثبت درخواست انجام نشد. دوباره تلاش کنید.",
+  "issuanceEmpty": "سپرده‌ای برای صدور کارت در دسترس نیست.",
+  "issuanceMockComplete": "پیش‌نمایش درخواست تکمیل شد؛ پرداخت یا صدور واقعی انجام نشده است.",
+  "issuanceComplete": "درخواست ثبت شد.",
+  "issuanceDone": "بازگشت",
+  "issuanceWalletSufficient": "موجودی کیف پول کافی است",
+  "issuanceWalletInsufficient": "موجودی کیف پول کافی نیست",
+  "issuanceStepSemantic": "مرحله {current} از {total}، {title}",
+  "@issuanceStepSemantic": {
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "title": {
+        "type": "String"
+      }
+    }
+  }
 }

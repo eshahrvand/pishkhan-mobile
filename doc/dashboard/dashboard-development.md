@@ -1065,3 +1065,7 @@ Loan progress sizing and physical-left alignment are fixed. Remaining follow-ups
 | 1.2.0 | 2026-10-09 | Fix shared foreground sizing; derive progress from paid/total; select physical-left loan fill; add model/geometry regressions and regenerate previews |
 | 1.1.0 | 2026-10-09 | Add Loans phases 1–2, fourth retained tab, selected-loan callback/copy/detail contracts, original artwork inventory, transport readiness and shared-component issue register |
 | 1.0.0 | 2026-10-09 | Register Dashboard current architecture; add Deposits phases 1–2 and selection-driven cheque UI; record shared component exceptions, exact icon sources, server-readiness matrix, proposed contract, state/data flows and verification |
+
+## Resalat issuance route integration (2026-10-09)
+
+The core card service bridge now also allowlists card-issue/card-reissue. The standalone flow lives in lib/features/card_issuance, rather than inside Dashboard. Existing service/card/deposit callbacks retain precedence; default deposit entry forwards its selected deposit number for an exact normalized catalog match. See [issuance architecture and remaining component differences](../card-issuance/card-issuance-development.md). Dashboard components and its earlier Figma issue register are unchanged.

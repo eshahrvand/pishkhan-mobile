@@ -700,4 +700,171 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get cardFeatureUnavailable => 'هذه الخدمة غير متاحة حالياً.';
+
+  @override
+  String get issuanceTitle => 'إصدار بطاقة رسالت';
+
+  @override
+  String get issuanceSelectionTitle => 'اختيار الحساب ونوع الإصدار';
+
+  @override
+  String get issuanceDeliveryTitle => 'معلومات استلام البطاقة';
+
+  @override
+  String get issuanceConfirmTitle => 'تأكيد المعلومات ودفع الرسوم';
+
+  @override
+  String get issuanceNextDelivery => 'التالي: معلومات استلام البطاقة';
+
+  @override
+  String get issuanceNextConfirm => 'التالي: التأكيد والرسوم';
+
+  @override
+  String get issuanceEnd => 'النهاية';
+
+  @override
+  String get issuanceDeposit => 'اختيار الحساب';
+
+  @override
+  String get issuanceDepositHint => 'اختر الحساب المطلوب';
+
+  @override
+  String get issuanceType => 'نوع إصدار البطاقة';
+
+  @override
+  String get issuanceTypeHint => 'حدد نوع الإصدار';
+
+  @override
+  String get issuanceNewNumber => 'إصدار بطاقة برقم جديد';
+
+  @override
+  String get issuanceExistingNumber => 'إصدار بطاقة بالرقم الحالي';
+
+  @override
+  String get issuanceCurrentCard => 'رقم البطاقة الحالي';
+
+  @override
+  String get issuanceExpiry => 'تاريخ انتهاء الصلاحية';
+
+  @override
+  String get issuanceNoPhysical => 'لا أحتاج إلى بطاقة فعلية';
+
+  @override
+  String get issuanceNext => 'الخطوة التالية';
+
+  @override
+  String get issuanceAddress => 'العنوان';
+
+  @override
+  String get issuanceSelectAddress => 'اختيار العنوان';
+
+  @override
+  String get issuanceAddressHint => 'اختر عنوان استلام البطاقة';
+
+  @override
+  String get issuanceAddAddress => 'إضافة عنوان جديد';
+
+  @override
+  String get issuanceDeleteAddress => 'حذف العنوان';
+
+  @override
+  String get issuanceOtherRecipient => 'الاستلام بواسطة شخص آخر';
+
+  @override
+  String get issuanceIncludeAgent => 'إدخال بيانات الموظف المصرفي';
+
+  @override
+  String get issuanceRecipientName => 'الاسم الكامل للمستلم';
+
+  @override
+  String get issuanceNationalId => 'الرقم الوطني للمستلم';
+
+  @override
+  String get issuanceRecipientMobile => 'رقم جوال المستلم';
+
+  @override
+  String get issuanceAgentName => 'الاسم الكامل للموظف';
+
+  @override
+  String get issuanceAgentCode => 'رمز الموظف';
+
+  @override
+  String get issuanceAddressTitle => 'اسم العنوان';
+
+  @override
+  String get issuanceAddressDetail => 'العنوان الكامل';
+
+  @override
+  String get issuancePostalCode => 'الرمز البريدي';
+
+  @override
+  String get issuanceSaveAddress => 'حفظ العنوان';
+
+  @override
+  String get issuanceAddressInvalid =>
+      'أدخل اسم العنوان والعنوان الكامل ورمزاً بريدياً من ١٠ أرقام.';
+
+  @override
+  String get issuanceSummary => 'ملخص المعلومات';
+
+  @override
+  String get issuanceDepositNumber => 'رقم الحساب';
+
+  @override
+  String get issuanceOperation => 'نوع العملية';
+
+  @override
+  String get issuancePayable => 'المبلغ المستحق';
+
+  @override
+  String get issuanceWallet => 'رصيد المحفظة';
+
+  @override
+  String get issuancePrintFee => 'رسوم طباعة التقرير';
+
+  @override
+  String get issuanceIdentityFee => 'رسوم التحقق من الهوية';
+
+  @override
+  String get issuanceDeliveryFee => 'رسوم التوصيل';
+
+  @override
+  String get issuanceTerms => 'الشروط والأحكام';
+
+  @override
+  String get issuanceTermsPrompt => 'لقد قرأت شروط الطلب وأوافق عليها.';
+
+  @override
+  String get issuanceTermsUnavailable =>
+      'سيتم عرض الشروط الرسمية بعد ربط الخدمة.';
+
+  @override
+  String get issuanceSubmit => 'تأكيد الطلب وإرساله';
+
+  @override
+  String get issuanceSubmitError => 'تعذر إرسال الطلب. حاول مرة أخرى.';
+
+  @override
+  String get issuanceEmpty => 'لا يوجد حساب مؤهل لإصدار البطاقة.';
+
+  @override
+  String get issuanceMockComplete =>
+      'اكتملت معاينة الطلب؛ لم يتم دفع رسوم أو إصدار بطاقة فعلية.';
+
+  @override
+  String get issuanceComplete => 'تم إرسال الطلب.';
+
+  @override
+  String get issuanceDone => 'رجوع';
+
+  @override
+  String get issuanceWalletSufficient => 'رصيد المحفظة كافٍ';
+
+  @override
+  String get issuanceWalletInsufficient => 'رصيد المحفظة غير كافٍ';
+
+  @override
+  String issuanceStepSemantic(int current, int total, String title) {
+    return 'الخطوة $current من $total، $title';
+  }
 }

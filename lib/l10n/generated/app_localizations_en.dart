@@ -705,4 +705,173 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cardFeatureUnavailable => 'This service is currently unavailable.';
+
+  @override
+  String get issuanceTitle => 'Resalat card issuance';
+
+  @override
+  String get issuanceSelectionTitle => 'Select account and issuance type';
+
+  @override
+  String get issuanceDeliveryTitle => 'Card delivery information';
+
+  @override
+  String get issuanceConfirmTitle => 'Confirm information and pay fees';
+
+  @override
+  String get issuanceNextDelivery => 'Next: card delivery information';
+
+  @override
+  String get issuanceNextConfirm => 'Next: confirmation and fees';
+
+  @override
+  String get issuanceEnd => 'End';
+
+  @override
+  String get issuanceDeposit => 'Select account';
+
+  @override
+  String get issuanceDepositHint => 'Select the account you want to use';
+
+  @override
+  String get issuanceType => 'Card issuance type';
+
+  @override
+  String get issuanceTypeHint => 'Select an issuance type';
+
+  @override
+  String get issuanceNewNumber => 'Issue a card with a new number';
+
+  @override
+  String get issuanceExistingNumber => 'Issue a card with the current number';
+
+  @override
+  String get issuanceCurrentCard => 'Current card number';
+
+  @override
+  String get issuanceExpiry => 'Expiry date';
+
+  @override
+  String get issuanceNoPhysical => 'I do not need a physical card';
+
+  @override
+  String get issuanceNext => 'Next step';
+
+  @override
+  String get issuanceAddress => 'Address';
+
+  @override
+  String get issuanceSelectAddress => 'Select address';
+
+  @override
+  String get issuanceAddressHint => 'Select the card delivery address';
+
+  @override
+  String get issuanceAddAddress => 'Add a new address';
+
+  @override
+  String get issuanceDeleteAddress => 'Delete address';
+
+  @override
+  String get issuanceOtherRecipient => 'Receive through another person';
+
+  @override
+  String get issuanceIncludeAgent => 'Enter bank agent details';
+
+  @override
+  String get issuanceRecipientName => 'Recipient full name';
+
+  @override
+  String get issuanceNationalId => 'Recipient national ID';
+
+  @override
+  String get issuanceRecipientMobile => 'Recipient mobile number';
+
+  @override
+  String get issuanceAgentName => 'Agent full name';
+
+  @override
+  String get issuanceAgentCode => 'Agent code';
+
+  @override
+  String get issuanceAddressTitle => 'Address label';
+
+  @override
+  String get issuanceAddressDetail => 'Full address';
+
+  @override
+  String get issuancePostalCode => 'Postal code';
+
+  @override
+  String get issuanceSaveAddress => 'Save address';
+
+  @override
+  String get issuanceAddressInvalid =>
+      'Enter a label, full address and a 10-digit postal code.';
+
+  @override
+  String get issuanceSummary => 'Information summary';
+
+  @override
+  String get issuanceDepositNumber => 'Account number';
+
+  @override
+  String get issuanceOperation => 'Operation type';
+
+  @override
+  String get issuancePayable => 'Amount payable';
+
+  @override
+  String get issuanceWallet => 'Wallet balance';
+
+  @override
+  String get issuancePrintFee => 'Report printing fee';
+
+  @override
+  String get issuanceIdentityFee => 'Identity verification fee';
+
+  @override
+  String get issuanceDeliveryFee => 'Delivery fee';
+
+  @override
+  String get issuanceTerms => 'Terms and conditions';
+
+  @override
+  String get issuanceTermsPrompt => 'I have read and accept the request terms.';
+
+  @override
+  String get issuanceTermsUnavailable =>
+      'Official terms will be provided by the service integration.';
+
+  @override
+  String get issuanceSubmit => 'Confirm and submit request';
+
+  @override
+  String get issuanceSubmitError =>
+      'The request could not be submitted. Try again.';
+
+  @override
+  String get issuanceEmpty =>
+      'No eligible account is available for card issuance.';
+
+  @override
+  String get issuanceMockComplete =>
+      'Request preview completed; no payment or card issuance was performed.';
+
+  @override
+  String get issuanceComplete => 'Request submitted.';
+
+  @override
+  String get issuanceDone => 'Back';
+
+  @override
+  String get issuanceWalletSufficient => 'Wallet balance is sufficient';
+
+  @override
+  String get issuanceWalletInsufficient => 'Wallet balance is insufficient';
+
+  @override
+  String issuanceStepSemantic(int current, int total, String title) {
+    return 'Step $current of $total, $title';
+  }
 }

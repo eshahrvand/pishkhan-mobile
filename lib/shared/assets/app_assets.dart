@@ -4,6 +4,19 @@
 /// code. Feature-specific facades may alias these constants, but must not
 /// duplicate path strings.
 abstract final class AppAssets {
+  static const issuanceTrash = 'assets/images/issuance_trash.svg';
+  static const issuanceSummaryDivider =
+      'assets/images/issuance_summary_divider.svg';
+  static const issuanceSummaryDividerOperation =
+      'assets/images/issuance_summary_divider_operation.svg';
+  static const issuanceSummaryChevron =
+      'assets/images/issuance_summary_chevron.svg';
+  static const issuanceSelectEmpty = 'assets/images/issuance_select_empty.svg';
+  static const issuancePlus = 'assets/images/issuance_plus.svg';
+  static const issuanceDivider = 'assets/images/issuance_divider.svg';
+  static const issuanceCredit = 'assets/images/issuance_credit.svg';
+  static const issuanceCardDivider = 'assets/images/issuance_card_divider.svg';
+  static const issuanceCalendar = 'assets/images/issuance_calendar.svg';
   static const cardFeaturesResalat = "assets/images/card_features_resalat.svg";
   static const cardFeaturesGift = "assets/images/card_features_gift.svg";
   static const cardFeaturesVirtual = "assets/images/card_features_virtual.svg";
@@ -404,6 +417,16 @@ abstract final class AppAssets {
   static const notificationSecurity = '$_root/notification_security.png';
 
   static const all = <String>[
+    issuanceCalendar,
+    issuanceCardDivider,
+    issuanceCredit,
+    issuanceDivider,
+    issuancePlus,
+    issuanceSelectEmpty,
+    issuanceSummaryChevron,
+    issuanceSummaryDividerOperation,
+    issuanceSummaryDivider,
+    issuanceTrash,
     loansChangeDeposit,
     loansCorrectInstallments,
     loansDefer,

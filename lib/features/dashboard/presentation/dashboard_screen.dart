@@ -158,13 +158,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-  void _serviceId(String id) {
+  void _serviceId(String id, {String? depositNumber}) {
     if (widget.onServiceRequested != null) {
       widget.onServiceRequested!(id);
     } else {
       openCardFeaturesService(
         context,
         id,
+        initialDepositNumber: depositNumber,
         onAssistantPressed: () {
           _selectTab(AppPrimaryTab.dashboard);
           _promptFocus.requestFocus();
@@ -254,7 +255,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   if (widget.onDepositActionRequested != null) {
                     widget.onDepositActionRequested!(request);
                   } else {
-                    _serviceId(request.action.id);
+                    _serviceId(
+                      request.action.id,
+                      depositNumber: request.deposit.number,
+                    );
                   }
                 },
               ),

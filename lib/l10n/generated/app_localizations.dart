@@ -1455,6 +1455,330 @@ abstract class AppLocalizations {
   /// In fa, this message translates to:
   /// **'این خدمت در حال حاضر در دسترس نیست.'**
   String get cardFeatureUnavailable;
+
+  /// No description provided for @issuanceTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'صدور رسالت کارت'**
+  String get issuanceTitle;
+
+  /// No description provided for @issuanceSelectionTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'انتخاب سپرده و نوع صدور کارت'**
+  String get issuanceSelectionTitle;
+
+  /// No description provided for @issuanceDeliveryTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'اطلاعات دریافت کارت'**
+  String get issuanceDeliveryTitle;
+
+  /// No description provided for @issuanceConfirmTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'تایید اطلاعات و پرداخت کارمزد'**
+  String get issuanceConfirmTitle;
+
+  /// No description provided for @issuanceNextDelivery.
+  ///
+  /// In fa, this message translates to:
+  /// **'بعدی: اطلاعات دریافت کارت'**
+  String get issuanceNextDelivery;
+
+  /// No description provided for @issuanceNextConfirm.
+  ///
+  /// In fa, this message translates to:
+  /// **'بعدی: تایید اطلاعات و پرداخت کارمزد'**
+  String get issuanceNextConfirm;
+
+  /// No description provided for @issuanceEnd.
+  ///
+  /// In fa, this message translates to:
+  /// **'پایان'**
+  String get issuanceEnd;
+
+  /// No description provided for @issuanceDeposit.
+  ///
+  /// In fa, this message translates to:
+  /// **'انتخاب سپرده'**
+  String get issuanceDeposit;
+
+  /// No description provided for @issuanceDepositHint.
+  ///
+  /// In fa, this message translates to:
+  /// **'سپرده مورد نظر خود را انتخاب کنید'**
+  String get issuanceDepositHint;
+
+  /// No description provided for @issuanceType.
+  ///
+  /// In fa, this message translates to:
+  /// **'نوع صدور کارت'**
+  String get issuanceType;
+
+  /// No description provided for @issuanceTypeHint.
+  ///
+  /// In fa, this message translates to:
+  /// **'نوع صدور کارت را مشخص کنید'**
+  String get issuanceTypeHint;
+
+  /// No description provided for @issuanceNewNumber.
+  ///
+  /// In fa, this message translates to:
+  /// **'صدور کارت با شماره جدید'**
+  String get issuanceNewNumber;
+
+  /// No description provided for @issuanceExistingNumber.
+  ///
+  /// In fa, this message translates to:
+  /// **'صدور کارت با شماره فعلی'**
+  String get issuanceExistingNumber;
+
+  /// No description provided for @issuanceCurrentCard.
+  ///
+  /// In fa, this message translates to:
+  /// **'شماره کارت فعلی'**
+  String get issuanceCurrentCard;
+
+  /// No description provided for @issuanceExpiry.
+  ///
+  /// In fa, this message translates to:
+  /// **'تاریخ انقضا'**
+  String get issuanceExpiry;
+
+  /// No description provided for @issuanceNoPhysical.
+  ///
+  /// In fa, this message translates to:
+  /// **'نیازی به دریافت کارت فیزیکی ندارم'**
+  String get issuanceNoPhysical;
+
+  /// No description provided for @issuanceNext.
+  ///
+  /// In fa, this message translates to:
+  /// **'مرحله بعد'**
+  String get issuanceNext;
+
+  /// No description provided for @issuanceAddress.
+  ///
+  /// In fa, this message translates to:
+  /// **'آدرس'**
+  String get issuanceAddress;
+
+  /// No description provided for @issuanceSelectAddress.
+  ///
+  /// In fa, this message translates to:
+  /// **'انتخاب آدرس'**
+  String get issuanceSelectAddress;
+
+  /// No description provided for @issuanceAddressHint.
+  ///
+  /// In fa, this message translates to:
+  /// **'آدرس دریافت کارت را انتخاب کنید'**
+  String get issuanceAddressHint;
+
+  /// No description provided for @issuanceAddAddress.
+  ///
+  /// In fa, this message translates to:
+  /// **'افزودن آدرس جدید'**
+  String get issuanceAddAddress;
+
+  /// No description provided for @issuanceDeleteAddress.
+  ///
+  /// In fa, this message translates to:
+  /// **'حذف آدرس'**
+  String get issuanceDeleteAddress;
+
+  /// No description provided for @issuanceOtherRecipient.
+  ///
+  /// In fa, this message translates to:
+  /// **'دریافت توسط شخص دیگر'**
+  String get issuanceOtherRecipient;
+
+  /// No description provided for @issuanceIncludeAgent.
+  ///
+  /// In fa, this message translates to:
+  /// **'وارد کردن مشخصات کارشناس بانکی'**
+  String get issuanceIncludeAgent;
+
+  /// No description provided for @issuanceRecipientName.
+  ///
+  /// In fa, this message translates to:
+  /// **'نام و نام خانوادگی گیرنده'**
+  String get issuanceRecipientName;
+
+  /// No description provided for @issuanceNationalId.
+  ///
+  /// In fa, this message translates to:
+  /// **'کد ملی گیرنده'**
+  String get issuanceNationalId;
+
+  /// No description provided for @issuanceRecipientMobile.
+  ///
+  /// In fa, this message translates to:
+  /// **'شماره همراه گیرنده'**
+  String get issuanceRecipientMobile;
+
+  /// No description provided for @issuanceAgentName.
+  ///
+  /// In fa, this message translates to:
+  /// **'نام و نام خانوادگی کارشناس'**
+  String get issuanceAgentName;
+
+  /// No description provided for @issuanceAgentCode.
+  ///
+  /// In fa, this message translates to:
+  /// **'کد کارشناس'**
+  String get issuanceAgentCode;
+
+  /// No description provided for @issuanceAddressTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'عنوان آدرس'**
+  String get issuanceAddressTitle;
+
+  /// No description provided for @issuanceAddressDetail.
+  ///
+  /// In fa, this message translates to:
+  /// **'نشانی کامل'**
+  String get issuanceAddressDetail;
+
+  /// No description provided for @issuancePostalCode.
+  ///
+  /// In fa, this message translates to:
+  /// **'کد پستی'**
+  String get issuancePostalCode;
+
+  /// No description provided for @issuanceSaveAddress.
+  ///
+  /// In fa, this message translates to:
+  /// **'ثبت آدرس'**
+  String get issuanceSaveAddress;
+
+  /// No description provided for @issuanceAddressInvalid.
+  ///
+  /// In fa, this message translates to:
+  /// **'عنوان، نشانی کامل و کد پستی ۱۰ رقمی را وارد کنید.'**
+  String get issuanceAddressInvalid;
+
+  /// No description provided for @issuanceSummary.
+  ///
+  /// In fa, this message translates to:
+  /// **'خلاصه اطلاعات'**
+  String get issuanceSummary;
+
+  /// No description provided for @issuanceDepositNumber.
+  ///
+  /// In fa, this message translates to:
+  /// **'شماره سپرده'**
+  String get issuanceDepositNumber;
+
+  /// No description provided for @issuanceOperation.
+  ///
+  /// In fa, this message translates to:
+  /// **'نوع عملیات'**
+  String get issuanceOperation;
+
+  /// No description provided for @issuancePayable.
+  ///
+  /// In fa, this message translates to:
+  /// **'هزینه قابل پرداخت'**
+  String get issuancePayable;
+
+  /// No description provided for @issuanceWallet.
+  ///
+  /// In fa, this message translates to:
+  /// **'موجودی کیف پول'**
+  String get issuanceWallet;
+
+  /// No description provided for @issuancePrintFee.
+  ///
+  /// In fa, this message translates to:
+  /// **'هزینه چاپ گزارش'**
+  String get issuancePrintFee;
+
+  /// No description provided for @issuanceIdentityFee.
+  ///
+  /// In fa, this message translates to:
+  /// **'کارمزد احراز هویت'**
+  String get issuanceIdentityFee;
+
+  /// No description provided for @issuanceDeliveryFee.
+  ///
+  /// In fa, this message translates to:
+  /// **'هزینه ارسال'**
+  String get issuanceDeliveryFee;
+
+  /// No description provided for @issuanceTerms.
+  ///
+  /// In fa, this message translates to:
+  /// **'قوانین و مقررات'**
+  String get issuanceTerms;
+
+  /// No description provided for @issuanceTermsPrompt.
+  ///
+  /// In fa, this message translates to:
+  /// **'درخواست را مطالعه و تایید می‌نمایم.'**
+  String get issuanceTermsPrompt;
+
+  /// No description provided for @issuanceTermsUnavailable.
+  ///
+  /// In fa, this message translates to:
+  /// **'متن رسمی قوانین پس از اتصال به سرویس نمایش داده می‌شود.'**
+  String get issuanceTermsUnavailable;
+
+  /// No description provided for @issuanceSubmit.
+  ///
+  /// In fa, this message translates to:
+  /// **'تایید و ثبت درخواست'**
+  String get issuanceSubmit;
+
+  /// No description provided for @issuanceSubmitError.
+  ///
+  /// In fa, this message translates to:
+  /// **'ثبت درخواست انجام نشد. دوباره تلاش کنید.'**
+  String get issuanceSubmitError;
+
+  /// No description provided for @issuanceEmpty.
+  ///
+  /// In fa, this message translates to:
+  /// **'سپرده‌ای برای صدور کارت در دسترس نیست.'**
+  String get issuanceEmpty;
+
+  /// No description provided for @issuanceMockComplete.
+  ///
+  /// In fa, this message translates to:
+  /// **'پیش‌نمایش درخواست تکمیل شد؛ پرداخت یا صدور واقعی انجام نشده است.'**
+  String get issuanceMockComplete;
+
+  /// No description provided for @issuanceComplete.
+  ///
+  /// In fa, this message translates to:
+  /// **'درخواست ثبت شد.'**
+  String get issuanceComplete;
+
+  /// No description provided for @issuanceDone.
+  ///
+  /// In fa, this message translates to:
+  /// **'بازگشت'**
+  String get issuanceDone;
+
+  /// No description provided for @issuanceWalletSufficient.
+  ///
+  /// In fa, this message translates to:
+  /// **'موجودی کیف پول کافی است'**
+  String get issuanceWalletSufficient;
+
+  /// No description provided for @issuanceWalletInsufficient.
+  ///
+  /// In fa, this message translates to:
+  /// **'موجودی کیف پول کافی نیست'**
+  String get issuanceWalletInsufficient;
+
+  /// No description provided for @issuanceStepSemantic.
+  ///
+  /// In fa, this message translates to:
+  /// **'مرحله {current} از {total}، {title}'**
+  String issuanceStepSemantic(int current, int total, String title);
 }
 
 class _AppLocalizationsDelegate

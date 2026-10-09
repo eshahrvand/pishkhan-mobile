@@ -1,5 +1,6 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:pishkhan_mobile/features/card_issuance/card_issuance.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/l10n/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
@@ -89,6 +90,18 @@ class _CardFeaturesScreenState extends State<CardFeaturesScreen> {
     );
     if (widget.onActionRequested != null) {
       widget.onActionRequested!(request);
+    } else if (action == CardFeatureAction.reissue) {
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (issueContext) => CardIssuanceScreen(
+            initialDepositNumber: card?.linkedDeposit,
+            onAssistantPressed: () {
+              Navigator.of(issueContext).pop();
+              widget.onAssistantPressed?.call();
+            },
+          ),
+        ),
+      );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(context.l10n.cardFeatureUnavailable)),
