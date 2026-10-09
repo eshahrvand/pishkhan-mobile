@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/router/card_features_navigation.dart';
 import 'package:pishkhan_mobile/features/dashboard/data/mock/mock_dashboard_repositories.dart';
 import 'package:pishkhan_mobile/features/dashboard/domain/repositories/dashboard_repositories.dart';
 import 'package:pishkhan_mobile/core/router/dashboard_notifications_navigation.dart';
@@ -153,7 +154,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
         widget.onServiceRequested == null) {
       _promptFocus.requestFocus();
     } else {
-      widget.onServiceRequested?.call(service.id);
+      _serviceId(service.id);
+    }
+  }
+
+  void _serviceId(String id) {
+    if (widget.onServiceRequested != null) {
+      widget.onServiceRequested!(id);
+    } else {
+      openCardFeaturesService(
+        context,
+        id,
+        onAssistantPressed: () {
+          _selectTab(AppPrimaryTab.dashboard);
+          _promptFocus.requestFocus();
+        },
+      );
     }
   }
 
@@ -216,7 +232,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   if (widget.onCardActionRequested != null) {
                     widget.onCardActionRequested!(request);
                   } else {
-                    widget.onServiceRequested?.call(request.action.id);
+                    _serviceId(request.action.id);
                   }
                 },
               ),
@@ -238,7 +254,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   if (widget.onDepositActionRequested != null) {
                     widget.onDepositActionRequested!(request);
                   } else {
-                    widget.onServiceRequested?.call(request.action.id);
+                    _serviceId(request.action.id);
                   }
                 },
               ),
@@ -261,7 +277,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   if (widget.onLoanActionRequested != null) {
                     widget.onLoanActionRequested!(request);
                   } else {
-                    widget.onServiceRequested?.call(request.action.id);
+                    _serviceId(request.action.id);
                   }
                 },
               ),

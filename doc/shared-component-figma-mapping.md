@@ -86,3 +86,7 @@ See [Deposits implementation review](deposits-implementation-review.md) and [Das
 Figma single loan: `27902:82623`; multiple loans: `27902:82592`. `LoansTab` reuses `AppLoanCard` and the shared top bar, operation/quick grids, assistant and navigation without changing shared source. `BankLoan` supplies summary values; `LoanActionRequest` supplies selected-loan callback context.
 
 See [Loans implementation review](loans-implementation-review.md), [Dashboard development document](dashboard/dashboard-development.md) (including all retained shared-component issues in Section 13.6), and [rendered previews](loans-review/index.html).
+
+## Dedicated Cards flow variants
+
+Figma27997:10059–11563: AppCardsList coloredHeader uses the new instance colors/geometry without changing its legacy default. AppTopBar and AppBottomSheetHeader accept compatible trailing/action styling; avp_ui adds AppChips and compact input/button instance parameters. See [complete audit and flow architecture](cards/card-features-development.md) and [nine previews](card-features-review/index.html).

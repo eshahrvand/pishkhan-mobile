@@ -628,4 +628,76 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get dashboardEmpty => 'لا توجد معلومات للعرض';
+
+  @override
+  String get cardFeatureResalat => 'بطاقة رسالت';
+
+  @override
+  String get cardFeatureGift => 'بطاقة هدية';
+
+  @override
+  String get cardFeatureCoupon => 'بطاقة قسيمة';
+
+  @override
+  String get cardFeatureFamily => 'بطاقة العائلة';
+
+  @override
+  String get cardFeatureDetails => 'تفاصيل البطاقة';
+
+  @override
+  String get cardFeatureNumber => 'رقم البطاقة';
+
+  @override
+  String get cardFeatureDeposit => 'الوديعة المرتبطة';
+
+  @override
+  String get cardFeatureIban => 'رقم الآيبان';
+
+  @override
+  String get cardFeatureDepositType => 'نوع الوديعة';
+
+  @override
+  String get cardFeatureExpiry => 'تاريخ الانتهاء';
+
+  @override
+  String get cardFeatureStatus => 'الحالة';
+
+  @override
+  String get cardFeatureActive => 'نشطة';
+
+  @override
+  String get cardFeatureBlocked => 'محظورة';
+
+  @override
+  String get cardFeatureExpired => 'منتهية';
+
+  @override
+  String get cardFeatureQarz => 'قرض حسن';
+
+  @override
+  String get cardFeatureFilter => 'تصفية';
+
+  @override
+  String get cardFeatureRemoveFilter => 'إزالة التصفية';
+
+  @override
+  String get cardFeatureApplyFilter => 'تطبيق التصفية';
+
+  @override
+  String get cardFeatureAll => 'الكل';
+
+  @override
+  String get cardFeatureNoResults => 'لا توجد بطاقات مطابقة';
+
+  @override
+  String get cardFeatureCardStatus => 'حالة البطاقة';
+
+  @override
+  String get cardFeatureGiftTransfer => 'تحويل رصيد بطاقة الهدية المنتهية';
+
+  @override
+  String get cardFeatureVirtualRequest => 'طلب بطاقة افتراضية';
+
+  @override
+  String get cardFeatureUnavailable => 'هذه الخدمة غير متاحة حالياً.';
 }

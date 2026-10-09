@@ -48,6 +48,7 @@ Unless a row explicitly says **Not implemented**, the component is implemented a
 
 | Figma component | Figma node | Flutter component | Notes |
 | --- | --- | --- | --- |
+| Chips (default / selected) | `27902:85120`, `27902:85127` | `AppChips` | 40px category chips; optional icon and labelStyle for reviewed frame instances. |
 | Button | `15699:34979` | `AppButton` | Variants, sizes, destructive, loading, icons, tooltip, disabled state. |
 | Badge | `15743:28288` | `AppBadge` | Background, color, size, corner, icon/dot/avatar options. |
 | Input field | `15652:17725` | `AppTextField` | Label, hint, helper/error text, icons, add-ons, digit normalization, direction, multiline support. |
@@ -256,3 +257,7 @@ AppProgressIndicator.fillAlignment optionally selects the origin. Default: Align
 ## Dashboard tab repository composition
 
 Import package:pishkhan_mobile/features/dashboard/dashboard.dart for DashboardScreen and its public data/action contracts. DashboardScreen.repositories accepts DashboardRepositories with Home/Cards/Deposits/Loans implementations. Leaving it unset builds mocks from the optional list/favorite seed arguments. Tab widgets and their Cubits receive typed repository interfaces rather than raw lists. Standalone feature folders no longer export dashboard tab screens. See the [Dashboard architecture and Figma audit](dashboard/dashboard-development.md) for exact paths, states and live-service adapter requirements.
+
+## Standalone Cards feature
+
+See [Cards architecture](cards/card-features-development.md) and [rendered flow](card-features-review/index.html). Import features/cards/cards.dart for CardFeaturesScreen, CardsRepository, ListedCard and typed CardFeatureRequest. Dashboard card summaries remain a separate feature. Compatible new package APIs are documented in avp_ui/docs/main-app-integration-guide.md; deploy the sibling package changes together with this app.

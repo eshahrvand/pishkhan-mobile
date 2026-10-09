@@ -1311,6 +1311,150 @@ abstract class AppLocalizations {
   /// In fa, this message translates to:
   /// **'اطلاعاتی برای نمایش وجود ندارد'**
   String get dashboardEmpty;
+
+  /// No description provided for @cardFeatureResalat.
+  ///
+  /// In fa, this message translates to:
+  /// **'رسالت کارت'**
+  String get cardFeatureResalat;
+
+  /// No description provided for @cardFeatureGift.
+  ///
+  /// In fa, this message translates to:
+  /// **'کارت هدیه'**
+  String get cardFeatureGift;
+
+  /// No description provided for @cardFeatureCoupon.
+  ///
+  /// In fa, this message translates to:
+  /// **'بن کارت'**
+  String get cardFeatureCoupon;
+
+  /// No description provided for @cardFeatureFamily.
+  ///
+  /// In fa, this message translates to:
+  /// **'کارت خانواده'**
+  String get cardFeatureFamily;
+
+  /// No description provided for @cardFeatureDetails.
+  ///
+  /// In fa, this message translates to:
+  /// **'جزئیات کارت'**
+  String get cardFeatureDetails;
+
+  /// No description provided for @cardFeatureNumber.
+  ///
+  /// In fa, this message translates to:
+  /// **'شماره کارت'**
+  String get cardFeatureNumber;
+
+  /// No description provided for @cardFeatureDeposit.
+  ///
+  /// In fa, this message translates to:
+  /// **'سپرده متصل'**
+  String get cardFeatureDeposit;
+
+  /// No description provided for @cardFeatureIban.
+  ///
+  /// In fa, this message translates to:
+  /// **'شماره شبا'**
+  String get cardFeatureIban;
+
+  /// No description provided for @cardFeatureDepositType.
+  ///
+  /// In fa, this message translates to:
+  /// **'نوع سپرده'**
+  String get cardFeatureDepositType;
+
+  /// No description provided for @cardFeatureExpiry.
+  ///
+  /// In fa, this message translates to:
+  /// **'تاریخ انقضا'**
+  String get cardFeatureExpiry;
+
+  /// No description provided for @cardFeatureStatus.
+  ///
+  /// In fa, this message translates to:
+  /// **'وضعیت'**
+  String get cardFeatureStatus;
+
+  /// No description provided for @cardFeatureActive.
+  ///
+  /// In fa, this message translates to:
+  /// **'فعال'**
+  String get cardFeatureActive;
+
+  /// No description provided for @cardFeatureBlocked.
+  ///
+  /// In fa, this message translates to:
+  /// **'مسدود'**
+  String get cardFeatureBlocked;
+
+  /// No description provided for @cardFeatureExpired.
+  ///
+  /// In fa, this message translates to:
+  /// **'منقضی'**
+  String get cardFeatureExpired;
+
+  /// No description provided for @cardFeatureQarz.
+  ///
+  /// In fa, this message translates to:
+  /// **'قرض الحسنه'**
+  String get cardFeatureQarz;
+
+  /// No description provided for @cardFeatureFilter.
+  ///
+  /// In fa, this message translates to:
+  /// **'فیلتر'**
+  String get cardFeatureFilter;
+
+  /// No description provided for @cardFeatureRemoveFilter.
+  ///
+  /// In fa, this message translates to:
+  /// **'حذف فیلتر'**
+  String get cardFeatureRemoveFilter;
+
+  /// No description provided for @cardFeatureApplyFilter.
+  ///
+  /// In fa, this message translates to:
+  /// **'اعمال فیلتر'**
+  String get cardFeatureApplyFilter;
+
+  /// No description provided for @cardFeatureAll.
+  ///
+  /// In fa, this message translates to:
+  /// **'همه'**
+  String get cardFeatureAll;
+
+  /// No description provided for @cardFeatureNoResults.
+  ///
+  /// In fa, this message translates to:
+  /// **'کارتی با این مشخصات پیدا نشد'**
+  String get cardFeatureNoResults;
+
+  /// No description provided for @cardFeatureCardStatus.
+  ///
+  /// In fa, this message translates to:
+  /// **'وضعیت کارت'**
+  String get cardFeatureCardStatus;
+
+  /// No description provided for @cardFeatureGiftTransfer.
+  ///
+  /// In fa, this message translates to:
+  /// **'واریز مانده کارت هدیه منقضی'**
+  String get cardFeatureGiftTransfer;
+
+  /// No description provided for @cardFeatureVirtualRequest.
+  ///
+  /// In fa, this message translates to:
+  /// **'درخواست کارت مجازی'**
+  String get cardFeatureVirtualRequest;
+
+  /// No description provided for @cardFeatureUnavailable.
+  ///
+  /// In fa, this message translates to:
+  /// **'این خدمت در حال حاضر در دسترس نیست.'**
+  String get cardFeatureUnavailable;
 }
 
 class _AppLocalizationsDelegate

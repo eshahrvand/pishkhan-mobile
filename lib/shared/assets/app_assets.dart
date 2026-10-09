@@ -4,6 +4,29 @@
 /// code. Feature-specific facades may alias these constants, but must not
 /// duplicate path strings.
 abstract final class AppAssets {
+  static const cardFeaturesResalat = "assets/images/card_features_resalat.svg";
+  static const cardFeaturesGift = "assets/images/card_features_gift.svg";
+  static const cardFeaturesVirtual = "assets/images/card_features_virtual.svg";
+  static const cardFeaturesCoupon = "assets/images/card_features_coupon.svg";
+  static const cardFeaturesFamily = "assets/images/card_features_family.svg";
+  static const cardFeaturesScrim = 'assets/images/card_features_scrim.svg';
+  static const cardFeaturesBack = "assets/images/card_features_back.svg";
+  static const cardFeaturesFilter = "assets/images/card_features_filter.svg";
+  static const cardFeaturesSearch = "assets/images/card_features_search.svg";
+  static const cardFeaturesSeparator =
+      "assets/images/card_features_separator.png";
+  static const cardFeaturesInfo = "assets/images/card_features_info.svg";
+  static const cardFeaturesReissue = "assets/images/card_features_reissue.svg";
+  static const cardFeaturesChangeDeposit =
+      "assets/images/card_features_change_deposit.svg";
+  static const cardFeaturesBlock = "assets/images/card_features_block.svg";
+  static const cardFeaturesDivider = "assets/images/card_features_divider.svg";
+  static const cardFeaturesFilterHeader =
+      "assets/images/card_features_filter_header.svg";
+  static const cardFeaturesChevron = "assets/images/card_features_chevron.svg";
+  static const cardFeaturesExpiredGift =
+      "assets/images/card_features_expired_gift.svg";
+  static const cardFeaturesPlus = "assets/images/card_features_plus.svg";
   static const _root = 'assets/images';
 
   static const loansChangeDeposit = '$_root/loans_change_deposit.svg';

@@ -629,4 +629,76 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get dashboardEmpty => 'اطلاعاتی برای نمایش وجود ندارد';
+
+  @override
+  String get cardFeatureResalat => 'رسالت کارت';
+
+  @override
+  String get cardFeatureGift => 'کارت هدیه';
+
+  @override
+  String get cardFeatureCoupon => 'بن کارت';
+
+  @override
+  String get cardFeatureFamily => 'کارت خانواده';
+
+  @override
+  String get cardFeatureDetails => 'جزئیات کارت';
+
+  @override
+  String get cardFeatureNumber => 'شماره کارت';
+
+  @override
+  String get cardFeatureDeposit => 'سپرده متصل';
+
+  @override
+  String get cardFeatureIban => 'شماره شبا';
+
+  @override
+  String get cardFeatureDepositType => 'نوع سپرده';
+
+  @override
+  String get cardFeatureExpiry => 'تاریخ انقضا';
+
+  @override
+  String get cardFeatureStatus => 'وضعیت';
+
+  @override
+  String get cardFeatureActive => 'فعال';
+
+  @override
+  String get cardFeatureBlocked => 'مسدود';
+
+  @override
+  String get cardFeatureExpired => 'منقضی';
+
+  @override
+  String get cardFeatureQarz => 'قرض الحسنه';
+
+  @override
+  String get cardFeatureFilter => 'فیلتر';
+
+  @override
+  String get cardFeatureRemoveFilter => 'حذف فیلتر';
+
+  @override
+  String get cardFeatureApplyFilter => 'اعمال فیلتر';
+
+  @override
+  String get cardFeatureAll => 'همه';
+
+  @override
+  String get cardFeatureNoResults => 'کارتی با این مشخصات پیدا نشد';
+
+  @override
+  String get cardFeatureCardStatus => 'وضعیت کارت';
+
+  @override
+  String get cardFeatureGiftTransfer => 'واریز مانده کارت هدیه منقضی';
+
+  @override
+  String get cardFeatureVirtualRequest => 'درخواست کارت مجازی';
+
+  @override
+  String get cardFeatureUnavailable => 'این خدمت در حال حاضر در دسترس نیست.';
 }

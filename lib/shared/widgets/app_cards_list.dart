@@ -67,6 +67,9 @@ class AppCardsList extends StatelessWidget {
     this.moreIcon,
     this.cardIcon,
     this.onMoreTap,
+    this.coloredHeader = false,
+    this.cardNumberLabel = 'شماره کارت',
+    this.linkedDepositLabel = 'سپرده متصل',
   });
 
   final AppCardsListType type;
@@ -76,6 +79,8 @@ class AppCardsList extends StatelessWidget {
   final Widget? moreIcon;
   final Widget? cardIcon;
   final VoidCallback? onMoreTap;
+  final bool coloredHeader;
+  final String cardNumberLabel, linkedDepositLabel;
 
   String get _title =>
       title ??
@@ -94,25 +99,46 @@ class AppCardsList extends StatelessWidget {
       textDirection: TextDirection.rtl,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: colors.surfaceSubtle,
+          color: coloredHeader ? colors.surface : colors.surfaceSubtle,
           borderRadius: AppRadius.borderMd,
-          boxShadow: AppShadows.sm,
+          boxShadow: coloredHeader ? AppShadows.cardList : AppShadows.sm,
         ),
         child: Material(
           type: MaterialType.transparency,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            padding: coloredHeader
+                ? const EdgeInsets.fromLTRB(8, 8, 8, 12)
+                : const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 _header(context),
                 const SizedBox(height: 8),
-                AppCardsListIcons.divider(),
-                const SizedBox(height: 8),
-                _detailRow(context, value: cardNumber, label: 'شماره کارت'),
-                const SizedBox(height: 8),
-                _detailRow(context, value: linkedDeposit, label: 'سپرده متصل'),
+                if (!coloredHeader) ...[
+                  AppCardsListIcons.divider(),
+                  const SizedBox(height: 8),
+                ],
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: coloredHeader ? 8 : 0,
+                  ),
+                  child: Column(
+                    children: [
+                      _detailRow(
+                        context,
+                        value: cardNumber,
+                        label: cardNumberLabel,
+                      ),
+                      const SizedBox(height: 8),
+                      _detailRow(
+                        context,
+                        value: linkedDeposit,
+                        label: linkedDepositLabel,
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
@@ -127,8 +153,21 @@ class AppCardsList extends StatelessWidget {
       height: 20,
       child: Center(child: moreIcon ?? AppCardsListIcons.moreHorizontal()),
     );
-    return SizedBox(
-      height: 20,
+    return Container(
+      height: coloredHeader ? 36 : 20,
+      padding: coloredHeader ? const EdgeInsets.all(8) : EdgeInsets.zero,
+      decoration: coloredHeader
+          ? BoxDecoration(
+              borderRadius: AppRadius.borderSm,
+              color: switch (type) {
+                AppCardsListType.resalat => AppCardFeatureColors.resalatHeader,
+                AppCardsListType.gift => AppCardFeatureColors.giftHeader,
+                AppCardsListType.virtual => AppCardFeatureColors.virtualHeader,
+                AppCardsListType.coupon => AppCardFeatureColors.couponHeader,
+                AppCardsListType.family => AppCardFeatureColors.familyHeader,
+              },
+            )
+          : null,
       child: Row(
         textDirection: TextDirection.ltr,
         children: [
@@ -139,16 +178,11 @@ class AppCardsList extends StatelessWidget {
                   borderRadius: AppRadius.borderXs,
                   child: more,
                 ),
-          const Spacer(),
-          Flexible(
-            child: Text(
-              _title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.end,
-              style: _mediumStyle(context.colors.textPrimary),
-            ),
-          ),
+          if (!coloredHeader) const Spacer(),
+          if (coloredHeader)
+            Expanded(child: _titleText(context))
+          else
+            Flexible(child: _titleText(context)),
           const SizedBox(width: 4),
           SizedBox(
             width: 20,
@@ -159,6 +193,14 @@ class AppCardsList extends StatelessWidget {
       ),
     );
   }
+
+  Widget _titleText(BuildContext context) => Text(
+    _title,
+    maxLines: 1,
+    overflow: TextOverflow.ellipsis,
+    textAlign: coloredHeader ? TextAlign.right : TextAlign.end,
+    style: _mediumStyle(context.colors.textPrimary),
+  );
 
   Widget _detailRow(
     BuildContext context, {
@@ -178,7 +220,14 @@ class AppCardsList extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 8),
-        Text(label, style: _regularStyle(context.colors.textSecondary)),
+        Text(
+          label,
+          style: _regularStyle(
+            coloredHeader
+                ? context.colors.textTertiary
+                : context.colors.textSecondary,
+          ),
+        ),
       ],
     ),
   );

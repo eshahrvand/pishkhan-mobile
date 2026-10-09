@@ -633,4 +633,76 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dashboardEmpty => 'No information to display';
+
+  @override
+  String get cardFeatureResalat => 'Resalat card';
+
+  @override
+  String get cardFeatureGift => 'Gift card';
+
+  @override
+  String get cardFeatureCoupon => 'Bon card';
+
+  @override
+  String get cardFeatureFamily => 'Family card';
+
+  @override
+  String get cardFeatureDetails => 'Card details';
+
+  @override
+  String get cardFeatureNumber => 'Card number';
+
+  @override
+  String get cardFeatureDeposit => 'Linked deposit';
+
+  @override
+  String get cardFeatureIban => 'IBAN';
+
+  @override
+  String get cardFeatureDepositType => 'Deposit type';
+
+  @override
+  String get cardFeatureExpiry => 'Expiry date';
+
+  @override
+  String get cardFeatureStatus => 'Status';
+
+  @override
+  String get cardFeatureActive => 'Active';
+
+  @override
+  String get cardFeatureBlocked => 'Blocked';
+
+  @override
+  String get cardFeatureExpired => 'Expired';
+
+  @override
+  String get cardFeatureQarz => 'Qarz al-Hasan';
+
+  @override
+  String get cardFeatureFilter => 'Filter';
+
+  @override
+  String get cardFeatureRemoveFilter => 'Remove filter';
+
+  @override
+  String get cardFeatureApplyFilter => 'Apply filter';
+
+  @override
+  String get cardFeatureAll => 'All';
+
+  @override
+  String get cardFeatureNoResults => 'No matching cards';
+
+  @override
+  String get cardFeatureCardStatus => 'Card status';
+
+  @override
+  String get cardFeatureGiftTransfer => 'Transfer expired gift card balance';
+
+  @override
+  String get cardFeatureVirtualRequest => 'Request virtual card';
+
+  @override
+  String get cardFeatureUnavailable => 'This service is currently unavailable.';
 }

@@ -881,6 +881,10 @@ The comparison uses freshly retrieved Figma design context and screenshots, then
 
 **Conclusion and follow-up scope.** The progress repair and the bankCard token values are verified for their target instances. Remaining button/input/progress-label state differences and shared card/nav issues are explicitly open. This task neither replaces existing components nor introduces duplicate Figma-only components. Future fixes should add reviewed variants/parameters, validate both old and new consumers, and update this audit after source and rendered comparisons. No claim that the whole avp_ui library is “exactly Figma” is supported by the inspected evidence.
 
+### 13.8 Standalone Cards flow integration (2026-10-09)
+
+The dedicated Cards flow now lives under features/cards, separately from Dashboard's carousel. The core routing bridge opens it for card-list/card-virtual/card-expired-gift when no host service override is supplied. Reviewed additive shared/package parameters preserve existing Dashboard defaults. See [Cards architecture and current component audit](../cards/card-features-development.md) and the [nine-state gallery](../card-features-review/index.html) for the new colored AppCardsList variant, configurable back/sheet actions, compact selectors/search, AppChips, footer styling and recorded backdrop SVG limitation.
+
 ## 14. Localization, Persian Support, and Dates
 
 The app installs AppTheme.light and forces RTL in the MaterialApp builder, including future languages. Screens also establish RTL explicitly. ARBs are fa/en/ar and generated through l10n.yaml.

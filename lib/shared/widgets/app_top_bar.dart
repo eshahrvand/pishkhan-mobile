@@ -8,6 +8,9 @@ class AppTopBar extends StatelessWidget {
   const AppTopBar({
     super.key,
     this.onMenuPressed,
+    this.trailingIcon,
+    this.trailingTooltip,
+    this.onTrailingPressed,
     this.title,
     this.showLeadingActions = true,
     this.onProfilePressed,
@@ -16,6 +19,9 @@ class AppTopBar extends StatelessWidget {
 
   final VoidCallback? onMenuPressed;
   final String? title;
+  final Widget? trailingIcon;
+  final String? trailingTooltip;
+  final VoidCallback? onTrailingPressed;
   final bool showLeadingActions;
   final VoidCallback? onProfilePressed;
   final VoidCallback? onNotificationsPressed;
@@ -66,8 +72,9 @@ class AppTopBar extends StatelessWidget {
           key: const Key('dashboard_menu_button'),
           dimension: 40,
           asset: AppAssets.dashboardHeaderMenu,
-          tooltip: context.l10n.servicesMenuLabel,
-          onPressed: onMenuPressed,
+          icon: trailingIcon,
+          tooltip: trailingTooltip ?? context.l10n.servicesMenuLabel,
+          onPressed: onTrailingPressed ?? onMenuPressed,
         ),
       ],
     ),
@@ -81,10 +88,12 @@ class _HeaderAction extends StatelessWidget {
     required this.onPressed,
     super.key,
     this.dimension = 40,
+    this.icon,
   });
 
   final double dimension;
   final String asset;
+  final Widget? icon;
   final String tooltip;
   final VoidCallback? onPressed;
 
@@ -95,7 +104,7 @@ class _HeaderAction extends StatelessWidget {
       onPressed: onPressed ?? () {},
       variant: AppButtonVariant.text,
       tooltip: tooltip,
-      icon: SvgPicture.asset(asset, width: 24, height: 24),
+      icon: icon ?? SvgPicture.asset(asset, width: 24, height: 24),
     ),
   );
 }

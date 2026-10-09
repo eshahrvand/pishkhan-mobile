@@ -19,6 +19,7 @@ class AppBottomSheetHeader extends StatelessWidget {
     this.leftIcon,
     this.rightIcon,
     this.onLeftAction,
+    this.textActionColor,
   });
 
   final AppBottomSheetHeaderType type;
@@ -31,6 +32,7 @@ class AppBottomSheetHeader extends StatelessWidget {
   final Widget? leftIcon;
   final Widget? rightIcon;
   final VoidCallback? onLeftAction;
+  final Color? textActionColor;
 
   bool get _hasHeader => type == AppBottomSheetHeaderType.withHeader;
 
@@ -86,7 +88,7 @@ class AppBottomSheetHeader extends StatelessWidget {
                 child: Text(
                   textActionLabel,
                   style: AppTypography.bodySmall.copyWith(
-                    color: context.colors.primary,
+                    color: textActionColor ?? context.colors.primary,
                     fontWeight: FontWeight.w500,
                     height: 18 / 12,
                     letterSpacing: 0,
