@@ -181,5 +181,15 @@
   "cardsShowDetails": "عرض بيانات البطاقة",
   "cardsHideDetails": "إخفاء بيانات البطاقة",
   "cardsMore": "خيارات البطاقة",
-  "cardsEmpty": "لا توجد بطاقات بعد"
+  "cardsEmpty": "لا توجد بطاقات بعد",
+  "depositsMyTitle": "ودائعي",
+  "depositsOperations": "عمليات الودائع",
+  "depositsChequeOperations": "عمليات الشيكات",
+  "depositsEmpty": "لا توجد ودائع بعد",
+  "depositsRepresentative": "إعدادات الممثل",
+  "depositsLinkedCards": "البطاقات المرتبطة بالوديعة",
+  "depositsLinkedLoans": "حالة القروض المرتبطة",
+  "depositsLocalTransfer": "تحويل الأموال في الموقع",
+  "depositsMobileBank": "الخدمات المصرفية عبر الهاتف المحمول",
+  "depositsCopyNumber": "نسخ رقم الوديعة"
 }

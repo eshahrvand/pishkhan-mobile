@@ -52,3 +52,7 @@ Small screens and enlarged text retain scrolling, wrapped labels and reachable a
 The app test suite and shared button/search tests cover transactional editing, the eight-item limit, reset confirmation, grouped search/clear/duplicate prevention, catalog navigation, callbacks, responsive layouts, and motion/input preservation.
 Optional preview regeneration: set `UPDATE_DASHBOARD_PREVIEWS=1` and run `flutter test test/dashboard_review_test.dart`.
 Previews exclude native status/navigation bars and the system keyboard.
+
+## Development architecture and Deposits tab
+
+See [Dashboard development document](dashboard-development.md) for the complete 21-section feature architecture, file map, data and icon inventory, server contract proposal and known shared-component differences. The [deposit review gallery](deposits-review/index.html) covers single and multiple deposits.

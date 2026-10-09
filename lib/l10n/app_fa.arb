@@ -188,5 +188,15 @@
   "cardsShowDetails": "نمایش اطلاعات کارت",
   "cardsHideDetails": "پنهان کردن اطلاعات کارت",
   "cardsMore": "گزینه‌های کارت",
-  "cardsEmpty": "هنوز کارتی ندارید"
+  "cardsEmpty": "هنوز کارتی ندارید",
+  "depositsMyTitle": "سپرده‌های من",
+  "depositsOperations": "عملیات سپرده",
+  "depositsChequeOperations": "عملیات چک",
+  "depositsEmpty": "هنوز سپرده‌ای ندارید",
+  "depositsRepresentative": "تنظیمات نماینده",
+  "depositsLinkedCards": "کارت‌های متصل به سپرده",
+  "depositsLinkedLoans": "وضعیت وام‌های متصل",
+  "depositsLocalTransfer": "انتقال وجه خدمت در محل",
+  "depositsMobileBank": "موبایل بانک",
+  "depositsCopyNumber": "کپی شماره سپرده"
 }

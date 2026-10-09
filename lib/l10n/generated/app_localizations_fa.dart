@@ -569,4 +569,34 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get cardsEmpty => 'هنوز کارتی ندارید';
+
+  @override
+  String get depositsMyTitle => 'سپرده‌های من';
+
+  @override
+  String get depositsOperations => 'عملیات سپرده';
+
+  @override
+  String get depositsChequeOperations => 'عملیات چک';
+
+  @override
+  String get depositsEmpty => 'هنوز سپرده‌ای ندارید';
+
+  @override
+  String get depositsRepresentative => 'تنظیمات نماینده';
+
+  @override
+  String get depositsLinkedCards => 'کارت‌های متصل به سپرده';
+
+  @override
+  String get depositsLinkedLoans => 'وضعیت وام‌های متصل';
+
+  @override
+  String get depositsLocalTransfer => 'انتقال وجه خدمت در محل';
+
+  @override
+  String get depositsMobileBank => 'موبایل بانک';
+
+  @override
+  String get depositsCopyNumber => 'کپی شماره سپرده';
 }

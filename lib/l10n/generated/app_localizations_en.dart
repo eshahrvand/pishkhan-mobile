@@ -573,4 +573,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get cardsEmpty => 'No cards yet';
+
+  @override
+  String get depositsMyTitle => 'My deposits';
+
+  @override
+  String get depositsOperations => 'Deposit operations';
+
+  @override
+  String get depositsChequeOperations => 'Cheque operations';
+
+  @override
+  String get depositsEmpty => 'No deposits yet';
+
+  @override
+  String get depositsRepresentative => 'Representative settings';
+
+  @override
+  String get depositsLinkedCards => 'Linked cards';
+
+  @override
+  String get depositsLinkedLoans => 'Linked loan status';
+
+  @override
+  String get depositsLocalTransfer => 'On-site transfer';
+
+  @override
+  String get depositsMobileBank => 'Mobile banking';
+
+  @override
+  String get depositsCopyNumber => 'Copy deposit number';
 }

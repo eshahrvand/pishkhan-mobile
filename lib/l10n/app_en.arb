@@ -181,5 +181,15 @@
   "cardsShowDetails": "Show card details",
   "cardsHideDetails": "Hide card details",
   "cardsMore": "Card options",
-  "cardsEmpty": "No cards yet"
+  "cardsEmpty": "No cards yet",
+  "depositsMyTitle": "My deposits",
+  "depositsOperations": "Deposit operations",
+  "depositsChequeOperations": "Cheque operations",
+  "depositsEmpty": "No deposits yet",
+  "depositsRepresentative": "Representative settings",
+  "depositsLinkedCards": "Linked cards",
+  "depositsLinkedLoans": "Linked loan status",
+  "depositsLocalTransfer": "On-site transfer",
+  "depositsMobileBank": "Mobile banking",
+  "depositsCopyNumber": "Copy deposit number"
 }

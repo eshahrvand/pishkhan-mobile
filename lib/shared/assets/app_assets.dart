@@ -6,6 +6,28 @@
 abstract final class AppAssets {
   static const _root = 'assets/images';
 
+  static const depositsBlock = '$_root/deposits_block.svg';
+  static const depositsCards = '$_root/deposits_cards.svg';
+  static const depositsCertificate = '$_root/deposits_certificate.svg';
+  static const depositsChequeCancel = '$_root/deposits_cheque_cancel.svg';
+  static const depositsChequeClear = '$_root/deposits_cheque_clear.svg';
+  static const depositsChequeIssue = '$_root/deposits_cheque_issue.svg';
+  static const depositsLoans = '$_root/deposits_loans.svg';
+  static const depositsPatternUp = '$_root/deposits_pattern_up.svg';
+  static const depositsQuickAccess = '$_root/deposits_quick_access.svg';
+  static const depositsQuickEstimate = '$_root/deposits_quick_estimate.svg';
+  static const depositsQuickInternet = '$_root/deposits_quick_internet.svg';
+  static const depositsQuickIntroduce = '$_root/deposits_quick_introduce.svg';
+  static const depositsQuickIssue = '$_root/deposits_quick_issue.svg';
+  static const depositsQuickMobile = '$_root/deposits_quick_mobile.svg';
+  static const depositsQuickPhone = '$_root/deposits_quick_phone.svg';
+  static const depositsQuickProxy = '$_root/deposits_quick_proxy.svg';
+  static const depositsQuickTransfer = '$_root/deposits_quick_transfer.svg';
+  static const depositsRepresentative = '$_root/deposits_representative.svg';
+  static const depositsSms = '$_root/deposits_sms.svg';
+  static const depositsStatement = '$_root/deposits_statement.svg';
+  static const depositsVirtual = '$_root/deposits_virtual.svg';
+
   static const addressCardAngleLeft = '$_root/address_card_angle_left.svg';
   static const addressCardBuildings = '$_root/address_card_buildings.svg';
   static const addressCardHomeHeart = '$_root/address_card_home_heart.svg';
@@ -350,6 +372,27 @@ abstract final class AppAssets {
   static const notificationSecurity = '$_root/notification_security.png';
 
   static const all = <String>[
+    depositsBlock,
+    depositsCards,
+    depositsCertificate,
+    depositsChequeCancel,
+    depositsChequeClear,
+    depositsChequeIssue,
+    depositsLoans,
+    depositsPatternUp,
+    depositsQuickAccess,
+    depositsQuickEstimate,
+    depositsQuickInternet,
+    depositsQuickIntroduce,
+    depositsQuickIssue,
+    depositsQuickMobile,
+    depositsQuickPhone,
+    depositsQuickProxy,
+    depositsQuickTransfer,
+    depositsRepresentative,
+    depositsSms,
+    depositsStatement,
+    depositsVirtual,
     dashboardAllAngle,
     dashboardFixedSms,
     dashboardFixedEstimate,

@@ -1,3 +1,6 @@
+import 'package:pishkhan_mobile/features/deposits/models/bank_deposit.dart';
+import 'package:pishkhan_mobile/features/deposits/presentation/deposits_screen.dart';
+import 'package:pishkhan_mobile/features/deposits/presentation/shared/deposit_actions.dart';
 import 'package:pishkhan_mobile/features/cards/models/bank_card.dart';
 import 'package:pishkhan_mobile/features/cards/presentation/cards_screen.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_primary_navigation.dart';
@@ -33,6 +36,9 @@ class DashboardScreen extends StatefulWidget {
     this.cards = BankCard.examples,
     this.onCardActionRequested,
     this.onCardMorePressed,
+    this.deposits = BankDeposit.examples,
+    this.onDepositActionRequested,
+    this.onSelectedDepositChanged,
   });
 
   final VoidCallback? onMenuPressed, onProfilePressed;
@@ -44,6 +50,9 @@ class DashboardScreen extends StatefulWidget {
   final List<BankCard> cards;
   final ValueChanged<CardActionRequest>? onCardActionRequested;
   final ValueChanged<BankCard>? onCardMorePressed;
+  final List<BankDeposit> deposits;
+  final ValueChanged<DepositActionRequest>? onDepositActionRequested;
+  final ValueChanged<BankDeposit>? onSelectedDepositChanged;
 
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
@@ -117,21 +126,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   void _selectTab(AppPrimaryTab tab) {
-    if (tab == AppPrimaryTab.cards || tab == AppPrimaryTab.dashboard) {
+    if (tab != AppPrimaryTab.loans) {
       _promptFocus.unfocus();
       setState(() => _selectedTab = tab);
     } else {
-      _catalog(
-        category: tab == AppPrimaryTab.deposits
-            ? DashboardService.deposits
-            : DashboardService.loans,
-      );
+      _catalog(category: DashboardService.loans);
     }
   }
 
   @override
   Widget build(BuildContext context) => IndexedStack(
-    index: _selectedTab == AppPrimaryTab.cards ? 1 : 0,
+    index: _selectedTab.index,
     children: [
       TickerMode(
         enabled: _selectedTab == AppPrimaryTab.dashboard,
@@ -157,6 +162,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
           },
         ),
       ),
+      TickerMode(
+        enabled: _selectedTab == AppPrimaryTab.deposits,
+        child: DepositsScreen(
+          deposits: widget.deposits,
+          onTabSelected: _selectTab,
+          onMenuPressed:
+              widget.onMenuPressed ??
+              () => _catalog(category: DashboardService.deposits),
+          onAssistantPressed: () {
+            _selectTab(AppPrimaryTab.dashboard);
+            _openService(DashboardService.assistant);
+          },
+          onSelectedDepositChanged: widget.onSelectedDepositChanged,
+          onActionRequested: (request) {
+            if (widget.onDepositActionRequested != null) {
+              widget.onDepositActionRequested!(request);
+            } else {
+              widget.onServiceRequested?.call(request.action.id);
+            }
+          },
+        ),
+      ),
     ],
   );
 
@@ -165,10 +192,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
     child: BlocBuilder<DashboardCubit, DashboardState>(
       bloc: _cubit,
       builder: (context, state) => PopScope(
-        canPop: !state.isEditing && _selectedTab != AppPrimaryTab.cards,
+        canPop: !state.isEditing && _selectedTab == AppPrimaryTab.dashboard,
         onPopInvokedWithResult: (didPop, _) {
           if (!didPop) {
-            if (_selectedTab == AppPrimaryTab.cards) {
+            if (_selectedTab != AppPrimaryTab.dashboard) {
               _selectTab(AppPrimaryTab.dashboard);
             } else {
               _cubit.cancel();

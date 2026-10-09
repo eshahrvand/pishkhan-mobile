@@ -568,4 +568,34 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get cardsEmpty => 'لا توجد بطاقات بعد';
+
+  @override
+  String get depositsMyTitle => 'ودائعي';
+
+  @override
+  String get depositsOperations => 'عمليات الودائع';
+
+  @override
+  String get depositsChequeOperations => 'عمليات الشيكات';
+
+  @override
+  String get depositsEmpty => 'لا توجد ودائع بعد';
+
+  @override
+  String get depositsRepresentative => 'إعدادات الممثل';
+
+  @override
+  String get depositsLinkedCards => 'البطاقات المرتبطة بالوديعة';
+
+  @override
+  String get depositsLinkedLoans => 'حالة القروض المرتبطة';
+
+  @override
+  String get depositsLocalTransfer => 'تحويل الأموال في الموقع';
+
+  @override
+  String get depositsMobileBank => 'الخدمات المصرفية عبر الهاتف المحمول';
+
+  @override
+  String get depositsCopyNumber => 'نسخ رقم الوديعة';
 }

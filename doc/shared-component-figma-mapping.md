@@ -74,3 +74,9 @@ frame mappings, component composition, interaction behavior, and visual previews
 See [cards-implementation-review.md](cards-implementation-review.md) for the two Phase 1 frame mappings, rendered previews, shared component reuse, card carousel/visibility/copying behavior, and integration callbacks.
 
 AppServiceGridCard.stretchItems defaults to true; set false and itemSpacing to 6 for compact RTL rows. AppResalatCard accepts responsive width and semantic labels and masks expiry/CVV2 when isVisible is false. The shared AppTopBar, AppPrimaryNavigation, AppAssistantButton and AppServiceArtworkTile reuse the dashboard visuals.
+
+## My Deposits (third primary tab)
+
+Figma single deposit: `27902:82476`; multiple deposits: `27902:82503`. `DepositsScreen` composes the existing `AppDepositCard`, `AppTopBar`, `AppServiceGridCard`, `AppServiceArtworkTile`, `AppAssistantButton` and `AppPrimaryNavigation` without modifying their source. The selected `BankDeposit.hasChequeOperations` controls cheque operations, independently of deposit count.
+
+See [Deposits implementation review](deposits-implementation-review.md) and [Dashboard development document](dashboard-development.md) for exact component differences, integration callbacks, data/icon sources and future server mapping, and [rendered previews](deposits-review/index.html).

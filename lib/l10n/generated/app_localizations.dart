@@ -1191,6 +1191,66 @@ abstract class AppLocalizations {
   /// In fa, this message translates to:
   /// **'هنوز کارتی ندارید'**
   String get cardsEmpty;
+
+  /// No description provided for @depositsMyTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'سپرده‌های من'**
+  String get depositsMyTitle;
+
+  /// No description provided for @depositsOperations.
+  ///
+  /// In fa, this message translates to:
+  /// **'عملیات سپرده'**
+  String get depositsOperations;
+
+  /// No description provided for @depositsChequeOperations.
+  ///
+  /// In fa, this message translates to:
+  /// **'عملیات چک'**
+  String get depositsChequeOperations;
+
+  /// No description provided for @depositsEmpty.
+  ///
+  /// In fa, this message translates to:
+  /// **'هنوز سپرده‌ای ندارید'**
+  String get depositsEmpty;
+
+  /// No description provided for @depositsRepresentative.
+  ///
+  /// In fa, this message translates to:
+  /// **'تنظیمات نماینده'**
+  String get depositsRepresentative;
+
+  /// No description provided for @depositsLinkedCards.
+  ///
+  /// In fa, this message translates to:
+  /// **'کارت‌های متصل به سپرده'**
+  String get depositsLinkedCards;
+
+  /// No description provided for @depositsLinkedLoans.
+  ///
+  /// In fa, this message translates to:
+  /// **'وضعیت وام‌های متصل'**
+  String get depositsLinkedLoans;
+
+  /// No description provided for @depositsLocalTransfer.
+  ///
+  /// In fa, this message translates to:
+  /// **'انتقال وجه خدمت در محل'**
+  String get depositsLocalTransfer;
+
+  /// No description provided for @depositsMobileBank.
+  ///
+  /// In fa, this message translates to:
+  /// **'موبایل بانک'**
+  String get depositsMobileBank;
+
+  /// No description provided for @depositsCopyNumber.
+  ///
+  /// In fa, this message translates to:
+  /// **'کپی شماره سپرده'**
+  String get depositsCopyNumber;
 }
 
 class _AppLocalizationsDelegate
