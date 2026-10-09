@@ -139,7 +139,7 @@ class _CardFeaturesScreenState extends State<CardFeaturesScreen> {
                       Column(
                         children: [
                           Padding(
-                            padding: const EdgeInsets.only(top: 16),
+                            padding: const EdgeInsets.only(top: 12),
                             child: SingleChildScrollView(
                               key: const Key('card_features_categories'),
                               controller: _chips,
@@ -147,6 +147,8 @@ class _CardFeaturesScreenState extends State<CardFeaturesScreen> {
                               padding: const EdgeInsetsDirectional.only(
                                 start: 16,
                                 end: 0,
+                                top: 4,
+                                bottom: 4,
                               ),
                               child: Row(
                                 children: [
@@ -180,7 +182,7 @@ class _CardFeaturesScreenState extends State<CardFeaturesScreen> {
                               ),
                             ),
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 12),
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 16),
                             child: Row(

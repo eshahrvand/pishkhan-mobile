@@ -161,7 +161,7 @@ CardFilter contains nullable status/deposit; null means All. Dropdown selections
 
 Cubit's monotonically increasing request token makes the newest load win and suppresses completion after close. Selection survives reload while its ID remains; category/filter changes clear it. Modal menus/details hold the tapped card snapshot, so later callbacks do not accidentally refer to another row. beginFilter/setDraft/applyFilter/cancelFilter/clearDraftFilter keep preview edits isolated.
 
-Category chips are horizontally scrollable. Resalat/Gift/Virtual use the initial strip position when visible; Bon/Family reveal the end of the strip, matching the supplied frames. Narrow layouts additionally reveal a selected chip when needed. Cubit does not own scroll controllers. The route disposes its Cubit and both controllers.
+Category chips are horizontally scrollable. Resalat/Gift/Virtual use the initial strip position when visible; Bon/Family reveal the end of the strip, matching the supplied frames. Narrow layouts additionally reveal a selected chip when needed. The chip scroll viewport includes 4px top/bottom padding so its shadow is not clipped. Outer top spacing and the following gap are each12px, preserving the chip-face/search/list positions while providing room for the shadow. Cubit does not own scroll controllers. The route disposes its Cubit and both controllers.
 
 ## 13. Design System Package (avp_ui)
 
