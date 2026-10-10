@@ -94,3 +94,11 @@ Figma27997:10059–11563: AppCardsList coloredHeader uses the new instance color
 ## Resalat card issuance
 
 Stepper is owned/exported by avp_ui (27984:8986) and registered in both integration guides and its FigmaNameMapper example widget. AppInvoice gains optional backgroundColor/labelColor and wallet-status copy; AppAddressCard adds an opt-in delivery variant with delete action/copy. Existing defaults are retained. See [flow architecture and exact design audit](card-issuance/card-issuance-development.md) and [review gallery](card-issuance-review/index.html).
+
+## Password services and package Video player
+
+| Figma name | Figma node | Public Flutter component | Source |
+| --- | --- | --- | --- |
+| Video player | `27997:11898` in `27997:11891` | `AppVideoPlayer` (avp_ui) | sibling `avp_ui/lib/widgets/media/app_video_player.dart` |
+
+The package FigmaNameMapper registers and previews Video player. This app-side name mapping points to the same public component, rather than duplicating a player. Feature posters are app-owned; play artwork and video controls are package-owned. See [password-services architecture](password-services/password-services-development.md) and [14 rendered states](password-services-review/index.html).

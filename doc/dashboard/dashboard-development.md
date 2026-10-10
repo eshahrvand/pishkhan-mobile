@@ -1069,3 +1069,7 @@ Loan progress sizing and physical-left alignment are fixed. Remaining follow-ups
 ## Resalat issuance route integration (2026-10-09)
 
 The core card service bridge now also allowlists card-issue/card-reissue. The standalone flow lives in lib/features/card_issuance, rather than inside Dashboard. Existing service/card/deposit callbacks retain precedence; default deposit entry forwards its selected deposit number for an exact normalized catalog match. See [issuance architecture and remaining component differences](../card-issuance/card-issuance-development.md). Dashboard components and its earlier Figma issue register are unchanged.
+
+## Password services entry (2026-10-10)
+
+The core bridge allowlists `card-password` and `card-pin-second-set` for the standalone first-time second-password flow. The dashboard action forwards the selected BankCard.number; preselection requires an exact normalized catalog match. Host service/action callbacks retain precedence. First-PIN change and forgotten-password IDs are not redirected to this flow. See [password-services architecture](../password-services/password-services-development.md).

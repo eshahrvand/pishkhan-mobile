@@ -874,4 +874,181 @@ class AppLocalizationsEn extends AppLocalizations {
   String issuanceStepSemantic(int current, int total, String title) {
     return 'Step $current of $total, $title';
   }
+
+  @override
+  String get passwordTitle => 'Password services';
+
+  @override
+  String get passwordSelectionPrompt => 'Select the card and password type';
+
+  @override
+  String get passwordCardType => 'Card type';
+
+  @override
+  String get passwordCardTypeHint => 'Select your card type';
+
+  @override
+  String get passwordCardNumber => 'Card number';
+
+  @override
+  String get passwordCardNumberHint => 'Select the card number';
+
+  @override
+  String get passwordType => 'Password type';
+
+  @override
+  String get passwordTypeHint => 'Select the password type';
+
+  @override
+  String get passwordFirst => 'First PIN';
+
+  @override
+  String get passwordSecond => 'Second password';
+
+  @override
+  String get passwordFirstDescription =>
+      'For in-person ATM and point-of-sale transactions.';
+
+  @override
+  String get passwordSecondDescription =>
+      'For online transactions below 100,000 tomans.';
+
+  @override
+  String get passwordOperation => 'Operation';
+
+  @override
+  String get passwordSetSecond => 'Set second password';
+
+  @override
+  String get passwordPrompt => 'Enter your preferred second password.';
+
+  @override
+  String get passwordValueHint => 'Password';
+
+  @override
+  String get passwordConfirmationHint => 'Repeat password';
+
+  @override
+  String get passwordLengthRule => 'Use 4 to 6 digits';
+
+  @override
+  String get passwordPatternRule => 'Avoid sequential or repeating numbers';
+
+  @override
+  String get passwordDateRule =>
+      'Avoid meaningful dates (birth date, card expiry)';
+
+  @override
+  String get passwordMismatch => 'Passwords do not match.';
+
+  @override
+  String get passwordShow => 'Show password';
+
+  @override
+  String get passwordHide => 'Hide password';
+
+  @override
+  String get passwordSerialPrompt =>
+      'Enter the serial on the back of your national ID card or its receipt tracking code.';
+
+  @override
+  String get passwordSerialHint => 'National ID serial | receipt tracking code';
+
+  @override
+  String get passwordSerialHelper => 'Contains digits and one Latin letter';
+
+  @override
+  String get passwordSerialError =>
+      'Enter digits and exactly one Latin letter.';
+
+  @override
+  String get passwordInstructionPrompt =>
+      'After watching the instructional video, identity verification begins.';
+
+  @override
+  String get passwordCameraNotice =>
+      'This step requires a camera and microphone.';
+
+  @override
+  String get passwordStartKyc => 'Start identity verification';
+
+  @override
+  String get passwordRecordingPrompt =>
+      'Confirm the video and submit your request.';
+
+  @override
+  String get passwordRecordAgain => 'Record again';
+
+  @override
+  String get passwordSubmit => 'Send and submit request';
+
+  @override
+  String get passwordMockKyc =>
+      'Demo recording and KYC: no video of you is captured.';
+
+  @override
+  String get passwordConfirmMock => 'Confirm demo preview';
+
+  @override
+  String get passwordPendingTitle => 'You have an open validation request';
+
+  @override
+  String get passwordPendingBody =>
+      '• After validation, if identity is confirmed, an SMS containing password information will be sent.\n• During the validation period, other counter services requiring verification can be used without paying again.';
+
+  @override
+  String get passwordSubmittedTitle => 'Your request was sent';
+
+  @override
+  String get passwordSubmittedBody =>
+      'After validation and identity approval, an SMS containing mobile banking credentials will be sent. You can then sign in using those credentials.';
+
+  @override
+  String get passwordApprovedTitle => 'Your request was completed successfully';
+
+  @override
+  String get passwordApprovedBody =>
+      'An SMS containing mobile banking credentials will be sent. You can sign in using the credentials in that message.';
+
+  @override
+  String get passwordTracking => 'Tracking code';
+
+  @override
+  String get passwordUnderstood => 'Understood';
+
+  @override
+  String get passwordMockReceipt =>
+      'Demo result: no bank password has been set and no SMS is sent.';
+
+  @override
+  String get passwordDemoVideo =>
+      'Demo video: Big Buck Bunny — Blender Foundation (CC BY 3.0)';
+
+  @override
+  String get passwordPlay => 'Play video';
+
+  @override
+  String get passwordPause => 'Pause video';
+
+  @override
+  String get passwordSeek => 'Playback position';
+
+  @override
+  String get passwordVideoUnavailable => 'Video unavailable';
+
+  @override
+  String get passwordUnsupported =>
+      'This flow only sets a second password for the first time.';
+
+  @override
+  String get passwordExitTitle => 'Leave password setup?';
+
+  @override
+  String get passwordExitBody => 'Entered information will be cleared.';
+
+  @override
+  String get passwordExit => 'Leave';
+
+  @override
+  String get passwordStay => 'Continue setup';
 }

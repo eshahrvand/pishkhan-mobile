@@ -282,3 +282,23 @@ The example gallery's `FigmaNameMapper` registers Stepper → AppStepper and pre
 The app-owned `AppInvoice` opts into a white surface with `backgroundColor: context.colors.surface`, Gray/500 labels with `labelColor: context.colors.textTertiary`, and localized wallet-status copy through `walletSufficientLabel`/`walletInsufficientLabel`. Its existing defaults remain unchanged. `AppAddressCard.variant: AppAddressCardVariant.delivery` renders the compact white address/delete row; `full` remains the default. These widgets remain in the main app's shared layer and are not exports of avp_ui. The issuance toggle clips the thumb shadows to its rounded track, matching the original SVG.
 
 Known retained state differences: the existing primary button disabled surface is Gray/100 with no shadow, while issuance frames use Gray/200 with Shadow/xs; loading keeps the existing package spinner treatment. The shared invoice retains .5px divider layout slots, adding 1px to expanded and .5px to collapsed height compared with Figma's zero-height divider layout. See the main app's `doc/card-issuance/card-issuance-development.md` for the complete flow and design audit.
+
+## Password services and Video player (2026-10-10)
+
+| Figma name | Node | Public widget | Source |
+| --- | --- | --- | --- |
+| Video player | `27997:11898` (instance in `27997:11891`) | `AppVideoPlayer` | `lib/widgets/media/app_video_player.dart` |
+
+`AppVideoPlayer` uses Flutter's official `video_player` plugin (2.14.1, BSD-3-Clause, flutter.dev publisher) for real inline playback on Android/iOS/web. The app creates a `VideoPlayerController.networkUrl` or `.asset`, passes it with a poster and localized play/pause/retry/unavailable/seek labels, and disposes it. Controller types are re-exported through the public barrel. The widget initializes on Play, handles buffering/error/retry, seeks on an LTR timeline inside RTL layouts, reports completion, preserves the full video frame with configurable videoFit (default contain), and pauses on backgrounding/removal. Replacement ignores old initialization completions. It does not own URLs, authentication, caching, recording or KYC. Its default is a square, rounded8px viewport with authored16px Play and8px track. `aspectRatio` and `showControls` support other instances. A missing controller keeps the poster and disables playback; errors retain the poster and expose Retry.
+
+The Figma name mapper registers Video player once and includes a poster-only preview. Original shared play SVGs belong to the package; posters belong to the consuming feature. Do not use a screen screenshot as a poster.
+
+Additive APIs retain existing defaults:
+- `AppTextField.obscureText`, `obscuringCharacter`, `autocorrect`, `enableSuggestions` and `enableIMEPersonalizedLearning` enable secure password fields. Optional hintTextDirection aligns localized placeholders independently of the surrounding RTL icon layout; the default remains unchanged. Password callers must disable suggestions, autocorrection and personalized learning.
+- `AppSelect.menuBuilder` optionally returns a selection from an app-composed sheet. `null` cancels. The default option sheet remains unchanged.
+- `AppButton.disabledAppearance: AppButtonDisabledAppearance.service` opts primary disabled buttons into Gray200 plus Shadow/xs. Standard/default and loading states remain unchanged.
+- `AppPasswordServiceColors` owns the password-instance title/body/hint/camera-notice/recording-scrim tokens.
+
+Dependency review: video_player supplies native/web media surfaces; in-house platform playback would require three separate engines. Chewie adds an unnecessary control system; media_kit brings a larger engine/dependency footprint. Network videos require Android INTERNET permission, HTTPS on iOS, and a host with supported codecs/range/CORS behavior on web. Dependency resolution and tests do not prove device/browser media decoding.
+
+The app-owned `AppInvoice` accepts optional `borderRadius` and `zeroHeightDividers` for the square white130px password-fee instance. Defaults remain16px corners and.5px divider slots; this widget is not an avp_ui export.

@@ -4,6 +4,20 @@
 /// code. Feature-specific facades may alias these constants, but must not
 /// duplicate path strings.
 abstract final class AppAssets {
+  static const passwordRequestScrim =
+      'assets/images/password_request_scrim.svg';
+  static const passwordEyeSlash = 'assets/images/password_eye_slash.svg';
+  static const passwordCheckInactive =
+      'assets/images/password_check_inactive.svg';
+  static const passwordCheckActive = 'assets/images/password_check_active.svg';
+  static const passwordInfo = 'assets/images/password_info.svg';
+  static const passwordInstruction = 'assets/images/password_instruction.png';
+  static const passwordCameraInfo = 'assets/images/password_camera_info.svg';
+  static const passwordRecording = 'assets/images/password_recording.png';
+  static const passwordRecordPlay = 'assets/images/password_record_play.svg';
+  static const passwordApproved = 'assets/images/password_approved.svg';
+  static const passwordScrim = 'assets/images/password_scrim.svg';
+
   static const issuanceTrash = 'assets/images/issuance_trash.svg';
   static const issuanceSummaryDivider =
       'assets/images/issuance_summary_divider.svg';
@@ -417,6 +431,18 @@ abstract final class AppAssets {
   static const notificationSecurity = '$_root/notification_security.png';
 
   static const all = <String>[
+    passwordRequestScrim,
+    passwordEyeSlash,
+    passwordCheckInactive,
+    passwordCheckActive,
+    passwordInfo,
+    passwordInstruction,
+    passwordCameraInfo,
+    passwordRecording,
+    passwordRecordPlay,
+    passwordApproved,
+    passwordScrim,
+
     issuanceCalendar,
     issuanceCardDivider,
     issuanceCredit,

@@ -868,4 +868,182 @@ class AppLocalizationsFa extends AppLocalizations {
   String issuanceStepSemantic(int current, int total, String title) {
     return 'مرحله $current از $total، $title';
   }
+
+  @override
+  String get passwordTitle => 'عملیات رمز';
+
+  @override
+  String get passwordSelectionPrompt =>
+      'کارت مورد نظر و نوع رمز را انتخاب کنید';
+
+  @override
+  String get passwordCardType => 'نوع کارت';
+
+  @override
+  String get passwordCardTypeHint => 'نوع کارت خود را انتخاب کنید';
+
+  @override
+  String get passwordCardNumber => 'شماره کارت';
+
+  @override
+  String get passwordCardNumberHint => 'شماره کارت مورد نظر خود را انتخاب کنید';
+
+  @override
+  String get passwordType => 'نوع رمز';
+
+  @override
+  String get passwordTypeHint => 'نوع رمز را انتخاب کنید';
+
+  @override
+  String get passwordFirst => 'رمز اول';
+
+  @override
+  String get passwordSecond => 'رمز دوم';
+
+  @override
+  String get passwordFirstDescription =>
+      'این رمز برای انجام تراکنش‌های حضوری مانند برداشت وجه از خودپرداز و خرید از فروشگاه‌ها با دستگاه پوز استفاده می‌شود.';
+
+  @override
+  String get passwordSecondDescription =>
+      'این رمز برای انجام تراکنش‌های آنلاین و اینترنتی زیر ۱۰۰ هزار تومان به کار می‌رود.';
+
+  @override
+  String get passwordOperation => 'نوع عملیات';
+
+  @override
+  String get passwordSetSecond => 'تعیین رمز دوم';
+
+  @override
+  String get passwordPrompt => 'رمز دوم دلخواه خود را وارد کنید.';
+
+  @override
+  String get passwordValueHint => 'رمز عبور';
+
+  @override
+  String get passwordConfirmationHint => 'تکرار رمز عبور';
+
+  @override
+  String get passwordLengthRule => 'شامل ۴ تا ۶ عدد باشد';
+
+  @override
+  String get passwordPatternRule => 'شامل اعداد متوالی یا تکراری نباشد';
+
+  @override
+  String get passwordDateRule =>
+      'تاریخ معنادار نباشد (تاریخ تولد، تاریخ انقضای کارت)';
+
+  @override
+  String get passwordMismatch => 'رمز عبور و تکرار آن یکسان نیست.';
+
+  @override
+  String get passwordShow => 'نمایش رمز';
+
+  @override
+  String get passwordHide => 'پنهان کردن رمز';
+
+  @override
+  String get passwordSerialPrompt =>
+      'سریال درج شده پشت کارت ملی یا کد پیگیری رسید کارت ملی خود را وارد کنید.';
+
+  @override
+  String get passwordSerialHint =>
+      'سریال پشت کارت ملی | کد پیگیری رسید کارت ملی';
+
+  @override
+  String get passwordSerialHelper => 'شامل عدد و یک حرف لاتین می‌باشد';
+
+  @override
+  String get passwordSerialError =>
+      'سریال معتبر شامل عدد و یک حرف لاتین وارد کنید.';
+
+  @override
+  String get passwordInstructionPrompt =>
+      'پس از دیدن ویدئو آموزشی مراحل احراز هویت شما شروع می‌شود.';
+
+  @override
+  String get passwordCameraNotice => 'این مرحله نیازمند دوربین و میکروفون است.';
+
+  @override
+  String get passwordStartKyc => 'شروع احراز هویت';
+
+  @override
+  String get passwordRecordingPrompt =>
+      'در صورت تایید ویدئو درخواست خود را ثبت کنید.';
+
+  @override
+  String get passwordRecordAgain => 'ضبط مجدد';
+
+  @override
+  String get passwordSubmit => 'ارسال و ثبت درخواست';
+
+  @override
+  String get passwordMockKyc =>
+      'ضبط و احراز هویت آزمایشی است؛ هیچ ویدئویی از شما ثبت نمی‌شود.';
+
+  @override
+  String get passwordConfirmMock => 'تایید نمونه آزمایشی';
+
+  @override
+  String get passwordPendingTitle => 'شما یک درخواست اعتبارسنجی باز دارید';
+
+  @override
+  String get passwordPendingBody =>
+      '• پس از مشخص شدن نتیجه اعتبارسنجی، در صورت تایید هویت پیامک حاوی اطلاعات رمز برای شما ارسال می‌شود.\n• در صورت تایید اعتبارسنجی شما می‌توانید در همین مدت، از سایر خدمات پیشخوان که مستلزم احراز هویت هستند بدون پرداخت مجدد استفاده کنید.';
+
+  @override
+  String get passwordSubmittedTitle => 'درخواست شما ارسال شد';
+
+  @override
+  String get passwordSubmittedBody =>
+      'پس از مشخص شدن نتیجه اعتبارسنجی، در صورت تایید هویت پیامک حاوی نام کاربری و رمز ورود به موبایل بانک برای شما ارسال می‌شود. پس از دریافت پیامک شما قادر خواهید بود با نام کاربری و رمزی دریافتی در پیامک به موبایل بانک خود وارد شوید.';
+
+  @override
+  String get passwordApprovedTitle => 'درخواست شما با موفقیت انجام شد';
+
+  @override
+  String get passwordApprovedBody =>
+      'پیامک حاوی نام کاربری و رمز ورود به موبایل بانک برای شما ارسال می‌شود. پس از دریافت پیامک شما قادر خواهید بود با نام کاربری و رمزی دریافتی در پیامک به موبایل بانک خود وارد شوید.';
+
+  @override
+  String get passwordTracking => 'کد پیگیری';
+
+  @override
+  String get passwordUnderstood => 'متوجه شدم';
+
+  @override
+  String get passwordMockReceipt =>
+      'این نتیجه آزمایشی است؛ رمز بانکی تنظیم نشده و پیامکی ارسال نمی‌شود.';
+
+  @override
+  String get passwordDemoVideo =>
+      'ویدئوی نمونه: Big Buck Bunny — Blender Foundation (CC BY 3.0)';
+
+  @override
+  String get passwordPlay => 'پخش ویدئو';
+
+  @override
+  String get passwordPause => 'توقف ویدئو';
+
+  @override
+  String get passwordSeek => 'موقعیت پخش';
+
+  @override
+  String get passwordVideoUnavailable => 'ویدئو در دسترس نیست';
+
+  @override
+  String get passwordUnsupported =>
+      'این مسیر فقط برای تعیین رمز دوم برای اولین بار است.';
+
+  @override
+  String get passwordExitTitle => 'خروج از عملیات رمز؟';
+
+  @override
+  String get passwordExitBody => 'اطلاعات واردشده پاک می‌شود.';
+
+  @override
+  String get passwordExit => 'خروج';
+
+  @override
+  String get passwordStay => 'ادامه عملیات';
 }

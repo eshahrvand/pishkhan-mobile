@@ -1779,6 +1779,330 @@ abstract class AppLocalizations {
   /// In fa, this message translates to:
   /// **'مرحله {current} از {total}، {title}'**
   String issuanceStepSemantic(int current, int total, String title);
+
+  /// No description provided for @passwordTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'عملیات رمز'**
+  String get passwordTitle;
+
+  /// No description provided for @passwordSelectionPrompt.
+  ///
+  /// In fa, this message translates to:
+  /// **'کارت مورد نظر و نوع رمز را انتخاب کنید'**
+  String get passwordSelectionPrompt;
+
+  /// No description provided for @passwordCardType.
+  ///
+  /// In fa, this message translates to:
+  /// **'نوع کارت'**
+  String get passwordCardType;
+
+  /// No description provided for @passwordCardTypeHint.
+  ///
+  /// In fa, this message translates to:
+  /// **'نوع کارت خود را انتخاب کنید'**
+  String get passwordCardTypeHint;
+
+  /// No description provided for @passwordCardNumber.
+  ///
+  /// In fa, this message translates to:
+  /// **'شماره کارت'**
+  String get passwordCardNumber;
+
+  /// No description provided for @passwordCardNumberHint.
+  ///
+  /// In fa, this message translates to:
+  /// **'شماره کارت مورد نظر خود را انتخاب کنید'**
+  String get passwordCardNumberHint;
+
+  /// No description provided for @passwordType.
+  ///
+  /// In fa, this message translates to:
+  /// **'نوع رمز'**
+  String get passwordType;
+
+  /// No description provided for @passwordTypeHint.
+  ///
+  /// In fa, this message translates to:
+  /// **'نوع رمز را انتخاب کنید'**
+  String get passwordTypeHint;
+
+  /// No description provided for @passwordFirst.
+  ///
+  /// In fa, this message translates to:
+  /// **'رمز اول'**
+  String get passwordFirst;
+
+  /// No description provided for @passwordSecond.
+  ///
+  /// In fa, this message translates to:
+  /// **'رمز دوم'**
+  String get passwordSecond;
+
+  /// No description provided for @passwordFirstDescription.
+  ///
+  /// In fa, this message translates to:
+  /// **'این رمز برای انجام تراکنش‌های حضوری مانند برداشت وجه از خودپرداز و خرید از فروشگاه‌ها با دستگاه پوز استفاده می‌شود.'**
+  String get passwordFirstDescription;
+
+  /// No description provided for @passwordSecondDescription.
+  ///
+  /// In fa, this message translates to:
+  /// **'این رمز برای انجام تراکنش‌های آنلاین و اینترنتی زیر ۱۰۰ هزار تومان به کار می‌رود.'**
+  String get passwordSecondDescription;
+
+  /// No description provided for @passwordOperation.
+  ///
+  /// In fa, this message translates to:
+  /// **'نوع عملیات'**
+  String get passwordOperation;
+
+  /// No description provided for @passwordSetSecond.
+  ///
+  /// In fa, this message translates to:
+  /// **'تعیین رمز دوم'**
+  String get passwordSetSecond;
+
+  /// No description provided for @passwordPrompt.
+  ///
+  /// In fa, this message translates to:
+  /// **'رمز دوم دلخواه خود را وارد کنید.'**
+  String get passwordPrompt;
+
+  /// No description provided for @passwordValueHint.
+  ///
+  /// In fa, this message translates to:
+  /// **'رمز عبور'**
+  String get passwordValueHint;
+
+  /// No description provided for @passwordConfirmationHint.
+  ///
+  /// In fa, this message translates to:
+  /// **'تکرار رمز عبور'**
+  String get passwordConfirmationHint;
+
+  /// No description provided for @passwordLengthRule.
+  ///
+  /// In fa, this message translates to:
+  /// **'شامل ۴ تا ۶ عدد باشد'**
+  String get passwordLengthRule;
+
+  /// No description provided for @passwordPatternRule.
+  ///
+  /// In fa, this message translates to:
+  /// **'شامل اعداد متوالی یا تکراری نباشد'**
+  String get passwordPatternRule;
+
+  /// No description provided for @passwordDateRule.
+  ///
+  /// In fa, this message translates to:
+  /// **'تاریخ معنادار نباشد (تاریخ تولد، تاریخ انقضای کارت)'**
+  String get passwordDateRule;
+
+  /// No description provided for @passwordMismatch.
+  ///
+  /// In fa, this message translates to:
+  /// **'رمز عبور و تکرار آن یکسان نیست.'**
+  String get passwordMismatch;
+
+  /// No description provided for @passwordShow.
+  ///
+  /// In fa, this message translates to:
+  /// **'نمایش رمز'**
+  String get passwordShow;
+
+  /// No description provided for @passwordHide.
+  ///
+  /// In fa, this message translates to:
+  /// **'پنهان کردن رمز'**
+  String get passwordHide;
+
+  /// No description provided for @passwordSerialPrompt.
+  ///
+  /// In fa, this message translates to:
+  /// **'سریال درج شده پشت کارت ملی یا کد پیگیری رسید کارت ملی خود را وارد کنید.'**
+  String get passwordSerialPrompt;
+
+  /// No description provided for @passwordSerialHint.
+  ///
+  /// In fa, this message translates to:
+  /// **'سریال پشت کارت ملی | کد پیگیری رسید کارت ملی'**
+  String get passwordSerialHint;
+
+  /// No description provided for @passwordSerialHelper.
+  ///
+  /// In fa, this message translates to:
+  /// **'شامل عدد و یک حرف لاتین می‌باشد'**
+  String get passwordSerialHelper;
+
+  /// No description provided for @passwordSerialError.
+  ///
+  /// In fa, this message translates to:
+  /// **'سریال معتبر شامل عدد و یک حرف لاتین وارد کنید.'**
+  String get passwordSerialError;
+
+  /// No description provided for @passwordInstructionPrompt.
+  ///
+  /// In fa, this message translates to:
+  /// **'پس از دیدن ویدئو آموزشی مراحل احراز هویت شما شروع می‌شود.'**
+  String get passwordInstructionPrompt;
+
+  /// No description provided for @passwordCameraNotice.
+  ///
+  /// In fa, this message translates to:
+  /// **'این مرحله نیازمند دوربین و میکروفون است.'**
+  String get passwordCameraNotice;
+
+  /// No description provided for @passwordStartKyc.
+  ///
+  /// In fa, this message translates to:
+  /// **'شروع احراز هویت'**
+  String get passwordStartKyc;
+
+  /// No description provided for @passwordRecordingPrompt.
+  ///
+  /// In fa, this message translates to:
+  /// **'در صورت تایید ویدئو درخواست خود را ثبت کنید.'**
+  String get passwordRecordingPrompt;
+
+  /// No description provided for @passwordRecordAgain.
+  ///
+  /// In fa, this message translates to:
+  /// **'ضبط مجدد'**
+  String get passwordRecordAgain;
+
+  /// No description provided for @passwordSubmit.
+  ///
+  /// In fa, this message translates to:
+  /// **'ارسال و ثبت درخواست'**
+  String get passwordSubmit;
+
+  /// No description provided for @passwordMockKyc.
+  ///
+  /// In fa, this message translates to:
+  /// **'ضبط و احراز هویت آزمایشی است؛ هیچ ویدئویی از شما ثبت نمی‌شود.'**
+  String get passwordMockKyc;
+
+  /// No description provided for @passwordConfirmMock.
+  ///
+  /// In fa, this message translates to:
+  /// **'تایید نمونه آزمایشی'**
+  String get passwordConfirmMock;
+
+  /// No description provided for @passwordPendingTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'شما یک درخواست اعتبارسنجی باز دارید'**
+  String get passwordPendingTitle;
+
+  /// No description provided for @passwordPendingBody.
+  ///
+  /// In fa, this message translates to:
+  /// **'• پس از مشخص شدن نتیجه اعتبارسنجی، در صورت تایید هویت پیامک حاوی اطلاعات رمز برای شما ارسال می‌شود.\n• در صورت تایید اعتبارسنجی شما می‌توانید در همین مدت، از سایر خدمات پیشخوان که مستلزم احراز هویت هستند بدون پرداخت مجدد استفاده کنید.'**
+  String get passwordPendingBody;
+
+  /// No description provided for @passwordSubmittedTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'درخواست شما ارسال شد'**
+  String get passwordSubmittedTitle;
+
+  /// No description provided for @passwordSubmittedBody.
+  ///
+  /// In fa, this message translates to:
+  /// **'پس از مشخص شدن نتیجه اعتبارسنجی، در صورت تایید هویت پیامک حاوی نام کاربری و رمز ورود به موبایل بانک برای شما ارسال می‌شود. پس از دریافت پیامک شما قادر خواهید بود با نام کاربری و رمزی دریافتی در پیامک به موبایل بانک خود وارد شوید.'**
+  String get passwordSubmittedBody;
+
+  /// No description provided for @passwordApprovedTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'درخواست شما با موفقیت انجام شد'**
+  String get passwordApprovedTitle;
+
+  /// No description provided for @passwordApprovedBody.
+  ///
+  /// In fa, this message translates to:
+  /// **'پیامک حاوی نام کاربری و رمز ورود به موبایل بانک برای شما ارسال می‌شود. پس از دریافت پیامک شما قادر خواهید بود با نام کاربری و رمزی دریافتی در پیامک به موبایل بانک خود وارد شوید.'**
+  String get passwordApprovedBody;
+
+  /// No description provided for @passwordTracking.
+  ///
+  /// In fa, this message translates to:
+  /// **'کد پیگیری'**
+  String get passwordTracking;
+
+  /// No description provided for @passwordUnderstood.
+  ///
+  /// In fa, this message translates to:
+  /// **'متوجه شدم'**
+  String get passwordUnderstood;
+
+  /// No description provided for @passwordMockReceipt.
+  ///
+  /// In fa, this message translates to:
+  /// **'این نتیجه آزمایشی است؛ رمز بانکی تنظیم نشده و پیامکی ارسال نمی‌شود.'**
+  String get passwordMockReceipt;
+
+  /// No description provided for @passwordDemoVideo.
+  ///
+  /// In fa, this message translates to:
+  /// **'ویدئوی نمونه: Big Buck Bunny — Blender Foundation (CC BY 3.0)'**
+  String get passwordDemoVideo;
+
+  /// No description provided for @passwordPlay.
+  ///
+  /// In fa, this message translates to:
+  /// **'پخش ویدئو'**
+  String get passwordPlay;
+
+  /// No description provided for @passwordPause.
+  ///
+  /// In fa, this message translates to:
+  /// **'توقف ویدئو'**
+  String get passwordPause;
+
+  /// No description provided for @passwordSeek.
+  ///
+  /// In fa, this message translates to:
+  /// **'موقعیت پخش'**
+  String get passwordSeek;
+
+  /// No description provided for @passwordVideoUnavailable.
+  ///
+  /// In fa, this message translates to:
+  /// **'ویدئو در دسترس نیست'**
+  String get passwordVideoUnavailable;
+
+  /// No description provided for @passwordUnsupported.
+  ///
+  /// In fa, this message translates to:
+  /// **'این مسیر فقط برای تعیین رمز دوم برای اولین بار است.'**
+  String get passwordUnsupported;
+
+  /// No description provided for @passwordExitTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'خروج از عملیات رمز؟'**
+  String get passwordExitTitle;
+
+  /// No description provided for @passwordExitBody.
+  ///
+  /// In fa, this message translates to:
+  /// **'اطلاعات واردشده پاک می‌شود.'**
+  String get passwordExitBody;
+
+  /// No description provided for @passwordExit.
+  ///
+  /// In fa, this message translates to:
+  /// **'خروج'**
+  String get passwordExit;
+
+  /// No description provided for @passwordStay.
+  ///
+  /// In fa, this message translates to:
+  /// **'ادامه عملیات'**
+  String get passwordStay;
 }
 
 class _AppLocalizationsDelegate

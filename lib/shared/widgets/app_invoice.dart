@@ -24,10 +24,14 @@ abstract final class AppInvoiceIcons {
   static Widget print() => _svg(AppAssets.invoicePrint);
   static Widget identityVideo() => _svg(AppAssets.invoiceIdentityVideo);
   static Widget delivery() => _svg(AppAssets.invoiceDelivery);
-  static Widget divider() => SizedBox(
-    height: .5,
+  static Widget divider({bool zeroHeight = false}) => SizedBox(
+    height: zeroHeight ? 0 : .5,
     width: double.infinity,
-    child: SvgPicture.asset(AppAssets.invoiceDivider, fit: BoxFit.fill),
+    child: OverflowBox(
+      minHeight: .5,
+      maxHeight: .5,
+      child: SvgPicture.asset(AppAssets.invoiceDivider, fit: BoxFit.fill),
+    ),
   );
 
   static Widget _svg(String path, {double size = 20, Size? assetSize}) =>
@@ -82,6 +86,8 @@ class AppInvoice extends StatelessWidget {
     this.labelColor,
     this.walletSufficientLabel,
     this.walletInsufficientLabel,
+    this.borderRadius,
+    this.zeroHeightDividers = false,
   });
 
   final String title;
@@ -98,6 +104,8 @@ class AppInvoice extends StatelessWidget {
   final Color? backgroundColor;
   final Color? labelColor;
   final String? walletSufficientLabel, walletInsufficientLabel;
+  final BorderRadius? borderRadius;
+  final bool zeroHeightDividers;
 
   @override
   Widget build(BuildContext context) {
@@ -109,7 +117,7 @@ class AppInvoice extends StatelessWidget {
       decoration: BoxDecoration(
         // Figma Gray/50 (#FAFAFA).
         color: backgroundColor ?? colors.surfaceSubtle,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: borderRadius ?? BorderRadius.circular(16),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -123,7 +131,7 @@ class AppInvoice extends StatelessWidget {
             labelColor: labelColor ?? colors.textSecondary,
           ),
           const SizedBox(height: 12),
-          AppInvoiceIcons.divider(),
+          AppInvoiceIcons.divider(zeroHeight: zeroHeightDividers),
           const SizedBox(height: 12),
           if (isExpanded && lines.isNotEmpty) ...[
             for (var index = 0; index < lines.length; index++) ...[
@@ -134,7 +142,7 @@ class AppInvoice extends StatelessWidget {
               ),
             ],
             const SizedBox(height: 12),
-            AppInvoiceIcons.divider(),
+            AppInvoiceIcons.divider(zeroHeight: zeroHeightDividers),
             const SizedBox(height: 12),
           ],
           _WalletRow(

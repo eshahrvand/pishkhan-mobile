@@ -158,7 +158,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-  void _serviceId(String id, {String? depositNumber}) {
+  void _serviceId(String id, {String? depositNumber, String? cardNumber}) {
     if (widget.onServiceRequested != null) {
       widget.onServiceRequested!(id);
     } else {
@@ -166,6 +166,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         context,
         id,
         initialDepositNumber: depositNumber,
+        initialCardNumber: cardNumber,
         onAssistantPressed: () {
           _selectTab(AppPrimaryTab.dashboard);
           _promptFocus.requestFocus();
@@ -233,7 +234,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   if (widget.onCardActionRequested != null) {
                     widget.onCardActionRequested!(request);
                   } else {
-                    _serviceId(request.action.id);
+                    _serviceId(
+                      request.action.id,
+                      cardNumber: request.card.number,
+                    );
                   }
                 },
               ),

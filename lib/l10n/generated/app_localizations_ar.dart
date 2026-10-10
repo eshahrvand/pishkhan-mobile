@@ -867,4 +867,178 @@ class AppLocalizationsAr extends AppLocalizations {
   String issuanceStepSemantic(int current, int total, String title) {
     return 'الخطوة $current من $total، $title';
   }
+
+  @override
+  String get passwordTitle => 'خدمات كلمة المرور';
+
+  @override
+  String get passwordSelectionPrompt => 'اختر البطاقة ونوع كلمة المرور';
+
+  @override
+  String get passwordCardType => 'نوع البطاقة';
+
+  @override
+  String get passwordCardTypeHint => 'اختر نوع بطاقتك';
+
+  @override
+  String get passwordCardNumber => 'رقم البطاقة';
+
+  @override
+  String get passwordCardNumberHint => 'اختر رقم البطاقة';
+
+  @override
+  String get passwordType => 'نوع كلمة المرور';
+
+  @override
+  String get passwordTypeHint => 'اختر نوع كلمة المرور';
+
+  @override
+  String get passwordFirst => 'الرقم السري الأول';
+
+  @override
+  String get passwordSecond => 'كلمة المرور الثانية';
+
+  @override
+  String get passwordFirstDescription =>
+      'للمعاملات الحضورية في الصراف الآلي وأجهزة نقاط البيع.';
+
+  @override
+  String get passwordSecondDescription =>
+      'للمعاملات عبر الإنترنت دون ١٠٠ ألف تومان.';
+
+  @override
+  String get passwordOperation => 'نوع العملية';
+
+  @override
+  String get passwordSetSecond => 'تعيين كلمة المرور الثانية';
+
+  @override
+  String get passwordPrompt => 'أدخل كلمة المرور الثانية المطلوبة.';
+
+  @override
+  String get passwordValueHint => 'كلمة المرور';
+
+  @override
+  String get passwordConfirmationHint => 'تأكيد كلمة المرور';
+
+  @override
+  String get passwordLengthRule => 'استخدم من ٤ إلى ٦ أرقام';
+
+  @override
+  String get passwordPatternRule => 'تجنب الأرقام المتتابعة أو المكررة';
+
+  @override
+  String get passwordDateRule =>
+      'تجنب التواريخ المهمة (الميلاد، انتهاء البطاقة)';
+
+  @override
+  String get passwordMismatch => 'كلمتا المرور غير متطابقتين.';
+
+  @override
+  String get passwordShow => 'إظهار كلمة المرور';
+
+  @override
+  String get passwordHide => 'إخفاء كلمة المرور';
+
+  @override
+  String get passwordSerialPrompt =>
+      'أدخل الرقم التسلسلي خلف بطاقة الهوية أو رمز تتبع إيصالها.';
+
+  @override
+  String get passwordSerialHint => 'الرقم التسلسلي للهوية | رمز تتبع الإيصال';
+
+  @override
+  String get passwordSerialHelper => 'يتضمن أرقاماً وحرفاً لاتينياً واحداً';
+
+  @override
+  String get passwordSerialError => 'أدخل أرقاماً وحرفاً لاتينياً واحداً فقط.';
+
+  @override
+  String get passwordInstructionPrompt =>
+      'بعد مشاهدة الفيديو التعليمي تبدأ خطوات التحقق من الهوية.';
+
+  @override
+  String get passwordCameraNotice => 'تتطلب هذه الخطوة الكاميرا والميكروفون.';
+
+  @override
+  String get passwordStartKyc => 'بدء التحقق من الهوية';
+
+  @override
+  String get passwordRecordingPrompt => 'أكد الفيديو ثم أرسل طلبك.';
+
+  @override
+  String get passwordRecordAgain => 'إعادة التسجيل';
+
+  @override
+  String get passwordSubmit => 'إرسال وتسجيل الطلب';
+
+  @override
+  String get passwordMockKyc =>
+      'التسجيل والتحقق تجريبيان؛ لن يُسجّل أي فيديو لك.';
+
+  @override
+  String get passwordConfirmMock => 'تأكيد المعاينة التجريبية';
+
+  @override
+  String get passwordPendingTitle => 'لديك طلب تحقق قيد المعالجة';
+
+  @override
+  String get passwordPendingBody =>
+      '• بعد التحقق وتأكيد الهوية تصلك رسالة بمعلومات كلمة المرور.\n• خلال مدة صلاحية التحقق يمكن استخدام الخدمات الأخرى دون دفع رسوم التحقق مجدداً.';
+
+  @override
+  String get passwordSubmittedTitle => 'تم إرسال طلبك';
+
+  @override
+  String get passwordSubmittedBody =>
+      'بعد التحقق وتأكيد الهوية تصلك رسالة ببيانات الدخول إلى البنك عبر الهاتف، ويمكنك تسجيل الدخول باستخدامها.';
+
+  @override
+  String get passwordApprovedTitle => 'تم إنجاز طلبك بنجاح';
+
+  @override
+  String get passwordApprovedBody =>
+      'ستصلك رسالة ببيانات الدخول إلى البنك عبر الهاتف، ويمكنك تسجيل الدخول باستخدامها.';
+
+  @override
+  String get passwordTracking => 'رمز التتبع';
+
+  @override
+  String get passwordUnderstood => 'فهمت';
+
+  @override
+  String get passwordMockReceipt =>
+      'نتيجة تجريبية: لم تُعيّن كلمة مرور مصرفية ولم تُرسل رسالة.';
+
+  @override
+  String get passwordDemoVideo =>
+      'فيديو تجريبي: Big Buck Bunny — Blender Foundation (CC BY 3.0)';
+
+  @override
+  String get passwordPlay => 'تشغيل الفيديو';
+
+  @override
+  String get passwordPause => 'إيقاف الفيديو مؤقتاً';
+
+  @override
+  String get passwordSeek => 'موضع التشغيل';
+
+  @override
+  String get passwordVideoUnavailable => 'الفيديو غير متاح';
+
+  @override
+  String get passwordUnsupported =>
+      'هذا المسار لتعيين كلمة المرور الثانية لأول مرة فقط.';
+
+  @override
+  String get passwordExitTitle => 'الخروج من إعداد كلمة المرور؟';
+
+  @override
+  String get passwordExitBody => 'سيتم حذف المعلومات المدخلة.';
+
+  @override
+  String get passwordExit => 'خروج';
+
+  @override
+  String get passwordStay => 'متابعة الإعداد';
 }
