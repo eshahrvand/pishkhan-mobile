@@ -1858,6 +1858,66 @@ abstract class AppLocalizations {
   /// **'نوع عملیات'**
   String get passwordOperation;
 
+  /// No description provided for @passwordChangePrompt.
+  ///
+  /// In fa, this message translates to:
+  /// **'رمز عبور فعلی و رمز جدید دلخواه خود را وارد کنید.'**
+  String get passwordChangePrompt;
+
+  /// No description provided for @passwordCurrentHint.
+  ///
+  /// In fa, this message translates to:
+  /// **'رمز عبور فعلی'**
+  String get passwordCurrentHint;
+
+  /// No description provided for @passwordNewHint.
+  ///
+  /// In fa, this message translates to:
+  /// **'رمز عبور جدید'**
+  String get passwordNewHint;
+
+  /// No description provided for @passwordNewConfirmationHint.
+  ///
+  /// In fa, this message translates to:
+  /// **'تکرار رمز عبور جدید'**
+  String get passwordNewConfirmationHint;
+
+  /// No description provided for @passwordChangeSubmit.
+  ///
+  /// In fa, this message translates to:
+  /// **'ثبت درخواست'**
+  String get passwordChangeSubmit;
+
+  /// No description provided for @passwordChangeSuccessBody.
+  ///
+  /// In fa, this message translates to:
+  /// **'تغییر رمز شما با موفقیت انجام شد.'**
+  String get passwordChangeSuccessBody;
+
+  /// No description provided for @passwordStatusRegisteredTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'درخواست شما با موفقیت ثبت شد.'**
+  String get passwordStatusRegisteredTitle;
+
+  /// No description provided for @passwordOperationHint.
+  ///
+  /// In fa, this message translates to:
+  /// **'نوع عملیات را مشخص کنید'**
+  String get passwordOperationHint;
+
+  /// No description provided for @passwordChange.
+  ///
+  /// In fa, this message translates to:
+  /// **'تغییر رمز عبور'**
+  String get passwordChange;
+
+  /// No description provided for @passwordForgot.
+  ///
+  /// In fa, this message translates to:
+  /// **'فراموشی رمز عبور'**
+  String get passwordForgot;
+
   /// No description provided for @passwordSetSecond.
   ///
   /// In fa, this message translates to:
@@ -2077,7 +2137,7 @@ abstract class AppLocalizations {
   /// No description provided for @passwordUnsupported.
   ///
   /// In fa, this message translates to:
-  /// **'این مسیر فقط برای تعیین رمز دوم برای اولین بار است.'**
+  /// **'این عملیات برای کارت انتخاب‌شده در دسترس نیست.'**
   String get passwordUnsupported;
 
   /// No description provided for @passwordExitTitle.

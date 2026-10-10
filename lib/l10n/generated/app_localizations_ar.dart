@@ -910,6 +910,37 @@ class AppLocalizationsAr extends AppLocalizations {
   String get passwordOperation => 'نوع العملية';
 
   @override
+  String get passwordChangePrompt =>
+      'أدخل كلمة المرور الحالية وكلمة المرور الجديدة التي تريدها.';
+
+  @override
+  String get passwordCurrentHint => 'كلمة المرور الحالية';
+
+  @override
+  String get passwordNewHint => 'كلمة المرور الجديدة';
+
+  @override
+  String get passwordNewConfirmationHint => 'تأكيد كلمة المرور الجديدة';
+
+  @override
+  String get passwordChangeSubmit => 'تسجيل الطلب';
+
+  @override
+  String get passwordChangeSuccessBody => 'تم تغيير كلمة المرور بنجاح.';
+
+  @override
+  String get passwordStatusRegisteredTitle => 'تم تسجيل طلبك بنجاح.';
+
+  @override
+  String get passwordOperationHint => 'حدد نوع العملية';
+
+  @override
+  String get passwordChange => 'تغيير كلمة المرور';
+
+  @override
+  String get passwordForgot => 'نسيت كلمة المرور';
+
+  @override
   String get passwordSetSecond => 'تعيين كلمة المرور الثانية';
 
   @override
@@ -1027,8 +1058,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get passwordVideoUnavailable => 'الفيديو غير متاح';
 
   @override
-  String get passwordUnsupported =>
-      'هذا المسار لتعيين كلمة المرور الثانية لأول مرة فقط.';
+  String get passwordUnsupported => 'هذه العملية غير متاحة للبطاقة المحددة.';
 
   @override
   String get passwordExitTitle => 'الخروج من إعداد كلمة المرور؟';

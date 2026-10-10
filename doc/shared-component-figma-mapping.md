@@ -102,3 +102,13 @@ Stepper is owned/exported by avp_ui (27984:8986) and registered in both integrat
 | Video player | `27997:11898` in `27997:11891` | `AppVideoPlayer` (avp_ui) | sibling `avp_ui/lib/widgets/media/app_video_player.dart` |
 
 The package FigmaNameMapper registers and previews Video player. This app-side name mapping points to the same public component, rather than duplicating a player. Feature posters are app-owned; play artwork and video controls are package-owned. See [password-services architecture](password-services/password-services-development.md) and [14 rendered states](password-services-review/index.html).
+
+
+## Forgot-password operation selector
+
+Frames `27997:12254`, `27997:12269`, `27997:12324` compose the existing `AppSelect<PasswordOperation>`, app-owned `AppBottomSheetHeader`, `AppInvoice` and `AppButton` inside `SecondPasswordScreen`. No additional avp_ui widget or separate password flow is needed. The selector uses `AppSelect.menuBuilder` and localized Change password / Forgot password options; all later stages reuse the existing password-services components. [Rendered selection states](password-services-review/index.html).
+
+
+## Change-password form and returning status
+
+Ordered frames `27997:11595`, `11607`, `11666`, `11722`, `11777`, `11791`, `11844`, `11858`, `12547`, `11994`, `12046` remain app compositions in `SecondPasswordScreen`. The form reuses `AppTextField` for current/new/confirmation PINs, `AppCheckbox` and `AppButton`; selection reuses `AppSelect.menuBuilder` and `AppBottomSheetHeader`. `PasswordStatusContent` is app-owned full-page content rather than a new package widget. The100px return badge and change-success scrim are original app assets; shared eye/check/divider artwork is reused without substitution. [28 rendered states](password-services-review/index.html).

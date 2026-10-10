@@ -3,6 +3,8 @@ import 'package:pishkhan_mobile/core/result/result.dart';
 
 enum PasswordCardKind { resalat, coupon, gift, family }
 
+enum PasswordOperation { setSecondPassword, changePassword, forgotPassword }
+
 enum PasswordRequestStatus { none, pending, approved }
 
 class PasswordCard extends Equatable {
@@ -11,11 +13,17 @@ class PasswordCard extends Equatable {
     required this.number,
     this.kind = PasswordCardKind.resalat,
     this.canSetSecondPassword = true,
+    this.canResetSecondPassword = true,
     Iterable<String> datePinCandidates = const [],
   }) : datePinCandidates = List.unmodifiable(datePinCandidates);
   final String id, number;
   final PasswordCardKind kind;
-  final bool canSetSecondPassword;
+  final bool canSetSecondPassword, canResetSecondPassword;
+
+  bool supports(PasswordOperation operation) =>
+      operation == PasswordOperation.setSecondPassword
+      ? canSetSecondPassword
+      : canResetSecondPassword;
 
   /// Known birth/expiry-derived values, normalized by the data adapter.
   final List<String> datePinCandidates;
@@ -25,6 +33,7 @@ class PasswordCard extends Equatable {
     number,
     kind,
     canSetSecondPassword,
+    canResetSecondPassword,
     datePinCandidates,
   ];
 }
@@ -58,11 +67,15 @@ class PasswordRequestRecord extends Equatable {
 class SetSecondPasswordRequest {
   const SetSecondPasswordRequest({
     required this.cardId,
+    this.operation = PasswordOperation.setSecondPassword,
     required this.password,
+    this.currentPassword,
     required this.nationalCardSerial,
     required this.idempotencyKey,
     required this.kycReference,
   });
+  final PasswordOperation operation;
+  final String? currentPassword;
   final String cardId,
       password,
       nationalCardSerial,
@@ -74,7 +87,10 @@ class SetSecondPasswordRequest {
 
 abstract interface class PasswordServicesRepository {
   Future<Result<PasswordCatalog>> load();
-  Future<Result<PasswordRequestRecord>> status(String cardId);
+  Future<Result<PasswordRequestRecord>> status(
+    String cardId, {
+    PasswordOperation operation = PasswordOperation.setSecondPassword,
+  });
   Future<Result<PasswordRequestRecord>> submit(
     SetSecondPasswordRequest request,
   );

@@ -32,8 +32,10 @@ class LoadPasswordCatalog {
 class CheckPasswordRequest {
   const CheckPasswordRequest(this.repository);
   final PasswordServicesRepository repository;
-  Future<Result<PasswordRequestRecord>> call(String cardId) =>
-      _boundary(() => repository.status(cardId));
+  Future<Result<PasswordRequestRecord>> call(
+    String cardId, {
+    PasswordOperation operation = PasswordOperation.setSecondPassword,
+  }) => _boundary(() => repository.status(cardId, operation: operation));
 }
 
 class SubmitSecondPassword {

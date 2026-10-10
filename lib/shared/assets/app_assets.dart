@@ -16,6 +16,11 @@ abstract final class AppAssets {
   static const passwordRecording = 'assets/images/password_recording.png';
   static const passwordRecordPlay = 'assets/images/password_record_play.svg';
   static const passwordApproved = 'assets/images/password_approved.svg';
+  static const passwordChangeScrim = 'assets/images/password_change_scrim.svg';
+  static const passwordStatusSuccess =
+      'assets/images/password_status_success.svg';
+  static const passwordOperationScrim =
+      'assets/images/password_operation_scrim.svg';
   static const passwordScrim = 'assets/images/password_scrim.svg';
 
   static const issuanceTrash = 'assets/images/issuance_trash.svg';
@@ -442,6 +447,9 @@ abstract final class AppAssets {
     passwordRecordPlay,
     passwordApproved,
     passwordScrim,
+    passwordOperationScrim,
+    passwordStatusSuccess,
+    passwordChangeScrim,
 
     issuanceCalendar,
     issuanceCardDivider,

@@ -14,6 +14,8 @@ class MockPasswordServicesRepository implements PasswordServicesRepository {
   final PasswordCatalog catalog;
   final Map<String, PasswordRequestRecord> _records;
   final Map<String, PasswordRequestRecord> _receipts = {};
+  final Map<(String, PasswordOperation), PasswordRequestRecord>
+  _operationRecords = {};
   static final sampleCatalog = PasswordCatalog(
     cards: [
       PasswordCard(
@@ -34,8 +36,14 @@ class MockPasswordServicesRepository implements PasswordServicesRepository {
   @override
   Future<Result<PasswordCatalog>> load() async => Success(catalog);
   @override
-  Future<Result<PasswordRequestRecord>> status(String cardId) async => Success(
-    _records[cardId] ??
+  Future<Result<PasswordRequestRecord>> status(
+    String cardId, {
+    PasswordOperation operation = PasswordOperation.setSecondPassword,
+  }) async => Success(
+    _operationRecords[(cardId, operation)] ??
+        (operation == PasswordOperation.setSecondPassword
+            ? _records[cardId]
+            : null) ??
         const PasswordRequestRecord(
           status: PasswordRequestStatus.none,
           isMock: true,
@@ -50,14 +58,20 @@ class MockPasswordServicesRepository implements PasswordServicesRepository {
     }
     final cards = catalog.cards.where((c) => c.id == request.cardId);
     if (cards.isEmpty ||
-        !cards.first.canSetSecondPassword ||
+        !cards.first.supports(request.operation) ||
         !SecondPasswordValidator.isValid(
           request.password,
           cards.first.datePinCandidates,
         ) ||
-        !SecondPasswordValidator.validSerial(request.nationalCardSerial) ||
-        request.kycReference != 'mock-kyc' ||
-        catalog.walletBalanceRial < catalog.feeRial) {
+        (request.operation == PasswordOperation.changePassword
+            ? !SecondPasswordValidator.hasValidLength(
+                request.currentPassword ?? '',
+              )
+            : !SecondPasswordValidator.validSerial(
+                    request.nationalCardSerial,
+                  ) ||
+                  request.kycReference != 'mock-kyc' ||
+                  catalog.walletBalanceRial < catalog.feeRial)) {
       return const Err(DataFailure('password.request.invalid'));
     }
     final receipt = PasswordRequestRecord(
@@ -65,7 +79,7 @@ class MockPasswordServicesRepository implements PasswordServicesRepository {
       trackingCode: '98649466583',
       isMock: true,
     );
-    _records[request.cardId] = receipt;
+    _operationRecords[(request.cardId, request.operation)] = receipt;
     _receipts[request.idempotencyKey] = receipt;
     return Success(receipt);
   }

@@ -302,3 +302,13 @@ Additive APIs retain existing defaults:
 Dependency review: video_player supplies native/web media surfaces; in-house platform playback would require three separate engines. Chewie adds an unnecessary control system; media_kit brings a larger engine/dependency footprint. Network videos require Android INTERNET permission, HTTPS on iOS, and a host with supported codecs/range/CORS behavior on web. Dependency resolution and tests do not prove device/browser media decoding.
 
 The app-owned `AppInvoice` accepts optional `borderRadius` and `zeroHeightDividers` for the square white130px password-fee instance. Defaults remain16px corners and.5px divider slots; this widget is not an avp_ui export.
+
+
+### Shared password recovery operation
+
+`SecondPasswordScreen(selectOperation: true, initialCardNumber: cardNumber)` enables the Figma Change password / Forgot password selector on the existing setup flow. `card-pin-second-forgot` routes here; setup routes retain the default mode. `PasswordOperation` is supplied to repository `status(cardId, operation: ...)` and `SetSecondPasswordRequest.operation`. Adapters distinguish initial setup eligibility from `PasswordCard.canResetSecondPassword` and implement operation-specific submission/status. The shared UI, PIN validation, serial, video, mock KYC and receipt stages remain common. See [password-services development](password-services/password-services-development.md) for the contract and prototype limits.
+
+
+### Change password in the shared flow
+
+Card Services `card-pin-second-change` enables operation selection on `SecondPasswordScreen`. The change branch collects secure current/new/confirmation PINs and terms, omits the setup fee/serial/video stages, and submits `SetSecondPasswordRequest(operation: PasswordOperation.changePassword, currentPassword: ...)`. New results use the change-success sheet; returning status reads render the full-page tracking content. Adapters must verify the current credential at the bank; the mock validates its numeric format only. The existing public avp_ui inputs/buttons/selects are reused. See the ordered11-frame audit in [password-services development](password-services/password-services-development.md).

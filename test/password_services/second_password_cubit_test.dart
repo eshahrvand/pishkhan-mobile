@@ -16,6 +16,7 @@ class ControlledPasswordRepository implements PasswordServicesRepository {
   Completer<Result<PasswordCatalog>>? loading;
   Completer<Result<PasswordRequestRecord>>? checking, submitting;
   final requests = <SetSecondPasswordRequest>[];
+  bool mockReceipt = true;
   @override
   Future<Result<PasswordCatalog>> load() async => loading != null
       ? loading!.future
@@ -23,8 +24,10 @@ class ControlledPasswordRepository implements PasswordServicesRepository {
       ? Err(loadFailure!)
       : Success(catalog);
   @override
-  Future<Result<PasswordRequestRecord>> status(String id) async =>
-      checking != null
+  Future<Result<PasswordRequestRecord>> status(
+    String id, {
+    PasswordOperation operation = PasswordOperation.setSecondPassword,
+  }) async => checking != null
       ? checking!.future
       : statusFailure != null
       ? Err(statusFailure!)
@@ -38,11 +41,11 @@ class ControlledPasswordRepository implements PasswordServicesRepository {
         ? submitting!.future
         : submitFailure != null
         ? Err(submitFailure!)
-        : const Success(
+        : Success(
             PasswordRequestRecord(
               status: PasswordRequestStatus.pending,
               trackingCode: '98649466583',
-              isMock: true,
+              isMock: mockReceipt,
             ),
           );
   }
@@ -68,6 +71,224 @@ Future<void> readyToSubmit(SecondPasswordCubit c) async {
 }
 
 void main() {
+  test(
+    'recovery requires an operation and permits an already configured card',
+    () async {
+      for (final operation in [
+        PasswordOperation.changePassword,
+        PasswordOperation.forgotPassword,
+      ]) {
+        final r = ControlledPasswordRepository()
+          ..catalog = PasswordCatalog(
+            cards: [
+              PasswordCard(
+                id: 'password-card-1',
+                number: '1',
+                canSetSecondPassword: false,
+              ),
+            ],
+          );
+        final c = SecondPasswordCubit(repository: r, selectOperation: true);
+        await c.load();
+        select(c);
+        expect(c.state.canContinue, false);
+        await c.next();
+        expect(c.state.step, SecondPasswordStep.selection);
+        c.chooseOperation(operation);
+        expect(c.state.selectionComplete, true);
+        await c.next();
+        expect(c.state.step, SecondPasswordStep.password);
+        c.passwordChanged('829164');
+        c.confirmationChanged('829164');
+        if (operation == PasswordOperation.changePassword) {
+          c.currentPasswordChanged('1234');
+        }
+        c.acceptTerms(true);
+        if (operation == PasswordOperation.forgotPassword) {
+          await c.next();
+          c.serialChanged('3R12345678');
+          await c.next();
+          await c.next();
+          c.confirmMockRecording();
+        }
+        await c.submit();
+        expect(r.requests.single.operation, operation);
+        expect(c.state.status, SecondPasswordStatus.submitted);
+        await c.close();
+      }
+    },
+  );
+  test(
+    'changing operation clears credentials, consent, KYC and retry identity',
+    () async {
+      final r = ControlledPasswordRepository()
+        ..submitFailure = const DataFailure('retry');
+      final c = SecondPasswordCubit(repository: r, selectOperation: true);
+      await c.load();
+      select(c);
+      c.chooseOperation(PasswordOperation.forgotPassword);
+      await c.next();
+      c.passwordChanged('829164');
+      c.confirmationChanged('829164');
+      c.acceptTerms(true);
+      await c.next();
+      c.serialChanged('3R12345678');
+      await c.next();
+      await c.next();
+      c.confirmMockRecording();
+      await c.submit();
+      final oldKey = r.requests.single.idempotencyKey;
+      while (c.back()) {}
+      c.chooseOperation(PasswordOperation.changePassword);
+      expect(c.state.password, isEmpty);
+      expect(c.state.currentPassword, isEmpty);
+      expect(c.state.serial, isEmpty);
+      expect(c.state.terms, false);
+      expect(c.state.recordingConfirmed, false);
+      await c.next();
+      c.currentPasswordChanged('1234');
+      c.passwordChanged('829164');
+      c.confirmationChanged('829164');
+      c.acceptTerms(true);
+      await c.submit();
+      expect(r.requests.last.operation, PasswordOperation.changePassword);
+      expect(r.requests.last.idempotencyKey, isNot(oldKey));
+      c.back();
+      c.selectCard('password-card-1');
+      expect(c.state.operation, isNull);
+      await c.close();
+    },
+  );
+  test('recovery eligibility and wallet gate new requests; existing receipt remains readable', () async {
+    final r = ControlledPasswordRepository()
+      ..catalog = PasswordCatalog(
+        cards: [
+          PasswordCard(
+            id: 'password-card-1',
+            number: '1',
+            canResetSecondPassword: false,
+          ),
+        ],
+        walletBalanceRial: 0,
+      );
+    final c = SecondPasswordCubit(repository: r, selectOperation: true);
+    await c.load();
+    select(c);
+    c.chooseOperation(PasswordOperation.forgotPassword);
+    await c.next();
+    expect(c.state.step, SecondPasswordStep.selection);
+    expect(c.state.failure, isNotNull);
+    r.current = const PasswordRequestRecord(
+      status: PasswordRequestStatus.approved,
+      trackingCode: '123',
+    );
+    await c.next();
+    expect(c.state.record!.status, PasswordRequestStatus.approved);
+    await c.close();
+  });
+  test('mock recovery receipt survives reentry and remains distinct from setup and change', () async {
+    final r = MockPasswordServicesRepository();
+    final c = SecondPasswordCubit(repository: r, selectOperation: true);
+    await c.load();
+    select(c);
+    c.chooseOperation(PasswordOperation.forgotPassword);
+    await c.next();
+    c.passwordChanged('829164');
+    c.confirmationChanged('829164');
+    c.acceptTerms(true);
+    await c.next();
+    c.serialChanged('3R12345678');
+    await c.next();
+    await c.next();
+    c.confirmMockRecording();
+    await c.submit();
+    await c.close();
+    for (final operation in PasswordOperation.values) {
+      final result = await r.status('password-card-1', operation: operation);
+      expect(
+        (result as Success<PasswordRequestRecord>).data.status,
+        operation == PasswordOperation.forgotPassword
+            ? PasswordRequestStatus.pending
+            : PasswordRequestStatus.none,
+      );
+    }
+    final next = SecondPasswordCubit(repository: r, selectOperation: true);
+    await next.load();
+    select(next);
+    next.chooseOperation(PasswordOperation.forgotPassword);
+    await next.next();
+    expect(next.state.record!.status, PasswordRequestStatus.pending);
+    await next.close();
+  });
+  test('change requires current PIN but applies new rules only to new PIN; submits from password', () async {
+    final r = ControlledPasswordRepository()
+      ..catalog = PasswordCatalog(
+        cards: MockPasswordServicesRepository.sampleCatalog.cards,
+        walletBalanceRial: 0,
+      );
+    final c = SecondPasswordCubit(repository: r, selectOperation: true);
+    await c.load();
+    select(c);
+    c.chooseOperation(PasswordOperation.changePassword);
+    await c.next();
+    expect(c.state.step, SecondPasswordStep.password);
+    c.passwordChanged('829164');
+    c.confirmationChanged('829164');
+    c.acceptTerms(true);
+    expect(c.state.canContinue, false);
+    c.currentPasswordChanged('۱۲۳۴');
+    expect(c.state.currentPassword, '1234');
+    expect(c.state.terms, false);
+    c.acceptTerms(true);
+    expect(c.state.canContinue, true);
+    await c.next();
+    expect(r.requests.single.currentPassword, '1234');
+    expect(r.requests.single.nationalCardSerial, isEmpty);
+    expect(r.requests.single.kycReference, isEmpty);
+    expect(c.state.status, SecondPasswordStatus.submitted);
+    expect(c.state.currentPassword, isEmpty);
+    expect(c.state.password, isEmpty);
+    expect(r.requests.single.toString(), isNot(contains('1234')));
+    await c.close();
+  });
+  test('change retries with stable identity and locks current password while sending', () async {
+    final r = ControlledPasswordRepository()
+      ..submitFailure = const DataFailure('retry');
+    final c = SecondPasswordCubit(repository: r, selectOperation: true);
+    await c.load();
+    select(c);
+    c.chooseOperation(PasswordOperation.changePassword);
+    await c.next();
+    c.currentPasswordChanged('1234');
+    c.passwordChanged('829164');
+    c.confirmationChanged('829164');
+    c.acceptTerms(true);
+    await c.next();
+    final firstKey = r.requests.single.idempotencyKey;
+    await c.next();
+    expect(r.requests.last.idempotencyKey, firstKey);
+    c.currentPasswordChanged('4321');
+    c.acceptTerms(true);
+    r.submitFailure = null;
+    r.submitting = Completer();
+    final task = c.next();
+    c.currentPasswordChanged('5678');
+    c.chooseOperation(PasswordOperation.forgotPassword);
+    c.back();
+    await c.next();
+    expect(c.state.currentPassword, '4321');
+    expect(c.state.operation, PasswordOperation.changePassword);
+    expect(r.requests.length, 3);
+    expect(r.requests.last.idempotencyKey, isNot(firstKey));
+    r.submitting!.complete(
+      const Success(
+        PasswordRequestRecord(status: PasswordRequestStatus.pending),
+      ),
+    );
+    await task;
+    expect(c.state.currentPassword, isEmpty);
+    await c.close();
+  });
   test('PIN rules reject repeated patterns, sequences and known dates', () {
     for (final value in [
       '1234',

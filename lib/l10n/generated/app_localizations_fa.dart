@@ -912,6 +912,37 @@ class AppLocalizationsFa extends AppLocalizations {
   String get passwordOperation => 'نوع عملیات';
 
   @override
+  String get passwordChangePrompt =>
+      'رمز عبور فعلی و رمز جدید دلخواه خود را وارد کنید.';
+
+  @override
+  String get passwordCurrentHint => 'رمز عبور فعلی';
+
+  @override
+  String get passwordNewHint => 'رمز عبور جدید';
+
+  @override
+  String get passwordNewConfirmationHint => 'تکرار رمز عبور جدید';
+
+  @override
+  String get passwordChangeSubmit => 'ثبت درخواست';
+
+  @override
+  String get passwordChangeSuccessBody => 'تغییر رمز شما با موفقیت انجام شد.';
+
+  @override
+  String get passwordStatusRegisteredTitle => 'درخواست شما با موفقیت ثبت شد.';
+
+  @override
+  String get passwordOperationHint => 'نوع عملیات را مشخص کنید';
+
+  @override
+  String get passwordChange => 'تغییر رمز عبور';
+
+  @override
+  String get passwordForgot => 'فراموشی رمز عبور';
+
+  @override
   String get passwordSetSecond => 'تعیین رمز دوم';
 
   @override
@@ -1033,7 +1064,7 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get passwordUnsupported =>
-      'این مسیر فقط برای تعیین رمز دوم برای اولین بار است.';
+      'این عملیات برای کارت انتخاب‌شده در دسترس نیست.';
 
   @override
   String get passwordExitTitle => 'خروج از عملیات رمز؟';

@@ -55,6 +55,7 @@ void main() {
   Future<void> mount(
     WidgetTester t, {
     PasswordServicesRepository? repository,
+    bool selectOperation = false,
     Size size = const Size(375, 812),
     double scale = 1,
     Locale locale = const Locale('fa'),
@@ -66,7 +67,10 @@ void main() {
     addTearDown(t.view.reset);
     await t.pumpWidget(
       subject(
-        SecondPasswordScreen(repository: repository),
+        SecondPasswordScreen(
+          repository: repository,
+          selectOperation: selectOperation,
+        ),
         scale: scale,
         locale: locale,
       ),
@@ -352,43 +356,306 @@ void main() {
       expect(find.byKey(const Key('password_next')), findsOneWidget);
     });
   }
-  testWidgets(
-    'allowlist routes password entry and excludes forgotten/first PIN features',
-    (t) async {
-      await t.pumpWidget(
-        subject(
-          Builder(
-            builder: (context) => Scaffold(
-              body: AppButton(
-                label: 'Open',
-                onPressed: () => openCardFeaturesService(
-                  context,
-                  'card-pin-second-set',
-                  initialCardNumber: '5041721456783407',
+  for (final frame in [
+    'change-selection-empty',
+    'change-card-types',
+    'change-card-numbers',
+    'change-password-types',
+    'change-operation-empty',
+    'change-operation-sheet',
+    'change-selection-filled',
+    'change-password-empty',
+    'change-password-filled',
+    'change-submitted',
+    'change-status',
+  ]) {
+    testWidgets('renders $frame using shared flow', (t) async {
+      final r = ControlledPasswordRepository()..mockReceipt = false;
+      if (frame == 'change-status') {
+        r.current = const PasswordRequestRecord(
+          status: PasswordRequestStatus.pending,
+          trackingCode: '98649466583',
+        );
+      }
+      await mount(t, repository: r, selectOperation: true);
+      final controller = c(t);
+      if (frame != 'change-selection-empty') {
+        select(controller);
+        await t.pumpAndSettle();
+      }
+      if (frame == 'change-card-types') await tap(t, 'password_card_kind');
+      if (frame == 'change-card-numbers') await tap(t, 'password_card_number');
+      if (frame == 'change-password-types') await tap(t, 'password_type');
+      if (frame == 'change-operation-sheet') await tap(t, 'password_operation');
+      if ([
+        'change-selection-filled',
+        'change-password-empty',
+        'change-password-filled',
+        'change-submitted',
+        'change-status',
+      ].contains(frame)) {
+        await tap(t, 'password_operation');
+        await tap(t, 'password_option_PasswordOperation.changePassword');
+        expect(find.byType(AppInvoice), findsNothing);
+        if (frame != 'change-selection-filled') {
+          await controller.next();
+          await t.pumpAndSettle();
+        }
+      }
+      if ([
+        'change-password-empty',
+        'change-password-filled',
+        'change-submitted',
+      ].contains(frame)) {
+        expect(t.getTopLeft(find.byKey(const Key('password_current'))).dy, 144);
+        expect(t.getTopLeft(find.byKey(const Key('password_value'))).dy, 228);
+        expect(
+          t.getTopLeft(find.byKey(const Key('password_confirmation'))).dy,
+          292,
+        );
+      }
+      if (frame == 'change-password-filled' || frame == 'change-submitted') {
+        for (final entry in [
+          ('password_current', '۱۲۳۴۵۶'),
+          ('password_value', '۸۲۹۱۶۴'),
+          ('password_confirmation', '٨٢٩١٦٤'),
+        ]) {
+          await t.enterText(
+            find.descendant(
+              of: find.byKey(Key(entry.$1)),
+              matching: find.byType(TextField),
+            ),
+            entry.$2,
+          );
+        }
+        await tap(t, 'password_terms');
+        FocusManager.instance.primaryFocus?.unfocus();
+        await t.pumpAndSettle();
+        expect(controller.state.currentPassword, '123456');
+        expect(controller.state.canContinue, true);
+      }
+      if (frame == 'change-submitted') {
+        await tap(t, 'password_next');
+        expect(
+          t.getTopLeft(find.byKey(const Key('password_result_badge'))).dy,
+          closeTo(476, .01),
+        );
+        expect(
+          t.getSize(find.byKey(const Key('password_result_badge'))).height,
+          closeTo(59.9961, .001),
+        );
+        expect(r.requests.single.operation, PasswordOperation.changePassword);
+        expect(r.requests.single.currentPassword, '123456');
+        expect(controller.state.currentPassword, isEmpty);
+        expect(find.byKey(const Key('password_status_page')), findsNothing);
+        expect(
+          find.byKey(const Key('password_record_dismiss')),
+          findsOneWidget,
+        );
+        expect(find.text('تغییر رمز شما با موفقیت انجام شد.'), findsOneWidget);
+      }
+      if (frame == 'change-status') {
+        expect(find.byKey(const Key('password_status_page')), findsOneWidget);
+        expect(find.byKey(const Key('password_record_dismiss')), findsNothing);
+        expect(
+          find.byKey(const Key('password_status_dismiss')),
+          findsOneWidget,
+        );
+        expect(
+          t.getSize(find.byKey(const Key('password_status_badge'))).height,
+          closeTo(99.9961, .001),
+        );
+        expect(
+          t.getTopLeft(find.byKey(const Key('password_status_page'))).dy,
+          124,
+        );
+      }
+      await save(t, frame);
+    });
+  }
+  for (final locale in ['fa', 'en', 'ar']) {
+    testWidgets(
+      'change form remains reachable at 320px and large text in $locale',
+      (t) async {
+        await mount(
+          t,
+          repository: ControlledPasswordRepository(),
+          selectOperation: true,
+          size: const Size(320, 720),
+          scale: 1.3,
+          locale: Locale(locale),
+        );
+        final controller = c(t);
+        select(controller);
+        controller.chooseOperation(PasswordOperation.changePassword);
+        await controller.next();
+        await t.pumpAndSettle();
+        expect(t.takeException(), isNull);
+        await t.ensureVisible(find.byKey(const Key('password_confirmation')));
+        expect(find.byKey(const Key('password_terms')), findsOneWidget);
+      },
+    );
+  }
+  testWidgets('returning change status reads as a page and exits to parent', (
+    t,
+  ) async {
+    final r = MockPasswordServicesRepository();
+    final setup = SecondPasswordCubit(repository: r, selectOperation: true);
+    await setup.load();
+    select(setup);
+    setup.chooseOperation(PasswordOperation.changePassword);
+    await setup.next();
+    setup.currentPasswordChanged('1234');
+    setup.passwordChanged('829164');
+    setup.confirmationChanged('829164');
+    setup.acceptTerms(true);
+    await setup.next();
+    await setup.close();
+    await t.pumpWidget(
+      subject(
+        Builder(
+          builder: (context) => Scaffold(
+            body: AppButton(
+              label: 'Check',
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => SecondPasswordScreen(
+                    repository: r,
+                    selectOperation: true,
+                  ),
                 ),
               ),
             ),
           ),
         ),
-      );
-      await t.tap(find.text('Open'));
+      ),
+    );
+    await t.tap(find.text('Check'));
+    await t.pumpAndSettle();
+    final controller = c(t);
+    select(controller);
+    controller.chooseOperation(PasswordOperation.changePassword);
+    await controller.next();
+    await t.pumpAndSettle();
+    expect(find.byKey(const Key('password_status_page')), findsOneWidget);
+    expect(find.byKey(const Key('password_record_dismiss')), findsNothing);
+    await tap(t, 'password_status_dismiss');
+    expect(find.byType(SecondPasswordScreen), findsNothing);
+    expect(find.text('Check'), findsOneWidget);
+  });
+  for (final frame in [
+    'operation-empty',
+    'operation-sheet',
+    'operation-forgot',
+  ]) {
+    testWidgets('renders $frame and shares downstream steps', (t) async {
+      final r = ControlledPasswordRepository();
+      await mount(t, repository: r, selectOperation: true);
+      final controller = c(t);
+      select(controller);
       await t.pumpAndSettle();
-      expect(find.byType(SecondPasswordScreen), findsOneWidget);
-      expect(c(t).state.cardId, 'password-card-1');
-      expect(
-        openCardFeaturesService(
-          t.element(find.byType(SecondPasswordScreen)),
-          'card-pin-first-change',
+      expect(controller.state.secondPasswordSelected, true);
+      expect(controller.state.cardId, 'password-card-1');
+      expect(controller.state.canContinue, false);
+      expect(find.byType(AppInvoice), findsNothing);
+      expect(t.getTopLeft(find.byKey(const Key('password_operation'))).dy, 434);
+      if (frame == 'operation-sheet') {
+        await tap(t, 'password_operation');
+        expect(find.text('تغییر رمز عبور'), findsOneWidget);
+        expect(find.text('فراموشی رمز عبور'), findsOneWidget);
+        expect(
+          t.getTopLeft(find.byKey(const Key('app_bottom_sheet_header'))).dy,
+          552,
+        );
+      }
+      if (frame == 'operation-forgot') {
+        await tap(t, 'password_operation');
+        await tap(t, 'password_option_PasswordOperation.forgotPassword');
+        expect(controller.state.operation, PasswordOperation.forgotPassword);
+        expect(controller.state.canContinue, true);
+        expect(t.getSize(find.byType(AppInvoice)).height, 130);
+      }
+      await save(t, frame);
+      if (frame == 'operation-forgot') {
+        await tap(t, 'password_next');
+        expect(controller.state.step, SecondPasswordStep.password);
+        controller.passwordChanged('829164');
+        controller.confirmationChanged('829164');
+        controller.acceptTerms(true);
+        await controller.next();
+        controller.serialChanged('3R12345678');
+        await controller.next();
+        await controller.next();
+        controller.confirmMockRecording();
+        await controller.submit();
+        await t.pumpAndSettle();
+        expect(r.requests.single.operation, PasswordOperation.forgotPassword);
+        expect(controller.state.password, isEmpty);
+      }
+    });
+  }
+  testWidgets('forgot route opens the shared flow with selected card', (
+    t,
+  ) async {
+    await t.pumpWidget(
+      subject(
+        Builder(
+          builder: (context) => Scaffold(
+            body: AppButton(
+              label: 'Recover',
+              onPressed: () => openCardFeaturesService(
+                context,
+                'card-pin-second-forgot',
+                initialCardNumber: '5041721456783407',
+              ),
+            ),
+          ),
         ),
-        false,
-      );
-      expect(
-        openCardFeaturesService(
-          t.element(find.byType(SecondPasswordScreen)),
-          'card-pin-second-forgot',
+      ),
+    );
+    await t.tap(find.text('Recover'));
+    await t.pumpAndSettle();
+    expect(find.byType(SecondPasswordScreen), findsOneWidget);
+    expect(c(t).state.cardId, 'password-card-1');
+    expect(c(t).selectOperation, true);
+    expect(c(t).state.operation, isNull);
+  });
+  testWidgets('allowlist routes setup and recovery through the same screen', (
+    t,
+  ) async {
+    await t.pumpWidget(
+      subject(
+        Builder(
+          builder: (context) => Scaffold(
+            body: AppButton(
+              label: 'Open',
+              onPressed: () => openCardFeaturesService(
+                context,
+                'card-pin-second-set',
+                initialCardNumber: '5041721456783407',
+              ),
+            ),
+          ),
         ),
-        false,
-      );
-    },
-  );
+      ),
+    );
+    await t.tap(find.text('Open'));
+    await t.pumpAndSettle();
+    expect(find.byType(SecondPasswordScreen), findsOneWidget);
+    expect(c(t).state.cardId, 'password-card-1');
+    expect(
+      openCardFeaturesService(
+        t.element(find.byType(SecondPasswordScreen)),
+        'card-pin-first-change',
+      ),
+      false,
+    );
+    expect(
+      openCardFeaturesService(
+        t.element(find.byType(SecondPasswordScreen)),
+        'card-pin-first-forgot',
+      ),
+      false,
+    );
+  });
 }

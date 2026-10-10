@@ -13,6 +13,7 @@ Future<T?> passwordSheet<T>(
   BuildContext context,
   WidgetBuilder panel, {
   bool requestStatus = false,
+  String? scrimAsset,
 }) {
   FocusManager.instance.primaryFocus?.unfocus();
   // A field inside SafeArea has consumed inherited padding. Read system bars
@@ -44,9 +45,10 @@ Future<T?> passwordSheet<T>(
                   child: BackdropFilter(
                     filter: ui.ImageFilter.blur(sigmaX: 2, sigmaY: 2),
                     child: SvgPicture.asset(
-                      requestStatus
-                          ? AppAssets.passwordRequestScrim
-                          : AppAssets.passwordScrim,
+                      scrimAsset ??
+                          (requestStatus
+                              ? AppAssets.passwordRequestScrim
+                              : AppAssets.passwordScrim),
                       fit: BoxFit.fill,
                     ),
                   ),
@@ -91,8 +93,9 @@ Future<T?> showPasswordOptions<T>(
   BuildContext context,
   String title,
   List<AppSelectOption<T>> options,
-  T? selected,
-) => passwordSheet<T>(
+  T? selected, {
+  String? scrimAsset,
+}) => passwordSheet<T>(
   context,
   (context) => Column(
     mainAxisSize: MainAxisSize.min,
@@ -164,116 +167,206 @@ Future<T?> showPasswordOptions<T>(
       ),
     ],
   ),
+  scrimAsset: scrimAsset,
 );
 
 Future<void> showPasswordRecord(
   BuildContext context,
   PasswordRequestRecord record, {
   bool newlySubmitted = false,
-}) => passwordSheet<void>(context, (context) {
-  final approved = record.status == PasswordRequestStatus.approved;
-  final l = context.l10n;
-  return Column(
-    mainAxisSize: MainAxisSize.min,
-    children: [
-      const AppBottomSheetHeader(type: AppBottomSheetHeaderType.handleOnly),
-      Padding(
-        padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (approved) ...[
-              Center(
-                child: SizedBox(
-                  width: 57.0045,
-                  height: 59.9961,
-                  child: SvgPicture.asset(AppAssets.passwordApproved),
+  PasswordOperation operation = PasswordOperation.setSecondPassword,
+}) => passwordSheet<void>(
+  context,
+  (context) {
+    final change = operation == PasswordOperation.changePassword;
+    final approved = record.status == PasswordRequestStatus.approved || change;
+    final l = context.l10n;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        const AppBottomSheetHeader(type: AppBottomSheetHeaderType.handleOnly),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (approved) ...[
+                Center(
+                  child: SizedBox(
+                    key: const Key('password_result_badge'),
+                    width: 57.0045,
+                    height: 59.9961,
+                    child: SvgPicture.asset(AppAssets.passwordApproved),
+                  ),
                 ),
+                const SizedBox(height: 20),
+              ],
+              Text(
+                approved
+                    ? l.passwordApprovedTitle
+                    : newlySubmitted
+                    ? l.passwordSubmittedTitle
+                    : l.passwordPendingTitle,
+                textAlign: TextAlign.center,
+                style: passwordBody(context)
+                    .copyWith(fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 20),
-            ],
-            Text(
-              approved
-                  ? l.passwordApprovedTitle
-                  : newlySubmitted
-                  ? l.passwordSubmittedTitle
-                  : l.passwordPendingTitle,
-              textAlign: TextAlign.center,
-              style: passwordBody(context)
-                  .copyWith(fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              approved
-                  ? l.passwordApprovedBody
-                  : newlySubmitted
-                  ? l.passwordSubmittedBody
-                  : l.passwordPendingBody,
-              textAlign: approved || newlySubmitted
-                  ? TextAlign.center
-                  : TextAlign.start,
-              style: passwordBody(context),
-            ),
-            if (approved || newlySubmitted) ...[
-              const SizedBox(height: 20),
-              Container(
-                key: const Key('password_tracking'),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 10,
-                ),
-                constraints: const BoxConstraints(minHeight: 44),
-                decoration: BoxDecoration(
-                  color: context.colors.surface,
-                  borderRadius: AppRadius.borderSm,
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        l.passwordTracking,
+              Text(
+                change
+                    ? l.passwordChangeSuccessBody
+                    : approved
+                    ? l.passwordApprovedBody
+                    : newlySubmitted
+                    ? l.passwordSubmittedBody
+                    : l.passwordPendingBody,
+                textAlign: approved || newlySubmitted
+                    ? TextAlign.center
+                    : TextAlign.start,
+                style: passwordBody(context),
+              ),
+              if (approved || newlySubmitted) ...[
+                SizedBox(height: change ? 12 : 20),
+                Container(
+                  key: const Key('password_tracking'),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 10,
+                  ),
+                  constraints: const BoxConstraints(minHeight: 44),
+                  decoration: BoxDecoration(
+                    color: context.colors.surface,
+                    borderRadius: AppRadius.borderSm,
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          l.passwordTracking,
+                          style: AppTypography.bodySmall.copyWith(
+                            color: context.colors.textTertiary,
+                            height: 18 / 12,
+                          ),
+                        ),
+                      ),
+                      SelectableText(
+                        record.trackingCode ?? '—',
+                        textDirection: TextDirection.ltr,
                         style: AppTypography.bodySmall.copyWith(
-                          color: context.colors.textTertiary,
+                          color: AppPasswordServiceColors.body,
                           height: 18 / 12,
                         ),
                       ),
-                    ),
-                    SelectableText(
-                      record.trackingCode ?? '—',
-                      textDirection: TextDirection.ltr,
-                      style: AppTypography.bodySmall.copyWith(
-                        color: AppPasswordServiceColors.body,
-                        height: 18 / 12,
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
+                ),
+              ],
+              if (record.isMock) ...[
+                const SizedBox(height: 12),
+                Text(
+                  l.passwordMockReceipt,
+                  textAlign: TextAlign.center,
+                  style: AppTypography.bodySmall.copyWith(
+                    color: context.colors.textTertiary,
+                    height: 18 / 12,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+          child: AppButton(
+            key: const Key('password_record_dismiss'),
+            onPressed: () => Navigator.of(context).pop(),
+            label: l.passwordUnderstood,
+            size: AppButtonSize.lg,
+            constrainLabel: true,
+          ),
+        ),
+      ],
+    );
+  },
+  requestStatus: true,
+  scrimAsset: operation == PasswordOperation.changePassword
+      ? AppAssets.passwordChangeScrim
+      : null,
+);
+
+/// Full-page content for a returning change-password request status check.
+class PasswordStatusContent extends StatelessWidget {
+  const PasswordStatusContent({super.key, required this.record});
+  final PasswordRequestRecord record;
+  @override
+  Widget build(BuildContext context) {
+    final approved = record.status == PasswordRequestStatus.approved;
+    final l = context.l10n;
+    return Column(
+      key: const Key('password_status_page'),
+      children: [
+        SizedBox(
+          key: const Key('password_status_badge'),
+          width: 95.0099,
+          height: 99.9961,
+          child: SvgPicture.asset(AppAssets.passwordStatusSuccess),
+        ),
+        const SizedBox(height: 40),
+        Text(
+          approved ? l.passwordApprovedTitle : l.passwordStatusRegisteredTitle,
+          textAlign: TextAlign.center,
+          style: passwordBody(context).copyWith(fontWeight: FontWeight.w600),
+        ),
+        const SizedBox(height: 20),
+        Text(
+          approved ? l.passwordChangeSuccessBody : l.passwordSubmittedBody,
+          textAlign: TextAlign.center,
+          style: passwordBody(context),
+        ),
+        const SizedBox(height: 20),
+        Container(
+          key: const Key('password_tracking'),
+          constraints: const BoxConstraints(minHeight: 44),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          decoration: BoxDecoration(
+            color: context.colors.surfaceSubtle,
+            borderRadius: AppRadius.borderSm,
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  l.passwordTracking,
+                  style: AppTypography.bodySmall.copyWith(
+                    color: context.colors.textTertiary,
+                    height: 18 / 12,
+                  ),
                 ),
               ),
-            ],
-            if (record.isMock) ...[
-              const SizedBox(height: 12),
-              Text(
-                l.passwordMockReceipt,
-                textAlign: TextAlign.center,
+              SelectableText(
+                record.trackingCode ?? '—',
+                textDirection: TextDirection.ltr,
                 style: AppTypography.bodySmall.copyWith(
-                  color: context.colors.textTertiary,
+                  color: AppPasswordServiceColors.body,
+                  fontWeight: FontWeight.w500,
                   height: 18 / 12,
                 ),
               ),
             ],
-          ],
+          ),
         ),
-      ),
-      Padding(
-        padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
-        child: AppButton(
-          key: const Key('password_record_dismiss'),
-          onPressed: () => Navigator.of(context).pop(),
-          label: l.passwordUnderstood,
-          size: AppButtonSize.lg,
-          constrainLabel: true,
-        ),
-      ),
-    ],
-  );
-}, requestStatus: true);
+        if (record.isMock) ...[
+          const SizedBox(height: 12),
+          Text(
+            l.passwordMockReceipt,
+            textAlign: TextAlign.center,
+            style: AppTypography.bodySmall.copyWith(
+              color: context.colors.textTertiary,
+              height: 18 / 12,
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}

@@ -917,6 +917,39 @@ class AppLocalizationsEn extends AppLocalizations {
   String get passwordOperation => 'Operation';
 
   @override
+  String get passwordChangePrompt =>
+      'Enter your current password and your chosen new password.';
+
+  @override
+  String get passwordCurrentHint => 'Current password';
+
+  @override
+  String get passwordNewHint => 'New password';
+
+  @override
+  String get passwordNewConfirmationHint => 'Confirm new password';
+
+  @override
+  String get passwordChangeSubmit => 'Submit request';
+
+  @override
+  String get passwordChangeSuccessBody =>
+      'Your password change was successful.';
+
+  @override
+  String get passwordStatusRegisteredTitle =>
+      'Your request was registered successfully.';
+
+  @override
+  String get passwordOperationHint => 'Select an operation';
+
+  @override
+  String get passwordChange => 'Change password';
+
+  @override
+  String get passwordForgot => 'Forgot password';
+
+  @override
   String get passwordSetSecond => 'Set second password';
 
   @override
@@ -1038,7 +1071,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get passwordUnsupported =>
-      'This flow only sets a second password for the first time.';
+      'This operation is unavailable for the selected card.';
 
   @override
   String get passwordExitTitle => 'Leave password setup?';

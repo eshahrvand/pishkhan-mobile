@@ -14,12 +14,18 @@ bool openCardFeaturesService(
   String? initialDepositNumber,
   String? initialCardNumber,
 }) {
-  if (serviceId == 'card-password' || serviceId == 'card-pin-second-set') {
+  if (serviceId == 'card-password' ||
+      serviceId == 'card-pin-second-set' ||
+      serviceId == 'card-pin-second-forgot' ||
+      serviceId == 'card-pin-second-change') {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (_) => SecondPasswordScreen(
           repository: _passwordRepository,
           initialCardNumber: initialCardNumber,
+          selectOperation:
+              serviceId == 'card-pin-second-forgot' ||
+              serviceId == 'card-pin-second-change',
         ),
       ),
     );

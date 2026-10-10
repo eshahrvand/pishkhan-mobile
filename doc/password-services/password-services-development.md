@@ -2,7 +2,7 @@
 
 **Date:** 2026-10-10  
 **Status:** Feature 1 implemented with a mock repository and real sample-video playback. Bank password changes, KYC capture and SMS execution are unconnected.  
-**Scope:** The section has three planned flows; only first-time second-password setup was specified and implemented in this change. First-PIN and forgotten-password flows remain separate future features.  
+**Scope:** First-time second-password setup, forgotten second-password recovery and change-password requests share the same flow. Recovery/change add an operation selector; change asks for the current PIN and submits directly from the password form. First-PIN handling remains outside this implementation.
 **References:** [architecture](../architecture-smart-virtual-counter-v2-en.md), [UI-first policy](../avp-ui-first-implementation-policy.md), [integration guide](../main-app-integration-guide.md), [review gallery](../password-services-review/index.html).
 
 ## 1. Architectural Goals and Principles
@@ -123,7 +123,7 @@ All new copy is generated from fa/en/ar ARBs. Layout stays RTL in every locale. 
 
 ## 15. Routing and Guards
 
-card-password and card-pin-second-set are allowlisted. Dashboard forwards selected BankCard.number for an exact normalized catalog match. Supplied host service/action callbacks still take precedence. First-PIN and forgotten-password IDs are not accidentally opened as setup. System/top Back navigate to the previous step; exit from the selected first step asks for discard confirmation. Submission locks Back; receipt dismissal exits. The existing Navigator prototype is retained; production auth/security/platform guards are still unimplemented.
+card-password, card-pin-second-set, card-pin-second-forgot and card-pin-second-change are allowlisted. Dashboard forwards selected BankCard.number for an exact normalized catalog match. Supplied host service/action callbacks still take precedence. The forgot-second-PIN route enables operation selection on the same screen. First-PIN IDs remain unhandled. System/top Back navigate to the previous step; exit from the selected first step asks for discard confirmation. Submission locks Back; receipt dismissal exits. The existing Navigator prototype is retained; production auth/security/platform guards are still unimplemented.
 
 ## 16. Testing and Visual Review
 
@@ -151,8 +151,50 @@ No assistant backend or conversational execution is added. Future assistant fall
 
 ## 20. Open Items and Dependencies
 
-Bank OpenAPI/identity/fee/terms contracts; first-PIN and forgotten-password flow designs; active-validation ownership/reuse policy; national-card serial versus receipt-code formats; known-date PIN policy; real capture location and evidence; real instruction video; final receipt/SMS copy; device/web playback and keyboard accessibility checks.
+Bank OpenAPI/identity/fee/terms contracts; first-PIN flow designs; active-validation ownership/reuse policy; national-card serial versus receipt-code formats; known-date PIN policy; real capture location and evidence; real instruction video; final receipt/SMS copy; device/web playback and keyboard accessibility checks.
 
 ## 21. Change Log
 
 2026-10-10: Implement Feature1's eight phases, reusable real video player, compatible controls, package name mapper/app mapping/guidelines, domain/Cubit/mock repository, routes, localizations and14 previews. Features2/3 and real bank execution remain outside the supplied designs.
+
+
+## Shared forgot-password operation (2026-10-10)
+
+Figma `27997:12254` is the empty operation selector, `27997:12269` its two-option sheet, and `27997:12324` the selected forgot-password state and fee. `SecondPasswordScreen(selectOperation: true)` uses the same screen/Cubit/forms/video/mock KYC/status sheets as setup. Dashboard `card-pin-second-forgot` forwards the selected card into this mode. Setup remains the default mode with the read-only Set second password operation.
+
+`PasswordOperation` contains setSecondPassword, changePassword and forgotPassword. The recovery selector offers Change password and Forgot password, as authored. Forgot password follows the existing serial/video/mock KYC steps. Change password uses the current/new/confirmation form and submits directly from that step (see the change-password section below). The operation is required before Next and is passed to both status reads and `SetSecondPasswordRequest.operation`. Existing payload constructors and status calls default to setup. Repository adapters must accept the optional named operation on `status` and dispatch the submission using its operation.
+
+Card adapters supply `canSetSecondPassword` for first-time setup and `canResetSecondPassword` for recovery/change (the demo defaults to true). Existing PIN ownership alone cannot prevent recovery. Card/kind changes clear operation selection; operation changes clear credentials, terms, recording confirmation, status/failure and the idempotency key. Busy state prevents operation changes. Mock status is scoped to card and operation; neither credentials nor video are retained. Approved/pending receipts remain readable before eligibility and wallet checks, as in setup.
+
+The operation field begins at y434 and is 70px tall, with an 8px label gap, 44px input and 20px spacing. Its sheet begins at y552 in a 375×812 view with 24/40px system insets. Chevron/divider artwork is byte-identical to existing assets; the authored operation-sheet scrim is stored as password_operation_scrim.svg and combined with the shared native blur. These three selection states use the white Figma surface. The two “Operation type” labels reproduce the provided frames. Next is disabled until operation selection, even though the empty design depicts a blue button. The sheet design shows a partially obscured legacy fee while its operation is empty; the implementation consistently shows the shared invoice only after a valid operation selection.
+
+Review [28 rendered states](../password-services-review/index.html), including operation-empty, operation-sheet and operation-forgot. Banking and recording remain mocks; the public demo video remains in use.
+
+
+## Change-password branch and returning status (2026-10-10)
+
+The shared operation selector now connects to a complete Change password branch. Card Services includes a Change password item (`card-pin-second-change`) for testing. It opens `SecondPasswordScreen(selectOperation: true)`; choose the card, second password and Change password. No separate screen/controller or package widget is introduced.
+
+| Order | Figma node | Rendered state |
+| --- | --- | --- |
+| 1 | 27997:11595 | change-selection-empty |
+| 2 | 27997:11607 | change-card-types |
+| 3 | 27997:11666 | change-card-numbers |
+| 4 | 27997:11722 | change-password-types |
+| 5 | 27997:11777 | change-operation-empty |
+| 6 | 27997:11791 | change-operation-sheet |
+| 7 | 27997:11844 | change-selection-filled |
+| 8 | 27997:11858 | change-password-empty |
+| 9 | 27997:12547 | change-password-filled |
+| 10 | 27997:11994 | change-submitted (bottom sheet) |
+| 11 | 27997:12046 | change-status (full screen on return) |
+
+The change selection omits the fee invoice and wallet gate, matching 27997:11844. Change uses card reset eligibility and the same request-status read before starting. The white form begins at y104; current PIN/new PIN/confirmation inputs start at y144/y228/y292, each44px tall, with the existing zero-height dashed divider after current PIN. All three are secure fields with independently controlled visibility, Latin numeric values, Persian/Arabic normalization, max6 digits, disabled keyboard suggestions/autocorrection/personalized learning. Current PIN needs4–6 digits; the new PIN also satisfies existing sequence/repetition/known-date rules. Current input changes clear terms and retry identity. The filled+accepted form labels its primary action Submit request. There is no serial or instructional/recording video stage for change in this supplied sequence.
+
+`SetSecondPasswordRequest.currentPassword` is optional for other operations and required for change. Change sends empty serial and KYC-reference strings with its operation; production adapters must route this to their actual change-password endpoint. Both PINs remain ephemeral and redacted from diagnostics and are cleared after success. The mock checks current PIN format only: it does not compare against a bank PIN, send SMS or change credentials. It retains only the card/operation status and receipt. Retry/duplicate-send/disposal guards remain shared.
+
+Newly submitted change requests show the authored success bottom sheet (57.0045×59.9961 badge; y476 badge in a375×812 viewport), localized change-success body and tracking code. Dismissal exits. A later status read for the selected change operation renders `PasswordStatusContent` in the existing screen, with no bottom sheet. Pending uses the authored registration/pending-SMS copy; approved uses change-success copy. It has a95.0099×99.9961 original badge at y124,40px gap to title,20px content gaps, subtle44px tracking row and footer Understood. Back/Understood exit to the parent. Selecting the operation on a returning route is still required; a selected Dashboard card is normalized and prefilled as before.
+
+Figma retains several prototype inconsistencies: older card/password option-sheet backgrounds display setup/fee values; the implementation consistently keeps the current operation selection. The prompt's duplicated Persian “رمز” is corrected. The empty operation design shows an enabled button; actual Next requires operation selection. The submission sheet says change succeeded while the return frame contains pending identity/SMS copy; the mock stores pending and reproduces the respective presentation without claiming a real bank result. Native system bars are reserved rather than drawn. Explicit demo notices appear for mock results, so production-like preview fixtures suppress only their mock flag.
+
+Static current-field eye/check/divider and sheet badge SVGs are byte-identical to existing artwork. The100px badge and change-sheet scrim are original downloaded assets (`password_status_success.svg`, `password_change_scrim.svg`); native blur handles the SVG filter unsupported by flutter_svg. Static geometry and effective callsites are covered in the11 new render tests, along with three320px/1.3scale locale tests and a true mock repository submit/reenter/exit test. Setup/forgot tests continue to cover their original longer path.

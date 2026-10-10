@@ -20,6 +20,7 @@ class SecondPasswordScreen extends StatefulWidget {
     super.key,
     this.repository,
     this.initialCardNumber,
+    this.selectOperation = false,
     this.instructionVideoUrl = demoVideoUrl,
     this.onTermsRequested,
     this.onSubmitted,
@@ -28,6 +29,7 @@ class SecondPasswordScreen extends StatefulWidget {
   static const demoVideoUrl =
       'https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/360/Big_Buck_Bunny_360_10s_1MB.mp4';
   final PasswordServicesRepository? repository;
+  final bool selectOperation;
   final String? initialCardNumber, instructionVideoUrl;
   final VideoPlayerController? videoController;
   final VoidCallback? onTermsRequested;
@@ -50,6 +52,7 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
   void _createCubit() => cubit = SecondPasswordCubit(
     repository: widget.repository ?? MockPasswordServicesRepository(),
     initialCardNumber: widget.initialCardNumber,
+    selectOperation: widget.selectOperation,
   )..load();
   void _createVideo() => video =
       widget.videoController ??
@@ -61,7 +64,9 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
   @override
   void didUpdateWidget(SecondPasswordScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.repository != widget.repository) {
+    if (oldWidget.repository != widget.repository ||
+        oldWidget.initialCardNumber != widget.initialCardNumber ||
+        oldWidget.selectOperation != widget.selectOperation) {
       cubit.close();
       _createCubit();
     }
@@ -82,6 +87,10 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
   Future<void> _back() async {
     if (cubit.state.status == SecondPasswordStatus.checking ||
         cubit.state.status == SecondPasswordStatus.submitting) {
+      return;
+    }
+    if (_fullStatus(cubit.state)) {
+      if (Navigator.of(context).canPop()) Navigator.of(context).pop();
       return;
     }
     if (cubit.back()) return;
@@ -112,12 +121,23 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
     if (mounted && Navigator.of(context).canPop()) Navigator.of(context).pop();
   }
 
+  bool _fullStatus(SecondPasswordState state) =>
+      state.isChange &&
+      state.record != null &&
+      state.status != SecondPasswordStatus.submitted;
+
   Future<void> _record(SecondPasswordState state) async {
+    if (_fullStatus(state)) return;
     if (_sheetOpen || state.record == null || !mounted) return;
     _sheetOpen = true;
     final submitted = state.status == SecondPasswordStatus.submitted;
     if (submitted) widget.onSubmitted?.call(state.record!);
-    await showPasswordRecord(context, state.record!, newlySubmitted: submitted);
+    await showPasswordRecord(
+      context,
+      state.record!,
+      newlySubmitted: submitted,
+      operation: state.operation!,
+    );
     _sheetOpen = false;
     if (!mounted) return;
     if (submitted) {
@@ -169,8 +189,15 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
           ? AppAssets.issuanceSelectEmpty
           : AppAssets.cardFeaturesChevron,
     ),
-    menuBuilder: (context, options, selected) =>
-        showPasswordOptions(context, title, options, selected),
+    menuBuilder: (context, options, selected) => showPasswordOptions(
+      context,
+      title,
+      options,
+      selected,
+      scrimAsset: key == 'password_operation'
+          ? AppAssets.passwordOperationScrim
+          : null,
+    ),
   );
 
   @override
@@ -186,6 +213,7 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
             old.step != next.step ||
             old.status != next.status ||
             old.catalog != next.catalog ||
+            old.operation != next.operation ||
             old.kind != next.kind ||
             old.cardId != next.cardId ||
             old.secondPasswordSelected != next.secondPasswordSelected ||
@@ -198,7 +226,10 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
           },
           child: Scaffold(
             backgroundColor:
-                state.step.index >= SecondPasswordStep.instruction.index
+                state.isChange ||
+                    (widget.selectOperation &&
+                        state.step == SecondPasswordStep.selection) ||
+                    state.step.index >= SecondPasswordStep.instruction.index
                 ? context.colors.surface
                 : context.colors.surfaceSubtle,
             body: SafeArea(
@@ -212,13 +243,19 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
                     onTrailingPressed: _back,
                   ),
                   Expanded(
-                    child: state.record != null
+                    child: _fullStatus(state)
+                        ? SingleChildScrollView(
+                            padding: const EdgeInsets.fromLTRB(16, 36, 16, 20),
+                            child: PasswordStatusContent(record: state.record!),
+                          )
+                        : state.record != null
                         ? const SizedBox.shrink()
                         : SingleChildScrollView(
                             key: ValueKey(state.step),
                             padding: EdgeInsets.fromLTRB(
                               16,
-                              state.step == SecondPasswordStep.password ||
+                              (state.step == SecondPasswordStep.password &&
+                                          !state.isChange) ||
                                       state.step == SecondPasswordStep.serial
                                   ? 14
                                   : 16,
@@ -228,6 +265,17 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
                             child: _body(context, state),
                           ),
                   ),
+                  if (_fullStatus(state))
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: AppButton(
+                        key: const Key('password_status_dismiss'),
+                        onPressed: _back,
+                        label: context.l10n.passwordUnderstood,
+                        size: AppButtonSize.lg,
+                        constrainLabel: true,
+                      ),
+                    ),
                   if (state.record == null &&
                       state.status != SecondPasswordStatus.failed &&
                       state.status != SecondPasswordStatus.empty &&
@@ -331,7 +379,9 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
         const SizedBox(height: 20),
         _select(
           'password_type',
-          state.selectionComplete ? l.passwordOperation : l.passwordType,
+          state.card != null && state.secondPasswordSelected
+              ? l.passwordOperation
+              : l.passwordType,
           l.passwordTypeHint,
           state.secondPasswordSelected ? 'second' : null,
           [
@@ -355,7 +405,7 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
             }
           },
         ),
-        if (state.selectionComplete) ...[
+        if (state.card != null && state.secondPasswordSelected) ...[
           const SizedBox(height: 20),
           SizedBox(
             height: 0,
@@ -369,26 +419,47 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
             ),
           ),
           const SizedBox(height: 20),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                l.passwordOperation,
-                style: AppTypography.bodySmall.copyWith(
-                  fontWeight: FontWeight.w500,
-                  height: 18 / 12,
-                  color: context.colors.textSecondary,
+          if (widget.selectOperation)
+            _select<PasswordOperation>(
+              'password_operation',
+              l.passwordOperation,
+              l.passwordOperationHint,
+              state.operation,
+              [
+                AppSelectOption(
+                  value: PasswordOperation.changePassword,
+                  label: l.passwordChange,
                 ),
-              ),
-              const SizedBox(height: 8),
-              AppTextField(
-                hintText: l.passwordSetSecond,
-                hintColor: context.colors.textSecondary,
-                readOnly: true,
-                textStyle: passwordBody(context),
-              ),
-            ],
-          ),
+                AppSelectOption(
+                  value: PasswordOperation.forgotPassword,
+                  label: l.passwordForgot,
+                ),
+              ],
+              cubit.chooseOperation,
+            )
+          else
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  l.passwordOperation,
+                  style: AppTypography.bodySmall.copyWith(
+                    fontWeight: FontWeight.w500,
+                    height: 18 / 12,
+                    color: context.colors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                AppTextField(
+                  hintText: l.passwordSetSecond,
+                  hintColor: context.colors.textSecondary,
+                  readOnly: true,
+                  textStyle: passwordBody(context),
+                ),
+              ],
+            ),
+        ],
+        if (state.selectionComplete && !state.isChange) ...[
           const SizedBox(height: 20),
           AppInvoice(
             totalAmount: CurrencyFormatter.format(state.catalog!.feeRial),
@@ -410,7 +481,9 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
             walletInsufficientLabel: l.issuanceWalletInsufficient,
           ),
         ],
-        if (state.card != null && !state.card!.canSetSecondPassword) ...[
+        if (state.card != null &&
+            state.operation != null &&
+            !state.card!.supports(state.operation!)) ...[
           const SizedBox(height: 12),
           Text(l.passwordUnsupported),
         ],
@@ -566,7 +639,9 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
               constraints: const BoxConstraints(minHeight: 44),
               decoration: BoxDecoration(
-                color: context.colors.surface,
+                color: state.isChange
+                    ? context.colors.surfaceSubtle
+                    : context.colors.surface,
                 borderRadius: AppRadius.borderSm,
               ),
               child: Row(
@@ -623,7 +698,12 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
                     cubit.next();
                   }
                 : null,
-            label: state.step == SecondPasswordStep.instruction
+            label:
+                state.isChange &&
+                    state.step == SecondPasswordStep.password &&
+                    state.passwordComplete
+                ? context.l10n.passwordChangeSubmit
+                : state.step == SecondPasswordStep.instruction
                 ? context.l10n.passwordStartKyc
                 : state.step == SecondPasswordStep.recording
                 ? context.l10n.passwordSubmit
@@ -667,13 +747,17 @@ class _PasswordForm extends StatefulWidget {
 }
 
 class _PasswordFormState extends State<_PasswordForm> {
-  late final TextEditingController password, confirmation;
+  late final TextEditingController password, confirmation, currentPassword;
   final focus = FocusNode();
-  bool showPassword = false, showConfirmation = false, mismatch = false;
+  bool showPassword = false,
+      showConfirmation = false,
+      showCurrent = false,
+      mismatch = false;
   @override
   void initState() {
     super.initState();
     final state = context.read<SecondPasswordCubit>().state;
+    currentPassword = TextEditingController(text: state.currentPassword);
     password = TextEditingController(text: state.password);
     confirmation = TextEditingController(text: state.confirmation);
     focus.addListener(() {
@@ -689,6 +773,7 @@ class _PasswordFormState extends State<_PasswordForm> {
 
   @override
   void dispose() {
+    currentPassword.dispose();
     password.dispose();
     confirmation.dispose();
     focus.dispose();
@@ -698,65 +783,107 @@ class _PasswordFormState extends State<_PasswordForm> {
   @override
   Widget build(BuildContext context) {
     final c = context.read<SecondPasswordCubit>(), l = context.l10n;
-    Widget field(bool confirm) => AppTextField(
-      key: Key(confirm ? 'password_confirmation' : 'password_value'),
-      controller: confirm ? confirmation : password,
-      focusNode: confirm ? focus : null,
-      hintText: confirm ? l.passwordConfirmationHint : l.passwordValueHint,
-      obscureText: confirm ? !showConfirmation : !showPassword,
-      obscuringCharacter: '*',
-      autocorrect: false,
-      enableSuggestions: false,
-      enableIMEPersonalizedLearning: false,
-      keyboardType: TextInputType.number,
-      normalizeDigits: true,
-      inputFormatters: [
-        FilteringTextInputFormatter.digitsOnly,
-        LengthLimitingTextInputFormatter(6),
-      ],
-      focusRing: AppTextFieldFocusRing.none,
-      textDirection: TextDirection.ltr,
-      textAlign: TextAlign.right,
-      textStyle: passwordBody(context),
-      errorText: confirm && mismatch ? l.passwordMismatch : null,
-      suffixIcon: IconButton(
-        tooltip: (confirm ? showConfirmation : showPassword)
-            ? l.passwordHide
-            : l.passwordShow,
-        onPressed: () => setState(() {
-          if (confirm) {
-            showConfirmation = !showConfirmation;
-          } else {
-            showPassword = !showPassword;
-          }
-        }),
-        icon: SizedBox.square(
-          dimension: 20,
-          child: (confirm ? showConfirmation : showPassword)
-              ? SvgPicture.asset(AppAssets.resalatCardEye)
-              : SvgPicture.asset(AppAssets.passwordEyeSlash),
+    final change = c.state.isChange;
+    Widget field(int type) {
+      final confirm = type == 2, current = type == 0;
+      final visible = current
+          ? showCurrent
+          : confirm
+          ? showConfirmation
+          : showPassword;
+      return AppTextField(
+        key: Key(
+          current
+              ? 'password_current'
+              : confirm
+              ? 'password_confirmation'
+              : 'password_value',
         ),
-      ),
-      onChanged: (v) {
-        setState(() => mismatch = false);
-        if (confirm) {
-          c.confirmationChanged(v);
-        } else {
-          c.passwordChanged(v);
-        }
-      },
-    );
+        controller: current
+            ? currentPassword
+            : confirm
+            ? confirmation
+            : password,
+        focusNode: confirm ? focus : null,
+        hintText: current
+            ? l.passwordCurrentHint
+            : change
+            ? (confirm ? l.passwordNewConfirmationHint : l.passwordNewHint)
+            : (confirm ? l.passwordConfirmationHint : l.passwordValueHint),
+        obscureText: !visible,
+        obscuringCharacter: '*',
+        autocorrect: false,
+        enableSuggestions: false,
+        enableIMEPersonalizedLearning: false,
+        keyboardType: TextInputType.number,
+        normalizeDigits: true,
+        inputFormatters: [
+          FilteringTextInputFormatter.digitsOnly,
+          LengthLimitingTextInputFormatter(6),
+        ],
+        focusRing: AppTextFieldFocusRing.none,
+        textDirection: TextDirection.ltr,
+        textAlign: TextAlign.right,
+        textStyle: passwordBody(context),
+        errorText: confirm && mismatch ? l.passwordMismatch : null,
+        suffixIcon: IconButton(
+          tooltip: visible ? l.passwordHide : l.passwordShow,
+          onPressed: () => setState(() {
+            if (current) {
+              showCurrent = !showCurrent;
+            } else if (confirm) {
+              showConfirmation = !showConfirmation;
+            } else {
+              showPassword = !showPassword;
+            }
+          }),
+          icon: SizedBox.square(
+            dimension: 20,
+            child: visible
+                ? SvgPicture.asset(AppAssets.resalatCardEye)
+                : SvgPicture.asset(AppAssets.passwordEyeSlash),
+          ),
+        ),
+        onChanged: (v) {
+          setState(() => mismatch = false);
+          if (current) {
+            c.currentPasswordChanged(v);
+          } else if (confirm) {
+            c.confirmationChanged(v);
+          } else {
+            c.passwordChanged(v);
+          }
+        },
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          l.passwordPrompt,
+          change ? l.passwordChangePrompt : l.passwordPrompt,
           style: passwordBody(context).copyWith(fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 20),
-        field(false),
+        if (change) ...[
+          field(0),
+          const SizedBox(height: 20),
+          SizedBox(
+            height: 0,
+            child: OverflowBox(
+              minHeight: 1,
+              maxHeight: 1,
+              child: SvgPicture.asset(
+                AppAssets.issuanceDivider,
+                fit: BoxFit.fill,
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+        ],
+        field(1),
         const SizedBox(height: 20),
-        field(true),
+        field(2),
         const SizedBox(height: 20),
         BlocBuilder<SecondPasswordCubit, SecondPasswordState>(
           buildWhen: (a, b) => a.password != b.password,

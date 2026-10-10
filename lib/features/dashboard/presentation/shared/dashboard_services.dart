@@ -9,6 +9,8 @@ enum DashboardService {
   sms('deposit-sms'),
   issue('card-issue'),
   password('card-password'),
+  forgotPassword('card-pin-second-forgot'),
+  changePassword('card-pin-second-change'),
   cardDeposit('card-deposit'),
   block('card-block'),
   estimate('loan-estimate'),
@@ -67,6 +69,8 @@ enum DashboardService {
     cardsList,
     issue,
     password,
+    forgotPassword,
+    changePassword,
     virtualCard,
     cardDeposit,
     expiredGift,
@@ -122,6 +126,8 @@ enum DashboardService {
     sms => l10n.smsSettings,
     issue => l10n.issueResalatCard,
     password => l10n.cardPasswordIssue,
+    forgotPassword => l10n.passwordForgot,
+    changePassword => l10n.passwordChange,
     cardDeposit => l10n.changeCardDeposit,
     block => l10n.blockCard,
     estimate => l10n.loanEstimate,
@@ -177,7 +183,9 @@ enum DashboardService {
     certificate => AppAssets.dashboardCatalogCertificate,
     representative => AppAssets.dashboardCatalogRepresentative,
     issue => AppAssets.dashboardCatalogIssue,
-    password => AppAssets.dashboardCatalogPassword,
+    password ||
+    forgotPassword ||
+    changePassword => AppAssets.dashboardCatalogPassword,
     cardDeposit => AppAssets.dashboardCatalogCardDeposit,
     block => AppAssets.dashboardCatalogBlock,
     estimate => AppAssets.dashboardCatalogEstimate,
@@ -192,7 +200,9 @@ enum DashboardService {
 
   String get optionAsset => switch (this) {
     issue => AppAssets.dashboardOptionIssue,
-    password => AppAssets.dashboardOptionPassword,
+    password ||
+    forgotPassword ||
+    changePassword => AppAssets.dashboardOptionPassword,
     cardDeposit => AppAssets.dashboardOptionCardDeposit,
     block => AppAssets.dashboardOptionBlock,
     _ => AppAssets.dashboardOptionMore,
@@ -201,7 +211,9 @@ enum DashboardService {
   String get fixedAsset => switch (this) {
     sms => AppAssets.dashboardFixedSms,
     estimate => AppAssets.dashboardFixedEstimate,
-    password => AppAssets.dashboardFixedPassword,
+    password ||
+    forgotPassword ||
+    changePassword => AppAssets.dashboardFixedPassword,
     representative => AppAssets.dashboardFixedRepresentative,
     certificate => AppAssets.dashboardFixedCertificate,
     statement => AppAssets.dashboardFixedStatement,
