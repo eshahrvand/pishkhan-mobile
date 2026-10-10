@@ -27,6 +27,9 @@ class _DashboardResoBannerState extends State<DashboardResoBanner>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   static const _typingInterval = Duration(milliseconds: 90);
   static const _backgroundCycle = Duration(seconds: 9);
+  static const _circleCycle = Duration(milliseconds: 7500);
+  // Both periods divide this duration, so controller repeats stay seamless.
+  static const _motionCycle = Duration(seconds: 45);
   final _controller = TextEditingController();
   final _ownedFocus = FocusNode();
   late final AnimationController _glow;
@@ -43,7 +46,7 @@ class _DashboardResoBannerState extends State<DashboardResoBanner>
   @override
   void initState() {
     super.initState();
-    _glow = AnimationController(vsync: this, duration: _backgroundCycle);
+    _glow = AnimationController(vsync: this, duration: _motionCycle);
     _focus.addListener(_inputChanged);
     _controller.addListener(_inputChanged);
     WidgetsBinding.instance.addObserver(this);
@@ -306,7 +309,11 @@ class _DashboardResoBannerState extends State<DashboardResoBanner>
       child: AnimatedBuilder(
         animation: _glow,
         builder: (context, _) {
-          final phase = _glow.value * 2 * math.pi;
+          final elapsed = _glow.value * _motionCycle.inMilliseconds;
+          final phase = elapsed / _backgroundCycle.inMilliseconds * 2 * math.pi;
+          final circlePhase =
+              elapsed / _circleCycle.inMilliseconds * 2 * math.pi;
+          final circleWave = (1 - math.cos(circlePhase)) / 2;
           final wave = (1 - math.cos(phase)) / 2;
           final gradient = AppGradients.fromAngle(
             angleInDegrees: 112.62564745992552,
@@ -358,8 +365,8 @@ class _DashboardResoBannerState extends State<DashboardResoBanner>
                 ),
                 Positioned(
                   key: const Key('dashboard_banner_glow_large'),
-                  left: (-68.6 - 152.033 + 140 * wave) * scale,
-                  top: -59.33 - 152.033 + 55 * wave,
+                  left: (-68.6 - 152.033 + 175 * circleWave) * scale,
+                  top: -59.33 - 152.033 + 55 * circleWave,
                   width: 487.616 * scale,
                   height: 487.616 * scale,
                   child: ImageFiltered(
@@ -372,8 +379,8 @@ class _DashboardResoBannerState extends State<DashboardResoBanner>
                 ),
                 Positioned(
                   key: const Key('dashboard_banner_glow_small'),
-                  left: (218.78 - 57.4755 - 105 * wave) * scale,
-                  top: 164.08 - 57.4755 - 72 * wave,
+                  left: (218.78 - 57.4755 - 105 * circleWave) * scale,
+                  top: 164.08 - 57.4755 - 72 * circleWave,
                   width: 213.216 * scale,
                   height: 213.216 * scale,
                   child: ImageFiltered(

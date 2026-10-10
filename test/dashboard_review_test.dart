@@ -244,13 +244,21 @@ void main() {
 
       await capture('rest');
       for (final name in ['outbound', 'midpoint', 'inbound', 'returned']) {
-        await tester.pump(const Duration(milliseconds: 2250));
+        await tester.pump(const Duration(milliseconds: 1875));
         expect([
           tester.getRect(person),
           tester.getRect(caption),
           tester.getRect(field),
         ], fixed);
         if (name == 'midpoint') {
+          final glowRect = tester.getRect(large);
+          final bannerRect = tester.getRect(
+            find.byKey(const Key('dashboard_reso_banner')),
+          );
+          expect(
+            glowRect.center.dx,
+            greaterThanOrEqualTo(bannerRect.center.dx),
+          );
           expect(
             tester.widget<Positioned>(large).left,
             greaterThan(initial[0]),
@@ -265,6 +273,8 @@ void main() {
       }
       expect(tester.widget<Positioned>(large).left, closeTo(initial[0], .001));
       expect(tester.widget<Positioned>(small).left, closeTo(initial[1], .001));
+      // Other background layers retain their separate nine-second period.
+      await tester.pump(const Duration(milliseconds: 1500));
       expect(
         tester.widget<Positioned>(overlay).left,
         closeTo(initial[2], .001),
