@@ -178,4 +178,98 @@ void main() {
       await tester.pumpWidget(const SizedBox.shrink());
     },
   );
+  testWidgets(
+    'background layers travel and return while foreground bounds stay fixed',
+    (tester) async {
+      const preview = Key('reso_motion_preview');
+      await tester.pumpWidget(
+        app(
+          const Scaffold(
+            body: Align(
+              alignment: Alignment.topLeft,
+              child: RepaintBoundary(
+                key: preview,
+                child: SizedBox(width: 343, child: DashboardResoBanner()),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.runAsync(() async {
+        final context = tester.element(find.byType(DashboardResoBanner));
+        await precacheImage(const AssetImage(AppAssets.dashboardReso), context);
+        await precacheImage(
+          const AssetImage(AppAssets.dashboardTexture),
+          context,
+        );
+      });
+      await tester.pump();
+      final person = find.byKey(const Key('dashboard_reso_foreground'));
+      final caption = find.byKey(const Key('dashboard_reso_caption'));
+      final field = find.byKey(const Key('dashboard_assistant_prompt'));
+      final large = find.byKey(const Key('dashboard_banner_glow_large'));
+      final small = find.byKey(const Key('dashboard_banner_glow_small'));
+      final overlay = find.byKey(const Key('dashboard_reso_overlay'));
+      final fixed = [
+        tester.getRect(person),
+        tester.getRect(caption),
+        tester.getRect(field),
+      ];
+      final initial = [
+        tester.widget<Positioned>(large).left!,
+        tester.widget<Positioned>(small).left!,
+        tester.widget<Positioned>(overlay).left!,
+      ];
+      Future<void> capture(String name) async {
+        if (!const bool.fromEnvironment('UPDATE_RESO_MOTION_PREVIEWS')) return;
+        tester.binding.buildOwner!.reassemble(tester.binding.rootElement!);
+        await tester.pump();
+        await tester.runAsync(() async {
+          final boundary = tester.renderObject<RenderRepaintBoundary>(
+            find.byKey(preview),
+          );
+          final warm = await boundary.toImage(pixelRatio: 2);
+          warm.dispose();
+          await Future<void>.delayed(const Duration(milliseconds: 50));
+          final image = await boundary.toImage(pixelRatio: 2);
+          final data = await image.toByteData(format: ui.ImageByteFormat.png);
+          final folder = Directory('doc/reso-background-review');
+          await folder.create(recursive: true);
+          await File('${folder.path}/$name.png')
+              .writeAsBytes(data!.buffer.asUint8List());
+          image.dispose();
+        });
+      }
+
+      await capture('rest');
+      for (final name in ['outbound', 'midpoint', 'inbound', 'returned']) {
+        await tester.pump(const Duration(milliseconds: 2250));
+        expect([
+          tester.getRect(person),
+          tester.getRect(caption),
+          tester.getRect(field),
+        ], fixed);
+        if (name == 'midpoint') {
+          expect(
+            tester.widget<Positioned>(large).left,
+            greaterThan(initial[0]),
+          );
+          expect(tester.widget<Positioned>(small).left, lessThan(initial[1]));
+          expect(
+            tester.widget<Positioned>(overlay).left,
+            greaterThan(initial[2]),
+          );
+        }
+        await capture(name);
+      }
+      expect(tester.widget<Positioned>(large).left, closeTo(initial[0], .001));
+      expect(tester.widget<Positioned>(small).left, closeTo(initial[1], .001));
+      expect(
+        tester.widget<Positioned>(overlay).left,
+        closeTo(initial[2], .001),
+      );
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
 }

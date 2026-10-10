@@ -286,6 +286,7 @@ abstract final class AppAssets {
   static const dashboardEstimateTile = '$_root/dashboard_estimate_tile.svg';
   static const dashboardFabSpark = '$_root/dashboard_fab_spark.svg';
   static const dashboardFabStar = '$_root/dashboard_fab_star.svg';
+  static const dashboardResoOverlay = '$_root/dashboard_reso_overlay.svg';
   static const dashboardGlowLarge = '$_root/dashboard_glow_large.svg';
   static const dashboardGlowSmall = '$_root/dashboard_glow_small.svg';
   static const dashboardIssueEditTile = '$_root/dashboard_issue_edit_tile.svg';
@@ -621,6 +622,7 @@ abstract final class AppAssets {
     dashboardPromptArrow,
     dashboardReset,
     dashboardReso,
+    dashboardResoOverlay,
     dashboardSms,
     dashboardTexture,
     dashboardTileWave,

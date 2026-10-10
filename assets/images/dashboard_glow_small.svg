@@ -1,14 +1,14 @@
 <svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="213.216" height="213.216" viewBox="0 0 213.216 213.216" fill="none" xmlns="http://www.w3.org/2000/svg">
-<g id="Ellipse 1514" filter="url(#filter0_f_0_298)">
-<circle cx="106.608" cy="106.608" r="49.1324" fill="url(#paint0_radial_0_298)" fill-opacity="0.64"/>
+<g id="Ellipse 1516" filter="url(#filter0_f_0_4)">
+<circle cx="106.608" cy="106.608" r="49.1324" fill="url(#paint0_radial_0_4)" fill-opacity="0.64"/>
 </g>
 <defs>
-<filter id="filter0_f_0_298" x="0" y="0" width="213.216" height="213.216" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<filter id="filter0_f_0_4" x="0" y="0" width="213.216" height="213.216" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
 <feFlood flood-opacity="0" result="BackgroundImageFix"/>
 <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
-<feGaussianBlur stdDeviation="28.7378" result="effect1_foregroundBlur_0_298"/>
+<feGaussianBlur stdDeviation="28.7378" result="effect1_foregroundBlur_0_4"/>
 </filter>
-<radialGradient id="paint0_radial_0_298" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(106.608 106.608) rotate(90) scale(49.1324)">
+<radialGradient id="paint0_radial_0_4" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(106.608 106.608) rotate(90) scale(49.1324)">
 <stop stop-color="#EE46BC"/>
 <stop offset="1" stop-color="#EE46BC" stop-opacity="0"/>
 </radialGradient>

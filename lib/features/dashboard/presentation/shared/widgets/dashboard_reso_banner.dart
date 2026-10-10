@@ -26,7 +26,7 @@ class DashboardResoBanner extends StatefulWidget {
 class _DashboardResoBannerState extends State<DashboardResoBanner>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   static const _typingInterval = Duration(milliseconds: 90);
-  static const _colorCycle = Duration(seconds: 12);
+  static const _backgroundCycle = Duration(seconds: 9);
   final _controller = TextEditingController();
   final _ownedFocus = FocusNode();
   late final AnimationController _glow;
@@ -43,7 +43,7 @@ class _DashboardResoBannerState extends State<DashboardResoBanner>
   @override
   void initState() {
     super.initState();
-    _glow = AnimationController(vsync: this, duration: _colorCycle);
+    _glow = AnimationController(vsync: this, duration: _backgroundCycle);
     _focus.addListener(_inputChanged);
     _controller.addListener(_inputChanged);
     WidgetsBinding.instance.addObserver(this);
@@ -208,6 +208,7 @@ class _DashboardResoBannerState extends State<DashboardResoBanner>
                 children: [
                   _backdrop(context, scale),
                   Positioned(
+                    key: const Key('dashboard_reso_foreground'),
                     left: -20 * scale,
                     top: 7,
                     width: 217 * scale,
@@ -219,6 +220,7 @@ class _DashboardResoBannerState extends State<DashboardResoBanner>
                     ),
                   ),
                   Positioned(
+                    key: const Key('dashboard_reso_caption'),
                     right: 16,
                     top: 43,
                     width: 173 * scale,
@@ -306,71 +308,84 @@ class _DashboardResoBannerState extends State<DashboardResoBanner>
         builder: (context, _) {
           final phase = _glow.value * 2 * math.pi;
           final wave = (1 - math.cos(phase)) / 2;
-          return Stack(
-            children: [
-              Positioned.fill(
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: AppGradients.fromAngle(
-                      angleInDegrees: 112.62564745992552 + 16 * math.sin(phase),
-                      colors: [
-                        Color.lerp(
-                          AppDashboardColors.heroHaze.withValues(alpha: .051),
-                          AppDashboardColors.heroWarmHaze.withValues(
-                            alpha: .14,
-                          ),
-                          wave,
-                        )!,
-                        Color.lerp(
-                          context.colors.primary.withValues(alpha: .461),
-                          AppDashboardColors.heroCoolAccent.withValues(
-                            alpha: .5,
-                          ),
-                          wave,
-                        )!,
-                      ],
+          final gradient = AppGradients.fromAngle(
+            angleInDegrees: 112.62564745992552,
+            colors: [
+              AppDashboardColors.heroHaze.withValues(alpha: .051),
+              context.colors.primary.withValues(alpha: .461),
+            ],
+          );
+          return IgnorePointer(
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: DecoratedBox(
+                    key: const Key('dashboard_reso_gradient'),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: gradient.begin,
+                        end: gradient.end,
+                        colors: gradient.colors,
+                        stops: gradient.stops,
+                        transform: _ResoGradientTranslation(
+                          Offset(14 * wave * scale, 12 * wave),
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
-              if (_texture != null)
-                Positioned.fill(
-                  child: CustomPaint(painter: _ResoTexturePainter(_texture!)),
-                ),
-              Positioned(
-                key: const Key('dashboard_banner_glow_large'),
-                left: (-68.6 - 152.033 + 42 * wave) * scale,
-                top: -59.33 - 152.033 + 18 * math.sin(phase),
-                width: 487.616 * scale,
-                height: 487.616,
-                child: ImageFiltered(
-                  imageFilter: ui.ImageFilter.blur(
-                    sigmaX: 76.0162,
-                    sigmaY: 76.0162,
+                if (_texture != null)
+                  Positioned.fill(
+                    child: Transform.translate(
+                      offset: Offset(16 * wave * scale, -10 * wave),
+                      child: CustomPaint(
+                        painter: _ResoTexturePainter(_texture!),
+                      ),
+                    ),
                   ),
-                  child: SvgPicture.asset(AppAssets.dashboardGlowLarge),
-                ),
-              ),
-              Positioned(
-                key: const Key('dashboard_banner_glow_small'),
-                left: (218.78 - 57.4755 - 28 * wave) * scale,
-                top: 164.08 - 57.4755 - 16 * math.sin(phase),
-                width: 213.216 * scale,
-                height: 213.216,
-                child: ImageFiltered(
-                  imageFilter: ui.ImageFilter.blur(
-                    sigmaX: 28.7378,
-                    sigmaY: 28.7378,
+                Positioned(
+                  key: const Key('dashboard_reso_overlay'),
+                  left: (-12.9785 + 16 * wave) * scale,
+                  top: -12.9785 - 10 * wave,
+                  width: 368.957 * scale,
+                  height: 219.957,
+                  child: ClipRect(
+                    child: BackdropFilter(
+                      filter: ui.ImageFilter.blur(sigmaX: .927, sigmaY: .927),
+                      child: SvgPicture.asset(AppAssets.dashboardResoOverlay),
+                    ),
                   ),
-                  child: SvgPicture.asset(AppAssets.dashboardGlowSmall),
                 ),
-              ),
-              Positioned.fill(
-                child: ColoredBox(
-                  color: context.colors.surface.withValues(alpha: .01),
+                Positioned(
+                  key: const Key('dashboard_banner_glow_large'),
+                  left: (-68.6 - 152.033 + 140 * wave) * scale,
+                  top: -59.33 - 152.033 + 55 * wave,
+                  width: 487.616 * scale,
+                  height: 487.616 * scale,
+                  child: ImageFiltered(
+                    imageFilter: ui.ImageFilter.blur(
+                      sigmaX: 76.0162,
+                      sigmaY: 76.0162,
+                    ),
+                    child: SvgPicture.asset(AppAssets.dashboardGlowLarge),
+                  ),
                 ),
-              ),
-            ],
+                Positioned(
+                  key: const Key('dashboard_banner_glow_small'),
+                  left: (218.78 - 57.4755 - 105 * wave) * scale,
+                  top: 164.08 - 57.4755 - 72 * wave,
+                  width: 213.216 * scale,
+                  height: 213.216 * scale,
+                  child: ImageFiltered(
+                    imageFilter: ui.ImageFilter.blur(
+                      sigmaX: 28.7378,
+                      sigmaY: 28.7378,
+                    ),
+                    child: SvgPicture.asset(AppAssets.dashboardGlowSmall),
+                  ),
+                ),
+              ],
+            ),
           );
         },
       ),
@@ -404,4 +419,13 @@ class _ResoTexturePainter extends CustomPainter {
   @override
   bool shouldRepaint(_ResoTexturePainter oldDelegate) =>
       image != oldDelegate.image;
+}
+
+/// Moves only the gradient shader; the full-card fill remains clipped in place.
+class _ResoGradientTranslation extends GradientTransform {
+  const _ResoGradientTranslation(this.offset);
+  final Offset offset;
+  @override
+  Matrix4 transform(Rect bounds, {TextDirection? textDirection}) =>
+      Matrix4.translationValues(offset.dx, offset.dy, 0);
 }
