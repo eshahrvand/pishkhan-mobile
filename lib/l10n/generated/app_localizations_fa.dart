@@ -912,6 +912,63 @@ class AppLocalizationsFa extends AppLocalizations {
   String get passwordOperation => 'نوع عملیات';
 
   @override
+  String get virtualRequestTitle => 'درخواست کارت مجازی';
+
+  @override
+  String get virtualRequestPrompt =>
+      'سپرده‌ی موردنظر برای صدور کارت مجازی و تعداد کارت مجازی را انتخاب کنید و مراحل را ادامه دهید.';
+
+  @override
+  String get virtualRequestNotice =>
+      'کارت مجازی فاقد فیزیک بوده و تنها یک شماره می باشد که می توان به آن شماره فقط واریز وجه انجام داد و برداشت یا خرید با این کارت امکان پذیر نمیباشد.';
+
+  @override
+  String get virtualRequestDepositLabel => 'سپرده';
+
+  @override
+  String get virtualRequestDepositHint => 'سپرده مورد نظر خود را انتخاب کنید';
+
+  @override
+  String get virtualRequestCount => 'تعداد کارت مجازی';
+
+  @override
+  String get virtualRequestCountHint =>
+      'تعداد کارت مجازی مورد نیاز خود را وارد کنید';
+
+  @override
+  String virtualRequestFeeNotice(String amount) {
+    return 'کارمزد صدور هر کارت $amount است';
+  }
+
+  @override
+  String get virtualRequestUnitFee => 'کارمزد صدور هر کارت';
+
+  @override
+  String get virtualRequestSubmit => 'تایید و ثبت درخواست';
+
+  @override
+  String get virtualRequestEmpty =>
+      'هیچ سپرده‌ای برای صدور کارت مجازی موجود نیست.';
+
+  @override
+  String virtualRequestCountError(int max) {
+    return 'تعداد کارت باید بین ۱ و $max باشد.';
+  }
+
+  @override
+  String get virtualRequestQuoting => 'در حال دریافت هزینه درخواست…';
+
+  @override
+  String get virtualRequestSubmitted => 'درخواست ثبت شد';
+
+  @override
+  String get virtualRequestMockReceipt =>
+      'درخواست آزمایشی ثبت شد؛ کارت مجازی ایجاد نشده و مبلغی پرداخت نمی‌شود.';
+
+  @override
+  String get virtualRequestReceipt => 'کد پیگیری درخواست:';
+
+  @override
   String get passwordChangePrompt =>
       'رمز عبور فعلی و رمز جدید دلخواه خود را وارد کنید.';
 

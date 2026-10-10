@@ -910,6 +910,62 @@ class AppLocalizationsAr extends AppLocalizations {
   String get passwordOperation => 'نوع العملية';
 
   @override
+  String get virtualRequestTitle => 'طلب بطاقة افتراضية';
+
+  @override
+  String get virtualRequestPrompt =>
+      'اختر الوديعة وعدد البطاقات الافتراضية، ثم تابع.';
+
+  @override
+  String get virtualRequestNotice =>
+      'البطاقة الافتراضية ليس لها شكل مادي. هي مجرد رقم يستقبل تحويلات الأموال؛ ولا يمكن السحب أو الشراء باستخدامها.';
+
+  @override
+  String get virtualRequestDepositLabel => 'الوديعة';
+
+  @override
+  String get virtualRequestDepositHint => 'اختر الوديعة';
+
+  @override
+  String get virtualRequestCount => 'عدد البطاقات الافتراضية';
+
+  @override
+  String get virtualRequestCountHint => 'أدخل عدد البطاقات الافتراضية المطلوبة';
+
+  @override
+  String virtualRequestFeeNotice(String amount) {
+    return 'رسوم إصدار كل بطاقة هي $amount';
+  }
+
+  @override
+  String get virtualRequestUnitFee => 'رسوم إصدار كل بطاقة';
+
+  @override
+  String get virtualRequestSubmit => 'تأكيد وتسجيل الطلب';
+
+  @override
+  String get virtualRequestEmpty =>
+      'لا توجد ودائع متاحة لإصدار بطاقة افتراضية.';
+
+  @override
+  String virtualRequestCountError(int max) {
+    return 'يجب أن يكون عدد البطاقات بين 1 و$max.';
+  }
+
+  @override
+  String get virtualRequestQuoting => 'جارٍ الحصول على تكلفة الطلب…';
+
+  @override
+  String get virtualRequestSubmitted => 'تم تسجيل الطلب';
+
+  @override
+  String get virtualRequestMockReceipt =>
+      'تم تسجيل طلب تجريبي. لم تُنشأ بطاقات افتراضية ولم تُدفع أي مبالغ.';
+
+  @override
+  String get virtualRequestReceipt => 'مرجع الطلب:';
+
+  @override
   String get passwordChangePrompt =>
       'أدخل كلمة المرور الحالية وكلمة المرور الجديدة التي تريدها.';
 

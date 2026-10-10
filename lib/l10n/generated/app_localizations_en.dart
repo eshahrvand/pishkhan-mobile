@@ -917,6 +917,63 @@ class AppLocalizationsEn extends AppLocalizations {
   String get passwordOperation => 'Operation';
 
   @override
+  String get virtualRequestTitle => 'Virtual card request';
+
+  @override
+  String get virtualRequestPrompt =>
+      'Select the deposit and number of virtual cards, then continue.';
+
+  @override
+  String get virtualRequestNotice =>
+      'A virtual card has no physical form. It is only a number that accepts incoming transfers; withdrawals and purchases are unavailable.';
+
+  @override
+  String get virtualRequestDepositLabel => 'Deposit';
+
+  @override
+  String get virtualRequestDepositHint => 'Select a deposit';
+
+  @override
+  String get virtualRequestCount => 'Number of virtual cards';
+
+  @override
+  String get virtualRequestCountHint =>
+      'Enter the number of virtual cards you need';
+
+  @override
+  String virtualRequestFeeNotice(String amount) {
+    return 'The issuance fee per card is $amount';
+  }
+
+  @override
+  String get virtualRequestUnitFee => 'Issuance fee per card';
+
+  @override
+  String get virtualRequestSubmit => 'Confirm and submit request';
+
+  @override
+  String get virtualRequestEmpty =>
+      'No deposits are available for virtual card issuance.';
+
+  @override
+  String virtualRequestCountError(int max) {
+    return 'The card count must be between 1 and $max.';
+  }
+
+  @override
+  String get virtualRequestQuoting => 'Getting the request quote…';
+
+  @override
+  String get virtualRequestSubmitted => 'Request registered';
+
+  @override
+  String get virtualRequestMockReceipt =>
+      'Demo request registered. No virtual cards were created and no payment was made.';
+
+  @override
+  String get virtualRequestReceipt => 'Request reference:';
+
+  @override
   String get passwordChangePrompt =>
       'Enter your current password and your chosen new password.';
 

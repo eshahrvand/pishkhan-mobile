@@ -102,7 +102,8 @@ MockCardsRepository / future live adapter
 
 ```text
 Dashboard catalog -> card-list -> CardFeaturesScreen(Resalat)
-                    card-virtual -> same screen(Virtual)
+                    card-virtual -> VirtualCardRequestScreen
+                    card-virtual-list -> same screen(Virtual)
                     card-expired-gift -> same screen(Gift)
 category chip -> selectCategory -> filtered summary list/footer
 search -> query -> list
@@ -120,7 +121,7 @@ assistant -> host override / return to dashboard prompt
 
 The screen exposes repository, initialCategory, onActionRequested and onAssistantPressed. Initial category chooses the entry state. Repository identity changes reload data. Initial category is an entry parameter; ongoing category choice belongs to Cubit.
 
-Reissue/change-deposit/block are integration events, not implemented transaction wizards. No designs for their subsequent pages were supplied. Missing action handlers display a localized unavailable message rather than falsely reporting success. Gift transfer and virtual request are category-level events and intentionally have no arbitrarily chosen card.
+Reissue/change-deposit/block are integration events, not implemented transaction wizards. No designs for their subsequent pages were supplied. Missing action handlers display a localized unavailable message rather than falsely reporting success. Gift transfer and virtual request are category-level events and intentionally have no arbitrarily chosen card. The virtual request footer now opens the implemented request form when no host callback is supplied; see [virtual card requests](../virtual-card-request/virtual-card-request-development.md).
 
 No suspended bank request or idempotent submission is implemented. Filter drafts are local UI transactions.
 

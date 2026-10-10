@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pishkhan_mobile/features/cards/cards.dart';
 import 'package:pishkhan_mobile/features/card_issuance/card_issuance.dart';
 import 'package:pishkhan_mobile/features/password_services/password_services.dart';
+import 'package:pishkhan_mobile/features/virtual_card_request/virtual_card_request.dart';
 
 // Retains mock request status across route entries; never retains passwords.
 final _passwordRepository = MockPasswordServicesRepository();
@@ -31,6 +32,16 @@ bool openCardFeaturesService(
     );
     return true;
   }
+  if (serviceId == 'card-virtual' || serviceId == 'card-virtual-request') {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => VirtualCardRequestScreen(
+          initialDepositNumber: initialDepositNumber,
+        ),
+      ),
+    );
+    return true;
+  }
   if (serviceId == 'card-issue' || serviceId == 'card-reissue') {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
@@ -47,7 +58,7 @@ bool openCardFeaturesService(
   }
   final category = switch (serviceId) {
     'card-list' => CardCategory.resalat,
-    'card-virtual' => CardCategory.virtual,
+    'card-virtual-list' => CardCategory.virtual,
     'card-expired-gift' => CardCategory.gift,
     _ => null,
   };

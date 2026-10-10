@@ -112,3 +112,8 @@ Frames `27997:12254`, `27997:12269`, `27997:12324` compose the existing `AppSele
 ## Change-password form and returning status
 
 Ordered frames `27997:11595`, `11607`, `11666`, `11722`, `11777`, `11791`, `11844`, `11858`, `12547`, `11994`, `12046` remain app compositions in `SecondPasswordScreen`. The form reuses `AppTextField` for current/new/confirmation PINs, `AppCheckbox` and `AppButton`; selection reuses `AppSelect.menuBuilder` and `AppBottomSheetHeader`. `PasswordStatusContent` is app-owned full-page content rather than a new package widget. The100px return badge and change-success scrim are original app assets; shared eye/check/divider artwork is reused without substitution. [28 rendered states](password-services-review/index.html).
+
+
+## Virtual-card request
+
+Frames `27997:10100` and `27997:10897` compose AppTopBar, AppSelect, AppTextField, AppCheckbox, AppButton and app-owned AppInvoice in VirtualCardRequestScreen. No new package component is required. Instance artwork comes from `I27997:10898;13867:8754;13867:8738` (back) and `I27997:10915;16662:54695` (virtual-card fee icon); the latter preserves its16.2878×12.9544 glyph inside the20px slot. The info-circle is byte-identical to an existing app asset. [Rendered forms](virtual-card-request-review/index.html).

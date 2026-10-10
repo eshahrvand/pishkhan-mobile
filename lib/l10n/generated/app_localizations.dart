@@ -1858,6 +1858,102 @@ abstract class AppLocalizations {
   /// **'نوع عملیات'**
   String get passwordOperation;
 
+  /// No description provided for @virtualRequestTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'درخواست کارت مجازی'**
+  String get virtualRequestTitle;
+
+  /// No description provided for @virtualRequestPrompt.
+  ///
+  /// In fa, this message translates to:
+  /// **'سپرده‌ی موردنظر برای صدور کارت مجازی و تعداد کارت مجازی را انتخاب کنید و مراحل را ادامه دهید.'**
+  String get virtualRequestPrompt;
+
+  /// No description provided for @virtualRequestNotice.
+  ///
+  /// In fa, this message translates to:
+  /// **'کارت مجازی فاقد فیزیک بوده و تنها یک شماره می باشد که می توان به آن شماره فقط واریز وجه انجام داد و برداشت یا خرید با این کارت امکان پذیر نمیباشد.'**
+  String get virtualRequestNotice;
+
+  /// No description provided for @virtualRequestDepositLabel.
+  ///
+  /// In fa, this message translates to:
+  /// **'سپرده'**
+  String get virtualRequestDepositLabel;
+
+  /// No description provided for @virtualRequestDepositHint.
+  ///
+  /// In fa, this message translates to:
+  /// **'سپرده مورد نظر خود را انتخاب کنید'**
+  String get virtualRequestDepositHint;
+
+  /// No description provided for @virtualRequestCount.
+  ///
+  /// In fa, this message translates to:
+  /// **'تعداد کارت مجازی'**
+  String get virtualRequestCount;
+
+  /// No description provided for @virtualRequestCountHint.
+  ///
+  /// In fa, this message translates to:
+  /// **'تعداد کارت مجازی مورد نیاز خود را وارد کنید'**
+  String get virtualRequestCountHint;
+
+  /// No description provided for @virtualRequestFeeNotice.
+  ///
+  /// In fa, this message translates to:
+  /// **'کارمزد صدور هر کارت {amount} است'**
+  String virtualRequestFeeNotice(String amount);
+
+  /// No description provided for @virtualRequestUnitFee.
+  ///
+  /// In fa, this message translates to:
+  /// **'کارمزد صدور هر کارت'**
+  String get virtualRequestUnitFee;
+
+  /// No description provided for @virtualRequestSubmit.
+  ///
+  /// In fa, this message translates to:
+  /// **'تایید و ثبت درخواست'**
+  String get virtualRequestSubmit;
+
+  /// No description provided for @virtualRequestEmpty.
+  ///
+  /// In fa, this message translates to:
+  /// **'هیچ سپرده‌ای برای صدور کارت مجازی موجود نیست.'**
+  String get virtualRequestEmpty;
+
+  /// No description provided for @virtualRequestCountError.
+  ///
+  /// In fa, this message translates to:
+  /// **'تعداد کارت باید بین ۱ و {max} باشد.'**
+  String virtualRequestCountError(int max);
+
+  /// No description provided for @virtualRequestQuoting.
+  ///
+  /// In fa, this message translates to:
+  /// **'در حال دریافت هزینه درخواست…'**
+  String get virtualRequestQuoting;
+
+  /// No description provided for @virtualRequestSubmitted.
+  ///
+  /// In fa, this message translates to:
+  /// **'درخواست ثبت شد'**
+  String get virtualRequestSubmitted;
+
+  /// No description provided for @virtualRequestMockReceipt.
+  ///
+  /// In fa, this message translates to:
+  /// **'درخواست آزمایشی ثبت شد؛ کارت مجازی ایجاد نشده و مبلغی پرداخت نمی‌شود.'**
+  String get virtualRequestMockReceipt;
+
+  /// No description provided for @virtualRequestReceipt.
+  ///
+  /// In fa, this message translates to:
+  /// **'کد پیگیری درخواست:'**
+  String get virtualRequestReceipt;
+
   /// No description provided for @passwordChangePrompt.
   ///
   /// In fa, this message translates to:
