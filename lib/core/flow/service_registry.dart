@@ -1,9 +1,9 @@
+import 'package:pishkhan_mobile/core/router/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pishkhan_mobile/features/auth/auth_routes.dart';
 import 'package:pishkhan_mobile/features/cards/cards_routes.dart';
 import 'package:pishkhan_mobile/features/cards/domain/entities/listed_card.dart';
-import 'package:pishkhan_mobile/features/shell/shell_routes.dart';
 
 abstract final class ServiceRegistry {
   static bool openCardService(
@@ -48,9 +48,10 @@ abstract final class ServiceRegistry {
       _ => null,
     };
     if (category == null) return false;
-    context.push<void>(CardsRoutes.listLocation(category), extra: args);
+    context.push<void>(cardsListLocation(category), extra: args);
     return true;
   }
 
-  static void returnHome(BuildContext context) => context.go(ShellRoutes.home);
+  static void returnHome(BuildContext context) =>
+      context.go(DashboardRoutes.home);
 }

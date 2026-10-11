@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/router/app_routes.dart';
 import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -16,58 +17,56 @@ class CardRouteArguments {
   final VoidCallback? onAssistantPressed;
 }
 
-abstract final class CardsRoutes {
-  static const list = '/cards/list';
-  static const issuance = '/cards/issuance';
-  static const virtualRequest = '/cards/virtual-request';
-  static String listLocation(CardCategory category) =>
-      Uri(path: list, queryParameters: {'category': category.name}).toString();
-  static List<RouteBase> build() => [
-    GoRoute(
-      path: list,
-      builder: (context, state) {
-        final category =
-            CardCategory.values
-                .where((c) => c.name == state.uri.queryParameters['category'])
-                .firstOrNull ??
-            CardCategory.resalat;
-        final args = state.extra is CardRouteArguments
-            ? state.extra as CardRouteArguments
-            : null;
-        return CardFeaturesScreen(
-          initialCategory: category,
-          onAssistantPressed: () {
-            NavigationActions.back(context);
-            args?.onAssistantPressed?.call();
-          },
-        );
-      },
-    ),
-    GoRoute(
-      path: issuance,
-      builder: (context, state) {
-        final args = state.extra is CardRouteArguments
-            ? state.extra as CardRouteArguments
-            : null;
-        return CardIssuanceScreen(
-          initialDepositNumber: args?.initialDepositNumber,
-          onAssistantPressed: () {
-            NavigationActions.back(context);
-            args?.onAssistantPressed?.call();
-          },
-        );
-      },
-    ),
-    GoRoute(
-      path: virtualRequest,
-      builder: (context, state) {
-        final args = state.extra is CardRouteArguments
-            ? state.extra as CardRouteArguments
-            : null;
-        return VirtualCardRequestScreen(
-          initialDepositNumber: args?.initialDepositNumber,
-        );
-      },
-    ),
-  ];
-}
+List<RouteBase> buildCardsRoutes() => [
+  GoRoute(
+    path: CardsRoutes.list,
+    builder: (context, state) {
+      final category =
+          CardCategory.values
+              .where((c) => c.name == state.uri.queryParameters['category'])
+              .firstOrNull ??
+          CardCategory.resalat;
+      final args = state.extra is CardRouteArguments
+          ? state.extra as CardRouteArguments
+          : null;
+      return CardFeaturesScreen(
+        initialCategory: category,
+        onAssistantPressed: () {
+          NavigationActions.back(context);
+          args?.onAssistantPressed?.call();
+        },
+      );
+    },
+  ),
+  GoRoute(
+    path: CardsRoutes.issuance,
+    builder: (context, state) {
+      final args = state.extra is CardRouteArguments
+          ? state.extra as CardRouteArguments
+          : null;
+      return CardIssuanceScreen(
+        initialDepositNumber: args?.initialDepositNumber,
+        onAssistantPressed: () {
+          NavigationActions.back(context);
+          args?.onAssistantPressed?.call();
+        },
+      );
+    },
+  ),
+  GoRoute(
+    path: CardsRoutes.virtualRequest,
+    builder: (context, state) {
+      final args = state.extra is CardRouteArguments
+          ? state.extra as CardRouteArguments
+          : null;
+      return VirtualCardRequestScreen(
+        initialDepositNumber: args?.initialDepositNumber,
+      );
+    },
+  ),
+];
+
+String cardsListLocation(CardCategory category) => Uri(
+  path: CardsRoutes.list,
+  queryParameters: {'category': category.name},
+).toString();

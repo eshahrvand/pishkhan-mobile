@@ -7,6 +7,7 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(const MyApp());
+    await tester.pumpAndSettle();
 
     expect(find.text('ورود با کد ملی'), findsOneWidget);
     expect(find.text('درخواست ارسال رمز'), findsOneWidget);
@@ -39,6 +40,7 @@ void main() {
   });
   testWidgets('guest service tile opens the change-phone form', (tester) async {
     await tester.pumpWidget(const MyApp());
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('auth_menu_button')));
     await tester.pumpAndSettle();
 

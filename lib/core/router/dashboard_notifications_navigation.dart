@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/router/app_routes.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pishkhan_mobile/features/profile/profile_routes.dart';
 import 'package:flutter/material.dart';

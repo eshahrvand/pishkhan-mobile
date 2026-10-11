@@ -47,7 +47,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       ]);
     }
     context.push<void>(
-      ProfileRoutes.detailLocation(message.id),
+      profileMessageDetailLocation(message.id),
       extra: message.markRead(),
     );
   }

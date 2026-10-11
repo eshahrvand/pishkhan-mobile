@@ -17,7 +17,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pishkhan_mobile/features/cards/cards.dart';
 import 'package:pishkhan_mobile/features/cards/data/repositories/mock_cards_repository.dart';
-import 'package:pishkhan_mobile/features/shell/shell.dart';
+import 'package:pishkhan_mobile/features/dashboard/dashboard.dart';
 import 'package:pishkhan_mobile/l10n/l10n.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_cards_list.dart';
 

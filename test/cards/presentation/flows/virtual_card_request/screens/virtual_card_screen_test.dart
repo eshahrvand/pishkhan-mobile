@@ -230,7 +230,7 @@ void main() {
               body: AppButton(
                 label: 'Main page',
                 onPressed: () => context.push<void>(
-                  CardsRoutes.listLocation(CardCategory.virtual),
+                  cardsListLocation(CardCategory.virtual),
                 ),
               ),
             ),

@@ -239,7 +239,8 @@ With 80+ services, creating a three-layer module per service would produce 80 fo
 | Module | Scope |
 |---|---|
 | `auth` | Login, OTP, password, biometrics, password change |
-| `shell` | Home screens, navigation, service catalog and search, onboarding |
+| `launch` | Splash, onboarding (planned, not yet specified), and the screens that route guards redirect to |
+| `dashboard` | Home screens, bottom navigation, service catalog and search |
 | `cards` | Card services |
 | `deposits` | Deposit and account services |
 | `loans` | Facility services |
@@ -348,6 +349,7 @@ pishkhan_project/
         │   │   └── request_status.dart        # Shared enums (request lifecycle status)
         │   └── router/
         │       ├── app_router.dart
+        │       ├── app_routes.dart            # All route path constants (Section 15.3)
         │       └── guards/
         │           ├── security_guard.dart
         │           ├── update_guard.dart
@@ -538,7 +540,7 @@ A flow may have any internal structure, but must:
 * produce a `FlowOutcome`;
 * support the `resume` parameter if it is resumable (Section 8.4).
 
-Three consumers of this contract: `shell` (service catalog), `requests` (resumption), `assistant` (fallback from conversation to the traditional interface).
+Three consumers of this contract: `dashboard` (service catalog), `requests` (resumption), `assistant` (fallback from conversation to the traditional interface).
 
 ### 8.3 Service Registry
 
@@ -1249,12 +1251,14 @@ String? globalRedirect(BuildContext context, GoRouterState state) {
 ```dart
 String? securityRedirect(GoRouterState state) {
   final verdict = securityService.cachedVerdict;   // never null
-  if (verdict is Blocked && state.matchedLocation != Routes.securityBlocked) {
-    return Routes.securityBlocked;
+  if (verdict is Blocked && state.matchedLocation != LaunchRoutes.securityBlocked) {
+    return LaunchRoutes.securityBlocked;
   }
   return null;
 }
 ```
+
+The guard logic lives in `core/router/guards/`. The screens a guard redirects to (security-blocked, update-required, maintenance) live in the `launch` module, and their paths are defined in `core/router/app_routes.dart` (Section 15.3).
 
 > [!NOTE]
 > Security evaluation runs at app startup and on every `resumed`, and the result is cached (Section 9.3). Awaiting a MethodChannel on every navigation would produce hundreds of unnecessary calls and visual flicker across multi-step flows.
@@ -1270,46 +1274,63 @@ A user arriving via notification or deep link whose session has expired must be 
 > [!CAUTION]
 > **The return destination must be validated against a whitelist of legitimate routes.** With deep links enabled, a tampered destination could send the user somewhere unintended.
 
-### 15.3 Route Definitions — Distributed Across Modules
+### 15.3 Route Paths and Definitions
 
-There is no central `route_names.dart`. Each module keeps its constants and route definitions in one file.
+All route **path constants** live in one file: `core/router/app_routes.dart`. Route **definitions** (the `GoRoute` objects and their screens) stay inside each module, in one file per module that reads its paths from the central file.
 
 ```dart
-// features/cards/cards_routes.dart
+// core/router/app_routes.dart — path constants only; imports nothing from features
+abstract final class LaunchRoutes {
+  static const splash = '/launch/splash';
+  static const securityBlocked = '/launch/security-blocked';
+}
+
+abstract final class DashboardRoutes {
+  static const home = '/dashboard/home';
+}
+
 abstract final class CardsRoutes {
   static const block = '/cards/block';
   static const virtual = '/cards/virtual';
-
-  static List<RouteBase> build() => [
-    GoRoute(path: block, builder: (_, __) => const BlockCardScreen()),
-    // ...
-  ];
 }
+
+// ... one class per module
+```
+
+```dart
+// features/cards/cards_routes.dart
+List<RouteBase> buildCardsRoutes() => [
+  GoRoute(path: CardsRoutes.block, builder: (_, __) => const BlockCardScreen()),
+  // ...
+];
 ```
 
 ```dart
 // core/router/app_router.dart — rarely changes once settled
 final appRouter = GoRouter(
-  initialLocation: ShellRoutes.splash,
+  initialLocation: LaunchRoutes.splash,
   redirect: globalRedirect,
   routes: [
-    ...ShellRoutes.build(),
-    ...AuthRoutes.build(),
-    ...CardsRoutes.build(),
-    ...DepositsRoutes.build(),
-    ...LoansRoutes.build(),
-    ...ChequeRoutes.build(),
-    ...RequestsRoutes.build(),
+    ...buildLaunchRoutes(),
+    ...buildDashboardRoutes(),
+    ...buildAuthRoutes(),
+    ...buildCardsRoutes(),
+    ...buildDepositsRoutes(),
+    ...buildLoansRoutes(),
+    ...buildChequeRoutes(),
+    ...buildRequestsRoutes(),
     // ...
   ],
 );
 ```
 
-**Rationale:** with four developers and 80 services, a central route constants file changes several times a day and becomes a chronic source of Git conflicts — conflicts with no logic behind them, but which consume time and risk silently dropping a line during resolution.
+**Rationale:** `core` (guards, the post-login whitelist in Section 15.2, `ServiceRegistry`) and every module navigate by importing only this file for route paths, never another feature module. Route paths therefore no longer create dependencies between `core` and the features, or between features.
+
+**Trade-off:** every developer who adds a route edits this file, so it can produce Git conflicts. The file is kept to path constants only and grouped as one class per module, so conflicts, when they happen, stay limited to adjacent line additions.
 
 **Two mandatory safeguards:**
 
-1. **Mandatory prefix:** all routes in the `cards` module begin with `/cards/`. Under this rule, route collisions are effectively impossible and the defining file is identifiable from the route itself.
+1. **Mandatory prefix:** all routes of the `cards` module begin with `/cards/` and are declared in the `CardsRoutes` class. Under this rule, route collisions are effectively impossible and the owning module is identifiable from the route itself.
 2. **Duplicate detection test:** a simple test that collects all routes and asserts uniqueness.
 
 ### 15.4 Flow Lifecycle

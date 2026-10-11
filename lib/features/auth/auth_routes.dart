@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/router/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -19,37 +20,33 @@ class PasswordRouteArguments {
   final PasswordServicesRepository? repository;
 }
 
-abstract final class AuthRoutes {
-  static const login = '/auth/login';
-  static const passwords = '/auth/password-services';
-  static List<RouteBase> build({
-    required void Function(BuildContext, GoRouterState) onAuthenticated,
-  }) {
-    // Retain mock receipts across entries, never PINs or identity serials.
-    final repository = MockPasswordServicesRepository();
-    return [
-      GoRoute(
-        path: login,
-        builder: (context, state) => BlocProvider(
-          create: (_) => AuthCubit(),
-          child: AuthScreen(
-            onAuthenticated: () => onAuthenticated(context, state),
-          ),
+List<RouteBase> buildAuthRoutes({
+  required void Function(BuildContext, GoRouterState) onAuthenticated,
+}) {
+  // Retain mock receipts across entries, never PINs or identity serials.
+  final repository = MockPasswordServicesRepository();
+  return [
+    GoRoute(
+      path: AuthRoutes.login,
+      builder: (context, state) => BlocProvider(
+        create: (_) => AuthCubit(),
+        child: AuthScreen(
+          onAuthenticated: () => onAuthenticated(context, state),
         ),
       ),
-      GoRoute(
-        path: passwords,
-        builder: (context, state) {
-          final args = state.extra is PasswordRouteArguments
-              ? state.extra as PasswordRouteArguments
-              : null;
-          return SecondPasswordScreen(
-            repository: args?.repository ?? repository,
-            initialCardNumber: args?.initialCardNumber,
-            selectOperation: args?.selectOperation ?? false,
-          );
-        },
-      ),
-    ];
-  }
+    ),
+    GoRoute(
+      path: AuthRoutes.passwords,
+      builder: (context, state) {
+        final args = state.extra is PasswordRouteArguments
+            ? state.extra as PasswordRouteArguments
+            : null;
+        return SecondPasswordScreen(
+          repository: args?.repository ?? repository,
+          initialCardNumber: args?.initialCardNumber,
+          selectOperation: args?.selectOperation ?? false,
+        );
+      },
+    ),
+  ];
 }

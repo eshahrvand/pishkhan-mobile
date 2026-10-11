@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pishkhan_mobile/core/router/app_router.dart';
+import 'package:pishkhan_mobile/core/router/app_routes.dart';
 import 'package:pishkhan_mobile/core/router/router_session.dart';
 
 /// Exercise feature fixtures with the same route table as the application.
@@ -31,6 +32,7 @@ class _TestRouterAppState extends State<TestRouterApp> {
   late final home = ValueNotifier<Widget>(widget.home);
   late final GoRouter router = createAppRouter(
     session: session,
+    initialLocation: DashboardRoutes.home,
     homeBuilder: (_) => ValueListenableBuilder<Widget>(
       valueListenable: home,
       builder: (_, child, _) => child,

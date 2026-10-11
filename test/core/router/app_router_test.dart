@@ -1,18 +1,20 @@
+import 'package:pishkhan_mobile/core/router/app_routes.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pishkhan_mobile/core/router/app_router.dart';
 import 'package:pishkhan_mobile/core/router/router_session.dart';
-import 'package:pishkhan_mobile/features/auth/auth_routes.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/flows/login/screens/auth_screen.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/flows/login/cubit/auth_cubit.dart';
 import 'package:pishkhan_mobile/features/cards/cards_routes.dart';
 import 'package:pishkhan_mobile/features/cards/presentation/flows/virtual_card_request/screens/virtual_card_request_screen.dart';
-import 'package:pishkhan_mobile/features/shell/shell_routes.dart';
-import 'package:pishkhan_mobile/features/shell/presentation/shared/widgets/route_unavailable_screen.dart';
+import 'package:pishkhan_mobile/features/launch/presentation/shared/widgets/route_unavailable_screen.dart';
 import 'package:pishkhan_mobile/l10n/l10n.dart';
+import 'package:pishkhan_mobile/features/launch/presentation/flows/splash/screens/splash_screen.dart';
+import 'package:pishkhan_mobile/features/dashboard/presentation/flows/home/screens/dashboard_screen.dart';
 
 Widget app(GoRouter router) => MaterialApp.router(
   routerConfig: router,
@@ -22,18 +24,38 @@ Widget app(GoRouter router) => MaterialApp.router(
   localizationsDelegates: AppLocalizations.localizationsDelegates,
 );
 void main() {
+  setUpAll(() async {
+    final loader = FontLoader(AppTypography.defaultFontFamily);
+    loader.addFont(
+      rootBundle.load(
+        'packages/avp_ui/assets/fonts/IRANYekanXFaNum-Regular.ttf',
+      ),
+    );
+    await loader.load();
+  });
   test('all implemented paths are unique and module-prefixed', () {
     final session = RouterSession();
     final routes = buildAppRoutes(session: session).cast<GoRoute>();
     final paths = routes.map((r) => r.path).toList();
-    expect(paths.length, 9);
+    const modulePaths = {
+      '/launch/': [LaunchRoutes.splash],
+      '/dashboard/': [DashboardRoutes.home, DashboardRoutes.allServices],
+      '/auth/': [AuthRoutes.login, AuthRoutes.passwords],
+      '/cards/': [
+        CardsRoutes.list,
+        CardsRoutes.issuance,
+        CardsRoutes.virtualRequest,
+      ],
+      '/profile/': [ProfileRoutes.messages, ProfileRoutes.messageDetail],
+    };
+    final declaredPaths = modulePaths.values.expand((paths) => paths).toList();
+    expect(paths, unorderedEquals(declaredPaths));
     expect(paths.toSet().length, paths.length);
-    for (final path in paths) {
-      expect(
-        RegExp(r'^/(auth|cards|shell|profile)/').hasMatch(path),
-        isTrue,
-        reason: path,
-      );
+    expect(declaredPaths.toSet().length, declaredPaths.length);
+    for (final module in modulePaths.entries) {
+      for (final path in module.value) {
+        expect(path.startsWith(module.key), isTrue, reason: path);
+      }
     }
     session.dispose();
   });
@@ -44,7 +66,7 @@ void main() {
         CardsRoutes.virtualRequest,
         '/cards/list?category=virtual',
         '/profile/messages/security-id',
-        ShellRoutes.allServices,
+        DashboardRoutes.allServices,
       ]) {
         expect(validatedReturnLocation(value), value);
       }
@@ -57,13 +79,59 @@ void main() {
         '/unknown',
         '/cards/list?category=virtual&category=gift',
         '/cards/list?category=unsupported',
-        '/shell/home?token=secret',
+        '/dashboard/home?token=secret',
         '/cards/list#bad',
       ]) {
-        expect(validatedReturnLocation(value), ShellRoutes.home, reason: value);
+        expect(
+          validatedReturnLocation(value),
+          DashboardRoutes.home,
+          reason: value,
+        );
       }
     },
   );
+  for (final authenticated in [false, true]) {
+    testWidgets(
+      authenticated
+          ? 'authenticated start reaches dashboard home after splash'
+          : 'unauthenticated start reaches login after splash',
+      (tester) async {
+        tester.view.physicalSize = const Size(390, 844);
+        tester.view.devicePixelRatio = 1;
+        final session = RouterSession(authenticated);
+        final router = createAppRouter(
+          session: session,
+          homeBuilder: (_) => const DashboardScreen(enableAnimations: false),
+        );
+        addTearDown(() {
+          router.dispose();
+          session.dispose();
+          tester.view.resetPhysicalSize();
+          tester.view.resetDevicePixelRatio();
+        });
+        await tester.pumpWidget(app(router));
+        expect(find.byType(SplashScreen), findsOneWidget);
+        await tester.pumpAndSettle();
+        expect(find.byType(SplashScreen), findsNothing);
+        expect(
+          router.routeInformationProvider.value.uri.path,
+          authenticated ? DashboardRoutes.home : AuthRoutes.login,
+        );
+        expect(
+          find.byType(authenticated ? DashboardScreen : AuthScreen),
+          findsOneWidget,
+        );
+        expect(session.isAuthenticated, authenticated);
+        if (!authenticated) {
+          expect(
+            router.routeInformationProvider.value.uri.queryParameters['from'],
+            DashboardRoutes.home,
+          );
+        }
+        await tester.pumpWidget(const SizedBox.shrink());
+      },
+    );
+  }
   testWidgets(
     'protected deep link survives login; logout closes the protected flow',
     (tester) async {

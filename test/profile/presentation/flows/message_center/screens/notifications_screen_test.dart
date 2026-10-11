@@ -4,7 +4,7 @@ import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:pishkhan_mobile/features/shell/presentation/flows/home/screens/dashboard_screen.dart';
+import 'package:pishkhan_mobile/features/dashboard/presentation/flows/home/screens/dashboard_screen.dart';
 import 'package:pishkhan_mobile/features/profile/domain/entities/notification_message.dart';
 import 'package:pishkhan_mobile/features/profile/presentation/flows/message_center/screens/notifications_screen.dart';
 import 'package:pishkhan_mobile/l10n/l10n.dart';
