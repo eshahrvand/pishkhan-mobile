@@ -361,7 +361,8 @@ pishkhan_project/
             │   ├── domain/
             │   │   ├── entities/
             │   │   ├── repositories/
-            │   │   └── usecases/
+            │   │   └── usecases/        # One sub-folder per service
+            │   │       └── block_card/
             │   ├── data/
             │   │   ├── datasources/
             │   │   ├── models/
@@ -385,6 +386,14 @@ pishkhan_project/
             ├── assistant/
             └── ...
 ```
+
+### 6.5 Service Placement and Naming
+
+Following the granularity principle (Section 6.1):
+
+1. **The top-level folders under `app/lib/features/` are exactly the modules listed in Section 6.2.** A service never gets its own top-level folder; it lives inside the module of its category (for example, card issuance and virtual card services live inside `cards`).
+2. **Entities, repositories, mappers, and DTOs stay at the module level** and are shared by the services of that module. The use case and the presentation flow are per service.
+3. **Each service uses one folder name** (`snake_case`, English), identical in `domain/usecases/<service>/` and `presentation/flows/<service>/`.
 
 ---
 

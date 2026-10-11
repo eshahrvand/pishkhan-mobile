@@ -1,8 +1,8 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/cubit/auth_cubit.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/cubit/auth_state.dart';
+import 'package:pishkhan_mobile/features/auth/presentation/flows/login/cubit/auth_cubit.dart';
+import 'package:pishkhan_mobile/features/auth/presentation/flows/login/cubit/auth_state.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/shared/auth_assets.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/shared/widgets/auth_field_icon.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/shared/widgets/auth_numeric_field.dart';

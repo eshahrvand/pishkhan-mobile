@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:pishkhan_mobile/features/cards/cards.dart';
-import 'package:pishkhan_mobile/features/card_issuance/card_issuance.dart';
-import 'package:pishkhan_mobile/features/password_services/password_services.dart';
-import 'package:pishkhan_mobile/features/virtual_card_request/virtual_card_request.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/flows/card_issuance/card_issuance.dart';
+import 'package:pishkhan_mobile/features/auth/presentation/flows/password_services/password_services.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/flows/virtual_card_request/virtual_card_request.dart';
 
 // Retains mock request status across route entries; never retains passwords.
 final _passwordRepository = MockPasswordServicesRepository();

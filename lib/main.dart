@@ -2,9 +2,9 @@ import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/auth_screen.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/cubit/auth_cubit.dart';
-import 'package:pishkhan_mobile/features/dashboard/dashboard.dart';
+import 'package:pishkhan_mobile/features/auth/presentation/flows/login/screens/auth_screen.dart';
+import 'package:pishkhan_mobile/features/auth/presentation/flows/login/cubit/auth_cubit.dart';
+import 'package:pishkhan_mobile/features/shell/shell.dart';
 import 'package:pishkhan_mobile/l10n/l10n.dart';
 
 Future<void> main() async {

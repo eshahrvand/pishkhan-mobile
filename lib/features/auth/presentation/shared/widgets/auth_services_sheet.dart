@@ -4,7 +4,7 @@ import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/cubit/auth_cubit.dart';
+import 'package:pishkhan_mobile/features/auth/presentation/flows/login/cubit/auth_cubit.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/shared/auth_assets.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/shared/widgets/auth_services_grid.dart';
 import 'package:pishkhan_mobile/l10n/l10n.dart';
