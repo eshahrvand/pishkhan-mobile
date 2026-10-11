@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/features/auth/presentation/cubit/auth_rules.dart';
+
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -30,7 +32,7 @@ class AuthCubit extends Cubit<AuthState> {
   };
 
   void validateField(String field) {
-    if (isClosed || state.isOtp) return;
+    if (isClosed || authIsOtp(state)) return;
     final errors = {...state.invalidFields};
     if (_fieldIsValid(field)) {
       errors.remove(field);
@@ -41,7 +43,7 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   bool requestOtp() {
-    if (state.isOtp) return false;
+    if (authIsOtp(state)) return false;
     final errors = {
       for (final field in ['nationalId', 'phone', 'captcha'])
         if (!_fieldIsValid(field)) field,
@@ -68,7 +70,7 @@ class AuthCubit extends Cubit<AuthState> {
       emit(state.copyWith(captcha: '', invalidFields: _clearError('captcha')));
 
   void resendOtp() {
-    if (!state.isOtp || state.secondsRemaining > 0) return;
+    if (!authIsOtp(state) || state.secondsRemaining > 0) return;
     emit(state.copyWith(otp: '', secondsRemaining: 60));
     _startTimer();
   }
@@ -107,7 +109,7 @@ class AuthCubit extends Cubit<AuthState> {
   void _startTimer() {
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (isClosed || !state.isOtp) {
+      if (isClosed || !authIsOtp(state)) {
         timer.cancel();
         return;
       }

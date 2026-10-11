@@ -94,7 +94,7 @@ Users can obtain services through two paths:
 | Layer / Concern | Chosen Solution | Rationale |
 |---|---|---|
 | **State Management** | `flutter_bloc` (Cubit) | Minimal boilerplate, high testability, simple mental model |
-| **Immutability** | Native Dart 3 `sealed class` + `freezed` (limited) | Reduced code generation; freezed reserved for form states |
+| **Immutability (Cubit states)** | `freezed` for all Cubit states, with a shared `RequestStatus` enum from `core/enums/` | Single uniform pattern; one state class per Cubit; generated `copyWith`, `==`, `hashCode` |
 | **UI Package** | `packages/avp_ui` (local package) | Independent design system: tokens, theme, widgets, formatters |
 | **Pure Validators** | `app/lib/core/validators` | Pure validation (Luhn, IBAN, national ID) with no Flutter dependency |
 | **Network Client** | `dio` + `retrofit` | Type-safe, advanced interceptors |
@@ -107,6 +107,26 @@ Users can obtain services through two paths:
 | **Dates** | Jalali calendar in the presentation layer | Domain always uses Gregorian/UTC |
 | **Linting** | `very_good_analysis` + `custom_lint` | Architectural rules enforced at error level |
 | **Testing** | `test`, `bloc_test`, `mocktail` | Mocking without code generation |
+
+### 3.1 Code Generation Package Versions
+
+The following versions are the latest available at the time of writing. `freezed`, `json_serializable`, and `retrofit_generator` share the same analyzer / `build_runner` toolchain, and mismatched versions between them are a known source of dependency conflicts during code generation. They are therefore pinned together as one set:
+
+```yaml
+dependencies:
+   freezed_annotation: ^3.1.0
+   json_annotation: ^4.12.0
+   retrofit: ^4.10.0
+
+dev_dependencies:
+   build_runner: ^2.16.2
+   freezed: ^4.0.2
+   json_serializable: ^6.14.1
+   retrofit_generator: ^10.2.11
+```
+
+> [!IMPORTANT]
+> These versions must be updated **as a set** whenever the Flutter / Dart version changes. Upgrading any one of them in isolation is not permitted; the whole set is re-resolved and verified with a full `build_runner` run before the change is merged. Because the Flutter version is locked for the duration of the project (Section 4.1), this set changes only together with an approved Flutter upgrade.
 
 ---
 
@@ -324,6 +344,8 @@ pishkhan_project/
         │   │   └── push_service.dart          # Interface + platform implementations
         │   ├── cubit/
         │   │   └── base_cubit.dart
+        │   ├── enums/
+        │   │   └── request_status.dart        # Shared enums (request lifecycle status)
         │   └── router/
         │       ├── app_router.dart
         │       └── guards/
@@ -934,34 +956,52 @@ extension ResultX<T> on Result<T> {
 
 State management uses `Cubit`. For the `assistant` module, which is event-driven and stream-based by nature, using `Bloc` with event transformers will be evaluated in Section 19.
 
-### 12.2 Transitional States — No Code Generation
+### 12.2 Transitional States — freezed with a Shared Status Enum
+
+Each Cubit has a **single `freezed` state class** with a `status` field. The request lifecycle is expressed by one shared enum that lives in `app/lib/core/enums/`, rather than a separate enum per Cubit.
 
 ```dart
-sealed class BlockCardState {
-  const BlockCardState();
-}
+// core/enums/request_status.dart
+enum RequestStatus { initial, loading, success, failure }
+```
 
-final class BlockCardInitial extends BlockCardState { const BlockCardInitial(); }
-final class BlockCardLoading extends BlockCardState { const BlockCardLoading(); }
-
-final class BlockCardSuccess extends BlockCardState {
-  final String trackingId;
-  const BlockCardSuccess(this.trackingId);
-}
-
-final class BlockCardFailure extends BlockCardState {
-  final Failure failure;
-  const BlockCardFailure(this.failure);
+```dart
+@freezed
+abstract class BlockCardState with _$BlockCardState {
+  const factory BlockCardState({
+    @Default(RequestStatus.initial) RequestStatus status,
+    String? trackingId,
+    Failure? failure,
+  }) = _BlockCardState;
 }
 ```
 
-A `switch` over this structure is natively exhaustive, providing the same guarantee `when` offered in freezed, with zero code generation.
+Because data stays in the same state object, it is preserved across status changes (for example, a list stays visible while it reloads). A `switch` over `state.status` is exhaustive over the enum:
+
+```dart
+final label = switch (state.status) {
+  RequestStatus.initial => 'initial',
+  RequestStatus.loading => 'loading',
+  RequestStatus.success => state.trackingId ?? '',
+  RequestStatus.failure => state.failure?.code ?? '',
+};
+```
+
+**Rules:**
+
+1. **Shared enums live in `core/enums/`.** An enum that is useful to more than one feature is placed there, not inside a feature module.
+2. **`RequestStatus` describes only the lifecycle of an async request.** A value needed by a single feature is never added to it.
+3. **Anything beyond the four statuses is created inside the relevant feature, when it is actually needed:**
+   * a business outcome of a successful request is a data field in the state (for example an `outcome` enum), not an extra status value;
+   * a second independent operation in the same Cubit gets a second `RequestStatus` field;
+   * a flow whose lifecycle genuinely differs from the four statuses gets its own enum or state design inside its feature.
+4. **No guard getters are required.** The state is read directly through its fields.
 
 ### 12.3 Code Generation Policy
 
 | Case | Tool | Reason |
 |---|---|---|
-| Transitional state (initial/loading/success/failure) | Hand-written `sealed class` | No `copyWith` needed |
+| Transitional state (initial/loading/success/failure) | `freezed` single class + shared `RequestStatus` enum | Uniform pattern with form states; data preserved across statuses; generated `==`/`hashCode`/`copyWith` |
 | Form state with several fields | `freezed` | Frequent `copyWith`; hand-writing is error-prone |
 | DTOs | `json_serializable` | Unavoidable, scoped to `data/models/` |
 | Entities | Hand-written + `Equatable` | Simple and stable |
@@ -969,7 +1009,7 @@ A `switch` over this structure is natively exhaustive, providing the same guaran
 In `build.yaml`, each generator's scope is narrowed: `json_serializable` only under `data/models/`, `freezed` only under `presentation/` and defined paths.
 
 > [!NOTE]
-> With 80 services and several cubits each, applying `freezed` to every state pushes `build_runner` time into the minutes, a cost every developer pays several times a day. The split above cuts code generation volume by roughly two-thirds.
+> `freezed` is applied to every Cubit state. The resulting `build_runner` cost (about one minute for the first full run) is accepted as a deliberate trade-off in exchange for a single uniform state pattern. Package versions are pinned as a set (Section 3.1).
 
 ### 12.4 Base Cubit
 
@@ -1008,7 +1048,7 @@ abstract class BaseCubit<S> extends Cubit<S> {
 
 ```dart
 @freezed
-sealed class LoanRequestFormState with _$LoanRequestFormState {
+abstract class LoanRequestFormState with _$LoanRequestFormState {
   const factory LoanRequestFormState({
     @Default('') String amount,
     @Default(null) LoanPurpose? purpose,
@@ -1267,15 +1307,15 @@ final appRouter = GoRouter(
 
 ```dart
 ShellRoute(
-  builder: (_, __, child) => BlocProvider(
-    create: (_) => getIt<LoanRequestCubit>(),
-    child: child,
-  ),
-  routes: [
-    GoRoute(path: '/loans/request/amount',    builder: ...),
-    GoRoute(path: '/loans/request/documents', builder: ...),
-    GoRoute(path: '/loans/request/review',    builder: ...),
-  ],
+builder: (_, __, child) => BlocProvider(
+create: (_) => getIt<LoanRequestCubit>(),
+child: child,
+),
+routes: [
+GoRoute(path: '/loans/request/amount',    builder: ...),
+GoRoute(path: '/loans/request/documents', builder: ...),
+GoRoute(path: '/loans/request/review',    builder: ...),
+],
 )
 ```
 

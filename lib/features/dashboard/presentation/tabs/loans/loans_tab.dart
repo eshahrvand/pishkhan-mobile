@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/features/dashboard/domain/repositories/dashboard_repositories.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_async_view.dart';
@@ -51,12 +52,12 @@ class _LoansTabState extends State<LoansTab> {
   double? _viewport;
   late final LoansCubit _cubit;
   String? _controllerItems;
-  List<BankLoan> get _items => _cubit.state is DashboardTabLoaded<BankLoan>
-      ? (_cubit.state as DashboardTabLoaded<BankLoan>).items
+  List<BankLoan> get _items => _cubit.state.status == RequestStatus.success
+      ? _cubit.state.items ?? const []
       : const [];
-  int get _selected => _cubit.state is DashboardTabLoaded<BankLoan>
-      ? (_cubit.state as DashboardTabLoaded<BankLoan>).selectedIndex
-      : 0;
+  int get _selected => _items.isEmpty
+      ? 0
+      : _items.indexWhere((item) => item.id == _cubit.state.selectedId);
   @override
   void initState() {
     super.initState();
@@ -119,12 +120,16 @@ class _LoansTabState extends State<LoansTab> {
     value: _cubit,
     child: BlocConsumer<LoansCubit, LoansState>(
       listener: (context, state) {
-        if (state is DashboardTabLoading) _controllerItems = null;
-        if (state is DashboardTabLoaded<BankLoan> &&
-            _pages?.hasClients == true &&
-            !_pages!.position.isScrollingNotifier.value &&
-            ((_pages!.page ?? 0) - state.selectedIndex).abs() > .01) {
-          _pages!.jumpToPage(state.selectedIndex);
+        if (state.status == RequestStatus.loading) _controllerItems = null;
+        if (state.status == RequestStatus.success && state.items != null) {
+          final selectedIndex = state.items!.indexWhere(
+            (item) => item.id == state.selectedId,
+          );
+          if (_pages?.hasClients == true &&
+              !_pages!.position.isScrollingNotifier.value &&
+              ((_pages!.page ?? 0) - selectedIndex).abs() > .01) {
+            _pages!.jumpToPage(selectedIndex);
+          }
         }
       },
       builder: (context, state) => Directionality(
@@ -150,13 +155,13 @@ class _LoansTabState extends State<LoansTab> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            if (state is DashboardTabInitial ||
-                                state is DashboardTabLoading)
+                            if (state.status == RequestStatus.initial ||
+                                state.status == RequestStatus.loading)
                               const DashboardAsyncView(
                                 key: Key("loans_loading"),
                                 loading: true,
                               )
-                            else if (state is DashboardTabError)
+                            else if (state.status == RequestStatus.failure)
                               DashboardAsyncView(
                                 key: const Key("loans_error"),
                                 onRetry: _cubit.load,

@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/core/enums/request_status.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/cubit/card_features_rules.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/core/result/result.dart';
 
@@ -19,25 +21,25 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
     final request = ++_request;
     emit(
       state.copyWith(
-        status: CardsLoadStatus.loading,
-        clearFailure: true,
-        clearDraft: true,
+        status: RequestStatus.loading,
+        failure: null,
+        draftFilter: null,
       ),
     );
     final result = await _loader();
     if (isClosed || request != _request) return;
     switch (result) {
       case Err(:final failure):
-        emit(state.copyWith(status: CardsLoadStatus.error, failure: failure));
+        emit(state.copyWith(status: RequestStatus.failure, failure: failure));
       case Success(:final data):
         emit(
           state.copyWith(
-            status: data.isEmpty
-                ? CardsLoadStatus.empty
-                : CardsLoadStatus.loaded,
+            status: RequestStatus.success,
             cards: data,
-            clearFailure: true,
-            clearSelection: !data.any((c) => c.id == state.selectedId),
+            failure: null,
+            selectedId: data.any((c) => c.id == state.selectedId)
+                ? state.selectedId
+                : null,
           ),
         );
     }
@@ -49,10 +51,10 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
   }
 
   void selectCategory(CardCategory value) =>
-      emit(state.copyWith(category: value, clearSelection: true));
+      emit(state.copyWith(category: value, selectedId: null));
   void search(String value) => emit(state.copyWith(query: value));
   void selectCard(String id) {
-    if (state.visibleCards.any((card) => card.id == id)) {
+    if (cardFeaturesVisibleCards(state).any((card) => card.id == id)) {
       emit(state.copyWith(selectedId: id));
     }
   }
@@ -66,16 +68,16 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
     if (state.draftFilter != null) {
       emit(
         state.copyWith(
-          filter: state.draftFilter,
-          clearDraft: true,
-          clearSelection: true,
+          filter: state.draftFilter!,
+          draftFilter: null,
+          selectedId: null,
         ),
       );
     }
   }
 
   void clearDraftFilter() => setDraft(const CardFilter());
-  void cancelFilter() => emit(state.copyWith(clearDraft: true));
+  void cancelFilter() => emit(state.copyWith(draftFilter: null));
   @override
   Future<void> close() {
     _request++;

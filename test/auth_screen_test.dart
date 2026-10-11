@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/features/auth/presentation/cubit/auth_rules.dart';
+
 import 'dart:io';
 import 'dart:ui' as ui;
 
@@ -144,7 +146,7 @@ void main() {
         tester.getTopLeft(find.byKey(const Key('auth_menu_button'))).dy,
         28,
       );
-      if (state.isOtp) {
+      if (authIsOtp(state)) {
         expect(find.text('کد ارسال شد.'), findsOneWidget);
         final submit = find.byKey(const Key('submit_otp_button'));
         expect(tester.getSize(submit).height, 44);
@@ -155,7 +157,7 @@ void main() {
         await preview(tester, name);
         await tester.tap(submit);
         await tester.pump();
-        expect(submitted, state.isOtpValid);
+        expect(submitted, authIsOtpValid(state));
       } else {
         final nationalId = find.byKey(
           ValueKey('${state.step.name}-national-id'),
@@ -163,7 +165,7 @@ void main() {
         expect(tester.getSize(nationalId).height, 44);
         expect(
           tester.getTopLeft(nationalId).dy,
-          state.isChangePhone ? 200 : 180,
+          authIsChangePhone(state) ? 200 : 180,
         );
         expect(
           tester.getSize(find.byKey(const Key('auth_captcha_image'))).width,
@@ -171,7 +173,10 @@ void main() {
         );
         final submit = find.byKey(const Key('request_otp_button'));
         expect(tester.getSize(submit).height, 40);
-        expect(tester.getTopLeft(submit).dy, state.isChangePhone ? 456 : 412);
+        expect(
+          tester.getTopLeft(submit).dy,
+          authIsChangePhone(state) ? 456 : 412,
+        );
         await preview(tester, name);
       }
       debugDisableShadows = priorShadowSetting;

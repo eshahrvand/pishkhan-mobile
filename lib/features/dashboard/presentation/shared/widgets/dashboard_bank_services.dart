@@ -119,7 +119,8 @@ class DashboardBankServices extends StatelessWidget {
         ),
       ),
       const SizedBox(height: 16),
-      if (state.isEditing || state.favorites.isNotEmpty)
+      if (state.draft != null ||
+          (state.data?.favorites ?? const <String>[]).isNotEmpty)
         _favorites(context)
       else
         CustomPaint(
@@ -177,7 +178,8 @@ class DashboardBankServices extends StatelessWidget {
                 ),
               ),
             ),
-            if (state.isEditing && state.favorites.isNotEmpty)
+            if (state.draft != null &&
+                (state.data?.favorites ?? const <String>[]).isNotEmpty)
               SizedBox(
                 width: 20,
                 height: 20,
@@ -193,7 +195,7 @@ class DashboardBankServices extends StatelessWidget {
                   semanticLabel: context.l10n.dashboardResetTitle,
                 ),
               )
-            else if (!state.isEditing)
+            else if (state.draft == null)
               SizedBox(
                 width: 80 * MediaQuery.textScalerOf(context).scale(1),
                 height: 20,
@@ -214,7 +216,7 @@ class DashboardBankServices extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 20),
-        if (state.isEditing) ...[
+        if (state.draft != null) ...[
           Container(
             key: const Key('dashboard_favorites_editor'),
             padding: const EdgeInsets.symmetric(
@@ -232,7 +234,8 @@ class DashboardBankServices extends StatelessWidget {
             child: Column(
               children: [
                 _grid(context, editable: true),
-                if (state.visibleFavorites.length ==
+                if ((state.draft ?? state.data?.favorites ?? const <String>[])
+                        .length ==
                     DashboardCubit.maxFavorites) ...[
                   const SizedBox(height: 12),
                   Container(
@@ -309,12 +312,14 @@ class DashboardBankServices extends StatelessWidget {
     builder: (context, constraints) {
       final columns = constraints.maxWidth >= 274 ? 4 : 3;
       final width = (constraints.maxWidth - (columns - 1) * 6) / columns;
-      final services = state.visibleFavorites
-          .expand(
-            (id) =>
-                DashboardService.values.where((service) => service.id == id),
-          )
-          .toList();
+      final services =
+          (state.draft ?? state.data?.favorites ?? const <String>[])
+              .expand(
+                (id) => DashboardService.values.where(
+                  (service) => service.id == id,
+                ),
+              )
+              .toList();
       return Wrap(
         spacing: 6,
         runSpacing: 12,

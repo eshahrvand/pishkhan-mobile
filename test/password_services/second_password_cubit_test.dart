@@ -1,3 +1,6 @@
+import 'package:pishkhan_mobile/core/enums/request_status.dart';
+import 'package:pishkhan_mobile/features/password_services/presentation/cubit/password_rules.dart';
+
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -72,6 +75,24 @@ Future<void> readyToSubmit(SecondPasswordCubit c) async {
 
 void main() {
   test(
+    'Freezed password state never prints credentials, including after copyWith',
+    () {
+      const state = SecondPasswordState(
+        password: '829164',
+        currentPassword: '5638',
+        confirmation: '829164',
+        serial: '3R12345678',
+      );
+      for (final value in [state, state.copyWith(terms: true)]) {
+        final printed = value.toString();
+        for (final secret in ['829164', '5638', '3R12345678']) {
+          expect(printed, isNot(contains(secret)));
+        }
+      }
+    },
+  );
+
+  test(
     'recovery requires an operation and permits an already configured card',
     () async {
       for (final operation in [
@@ -91,11 +112,11 @@ void main() {
         final c = SecondPasswordCubit(repository: r, selectOperation: true);
         await c.load();
         select(c);
-        expect(c.state.canContinue, false);
+        expect(passwordCanContinue(c.state), false);
         await c.next();
         expect(c.state.step, SecondPasswordStep.selection);
         c.chooseOperation(operation);
-        expect(c.state.selectionComplete, true);
+        expect(passwordSelectionComplete(c.state), true);
         await c.next();
         expect(c.state.step, SecondPasswordStep.password);
         c.passwordChanged('829164');
@@ -113,7 +134,7 @@ void main() {
         }
         await c.submit();
         expect(r.requests.single.operation, operation);
-        expect(c.state.status, SecondPasswordStatus.submitted);
+        expect(c.state.submissionStatus, RequestStatus.success);
         await c.close();
       }
     },
@@ -235,17 +256,17 @@ void main() {
     c.passwordChanged('829164');
     c.confirmationChanged('829164');
     c.acceptTerms(true);
-    expect(c.state.canContinue, false);
+    expect(passwordCanContinue(c.state), false);
     c.currentPasswordChanged('۱۲۳۴');
     expect(c.state.currentPassword, '1234');
     expect(c.state.terms, false);
     c.acceptTerms(true);
-    expect(c.state.canContinue, true);
+    expect(passwordCanContinue(c.state), true);
     await c.next();
     expect(r.requests.single.currentPassword, '1234');
     expect(r.requests.single.nationalCardSerial, isEmpty);
     expect(r.requests.single.kycReference, isEmpty);
-    expect(c.state.status, SecondPasswordStatus.submitted);
+    expect(c.state.submissionStatus, RequestStatus.success);
     expect(c.state.currentPassword, isEmpty);
     expect(c.state.password, isEmpty);
     expect(r.requests.single.toString(), isNot(contains('1234')));
@@ -316,25 +337,25 @@ void main() {
     final c = SecondPasswordCubit(repository: ControlledPasswordRepository());
     await c.load();
     c.selectSecondPassword();
-    expect(c.state.canContinue, false);
+    expect(passwordCanContinue(c.state), false);
     select(c);
-    expect(c.state.canContinue, true);
+    expect(passwordCanContinue(c.state), true);
     await c.next();
     c.passwordChanged('۸۲۹۱۶۴');
     c.confirmationChanged('٨٢٩١٦٤');
     expect(c.state.password, '829164');
-    expect(c.state.canContinue, false);
+    expect(passwordCanContinue(c.state), false);
     c.acceptTerms(true);
-    expect(c.state.canContinue, true);
+    expect(passwordCanContinue(c.state), true);
     c.confirmationChanged('829163');
     expect(c.state.terms, false);
     c.confirmationChanged('829164');
     c.acceptTerms(true);
     await c.next();
-    expect(c.state.canContinue, false);
+    expect(passwordCanContinue(c.state), false);
     c.serialChanged('۳r۱۲۳۴۵۶۷۸');
     expect(c.state.serial, '3R12345678');
-    expect(c.state.canContinue, true);
+    expect(passwordCanContinue(c.state), true);
     await c.close();
   });
   test('pending and approved status stop before password entry', () async {
@@ -408,7 +429,7 @@ void main() {
       await c.submit();
       expect(r.requests.length, 1);
       expect(c.state.password, '829164');
-      expect(c.state.status, SecondPasswordStatus.submitting);
+      expect(c.state.submissionStatus, RequestStatus.loading);
       expect(r.requests.single.toString(), isNot(contains('829164')));
       r.submitting!.complete(
         const Success(
@@ -423,7 +444,7 @@ void main() {
       expect(c.state.password, '');
       expect(c.state.confirmation, '');
       expect(c.state.serial, '');
-      expect(c.state.status, SecondPasswordStatus.submitted);
+      expect(c.state.submissionStatus, RequestStatus.success);
       await c.close();
     },
   );
@@ -435,7 +456,8 @@ void main() {
     await readyToSubmit(c);
     await c.submit();
     expect(c.state.password, '829164');
-    expect(c.state.status, SecondPasswordStatus.ready);
+    expect(c.state.status, RequestStatus.success);
+    expect(c.state.submissionStatus, RequestStatus.failure);
     r.submitFailure = null;
     await c.submit();
     expect(r.requests[0].idempotencyKey, r.requests[1].idempotencyKey);
@@ -452,7 +474,7 @@ void main() {
       await c.load();
       pending.complete(const Err(DataFailure('old')));
       await old;
-      expect(c.state.status, SecondPasswordStatus.ready);
+      expect(c.state.status, RequestStatus.success);
       select(c);
       r.checking = Completer();
       final check = c.next();
@@ -471,7 +493,8 @@ void main() {
       ..catalog = PasswordCatalog(cards: []);
     final c = SecondPasswordCubit(repository: r);
     await c.load();
-    expect(c.state.status, SecondPasswordStatus.empty);
+    expect(c.state.status, RequestStatus.success);
+    expect(c.state.catalog!.cards, isEmpty);
     r.catalog = PasswordCatalog(
       cards: [
         PasswordCard(id: 'x', number: '1'),
@@ -479,14 +502,14 @@ void main() {
       ],
     );
     await c.load();
-    expect(c.state.status, SecondPasswordStatus.failed);
+    expect(c.state.status, RequestStatus.failure);
     r.catalog = MockPasswordServicesRepository.sampleCatalog;
     r.loadFailure = const DataFailure('network');
     await c.load();
     expect(c.state.failure!.code, 'network');
     r.loadFailure = null;
     await c.load();
-    expect(c.state.status, SecondPasswordStatus.ready);
+    expect(c.state.status, RequestStatus.success);
     await c.close();
   });
   test('changed request data gets a new retry identity', () async {
@@ -518,7 +541,7 @@ void main() {
       ),
     );
     await task;
-    expect(c.state.status, SecondPasswordStatus.submitting);
+    expect(c.state.submissionStatus, RequestStatus.loading);
     expect(c.isClosed, true);
   });
   test(

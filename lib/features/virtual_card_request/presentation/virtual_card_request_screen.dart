@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/core/enums/request_status.dart';
+import 'package:pishkhan_mobile/features/virtual_card_request/presentation/cubit/virtual_card_rules.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -61,7 +63,7 @@ class _VirtualCardRequestScreenState extends State<VirtualCardRequestScreen> {
   }
 
   void _back() {
-    if (cubit.state.status != VirtualCardStatus.submitting &&
+    if (cubit.state.submissionStatus != RequestStatus.loading &&
         Navigator.of(context).canPop()) {
       Navigator.of(context).pop();
     }
@@ -114,8 +116,16 @@ class _VirtualCardRequestScreenState extends State<VirtualCardRequestScreen> {
     child: Directionality(
       textDirection: TextDirection.rtl,
       child: BlocConsumer<VirtualCardCubit, VirtualCardState>(
-        listenWhen: (a, b) => a.receipt != b.receipt && b.receipt != null,
-        listener: (context, state) => _receipt(state.receipt!),
+        listenWhen: (a, b) =>
+            a.status != b.status ||
+            a.quoteStatus != b.quoteStatus ||
+            a.submissionStatus != b.submissionStatus,
+        listener: (context, state) {
+          if (state.submissionStatus == RequestStatus.success &&
+              state.receipt != null) {
+            _receipt(state.receipt!);
+          }
+        },
         builder: (context, state) => PopScope<void>(
           canPop: false,
           onPopInvokedWithResult: (didPop, _) {
@@ -143,7 +153,7 @@ class _VirtualCardRequestScreenState extends State<VirtualCardRequestScreen> {
                     ),
                   ),
                   if (state.catalog != null &&
-                      state.status != VirtualCardStatus.empty)
+                      state.catalog?.deposits.isNotEmpty == true)
                     _footer(context, state),
                 ],
               ),
@@ -155,20 +165,20 @@ class _VirtualCardRequestScreenState extends State<VirtualCardRequestScreen> {
   );
   Widget _content(BuildContext context, VirtualCardState state) {
     final l = context.l10n;
-    if (state.status == VirtualCardStatus.loading ||
-        state.status == VirtualCardStatus.initial) {
+    if (state.status == RequestStatus.loading ||
+        state.status == RequestStatus.initial) {
       return AppButton(
         onPressed: null,
         isLoading: true,
         label: l.dashboardLoading,
       );
     }
-    if (state.status == VirtualCardStatus.failed ||
-        state.status == VirtualCardStatus.empty) {
+    if (state.status == RequestStatus.failure ||
+        state.catalog?.deposits.isEmpty == true) {
       return Column(
         children: [
           Text(
-            state.status == VirtualCardStatus.empty
+            state.catalog?.deposits.isEmpty == true
                 ? l.virtualRequestEmpty
                 : l.dashboardLoadError,
           ),
@@ -198,7 +208,7 @@ class _VirtualCardRequestScreenState extends State<VirtualCardRequestScreen> {
         ),
         const SizedBox(height: 20),
         IgnorePointer(
-          ignoring: !state.editable,
+          ignoring: !virtualCardEditable(state),
           child: AppSelect<String>(
             key: const Key('virtual_deposit'),
             label: l.virtualRequestDepositLabel,
@@ -229,7 +239,7 @@ class _VirtualCardRequestScreenState extends State<VirtualCardRequestScreen> {
         AppTextField(
           key: const Key('virtual_count'),
           controller: count,
-          enabled: state.editable,
+          enabled: virtualCardEditable(state),
           hintText: l.virtualRequestCountHint,
           hintColor: AppPalette.gray400,
           textStyle: _body(context),
@@ -242,7 +252,7 @@ class _VirtualCardRequestScreenState extends State<VirtualCardRequestScreen> {
             FilteringTextInputFormatter.digitsOnly,
             LengthLimitingTextInputFormatter(6),
           ],
-          errorText: state.countText.isNotEmpty && !state.validCount
+          errorText: state.countText.isNotEmpty && !virtualCardValidCount(state)
               ? l.virtualRequestCountError(state.catalog!.maxCount)
               : null,
           onChanged: cubit.countChanged,
@@ -307,7 +317,7 @@ class _VirtualCardRequestScreenState extends State<VirtualCardRequestScreen> {
               CurrencyFormatter.format(state.catalog!.indicativePerCardFeeRial),
             ),
           ),
-        if (state.status == VirtualCardStatus.quoting) ...[
+        if (state.quoteStatus == RequestStatus.loading) ...[
           const SizedBox(height: 12),
           Text(l.virtualRequestQuoting),
         ],
@@ -318,7 +328,7 @@ class _VirtualCardRequestScreenState extends State<VirtualCardRequestScreen> {
             style: _body(context).copyWith(color: context.colors.error),
           ),
           AppButton(
-            onPressed: state.editable
+            onPressed: virtualCardEditable(state)
                 ? (state.quote == null ? cubit.refreshQuote : cubit.submit)
                 : null,
             label: l.dashboardRetry,
@@ -347,7 +357,9 @@ class _VirtualCardRequestScreenState extends State<VirtualCardRequestScreen> {
                 key: const Key('virtual_terms'),
                 value: state.terms,
                 size: AppCheckboxSize.md,
-                onChanged: state.status == VirtualCardStatus.ready
+                onChanged:
+                    (virtualCardEditable(state) &&
+                        state.quoteStatus != RequestStatus.loading)
                     ? cubit.acceptTerms
                     : null,
               ),
@@ -390,7 +402,7 @@ class _VirtualCardRequestScreenState extends State<VirtualCardRequestScreen> {
         const SizedBox(height: 16),
         AppButton(
           key: const Key('virtual_submit'),
-          onPressed: state.canSubmit
+          onPressed: virtualCardCanSubmit(state)
               ? () {
                   FocusManager.instance.primaryFocus?.unfocus();
                   cubit.submit();
@@ -399,7 +411,7 @@ class _VirtualCardRequestScreenState extends State<VirtualCardRequestScreen> {
           label: context.l10n.virtualRequestSubmit,
           size: AppButtonSize.lg,
           constrainLabel: true,
-          isLoading: state.status == VirtualCardStatus.submitting,
+          isLoading: state.submissionStatus == RequestStatus.loading,
           disabledAppearance: AppButtonDisabledAppearance.service,
         ),
       ],

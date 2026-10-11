@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/core/enums/request_status.dart';
+import 'package:pishkhan_mobile/features/card_issuance/presentation/cubit/issuance_rules.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/core/result/result.dart';
@@ -22,7 +24,19 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
   int _generation = 0, _addressCounter = 0;
   Future<void> load() async {
     final generation = ++_generation;
-    emit(const CardIssuanceState(status: IssuanceStatus.loading));
+    emit(
+      state.copyWith(
+        status: RequestStatus.loading,
+        submissionStatus: RequestStatus.initial,
+        catalog: null,
+        draft: const IssuanceDraft(),
+        step: IssuanceStep.selection,
+        invoiceExpanded: true,
+        summaryExpanded: true,
+        receipt: null,
+        failure: null,
+      ),
+    );
     Result<IssuanceCatalog> result;
     try {
       result = await _loader();
@@ -32,7 +46,9 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
     if (isClosed || generation != _generation) return;
     switch (result) {
       case Err(:final failure):
-        emit(CardIssuanceState(status: IssuanceStatus.error, failure: failure));
+        emit(
+          CardIssuanceState(status: RequestStatus.failure, failure: failure),
+        );
       case Success(:final data):
         String? selected;
         for (final d in data.deposits) {
@@ -44,9 +60,7 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
         }
         emit(
           CardIssuanceState(
-            status: data.deposits.isEmpty || data.types.isEmpty
-                ? IssuanceStatus.empty
-                : IssuanceStatus.loaded,
+            status: RequestStatus.success,
             catalog: data,
             draft: IssuanceDraft(depositId: selected),
           ),
@@ -61,11 +75,11 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
   }
 
   void _edit(IssuanceDraft draft) {
-    if (!state.isEditable) return;
+    if (!issuanceIsEditable(state)) return;
     emit(
       state.copyWith(
         draft: draft.copyWith(termsAccepted: false),
-        clearFailure: true,
+        failure: null,
       ),
     );
   }
@@ -96,7 +110,7 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
     required String postalCode,
   }) {
     final postal = DigitNormalizer.normalize(postalCode).trim();
-    if (!state.isEditable ||
+    if (!issuanceIsEditable(state) ||
         title.trim().isEmpty ||
         detail.trim().isEmpty ||
         !RegExp(r'^[0-9]{10}$').hasMatch(postal)) {
@@ -118,14 +132,14 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
           addressId: address.id,
           termsAccepted: false,
         ),
-        clearFailure: true,
+        failure: null,
       ),
     );
     return true;
   }
 
   void removeAddress(String id) {
-    if (!state.isEditable || state.catalog == null) return;
+    if (!issuanceIsEditable(state) || state.catalog == null) return;
     emit(
       state.copyWith(
         catalog: state.catalog!.withAddresses(
@@ -135,7 +149,7 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
           clearAddress: state.draft.addressId == id,
           termsAccepted: false,
         ),
-        clearFailure: true,
+        failure: null,
       ),
     );
   }
@@ -158,26 +172,29 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
     ),
   );
   void acceptTerms(bool value) {
-    if (state.isEditable) {
+    if (issuanceIsEditable(state)) {
       emit(
         state.copyWith(
           draft: state.draft.copyWith(termsAccepted: value),
-          clearFailure: true,
+          failure: null,
         ),
       );
     }
   }
 
   void expandInvoice(bool value) {
-    if (state.isEditable) emit(state.copyWith(invoiceExpanded: value));
+    if (issuanceIsEditable(state)) emit(state.copyWith(invoiceExpanded: value));
   }
 
   void expandSummary(bool value) {
-    if (state.isEditable) emit(state.copyWith(summaryExpanded: value));
+    if (issuanceIsEditable(state)) emit(state.copyWith(summaryExpanded: value));
   }
 
   void next() {
-    if (!state.canContinue || state.step == IssuanceStep.confirmation) return;
+    if (!issuanceCanContinue(state) ||
+        state.step == IssuanceStep.confirmation) {
+      return;
+    }
     emit(
       state.copyWith(
         step: state.step == IssuanceStep.delivery || state.draft.noPhysicalCard
@@ -188,23 +205,30 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
   }
 
   bool back() {
-    if (!state.isEditable || state.step == IssuanceStep.selection) return false;
+    if (!issuanceIsEditable(state) || state.step == IssuanceStep.selection) {
+      return false;
+    }
     emit(
       state.copyWith(
         step: state.step == IssuanceStep.delivery || state.draft.noPhysicalCard
             ? IssuanceStep.selection
             : IssuanceStep.delivery,
-        clearFailure: true,
+        failure: null,
       ),
     );
     return true;
   }
 
   Future<void> submit() async {
-    if (state.step != IssuanceStep.confirmation || !state.canContinue) return;
-    final request = state.request!;
+    if (state.step != IssuanceStep.confirmation ||
+        !issuanceCanContinue(state)) {
+      return;
+    }
+    final request = issuanceRequest(state)!;
     final generation = _generation;
-    emit(state.copyWith(status: IssuanceStatus.submitting, clearFailure: true));
+    emit(
+      state.copyWith(submissionStatus: RequestStatus.loading, failure: null),
+    );
     Result<IssuanceReceipt> result;
     try {
       result = await _submitter(request);
@@ -214,9 +238,19 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
     if (isClosed || generation != _generation) return;
     switch (result) {
       case Err(:final failure):
-        emit(state.copyWith(status: IssuanceStatus.loaded, failure: failure));
+        emit(
+          state.copyWith(
+            submissionStatus: RequestStatus.failure,
+            failure: failure,
+          ),
+        );
       case Success(:final data):
-        emit(state.copyWith(status: IssuanceStatus.submitted, receipt: data));
+        emit(
+          state.copyWith(
+            submissionStatus: RequestStatus.success,
+            receipt: data,
+          ),
+        );
     }
   }
 

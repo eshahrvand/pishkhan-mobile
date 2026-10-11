@@ -1,41 +1,77 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pishkhan_mobile/core/enums/request_status.dart';
+import 'package:pishkhan_mobile/core/result/result.dart';
+
 import '../../../../domain/entities/bank_card.dart';
 import '../../../../domain/repositories/dashboard_repositories.dart';
 import '../../../../domain/usecases/load_dashboard_items.dart';
-import '../../../cubit/dashboard_tab_cubit.dart';
 import 'cards_state.dart';
 
-class CardsCubit extends DashboardTabCubit<BankCard> {
+class CardsCubit extends Cubit<CardsState> {
   CardsCubit({required DashboardCardsRepository repository})
-    : super(LoadDashboardItems(repository.getCards));
-  Future<void> changeRepository(DashboardCardsRepository repository) =>
-      changeLoader(LoadDashboardItems(repository.getCards));
-  @override
-  CardsLoaded loaded(
-    List<BankCard> items,
-    String id,
-    DashboardTabLoaded<BankCard>? previous,
-  ) => CardsLoaded(
-    items: items,
-    selectedId: id,
-    visibility: {
-      for (final item in items)
-        item.id: previous is CardsLoaded
-            ? previous.visibility[item.id] ?? items.length == 1
-            : items.length == 1,
-    },
-  );
-  void setVisibility(String id, bool value) {
+    : _loadItems = LoadDashboardItems(repository.getCards),
+      super(const CardsState());
+
+  LoadDashboardItems<BankCard> _loadItems;
+  int _request = 0;
+
+  Future<void> load() async {
+    final token = ++_request;
+    final previous = state;
+    emit(state.copyWith(status: RequestStatus.loading, failure: null));
+    final result = await _loadItems();
+    if (isClosed || token != _request) return;
+    switch (result) {
+      case Err(:final failure):
+        emit(state.copyWith(status: RequestStatus.failure, failure: failure));
+      case Success(:final data):
+        final items = data.isEmpty ? null : data;
+        final id = data.any((item) => item.id == previous.selectedId)
+            ? previous.selectedId
+            : data.firstOrNull?.id;
+        emit(
+          state.copyWith(
+            status: RequestStatus.success,
+            items: items,
+            selectedId: id,
+            visibility: {
+              for (final item in data)
+                item.id: previous.visibility[item.id] ?? data.length == 1,
+            },
+          ),
+        );
+    }
+  }
+
+  Future<void> changeRepository(DashboardCardsRepository repository) {
+    _loadItems = LoadDashboardItems(repository.getCards);
+    return load();
+  }
+
+  void select(int index) {
     final current = state;
-    if (current is! CardsLoaded ||
-        !current.items.any((item) => item.id == id)) {
+    final items = current.items;
+    if (current.status != RequestStatus.success ||
+        items == null ||
+        index < 0 ||
+        index >= items.length) {
       return;
     }
-    emit(
-      CardsLoaded(
-        items: current.items,
-        selectedId: current.selectedId,
-        visibility: {...current.visibility, id: value},
-      ),
-    );
+    emit(current.copyWith(selectedId: items[index].id));
+  }
+
+  void setVisibility(String id, bool value) {
+    final current = state;
+    if (current.status != RequestStatus.success ||
+        !(current.items?.any((item) => item.id == id) ?? false)) {
+      return;
+    }
+    emit(current.copyWith(visibility: {...current.visibility, id: value}));
+  }
+
+  @override
+  Future<void> close() {
+    _request++;
+    return super.close();
   }
 }

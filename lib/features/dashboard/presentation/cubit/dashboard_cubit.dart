@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/result/result.dart';
 
 import '../../domain/repositories/dashboard_repositories.dart';
@@ -10,29 +11,35 @@ export 'dashboard_state.dart';
 class DashboardCubit extends Cubit<DashboardState> {
   DashboardCubit({required DashboardHomeRepository repository})
     : _loadHome = LoadDashboardHome(repository),
-      super(const DashboardInitial());
+      super(const DashboardState());
   static const maxFavorites = 8;
   LoadDashboardHome _loadHome;
   int _request = 0;
   Future<void> load() async {
     final token = ++_request;
-    emit(const DashboardLoading());
+    emit(
+      state.copyWith(
+        status: RequestStatus.loading,
+        data: null,
+        draft: null,
+        failure: null,
+      ),
+    );
     final result = await _loadHome();
     if (isClosed || token != _request) {
       return;
     }
     switch (result) {
       case Err(:final failure):
-        emit(DashboardError(failure));
+        emit(state.copyWith(status: RequestStatus.failure, failure: failure));
       case Success(:final data):
         emit(
-          data == null
-              ? const DashboardEmpty()
-              : DashboardLoaded(
-                  data: data.withFavorites(
-                    data.favorites.toSet().take(maxFavorites),
-                  ),
-                ),
+          state.copyWith(
+            status: RequestStatus.success,
+            data: data?.withFavorites(
+              data.favorites.toSet().take(maxFavorites),
+            ),
+          ),
         );
     }
   }
@@ -44,45 +51,51 @@ class DashboardCubit extends Cubit<DashboardState> {
 
   void edit({Iterable<String> suggestions = const []}) {
     final current = state;
-    if (current is! DashboardLoaded) return;
+    if (current.status != RequestStatus.success || current.data == null) return;
     emit(
-      DashboardLoaded(
-        data: current.data,
-        draft: current.favorites.isEmpty
-            ? suggestions.toSet().take(maxFavorites)
-            : current.favorites,
+      current.copyWith(
+        draft: current.data!.favorites.isEmpty
+            ? suggestions.toSet().take(maxFavorites).toList()
+            : current.data!.favorites,
       ),
     );
   }
 
   void add(String id) {
     final current = state;
-    if (current is! DashboardLoaded ||
+    if (current.status != RequestStatus.success ||
+        current.data == null ||
         current.draft == null ||
         current.draft!.length >= maxFavorites ||
         current.draft!.contains(id)) {
       return;
     }
-    emit(DashboardLoaded(data: current.data, draft: [...current.draft!, id]));
+    emit(current.copyWith(draft: [...current.draft!, id]));
   }
 
   void remove(String id) {
     final current = state;
-    if (current is! DashboardLoaded || current.draft == null) return;
+    if (current.status != RequestStatus.success ||
+        current.data == null ||
+        current.draft == null) {
+      return;
+    }
     emit(
-      DashboardLoaded(
-        data: current.data,
-        draft: current.draft!.where((item) => item != id),
+      current.copyWith(
+        draft: current.draft!.where((item) => item != id).toList(),
       ),
     );
   }
 
   void confirm() {
     final current = state;
-    if (current is DashboardLoaded) {
+    if (current.status == RequestStatus.success && current.data != null) {
       emit(
-        DashboardLoaded(
-          data: current.data.withFavorites(current.visibleFavorites),
+        current.copyWith(
+          data: current.data!.withFavorites(
+            current.draft ?? current.data!.favorites,
+          ),
+          draft: null,
         ),
       );
     }
@@ -90,15 +103,17 @@ class DashboardCubit extends Cubit<DashboardState> {
 
   void cancel() {
     final current = state;
-    if (current is DashboardLoaded) {
-      emit(DashboardLoaded(data: current.data));
+    if (current.status == RequestStatus.success && current.data != null) {
+      emit(current.copyWith(draft: null));
     }
   }
 
   void reset() {
     final current = state;
-    if (current is DashboardLoaded) {
-      emit(DashboardLoaded(data: current.data.withFavorites([])));
+    if (current.status == RequestStatus.success && current.data != null) {
+      emit(
+        current.copyWith(data: current.data!.withFavorites([]), draft: null),
+      );
     }
   }
 

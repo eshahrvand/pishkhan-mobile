@@ -16,6 +16,7 @@ import 'package:pishkhan_mobile/features/dashboard/presentation/tabs/cards/cards
 import 'package:pishkhan_mobile/shared/widgets/app_primary_navigation.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
 import 'package:avp_ui/avp_ui.dart';
+import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -181,7 +182,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }) async {
     final selected = await showDashboardServicesSheet(
       context,
-      excluded: adding ? _cubit.state.visibleFavorites.toSet() : const {},
+      excluded: adding
+          ? (_cubit.state.draft ??
+                    _cubit.state.data?.favorites ??
+                    const <String>[])
+                .toSet()
+          : const {},
       category: category,
     );
     if (!mounted || selected == null) return;
@@ -195,7 +201,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Future<void> _reset() async {
     if (await showDashboardResetSheet(context) != true || !mounted) return;
     _cubit.reset();
-    widget.onFavoritesChanged?.call(_cubit.state.favorites);
+    widget.onFavoritesChanged?.call(
+      _cubit.state.data?.favorites ?? const <String>[],
+    );
   }
 
   void _selectTab(AppPrimaryTab tab) {
@@ -299,7 +307,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     child: BlocBuilder<DashboardCubit, DashboardState>(
       bloc: _cubit,
       builder: (context, state) => PopScope(
-        canPop: !state.isEditing && _selectedTab == AppPrimaryTab.dashboard,
+        canPop: state.draft == null && _selectedTab == AppPrimaryTab.dashboard,
         onPopInvokedWithResult: (didPop, _) {
           if (!didPop) {
             if (_selectedTab != AppPrimaryTab.dashboard) {
@@ -309,7 +317,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             }
           }
         },
-        child: state is! DashboardLoaded
+        child: state.status != RequestStatus.success || state.data == null
             ? _homeStatus(context, state)
             : Scaffold(
                 backgroundColor: context.colors.surfaceSubtle,
@@ -364,7 +372,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                         AppWalletCard(
                                           title:
                                               context.l10n.walletBalanceTitle,
-                                          balance: state.data.walletBalance,
+                                          balance: state.data!.walletBalance,
                                           currencyLabel:
                                               context.l10n.rialCurrency,
                                         ),
@@ -381,14 +389,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                           state: state,
                                           fixedServices: [
                                             for (final id
-                                                in state.data.fixedServiceIds)
+                                                in state.data!.fixedServiceIds)
                                               for (final service
                                                   in DashboardService.values)
                                                 if (service.id == id) service,
                                           ],
                                           onEdit: () => _cubit.edit(
                                             suggestions:
-                                                state.data.suggestedServiceIds,
+                                                state.data!.suggestedServiceIds,
                                           ),
                                           onAllServices: () =>
                                               Navigator.of(context).push(
@@ -406,7 +414,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                           onConfirm: () {
                                             _cubit.confirm();
                                             widget.onFavoritesChanged?.call(
-                                              _cubit.state.favorites,
+                                              _cubit.state.data?.favorites ??
+                                                  const <String>[],
                                             );
                                           },
                                           onCancel: _cubit.cancel,
@@ -460,11 +469,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 DashboardAsyncView(
                   key: const Key('dashboard_home_status'),
                   loading:
-                      state is DashboardInitial || state is DashboardLoading,
-                  emptyMessage: state is DashboardEmpty
+                      state.status == RequestStatus.initial ||
+                      state.status == RequestStatus.loading,
+                  emptyMessage:
+                      state.status == RequestStatus.success &&
+                          state.data == null
                       ? context.l10n.dashboardEmpty
                       : null,
-                  onRetry: state is DashboardError ? _cubit.load : null,
+                  onRetry: state.status == RequestStatus.failure
+                      ? _cubit.load
+                      : null,
                 ),
                 Positioned(
                   left: 16,

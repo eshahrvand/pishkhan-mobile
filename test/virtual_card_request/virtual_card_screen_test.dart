@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/features/virtual_card_request/presentation/cubit/virtual_card_rules.dart';
+
 import 'dart:io';
 import 'dart:ui' as ui;
 
@@ -122,7 +124,7 @@ void main() {
     expect(t.getSize(find.byKey(const Key('virtual_notice'))).height, 74);
     expect(t.getTopLeft(find.byKey(const Key('virtual_deposit'))).dy, 258);
     expect(t.getTopLeft(find.byKey(const Key('virtual_count'))).dy, 374);
-    expect(cubit(t).state.canSubmit, false);
+    expect(virtualCardCanSubmit(cubit(t).state), false);
     expect(find.byType(AppInvoice), findsNothing);
     await capture(t, 'empty');
   });
@@ -132,8 +134,8 @@ void main() {
       final r = TestVirtualRepository();
       await mount(t, repository: r);
       await fill(t);
-      expect(cubit(t).state.count, 4);
-      expect(cubit(t).state.canSubmit, true);
+      expect(virtualCardCount(cubit(t).state), 4);
+      expect(virtualCardCanSubmit(cubit(t).state), true);
       expect(t.getTopLeft(find.byKey(const Key('virtual_invoice'))).dy, 458);
       expect(t.getSize(find.byType(AppInvoice)).height, 174);
       expect(
@@ -158,7 +160,7 @@ void main() {
     final r = TestVirtualRepository()..wallet = 0;
     await mount(t, repository: r);
     await fill(t);
-    expect(cubit(t).state.canSubmit, false);
+    expect(virtualCardCanSubmit(cubit(t).state), false);
     await t.enterText(
       find.descendant(
         of: find.byKey(const Key('virtual_count')),

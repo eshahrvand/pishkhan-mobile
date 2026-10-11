@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/core/enums/request_status.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/cubit/card_features_rules.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:pishkhan_mobile/features/card_issuance/card_issuance.dart';
@@ -316,8 +318,8 @@ class _CardFeaturesScreenState extends State<CardFeaturesScreen> {
     CardFeaturesState state,
     bool hasFooter,
   ) {
-    if (state.status == CardsLoadStatus.loading ||
-        state.status == CardsLoadStatus.initial) {
+    if (state.status == RequestStatus.loading ||
+        state.status == RequestStatus.initial) {
       return Center(
         child: AppButton(
           onPressed: null,
@@ -326,7 +328,7 @@ class _CardFeaturesScreenState extends State<CardFeaturesScreen> {
         ),
       );
     }
-    if (state.status == CardsLoadStatus.error) {
+    if (state.status == RequestStatus.failure) {
       return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -341,11 +343,11 @@ class _CardFeaturesScreenState extends State<CardFeaturesScreen> {
         ),
       );
     }
-    final cards = state.visibleCards;
+    final cards = cardFeaturesVisibleCards(state);
     if (cards.isEmpty) {
       return Center(
         child: Text(
-          state.status == CardsLoadStatus.empty
+          state.cards?.isEmpty == true
               ? context.l10n.cardsEmpty
               : context.l10n.cardFeatureNoResults,
         ),

@@ -1,3 +1,6 @@
+import 'package:pishkhan_mobile/core/enums/request_status.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/cubit/card_features_rules.dart';
+
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -14,23 +17,23 @@ void main() {
     'loads immutable data and keeps independent category/query/selected state',
     () async {
       final cubit = CardFeaturesCubit(repository: MockCardsRepository());
-      expect(cubit.state.status, CardsLoadStatus.initial);
+      expect(cubit.state.status, RequestStatus.initial);
       final pending = cubit.load();
-      expect(cubit.state.status, CardsLoadStatus.loading);
+      expect(cubit.state.status, RequestStatus.loading);
       await pending;
-      expect(cubit.state.visibleCards.length, 4);
-      expect(() => cubit.state.cards.clear(), throwsUnsupportedError);
+      expect(cardFeaturesVisibleCards(cubit.state).length, 4);
+      expect(() => cubit.state.cards!.clear(), throwsUnsupportedError);
       cubit.selectCard('resalat-1');
-      expect(cubit.state.selected!.id, 'resalat-1');
+      expect(cardFeaturesSelected(cubit.state)!.id, 'resalat-1');
       cubit.selectCategory(CardCategory.family);
-      expect(cubit.state.visibleCards.length, 2);
-      expect(cubit.state.selected, isNull);
+      expect(cardFeaturesVisibleCards(cubit.state).length, 2);
+      expect(cardFeaturesSelected(cubit.state), isNull);
       cubit.search('۵۰۴۱ ۷۲۱۴ ۵۶۷۸۳۴۰۷');
-      expect(cubit.state.visibleCards.length, 2);
+      expect(cardFeaturesVisibleCards(cubit.state).length, 2);
       cubit.search('٥٠٤١٧٢١٤٥٦٧٨٣٤٠٧');
-      expect(cubit.state.visibleCards.length, 2);
+      expect(cardFeaturesVisibleCards(cubit.state).length, 2);
       cubit.search('no result');
-      expect(cubit.state.visibleCards, isEmpty);
+      expect(cardFeaturesVisibleCards(cubit.state), isEmpty);
       await cubit.close();
     },
   );
@@ -41,7 +44,7 @@ void main() {
       await cubit.load();
       cubit.beginFilter();
       cubit.setDraft(const CardFilter(status: CardStatus.blocked));
-      expect(cubit.state.visibleCards.length, 4);
+      expect(cardFeaturesVisibleCards(cubit.state).length, 4);
       cubit.cancelFilter();
       expect(cubit.state.filter.isActive, false);
       cubit.beginFilter();
@@ -49,14 +52,14 @@ void main() {
         const CardFilter(status: CardStatus.blocked, deposit: '10-1234567-2'),
       );
       cubit.applyFilter();
-      expect(cubit.state.visibleCards.single.id, 'resalat-3');
+      expect(cardFeaturesVisibleCards(cubit.state).single.id, 'resalat-3');
       cubit.search('۱۰.۱۲۳۴۵۶۷.۲');
-      expect(cubit.state.visibleCards.length, 1);
+      expect(cardFeaturesVisibleCards(cubit.state).length, 1);
       cubit.beginFilter();
       cubit.clearDraftFilter();
       cubit.applyFilter();
       cubit.search('');
-      expect(cubit.state.visibleCards.length, 4);
+      expect(cardFeaturesVisibleCards(cubit.state).length, 4);
       await cubit.close();
     },
   );
@@ -65,11 +68,11 @@ void main() {
       ..result = const Err(DataFailure('offline'));
     final cubit = CardFeaturesCubit(repository: repo);
     await cubit.load();
-    expect(cubit.state.status, CardsLoadStatus.error);
+    expect(cubit.state.status, RequestStatus.failure);
     expect(cubit.state.failure!.code, 'offline');
     repo.result = const Success([]);
     await cubit.load();
-    expect(cubit.state.status, CardsLoadStatus.empty);
+    expect(cubit.state.status, RequestStatus.success);
     repo.result = Success([
       MockCardsRepository.examples.first,
       MockCardsRepository.examples.first,
@@ -82,7 +85,7 @@ void main() {
     repo.throws = false;
     repo.result = Success([MockCardsRepository.examples.first]);
     await cubit.load();
-    expect(cubit.state.status, CardsLoadStatus.loaded);
+    expect(cubit.state.status, RequestStatus.success);
     await cubit.close();
   });
   test(
@@ -98,7 +101,7 @@ void main() {
       await b;
       first.complete(const Success([]));
       await a;
-      expect(cubit.state.cards.single.id, 'resalat-1');
+      expect(cubit.state.cards!.single.id, 'resalat-1');
       final late = Completer<Result<List<ListedCard>>>();
       repo.queue.add(late);
       final c = cubit.load();

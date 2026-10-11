@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/features/auth/presentation/cubit/auth_rules.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -23,7 +24,7 @@ class AuthOtpForm extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         BlocSelector<AuthCubit, AuthState, String>(
-          selector: (state) => state.maskedPhone,
+          selector: (state) => authMaskedPhone(state),
           builder: (context, phone) => AuthSectionHeading(
             title: context.l10n.otpSentTitle,
             description: context.l10n.otpSentMessage('\u2066$phone\u2069'),
@@ -54,7 +55,7 @@ class AuthOtpForm extends StatelessWidget {
         ),
         const SizedBox(height: 24),
         BlocSelector<AuthCubit, AuthState, bool>(
-          selector: (state) => state.isOtpValid,
+          selector: (state) => authIsOtpValid(state),
           builder: (context, valid) => AppButton(
             key: const Key('submit_otp_button'),
             onPressed: valid ? () => _submit(context) : null,
@@ -67,7 +68,7 @@ class AuthOtpForm extends StatelessWidget {
   }
 
   void _submit(BuildContext context) {
-    if (!context.read<AuthCubit>().state.isOtpValid) return;
+    if (!authIsOtpValid(context.read<AuthCubit>().state)) return;
     FocusManager.instance.primaryFocus?.unfocus();
     onAuthenticated?.call();
   }

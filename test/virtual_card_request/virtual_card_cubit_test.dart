@@ -1,3 +1,6 @@
+import 'package:pishkhan_mobile/core/enums/request_status.dart';
+import 'package:pishkhan_mobile/features/virtual_card_request/presentation/cubit/virtual_card_rules.dart';
+
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -73,21 +76,21 @@ void main() {
       await c.selectDeposit('virtual-deposit-1');
       for (final value in ['', '0', '1000', '4.5', '-1', 'abc']) {
         await c.countChanged(value);
-        expect(c.state.canSubmit, false);
+        expect(virtualCardCanSubmit(c.state), false);
       }
       await c.countChanged('٤');
-      expect(c.state.count, 4);
+      expect(virtualCardCount(c.state), 4);
       expect(c.state.quote!.totalRial, 1300000);
-      expect(c.state.canSubmit, false);
+      expect(virtualCardCanSubmit(c.state), false);
       c.acceptTerms(true);
-      expect(c.state.canSubmit, true);
+      expect(virtualCardCanSubmit(c.state), true);
       await c.countChanged('5');
       expect(c.state.terms, false);
       expect(c.state.quote!.count, 5);
       r.wallet = 0;
       await c.refreshQuote();
       c.acceptTerms(true);
-      expect(c.state.canSubmit, false);
+      expect(virtualCardCanSubmit(c.state), false);
       await c.submit();
       expect(r.requests, isEmpty);
       await c.close();
@@ -105,11 +108,14 @@ void main() {
     r.pendingQuotes[0].complete(Success(r.value('virtual-deposit-1', 3)));
     await old;
     expect(c.state.quote!.count, 4);
+    expect(c.state.quoteStatus, RequestStatus.success);
     final bad = c.selectDeposit('virtual-deposit-2');
     r.pendingQuotes[2].complete(Success(r.value('virtual-deposit-1', 4)));
     await bad;
     expect(c.state.quote, isNull);
     expect(c.state.failure!.code, 'virtual.quote.invalid');
+    expect(c.state.quoteStatus, RequestStatus.failure);
+    expect(c.state.status, RequestStatus.success);
     await c.close();
   });
   test(
@@ -128,11 +134,13 @@ void main() {
       r.submitFailure = null;
       r.submitting = Completer();
       final task = c.submit();
+      expect(c.state.submissionStatus, RequestStatus.loading);
+      expect(c.state.quoteStatus, RequestStatus.success);
       await c.submit();
       await c.countChanged('3');
       await c.selectDeposit('virtual-deposit-2');
       expect(r.requests.length, 3);
-      expect(c.state.count, 2);
+      expect(virtualCardCount(c.state), 2);
       expect(
         r.requests.last.idempotencyKey,
         isNot(r.requests.first.idempotencyKey),
@@ -141,7 +149,7 @@ void main() {
         const Success(VirtualCardReceipt(reference: 'ok', isMock: true)),
       );
       await task;
-      expect(c.state.status, VirtualCardStatus.submitted);
+      expect(c.state.submissionStatus, RequestStatus.success);
       await c.close();
     },
   );
@@ -150,7 +158,8 @@ void main() {
       ..catalog = VirtualCardCatalog(deposits: [], indicativePerCardFeeRial: 0);
     final c = VirtualCardCubit(repository: r);
     await c.load();
-    expect(c.state.status, VirtualCardStatus.empty);
+    expect(c.state.status, RequestStatus.success);
+    expect(c.state.catalog!.deposits, isEmpty);
     r.catalog = VirtualCardCatalog(
       deposits: const [
         VirtualCardDeposit(id: 'x', number: '1'),
@@ -159,16 +168,16 @@ void main() {
       indicativePerCardFeeRial: 0,
     );
     await c.load();
-    expect(c.state.status, VirtualCardStatus.failed);
+    expect(c.state.status, RequestStatus.failure);
     r.catalog = MockVirtualCardRepository.catalog;
     r.throwLoad = true;
     await c.load();
-    expect(c.state.status, VirtualCardStatus.failed);
+    expect(c.state.status, RequestStatus.failure);
     r.throwLoad = false;
     await c.load();
     r.quoteFailure = const DataFailure('network');
     await fillVirtual(c);
-    expect(c.state.canSubmit, false);
+    expect(virtualCardCanSubmit(c.state), false);
     expect(c.state.failure, isNotNull);
     r.quoteFailure = null;
     await c.refreshQuote();
@@ -193,7 +202,7 @@ void main() {
       await c.load();
       pending.complete(const Err(DataFailure('old')));
       await old;
-      expect(c.state.status, VirtualCardStatus.ready);
+      expect(c.state.status, RequestStatus.success);
       r.holdQuotes = true;
       final task = c.countChanged('4');
       await c.close();

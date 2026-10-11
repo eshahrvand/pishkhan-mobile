@@ -1,17 +1,11 @@
 import 'package:equatable/equatable.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/result/failure.dart';
 
 import '../../domain/entities/issuance_data.dart';
 
-enum IssuanceStatus {
-  initial,
-  loading,
-  loaded,
-  empty,
-  error,
-  submitting,
-  submitted,
-}
+part 'card_issuance_state.freezed.dart';
 
 enum IssuanceStep { selection, delivery, confirmation }
 
@@ -70,110 +64,17 @@ class IssuanceDraft extends Equatable {
   ];
 }
 
-class CardIssuanceState extends Equatable {
-  const CardIssuanceState({
-    this.status = IssuanceStatus.initial,
-    this.catalog,
-    this.draft = const IssuanceDraft(),
-    this.step = IssuanceStep.selection,
-    this.invoiceExpanded = true,
-    this.summaryExpanded = true,
-    this.failure,
-    this.receipt,
-  });
-  final IssuanceStatus status;
-  final IssuanceCatalog? catalog;
-  final IssuanceDraft draft;
-  final IssuanceStep step;
-  final bool invoiceExpanded, summaryExpanded;
-  final Failure? failure;
-  final IssuanceReceipt? receipt;
-  IssuanceDeposit? get deposit {
-    for (final value in catalog?.deposits ?? <IssuanceDeposit>[]) {
-      if (value.id == draft.depositId) return value;
-    }
-    return null;
-  }
-
-  IssuanceAddress? get address {
-    for (final value in catalog?.addresses ?? <IssuanceAddress>[]) {
-      if (value.id == draft.addressId) return value;
-    }
-    return null;
-  }
-
-  bool get selectionComplete =>
-      deposit != null &&
-      draft.type != null &&
-      (catalog?.types.contains(draft.type) ?? false);
-  bool get deliveryComplete =>
-      draft.noPhysicalCard ||
-      (address != null &&
-          (!draft.otherRecipient || draft.recipient.isComplete) &&
-          (!draft.includeAgent || draft.agent.isComplete));
-  List<IssuanceFee> get fees => List.unmodifiable(
-    (catalog?.fees ?? <IssuanceFee>[]).where(
-      (fee) => !draft.noPhysicalCard || fee.kind != IssuanceFeeKind.delivery,
-    ),
-  );
-  int get totalRial => fees.fold(0, (sum, fee) => sum + fee.amountRial);
-  bool get walletSufficient =>
-      catalog != null && catalog!.walletBalanceRial >= totalRial;
-  bool get isEditable => status == IssuanceStatus.loaded;
-  bool get canContinue =>
-      isEditable &&
-      switch (step) {
-        IssuanceStep.selection => selectionComplete,
-        IssuanceStep.delivery => selectionComplete && deliveryComplete,
-        IssuanceStep.confirmation =>
-          selectionComplete &&
-              deliveryComplete &&
-              draft.termsAccepted &&
-              walletSufficient,
-      };
-  IssuanceRequest? get request => selectionComplete && deliveryComplete
-      ? IssuanceRequest(
-          depositId: deposit!.id,
-          type: draft.type!,
-          noPhysicalCard: draft.noPhysicalCard,
-          address: draft.noPhysicalCard ? null : address,
-          recipient: !draft.noPhysicalCard && draft.otherRecipient
-              ? draft.recipient
-              : null,
-          agent: !draft.noPhysicalCard && draft.includeAgent
-              ? draft.agent
-              : null,
-        )
-      : null;
-  CardIssuanceState copyWith({
-    IssuanceStatus? status,
+@freezed
+abstract class CardIssuanceState with _$CardIssuanceState {
+  const factory CardIssuanceState({
+    @Default(RequestStatus.initial) RequestStatus status,
+    @Default(RequestStatus.initial) RequestStatus submissionStatus,
     IssuanceCatalog? catalog,
-    IssuanceDraft? draft,
-    IssuanceStep? step,
-    bool? invoiceExpanded,
-    bool? summaryExpanded,
+    @Default(IssuanceDraft()) IssuanceDraft draft,
+    @Default(IssuanceStep.selection) IssuanceStep step,
+    @Default(true) bool invoiceExpanded,
+    @Default(true) bool summaryExpanded,
     Failure? failure,
-    bool clearFailure = false,
     IssuanceReceipt? receipt,
-  }) => CardIssuanceState(
-    status: status ?? this.status,
-    catalog: catalog ?? this.catalog,
-    draft: draft ?? this.draft,
-    step: step ?? this.step,
-    invoiceExpanded: invoiceExpanded ?? this.invoiceExpanded,
-    summaryExpanded: summaryExpanded ?? this.summaryExpanded,
-    failure: clearFailure ? null : failure ?? this.failure,
-    receipt: receipt ?? this.receipt,
-  );
-  @override
-  List<Object?> get props => [
-    status,
-    catalog,
-    draft,
-    step,
-    invoiceExpanded,
-    summaryExpanded,
-    failure,
-    receipt,
-  ];
+  }) = _CardIssuanceState;
 }

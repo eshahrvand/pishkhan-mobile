@@ -1,9 +1,17 @@
-import '../../../cubit/dashboard_tab_state.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:pishkhan_mobile/core/enums/request_status.dart';
+import 'package:pishkhan_mobile/core/result/failure.dart';
+
 import '../../../../domain/entities/bank_deposit.dart';
-export '../../../cubit/dashboard_tab_state.dart';
 
-typedef DepositsState = DashboardTabState<BankDeposit>;
+part 'deposits_state.freezed.dart';
 
-final class DepositsLoaded extends DashboardTabLoaded<BankDeposit> {
-  DepositsLoaded({required super.items, required super.selectedId});
+@freezed
+abstract class DepositsState with _$DepositsState {
+  const factory DepositsState({
+    @Default(RequestStatus.initial) RequestStatus status,
+    List<BankDeposit>? items,
+    String? selectedId,
+    Failure? failure,
+  }) = _DepositsState;
 }

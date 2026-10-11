@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/features/dashboard/domain/repositories/dashboard_repositories.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_async_view.dart';
@@ -53,20 +54,20 @@ class _CardsTabState extends State<CardsTab> {
   double? _viewport;
   late final CardsCubit _cubit;
   String? _controllerItems;
-  List<BankCard> get _items => _cubit.state is DashboardTabLoaded<BankCard>
-      ? (_cubit.state as DashboardTabLoaded<BankCard>).items
+  List<BankCard> get _items => _cubit.state.status == RequestStatus.success
+      ? _cubit.state.items ?? const []
       : const [];
-  int get _selected => _cubit.state is DashboardTabLoaded<BankCard>
-      ? (_cubit.state as DashboardTabLoaded<BankCard>).selectedIndex
-      : 0;
+  int get _selected => _items.isEmpty
+      ? 0
+      : _items.indexWhere((item) => item.id == _cubit.state.selectedId);
   @override
   void initState() {
     super.initState();
     _cubit = CardsCubit(repository: widget.repository)..load();
   }
 
-  Map<String, bool> get _visible => _cubit.state is CardsLoaded
-      ? (_cubit.state as CardsLoaded).visibility
+  Map<String, bool> get _visible => _cubit.state.status == RequestStatus.success
+      ? _cubit.state.visibility
       : const {};
   BankCard get _card => _items[_selected];
   @override
@@ -146,12 +147,16 @@ class _CardsTabState extends State<CardsTab> {
     value: _cubit,
     child: BlocConsumer<CardsCubit, CardsState>(
       listener: (context, state) {
-        if (state is DashboardTabLoading) _controllerItems = null;
-        if (state is DashboardTabLoaded<BankCard> &&
-            _pages?.hasClients == true &&
-            !_pages!.position.isScrollingNotifier.value &&
-            ((_pages!.page ?? 0) - state.selectedIndex).abs() > .01) {
-          _pages!.jumpToPage(state.selectedIndex);
+        if (state.status == RequestStatus.loading) _controllerItems = null;
+        if (state.status == RequestStatus.success && state.items != null) {
+          final selectedIndex = state.items!.indexWhere(
+            (item) => item.id == state.selectedId,
+          );
+          if (_pages?.hasClients == true &&
+              !_pages!.position.isScrollingNotifier.value &&
+              ((_pages!.page ?? 0) - selectedIndex).abs() > .01) {
+            _pages!.jumpToPage(selectedIndex);
+          }
         }
       },
       builder: (context, state) => Directionality(
@@ -176,13 +181,13 @@ class _CardsTabState extends State<CardsTab> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            if (state is DashboardTabInitial ||
-                                state is DashboardTabLoading)
+                            if (state.status == RequestStatus.initial ||
+                                state.status == RequestStatus.loading)
                               const DashboardAsyncView(
                                 key: Key("cards_loading"),
                                 loading: true,
                               )
-                            else if (state is DashboardTabError)
+                            else if (state.status == RequestStatus.failure)
                               DashboardAsyncView(
                                 key: const Key("cards_error"),
                                 onRetry: _cubit.load,

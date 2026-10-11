@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/core/enums/request_status.dart';
+import 'package:pishkhan_mobile/features/card_issuance/presentation/cubit/issuance_rules.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -59,7 +61,7 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
   }
 
   void _back() {
-    if (cubit.state.status == IssuanceStatus.submitting) return;
+    if (cubit.state.submissionStatus == RequestStatus.loading) return;
     if (!cubit.back()) Navigator.of(context).maybePop();
   }
 
@@ -98,12 +100,16 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
     child: BlocConsumer<CardIssuanceCubit, CardIssuanceState>(
       bloc: cubit,
       listenWhen: (old, next) =>
-          old.step != next.step || old.status != next.status,
+          old.step != next.step ||
+          old.status != next.status ||
+          old.submissionStatus != next.submissionStatus,
       listener: (context, state) {
-        if (scroll.hasClients && state.status != IssuanceStatus.submitting) {
+        if (scroll.hasClients &&
+            state.submissionStatus != RequestStatus.loading) {
           scroll.jumpTo(0);
         }
-        if (state.status == IssuanceStatus.submitted && state.receipt != null) {
+        if (state.submissionStatus == RequestStatus.success &&
+            state.receipt != null) {
           widget.onCompleted?.call(state.receipt!);
         }
       },
@@ -125,9 +131,9 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
         };
         return PopScope<void>(
           canPop:
-              state.status != IssuanceStatus.submitting &&
+              state.submissionStatus != RequestStatus.loading &&
               (state.step == IssuanceStep.selection ||
-                  state.status == IssuanceStatus.submitted),
+                  state.submissionStatus == RequestStatus.success),
           onPopInvokedWithResult: (didPop, _) {
             if (!didPop) cubit.back();
           },
@@ -178,8 +184,10 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
                             ),
                           ],
                         ),
-                        if (state.status == IssuanceStatus.loaded ||
-                            state.status == IssuanceStatus.submitting) ...[
+                        if (state.status == RequestStatus.success &&
+                            state.submissionStatus != RequestStatus.success &&
+                            state.catalog?.deposits.isNotEmpty == true &&
+                            state.catalog?.types.isNotEmpty == true) ...[
                           Positioned(
                             left: 16,
                             bottom: confirmation ? 136 : 76,
@@ -211,8 +219,8 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
     CardIssuanceState state,
     bool confirmation,
   ) {
-    if (state.status == IssuanceStatus.initial ||
-        state.status == IssuanceStatus.loading) {
+    if (state.status == RequestStatus.initial ||
+        state.status == RequestStatus.loading) {
       return Center(
         child: AppButton(
           onPressed: null,
@@ -221,8 +229,9 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
         ),
       );
     }
-    if (state.status == IssuanceStatus.error ||
-        state.status == IssuanceStatus.empty) {
+    if (state.status == RequestStatus.failure ||
+        (state.catalog?.deposits.isEmpty == true ||
+            state.catalog?.types.isEmpty == true)) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -230,7 +239,8 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                state.status == IssuanceStatus.empty
+                (state.catalog?.deposits.isEmpty == true ||
+                        state.catalog?.types.isEmpty == true)
                     ? context.l10n.issuanceEmpty
                     : context.l10n.dashboardLoadError,
               ),
@@ -245,7 +255,7 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
         ),
       );
     }
-    if (state.status == IssuanceStatus.submitted) {
+    if (state.submissionStatus == RequestStatus.success) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -277,7 +287,7 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       padding: EdgeInsets.fromLTRB(16, 0, 16, confirmation ? 196 : 136),
       child: AbsorbPointer(
-        absorbing: !state.isEditable,
+        absorbing: !issuanceIsEditable(state),
         child: switch (state.step) {
           IssuanceStep.selection => IssuanceSelection(
             state: state,
@@ -325,7 +335,9 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
                     key: const Key('issuance_terms_checkbox'),
                     value: state.draft.termsAccepted,
                     size: AppCheckboxSize.md,
-                    onChanged: state.isEditable ? cubit.acceptTerms : null,
+                    onChanged: issuanceIsEditable(state)
+                        ? cubit.acceptTerms
+                        : null,
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -375,8 +387,8 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
             letterSpacing: 0,
           ),
           constrainLabel: true,
-          isLoading: state.status == IssuanceStatus.submitting,
-          onPressed: state.canContinue
+          isLoading: state.submissionStatus == RequestStatus.loading,
+          onPressed: issuanceCanContinue(state)
               ? () {
                   if (confirmation) {
                     cubit.submit();

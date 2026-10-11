@@ -1,58 +1,20 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:pishkhan_mobile/core/enums/request_status.dart';
+
+part 'auth_state.freezed.dart';
+
 enum AuthStep { login, loginOtp, changePhone, changePhoneOtp }
 
-class AuthState {
-  const AuthState({
-    this.step = AuthStep.login,
-    this.nationalId = '',
-    this.phone = '',
-    this.captcha = '',
-    this.otp = '',
-    this.secondsRemaining = 60,
-    this.invalidFields = const {},
-  });
-
-  final AuthStep step;
-  final String nationalId;
-  final String phone;
-  final String captcha;
-  final String otp;
-  final int secondsRemaining;
-  final Set<String> invalidFields;
-
-  bool get isLoginForm => step == AuthStep.login;
-  bool get isOtp =>
-      step == AuthStep.loginOtp || step == AuthStep.changePhoneOtp;
-  bool get isChangePhone =>
-      step == AuthStep.changePhone || step == AuthStep.changePhoneOtp;
-  bool get isFormValid =>
-      nationalId.length == 10 &&
-      phone.length == 11 &&
-      phone.startsWith('09') &&
-      captcha.length == 6;
-  bool get isOtpValid => otp.length == 4 && secondsRemaining > 0;
-
-  String get maskedPhone {
-    if (phone.length != 11) return '0912*******42';
-    return '${phone.substring(0, 4)}*******${phone.substring(9)}';
-  }
-
-  AuthState copyWith({
-    AuthStep? step,
-    String? nationalId,
-    String? phone,
-    String? captcha,
-    String? otp,
-    int? secondsRemaining,
-    Set<String>? invalidFields,
-  }) => AuthState(
-    step: step ?? this.step,
-    nationalId: nationalId ?? this.nationalId,
-    phone: phone ?? this.phone,
-    captcha: captcha ?? this.captcha,
-    otp: otp ?? this.otp,
-    secondsRemaining: secondsRemaining ?? this.secondsRemaining,
-    invalidFields: invalidFields == null
-        ? this.invalidFields
-        : Set.unmodifiable(invalidFields),
-  );
+@freezed
+abstract class AuthState with _$AuthState {
+  const factory AuthState({
+    @Default(RequestStatus.initial) RequestStatus status,
+    @Default(AuthStep.login) AuthStep step,
+    @Default('') String nationalId,
+    @Default('') String phone,
+    @Default('') String captcha,
+    @Default('') String otp,
+    @Default(60) int secondsRemaining,
+    @Default({}) Set<String> invalidFields,
+  }) = _AuthState;
 }
