@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/core/validators/validators.dart';
+
 import 'auth_state.dart';
 
 bool authIsLoginForm(AuthState state) => state.step == AuthStep.login;
@@ -9,13 +11,12 @@ bool authIsChangePhone(AuthState state) =>
     state.step == AuthStep.changePhone || state.step == AuthStep.changePhoneOtp;
 
 bool authIsFormValid(AuthState state) =>
-    state.nationalId.length == 10 &&
-    state.phone.length == 11 &&
-    state.phone.startsWith('09') &&
-    state.captcha.length == 6;
+    NationalCodeValidator.isValid(state.nationalId) &&
+    PhoneNumberValidator.isValid(state.phone) &&
+    CodeValidator.isValid(state.captcha, length: 6);
 
 bool authIsOtpValid(AuthState state) =>
-    state.otp.length == 4 && state.secondsRemaining > 0;
+    CodeValidator.isValid(state.otp, length: 4) && state.secondsRemaining > 0;
 
 String authMaskedPhone(AuthState state) {
   if (state.phone.length != 11) return '0912*******42';

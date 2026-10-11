@@ -1,3 +1,5 @@
+import '../../../../../support/router_test_app.dart';
+
 import 'dart:io';
 import 'dart:ui' as ui;
 
@@ -36,7 +38,7 @@ void main() {
   });
   Widget app(Widget home, {bool reduceMotion = false}) => RepaintBoundary(
     key: _preview,
-    child: MaterialApp(
+    child: TestRouterApp(
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       locale: const Locale('fa'),

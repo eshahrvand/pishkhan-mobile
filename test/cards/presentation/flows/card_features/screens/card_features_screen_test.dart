@@ -1,3 +1,5 @@
+import '../../../../../support/router_test_app.dart';
+
 import 'dart:async';
 
 import 'package:pishkhan_mobile/core/result/result.dart';
@@ -22,7 +24,7 @@ import 'package:pishkhan_mobile/shared/widgets/app_cards_list.dart';
 const boundary = Key('cards_flow_preview');
 Widget subject(Widget home, {double scale = 1}) => RepaintBoundary(
   key: boundary,
-  child: MaterialApp(
+  child: TestRouterApp(
     debugShowCheckedModeBanner: false,
     theme: AppTheme.light(),
     locale: const Locale('fa'),

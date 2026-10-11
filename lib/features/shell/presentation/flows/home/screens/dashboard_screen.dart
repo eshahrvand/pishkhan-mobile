@@ -1,3 +1,5 @@
+import 'package:go_router/go_router.dart';
+import 'package:pishkhan_mobile/features/shell/shell_routes.dart';
 import 'package:pishkhan_mobile/core/router/card_features_navigation.dart';
 import 'package:pishkhan_mobile/features/shell/data/repositories/mock_dashboard_repositories.dart';
 import 'package:pishkhan_mobile/features/shell/domain/repositories/dashboard_repositories.dart';
@@ -24,7 +26,6 @@ import 'package:pishkhan_mobile/features/shell/presentation/flows/home/cubit/das
 import 'package:pishkhan_mobile/features/shell/presentation/shared/dashboard_assets.dart';
 import 'package:pishkhan_mobile/features/shell/presentation/shared/dashboard_services.dart';
 import 'package:pishkhan_mobile/features/shell/presentation/shared/widgets/dashboard_bank_services.dart';
-import 'package:pishkhan_mobile/features/shell/presentation/shared/widgets/dashboard_all_services_screen.dart';
 import 'package:pishkhan_mobile/features/shell/presentation/shared/widgets/dashboard_header.dart';
 import 'package:pishkhan_mobile/features/shell/presentation/shared/widgets/dashboard_reso_banner.dart';
 import 'package:pishkhan_mobile/features/shell/presentation/shared/widgets/dashboard_services_sheet.dart';
@@ -399,14 +400,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                 state.data!.suggestedServiceIds,
                                           ),
                                           onAllServices: () =>
-                                              Navigator.of(context).push(
-                                                MaterialPageRoute<void>(
-                                                  builder: (_) =>
-                                                      DashboardAllServicesScreen(
-                                                        onServiceRequested:
-                                                            _openService,
-                                                      ),
-                                                ),
+                                              context.push<void>(
+                                                ShellRoutes.allServices,
+                                                extra:
+                                                    AllServicesRouteArguments(
+                                                      _openService,
+                                                    ),
                                               ),
                                           onReset: _reset,
                                           onAdd: () => _catalog(adding: true),

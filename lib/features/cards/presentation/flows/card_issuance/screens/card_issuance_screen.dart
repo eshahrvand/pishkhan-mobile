@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/features/cards/presentation/flows/card_issuance/cubit/issuance_rules.dart';
 import 'package:avp_ui/avp_ui.dart';
@@ -62,7 +63,7 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
 
   void _back() {
     if (cubit.state.submissionStatus == RequestStatus.loading) return;
-    if (!cubit.back()) Navigator.of(context).maybePop();
+    if (!cubit.back()) NavigationActions.back(context);
   }
 
   void _terms() {
@@ -273,7 +274,7 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
               const SizedBox(height: 24),
               AppButton(
                 key: const Key('issuance_done'),
-                onPressed: () => Navigator.of(context).maybePop(),
+                onPressed: () => NavigationActions.returnHome(context),
                 label: context.l10n.issuanceDone,
               ),
             ],

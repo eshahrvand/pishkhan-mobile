@@ -1,8 +1,9 @@
+import 'package:go_router/go_router.dart';
+import 'package:pishkhan_mobile/features/profile/profile_routes.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/features/profile/domain/entities/notification_message.dart';
-import 'package:pishkhan_mobile/features/profile/presentation/flows/message_center/screens/notification_detail_screen.dart';
 import 'package:pishkhan_mobile/features/profile/presentation/flows/message_center/widgets/notification_card.dart';
 import 'package:pishkhan_mobile/features/profile/presentation/flows/message_center/widgets/notification_header.dart';
 import 'package:pishkhan_mobile/l10n/l10n.dart';
@@ -45,10 +46,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           item.id == message.id ? item.markRead() : item,
       ]);
     }
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => NotificationDetailScreen(message: message.markRead()),
-      ),
+    context.push<void>(
+      ProfileRoutes.detailLocation(message.id),
+      extra: message.markRead(),
     );
   }
 

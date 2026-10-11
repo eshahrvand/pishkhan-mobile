@@ -1,3 +1,5 @@
+import '../../../../../support/router_test_app.dart';
+
 import 'package:pishkhan_mobile/features/auth/presentation/flows/login/cubit/auth_rules.dart';
 
 import 'dart:io';
@@ -47,7 +49,7 @@ void main() {
     await tester.pumpWidget(
       RepaintBoundary(
         key: previewKey,
-        child: MaterialApp(
+        child: TestRouterApp(
           debugShowCheckedModeBanner: false,
           theme: AppTheme.light(),
           locale: const Locale('fa'),
@@ -110,7 +112,7 @@ void main() {
   }
 
   const filled = AuthState(
-    nationalId: '0081234567',
+    nationalId: '0081234562',
     phone: '09121127934',
     captcha: '011759',
   );
@@ -222,7 +224,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(cubit.state.invalidFields, {'nationalId', 'phone', 'captcha'});
       for (final (field, value) in [
-        ('national-id', '۰۰۸۱۲۳۴۵۶۷'),
+        ('national-id', '۰۰۸۱۲۳۴۵۶۲'),
         ('phone', '۰۹۱۲۱۱۲۷۹۳۴'),
         ('captcha', '۰۱۱۷۵۹'),
       ]) {
@@ -234,7 +236,7 @@ void main() {
         await tester.enterText(finder, value);
       }
       await tester.pumpAndSettle();
-      expect(cubit.state.nationalId, '0081234567');
+      expect(cubit.state.nationalId, '0081234562');
       expect(cubit.state.invalidFields, isEmpty);
       await tester.ensureVisible(find.byKey(const Key('request_otp_button')));
       await tester.tap(find.byKey(const Key('request_otp_button')));
@@ -243,7 +245,7 @@ void main() {
       await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
       expect(cubit.state.step, AuthStep.login);
-      expect(find.text('0081234567'), findsOneWidget);
+      expect(find.text('0081234562'), findsOneWidget);
       await tester.pumpWidget(const SizedBox.shrink());
     },
   );

@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/validators/validators.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/flows/login/cubit/auth_rules.dart';
 
 import 'dart:async';
@@ -25,9 +26,9 @@ class AuthCubit extends Cubit<AuthState> {
   void otpChanged(String value) => emit(state.copyWith(otp: value));
 
   bool _fieldIsValid(String field) => switch (field) {
-    'nationalId' => state.nationalId.length == 10,
-    'phone' => state.phone.length == 11 && state.phone.startsWith('09'),
-    'captcha' => state.captcha.length == 6,
+    'nationalId' => NationalCodeValidator.isValid(state.nationalId),
+    'phone' => PhoneNumberValidator.isValid(state.phone),
+    'captcha' => CodeValidator.isValid(state.captcha, length: 6),
     _ => true,
   };
 

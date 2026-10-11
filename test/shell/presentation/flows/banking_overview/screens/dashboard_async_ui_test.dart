@@ -1,3 +1,5 @@
+import '../../../../../support/router_test_app.dart';
+
 import 'dart:async';
 
 import 'package:avp_ui/avp_ui.dart';
@@ -15,7 +17,7 @@ import 'package:pishkhan_mobile/l10n/l10n.dart';
 
 import '../../../../support/dashboard_test_repositories.dart';
 
-Widget subject(Widget child) => MaterialApp(
+Widget subject(Widget child) => TestRouterApp(
   theme: AppTheme.light(),
   locale: const Locale('fa'),
   supportedLocales: AppLocalizations.supportedLocales,

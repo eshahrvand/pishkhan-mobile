@@ -1,3 +1,5 @@
+import '../../../../../support/router_test_app.dart';
+
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -18,7 +20,7 @@ void main() {
     await font.load();
   });
 
-  Widget subject({Widget? home, double scale = 1}) => MaterialApp(
+  Widget subject({Widget? home, double scale = 1}) => TestRouterApp(
     theme: AppTheme.light(),
     locale: const Locale('fa'),
     localizationsDelegates: AppLocalizations.localizationsDelegates,

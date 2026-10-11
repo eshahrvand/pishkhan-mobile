@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
 import 'package:pishkhan_mobile/features/cards/domain/repositories/virtual_card_repository.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/features/cards/presentation/flows/virtual_card_request/cubit/virtual_card_rules.dart';
@@ -64,9 +65,8 @@ class _VirtualCardRequestScreenState extends State<VirtualCardRequestScreen> {
   }
 
   void _back() {
-    if (cubit.state.submissionStatus != RequestStatus.loading &&
-        Navigator.of(context).canPop()) {
-      Navigator.of(context).pop();
+    if (cubit.state.submissionStatus != RequestStatus.loading) {
+      NavigationActions.back(context);
     }
   }
 
@@ -108,7 +108,7 @@ class _VirtualCardRequestScreenState extends State<VirtualCardRequestScreen> {
   void _receipt(VirtualCardReceipt receipt) {
     widget.onSubmitted?.call(receipt);
     if (!mounted) return;
-    Navigator.of(context).popUntil((route) => route.isFirst);
+    NavigationActions.returnHome(context);
   }
 
   @override

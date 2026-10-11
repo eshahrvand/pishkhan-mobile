@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/validators/postal_code_validator.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/features/cards/presentation/flows/card_issuance/cubit/issuance_rules.dart';
 import 'package:avp_ui/avp_ui.dart';
@@ -113,7 +114,7 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
     if (!issuanceIsEditable(state) ||
         title.trim().isEmpty ||
         detail.trim().isEmpty ||
-        !RegExp(r'^[0-9]{10}$').hasMatch(postal)) {
+        !PostalCodeValidator.isValid(postal)) {
       return false;
     }
     final address = IssuanceAddress(

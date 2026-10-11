@@ -1,3 +1,5 @@
+import '../../../../../support/router_test_app.dart';
+
 import 'package:pishkhan_mobile/features/cards/presentation/flows/card_issuance/cubit/issuance_rules.dart';
 
 import 'dart:io';
@@ -17,7 +19,8 @@ import 'package:pishkhan_mobile/features/cards/presentation/flows/card_issuance/
 import 'package:pishkhan_mobile/shared/widgets/app_invoice.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_address_card.dart';
 
-import '../cubit/card_issuance_cubit_test.dart' show ControlledIssuanceRepository;
+import '../cubit/card_issuance_cubit_test.dart'
+    show ControlledIssuanceRepository;
 
 import 'package:pishkhan_mobile/core/result/result.dart';
 import 'package:pishkhan_mobile/core/result/failure.dart';
@@ -43,7 +46,7 @@ void main() {
     Locale locale = const Locale('fa'),
   }) => RepaintBoundary(
     key: preview,
-    child: MaterialApp(
+    child: TestRouterApp(
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       locale: locale,

@@ -1,3 +1,8 @@
+import 'package:go_router/go_router.dart';
+import 'package:pishkhan_mobile/features/auth/auth_routes.dart';
+
+import '../../../../../support/router_test_app.dart';
+
 import 'package:pishkhan_mobile/features/auth/presentation/flows/password_services/cubit/password_rules.dart';
 
 import 'dart:io';
@@ -37,7 +42,7 @@ void main() {
     double scale = 1,
   }) => RepaintBoundary(
     key: preview,
-    child: MaterialApp(
+    child: TestRouterApp(
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       locale: locale,
@@ -519,12 +524,11 @@ void main() {
           builder: (context) => Scaffold(
             body: AppButton(
               label: 'Check',
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute<void>(
-                  builder: (_) => SecondPasswordScreen(
-                    repository: r,
-                    selectOperation: true,
-                  ),
+              onPressed: () => context.push<void>(
+                AuthRoutes.passwords,
+                extra: PasswordRouteArguments(
+                  repository: r,
+                  selectOperation: true,
                 ),
               ),
             ),

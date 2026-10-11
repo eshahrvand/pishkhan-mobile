@@ -1,9 +1,9 @@
+import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
+import 'package:pishkhan_mobile/core/router/card_features_navigation.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/features/cards/presentation/flows/card_features/cubit/card_features_rules.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:pishkhan_mobile/features/cards/presentation/flows/card_issuance/card_issuance.dart';
-import 'package:pishkhan_mobile/features/cards/presentation/flows/virtual_card_request/virtual_card_request.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/l10n/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
@@ -94,22 +94,13 @@ class _CardFeaturesScreenState extends State<CardFeaturesScreen> {
     if (widget.onActionRequested != null) {
       widget.onActionRequested!(request);
     } else if (action == CardFeatureAction.requestVirtual) {
-      Navigator.of(context).push(
-        MaterialPageRoute<void>(
-          builder: (_) => const VirtualCardRequestScreen(),
-        ),
-      );
+      openCardFeaturesService(context, 'card-virtual-request');
     } else if (action == CardFeatureAction.reissue) {
-      Navigator.of(context).push(
-        MaterialPageRoute<void>(
-          builder: (issueContext) => CardIssuanceScreen(
-            initialDepositNumber: card?.linkedDeposit,
-            onAssistantPressed: () {
-              Navigator.of(issueContext).pop();
-              widget.onAssistantPressed?.call();
-            },
-          ),
-        ),
+      openCardFeaturesService(
+        context,
+        'card-reissue',
+        initialDepositNumber: card?.linkedDeposit,
+        onAssistantPressed: widget.onAssistantPressed,
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -153,7 +144,7 @@ class _CardFeaturesScreenState extends State<CardFeaturesScreen> {
                     size: 24,
                   ),
                   trailingTooltip: context.l10n.backLabel,
-                  onTrailingPressed: () => Navigator.of(context).maybePop(),
+                  onTrailingPressed: () => NavigationActions.back(context),
                 ),
                 Expanded(
                   child: Stack(
@@ -273,7 +264,7 @@ class _CardFeaturesScreenState extends State<CardFeaturesScreen> {
                           key: const Key('card_features_assistant'),
                           onPressed:
                               widget.onAssistantPressed ??
-                              () => Navigator.of(context).maybePop(),
+                              () => NavigationActions.back(context),
                         ),
                       ),
                       if (footerAction != null)

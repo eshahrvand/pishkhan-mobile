@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/validators/validators.dart';
 import 'package:equatable/equatable.dart';
 
 enum IssuanceType { newNumber, existingNumber }
@@ -80,8 +81,8 @@ class DeliveryPerson extends Equatable {
   final String name, nationalId, mobile;
   bool get isComplete =>
       name.trim().isNotEmpty &&
-      RegExp(r'^[0-9]{10}$').hasMatch(nationalId) &&
-      RegExp(r'^09[0-9]{9}$').hasMatch(mobile);
+      NationalCodeValidator.isValid(nationalId) &&
+      PhoneNumberValidator.isValid(mobile);
   DeliveryPerson copyWith({String? name, String? nationalId, String? mobile}) =>
       DeliveryPerson(
         name: name ?? this.name,

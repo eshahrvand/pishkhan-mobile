@@ -1,10 +1,8 @@
+import 'package:pishkhan_mobile/core/router/app_router.dart';
+import 'package:pishkhan_mobile/core/router/router_session.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/flows/login/screens/auth_screen.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/flows/login/cubit/auth_cubit.dart';
-import 'package:pishkhan_mobile/features/shell/shell.dart';
 import 'package:pishkhan_mobile/l10n/l10n.dart';
 
 Future<void> main() async {
@@ -21,31 +19,29 @@ class PishkhanApp extends StatefulWidget {
 }
 
 class _PishkhanAppState extends State<PishkhanApp> {
-  var _isAuthenticated = false;
+  final _session = RouterSession();
+  late final _router = createAppRouter(session: _session);
+  @override
+  void dispose() {
+    _router.dispose();
+    _session.dispose();
+    super.dispose();
+  }
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      onGenerateTitle: (context) => context.l10n.appTitle,
-      locale: const Locale('fa'),
-      supportedLocales: AppLocalizations.supportedLocales,
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      theme: AppTheme.light(),
-      builder: (context, child) => Directionality(
-        textDirection: TextDirection.rtl,
-        child: child ?? const SizedBox.shrink(),
-      ),
-      home: _isAuthenticated
-          ? const DashboardScreen()
-          : BlocProvider(
-              create: (_) => AuthCubit(),
-              child: AuthScreen(
-                onAuthenticated: () => setState(() => _isAuthenticated = true),
-              ),
-            ),
-    );
-  }
+  Widget build(BuildContext context) => MaterialApp.router(
+    routerConfig: _router,
+    debugShowCheckedModeBanner: false,
+    onGenerateTitle: (context) => context.l10n.appTitle,
+    locale: const Locale('fa'),
+    supportedLocales: AppLocalizations.supportedLocales,
+    localizationsDelegates: AppLocalizations.localizationsDelegates,
+    theme: AppTheme.light(),
+    builder: (context, child) => Directionality(
+      textDirection: TextDirection.rtl,
+      child: child ?? const SizedBox.shrink(),
+    ),
+  );
 }
 
 /// Kept as a compatibility entry point for existing app tests and integrations.

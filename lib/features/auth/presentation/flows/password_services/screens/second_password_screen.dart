@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
 import 'package:pishkhan_mobile/features/auth/domain/repositories/password_services_repository.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/flows/password_services/cubit/password_rules.dart';
@@ -94,7 +95,7 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
       return;
     }
     if (_fullStatus(cubit.state)) {
-      if (Navigator.of(context).canPop()) Navigator.of(context).pop();
+      NavigationActions.back(context);
       return;
     }
     if (cubit.back()) return;
@@ -122,7 +123,7 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
       );
       if (leave != true || !mounted) return;
     }
-    if (mounted && Navigator.of(context).canPop()) Navigator.of(context).pop();
+    if (mounted) NavigationActions.back(context);
   }
 
   bool _fullStatus(SecondPasswordState state) =>
@@ -145,7 +146,7 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
     _sheetOpen = false;
     if (!mounted) return;
     if (submitted) {
-      if (Navigator.of(context).canPop()) Navigator.of(context).pop();
+      NavigationActions.returnHome(context);
     } else {
       cubit.dismissRecord();
     }

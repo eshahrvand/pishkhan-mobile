@@ -1,3 +1,5 @@
+import '../../../../../support/router_test_app.dart';
+
 import 'package:pishkhan_mobile/features/shell/data/repositories/mock_dashboard_repositories.dart';
 import 'package:pishkhan_mobile/features/shell/data/datasources/dashboard_mock_data.dart';
 
@@ -39,7 +41,7 @@ const sample = [first, second];
 
 Widget subject(Widget child, {double scale = 1}) => RepaintBoundary(
   key: preview,
-  child: MaterialApp(
+  child: TestRouterApp(
     debugShowCheckedModeBanner: false,
     theme: AppTheme.light(),
     locale: const Locale('fa'),

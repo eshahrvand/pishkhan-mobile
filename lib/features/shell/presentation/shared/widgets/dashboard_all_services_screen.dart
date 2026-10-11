@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -30,7 +31,7 @@ class DashboardAllServicesScreen extends StatelessWidget {
                 children: [
                   AppButton(
                     key: const Key('dashboard_catalog_back'),
-                    onPressed: () => Navigator.of(context).maybePop(),
+                    onPressed: () => NavigationActions.back(context),
                     variant: AppButtonVariant.text,
                     semanticLabel: MaterialLocalizations.of(context)
                         .backButtonTooltip,

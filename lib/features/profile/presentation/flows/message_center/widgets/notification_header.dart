@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -26,7 +27,7 @@ class NotificationHeader extends StatelessWidget {
             key: const Key('notification_back'),
             padding: EdgeInsets.zero,
             tooltip: MaterialLocalizations.of(context).backButtonTooltip,
-            onPressed: () => Navigator.of(context).maybePop(),
+            onPressed: () => NavigationActions.back(context),
             icon: SvgPicture.asset(AppAssets.notificationBack),
           ),
         ),

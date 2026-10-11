@@ -4,6 +4,15 @@ A new Flutter project.
 
 ## Getting Started
 
+Generate the ignored Freezed files before building or testing a fresh checkout:
+
+```sh
+flutter pub get
+dart run build_runner build --delete-conflicting-outputs
+flutter analyze
+flutter test
+```
+
 This project is a starting point for a Flutter application.
 
 A few resources to get you started if this is your first Flutter project:

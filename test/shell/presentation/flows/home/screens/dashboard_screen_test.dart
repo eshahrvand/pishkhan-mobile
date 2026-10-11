@@ -1,3 +1,5 @@
+import '../../../../../support/router_test_app.dart';
+
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -24,7 +26,7 @@ void main() {
     ValueChanged<String>? onService,
     ValueChanged<String>? onPrompt,
     double textScale = 1,
-  }) => MaterialApp(
+  }) => TestRouterApp(
     locale: const Locale('fa'),
     supportedLocales: AppLocalizations.supportedLocales,
     localizationsDelegates: AppLocalizations.localizationsDelegates,

@@ -1,3 +1,8 @@
+import 'package:go_router/go_router.dart';
+import 'package:pishkhan_mobile/features/cards/cards_routes.dart';
+
+import '../../../../../support/router_test_app.dart';
+
 import 'package:pishkhan_mobile/features/cards/presentation/flows/virtual_card_request/cubit/virtual_card_rules.dart';
 
 import 'dart:io';
@@ -36,7 +41,7 @@ void main() {
     double scale = 1,
   }) => RepaintBoundary(
     key: const Key('virtual_preview'),
-    child: MaterialApp(
+    child: TestRouterApp(
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       locale: locale,
@@ -224,12 +229,8 @@ void main() {
             builder: (context) => Scaffold(
               body: AppButton(
                 label: 'Main page',
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (_) => const CardFeaturesScreen(
-                      initialCategory: CardCategory.virtual,
-                    ),
-                  ),
+                onPressed: () => context.push<void>(
+                  CardsRoutes.listLocation(CardCategory.virtual),
                 ),
               ),
             ),
