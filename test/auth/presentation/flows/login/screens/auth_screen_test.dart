@@ -1,6 +1,6 @@
 import '../../../../../support/router_test_app.dart';
 
-import 'package:pishkhan_mobile/features/auth/presentation/flows/login/cubit/auth_rules.dart';
+import 'package:pishkhan_mobile/modules/auth/presentation/features/login/cubit/auth_rules.dart';
 
 import 'dart:io';
 import 'dart:ui' as ui;
@@ -11,11 +11,11 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/flows/login/screens/auth_screen.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/flows/login/cubit/auth_cubit.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/flows/login/cubit/auth_state.dart';
+import 'package:pishkhan_mobile/modules/auth/presentation/features/login/screens/auth_screen.dart';
+import 'package:pishkhan_mobile/modules/auth/presentation/features/login/cubit/auth_cubit.dart';
+import 'package:pishkhan_mobile/modules/auth/presentation/features/login/cubit/auth_state.dart';
 import 'package:pishkhan_mobile/l10n/l10n.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/shared/auth_assets.dart';
+import 'package:pishkhan_mobile/modules/auth/presentation/shared/auth_assets.dart';
 
 const previewKey = Key('auth_preview');
 

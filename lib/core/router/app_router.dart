@@ -1,12 +1,12 @@
 import 'package:pishkhan_mobile/core/router/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pishkhan_mobile/features/auth/auth_routes.dart';
-import 'package:pishkhan_mobile/features/cards/cards_routes.dart';
-import 'package:pishkhan_mobile/features/profile/profile_routes.dart';
-import 'package:pishkhan_mobile/features/dashboard/dashboard_routes.dart';
-import 'package:pishkhan_mobile/features/launch/launch_routes.dart';
-import 'package:pishkhan_mobile/features/launch/presentation/shared/widgets/route_unavailable_screen.dart';
+import 'package:pishkhan_mobile/modules/auth/auth_routes.dart';
+import 'package:pishkhan_mobile/modules/cards/cards_routes.dart';
+import 'package:pishkhan_mobile/modules/profile/profile_routes.dart';
+import 'package:pishkhan_mobile/modules/dashboard/dashboard_routes.dart';
+import 'package:pishkhan_mobile/modules/launch/launch_routes.dart';
+import 'package:pishkhan_mobile/modules/launch/presentation/shared/widgets/route_unavailable_screen.dart';
 
 import 'router_session.dart';
 import 'guards/auth_guard.dart';

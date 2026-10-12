@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pishkhan_mobile/features/dashboard/data/repositories/mock_dashboard_repositories.dart';
-import 'package:pishkhan_mobile/features/dashboard/domain/repositories/dashboard_repositories.dart';
+import 'package:pishkhan_mobile/modules/dashboard/data/repositories/mock_dashboard_repositories.dart';
+import 'package:pishkhan_mobile/modules/dashboard/domain/repositories/dashboard_repositories.dart';
 import 'package:pishkhan_mobile/core/router/app_router.dart';
 import 'package:pishkhan_mobile/core/router/router_session.dart';
 import 'package:avp_ui/avp_ui.dart';

@@ -1,9 +1,9 @@
 import 'package:pishkhan_mobile/core/router/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pishkhan_mobile/features/auth/auth_routes.dart';
-import 'package:pishkhan_mobile/features/cards/cards_routes.dart';
-import 'package:pishkhan_mobile/features/cards/domain/entities/listed_card.dart';
+import 'package:pishkhan_mobile/modules/auth/auth_routes.dart';
+import 'package:pishkhan_mobile/modules/cards/cards_routes.dart';
+import 'package:pishkhan_mobile/modules/cards/domain/entities/listed_card.dart';
 
 abstract final class ServiceRegistry {
   static bool openCardService(

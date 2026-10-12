@@ -9,14 +9,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pishkhan_mobile/core/router/app_router.dart';
 import 'package:pishkhan_mobile/core/router/router_session.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/flows/login/screens/auth_screen.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/flows/login/cubit/auth_cubit.dart';
-import 'package:pishkhan_mobile/features/cards/cards_routes.dart';
-import 'package:pishkhan_mobile/features/cards/presentation/flows/virtual_card_request/screens/virtual_card_request_screen.dart';
-import 'package:pishkhan_mobile/features/launch/presentation/shared/widgets/route_unavailable_screen.dart';
+import 'package:pishkhan_mobile/modules/auth/presentation/features/login/screens/auth_screen.dart';
+import 'package:pishkhan_mobile/modules/auth/presentation/features/login/cubit/auth_cubit.dart';
+import 'package:pishkhan_mobile/modules/cards/cards_routes.dart';
+import 'package:pishkhan_mobile/modules/cards/presentation/features/virtual_card_request/screens/virtual_card_request_screen.dart';
+import 'package:pishkhan_mobile/modules/launch/presentation/shared/widgets/route_unavailable_screen.dart';
 import 'package:pishkhan_mobile/l10n/l10n.dart';
-import 'package:pishkhan_mobile/features/launch/presentation/flows/splash/screens/splash_screen.dart';
-import 'package:pishkhan_mobile/features/dashboard/presentation/flows/home/screens/dashboard_screen.dart';
+import 'package:pishkhan_mobile/modules/launch/presentation/features/splash/screens/splash_screen.dart';
+import 'package:pishkhan_mobile/modules/dashboard/presentation/features/home/screens/dashboard_screen.dart';
 
 Widget app(GoRouter router) => RepositoryProvider.value(
   value: defaultDashboardTestRepositories,

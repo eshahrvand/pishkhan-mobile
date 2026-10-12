@@ -1,8 +1,8 @@
 import '../../../../support/dashboard_test_repositories.dart';
 import '../../../../../support/router_test_app.dart';
 
-import 'package:pishkhan_mobile/features/dashboard/data/repositories/mock_dashboard_repositories.dart';
-import 'package:pishkhan_mobile/features/dashboard/data/datasources/dashboard_mock_data.dart';
+import 'package:pishkhan_mobile/modules/dashboard/data/repositories/mock_dashboard_repositories.dart';
+import 'package:pishkhan_mobile/modules/dashboard/data/datasources/dashboard_mock_data.dart';
 
 import 'dart:io';
 import 'dart:ui' as ui;
@@ -12,9 +12,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:pishkhan_mobile/features/dashboard/domain/entities/bank_card.dart';
-import 'package:pishkhan_mobile/features/dashboard/presentation/flows/banking_overview/screens/cards_tab.dart';
-import 'package:pishkhan_mobile/features/dashboard/presentation/flows/home/screens/dashboard_screen.dart';
+import 'package:pishkhan_mobile/modules/dashboard/domain/entities/bank_card.dart';
+import 'package:pishkhan_mobile/modules/dashboard/presentation/features/banking_overview/screens/cards_tab.dart';
+import 'package:pishkhan_mobile/modules/dashboard/presentation/features/home/screens/dashboard_screen.dart';
 import 'package:pishkhan_mobile/l10n/l10n.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_resalat_card.dart';
 

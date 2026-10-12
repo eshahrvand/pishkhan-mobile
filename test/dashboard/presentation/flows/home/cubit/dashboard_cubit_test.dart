@@ -3,12 +3,12 @@ import 'dart:async';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/result/failure.dart';
 import 'package:pishkhan_mobile/core/result/result.dart';
-import 'package:pishkhan_mobile/features/dashboard/domain/entities/dashboard_home_data.dart';
-import 'package:pishkhan_mobile/features/dashboard/domain/repositories/dashboard_repositories.dart';
+import 'package:pishkhan_mobile/modules/dashboard/domain/entities/dashboard_home_data.dart';
+import 'package:pishkhan_mobile/modules/dashboard/domain/repositories/dashboard_repositories.dart';
 
-import 'package:pishkhan_mobile/features/dashboard/data/repositories/mock_dashboard_repositories.dart';
+import 'package:pishkhan_mobile/modules/dashboard/data/repositories/mock_dashboard_repositories.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:pishkhan_mobile/features/dashboard/presentation/flows/home/cubit/dashboard_cubit.dart';
+import 'package:pishkhan_mobile/modules/dashboard/presentation/features/home/cubit/dashboard_cubit.dart';
 
 class ControlledHomeRepository implements DashboardHomeRepository {
   final requests = <Completer<Result<DashboardHomeData?>>>[];
