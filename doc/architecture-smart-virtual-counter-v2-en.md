@@ -228,11 +228,11 @@ graph TD
 
 ## 6. Project Structure and Modularization
 
-### 6.1 Granularity Principle: Feature = Service Category
+### 6.1 Granularity Principle: Module = Service Category
 
 With 80+ services, creating a three-layer module per service would produce 80 folders and 240 sub-layers, making maintenance cost, code generation volume, and DI complexity unmanageable.
 
-**Decision:** the unit of modularization is the **service category**, not the individual service. Related services share entities and repositories; each service has its own use case and its own presentation flow.
+**Decision:** the unit of modularization is the **service category**, not the individual service. Related services share entities and repositories; each service has its own use case and its own presentation feature folder.
 
 ### 6.2 Module List
 
@@ -258,7 +258,7 @@ With 80+ services, creating a three-layer module per service would produce 80 fo
 
 ### 6.3 Decision: Folders Instead of Packages
 
-Modules are implemented as **folders** under `app/lib/features/`, not as standalone packages with `melos`. Rationale: lower setup complexity and learning curve for a four-person team.
+Modules are implemented as **folders** under `app/lib/modules/`, not as standalone packages with `melos`. Rationale: lower setup complexity and learning curve for a four-person team.
 
 Three safeguards this decision removes, which must be compensated for:
 
@@ -358,7 +358,7 @@ pishkhan_project/
         │
         ├── l10n/                        # ARB files
         │
-        └── features/
+        └── modules/
             ├── cards/
             │   ├── domain/
             │   │   ├── entities/
@@ -373,7 +373,7 @@ pishkhan_project/
             │   │   ├── mappers/
             │   │   └── repositories/
             │   ├── presentation/
-            │   │   ├── flows/           # One sub-folder per service
+            │   │   ├── features/        # One sub-folder per feature (service)
             │   │   │   └── block_card/
             │   │   │       ├── cubit/
             │   │   │       ├── screens/
@@ -393,9 +393,10 @@ pishkhan_project/
 
 Following the granularity principle (Section 6.1):
 
-1. **The top-level folders under `app/lib/features/` are exactly the modules listed in Section 6.2.** A service never gets its own top-level folder; it lives inside the module of its category (for example, card issuance and virtual card services live inside `cards`).
+1. **The top-level folders under `app/lib/modules/` are exactly the modules listed in Section 6.2.** A service never gets its own top-level folder; it lives inside the module of its category (for example, card issuance and virtual card services live inside `cards`).
 2. **Entities, repositories, mappers, and DTOs stay at the module level** and are shared by the services of that module. The use case and the presentation flow are per service.
-3. **Each service uses one folder name** (`snake_case`, English), identical in `domain/usecases/<service>/` and `presentation/flows/<service>/`.
+3. **Each service uses one folder name** (`snake_case`, English), identical in `domain/usecases/<service>/` and `presentation/features/<service>/`.
+4. **`presentation/features/<service>/` holds only the UI layer of that service** (`cubit/`, `screens/`, `widgets/`); its use cases live in the same-named folder under `domain/usecases/`, and entities and repositories live at the module level. A service with no domain logic (for example, a catalog screen) has only the presentation folder.
 
 ---
 
@@ -432,7 +433,7 @@ graph TD
 | Domain imports nothing from Flutter or the UI package | `custom_lint` |
 | DTOs never enter the Domain layer; conversion only in `mappers/` | Review + folder structure |
 | `dio` and `DioException` are prohibited outside `data/` | `custom_lint` |
-| No feature module imports another feature module | `custom_lint` |
+| No module imports another module | `custom_lint` |
 | Every entity and every model inside a state must be `Equatable` | `custom_lint` |
 
 ### 7.2 Inter-Module Communication
@@ -808,7 +809,7 @@ Response / error path:
 
 **`IdempotencyInterceptor`:** the key is generated **on flow entry**, not at send time. This way both automatic retries and repeat user taps carry the same key.
 
-**`ErrorMappingInterceptor`:** no feature module should ever see a `DioException`. Enforced by `custom_lint`.
+**`ErrorMappingInterceptor`:** no module should ever see a `DioException`. Enforced by `custom_lint`.
 
 **`LoggingInterceptor`:** full body logging, even in staging, means national IDs and account numbers land in system logs. The list of masked fields is defined and applied centrally.
 
@@ -1000,7 +1001,7 @@ final label = switch (state.status) {
 
 **Rules:**
 
-1. **Shared enums live in `core/enums/`.** An enum that is useful to more than one feature is placed there, not inside a feature module.
+1. **Shared enums live in `core/enums/`.** An enum that is useful to more than one feature is placed there, not inside a module.
 2. **`RequestStatus` describes only the lifecycle of an async request.** A value needed by a single feature is never added to it.
 3. **Anything beyond the four statuses is created inside the relevant feature, when it is actually needed:**
    * a business outcome of a successful request is a data field in the state (for example an `outcome` enum), not an extra status value;
@@ -1279,7 +1280,7 @@ A user arriving via notification or deep link whose session has expired must be 
 All route **path constants** live in one file: `core/router/app_routes.dart`. Route **definitions** (the `GoRoute` objects and their screens) stay inside each module, in one file per module that reads its paths from the central file.
 
 ```dart
-// core/router/app_routes.dart — path constants only; imports nothing from features
+// core/router/app_routes.dart — path constants only; imports nothing from modules
 abstract final class LaunchRoutes {
   static const splash = '/launch/splash';
   static const securityBlocked = '/launch/security-blocked';
@@ -1298,7 +1299,7 @@ abstract final class CardsRoutes {
 ```
 
 ```dart
-// features/cards/cards_routes.dart
+// modules/cards/cards_routes.dart
 List<RouteBase> buildCardsRoutes() => [
   GoRoute(path: CardsRoutes.block, builder: (_, __) => const BlockCardScreen()),
   // ...
@@ -1324,7 +1325,7 @@ final appRouter = GoRouter(
 );
 ```
 
-**Rationale:** `core` (guards, the post-login whitelist in Section 15.2, `ServiceRegistry`) and every module navigate by importing only this file for route paths, never another feature module. Route paths therefore no longer create dependencies between `core` and the features, or between features.
+**Rationale:** `core` (guards, the post-login whitelist in Section 15.2, `ServiceRegistry`) and every module navigate by importing only this file for route paths, never another module. Route paths therefore no longer create dependencies between `core` and the features, or between features.
 
 **Trade-off:** every developer who adds a route edits this file, so it can produce Git conflicts. The file is kept to path constants only and grouped as one class per module, so conflicts, when they happen, stay limited to adjacent line additions.
 
@@ -1337,15 +1338,15 @@ final appRouter = GoRouter(
 
 ```dart
 ShellRoute(
-builder: (_, __, child) => BlocProvider(
-create: (_) => getIt<LoanRequestCubit>(),
-child: child,
-),
-routes: [
-GoRoute(path: '/loans/request/amount',    builder: ...),
-GoRoute(path: '/loans/request/documents', builder: ...),
-GoRoute(path: '/loans/request/review',    builder: ...),
-],
+  builder: (_, __, child) => BlocProvider(
+    create: (_) => getIt<LoanRequestCubit>(),
+    child: child,
+  ),
+  routes: [
+    GoRoute(path: '/loans/request/amount',    builder: ...),
+    GoRoute(path: '/loans/request/documents', builder: ...),
+    GoRoute(path: '/loans/request/review',    builder: ...),
+  ],
 )
 ```
 
@@ -1483,15 +1484,15 @@ Six rules, all at `error` level in CI:
 
 | # | Rule | Guarantees |
 |---|---|---|
-| 1 | No imports between feature modules | Module boundaries (Section 6.3) |
-| 2 | No hardcoded colors or numbers in features | Design system integrity |
+| 1 | No imports between modules | Module boundaries (Section 6.3) |
+| 2 | No hardcoded colors or numbers in modules | Design system integrity |
 | 3 | No raw Material widgets outside `avp_ui` | Design system integrity |
 | 4 | No `dio` or `DioException` outside `data/` | Layer boundaries (Section 7.1) |
 | 5 | `Equatable` required on entities and state models | Test correctness (Section 11.1) |
 | 6 | No string literals directly in widgets | Localization (Section 14.1) |
 
 > [!NOTE]
-> Rule 3 must be scoped precisely: raw Material widgets are permitted **inside** `packages/avp_ui/lib/widgets/` and prohibited in `app/lib/features/`. Defining it absolutely would make building the package itself impossible.
+> Rule 3 must be scoped precisely: raw Material widgets are permitted **inside** `packages/avp_ui/lib/widgets/` and prohibited in `app/lib/modules/`. Defining it absolutely would make building the package itself impossible.
 
 Every rule carries a maintenance cost; six high-value rules are preferred over a long list.
 
