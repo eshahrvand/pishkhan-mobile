@@ -12,12 +12,12 @@ import 'package:pishkhan_mobile/modules/dashboard/domain/entities/bank_loan.dart
 import 'package:pishkhan_mobile/modules/dashboard/domain/entities/dashboard_home_data.dart';
 import 'package:pishkhan_mobile/modules/dashboard/domain/entities/dashboard_item.dart';
 import 'package:pishkhan_mobile/modules/dashboard/presentation/features/home/cubit/dashboard_cubit.dart';
-import 'package:pishkhan_mobile/modules/dashboard/presentation/features/banking_overview/cubit/cards_cubit.dart';
-import 'package:pishkhan_mobile/modules/dashboard/presentation/features/banking_overview/cubit/cards_state.dart';
-import 'package:pishkhan_mobile/modules/dashboard/presentation/features/banking_overview/cubit/deposits_cubit.dart';
-import 'package:pishkhan_mobile/modules/dashboard/presentation/features/banking_overview/cubit/deposits_state.dart';
-import 'package:pishkhan_mobile/modules/dashboard/presentation/features/banking_overview/cubit/loans_cubit.dart';
-import 'package:pishkhan_mobile/modules/dashboard/presentation/features/banking_overview/cubit/loans_state.dart';
+import 'package:pishkhan_mobile/modules/dashboard/presentation/features/home/cubit/cards_cubit.dart';
+import 'package:pishkhan_mobile/modules/dashboard/presentation/features/home/cubit/cards_state.dart';
+import 'package:pishkhan_mobile/modules/dashboard/presentation/features/home/cubit/deposits_cubit.dart';
+import 'package:pishkhan_mobile/modules/dashboard/presentation/features/home/cubit/deposits_state.dart';
+import 'package:pishkhan_mobile/modules/dashboard/presentation/features/home/cubit/loans_cubit.dart';
+import 'package:pishkhan_mobile/modules/dashboard/presentation/features/home/cubit/loans_state.dart';
 
 import '../../../../support/dashboard_test_repositories.dart';
 

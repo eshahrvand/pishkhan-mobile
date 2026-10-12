@@ -14,7 +14,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pishkhan_mobile/modules/dashboard/presentation/features/home/screens/dashboard_screen.dart';
 import 'package:pishkhan_mobile/modules/dashboard/domain/entities/bank_loan.dart';
-import 'package:pishkhan_mobile/modules/dashboard/presentation/features/banking_overview/screens/loans_tab.dart';
+import 'package:pishkhan_mobile/modules/dashboard/presentation/features/home/screens/loans_tab.dart';
 import 'package:pishkhan_mobile/modules/dashboard/presentation/shared/loan_actions.dart';
 import 'package:pishkhan_mobile/l10n/l10n.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_loan_card.dart';

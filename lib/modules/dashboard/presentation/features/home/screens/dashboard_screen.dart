@@ -7,13 +7,13 @@ import 'package:pishkhan_mobile/core/router/dashboard_notifications_navigation.d
 import 'package:pishkhan_mobile/modules/dashboard/presentation/features/home/cubit/dashboard_navigation_cubit.dart';
 import 'package:pishkhan_mobile/modules/dashboard/presentation/shared/widgets/dashboard_async_view.dart';
 import 'package:pishkhan_mobile/modules/dashboard/domain/entities/bank_loan.dart';
-import 'package:pishkhan_mobile/modules/dashboard/presentation/features/banking_overview/screens/loans_tab.dart';
+import 'package:pishkhan_mobile/modules/dashboard/presentation/features/home/screens/loans_tab.dart';
 import 'package:pishkhan_mobile/modules/dashboard/presentation/shared/loan_actions.dart';
 import 'package:pishkhan_mobile/modules/dashboard/domain/entities/bank_deposit.dart';
-import 'package:pishkhan_mobile/modules/dashboard/presentation/features/banking_overview/screens/deposits_tab.dart';
+import 'package:pishkhan_mobile/modules/dashboard/presentation/features/home/screens/deposits_tab.dart';
 import 'package:pishkhan_mobile/modules/dashboard/presentation/shared/deposit_actions.dart';
 import 'package:pishkhan_mobile/modules/dashboard/domain/entities/bank_card.dart';
-import 'package:pishkhan_mobile/modules/dashboard/presentation/features/banking_overview/screens/cards_tab.dart';
+import 'package:pishkhan_mobile/modules/dashboard/presentation/features/home/screens/cards_tab.dart';
 import 'package:pishkhan_mobile/modules/dashboard/presentation/shared/widgets/app_primary_navigation.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
 import 'package:avp_ui/avp_ui.dart';

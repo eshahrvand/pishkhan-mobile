@@ -4,7 +4,7 @@ import 'package:pishkhan_mobile/core/result/result.dart';
 
 import '../../../../domain/entities/bank_deposit.dart';
 import '../../../../domain/repositories/dashboard_repositories.dart';
-import '../../../../domain/usecases/banking_overview/load_dashboard_items.dart';
+import '../../../../domain/usecases/home/load_dashboard_items.dart';
 import 'deposits_state.dart';
 
 class DepositsCubit extends Cubit<DepositsState> {

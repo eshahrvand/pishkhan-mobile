@@ -13,9 +13,9 @@ import 'package:pishkhan_mobile/modules/dashboard/domain/entities/dashboard_home
 import 'package:pishkhan_mobile/modules/dashboard/domain/repositories/dashboard_repositories.dart';
 import 'package:pishkhan_mobile/modules/dashboard/presentation/features/home/screens/dashboard_screen.dart';
 import 'package:pishkhan_mobile/modules/dashboard/data/datasources/dashboard_mock_data.dart';
-import 'package:pishkhan_mobile/modules/dashboard/presentation/features/banking_overview/screens/cards_tab.dart';
-import 'package:pishkhan_mobile/modules/dashboard/presentation/features/banking_overview/screens/deposits_tab.dart';
-import 'package:pishkhan_mobile/modules/dashboard/presentation/features/banking_overview/screens/loans_tab.dart';
+import 'package:pishkhan_mobile/modules/dashboard/presentation/features/home/screens/cards_tab.dart';
+import 'package:pishkhan_mobile/modules/dashboard/presentation/features/home/screens/deposits_tab.dart';
+import 'package:pishkhan_mobile/modules/dashboard/presentation/features/home/screens/loans_tab.dart';
 import 'package:pishkhan_mobile/l10n/l10n.dart';
 
 import '../../../../support/dashboard_test_repositories.dart';

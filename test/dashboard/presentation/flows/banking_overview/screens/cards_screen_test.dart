@@ -13,7 +13,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pishkhan_mobile/modules/dashboard/domain/entities/bank_card.dart';
-import 'package:pishkhan_mobile/modules/dashboard/presentation/features/banking_overview/screens/cards_tab.dart';
+import 'package:pishkhan_mobile/modules/dashboard/presentation/features/home/screens/cards_tab.dart';
 import 'package:pishkhan_mobile/modules/dashboard/presentation/features/home/screens/dashboard_screen.dart';
 import 'package:pishkhan_mobile/l10n/l10n.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_resalat_card.dart';
