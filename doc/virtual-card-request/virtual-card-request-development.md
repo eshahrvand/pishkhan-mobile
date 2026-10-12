@@ -18,7 +18,7 @@ Dashboard Card Services and deposit quick actions use `card-virtual`, now openin
 
 ## 5. Feature boundaries
 
-The request is under `lib/modules/virtual_card_request`, independent of card listing and physical card issuance. Public exports: screen, typed repository/catalog/deposit/quote/request/receipt and mock adapter. No private avp_ui import or new package widget is needed.
+The request is under `lib/features/virtual_card_request`, independent of card listing and physical card issuance. Public exports: screen, typed repository/catalog/deposit/quote/request/receipt and mock adapter. No private avp_ui import or new package widget is needed.
 
 ## 6. Structure
 

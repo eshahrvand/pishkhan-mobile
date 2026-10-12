@@ -42,7 +42,7 @@ This feature document follows all 21 sections of the project's architecture docu
 
 ## 1. Architectural Goals and Principles
 
-The dashboard module owns its navigation, Home content and Cards/Deposits/Loans tabs. A tab is a dashboard summary, not a standalone banking feature page. Dashboard-specific entities, actions, fixtures, repositories and Cubits now live under `lib/modules/dashboard/`; future full Card, Deposit and Loan pages can use their dedicated feature folders without inheriting tab layout or selection state.
+The dashboard module owns its navigation, Home content and Cards/Deposits/Loans tabs. A tab is a dashboard summary, not a standalone banking feature page. Dashboard-specific entities, actions, fixtures, repositories and Cubits now live under `lib/features/dashboard/`; future full Card, Deposit and Loan pages can use their dedicated feature folders without inheriting tab layout or selection state.
 
 The dependency direction is presentation -> use case -> domain repository contract; the mock data layer implements those contracts. UI and Cubits consume the same interface that a future live repository will implement. No service request, authentication or banking transaction is executed by this prototype.
 
@@ -55,19 +55,19 @@ The earlier component decision explicitly required existing shared components un
 | Surface | Implemented states / behavior | Source |
 | --- | --- | --- |
 | App entry | Persian locale, enforced RTL, prototype login completion switches to dashboard | `lib/main.dart` |
-| Dashboard page | Wallet example, Reso prompt, eight fixed services, empty favorites, draft editing, saved favorites, eight-item limit, reset confirmation | `lib/modules/dashboard/presentation/dashboard_screen.dart`, `shared/widgets/dashboard_bank_services.dart` |
+| Dashboard page | Wallet example, Reso prompt, eight fixed services, empty favorites, draft editing, saved favorites, eight-item limit, reset confirmation | `lib/features/dashboard/presentation/dashboard_screen.dart`, `shared/widgets/dashboard_bank_services.dart` |
 | Dashboard phase 1 | Default dashboard and starting customization | Figma nodes `27902:80847`, `27902:81083` |
 | Dashboard phase 2 | Add-service sheet and grouped search | `27902:81228`, `27902:81468` |
 | Dashboard phase 3 | Six/eight draft favorites and reset | `27902:81700`, `27902:81873`, `27902:82066` |
 | Dashboard phase 4 | Saved favorites and separate all-services page | `27902:80947`, `27902:82267` |
-| Cards tab | Single/multiple card layouts, selected card, per-card visibility, copy, selected-card action callbacks | `lib/modules/dashboard/presentation/tabs/cards/cards_tab.dart`; `27902:82533`, `27902:82561` |
-| Deposits phase 1 | Single 335×202 deposit card, deposit operations, cheque operations when eligible, quick access | `lib/modules/dashboard/presentation/tabs/deposits/deposits_tab.dart`; [27902:82476](https://www.figma.com/design/nYQNyZdSs98lwymCpt5Sag/Pishkhan-AI-Mobile?node-id=27902-82476) |
+| Cards tab | Single/multiple card layouts, selected card, per-card visibility, copy, selected-card action callbacks | `lib/features/dashboard/presentation/tabs/cards/cards_tab.dart`; `27902:82533`, `27902:82561` |
+| Deposits phase 1 | Single 335×202 deposit card, deposit operations, cheque operations when eligible, quick access | `lib/features/dashboard/presentation/tabs/deposits/deposits_tab.dart`; [27902:82476](https://www.figma.com/design/nYQNyZdSs98lwymCpt5Sag/Pishkhan-AI-Mobile?node-id=27902-82476) |
 | Deposits phase 2 | Multiple 316×191 deposit cards, snapping RTL carousel, neighboring previews, indicators, selected-deposit actions | Same screen; [27902:82503](https://www.figma.com/design/nYQNyZdSs98lwymCpt5Sag/Pishkhan-AI-Mobile?node-id=27902-82503) |
 | Deposits empty | Localized empty message and usable dashboard controls | `DepositsTab(repository: MockDashboardDepositsRepository(deposits: []))` |
-| Loans phase 1 | Single 335×236 loan card, four operations and two quick actions | `lib/modules/dashboard/presentation/tabs/loans/loans_tab.dart`; [27902:82623](https://www.figma.com/design/nYQNyZdSs98lwymCpt5Sag/Pishkhan-AI-Mobile?node-id=27902-82623) |
+| Loans phase 1 | Single 335×236 loan card, four operations and two quick actions | `lib/features/dashboard/presentation/tabs/loans/loans_tab.dart`; [27902:82623](https://www.figma.com/design/nYQNyZdSs98lwymCpt5Sag/Pishkhan-AI-Mobile?node-id=27902-82623) |
 | Loans phase 2 | Multiple 316×236 loan cards, snapping RTL carousel, neighboring previews and selected-loan callbacks | Same screen; [27902:82592](https://www.figma.com/design/nYQNyZdSs98lwymCpt5Sag/Pishkhan-AI-Mobile?node-id=27902-82592) |
 | Loans empty | Localized empty message; controls remain usable; no selected lookup/action groups | `LoansTab(repository: MockDashboardLoansRepository(loans: []))` |
-| Notifications | Bell pushes list; opening marks read; Read all; detail; read state retained during dashboard lifetime | `lib/modules/notifications/presentation/` |
+| Notifications | Bell pushes list; opening marks read; Read all; detail; read state retained during dashboard lifetime | `lib/features/notifications/presentation/` |
 
 Single versus multiple deposit layout is determined by list length. Cheque visibility is determined by `BankDeposit.hasChequeOperations`, independently of length. One deposit can have no cheque section; an eligible deposit in a multi-deposit list can have one. The default single example is eligible; all three default multi examples are ineligible, matching the supplied states.
 
@@ -114,7 +114,7 @@ A future remote icon implementation still needs an approved caching strategy. Ex
 All paths are repository-relative; `avp_ui` sources are in the sibling package.
 
 ```text
-lib/modules/dashboard/
+lib/features/dashboard/
   dashboard.dart                           public feature exports
   domain/
     entities/
@@ -192,14 +192,14 @@ Screen test filenames are retained for compatibility with existing preview comma
 
 | Former dashboard-owned file | Current canonical file |
 | --- | --- |
-| modules/cards/models/bank_card.dart | modules/dashboard/domain/entities/bank_card.dart |
-| modules/cards/presentation/cards_screen.dart | modules/dashboard/presentation/tabs/cards/cards_tab.dart |
-| modules/deposits/models/bank_deposit.dart | modules/dashboard/domain/entities/bank_deposit.dart |
-| modules/deposits/presentation/deposits_screen.dart | modules/dashboard/presentation/tabs/deposits/deposits_tab.dart |
-| modules/deposits/presentation/shared/deposit_actions.dart | modules/dashboard/presentation/tabs/deposits/deposit_actions.dart |
-| modules/loans/models/bank_loan.dart | modules/dashboard/domain/entities/bank_loan.dart |
-| modules/loans/presentation/loans_screen.dart | modules/dashboard/presentation/tabs/loans/loans_tab.dart |
-| modules/loans/presentation/shared/loan_actions.dart | modules/dashboard/presentation/tabs/loans/loan_actions.dart |
+| features/cards/models/bank_card.dart | features/dashboard/domain/entities/bank_card.dart |
+| features/cards/presentation/cards_screen.dart | features/dashboard/presentation/tabs/cards/cards_tab.dart |
+| features/deposits/models/bank_deposit.dart | features/dashboard/domain/entities/bank_deposit.dart |
+| features/deposits/presentation/deposits_screen.dart | features/dashboard/presentation/tabs/deposits/deposits_tab.dart |
+| features/deposits/presentation/shared/deposit_actions.dart | features/dashboard/presentation/tabs/deposits/deposit_actions.dart |
+| features/loans/models/bank_loan.dart | features/dashboard/domain/entities/bank_loan.dart |
+| features/loans/presentation/loans_screen.dart | features/dashboard/presentation/tabs/loans/loans_tab.dart |
+| features/loans/presentation/shared/loan_actions.dart | features/dashboard/presentation/tabs/loans/loan_actions.dart |
 
 No compatibility re-exports are left in dedicated feature folders. App entry imports dashboard.dart. Standalone Notifications remains its own feature; the core navigation adapter owns the cross-feature presentation import and temporary read-state cache.
 
@@ -236,7 +236,7 @@ future: API -> remote datasource -> DTO -> validated mapper
                                              implements the SAME interface
 ```
 
-Recommended new adapter paths are `lib/modules/dashboard/data/datasources/`, `data/dto/`, `data/mappers/` and `data/repositories/`. These do not exist yet. Summary fetch mapping belongs in Dashboard data, not in the dedicated Loan/Deposit page folders. Prefer validated raw money/date values plus a consistent display mapper when the bank schema is known; the present formatted summaries can be produced at the repository boundary without changing views/Cubits. Broader domain representation changes should be reviewed separately.
+Recommended new adapter paths are `lib/features/dashboard/data/datasources/`, `data/dto/`, `data/mappers/` and `data/repositories/`. These do not exist yet. Summary fetch mapping belongs in Dashboard data, not in the dedicated Loan/Deposit page folders. Prefer validated raw money/date values plus a consistent display mapper when the bank schema is known; the present formatted summaries can be produced at the repository boundary without changing views/Cubits. Broader domain representation changes should be reviewed separately.
 
 ## 8. Service Flow Pattern and Suspended Requests
 
@@ -314,7 +314,7 @@ The shared AppServiceGridItem fields are exactly `id`, `label`, `icon` (a Widget
 
 All feature artwork is local under the flat `assets/images/` folder, registered by `AppAssets` in `lib/shared/assets/app_assets.dart`, and bundled by `pubspec.yaml`'s `assets/images/` entry. Feature icons are SVGs rendered by flutter_svg, not an icon font or a Material icon catalog. The application uses the package's IRANYekan font for text only.
 
-The dashboard mapping is in `lib/modules/dashboard/presentation/shared/dashboard_services.dart`:
+The dashboard mapping is in `lib/features/dashboard/presentation/shared/dashboard_services.dart`:
 - `catalogAsset`: full catalog and fallback tiles.
 - `fixedAsset`: fixed service block.
 - `optionAsset`: compact/search sheet rows.
@@ -388,7 +388,7 @@ The complete compile-time service inventory follows; the table resolves the actu
 | `changePhone` / `identity-phone` | `dashboardChangePhone` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_option_more.svg` |
 | `requests` / `requests-list` | `dashboardRequests` | `assets/images/dashboard_catalog_requests.svg` | `assets/images/dashboard_catalog_requests.svg` | `assets/images/dashboard_option_more.svg` |
 
-Deposit icon mapping is in `lib/modules/dashboard/presentation/tabs/deposits/deposit_actions.dart` (`DepositAction.asset`), not DashboardService.catalogAsset. New deposit files are original Figma SVGs. The cheque issuance asset was exported from the actual `cheque_request` instance because the generated reference incorrectly pointed to Chat. The SMS asset was also exported from its original Chat instance after visual verification found an identity icon in the generated alias.
+Deposit icon mapping is in `lib/features/dashboard/presentation/tabs/deposits/deposit_actions.dart` (`DepositAction.asset`), not DashboardService.catalogAsset. New deposit files are original Figma SVGs. The cheque issuance asset was exported from the actual `cheque_request` instance because the generated reference incorrectly pointed to Chat. The SMS asset was also exported from its original Chat instance after visual verification found an identity icon in the generated alias.
 
 | Action / integration ID | ARB title key | Local icon file | Group |
 | --- | --- | --- | --- |
@@ -426,7 +426,7 @@ Deposit icon mapping is in `lib/modules/dashboard/presentation/tabs/deposits/dep
 
 The Cards category active file is `assets/images/dashboard_category_card_active.svg`. Search headings use `assets/images/dashboard_search_card.svg`, `dashboard_search_wallet.svg` and `dashboard_search_identity.svg` for those three categories; all other headings use the category mapping above. Category dividers are resolved by DashboardCategoryHeading in the same all-services source.
 
-Cards use `CardsTab._asset(CardAction)` in `lib/modules/dashboard/presentation/tabs/cards/cards_tab.dart`, resolving `AppAssets.cardsAction*` and `cardsQuick*` in the same registry. Notifications use `notification_*.svg` and `notification_security.png`. Shared navigation owns dashboard_nav_*.svg and cards_nav_*.svg. None of these callsites is currently a network renderer.
+Cards use `CardsTab._asset(CardAction)` in `lib/features/dashboard/presentation/tabs/cards/cards_tab.dart`, resolving `AppAssets.cardsAction*` and `cardsQuick*` in the same registry. Notifications use `notification_*.svg` and `notification_security.png`. Shared navigation owns dashboard_nav_*.svg and cards_nav_*.svg. None of these callsites is currently a network renderer.
 
 ### 10.3 Could icons come from the server?
 
@@ -552,7 +552,7 @@ Parsing policy:
 
 ### 10.6 BankLoan fields and transport readiness
 
-Current model: `lib/modules/dashboard/domain/entities/bank_loan.dart`. It is a pure Dart Dashboard summary entity, not an OpenAPI DTO. LoansTab receives it through DashboardLoansRepository/LoadDashboardItems/LoansCubit. Single/multi fixtures are in data/mock/dashboard_mock_data.dart, with count-derived proportions. The mock repository exists; live DTO mapping does not.
+Current model: `lib/features/dashboard/domain/entities/bank_loan.dart`. It is a pure Dart Dashboard summary entity, not an OpenAPI DTO. LoansTab receives it through DashboardLoansRepository/LoadDashboardItems/LoansCubit. Single/multi fixtures are in data/mock/dashboard_mock_data.dart, with count-derived proportions. The mock repository exists; live DTO mapping does not.
 
 | Field | Current source / use | Proposed server mapping |
 | --- | --- | --- |
@@ -577,7 +577,7 @@ The single fixture uses 500,000,000 total, 50,000,000 installment, ۴/۱۰ and p
 
 The earlier prototype preserved Figma percentages independently of count labels. The progress-fix request makes counts authoritative: widths are now derived from paid/total. Figma styling and physical-left origin are preserved; old inconsistent percentages are historical evidence in Section 13.6.
 
-LoanAction in `lib/modules/dashboard/presentation/tabs/loans/loan_actions.dart` maps all six supported UI actions:
+LoanAction in `lib/features/dashboard/presentation/tabs/loans/loan_actions.dart` maps all six supported UI actions:
 
 | Enum / integration ID | ARB title key | Exact local asset | Group |
 | --- | --- | --- | --- |
@@ -643,7 +643,7 @@ Proposed loan extension to the Section 10.4 response (illustrative; not an endpo
 }
 ```
 
-A future `lib/modules/dashboard/data/mappers/` mapper would validate dates/money/progress/IDs and construct domain entities; mapping would construct the current BankLoan summary and resolved feature items. availableActionIds/disabledActionIds are proposed and are not current model fields. Unknown actions must be omitted or disabled under an approved fallback policy, never routed to a similar service. Real payment handling, ownership checks, permission enforcement, authentication and final confirmation remain app/domain/API work. This task only implements the payment tile and callback.
+A future `lib/features/dashboard/data/mappers/` mapper would validate dates/money/progress/IDs and construct domain entities; mapping would construct the current BankLoan summary and resolved feature items. availableActionIds/disabledActionIds are proposed and are not current model fields. Unknown actions must be omitted or disabled under an approved fallback policy, never routed to a similar service. Real payment handling, ownership checks, permission enforcement, authentication and final confirmation remain app/domain/API work. This task only implements the payment tile and callback.
 
 ### 10.7 What remains in the app
 
@@ -759,9 +759,9 @@ Cheque availability is per selected deposit, independent of count. A server mapp
 | App shared | AppServiceArtworkTile | `lib/shared/widgets/app_service_artwork_tile.dart` |
 | App shared | AppAssistantButton, AppAssistantIcon | `lib/shared/widgets/app_assistant_button.dart` |
 | App shared | AppWalletCard, AppBottomSheetHeader, AppResalatCard | Corresponding files in `lib/shared/widgets/` |
-| Feature local | DashboardBankServices, DashboardServiceTile, DashboardResoBanner, catalog/sheet headings | `lib/modules/dashboard/presentation/shared/widgets/` |
-| Feature local | DepositsTab group/carousel composition, DepositAction mappings | `lib/modules/dashboard/presentation/tabs/deposits/` |
-| Feature local | LoansTab group/carousel composition, LoanAction mappings | `lib/modules/dashboard/presentation/tabs/loans/` |
+| Feature local | DashboardBankServices, DashboardServiceTile, DashboardResoBanner, catalog/sheet headings | `lib/features/dashboard/presentation/shared/widgets/` |
+| Feature local | DepositsTab group/carousel composition, DepositAction mappings | `lib/features/dashboard/presentation/tabs/deposits/` |
+| Feature local | LoansTab group/carousel composition, LoanAction mappings | `lib/features/dashboard/presentation/tabs/loans/` |
 
 No duplicate deposit card or navigation component was created. Narrow screens wrap the existing card in a FittedBox with its native aspect ratio. That scales the existing component as a whole; it does not change its gradient, shadow, fonts or fixed native dimensions.
 
@@ -846,7 +846,7 @@ Two independent problems were confirmed:
 
 **Authoritative counts:** Figma's sample widths (.4906 for 4/10; .4025/.7466/.92 for 3/10,7/10,9/10) are inconsistent with those installment labels. Following the user's fix request, counts now determine the width: 40% single; 30%,70%,90% multi. Blue color, 8px height, rounded clipping and physical-left origin match the design.
 
-**Changed files:** lib/modules/dashboard/domain/entities/bank_loan.dart; lib/shared/widgets/app_loan_card.dart; test/bank_loan_test.dart; test/loans_screen_test.dart; and package lib/widgets/loaders/app_progress_indicator.dart, test/widgets/app_progress_indicator_test.dart, docs/main-app-integration-guide.md. The app integration guide records the new public parameter.
+**Changed files:** lib/features/dashboard/domain/entities/bank_loan.dart; lib/shared/widgets/app_loan_card.dart; test/bank_loan_test.dart; test/loans_screen_test.dart; and package lib/widgets/loaders/app_progress_indicator.dart, test/widgets/app_progress_indicator_test.dart, docs/main-app-integration-guide.md. The app integration guide records the new public parameter.
 
 **Regression coverage:** Count tests cover ordinary ratios, different totals, zero paid/total, complete and inconsistent over-count input. Package tests measure actual foreground width and 8px height at zero/partial/full values in LTR and RTL and test the explicit physical-left origin. Screen tests measure single and every selected multi-loan fill; previews are regenerated and inspected. Other accepted loan-component differences remain open.
 
@@ -883,7 +883,7 @@ The comparison uses freshly retrieved Figma design context and screenshots, then
 
 ### 13.8 Standalone Cards flow integration (2026-10-09)
 
-The dedicated Cards flow now lives under modules/cards, separately from Dashboard's carousel. The core routing bridge opens it for card-list/card-virtual/card-expired-gift when no host service override is supplied. Reviewed additive shared/package parameters preserve existing Dashboard defaults. See [Cards architecture and current component audit](../cards/card-features-development.md) and the [nine-state gallery](../card-features-review/index.html) for the new colored AppCardsList variant, configurable back/sheet actions, compact selectors/search, AppChips, footer styling and recorded backdrop SVG limitation.
+The dedicated Cards flow now lives under features/cards, separately from Dashboard's carousel. The core routing bridge opens it for card-list/card-virtual/card-expired-gift when no host service override is supplied. Reviewed additive shared/package parameters preserve existing Dashboard defaults. See [Cards architecture and current component audit](../cards/card-features-development.md) and the [nine-state gallery](../card-features-review/index.html) for the new colored AppCardsList variant, configurable back/sheet actions, compact selectors/search, AppChips, footer styling and recorded backdrop SVG limitation.
 
 ## 14. Localization, Persian Support, and Dates
 
@@ -1068,7 +1068,7 @@ Loan progress sizing and physical-left alignment are fixed. Remaining follow-ups
 
 ## Resalat issuance route integration (2026-10-09)
 
-The core card service bridge now also allowlists card-issue/card-reissue. The standalone flow lives in lib/modules/card_issuance, rather than inside Dashboard. Existing service/card/deposit callbacks retain precedence; default deposit entry forwards its selected deposit number for an exact normalized catalog match. See [issuance architecture and remaining component differences](../card-issuance/card-issuance-development.md). Dashboard components and its earlier Figma issue register are unchanged.
+The core card service bridge now also allowlists card-issue/card-reissue. The standalone flow lives in lib/features/card_issuance, rather than inside Dashboard. Existing service/card/deposit callbacks retain precedence; default deposit entry forwards its selected deposit number for an exact normalized catalog match. See [issuance architecture and remaining component differences](../card-issuance/card-issuance-development.md). Dashboard components and its earlier Figma issue register are unchanged.
 
 ## Password services entry (2026-10-10)
 

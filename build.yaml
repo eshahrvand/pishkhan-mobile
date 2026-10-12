@@ -3,7 +3,7 @@ targets:
     builders:
       freezed:
         generate_for:
-          - lib/modules/**/presentation/**/*.dart
+          - lib/features/**/presentation/**/*.dart
       json_serializable:
         generate_for:
-          - lib/modules/**/data/models/**/*.dart
+          - lib/features/**/data/models/**/*.dart

@@ -55,7 +55,7 @@ The existing dependencies cover SVG rendering, state and tests. No browser, paym
 ## 6. Project Structure and Modularization
 
 ```text
-lib/modules/card_issuance/
+lib/features/card_issuance/
   card_issuance.dart                                 public screen/entities/repository exports
   domain/
     entities/issuance_data.dart                      deposit, address, fee, catalog, identities, request, receipt
@@ -69,8 +69,8 @@ lib/modules/card_issuance/
     widgets/issuance_sections.dart                  selection/delivery/confirmation composition and icon/type mapping
     widgets/issuance_address_sheet.dart              local address form with existing controls
 lib/core/router/card_features_navigation.dart        allowlisted entry bridge
-lib/modules/dashboard/presentation/dashboard_screen.dart  selected-deposit context forwarding
-lib/modules/cards/presentation/card_features_screen.dart    default reissue route
+lib/features/dashboard/presentation/dashboard_screen.dart  selected-deposit context forwarding
+lib/features/cards/presentation/card_features_screen.dart    default reissue route
 lib/shared/widgets/app_invoice.dart                  compatible invoice appearance/copy properties
 lib/shared/widgets/app_address_card.dart             full/default and delivery/compact variants
 lib/shared/widgets/app_delete_address_sheet.dart     reused deletion confirmation

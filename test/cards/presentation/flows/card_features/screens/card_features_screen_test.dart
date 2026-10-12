@@ -16,9 +16,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:pishkhan_mobile/modules/cards/cards.dart';
-import 'package:pishkhan_mobile/modules/cards/data/repositories/mock_cards_repository.dart';
-import 'package:pishkhan_mobile/modules/dashboard/presentation/features/home/screens/dashboard_screen.dart';
+import 'package:pishkhan_mobile/features/cards/cards.dart';
+import 'package:pishkhan_mobile/features/cards/data/repositories/mock_cards_repository.dart';
+import 'package:pishkhan_mobile/features/dashboard/presentation/home/screens/dashboard_screen.dart';
 import 'package:pishkhan_mobile/l10n/l10n.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_cards_list.dart';
 

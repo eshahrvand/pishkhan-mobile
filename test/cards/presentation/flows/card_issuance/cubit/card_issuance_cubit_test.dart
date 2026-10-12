@@ -1,15 +1,15 @@
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
-import 'package:pishkhan_mobile/modules/cards/presentation/features/card_issuance/cubit/issuance_rules.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/card_issuance/cubit/issuance_rules.dart';
 
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pishkhan_mobile/core/result/result.dart';
 import 'package:pishkhan_mobile/core/result/failure.dart';
-import 'package:pishkhan_mobile/modules/cards/domain/entities/issuance_data.dart';
-import 'package:pishkhan_mobile/modules/cards/domain/repositories/card_issuance_repository.dart';
-import 'package:pishkhan_mobile/modules/cards/data/repositories/mock_card_issuance_repository.dart';
-import 'package:pishkhan_mobile/modules/cards/presentation/features/card_issuance/cubit/card_issuance_cubit.dart';
+import 'package:pishkhan_mobile/features/cards/domain/entities/issuance_data.dart';
+import 'package:pishkhan_mobile/features/cards/domain/repositories/card_issuance_repository.dart';
+import 'package:pishkhan_mobile/features/cards/data/repositories/mock_card_issuance_repository.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/card_issuance/cubit/card_issuance_cubit.dart';
 
 class ControlledIssuanceRepository implements CardIssuanceRepository {
   Result<IssuanceCatalog> catalogResult = Success(

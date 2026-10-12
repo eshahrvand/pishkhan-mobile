@@ -1,14 +1,14 @@
 import 'dart:async';
 
 import 'package:pishkhan_mobile/core/result/result.dart';
-import 'package:pishkhan_mobile/modules/dashboard/domain/entities/bank_card.dart';
-import 'package:pishkhan_mobile/modules/dashboard/domain/entities/bank_deposit.dart';
-import 'package:pishkhan_mobile/modules/dashboard/domain/entities/bank_loan.dart';
-import 'package:pishkhan_mobile/modules/dashboard/domain/entities/dashboard_home_data.dart';
-import 'package:pishkhan_mobile/modules/dashboard/domain/repositories/dashboard_repositories.dart';
-import 'package:pishkhan_mobile/modules/dashboard/data/datasources/dashboard_mock_data.dart';
-import 'package:pishkhan_mobile/modules/dashboard/data/repositories/mock_dashboard_repositories.dart';
-import 'package:pishkhan_mobile/modules/dashboard/presentation/shared/dashboard_services.dart';
+import 'package:pishkhan_mobile/features/dashboard/domain/entities/bank_card.dart';
+import 'package:pishkhan_mobile/features/dashboard/domain/entities/bank_deposit.dart';
+import 'package:pishkhan_mobile/features/dashboard/domain/entities/bank_loan.dart';
+import 'package:pishkhan_mobile/features/dashboard/domain/entities/dashboard_home_data.dart';
+import 'package:pishkhan_mobile/features/dashboard/domain/repositories/dashboard_repositories.dart';
+import 'package:pishkhan_mobile/features/dashboard/data/datasources/dashboard_mock_data.dart';
+import 'package:pishkhan_mobile/features/dashboard/data/repositories/mock_dashboard_repositories.dart';
+import 'package:pishkhan_mobile/features/dashboard/presentation/shared/dashboard_services.dart';
 
 const defaultDashboardTestRepositories = DashboardRepositories(
   home: MockDashboardHomeRepository(),

@@ -1,14 +1,14 @@
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
-import 'package:pishkhan_mobile/modules/cards/presentation/features/card_features/cubit/card_features_rules.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/card_features/cubit/card_features_rules.dart';
 
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pishkhan_mobile/core/result/failure.dart';
 import 'package:pishkhan_mobile/core/result/result.dart';
-import 'package:pishkhan_mobile/modules/cards/cards.dart';
-import 'package:pishkhan_mobile/modules/cards/data/repositories/mock_cards_repository.dart';
-import 'package:pishkhan_mobile/modules/cards/presentation/features/card_features/cubit/card_features_cubit.dart';
+import 'package:pishkhan_mobile/features/cards/cards.dart';
+import 'package:pishkhan_mobile/features/cards/data/repositories/mock_cards_repository.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/card_features/cubit/card_features_cubit.dart';
 
 import '../support/test_cards_repository.dart';
 

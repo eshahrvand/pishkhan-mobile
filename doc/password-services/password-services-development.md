@@ -43,7 +43,7 @@ video_player is flutter.dev-published, BSD-3-Clause and supplies the actual plat
 ## 6. Project Structure and Modularization
 
 ```text
-lib/modules/password_services/
+lib/features/password_services/
   password_services.dart
   domain/password_data.dart                   immutable summaries, payload and repository
   domain/password_usecases.dart               load/status/submit exception boundaries

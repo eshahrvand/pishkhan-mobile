@@ -1,10 +1,10 @@
 import 'package:pishkhan_mobile/core/router/app_routes.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pishkhan_mobile/modules/auth/auth_routes.dart';
+import 'package:pishkhan_mobile/features/auth/auth_routes.dart';
 
 import '../../../../../support/router_test_app.dart';
 
-import 'package:pishkhan_mobile/modules/auth/presentation/features/password_services/cubit/password_rules.dart';
+import 'package:pishkhan_mobile/features/auth/presentation/password_services/cubit/password_rules.dart';
 
 import 'dart:io';
 import 'dart:ui' as ui;
@@ -16,8 +16,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pishkhan_mobile/core/router/card_features_navigation.dart';
-import 'package:pishkhan_mobile/modules/auth/presentation/features/password_services/password_services.dart';
-import 'package:pishkhan_mobile/modules/auth/presentation/features/password_services/cubit/second_password_cubit.dart';
+import 'package:pishkhan_mobile/features/auth/presentation/password_services/password_services.dart';
+import 'package:pishkhan_mobile/features/auth/presentation/password_services/cubit/second_password_cubit.dart';
 import 'package:pishkhan_mobile/l10n/l10n.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_invoice.dart';
 

@@ -48,7 +48,7 @@ Existing dependencies suffice. New package APIs are additive, public-barrel expo
 ## 6. Project Structure and Modularization
 
 ```text
-lib/modules/cards/
+lib/features/cards/
   cards.dart                                      public feature exports
   domain/
     entities/listed_card.dart                     ListedCard, CardCategory, CardStatus
@@ -76,7 +76,7 @@ doc/cards/card-features-development.md             this document
 doc/card-features-review/                          nine PNGs and HTML gallery
 ```
 
-Dashboard entities/actions/Cubits stay under modules/dashboard. ListedCard is a standalone list summary, not Dashboard BankCard. Common visuals remain shared or package-owned. Dashboard calls the core routing bridge instead of directly importing standalone feature UI.
+Dashboard entities/actions/Cubits stay under features/dashboard. ListedCard is a standalone list summary, not Dashboard BankCard. Common visuals remain shared or package-owned. Dashboard calls the core routing bridge instead of directly importing standalone feature UI.
 
 ## 7. Layering Pattern (Clean Architecture)
 

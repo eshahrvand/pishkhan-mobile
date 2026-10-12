@@ -5,7 +5,7 @@ import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:pishkhan_mobile/modules/dashboard/presentation/features/home/screens/dashboard_screen.dart';
+import 'package:pishkhan_mobile/features/dashboard/presentation/home/screens/dashboard_screen.dart';
 import 'package:pishkhan_mobile/l10n/l10n.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_wallet_card.dart';
 

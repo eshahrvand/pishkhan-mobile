@@ -1,13 +1,13 @@
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
-import 'package:pishkhan_mobile/modules/cards/presentation/features/virtual_card_request/cubit/virtual_card_rules.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/virtual_card_request/cubit/virtual_card_rules.dart';
 
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pishkhan_mobile/core/result/failure.dart';
 import 'package:pishkhan_mobile/core/result/result.dart';
-import 'package:pishkhan_mobile/modules/cards/presentation/features/virtual_card_request/virtual_card_request.dart';
-import 'package:pishkhan_mobile/modules/cards/presentation/features/virtual_card_request/cubit/virtual_card_cubit.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/virtual_card_request/virtual_card_request.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/virtual_card_request/cubit/virtual_card_cubit.dart';
 
 class TestVirtualRepository implements VirtualCardRepository {
   VirtualCardCatalog catalog = MockVirtualCardRepository.catalog;

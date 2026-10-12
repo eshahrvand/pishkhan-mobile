@@ -257,11 +257,11 @@ AppProgressIndicator.fillAlignment optionally selects the origin. Default: Align
 
 ## Dashboard tab repository composition
 
-Import package:pishkhan_mobile/modules/dashboard/dashboard.dart for DashboardScreen and its public data/action contracts. DashboardScreen.repositories accepts DashboardRepositories with Home/Cards/Deposits/Loans implementations. Leaving it unset builds mocks from the optional list/favorite seed arguments. Tab widgets and their Cubits receive typed repository interfaces rather than raw lists. Standalone feature folders no longer export dashboard tab screens. See the [Dashboard architecture and Figma audit](dashboard/dashboard-development.md) for exact paths, states and live-service adapter requirements.
+Import package:pishkhan_mobile/features/dashboard/dashboard.dart for DashboardScreen and its public data/action contracts. DashboardScreen.repositories accepts DashboardRepositories with Home/Cards/Deposits/Loans implementations. Leaving it unset builds mocks from the optional list/favorite seed arguments. Tab widgets and their Cubits receive typed repository interfaces rather than raw lists. Standalone feature folders no longer export dashboard tab screens. See the [Dashboard architecture and Figma audit](dashboard/dashboard-development.md) for exact paths, states and live-service adapter requirements.
 
 ## Standalone Cards feature
 
-See [Cards architecture](cards/card-features-development.md) and [rendered flow](card-features-review/index.html). Import modules/cards/cards.dart for CardFeaturesScreen, CardsRepository, ListedCard and typed CardFeatureRequest. Dashboard card summaries remain a separate feature. Compatible new package APIs are documented in avp_ui/docs/main-app-integration-guide.md; deploy the sibling package changes together with this app.
+See [Cards architecture](cards/card-features-development.md) and [rendered flow](card-features-review/index.html). Import features/cards/cards.dart for CardFeaturesScreen, CardsRepository, ListedCard and typed CardFeatureRequest. Dashboard card summaries remain a separate feature. Compatible new package APIs are documented in avp_ui/docs/main-app-integration-guide.md; deploy the sibling package changes together with this app.
 
 ## Stepper and card issuance instances
 

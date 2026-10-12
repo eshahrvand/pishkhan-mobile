@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:pishkhan_mobile/core/result/result.dart';
-import 'package:pishkhan_mobile/modules/cards/cards.dart';
-import 'package:pishkhan_mobile/modules/cards/data/repositories/mock_cards_repository.dart';
+import 'package:pishkhan_mobile/features/cards/cards.dart';
+import 'package:pishkhan_mobile/features/cards/data/repositories/mock_cards_repository.dart';
 
 class FakeCardsRepository implements CardsRepository {
   Result<List<ListedCard>> result = Success(MockCardsRepository.examples);

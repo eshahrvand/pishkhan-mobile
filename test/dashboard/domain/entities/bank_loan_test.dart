@@ -1,6 +1,6 @@
-import 'package:pishkhan_mobile/modules/dashboard/data/datasources/dashboard_mock_data.dart';
+import 'package:pishkhan_mobile/features/dashboard/data/datasources/dashboard_mock_data.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:pishkhan_mobile/modules/dashboard/domain/entities/bank_loan.dart';
+import 'package:pishkhan_mobile/features/dashboard/domain/entities/bank_loan.dart';
 
 void main() {
   test('progress and displayed counts use the same installment data', () {

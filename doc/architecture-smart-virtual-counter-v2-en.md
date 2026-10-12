@@ -41,7 +41,7 @@
 * **Presentation separated from validation:** display formatters live in the `avp_ui` package; pure validators live in `core/validators`.
 * **Independent design system:** visual components, theming, tokens, and shared widgets reside in the standalone `packages/avp_ui`.
 * **Single source of truth for the data contract:** the bank's OpenAPI specification is the shared basis for both the app and the Agent layer, preventing divergence between the traditional form path and the conversational path.
-* **Team scalability:** parallel development by multiple engineers without collisions, enforced by module boundaries at the lint level.
+* **Team scalability:** parallel development by multiple engineers without collisions, enforced by feature boundaries at the lint level.
 * **Platform-appropriate security:** one security policy with different implementations on Android, iOS, and Web, backed by an explicit capability matrix.
 * **Configurable security decisions:** adjustable thresholds and policies (timeout, device risk, sensitive services) are externalized from code and served remotely.
 * **Targeted testability:** full coverage of pure logic and mappers, without imposing unnecessary cost on the UI layer.
@@ -228,11 +228,11 @@ graph TD
 
 ## 6. Project Structure and Modularization
 
-### 6.1 Granularity Principle: Module = Service Category
+### 6.1 Granularity Principle: Feature = Service Category
 
-With 80+ services, creating a three-layer module per service would produce 80 folders and 240 sub-layers, making maintenance cost, code generation volume, and DI complexity unmanageable.
+With 80+ services, creating a three-layer feature per service would produce 80 folders and 240 sub-layers, making maintenance cost, code generation volume, and DI complexity unmanageable.
 
-**Decision:** the unit of modularization is the **service category**, not the individual service. Related services share entities and repositories; each service has its own use case and its own presentation feature folder.
+**Decision:** the unit of modularization is the **service category**, not the individual service. Related services share entities and repositories; each service has its own use case and its own presentation folder.
 
 ### 6.2 Module List
 
@@ -258,12 +258,12 @@ With 80+ services, creating a three-layer module per service would produce 80 fo
 
 ### 6.3 Decision: Folders Instead of Packages
 
-Modules are implemented as **folders** under `app/lib/modules/`, not as standalone packages with `melos`. Rationale: lower setup complexity and learning curve for a four-person team.
+Features are implemented as **folders** under `app/lib/features/`, not as standalone packages with `melos`. Rationale: lower setup complexity and learning curve for a four-person team.
 
 Three safeguards this decision removes, which must be compensated for:
 
 1. **Import boundaries:** enforced by a `custom_lint` rule (Section 17.4).
-2. **Git conflict hotspots:** resolved by distributing routes and constants into modules and by automatic DI registration.
+2. **Git conflict hotspots:** resolved by distributing routes and constants into features and by automatic DI registration.
 3. **Code generation speed:** addressed by narrowing generator scope and limiting `freezed` usage (Section 12.3).
 
 ### 6.4 Directory Tree
@@ -358,13 +358,16 @@ pishkhan_project/
         │
         ├── l10n/                        # ARB files
         │
-        └── modules/
+        └── features/
             ├── cards/
+            │   ├── cards_routes.dart    # Route constants + route definitions
+            │   │
             │   ├── domain/
             │   │   ├── entities/
             │   │   ├── repositories/
-            │   │   └── usecases/        # One sub-folder per service
-            │   │       └── block_card/
+            │   │   └── usecases/        # One file per service use case
+            │   │       ├── block_card.dart
+            │   │       └── issue_card.dart
             │   ├── data/
             │   │   ├── datasources/
             │   │   ├── models/
@@ -372,14 +375,16 @@ pishkhan_project/
             │   │   │   └── ...
             │   │   ├── mappers/
             │   │   └── repositories/
-            │   ├── presentation/
-            │   │   ├── features/        # One sub-folder per feature (service)
-            │   │   │   └── block_card/
-            │   │   │       ├── cubit/
-            │   │   │       ├── screens/
-            │   │   │       └── widgets/
-            │   │   └── shared/          # Widgets shared within this category
-            │   └── cards_routes.dart    # Route constants + route definitions
+            │   └── presentation/
+            │       ├── block_card/      # One sub-folder per service
+            │       │   ├── cubit/
+            │       │   ├── screens/
+            │       │   └── widgets/
+            │       ├── issue_card/
+            │       │   ├── cubit/
+            │       │   ├── screens/
+            │       │   └── widgets/
+            │       └── shared/          # Widgets shared within this category
             │
             ├── loans/
             ├── deposits/
@@ -393,10 +398,10 @@ pishkhan_project/
 
 Following the granularity principle (Section 6.1):
 
-1. **The top-level folders under `app/lib/modules/` are exactly the modules listed in Section 6.2.** A service never gets its own top-level folder; it lives inside the module of its category (for example, card issuance and virtual card services live inside `cards`).
-2. **Entities, repositories, mappers, and DTOs stay at the module level** and are shared by the services of that module. The use case and the presentation flow are per service.
-3. **Each service uses one folder name** (`snake_case`, English), identical in `domain/usecases/<service>/` and `presentation/features/<service>/`.
-4. **`presentation/features/<service>/` holds only the UI layer of that service** (`cubit/`, `screens/`, `widgets/`); its use cases live in the same-named folder under `domain/usecases/`, and entities and repositories live at the module level. A service with no domain logic (for example, a catalog screen) has only the presentation folder.
+1. **The top-level folders under `app/lib/features/` are exactly the features listed in Section 6.2.** A service never gets its own top-level folder; it lives inside the feature of its category (for example, card issuance and virtual card services live inside `cards`).
+2. **Entities, repositories, mappers, and DTOs stay at the feature level** and are shared by the services of that feature. The use case and the presentation flow are per service.
+3. **Each service uses one folder name** (`snake_case`, English), identical in `domain/usecases/<service>.dart` and `presentation/<service>/`.
+4. **`presentation/<service>/` holds only the UI layer of that service** (`cubit/`, `screens/`, `widgets/`); its use cases live in the same-named file under `domain/usecases/`, and entities and repositories live at the feature level. A service with no domain logic (for example, a catalog screen) has only the presentation folder.
 
 ---
 
@@ -433,15 +438,15 @@ graph TD
 | Domain imports nothing from Flutter or the UI package | `custom_lint` |
 | DTOs never enter the Domain layer; conversion only in `mappers/` | Review + folder structure |
 | `dio` and `DioException` are prohibited outside `data/` | `custom_lint` |
-| No module imports another module | `custom_lint` |
+| No feature imports another feature | `custom_lint` |
 | Every entity and every model inside a state must be `Equatable` | `custom_lint` |
 
-### 7.2 Inter-Module Communication
+### 7.2 Inter-Feature Communication
 
-Modules do not talk to each other directly. Three permitted paths:
+Features do not talk to each other directly. Three permitted paths:
 
 1. **Through `core`:** shared services (network, security, configuration).
-2. **Through the router:** opening another module's flow via `ServiceRegistry` (Section 8.2).
+2. **Through the router:** opening another feature's flow via `ServiceRegistry` (Section 8.2).
 3. **Through `requests`:** any submitted request appears in the shared list.
 
 ### 7.3 Pure Validators
@@ -560,7 +565,7 @@ abstract final class ServiceRegistry {
 }
 ```
 
-This is the only file that deliberately depends on all modules. `serviceId` is the shared identifier across the service catalog, `requests`, and the Agent layer contract.
+This is the only file that deliberately depends on all features. `serviceId` is the shared identifier across the service catalog, `requests`, and the Agent layer contract.
 
 ### 8.4 Suspended Requests — Key Decision
 
@@ -809,7 +814,7 @@ Response / error path:
 
 **`IdempotencyInterceptor`:** the key is generated **on flow entry**, not at send time. This way both automatic retries and repeat user taps carry the same key.
 
-**`ErrorMappingInterceptor`:** no module should ever see a `DioException`. Enforced by `custom_lint`.
+**`ErrorMappingInterceptor`:** no feature should ever see a `DioException`. Enforced by `custom_lint`.
 
 **`LoggingInterceptor`:** full body logging, even in staging, means national IDs and account numbers land in system logs. The list of masked fields is defined and applied centrally.
 
@@ -966,7 +971,7 @@ extension ResultX<T> on Result<T> {
 
 ### 12.1 Choosing Cubit
 
-State management uses `Cubit`. For the `assistant` module, which is event-driven and stream-based by nature, using `Bloc` with event transformers will be evaluated in Section 19.
+State management uses `Cubit`. For the `assistant` feature, which is event-driven and stream-based by nature, using `Bloc` with event transformers will be evaluated in Section 19.
 
 ### 12.2 Transitional States — freezed with a Shared Status Enum
 
@@ -1001,7 +1006,7 @@ final label = switch (state.status) {
 
 **Rules:**
 
-1. **Shared enums live in `core/enums/`.** An enum that is useful to more than one feature is placed there, not inside a module.
+1. **Shared enums live in `core/enums/`.** An enum that is useful to more than one feature is placed there, not inside a feature.
 2. **`RequestStatus` describes only the lifecycle of an async request.** A value needed by a single feature is never added to it.
 3. **Anything beyond the four statuses is created inside the relevant feature, when it is actually needed:**
    * a business outcome of a successful request is a data field in the state (for example an `outcome` enum), not an extra status value;
@@ -1259,7 +1264,7 @@ String? securityRedirect(GoRouterState state) {
 }
 ```
 
-The guard logic lives in `core/router/guards/`. The screens a guard redirects to (security-blocked, update-required, maintenance) live in the `launch` module, and their paths are defined in `core/router/app_routes.dart` (Section 15.3).
+The guard logic lives in `core/router/guards/`. The screens a guard redirects to (security-blocked, update-required, maintenance) live in the `launch` feature, and their paths are defined in `core/router/app_routes.dart` (Section 15.3).
 
 > [!NOTE]
 > Security evaluation runs at app startup and on every `resumed`, and the result is cached (Section 9.3). Awaiting a MethodChannel on every navigation would produce hundreds of unnecessary calls and visual flicker across multi-step flows.
@@ -1277,10 +1282,10 @@ A user arriving via notification or deep link whose session has expired must be 
 
 ### 15.3 Route Paths and Definitions
 
-All route **path constants** live in one file: `core/router/app_routes.dart`. Route **definitions** (the `GoRoute` objects and their screens) stay inside each module, in one file per module that reads its paths from the central file.
+All route **path constants** live in one file: `core/router/app_routes.dart`. Route **definitions** (the `GoRoute` objects and their screens) stay inside each feature, in one file per feature that reads its paths from the central file.
 
 ```dart
-// core/router/app_routes.dart — path constants only; imports nothing from modules
+// core/router/app_routes.dart — path constants only; imports nothing from features
 abstract final class LaunchRoutes {
   static const splash = '/launch/splash';
   static const securityBlocked = '/launch/security-blocked';
@@ -1295,11 +1300,11 @@ abstract final class CardsRoutes {
   static const virtual = '/cards/virtual';
 }
 
-// ... one class per module
+// ... one class per feature
 ```
 
 ```dart
-// modules/cards/cards_routes.dart
+// features/cards/cards_routes.dart
 List<RouteBase> buildCardsRoutes() => [
   GoRoute(path: CardsRoutes.block, builder: (_, __) => const BlockCardScreen()),
   // ...
@@ -1325,13 +1330,13 @@ final appRouter = GoRouter(
 );
 ```
 
-**Rationale:** `core` (guards, the post-login whitelist in Section 15.2, `ServiceRegistry`) and every module navigate by importing only this file for route paths, never another module. Route paths therefore no longer create dependencies between `core` and the features, or between features.
+**Rationale:** `core` (guards, the post-login whitelist in Section 15.2, `ServiceRegistry`) and every feature navigate by importing only this file for route paths, never another feature. Route paths therefore no longer create dependencies between `core` and the features, or between features.
 
-**Trade-off:** every developer who adds a route edits this file, so it can produce Git conflicts. The file is kept to path constants only and grouped as one class per module, so conflicts, when they happen, stay limited to adjacent line additions.
+**Trade-off:** every developer who adds a route edits this file, so it can produce Git conflicts. The file is kept to path constants only and grouped as one class per feature, so conflicts, when they happen, stay limited to adjacent line additions.
 
 **Two mandatory safeguards:**
 
-1. **Mandatory prefix:** all routes of the `cards` module begin with `/cards/` and are declared in the `CardsRoutes` class. Under this rule, route collisions are effectively impossible and the owning module is identifiable from the route itself.
+1. **Mandatory prefix:** all routes of the `cards` feature begin with `/cards/` and are declared in the `CardsRoutes` class. Under this rule, route collisions are effectively impossible and the owning feature is identifiable from the route itself.
 2. **Duplicate detection test:** a simple test that collects all routes and asserts uniqueness.
 
 ### 15.4 Flow Lifecycle
@@ -1389,8 +1394,8 @@ On seeing the `resume` parameter, the flow fetches state from the server instead
 | **Pure validators** | Luhn, IBAN, national ID | **100%** — no exceptions |
 | **Error mapping and Result** | `ErrorMappingInterceptor`, failures, extensions | **90%+** |
 | **Security and session** | `SecurityVerdict`, `TokenStore`, timeout, `ActivityTracker` | **90%+** |
-| **Mappers (DTO ↔ Entity)** | All modules | **80%** |
-| **Service use cases and cubits** | All service modules | **70%** |
+| **Mappers (DTO ↔ Entity)** | All features | **80%** |
+| **Service use cases and cubits** | All service features | **70%** |
 | **UI and widgets** | Screens | No mandatory minimum |
 
 **Two changes from the previous document:**
@@ -1484,15 +1489,15 @@ Six rules, all at `error` level in CI:
 
 | # | Rule | Guarantees |
 |---|---|---|
-| 1 | No imports between modules | Module boundaries (Section 6.3) |
-| 2 | No hardcoded colors or numbers in modules | Design system integrity |
+| 1 | No imports between features | Feature boundaries (Section 6.3) |
+| 2 | No hardcoded colors or numbers in features | Design system integrity |
 | 3 | No raw Material widgets outside `avp_ui` | Design system integrity |
 | 4 | No `dio` or `DioException` outside `data/` | Layer boundaries (Section 7.1) |
 | 5 | `Equatable` required on entities and state models | Test correctness (Section 11.1) |
 | 6 | No string literals directly in widgets | Localization (Section 14.1) |
 
 > [!NOTE]
-> Rule 3 must be scoped precisely: raw Material widgets are permitted **inside** `packages/avp_ui/lib/widgets/` and prohibited in `app/lib/modules/`. Defining it absolutely would make building the package itself impossible.
+> Rule 3 must be scoped precisely: raw Material widgets are permitted **inside** `packages/avp_ui/lib/widgets/` and prohibited in `app/lib/features/`. Defining it absolutely would make building the package itself impossible.
 
 Every rule carries a maintenance cost; six high-value rules are preferred over a long list.
 
@@ -1601,7 +1606,7 @@ Despite deferring this section, two infrastructure decisions **cannot be deferre
 * Fallback from conversation to the traditional interface via `ServiceFlow`
 * Conversation history persistence and synchronization
 * Behavior under errors, disconnection, and guardrail responses
-* Choosing `Bloc` over `Cubit` for this module
+* Choosing `Bloc` over `Cubit` for this feature
 
 ### 19.3 Established Principles Governing This Section
 
