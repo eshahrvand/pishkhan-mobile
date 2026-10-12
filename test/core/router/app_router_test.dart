@@ -1,3 +1,5 @@
+import '../../dashboard/support/dashboard_test_repositories.dart';
+
 import 'package:pishkhan_mobile/core/router/app_routes.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
@@ -16,13 +18,17 @@ import 'package:pishkhan_mobile/l10n/l10n.dart';
 import 'package:pishkhan_mobile/features/launch/presentation/flows/splash/screens/splash_screen.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/flows/home/screens/dashboard_screen.dart';
 
-Widget app(GoRouter router) => MaterialApp.router(
-  routerConfig: router,
-  theme: AppTheme.light(),
-  locale: const Locale('fa'),
-  supportedLocales: AppLocalizations.supportedLocales,
-  localizationsDelegates: AppLocalizations.localizationsDelegates,
+Widget app(GoRouter router) => RepositoryProvider.value(
+  value: defaultDashboardTestRepositories,
+  child: MaterialApp.router(
+    routerConfig: router,
+    theme: AppTheme.light(),
+    locale: const Locale('fa'),
+    supportedLocales: AppLocalizations.supportedLocales,
+    localizationsDelegates: AppLocalizations.localizationsDelegates,
+  ),
 );
+
 void main() {
   setUpAll(() async {
     final loader = FontLoader(AppTypography.defaultFontFamily);

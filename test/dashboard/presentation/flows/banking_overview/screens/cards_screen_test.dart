@@ -1,3 +1,4 @@
+import '../../../../support/dashboard_test_repositories.dart';
 import '../../../../../support/router_test_app.dart';
 
 import 'package:pishkhan_mobile/features/dashboard/data/repositories/mock_dashboard_repositories.dart';
@@ -260,9 +261,9 @@ void main() {
       await mount(
         tester,
         subject(
-          const DashboardScreen(
+          DashboardScreen(
+            repositories: dashboardTestRepositories(favorites: ['card-issue']),
             enableAnimations: false,
-            initialFavorites: ['card-issue'],
           ),
         ),
       );

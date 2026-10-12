@@ -1,3 +1,4 @@
+import '../../../../support/dashboard_test_repositories.dart';
 import '../../../../../support/router_test_app.dart';
 
 import 'dart:io';
@@ -80,7 +81,10 @@ void main() {
       debugDisableShadows = false;
       await tester.pumpWidget(
         app(
-          DashboardScreen(initialFavorites: favorites, enableAnimations: false),
+          DashboardScreen(
+            repositories: dashboardTestRepositories(favorites: favorites),
+            enableAnimations: false,
+          ),
         ),
       );
       await tester.pumpAndSettle();

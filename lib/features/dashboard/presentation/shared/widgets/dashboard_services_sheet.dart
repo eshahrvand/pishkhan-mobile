@@ -5,7 +5,7 @@ import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/dashboard_services.dart';
-import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_all_services_screen.dart';
+import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_category_heading.dart';
 import 'package:pishkhan_mobile/l10n/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_bottom_sheet_header.dart';

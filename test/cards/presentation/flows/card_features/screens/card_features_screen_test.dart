@@ -1,3 +1,4 @@
+import '../../../../../dashboard/support/dashboard_test_repositories.dart';
 import '../../../../../support/router_test_app.dart';
 
 import 'dart:async';
@@ -17,7 +18,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pishkhan_mobile/features/cards/cards.dart';
 import 'package:pishkhan_mobile/features/cards/data/repositories/mock_cards_repository.dart';
-import 'package:pishkhan_mobile/features/dashboard/dashboard.dart';
+import 'package:pishkhan_mobile/features/dashboard/presentation/flows/home/screens/dashboard_screen.dart';
 import 'package:pishkhan_mobile/l10n/l10n.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_cards_list.dart';
 
@@ -236,11 +237,16 @@ void main() {
     },
   );
   testWidgets(
-    'Dashboard catalog opens standalone Cards flow and back retains shell',
+    'Dashboard catalog opens standalone Cards flow and back retains dashboard',
     (tester) async {
       await mount(
         tester,
-        subject(const DashboardScreen(enableAnimations: false)),
+        subject(
+          const DashboardScreen(
+            repositories: defaultDashboardTestRepositories,
+            enableAnimations: false,
+          ),
+        ),
       );
       await tap(tester, find.byKey(const Key('dashboard_menu_button')).first);
       await tap(tester, find.text('لیست کارت‌ها').last);

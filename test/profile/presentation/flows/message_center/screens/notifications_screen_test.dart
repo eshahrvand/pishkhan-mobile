@@ -1,3 +1,4 @@
+import '../../../../../dashboard/support/dashboard_test_repositories.dart';
 import '../../../../../support/router_test_app.dart';
 
 import 'package:avp_ui/avp_ui.dart';
@@ -30,7 +31,12 @@ void main() {
           .copyWith(textScaler: TextScaler.linear(scale)),
       child: child!,
     ),
-    home: home ?? const DashboardScreen(enableAnimations: false),
+    home:
+        home ??
+        const DashboardScreen(
+          repositories: defaultDashboardTestRepositories,
+          enableAnimations: false,
+        ),
   );
 
   Future<void> render(

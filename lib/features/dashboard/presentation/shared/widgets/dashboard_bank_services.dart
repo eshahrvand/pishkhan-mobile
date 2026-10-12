@@ -6,6 +6,7 @@ import 'package:pishkhan_mobile/features/dashboard/presentation/shared/dashboard
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_service_tile.dart';
 import 'package:pishkhan_mobile/l10n/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
+import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_service_grid_card.dart';
 
 class DashboardBankServices extends StatelessWidget {
@@ -93,7 +94,7 @@ class DashboardBankServices extends StatelessWidget {
                               id: service.id,
                               label: service.label(context.l10n),
                               icon: service == DashboardService.assistant
-                                  ? const DashboardAssistantIcon()
+                                  ? const AppAssistantIcon()
                                   : SvgPicture.asset(
                                       service.fixedAsset,
                                       width: 32,

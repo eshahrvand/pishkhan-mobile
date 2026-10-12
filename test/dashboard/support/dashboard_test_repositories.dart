@@ -1,8 +1,48 @@
 import 'dart:async';
 
 import 'package:pishkhan_mobile/core/result/result.dart';
-import 'package:pishkhan_mobile/features/dashboard/dashboard.dart';
+import 'package:pishkhan_mobile/features/dashboard/domain/entities/bank_card.dart';
+import 'package:pishkhan_mobile/features/dashboard/domain/entities/bank_deposit.dart';
+import 'package:pishkhan_mobile/features/dashboard/domain/entities/bank_loan.dart';
+import 'package:pishkhan_mobile/features/dashboard/domain/entities/dashboard_home_data.dart';
+import 'package:pishkhan_mobile/features/dashboard/domain/repositories/dashboard_repositories.dart';
 import 'package:pishkhan_mobile/features/dashboard/data/datasources/dashboard_mock_data.dart';
+import 'package:pishkhan_mobile/features/dashboard/data/repositories/mock_dashboard_repositories.dart';
+import 'package:pishkhan_mobile/features/dashboard/presentation/shared/dashboard_services.dart';
+
+const defaultDashboardTestRepositories = DashboardRepositories(
+  home: MockDashboardHomeRepository(),
+  cards: MockDashboardCardsRepository(),
+  deposits: MockDashboardDepositsRepository(),
+  loans: MockDashboardLoansRepository(),
+);
+
+DashboardRepositories dashboardTestRepositories({
+  List<String> favorites = const [],
+  List<BankCard> cards = DashboardMockData.cards,
+  List<BankDeposit> deposits = DashboardMockData.deposits,
+  List<BankLoan> loans = DashboardMockData.loans,
+}) => DashboardRepositories(
+  home: favorites.isEmpty
+      ? defaultDashboardTestRepositories.home
+      : MockDashboardHomeRepository(
+          favorites: favorites
+              .where(
+                (id) =>
+                    DashboardService.values.any((service) => service.id == id),
+              )
+              .toList(),
+        ),
+  cards: identical(cards, DashboardMockData.cards)
+      ? defaultDashboardTestRepositories.cards
+      : MockDashboardCardsRepository(cards: cards),
+  deposits: identical(deposits, DashboardMockData.deposits)
+      ? defaultDashboardTestRepositories.deposits
+      : MockDashboardDepositsRepository(deposits: deposits),
+  loans: identical(loans, DashboardMockData.loans)
+      ? defaultDashboardTestRepositories.loans
+      : MockDashboardLoansRepository(loans: loans),
+);
 
 class TestRepositories
     implements

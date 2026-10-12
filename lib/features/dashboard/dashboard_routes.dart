@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import 'presentation/flows/home/screens/dashboard_screen.dart';
 import 'presentation/shared/dashboard_services.dart';
-import 'presentation/shared/widgets/dashboard_all_services_screen.dart';
+import 'presentation/flows/service_catalog/screens/dashboard_all_services_screen.dart';
 
 class AllServicesRouteArguments {
   const AllServicesRouteArguments(this.onServiceRequested);

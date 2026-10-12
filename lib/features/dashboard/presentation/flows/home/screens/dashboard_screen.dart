@@ -2,12 +2,10 @@ import 'package:pishkhan_mobile/core/router/app_routes.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pishkhan_mobile/features/dashboard/dashboard_routes.dart';
 import 'package:pishkhan_mobile/core/router/card_features_navigation.dart';
-import 'package:pishkhan_mobile/features/dashboard/data/repositories/mock_dashboard_repositories.dart';
 import 'package:pishkhan_mobile/features/dashboard/domain/repositories/dashboard_repositories.dart';
 import 'package:pishkhan_mobile/core/router/dashboard_notifications_navigation.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/flows/home/cubit/dashboard_navigation_cubit.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_async_view.dart';
-import 'package:pishkhan_mobile/features/dashboard/data/datasources/dashboard_mock_data.dart';
 import 'package:pishkhan_mobile/features/dashboard/domain/entities/bank_loan.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/flows/banking_overview/screens/loans_tab.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/loan_actions.dart';
@@ -24,10 +22,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/flows/home/cubit/dashboard_cubit.dart';
-import 'package:pishkhan_mobile/features/dashboard/presentation/shared/dashboard_assets.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/dashboard_services.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_bank_services.dart';
-import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_header.dart';
+import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
+import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_reso_banner.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_services_sheet.dart';
 import 'package:pishkhan_mobile/l10n/l10n.dart';
@@ -43,14 +41,10 @@ class DashboardScreen extends StatefulWidget {
     this.onServiceRequested,
     this.onPromptSubmitted,
     this.onFavoritesChanged,
-    this.initialFavorites = const [],
-    this.cards = DashboardMockData.cards,
     this.onCardActionRequested,
     this.onCardMorePressed,
-    this.deposits = DashboardMockData.deposits,
     this.onDepositActionRequested,
     this.onSelectedDepositChanged,
-    this.loans = DashboardMockData.loans,
     this.onLoanActionRequested,
     this.onSelectedLoanChanged,
     this.onLoanDetailsRequested,
@@ -62,15 +56,11 @@ class DashboardScreen extends StatefulWidget {
   final ValueChanged<String>? onServiceRequested;
   final ValueChanged<String>? onPromptSubmitted;
   final ValueChanged<List<String>>? onFavoritesChanged;
-  final List<String> initialFavorites;
-  final List<BankCard> cards;
   final ValueChanged<CardActionRequest>? onCardActionRequested;
   final ValueChanged<BankCard>? onCardMorePressed;
-  final List<BankDeposit> deposits;
   final ValueChanged<DepositActionRequest>? onDepositActionRequested;
   final ValueChanged<BankDeposit>? onSelectedDepositChanged;
   final DashboardRepositories? repositories;
-  final List<BankLoan> loans;
   final ValueChanged<LoanActionRequest>? onLoanActionRequested;
   final ValueChanged<BankLoan>? onSelectedLoanChanged, onLoanDetailsRequested;
 
@@ -88,56 +78,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   void _openNotifications() => _notifications.open(context);
 
-  DashboardRepositories _dependencies() =>
-      widget.repositories ??
-      DashboardRepositories(
-        home: MockDashboardHomeRepository(
-          favorites: widget.initialFavorites
-              .where(
-                (id) =>
-                    DashboardService.values.any((service) => service.id == id),
-              )
-              .toList(),
-        ),
-        cards: MockDashboardCardsRepository(cards: widget.cards),
-        deposits: MockDashboardDepositsRepository(deposits: widget.deposits),
-        loans: MockDashboardLoansRepository(loans: widget.loans),
-      );
   @override
   void initState() {
     super.initState();
-    _repositories = _dependencies();
+    _repositories =
+        widget.repositories ?? context.read<DashboardRepositories>();
     _cubit = DashboardCubit(repository: _repositories.home)..load();
   }
 
   @override
   void didUpdateWidget(covariant DashboardScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.repositories != oldWidget.repositories ||
-        widget.cards != oldWidget.cards ||
-        widget.deposits != oldWidget.deposits ||
-        widget.loans != oldWidget.loans ||
-        widget.initialFavorites != oldWidget.initialFavorites) {
+    if (widget.repositories != oldWidget.repositories) {
       final previousHome = _repositories.home;
-      final previous = _repositories;
-      final next = _dependencies();
       _repositories =
-          widget.repositories == null && oldWidget.repositories == null
-          ? DashboardRepositories(
-              home: widget.initialFavorites == oldWidget.initialFavorites
-                  ? previous.home
-                  : next.home,
-              cards: widget.cards == oldWidget.cards
-                  ? previous.cards
-                  : next.cards,
-              deposits: widget.deposits == oldWidget.deposits
-                  ? previous.deposits
-                  : next.deposits,
-              loans: widget.loans == oldWidget.loans
-                  ? previous.loans
-                  : next.loans,
-            )
-          : next;
+          widget.repositories ?? context.read<DashboardRepositories>();
       if (previousHome != _repositories.home) {
         _cubit.changeRepository(_repositories.home);
       }
@@ -326,7 +281,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 body: SafeArea(
                   child: Column(
                     children: [
-                      DashboardHeader(
+                      AppTopBar(
                         onNotificationsPressed: _openNotifications,
                         onProfilePressed: widget.onProfilePressed,
                         onMenuPressed: widget.onMenuPressed ?? () => _catalog(),
@@ -346,7 +301,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     right: 0,
                                     height: 122,
                                     child: SvgPicture.asset(
-                                      DashboardAssets.patternUp,
+                                      AppAssets.dashboardPatternUp,
                                       fit: BoxFit.fill,
                                     ),
                                   ),
@@ -356,7 +311,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     right: 0,
                                     height: 122,
                                     child: SvgPicture.asset(
-                                      DashboardAssets.patternDown,
+                                      AppAssets.dashboardPatternDown,
                                       fit: BoxFit.fill,
                                     ),
                                   ),
@@ -458,7 +413,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     body: SafeArea(
       child: Column(
         children: [
-          DashboardHeader(
+          AppTopBar(
             onNotificationsPressed: _openNotifications,
             onProfilePressed: widget.onProfilePressed,
             onMenuPressed: widget.onMenuPressed ?? () => _catalog(),

@@ -1,5 +1,4 @@
 import 'package:pishkhan_mobile/shared/widgets/app_service_artwork_tile.dart';
-import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -83,5 +82,3 @@ class DashboardServiceTile extends StatelessWidget {
     );
   }
 }
-
-typedef DashboardAssistantIcon = AppAssistantIcon;

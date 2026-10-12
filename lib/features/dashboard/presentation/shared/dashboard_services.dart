@@ -53,7 +53,6 @@ enum DashboardService {
 
   const DashboardService(this.id);
   final String id;
-  static const recommended = [issue, consolidation, cardDeposit];
   static const fixed = [
     assistant,
     password,

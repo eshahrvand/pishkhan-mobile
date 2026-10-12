@@ -10,7 +10,7 @@
 
 **Status:** Repository-backed mock UI and Cubit migration implemented; live bank services are not connected
 
-**Scope:** Dashboard shell, dashboard page, Cards tab integration, Deposits phases 1–2, Loans phases 1–2, notification navigation
+**Scope:** dashboard module, dashboard page, Cards tab integration, Deposits phases 1–2, Loans phases 1–2, notification navigation
 
 **Architecture reference:** [architecture-smart-virtual-counter-v2-en.md](../architecture-smart-virtual-counter-v2-en.md)
 
@@ -42,7 +42,7 @@ This feature document follows all 21 sections of the project's architecture docu
 
 ## 1. Architectural Goals and Principles
 
-Dashboard owns its shell, Home content and Cards/Deposits/Loans tabs. A tab is a dashboard summary, not a standalone banking feature page. Dashboard-specific entities, actions, fixtures, repositories and Cubits now live under `lib/features/dashboard/`; future full Card, Deposit and Loan pages can use their dedicated feature folders without inheriting tab layout or selection state.
+The dashboard module owns its navigation, Home content and Cards/Deposits/Loans tabs. A tab is a dashboard summary, not a standalone banking feature page. Dashboard-specific entities, actions, fixtures, repositories and Cubits now live under `lib/features/dashboard/`; future full Card, Deposit and Loan pages can use their dedicated feature folders without inheriting tab layout or selection state.
 
 The dependency direction is presentation -> use case -> domain repository contract; the mock data layer implements those contracts. UI and Cubits consume the same interface that a future live repository will implement. No service request, authentication or banking transaction is executed by this prototype.
 
@@ -54,7 +54,7 @@ The earlier component decision explicitly required existing shared components un
 
 | Surface | Implemented states / behavior | Source |
 | --- | --- | --- |
-| App entry | Persian locale, enforced RTL, prototype login completion switches to shell | `lib/main.dart` |
+| App entry | Persian locale, enforced RTL, prototype login completion switches to dashboard | `lib/main.dart` |
 | Dashboard page | Wallet example, Reso prompt, eight fixed services, empty favorites, draft editing, saved favorites, eight-item limit, reset confirmation | `lib/features/dashboard/presentation/dashboard_screen.dart`, `shared/widgets/dashboard_bank_services.dart` |
 | Dashboard phase 1 | Default dashboard and starting customization | Figma nodes `27902:80847`, `27902:81083` |
 | Dashboard phase 2 | Add-service sheet and grouped search | `27902:81228`, `27902:81468` |
@@ -63,11 +63,11 @@ The earlier component decision explicitly required existing shared components un
 | Cards tab | Single/multiple card layouts, selected card, per-card visibility, copy, selected-card action callbacks | `lib/features/dashboard/presentation/tabs/cards/cards_tab.dart`; `27902:82533`, `27902:82561` |
 | Deposits phase 1 | Single 335×202 deposit card, deposit operations, cheque operations when eligible, quick access | `lib/features/dashboard/presentation/tabs/deposits/deposits_tab.dart`; [27902:82476](https://www.figma.com/design/nYQNyZdSs98lwymCpt5Sag/Pishkhan-AI-Mobile?node-id=27902-82476) |
 | Deposits phase 2 | Multiple 316×191 deposit cards, snapping RTL carousel, neighboring previews, indicators, selected-deposit actions | Same screen; [27902:82503](https://www.figma.com/design/nYQNyZdSs98lwymCpt5Sag/Pishkhan-AI-Mobile?node-id=27902-82503) |
-| Deposits empty | Localized empty message and usable shell controls | `DepositsTab(repository: MockDashboardDepositsRepository(deposits: []))` |
+| Deposits empty | Localized empty message and usable dashboard controls | `DepositsTab(repository: MockDashboardDepositsRepository(deposits: []))` |
 | Loans phase 1 | Single 335×236 loan card, four operations and two quick actions | `lib/features/dashboard/presentation/tabs/loans/loans_tab.dart`; [27902:82623](https://www.figma.com/design/nYQNyZdSs98lwymCpt5Sag/Pishkhan-AI-Mobile?node-id=27902-82623) |
 | Loans phase 2 | Multiple 316×236 loan cards, snapping RTL carousel, neighboring previews and selected-loan callbacks | Same screen; [27902:82592](https://www.figma.com/design/nYQNyZdSs98lwymCpt5Sag/Pishkhan-AI-Mobile?node-id=27902-82592) |
 | Loans empty | Localized empty message; controls remain usable; no selected lookup/action groups | `LoansTab(repository: MockDashboardLoansRepository(loans: []))` |
-| Notifications | Bell pushes list; opening marks read; Read all; detail; read state retained during shell lifetime | `lib/features/notifications/presentation/` |
+| Notifications | Bell pushes list; opening marks read; Read all; detail; read state retained during dashboard lifetime | `lib/features/notifications/presentation/` |
 
 Single versus multiple deposit layout is determined by list length. Cheque visibility is determined by `BankDeposit.hasChequeOperations`, independently of length. One deposit can have no cheque section; an eligible deposit in a multi-deposit list can have one. The default single example is eligible; all three default multi examples are ineligible, matching the supplied states.
 
@@ -209,13 +209,13 @@ AppResalatCard, AppDepositCard, AppLoanCard, AppPrimaryNavigation, top bar, serv
 
 ### 7.1 Current layers
 
-**UI:** DashboardScreen composes the shell and injects repository instances. Each tab owns its Cubit lifecycle and observes typed state through BlocConsumer. Views pass loaded entity fields into existing shared visuals; they do not load fixtures or call transport services. PageController, FocusNode, text controller and animations remain view resources. Cards' privacy visibility and selected item are state, not controller fields.
+**UI:** DashboardScreen composes the dashboard and injects repository instances. Each tab owns its Cubit lifecycle and observes typed state through BlocConsumer. Views pass loaded entity fields into existing shared visuals; they do not load fixtures or call transport services. PageController, FocusNode, text controller and animations remain view resources. Cards' privacy visibility and selected item are state, not controller fields.
 
 **Presentation/state:** DashboardCubit owns asynchronous Home content and transactional favorites; DashboardNavigationCubit owns primary-tab selection. CardsCubit, DepositsCubit and LoansCubit own loading outcomes and selected IDs. Common behavior is factored once in DashboardTabCubit; typed loaded classes carry each tab's entity and card visibility. All states use Equatable and immutable collection snapshots.
 
 **Domain:** Pure Dart entities, repository contracts and use cases have no Flutter imports. BankLoan derives footer and progress from one numeric count pair. LoadDashboardItems validates unique/nonblank IDs and detaches collection data before emitting it. These are dashboard summary/read models; formatted amounts and dates are still inherited prototype strings, not a complete banking domain representation.
 
-**Data:** DashboardMockData holds samples; four mock repositories asynchronously return typed Result values. It is the only implemented data source. The shell's default composition explicitly creates mocks; passing DashboardRepositories replaces them. This is a small explicit composition root, not an installed get_it/injectable container.
+**Data:** DashboardMockData holds samples; four mock repositories asynchronously return typed Result values. It is the only implemented data source. The dashboard's default composition explicitly creates mocks; passing DashboardRepositories replaces them. This is a small explicit composition root, not an installed get_it/injectable container.
 
 ### 7.2 Dependency direction and future adapters
 
@@ -254,11 +254,11 @@ DashboardScreen exposes:
 
 CardsTab, DepositsTab and LoansTab each require a typed domain repository; they no longer accept raw item-list arguments. Mock repository constructors accept those lists for previews/tests.
 
-DepositsTab additionally exposes `onCopyNumber`, `onCopyIban`, `onTabSelected`, `onMenuPressed` and `onAssistantPressed`. The shell leaves copy callbacks unset so the existing platform clipboard fallback runs.
+DepositsTab additionally exposes `onCopyNumber`, `onCopyIban`, `onTabSelected`, `onMenuPressed` and `onAssistantPressed`. The dashboard leaves copy callbacks unset so the existing platform clipboard fallback runs.
 
-LoansTab additionally exposes onCopyNumber, onDetailsRequested, onTabSelected, onMenuPressed and onAssistantPressed. Every LoanActionRequest contains action and selected BankLoan. The shell invokes onLoanActionRequested when provided; otherwise onServiceRequested(action.id), which loses loan context. The summary arrow invokes onDetailsRequested for the card containing that arrow, wired to onLoanDetailsRequested in the shell. No unspecified detail screen is invented.
+LoansTab additionally exposes onCopyNumber, onDetailsRequested, onTabSelected, onMenuPressed and onAssistantPressed. Every LoanActionRequest contains action and selected BankLoan. The dashboard invokes onLoanActionRequested when provided; otherwise onServiceRequested(action.id), which loses loan context. The summary arrow invokes onDetailsRequested for the card containing that arrow, wired to onLoanDetailsRequested in the dashboard. No unspecified detail screen is invented.
 
-For a deposit action the dedicated callback receives both action and selected deposit. If it is absent, the shell falls back to `onServiceRequested(request.action.id)`, which loses deposit context. Production integration should provide the dedicated callback for deposit-scoped operations.
+For a deposit action the dedicated callback receives both action and selected deposit. If it is absent, the dashboard falls back to `onServiceRequested(request.action.id)`, which loses deposit context. Production integration should provide the dedicated callback for deposit-scoped operations.
 
 A null callback produces no bank execution. Selection events are fired on PageView page changes, not on initial construction or programmatic data replacement. Clients can derive initial selection from the first supplied item.
 
@@ -335,7 +335,7 @@ Favorite artwork mappings:
 | loan-deposit | Fallback wave + catalog icon | `assets/images/dashboard_favorite_loan_deposit_edit.svg` |
 | Other services | Fallback wave + catalog icon | Same fallback, inside editor wrapper |
 
-Fallback wave: `assets/images/dashboard_tile_wave.svg`. Decorative/banner images: `dashboard_reso.png`, `dashboard_texture.png`, local glows and prompt arrow via AppAssets in DashboardResoBanner. Header pattern and header-action aliases are DashboardAssets in `shared/dashboard_assets.dart`. These are app shell artwork, not backend feature-item icons.
+Fallback wave: `assets/images/dashboard_tile_wave.svg`. Decorative/banner images: `dashboard_reso.png`, `dashboard_texture.png`, local glows and prompt arrow via AppAssets in DashboardResoBanner. Header pattern and header-action aliases are DashboardAssets in `shared/dashboard_assets.dart`. These are app dashboard artwork, not backend feature-item icons.
 
 The complete compile-time service inventory follows; the table resolves the actual switch fallbacks, including generic “more” artwork. It lists all 46 enum values; the nine-category catalog contains 45 entries because assistant is outside those category lists.
 
@@ -718,11 +718,11 @@ Tab load factories receive detached item snapshots. Card number parts and visibi
 
 Cubit `select` ignores out-of-range indices and nonloaded states. A monotonically increasing request token makes the newest load win; completion after Cubit.close does not emit. Close invalidates pending responses; this guards emission, not transport cancellation.
 
-### 12.3 View resources, lifecycle and shell
+### 12.3 View resources, lifecycle and dashboard
 
 Each tab constructs its Cubit from its required repository, calls load, observes BlocConsumer, reloads when repository identity changes and closes it at disposal. Retry delegates to Cubit.load. PageController is not canonical state: selected ID/index comes from Loaded. Controllers are recreated when item order/IDs or viewport fraction changes; keepPage is false and an ObjectKey on the controller replaces the associated page subtree. Bloc listeners synchronize valid programmatic selection when the controller is idle.
 
-DashboardNavigationCubit owns selected AppPrimaryTab. IndexedStack preserves all four tab instances; each loads once on mount, including offstage tabs. TickerMode pauses hidden animations. Back returns to Home or cancels a Home favorite draft. The shell reuses unchanged default mock repository objects on seed changes, so replacing loans does not reset Home favorites.
+DashboardNavigationCubit owns selected AppPrimaryTab. IndexedStack preserves all four tab instances; each loads once on mount, including offstage tabs. TickerMode pauses hidden animations. Back returns to Home or cancels a Home favorite draft. The dashboard reuses unchanged default mock repository objects on seed changes, so replacing loans does not reset Home favorites.
 
 Selection callbacks remain page-change notifications, not initial-load/list-refresh events. Action requests carry the state-selected entity. The notification cache remains in a core navigation adapter, separate from Dashboard data/state.
 
@@ -905,7 +905,7 @@ DashboardScreen's IndexedStack now retains all four children in AppPrimaryTab or
 
 Back from Cards, Deposits or Loans selects Dashboard. Back while editing dashboard favorites cancels the draft. Bell navigation and all-services pages use Navigator.push. No go_router auth/platform/security guard was added.
 
-Deposit menu uses the supplied onMenuPressed if available; otherwise the shell opens the existing deposits-filtered service sheet. The assistant on either Deposits or Loans switches to Dashboard and triggers the assistant service (or focuses the prompt if no service callback is supplied).
+Deposit menu uses the supplied onMenuPressed if available; otherwise the dashboard opens the existing deposits-filtered service sheet. The assistant on either Deposits or Loans switches to Dashboard and triggers the assistant service (or focuses the prompt if no service callback is supplied).
 
 Routes are app-owned code. A future server action target must resolve through an allowlist/service registry and pass domain guards. Arbitrary paths/URLs from feature JSON are not implemented here.
 

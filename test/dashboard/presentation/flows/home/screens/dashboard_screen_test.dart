@@ -1,3 +1,4 @@
+import '../../../../support/dashboard_test_repositories.dart';
 import '../../../../../support/router_test_app.dart';
 
 import 'package:avp_ui/avp_ui.dart';
@@ -37,8 +38,8 @@ void main() {
       child: child!,
     ),
     home: DashboardScreen(
+      repositories: dashboardTestRepositories(favorites: favorites),
       enableAnimations: false,
-      initialFavorites: favorites,
       onFavoritesChanged: onChanged,
       onServiceRequested: onService,
       onPromptSubmitted: onPrompt,

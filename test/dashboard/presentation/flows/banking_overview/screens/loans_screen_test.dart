@@ -1,3 +1,4 @@
+import '../../../../support/dashboard_test_repositories.dart';
 import '../../../../../support/router_test_app.dart';
 
 import 'package:pishkhan_mobile/features/dashboard/data/repositories/mock_dashboard_repositories.dart';
@@ -353,8 +354,8 @@ void main() {
         tester,
         subject(
           DashboardScreen(
+            repositories: dashboardTestRepositories(loans: sample),
             enableAnimations: false,
-            loans: sample,
             onLoanActionRequested: (value) => request = value,
             onLoanDetailsRequested: (value) => details = value,
           ),
@@ -378,13 +379,17 @@ void main() {
   );
 
   testWidgets(
-    'fallback IDs, assistant and default menu integrate with the shell',
+    'fallback IDs, assistant and default menu integrate with the dashboard',
     (tester) async {
       final ids = <String>[];
       await mount(
         tester,
         subject(
-          DashboardScreen(enableAnimations: false, onServiceRequested: ids.add),
+          DashboardScreen(
+            repositories: defaultDashboardTestRepositories,
+            enableAnimations: false,
+            onServiceRequested: ids.add,
+          ),
         ),
       );
       await tap(tester, 'primary_tab_loans');
@@ -406,7 +411,11 @@ void main() {
     await mount(
       tester,
       subject(
-        DashboardScreen(enableAnimations: false, onMenuPressed: () => menus++),
+        DashboardScreen(
+          repositories: defaultDashboardTestRepositories,
+          enableAnimations: false,
+          onMenuPressed: () => menus++,
+        ),
       ),
     );
     await tap(tester, 'primary_tab_loans');
