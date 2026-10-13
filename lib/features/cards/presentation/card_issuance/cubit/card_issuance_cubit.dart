@@ -198,13 +198,15 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
   }
 
   void expandInvoice(bool value) {
-    if (state.editable)
+    if (state.editable) {
       emit(_prepareState(state.copyWith(invoiceExpanded: value)));
+    }
   }
 
   void expandSummary(bool value) {
-    if (state.editable)
+    if (state.editable) {
       emit(_prepareState(state.copyWith(summaryExpanded: value)));
+    }
   }
 
   void next() {
