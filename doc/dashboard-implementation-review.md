@@ -19,6 +19,7 @@ Open [the rendered screen gallery](dashboard-review/index.html) to review all ni
 
 - Wallet card and bottom-sheet header reuse the existing shared components.
 - The base micro-service component remains a 72px item with a 64px tile, 32px icon, 8px gap and 10px/16px Regular label. Its public view now accepts instance width and tile size. The all-services page uses four flexible columns and 12px/18px Medium labels; the editor uses 66px tiles.
+- Micro-service tiles use only GestureDetector for touch/click, without custom mouse cursors, keyboard focus handling, hover highlights, press highlights, or ink ripples. Button semantics and disabled behavior are preserved for the mobile app and mobile web app.
 - The eight fixed services and the selected-services card are separate compositions. The selected card has an empty action, three suggested services, editing, saved, eight-item limit, and reset states.
 - The compact service choices named “Deposit Card” in the sheet are ordinary frames, not the existing bank deposit card. They are implemented directly from the page frames; no extra component link is required.
 - Public `avp_ui` additions: `AppDashboardColors`, `AppButton.foregroundColor` and `AppSearchField.clearIcon`. Defaults remain compatible with existing consumers.

@@ -234,9 +234,9 @@ class AppServiceGridItemView extends StatelessWidget {
       label: item.label,
       child: SizedBox(
         width: width,
-        child: InkWell(
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
           onTap: item.enabled ? item.onTap : null,
-          borderRadius: AppRadius.borderMd,
           child: content,
         ),
       ),

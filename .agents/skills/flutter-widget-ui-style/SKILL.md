@@ -38,25 +38,54 @@ A short Bloc expression does not automatically require another widget. A
 countdown with independent updates is a useful boundary; a selector choosing
 only a background color can remain inline.
 
-### 1.2 Use 200 Lines as a Review Trigger
+### 1.2 Rough File-Size Budget
 
-When a screen or UI section exceeds **about 200 lines**, look for a coherent
-responsibility to extract into its own file under the service's `widgets/` folder.
-Prefer an existing Bloc subscription boundary. This is a guide, not a hard
-file-size limit: do not fragment a readable section to satisfy a line count.
-Keep a StatefulWidget and its State class together.
+Apply this budget to handwritten UI `.dart` files, including screens, forms,
+widgets, dialogs, and sheets. Generated files are excluded. Count the whole
+file approximately; do not optimize imports, blank lines, or formatting merely
+to satisfy the budget.
 
-### 1.3 Avoid Widget and File Proliferation
+| File size | Guidance |
+|---|---|
+| **Around 200 lines or fewer** | Preferred size for a focused UI file. This is a ceiling to aim for, not a minimum to fill. |
+| **200–300 lines** | Acceptable when a cohesive form, its State class, or closely related helpers are easier to understand together. Review possible boundaries, but avoid forced extraction. |
+| **Over about 300 lines** | Usually split the file at a meaningful responsibility, preferably a substantial Bloc-driven section. Explain the reason during review if keeping the file larger. |
 
-Keep one-use titles, icons, notices, spacers, small Rows/Columns, and trivial
-wrappers inline. Do not create a widget for every branch of a widget tree.
-Several small helpers supporting one reusable component can share its file;
-do not create one file per helper.
+Keep a StatefulWidget and its State class together. Extract substantial sections
+into the service's `widgets/` folder when they have an independent responsibility
+or materially simplify the parent. The budget is a readability guideline, not
+a lint error or a reason to create tiny widgets.
 
-Use separate files for substantial Bloc-driven sections, reusable components,
-controller-owning forms, and substantial dialogs/sheets. Multiple related helper
-classes may stay together. Separate a helper only when its reuse or independent
-responsibility justifies it.
+### 1.3 Balance Extraction and Consolidation
+
+Before extracting a widget, check its purpose:
+
+- **Extract** when it owns a meaningful Bloc subscription and its controlled UI,
+  controllers/lifecycle, actual reuse, or a substantial independent business
+  section. Keep the subscription and UI together.
+- **Keep inline** when it is a one-use title, icon, notice, spacer, short conditional,
+  small Row/Column, or trivial wrapper. A roughly **20–30-line, one-use stateless
+  fragment** usually does not justify a widget unless an independent Bloc update
+  or other concrete responsibility makes the boundary useful.
+- **Keep in the same file** when a helper is used only by that form or section.
+  Related small helper classes may share their owner's file. A separate class
+  does not automatically require a separate file.
+- **Group shared helpers** by purpose when several small helpers are reused by
+  the same forms or section family. Avoid one file per icon, title, field helper,
+  or short status fragment.
+- **Merge existing fragments** when reading one business section requires opening
+  several tiny files that have no independent responsibility. Preserve useful
+  Bloc and lifecycle boundaries as classes within the combined file.
+
+A short selector that chooses a background color stays inline. An independently
+updating OTP countdown can be a widget in the OTP form's file. A password form
+can keep its PIN-field helper and rule-feedback widget together, even if that
+cohesive file slightly exceeds 200 lines. A large screen with separate catalog
+and submission sections should extract those substantial Bloc-driven sections.
+
+Choose a boundary that reduces navigation between files and clarifies ownership.
+Do not split every branch of the widget tree, introduce duplicate subscriptions,
+or merge unrelated responsibilities solely to reduce file count.
 
 ### 1.4 Preserve Subscription Boundaries
 
@@ -696,7 +725,7 @@ Widget _buildHeader() { ... }
 Widget _buildBody() { ... }
 Widget _buildFooter() { ... }
 
-// ✅ PREFER — separate widget classes in the same file
+// ✅ PREFER — meaningful widget classes; group local helpers and follow Section 1
 class HeaderSection extends StatelessWidget { ... }
 class BodySection extends StatelessWidget { ... }
 ```
@@ -971,7 +1000,9 @@ Before marking any UI task as complete, verify:
 
 - [ ] Extractions have a Bloc, reuse, lifecycle, or substantial business boundary
 - [ ] No tiny one-use wrappers or one file per layout fragment
-- [ ] Reviewed sections over about 200 lines without forcing arbitrary splits
+- [ ] UI files aim for about 200 lines; cohesive 200–300-line files are intentional
+- [ ] Files over about 300 lines were split meaningfully or justified during review
+- [ ] Related local helpers stay together; extraction reduces indirection
 - [ ] No manual `Key` / `ValueKey` / `UniqueKey` (unless justified)
 - [ ] All constructors use `super.key`
 - [ ] `const` on every constructor and widget that qualifies
