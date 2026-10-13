@@ -1435,10 +1435,11 @@ class AppLocalizationsEn extends AppLocalizations {
       'Financial solvency certificate request';
 
   @override
-  String get financialCurrency => 'Currency';
+  String get financialCurrency => 'Equivalent currency';
 
   @override
-  String get financialCurrencyHint => 'Select currency';
+  String get financialCurrencyHint =>
+      'Select currency for the solvency certificate';
 
   @override
   String get financialDebitCredit => 'Include debit and credit turnover';
@@ -1456,10 +1457,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get financialExchangeRate => 'Include current exchange rate';
 
   @override
-  String get financialExpiryHint => 'Enter passport expiry date (YYYY/MM/DD)';
+  String get financialExpiryHint => 'Passport expiry date (YYYY/MM/DD)';
 
   @override
-  String get financialFatherHint => 'Enter your father’s name in Latin letters';
+  String get financialFatherHint =>
+      'Father\'s name in English as shown on passport';
 
   @override
   String get financialHomeAddress => 'Home address';
@@ -1476,13 +1478,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get financialLatinAddressPrompt =>
-      'Enter your home address in Latin letters.';
+      'Enter your address in English for the solvency certificate, following the sample format.';
 
   @override
   String get financialLatinExpiry => 'Date of Expiry';
 
   @override
-  String get financialLatinFather => 'Father’s name';
+  String get financialLatinFather => 'Father\'s name';
 
   @override
   String get financialLatinName => 'Name';
@@ -1500,7 +1502,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get financialMaturityDate => 'Deposit maturity date';
 
   @override
-  String get financialNameHint => 'Enter your name in Latin letters';
+  String get financialNameHint => 'Name in English as shown on passport';
 
   @override
   String get financialOpenedAt => 'Include original deposit opening date';
@@ -1509,7 +1511,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get financialOtherAuthority => 'Other authorities';
 
   @override
-  String get financialPassportHint => 'Enter passport number';
+  String get financialPassportHint => 'Passport number in English';
 
   @override
   String get financialPassportNumberCondition =>
@@ -1517,7 +1519,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get financialPassportPrompt =>
-      'Enter your passport information in Latin letters.';
+      'Enter the following information as shown on your passport.';
 
   @override
   String get financialRecipient => 'Recipient';
@@ -1527,13 +1529,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get financialRecipientPrompt =>
-      'Select the solvency certificate recipient.';
+      'Select the certificate recipient and equivalent currency';
 
   @override
-  String get financialRecipientStep => 'Select certificate recipient';
+  String get financialRecipientStep => 'Certificate recipient and currency';
 
   @override
-  String get financialSurnameHint => 'Enter your surname in Latin letters';
+  String get financialSurnameHint => 'Surname in English as shown on passport';
 
   @override
   String get financialUsd => 'US dollar';
@@ -1541,4 +1543,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get financialWithdrawalRules =>
       'Withdrawal conditions for joint / corporate deposits';
+
+  @override
+  String get financialDeliveryStep => 'Certificate delivery information';
 }

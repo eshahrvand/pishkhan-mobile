@@ -88,7 +88,8 @@ void main() {
         );
       }
       if (entry.value.step == FinancialCertificateStep.latinIdentity) {
-        expect(find.byType(AppTextField), findsNWidgets(6));
+        expect(find.byType(AppTextField), findsNWidgets(5));
+        expect(find.byType(TextField), findsNWidgets(6));
         expect(tester.getTopLeft(find.byType(AppTextField).first).dy, 238);
         expect(
           tester
@@ -147,10 +148,7 @@ void main() {
       'Unit 1, Tehran, Iran',
     ];
     for (var i = 0; i < values.length; i++) {
-      final input = find.descendant(
-        of: find.byType(AppTextField).at(i),
-        matching: find.byType(TextField),
-      );
+      final input = find.byType(TextField).at(i);
       await tester.ensureVisible(input);
       await tester.enterText(input, values[i]);
       await tester.pumpAndSettle();
@@ -186,6 +184,49 @@ void main() {
       cubit.selectCurrency(CertificateCurrency.eur);
       await tester.pumpAndSettle();
       expect(cubit.state.canContinue, isTrue);
+    },
+  );
+  testWidgets(
+    'delivery adds a validated local address and confirms its deletion',
+    (tester) async {
+      await mountCertificate(
+        tester,
+        FinancialCertificateScreen(initialState: frames['financial-delivery']!),
+      );
+      final cubit = tester
+          .element(find.byType(AppStepper))
+          .read<FinancialCertificateCubit>();
+      await tester.tap(find.text('افزودن آدرس جدید'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('ثبت آدرس'));
+      await tester.pumpAndSettle();
+      expect(
+        find.text('عنوان، نشانی کامل و کد پستی ۱۰ رقمی را وارد کنید.'),
+        findsOneWidget,
+      );
+      await tester.enterText(find.byType(TextField).at(0), 'دفتر');
+      await tester.enterText(
+        find.byType(TextField).at(1),
+        'تهران، خیابان نمونه، پلاک ۱۲',
+      );
+      await tester.enterText(find.byType(TextField).at(2), '۱۲۳۴۵۶۷۸۹۰');
+      await tester.tap(find.text('ثبت آدرس'));
+      await tester.pumpAndSettle();
+      expect(cubit.state.address!.title, 'دفتر');
+      expect(cubit.state.canContinue, isTrue);
+      await tester.tap(find.text('حذف آدرس').first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('app_delete_address_cancel')));
+      await tester.pumpAndSettle();
+      expect(cubit.state.address, isNotNull);
+      await tester.tap(find.text('حذف آدرس').first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('app_delete_address_confirm')));
+      await tester.pumpAndSettle();
+      expect(cubit.state.address, isNull);
+      expect(cubit.state.canContinue, isFalse);
+      expect(cubit.state.addresses.any((a) => a.title == 'دفتر'), isFalse);
+      expect(tester.takeException(), isNull);
     },
   );
   for (final locale in ['fa', 'en', 'ar']) {

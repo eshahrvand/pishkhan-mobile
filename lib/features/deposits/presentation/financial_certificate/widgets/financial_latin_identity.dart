@@ -70,7 +70,12 @@ class FinancialLatinIdentityForm extends StatelessWidget {
                         autocorrect: false,
                         enableSuggestions: false,
                         enableIMEPersonalizedLearning: false,
-                        textStyle: certificateValueStyle(context),
+                        textStyle: certificateValueStyle(context).copyWith(
+                          fontFamily: values[i].isEmpty
+                              ? AppTypography.defaultFontFamily
+                              : 'CertificateLatin',
+                          fontSize: i >= 3 && values[i].isNotEmpty ? 16 : 14,
+                        ),
                         onChanged: (value) {
                           switch (i) {
                             case 0:
@@ -109,16 +114,8 @@ class FinancialLatinIdentityForm extends StatelessWidget {
                       style: certificateValueStyle(context),
                     ),
                     const SizedBox(height: 8),
-                    AppTextField(
+                    _LatinAddressField(
                       value: state.latinAddress,
-                      hintText: context.l10n.financialLatinAddressHint,
-                      textDirection: TextDirection.ltr,
-                      hintTextDirection: TextDirection.ltr,
-                      textAlign: TextAlign.left,
-                      minLines: 3,
-                      maxLines: 3,
-                      textStyle: Theme.of(context).textTheme.bodyLarge!
-                          .copyWith(height: 24 / 16),
                       onChanged: (value) => cubit.latinChanged(address: value),
                     ),
                   ],
@@ -128,4 +125,79 @@ class FinancialLatinIdentityForm extends StatelessWidget {
           );
         },
       );
+}
+
+/// The package textarea has a 130px minimum. This instance needs 90px and
+/// Latin numerals, while retaining its own controller across Cubit rebuilds.
+class _LatinAddressField extends StatefulWidget {
+  const _LatinAddressField({required this.value, required this.onChanged});
+  final String value;
+  final ValueChanged<String> onChanged;
+  @override
+  State<_LatinAddressField> createState() => _LatinAddressFieldState();
+}
+
+class _LatinAddressFieldState extends State<_LatinAddressField> {
+  late final controller = TextEditingController(text: widget.value);
+  @override
+  void didUpdateWidget(covariant _LatinAddressField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (controller.text != widget.value) controller.text = widget.value;
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final border = OutlineInputBorder(
+      borderRadius: AppRadius.borderSm,
+      borderSide: BorderSide(color: context.colors.border),
+    );
+    return SizedBox(
+      height: 90 * MediaQuery.textScalerOf(context).scale(1),
+      child: TextField(
+        controller: controller,
+        onChanged: widget.onChanged,
+        expands: true,
+        minLines: null,
+        maxLines: null,
+        textAlignVertical: TextAlignVertical.top,
+        textDirection: TextDirection.ltr,
+        autocorrect: false,
+        enableSuggestions: false,
+        enableIMEPersonalizedLearning: false,
+        style: certificateValueStyle(context).copyWith(
+          fontFamily: 'CertificateLatin',
+          fontSize: 16,
+          height: 24 / 16,
+        ),
+        decoration: InputDecoration(
+          isDense: true,
+          filled: true,
+          fillColor: context.colors.surface,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 14,
+            vertical: 10,
+          ),
+          hintText: context.l10n.financialLatinAddressHint,
+          hintTextDirection: TextDirection.ltr,
+          hintStyle: certificateValueStyle(context).copyWith(
+            fontFamily: 'CertificateLatin',
+            fontSize: 16,
+            height: 24 / 16,
+            color: context.colors.textDisabled,
+          ),
+          border: border,
+          enabledBorder: border,
+          focusedBorder: border.copyWith(
+            borderSide: BorderSide(color: context.colors.borderFocus),
+          ),
+        ),
+      ),
+    );
+  }
 }

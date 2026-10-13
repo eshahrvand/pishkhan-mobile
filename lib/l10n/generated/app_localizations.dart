@@ -2809,13 +2809,13 @@ abstract class AppLocalizations {
   /// No description provided for @financialCurrency.
   ///
   /// In fa, this message translates to:
-  /// **'ارز'**
+  /// **'ارز معادل'**
   String get financialCurrency;
 
   /// No description provided for @financialCurrencyHint.
   ///
   /// In fa, this message translates to:
-  /// **'نوع ارز را انتخاب کنید'**
+  /// **'نوع ارز را جهت ارائه تمکن مالی انتخاب کنید'**
   String get financialCurrencyHint;
 
   /// No description provided for @financialDebitCredit.
@@ -2851,13 +2851,13 @@ abstract class AppLocalizations {
   /// No description provided for @financialExpiryHint.
   ///
   /// In fa, this message translates to:
-  /// **'تاریخ انقضای گذرنامه را وارد کنید'**
+  /// **'تاریخ لاتین انقضای گذرنامه، درج شده در گذرنامه'**
   String get financialExpiryHint;
 
   /// No description provided for @financialFatherHint.
   ///
   /// In fa, this message translates to:
-  /// **'نام پدر خود را به لاتین وارد کنید'**
+  /// **'نام پدر به انگلیسی مطابق گذرنامه'**
   String get financialFatherHint;
 
   /// No description provided for @financialHomeAddress.
@@ -2887,7 +2887,7 @@ abstract class AppLocalizations {
   /// No description provided for @financialLatinAddressPrompt.
   ///
   /// In fa, this message translates to:
-  /// **'آدرس محل سکونت خود را به لاتین وارد کنید.'**
+  /// **'آدرس انگلیسی جهت درج در گواهی تمکن مالی را طبق فرمت نمونه وارد نمایید.'**
   String get financialLatinAddressPrompt;
 
   /// No description provided for @financialLatinExpiry.
@@ -2899,7 +2899,7 @@ abstract class AppLocalizations {
   /// No description provided for @financialLatinFather.
   ///
   /// In fa, this message translates to:
-  /// **'Father’s name'**
+  /// **'Father\'s name'**
   String get financialLatinFather;
 
   /// No description provided for @financialLatinName.
@@ -2935,7 +2935,7 @@ abstract class AppLocalizations {
   /// No description provided for @financialNameHint.
   ///
   /// In fa, this message translates to:
-  /// **'نام خود را به لاتین وارد کنید'**
+  /// **'نام به انگلیسی مطابق گذرنامه'**
   String get financialNameHint;
 
   /// No description provided for @financialOpenedAt.
@@ -2947,13 +2947,13 @@ abstract class AppLocalizations {
   /// No description provided for @financialOtherAuthority.
   ///
   /// In fa, this message translates to:
-  /// **'سایر مراجع'**
+  /// **'دیگر مراجع'**
   String get financialOtherAuthority;
 
   /// No description provided for @financialPassportHint.
   ///
   /// In fa, this message translates to:
-  /// **'شماره گذرنامه خود را وارد کنید'**
+  /// **'شماره گذرنامه به انگلیسی'**
   String get financialPassportHint;
 
   /// No description provided for @financialPassportNumberCondition.
@@ -2965,7 +2965,7 @@ abstract class AppLocalizations {
   /// No description provided for @financialPassportPrompt.
   ///
   /// In fa, this message translates to:
-  /// **'اطلاعات گذرنامه خود را به لاتین وارد کنید.'**
+  /// **'اطلاعات زیر را مطابق با گذرنامه خود وارد نمایید.'**
   String get financialPassportPrompt;
 
   /// No description provided for @financialRecipient.
@@ -2983,19 +2983,19 @@ abstract class AppLocalizations {
   /// No description provided for @financialRecipientPrompt.
   ///
   /// In fa, this message translates to:
-  /// **'گیرنده گواهی تمکن مالی را انتخاب کنید.'**
+  /// **'گیرنده گواهی و ارز معادل را انتخاب کنید'**
   String get financialRecipientPrompt;
 
   /// No description provided for @financialRecipientStep.
   ///
   /// In fa, this message translates to:
-  /// **'انتخاب گیرنده گواهی'**
+  /// **'گیرنده گواهی و نوع ارز'**
   String get financialRecipientStep;
 
   /// No description provided for @financialSurnameHint.
   ///
   /// In fa, this message translates to:
-  /// **'نام خانوادگی خود را به لاتین وارد کنید'**
+  /// **'نام خانوادگی به انگلیسی مطابق گذرنامه'**
   String get financialSurnameHint;
 
   /// No description provided for @financialUsd.
@@ -3009,6 +3009,12 @@ abstract class AppLocalizations {
   /// In fa, this message translates to:
   /// **'شرایط برداشت از سپرده‌های مشترک / حقوقی'**
   String get financialWithdrawalRules;
+
+  /// No description provided for @financialDeliveryStep.
+  ///
+  /// In fa, this message translates to:
+  /// **'اطلاعات دریافت گواهی'**
+  String get financialDeliveryStep;
 }
 
 class _AppLocalizationsDelegate

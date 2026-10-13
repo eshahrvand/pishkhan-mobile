@@ -1415,10 +1415,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get financialCertificateTitle => 'طلب شهادة الملاءة المالية';
 
   @override
-  String get financialCurrency => 'العملة';
+  String get financialCurrency => 'العملة المعادلة';
 
   @override
-  String get financialCurrencyHint => 'اختر العملة';
+  String get financialCurrencyHint => 'اختر عملة شهادة الملاءة المالية';
 
   @override
   String get financialDebitCredit => 'إدراج حركة المدين والدائن';
@@ -1436,10 +1436,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get financialExchangeRate => 'إدراج سعر الصرف اليومي';
 
   @override
-  String get financialExpiryHint => 'أدخل تاريخ انتهاء جواز السفر (YYYY/MM/DD)';
+  String get financialExpiryHint => 'تاريخ انتهاء جواز السفر (YYYY/MM/DD)';
 
   @override
-  String get financialFatherHint => 'أدخل اسم الأب بالأحرف اللاتينية';
+  String get financialFatherHint => 'اسم الأب بالإنجليزية كما في جواز السفر';
 
   @override
   String get financialHomeAddress => 'عنوان السكن';
@@ -1456,13 +1456,13 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get financialLatinAddressPrompt =>
-      'أدخل عنوان السكن بالأحرف اللاتينية.';
+      'أدخل عنوانك بالإنجليزية لشهادة الملاءة المالية وفق تنسيق المثال.';
 
   @override
   String get financialLatinExpiry => 'Date of Expiry';
 
   @override
-  String get financialLatinFather => 'Father’s name';
+  String get financialLatinFather => 'Father\'s name';
 
   @override
   String get financialLatinName => 'Name';
@@ -1480,7 +1480,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get financialMaturityDate => 'تاريخ استحقاق الوديعة';
 
   @override
-  String get financialNameHint => 'أدخل اسمك بالأحرف اللاتينية';
+  String get financialNameHint => 'الاسم بالإنجليزية كما في جواز السفر';
 
   @override
   String get financialOpenedAt => 'إدراج تاريخ فتح الوديعة';
@@ -1489,14 +1489,14 @@ class AppLocalizationsAr extends AppLocalizations {
   String get financialOtherAuthority => 'جهات أخرى';
 
   @override
-  String get financialPassportHint => 'أدخل رقم جواز السفر';
+  String get financialPassportHint => 'رقم جواز السفر بالإنجليزية';
 
   @override
   String get financialPassportNumberCondition => 'رقم جواز السفر / رقم التسجيل';
 
   @override
   String get financialPassportPrompt =>
-      'أدخل معلومات جواز السفر بالأحرف اللاتينية.';
+      'أدخل المعلومات التالية كما في جواز السفر.';
 
   @override
   String get financialRecipient => 'المستلم';
@@ -1505,13 +1505,14 @@ class AppLocalizationsAr extends AppLocalizations {
   String get financialRecipientHint => 'اختر مستلم الشهادة';
 
   @override
-  String get financialRecipientPrompt => 'اختر مستلم شهادة الملاءة المالية.';
+  String get financialRecipientPrompt => 'اختر مستلم الشهادة والعملة المعادلة';
 
   @override
-  String get financialRecipientStep => 'اختيار مستلم الشهادة';
+  String get financialRecipientStep => 'مستلم الشهادة ونوع العملة';
 
   @override
-  String get financialSurnameHint => 'أدخل اسم العائلة بالأحرف اللاتينية';
+  String get financialSurnameHint =>
+      'اسم العائلة بالإنجليزية كما في جواز السفر';
 
   @override
   String get financialUsd => 'دولار أمريكي';
@@ -1519,4 +1520,7 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get financialWithdrawalRules =>
       'شروط السحب من الودائع المشتركة / المؤسسية';
+
+  @override
+  String get financialDeliveryStep => 'معلومات استلام الشهادة';
 }

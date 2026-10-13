@@ -20,6 +20,9 @@ Future<void> loadCertificateFonts() async {
     );
   }
   await loader.load();
+  await (FontLoader(
+    'CertificateLatin',
+  )..addFont(rootBundle.load('assets/fonts/Roboto-Latin.ttf'))).load();
 }
 
 Future<void> mountCertificate(

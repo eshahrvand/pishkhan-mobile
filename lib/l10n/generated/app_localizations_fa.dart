@@ -1425,10 +1425,11 @@ class AppLocalizationsFa extends AppLocalizations {
   String get financialCertificateTitle => 'درخواست گواهی تمکن مالی';
 
   @override
-  String get financialCurrency => 'ارز';
+  String get financialCurrency => 'ارز معادل';
 
   @override
-  String get financialCurrencyHint => 'نوع ارز را انتخاب کنید';
+  String get financialCurrencyHint =>
+      'نوع ارز را جهت ارائه تمکن مالی انتخاب کنید';
 
   @override
   String get financialDebitCredit => 'درج مبلغ گردش بدهکار بستانکار';
@@ -1446,10 +1447,11 @@ class AppLocalizationsFa extends AppLocalizations {
   String get financialExchangeRate => 'درج نرخ برابری روز';
 
   @override
-  String get financialExpiryHint => 'تاریخ انقضای گذرنامه را وارد کنید';
+  String get financialExpiryHint =>
+      'تاریخ لاتین انقضای گذرنامه، درج شده در گذرنامه';
 
   @override
-  String get financialFatherHint => 'نام پدر خود را به لاتین وارد کنید';
+  String get financialFatherHint => 'نام پدر به انگلیسی مطابق گذرنامه';
 
   @override
   String get financialHomeAddress => 'آدرس محل سکونت';
@@ -1466,13 +1468,13 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get financialLatinAddressPrompt =>
-      'آدرس محل سکونت خود را به لاتین وارد کنید.';
+      'آدرس انگلیسی جهت درج در گواهی تمکن مالی را طبق فرمت نمونه وارد نمایید.';
 
   @override
   String get financialLatinExpiry => 'Date of Expiry';
 
   @override
-  String get financialLatinFather => 'Father’s name';
+  String get financialLatinFather => 'Father\'s name';
 
   @override
   String get financialLatinName => 'Name';
@@ -1490,23 +1492,23 @@ class AppLocalizationsFa extends AppLocalizations {
   String get financialMaturityDate => 'تاریخ سررسید سپرده';
 
   @override
-  String get financialNameHint => 'نام خود را به لاتین وارد کنید';
+  String get financialNameHint => 'نام به انگلیسی مطابق گذرنامه';
 
   @override
   String get financialOpenedAt => 'درج تاریخ اولیه افتتاح سپرده';
 
   @override
-  String get financialOtherAuthority => 'سایر مراجع';
+  String get financialOtherAuthority => 'دیگر مراجع';
 
   @override
-  String get financialPassportHint => 'شماره گذرنامه خود را وارد کنید';
+  String get financialPassportHint => 'شماره گذرنامه به انگلیسی';
 
   @override
   String get financialPassportNumberCondition => 'شماره گذرنامه / شماره ثبت';
 
   @override
   String get financialPassportPrompt =>
-      'اطلاعات گذرنامه خود را به لاتین وارد کنید.';
+      'اطلاعات زیر را مطابق با گذرنامه خود وارد نمایید.';
 
   @override
   String get financialRecipient => 'گیرنده';
@@ -1516,13 +1518,13 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get financialRecipientPrompt =>
-      'گیرنده گواهی تمکن مالی را انتخاب کنید.';
+      'گیرنده گواهی و ارز معادل را انتخاب کنید';
 
   @override
-  String get financialRecipientStep => 'انتخاب گیرنده گواهی';
+  String get financialRecipientStep => 'گیرنده گواهی و نوع ارز';
 
   @override
-  String get financialSurnameHint => 'نام خانوادگی خود را به لاتین وارد کنید';
+  String get financialSurnameHint => 'نام خانوادگی به انگلیسی مطابق گذرنامه';
 
   @override
   String get financialUsd => 'دلار آمریکا';
@@ -1530,4 +1532,7 @@ class AppLocalizationsFa extends AppLocalizations {
   @override
   String get financialWithdrawalRules =>
       'شرایط برداشت از سپرده‌های مشترک / حقوقی';
+
+  @override
+  String get financialDeliveryStep => 'اطلاعات دریافت گواهی';
 }
