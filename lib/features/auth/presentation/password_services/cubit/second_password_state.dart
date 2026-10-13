@@ -11,6 +11,19 @@ enum SecondPasswordStep { selection, password, serial, instruction, recording }
 @Freezed(toStringOverride: false)
 abstract class SecondPasswordState with _$SecondPasswordState {
   const factory SecondPasswordState({
+    @Default(false) bool editable,
+    @Default(false) bool isChange,
+    @Default(true) bool currentPasswordComplete,
+    PasswordCard? card,
+    @Default(false) bool selectionComplete,
+    @Default(false) bool hasSelection,
+    @Default(false) bool lengthValid,
+    @Default(false) bool patternValid,
+    @Default(true) bool dateValid,
+    @Default(false) bool formComplete,
+    @Default(false) bool serialComplete,
+    @Default(false) bool walletSufficient,
+    @Default(false) bool canContinue,
     @Default(RequestStatus.initial) RequestStatus status,
     @Default(RequestStatus.initial) RequestStatus checkStatus,
     @Default(RequestStatus.initial) RequestStatus submissionStatus,

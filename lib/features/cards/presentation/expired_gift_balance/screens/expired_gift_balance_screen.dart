@@ -16,7 +16,7 @@ import '../widgets/gift_balance_selection.dart';
 import '../widgets/gift_balance_destination.dart';
 import '../widgets/gift_balance_sheets.dart';
 
-class ExpiredGiftBalanceScreen extends StatefulWidget {
+class ExpiredGiftBalanceScreen extends StatelessWidget {
   const ExpiredGiftBalanceScreen({
     super.key,
     this.repository,
@@ -29,60 +29,44 @@ class ExpiredGiftBalanceScreen extends StatefulWidget {
   final ValueChanged<CardServiceReceipt>? onCompleted;
 
   @override
-  State<ExpiredGiftBalanceScreen> createState() =>
-      _ExpiredGiftBalanceScreenState();
+  Widget build(BuildContext context) => BlocProvider<ExpiredGiftBalanceCubit>(
+    // A changed adapter starts a new flow; ordinary rebuilds retain it.
+    key: ValueKey(repository),
+    lazy: false,
+    create: (_) => ExpiredGiftBalanceCubit(
+      initialState: const ExpiredGiftBalanceState(),
+      repository: repository ?? MockCardServicesRepository(),
+    )..load(),
+    child: _ExpiredGiftBalanceView(
+      onTermsRequested: onTermsRequested,
+      onCompleted: onCompleted,
+    ),
+  );
 }
 
-class _ExpiredGiftBalanceScreenState extends State<ExpiredGiftBalanceScreen> {
-  late ExpiredGiftBalanceCubit cubit = _createCubit();
-
-  ExpiredGiftBalanceCubit _createCubit() => ExpiredGiftBalanceCubit(
-    repository: widget.repository ?? MockCardServicesRepository(),
-  )..load();
-
-  @override
-  void didUpdateWidget(covariant ExpiredGiftBalanceScreen oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.repository != widget.repository) {
-      cubit.close();
-      cubit = _createCubit();
-    }
-  }
-
-  void _back() {
-    if (!cubit.back()) NavigationActions.back(context);
-  }
-
-  @override
-  void dispose() {
-    cubit.close();
-    super.dispose();
-  }
+class _ExpiredGiftBalanceView extends StatelessWidget {
+  const _ExpiredGiftBalanceView({this.onTermsRequested, this.onCompleted});
+  final VoidCallback? onTermsRequested;
+  final ValueChanged<CardServiceReceipt>? onCompleted;
 
   @override
   Widget build(BuildContext context) => Directionality(
     textDirection: TextDirection.rtl,
     child: BlocConsumer<ExpiredGiftBalanceCubit, ExpiredGiftBalanceState>(
-      bloc: cubit,
       listenWhen: (old, next) =>
           old.step != next.step ||
           old.submissionStatus != next.submissionStatus,
       listener: (context, state) {
-        if (state.receipt != null) widget.onCompleted?.call(state.receipt!);
+        if (state.receipt != null) onCompleted?.call(state.receipt!);
       },
       builder: (context, state) {
+        final cubit = context.read<ExpiredGiftBalanceCubit>();
         final l = context.l10n;
-        final selection = state.step == GiftBalanceStep.selection;
-        final loading = state.submissionStatus == RequestStatus.loading;
-        final empty =
-            state.catalog?.gifts.isEmpty == true ||
-            state.catalog?.deposits.isEmpty == true;
-        final form =
-            state.status == RequestStatus.success &&
-            !empty &&
-            state.receipt == null;
         return PopScope(
-          canPop: !loading && (selection || state.receipt != null),
+          canPop:
+              state.submissionStatus != RequestStatus.loading &&
+              (state.step == GiftBalanceStep.selection ||
+                  state.receipt != null),
           onPopInvokedWithResult: (didPop, _) {
             if (!didPop) cubit.back();
           },
@@ -133,32 +117,39 @@ class _ExpiredGiftBalanceScreenState extends State<ExpiredGiftBalanceScreen> {
                       size: 24,
                     ),
                     trailingTooltip: l.backLabel,
-                    onTrailingPressed: _back,
+                    onTrailingPressed: () {
+                      if (!cubit.back()) NavigationActions.back(context);
+                    },
                   ),
-                  if (form)
+                  if ((state.status == RequestStatus.success &&
+                      !state.isEmpty &&
+                      state.receipt == null))
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
                       child: AppStepper(
-                        currentStep: selection ? 1 : 2,
+                        currentStep: state.step.index + 1,
                         totalSteps: 2,
-                        title: selection
+                        title: state.step == GiftBalanceStep.selection
                             ? l.giftBalanceSelection
                             : l.giftBalanceDestination,
-                        supportingText: selection
+                        supportingText: state.step == GiftBalanceStep.selection
                             ? l.giftBalanceNextDestination
                             : l.giftBalanceEnd,
                         semanticLabel: l.issuanceStepSemantic(
-                          selection ? 1 : 2,
+                          state.step.index + 1,
                           2,
-                          selection
+                          state.step == GiftBalanceStep.selection
                               ? l.giftBalanceSelection
                               : l.giftBalanceDestination,
                         ),
                       ),
                     ),
                   Expanded(
-                    child: form
-                        ? selection
+                    child:
+                        (state.status == RequestStatus.success &&
+                            !state.isEmpty &&
+                            state.receipt == null)
+                        ? state.step == GiftBalanceStep.selection
                               ? GiftBalanceSelection(
                                   cubit: cubit,
                                   state: state,
@@ -171,18 +162,20 @@ class _ExpiredGiftBalanceScreenState extends State<ExpiredGiftBalanceScreen> {
                                 )
                         : CardServiceStatus(
                             status: state.status,
-                            empty: empty,
+                            empty: state.isEmpty,
                             receipt: state.receipt,
                             onRetry: cubit.load,
                           ),
                   ),
-                  if (form)
+                  if ((state.status == RequestStatus.success &&
+                      !state.isEmpty &&
+                      state.receipt == null))
                     CardServiceFooter(
-                      label: selection
+                      label: state.step == GiftBalanceStep.selection
                           ? l.giftBalanceNext
                           : l.giftBalanceSubmit,
-                      loading: loading,
-                      onSubmit: selection
+                      loading: state.submissionStatus == RequestStatus.loading,
+                      onSubmit: state.step == GiftBalanceStep.selection
                           ? state.canContinue
                                 ? () => showGiftBalanceReview(
                                     context,
@@ -193,9 +186,11 @@ class _ExpiredGiftBalanceScreenState extends State<ExpiredGiftBalanceScreen> {
                           : state.canSubmit
                           ? cubit.submit
                           : null,
-                      termsAccepted: selection ? null : state.termsAccepted,
+                      termsAccepted: state.step == GiftBalanceStep.selection
+                          ? null
+                          : state.termsAccepted,
                       onTermsChanged: state.editable ? cubit.acceptTerms : null,
-                      onTermsRequested: widget.onTermsRequested,
+                      onTermsRequested: onTermsRequested,
                     ),
                 ],
               ),

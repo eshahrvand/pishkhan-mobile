@@ -29,3 +29,7 @@ Nine focused deposit tests and all 119 app tests pass. Application and avp_ui an
 ## Dashboard ownership and Cubit migration
 
 The tab, summary entity and action mapping now live under lib/features/dashboard. Dedicated feature folders are reserved for standalone pages. DepositsTab requires DashboardDepositsRepository; DepositsCubit/DepositsState own load outcomes and selected deposit. DashboardScreen keeps optional list seeds for its default mocks and accepts an injected DashboardRepositories bundle for service integration. See [current architecture and complete Figma audit](../dashboard/development.md) for loading/error/empty/single/multiple states, immutable selection, mock flow and future adapter requirements.
+
+## Cubit/State coding convention
+
+Follow [architecture Section 12](../architecture-smart-virtual-counter-v2-en.md#12-state-management-with-cubit) for new work and refactors. State is a plain Freezed data class with defaults and independent request statuses. Cubits accept an initial State, compute UI data and eligibility, and emit immutable snapshots through `copyWith`. UI reads those fields directly; no custom State/Cubit getters or UI-facing rules facade is used. Dependencies remain injectable and lifecycle/duplicate-request safeguards stay in place.

@@ -9,9 +9,11 @@ export 'dashboard_state.dart';
 
 /// Home loading and transactional favorite editing share one state owner.
 class DashboardCubit extends Cubit<DashboardState> {
-  DashboardCubit({required DashboardHomeRepository repository})
-    : _loadHome = LoadDashboardHome(repository),
-      super(const DashboardState());
+  DashboardCubit({
+    DashboardState initialState = const DashboardState(),
+    required DashboardHomeRepository repository,
+  }) : _loadHome = LoadDashboardHome(repository),
+       super(initialState);
   static const maxFavorites = 8;
   LoadDashboardHome _loadHome;
   int _request = 0;

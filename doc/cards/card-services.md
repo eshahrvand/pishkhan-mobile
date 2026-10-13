@@ -34,7 +34,7 @@ The four banking-feature rows are reused when opening a card's menu. Only the Re
 
 ## 3. Technology Stack
 
-Flutter Material composition, flutter_bloc Cubit, Equatable entities/state, core Result/Failure, public avp_ui primitives, app shared visuals, flutter_svg, and generated fa/en/ar ARB localization. No new dependency is added.
+Flutter Material composition, flutter_bloc Cubit, Equatable domain entities and Freezed Cubit State, core Result/Failure, public avp_ui primitives, app shared visuals, flutter_svg, and generated fa/en/ar ARB localization. No new dependency is added.
 
 ## 4. Development Environment and Versions
 
@@ -271,3 +271,7 @@ The existing assistant visual invokes a callback or returns from the route. No n
 ## Resalat issuance integration (2026-10-09)
 
 Without a supplied onActionRequested callback, the reissue sheet action opens CardIssuanceScreen with linkedDeposit context. Explicit host callbacks retain precedence. The nested assistant path pops issuance and then invokes the Cards host callback. See [complete flow architecture and component audit](card-issuance.md).
+
+## Cubit/State coding convention
+
+Follow [architecture Section 12](../architecture-smart-virtual-counter-v2-en.md#12-state-management-with-cubit) for new work and refactors. State is a plain Freezed data class with defaults and independent request statuses. Cubits accept an initial State, compute UI data and eligibility, and emit immutable snapshots through `copyWith`. UI reads those fields directly; no custom State/Cubit getters or UI-facing rules facade is used. Dependencies remain injectable and lifecycle/duplicate-request safeguards stay in place.

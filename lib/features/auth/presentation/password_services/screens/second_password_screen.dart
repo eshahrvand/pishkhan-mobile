@@ -9,7 +9,6 @@ import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
 import 'package:pishkhan_mobile/features/auth/data/repositories/mock_password_repository.dart';
 import 'package:pishkhan_mobile/features/auth/domain/entities/password_data.dart';
 import 'package:pishkhan_mobile/features/auth/domain/repositories/password_services_repository.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/password_services/cubit/password_rules.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/password_services/cubit/second_password_cubit.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/password_services/password_service_constants.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/password_services/widgets/password_sheets.dart';
@@ -49,6 +48,7 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
   }
 
   void _createCubit() => cubit = SecondPasswordCubit(
+    initialState: const SecondPasswordState(),
     repository: widget.repository ?? MockPasswordServicesRepository(),
     initialCardNumber: widget.initialCardNumber,
     selectOperation: widget.selectOperation,
@@ -94,7 +94,7 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
     }
     if (cubit.back()) return;
     if (cubit.state.submissionStatus != RequestStatus.success &&
-        passwordSelectionComplete(cubit.state)) {
+        cubit.state.selectionComplete) {
       final leave = await showPasswordExitDialog(context);
       if (leave != true || !mounted) return;
     }
@@ -102,7 +102,7 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
   }
 
   bool _fullStatus(SecondPasswordState state) =>
-      passwordIsChange(state) &&
+      state.isChange &&
       state.record != null &&
       state.submissionStatus != RequestStatus.success;
 

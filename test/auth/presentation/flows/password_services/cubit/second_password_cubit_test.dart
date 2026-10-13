@@ -1,5 +1,4 @@
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/password_services/cubit/password_rules.dart';
 
 import 'dart:async';
 
@@ -112,11 +111,11 @@ void main() {
         final c = SecondPasswordCubit(repository: r, selectOperation: true);
         await c.load();
         select(c);
-        expect(passwordCanContinue(c.state), false);
+        expect(c.state.canContinue, false);
         await c.next();
         expect(c.state.step, SecondPasswordStep.selection);
         c.chooseOperation(operation);
-        expect(passwordSelectionComplete(c.state), true);
+        expect(c.state.selectionComplete, true);
         await c.next();
         expect(c.state.step, SecondPasswordStep.password);
         c.passwordChanged('829164');
@@ -256,12 +255,12 @@ void main() {
     c.passwordChanged('829164');
     c.confirmationChanged('829164');
     c.acceptTerms(true);
-    expect(passwordCanContinue(c.state), false);
+    expect(c.state.canContinue, false);
     c.currentPasswordChanged('۱۲۳۴');
     expect(c.state.currentPassword, '1234');
     expect(c.state.terms, false);
     c.acceptTerms(true);
-    expect(passwordCanContinue(c.state), true);
+    expect(c.state.canContinue, true);
     await c.next();
     expect(r.requests.single.currentPassword, '1234');
     expect(r.requests.single.nationalCardSerial, isEmpty);
@@ -337,25 +336,25 @@ void main() {
     final c = SecondPasswordCubit(repository: ControlledPasswordRepository());
     await c.load();
     c.selectSecondPassword();
-    expect(passwordCanContinue(c.state), false);
+    expect(c.state.canContinue, false);
     select(c);
-    expect(passwordCanContinue(c.state), true);
+    expect(c.state.canContinue, true);
     await c.next();
     c.passwordChanged('۸۲۹۱۶۴');
     c.confirmationChanged('٨٢٩١٦٤');
     expect(c.state.password, '829164');
-    expect(passwordCanContinue(c.state), false);
+    expect(c.state.canContinue, false);
     c.acceptTerms(true);
-    expect(passwordCanContinue(c.state), true);
+    expect(c.state.canContinue, true);
     c.confirmationChanged('829163');
     expect(c.state.terms, false);
     c.confirmationChanged('829164');
     c.acceptTerms(true);
     await c.next();
-    expect(passwordCanContinue(c.state), false);
+    expect(c.state.canContinue, false);
     c.serialChanged('۳r۱۲۳۴۵۶۷۸');
     expect(c.state.serial, '3R12345678');
-    expect(passwordCanContinue(c.state), true);
+    expect(c.state.canContinue, true);
     await c.close();
   });
   test('pending and approved status stop before password entry', () async {

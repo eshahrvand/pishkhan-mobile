@@ -29,7 +29,7 @@ List<RouteBase> buildAuthRoutes({
     GoRoute(
       path: AuthRoutes.login,
       builder: (context, state) => BlocProvider(
-        create: (_) => AuthCubit(),
+        create: (_) => AuthCubit(initialState: const AuthState()),
         child: AuthScreen(
           onAuthenticated: () => onAuthenticated(context, state),
         ),

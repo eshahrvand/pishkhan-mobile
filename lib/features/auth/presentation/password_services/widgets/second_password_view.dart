@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import 'package:pishkhan_mobile/features/auth/presentation/password_services/cubit/password_rules.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/password_services/cubit/second_password_cubit.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/password_services/widgets/password_flow_content.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/password_services/widgets/password_flow_footer.dart';
@@ -33,7 +32,7 @@ class SecondPasswordView extends StatelessWidget {
         Positioned.fill(
           child: BlocSelector<SecondPasswordCubit, SecondPasswordState, bool>(
             selector: (state) =>
-                passwordIsChange(state) ||
+                state.isChange ||
                 (selectOperation &&
                     state.step == SecondPasswordStep.selection) ||
                 state.step.index >= SecondPasswordStep.instruction.index,

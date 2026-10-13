@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import 'package:pishkhan_mobile/features/auth/presentation/password_services/cubit/password_rules.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/password_services/cubit/second_password_cubit.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/password_services/widgets/password_styles.dart';
 import 'package:pishkhan_mobile/l10n/l10n.dart';
@@ -31,9 +30,7 @@ class _SerialFormState extends State<PasswordSerialForm> {
         setState(
           () => error =
               controller.text.isNotEmpty &&
-              !passwordSerialComplete(
-                context.read<SecondPasswordCubit>().state,
-              ),
+              !context.read<SecondPasswordCubit>().state.serialComplete,
         );
       }
     });

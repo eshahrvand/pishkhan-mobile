@@ -12,22 +12,26 @@ import 'change_card_deposit_state.dart';
 export 'change_card_deposit_state.dart';
 
 class ChangeCardDepositCubit extends Cubit<ChangeCardDepositState> {
-  ChangeCardDepositCubit({required this.repository, this.initialCardNumber})
-    : super(const ChangeCardDepositState());
+  ChangeCardDepositCubit({
+    ChangeCardDepositState initialState = const ChangeCardDepositState(),
+    required this.repository,
+    this.initialCardNumber,
+  }) : super(initialState);
   final CardServicesRepository repository;
   final String? initialCardNumber;
   int _generation = 0;
   String? _key;
+
   Future<void> load() async {
     if (state.submissionStatus == RequestStatus.loading) return;
     final generation = ++_generation;
     _key = null;
-    emit(const ChangeCardDepositState(status: RequestStatus.loading));
+    _updateState(const ChangeCardDepositState(status: RequestStatus.loading));
     final result = await LoadCardServiceCatalog(repository)();
     if (isClosed || generation != _generation) return;
     switch (result) {
       case Err(:final failure):
-        emit(
+        _updateState(
           ChangeCardDepositState(
             status: RequestStatus.failure,
             failure: failure,
@@ -38,7 +42,7 @@ class ChangeCardDepositCubit extends Cubit<ChangeCardDepositState> {
         final card = data.cards
             .where((c) => _number(c.number) == number)
             .firstOrNull;
-        emit(
+        _updateState(
           ChangeCardDepositState(
             status: RequestStatus.success,
             catalog: data,
@@ -50,6 +54,7 @@ class ChangeCardDepositCubit extends Cubit<ChangeCardDepositState> {
 
   String _number(String value) =>
       DigitNormalizer.normalize(value).replaceAll(RegExp(r'[^0-9]'), '');
+
   void selectCard(String id) {
     if (!state.editable ||
         id == state.cardId ||
@@ -57,7 +62,7 @@ class ChangeCardDepositCubit extends Cubit<ChangeCardDepositState> {
       return;
     }
     _key = null;
-    emit(
+    _updateState(
       state.copyWith(
         cardId: id,
         destinationId: null,
@@ -75,7 +80,7 @@ class ChangeCardDepositCubit extends Cubit<ChangeCardDepositState> {
       return;
     }
     _key = null;
-    emit(
+    _updateState(
       state.copyWith(
         destinationId: id,
         termsAccepted: false,
@@ -86,7 +91,7 @@ class ChangeCardDepositCubit extends Cubit<ChangeCardDepositState> {
   }
 
   void acceptTerms(bool value) {
-    if (state.editable) emit(state.copyWith(termsAccepted: value));
+    if (state.editable) _updateState(state.copyWith(termsAccepted: value));
   }
 
   Future<void> submit() async {
@@ -102,7 +107,7 @@ class ChangeCardDepositCubit extends Cubit<ChangeCardDepositState> {
       idempotencyKey: _key!,
     );
     final generation = ++_generation;
-    emit(
+    _updateState(
       state.copyWith(submissionStatus: RequestStatus.loading, failure: null),
     );
     final result = await cardServiceBoundary(
@@ -111,20 +116,63 @@ class ChangeCardDepositCubit extends Cubit<ChangeCardDepositState> {
     if (isClosed || generation != _generation) return;
     switch (result) {
       case Err(:final failure):
-        emit(
+        _updateState(
           state.copyWith(
             submissionStatus: RequestStatus.failure,
             failure: failure,
           ),
         );
       case Success(:final data):
-        emit(
+        _updateState(
           state.copyWith(
             submissionStatus: RequestStatus.success,
             receipt: data,
           ),
         );
     }
+  }
+
+  // Calculate dependent data once, before emitting a consistent snapshot.
+  void _updateState(ChangeCardDepositState next) {
+    final card = next.catalog?.cards
+        .where((c) => c.id == next.cardId)
+        .firstOrNull;
+    final source = next.catalog?.deposits
+        .where((d) => d.id == card?.depositId)
+        .firstOrNull;
+    final destinations =
+        next.catalog?.deposits.where((d) => d.id != source?.id).toList() ??
+        <CardServiceDeposit>[];
+    final destination = destinations
+        .where((d) => d.id == next.destinationId)
+        .firstOrNull;
+    final editable =
+        next.status == RequestStatus.success &&
+        next.submissionStatus != RequestStatus.loading &&
+        next.submissionStatus != RequestStatus.success;
+    final walletSufficient =
+        next.catalog != null &&
+        next.catalog!.walletBalanceRial >= next.catalog!.changeDepositFeeRial;
+    emit(
+      next.copyWith(
+        card: card,
+        source: source,
+        destinations: destinations,
+        destination: destination,
+        isEmpty:
+            next.catalog?.cards.isEmpty == true ||
+            next.catalog?.deposits.isEmpty == true,
+        editable: editable,
+        walletSufficient: walletSufficient,
+        canSubmit:
+            editable &&
+            card != null &&
+            source != null &&
+            destination != null &&
+            next.termsAccepted &&
+            walletSufficient,
+      ),
+    );
   }
 
   @override

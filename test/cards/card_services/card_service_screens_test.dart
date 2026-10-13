@@ -96,19 +96,19 @@ void main() {
   }
 
   ChangeCardDepositCubit changeCubit(WidgetTester t) => t
-      .widget<BlocConsumer<ChangeCardDepositCubit, ChangeCardDepositState>>(
+      .element(
         find.byType(
           BlocConsumer<ChangeCardDepositCubit, ChangeCardDepositState>,
         ),
       )
-      .bloc!;
+      .read<ChangeCardDepositCubit>();
   ExpiredGiftBalanceCubit giftCubit(WidgetTester t) => t
-      .widget<BlocConsumer<ExpiredGiftBalanceCubit, ExpiredGiftBalanceState>>(
+      .element(
         find.byType(
           BlocConsumer<ExpiredGiftBalanceCubit, ExpiredGiftBalanceState>,
         ),
       )
-      .bloc!;
+      .read<ExpiredGiftBalanceCubit>();
 
   testWidgets(
     'change deposit follows empty, card selected, and complete forms',
@@ -415,6 +415,44 @@ void main() {
       expect(dotRect.right - subtitle.right, closeTo(8, .01));
       expect(subtitle.top - title.bottom, closeTo(6, .01));
       expect(t.takeException(), isNull);
+    },
+  );
+  testWidgets(
+    'change provider initializes once, retains selection on rebuild, and closes on removal',
+    (t) async {
+      final repo = TestCardServicesRepository();
+      await mount(t, ChangeCardDepositScreen(repository: repo));
+      final cubit = changeCubit(t);
+      cubit.selectCard('card-1');
+      await mount(
+        t,
+        ChangeCardDepositScreen(repository: repo, onTermsRequested: () {}),
+      );
+      expect(changeCubit(t), same(cubit));
+      expect(repo.loadCalls, 1);
+      expect(cubit.state.cardId, 'card-1');
+      expect(cubit.state.status, RequestStatus.success);
+      await mount(t, const Scaffold());
+      expect(cubit.isClosed, isTrue);
+    },
+  );
+  testWidgets(
+    'gift provider initializes once, retains selection on rebuild, and closes on removal',
+    (t) async {
+      final repo = TestCardServicesRepository();
+      await mount(t, ExpiredGiftBalanceScreen(repository: repo));
+      final cubit = giftCubit(t);
+      cubit.toggleCard('gift-0');
+      await mount(
+        t,
+        ExpiredGiftBalanceScreen(repository: repo, onTermsRequested: () {}),
+      );
+      expect(giftCubit(t), same(cubit));
+      expect(repo.loadCalls, 1);
+      expect(cubit.state.selectedIds, {'gift-0'});
+      expect(cubit.state.step, GiftBalanceStep.selection);
+      await mount(t, const Scaffold());
+      expect(cubit.isClosed, isTrue);
     },
   );
 }

@@ -340,3 +340,7 @@ AppAssistantButton reuses existing artwork and invokes the host callback. It doe
 | Version | Date | Change |
 | --- | --- | --- |
 | 1.0.0 | 2026-10-09 | Add package Stepper and Figma name mapper registration; compatible Toggle/Invoice/AddressCard variants; connected Resalat issuance flow, required nonphysical selections, mock repository/Cubit, routes/localizations, nine previews and component/data readiness audit |
+
+## Cubit/State coding convention
+
+Follow [architecture Section 12](../architecture-smart-virtual-counter-v2-en.md#12-state-management-with-cubit) for new work and refactors. State is a plain Freezed data class with defaults and independent request statuses. Cubits accept an initial State, compute UI data and eligibility, and emit immutable snapshots through `copyWith`. UI reads those fields directly; no custom State/Cubit getters or UI-facing rules facade is used. Dependencies remain injectable and lifecycle/duplicate-request safeguards stay in place.

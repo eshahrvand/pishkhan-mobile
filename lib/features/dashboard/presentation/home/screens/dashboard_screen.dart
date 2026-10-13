@@ -72,8 +72,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
   late final DashboardCubit _cubit;
   final _promptFocus = FocusNode();
   late DashboardRepositories _repositories;
-  final _navigationCubit = DashboardNavigationCubit();
-  AppPrimaryTab get _selectedTab => _navigationCubit.state.selectedTab;
+  final _navigationCubit = DashboardNavigationCubit(
+    initialState: const DashboardNavigationState(),
+  );
   final _notifications = DashboardNotificationsNavigation();
 
   void _openNotifications() => _notifications.open(context);
@@ -83,7 +84,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
     super.initState();
     _repositories =
         widget.repositories ?? context.read<DashboardRepositories>();
-    _cubit = DashboardCubit(repository: _repositories.home)..load();
+    _cubit = DashboardCubit(
+      initialState: const DashboardState(),
+      repository: _repositories.home,
+    )..load();
   }
 
   @override
@@ -178,14 +182,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
         bloc: _navigationCubit,
         selector: (state) => state.selectedTab,
         builder: (context, selectedTab) => IndexedStack(
-          index: _selectedTab.index,
+          index: _navigationCubit.state.selectedTab.index,
           children: [
             TickerMode(
-              enabled: _selectedTab == AppPrimaryTab.dashboard,
+              enabled:
+                  _navigationCubit.state.selectedTab == AppPrimaryTab.dashboard,
               child: _dashboard(context),
             ),
             TickerMode(
-              enabled: _selectedTab == AppPrimaryTab.cards,
+              enabled:
+                  _navigationCubit.state.selectedTab == AppPrimaryTab.cards,
               child: CardsTab(
                 repository: _repositories.cards,
                 onTabSelected: _selectTab,
@@ -208,7 +214,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ),
             TickerMode(
-              enabled: _selectedTab == AppPrimaryTab.deposits,
+              enabled:
+                  _navigationCubit.state.selectedTab == AppPrimaryTab.deposits,
               child: DepositsTab(
                 repository: _repositories.deposits,
                 onTabSelected: _selectTab,
@@ -233,7 +240,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ),
             TickerMode(
-              enabled: _selectedTab == AppPrimaryTab.loans,
+              enabled:
+                  _navigationCubit.state.selectedTab == AppPrimaryTab.loans,
               child: LoansTab(
                 repository: _repositories.loans,
                 onTabSelected: _selectTab,
@@ -264,10 +272,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
     child: BlocBuilder<DashboardCubit, DashboardState>(
       bloc: _cubit,
       builder: (context, state) => PopScope(
-        canPop: state.draft == null && _selectedTab == AppPrimaryTab.dashboard,
+        canPop:
+            state.draft == null &&
+            _navigationCubit.state.selectedTab == AppPrimaryTab.dashboard,
         onPopInvokedWithResult: (didPop, _) {
           if (!didPop) {
-            if (_selectedTab != AppPrimaryTab.dashboard) {
+            if (_navigationCubit.state.selectedTab != AppPrimaryTab.dashboard) {
               _selectTab(AppPrimaryTab.dashboard);
             } else {
               _cubit.cancel();

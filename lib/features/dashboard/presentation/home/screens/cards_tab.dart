@@ -4,7 +4,6 @@ import 'package:pishkhan_mobile/features/dashboard/domain/repositories/dashboard
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_async_view.dart';
 
 import '../cubit/cards_cubit.dart';
-import '../cubit/cards_state.dart';
 
 import 'dart:math' as math;
 
@@ -54,22 +53,15 @@ class _CardsTabState extends State<CardsTab> {
   double? _viewport;
   late final CardsCubit _cubit;
   String? _controllerItems;
-  List<BankCard> get _items => _cubit.state.status == RequestStatus.success
-      ? _cubit.state.items ?? const []
-      : const [];
-  int get _selected => _items.isEmpty
-      ? 0
-      : _items.indexWhere((item) => item.id == _cubit.state.selectedId);
   @override
   void initState() {
     super.initState();
-    _cubit = CardsCubit(repository: widget.repository)..load();
+    _cubit = CardsCubit(
+      initialState: const CardsState(),
+      repository: widget.repository,
+    )..load();
   }
 
-  Map<String, bool> get _visible => _cubit.state.status == RequestStatus.success
-      ? _cubit.state.visibility
-      : const {};
-  BankCard get _card => _items[_selected];
   @override
   void didUpdateWidget(covariant CardsTab oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -86,7 +78,7 @@ class _CardsTabState extends State<CardsTab> {
   }
 
   void _request(CardAction action) => widget.onActionRequested?.call(
-    CardActionRequest(action: action, card: _card),
+    CardActionRequest(action: action, card: _cubit.state.selectedCard!),
   );
   String _label(CardAction action) => switch (action) {
     CardAction.reissue => context.l10n.cardsReissue,
@@ -149,9 +141,7 @@ class _CardsTabState extends State<CardsTab> {
       listener: (context, state) {
         if (state.status == RequestStatus.loading) _controllerItems = null;
         if (state.status == RequestStatus.success && state.items != null) {
-          final selectedIndex = state.items!.indexWhere(
-            (item) => item.id == state.selectedId,
-          );
+          final selectedIndex = state.selectedIndex;
           if (_pages?.hasClients == true &&
               !_pages!.position.isScrollingNotifier.value &&
               ((_pages!.page ?? 0) - selectedIndex).abs() > .01) {
@@ -171,7 +161,7 @@ class _CardsTabState extends State<CardsTab> {
                   showLeadingActions: false,
                   onMenuPressed: widget.onMenuPressed,
                 ),
-                if (_items.isNotEmpty) _carousel(),
+                if (_cubit.state.visibleItems.isNotEmpty) _carousel(),
                 Expanded(
                   child: Stack(
                     children: [
@@ -192,7 +182,7 @@ class _CardsTabState extends State<CardsTab> {
                                 key: const Key("cards_error"),
                                 onRetry: _cubit.load,
                               )
-                            else if (_items.isEmpty)
+                            else if (_cubit.state.visibleItems.isEmpty)
                               Padding(
                                 padding: const EdgeInsets.all(24),
                                 child: Text(
@@ -201,7 +191,7 @@ class _CardsTabState extends State<CardsTab> {
                                   style: AppTypography.bodyMedium,
                                 ),
                               ),
-                            if (_items.isNotEmpty) ...[
+                            if (_cubit.state.visibleItems.isNotEmpty) ...[
                               _group(
                                 'cards_operations',
                                 context.l10n.cardsOperations,
@@ -217,7 +207,7 @@ class _CardsTabState extends State<CardsTab> {
                                 context.l10n.cardsPinOperations,
                                 [
                                   CardAction.changeFirstPin,
-                                  _card.canSetSecondPin
+                                  _cubit.state.selectedCard!.canSetSecondPin
                                       ? CardAction.setSecondPin
                                       : CardAction.forgotSecondPin,
                                   CardAction.forgotFirstPin,
@@ -269,7 +259,7 @@ class _CardsTabState extends State<CardsTab> {
   );
   Widget _carousel() => LayoutBuilder(
     builder: (context, constraints) {
-      final single = _items.length == 1;
+      final single = _cubit.state.visibleItems.length == 1;
       final width = math.min(
         single ? 335.0 : 316.0,
         constraints.maxWidth - (single ? 40 : 59),
@@ -281,15 +271,18 @@ class _CardsTabState extends State<CardsTab> {
       if (!single &&
           (_pages == null ||
               _viewport != fraction ||
-              _controllerItems != _items.map((item) => item.id).join("|"))) {
+              _controllerItems !=
+                  _cubit.state.visibleItems.map((item) => item.id).join("|"))) {
         _pages?.dispose();
         _pages = PageController(
-          initialPage: _selected,
+          initialPage: _cubit.state.selectedIndex,
           keepPage: false,
           viewportFraction: fraction,
         );
         _viewport = fraction;
-        _controllerItems = _items.map((item) => item.id).join("|");
+        _controllerItems = _cubit.state.visibleItems
+            .map((item) => item.id)
+            .join("|");
       }
       return SizedBox(
         height: 237 + extra,
@@ -318,10 +311,12 @@ class _CardsTabState extends State<CardsTab> {
                         clipBehavior: Clip.none,
                         key: const Key('cards_carousel'),
                         controller: _pages,
-                        itemCount: _items.length,
+                        itemCount: _cubit.state.visibleItems.length,
                         onPageChanged: (index) {
                           _cubit.select(index);
-                          widget.onSelectedCardChanged?.call(_card);
+                          widget.onSelectedCardChanged?.call(
+                            _cubit.state.selectedCard!,
+                          );
                         },
                         itemBuilder: (context, index) =>
                             Center(child: _bankCard(index, width)),
@@ -336,12 +331,16 @@ class _CardsTabState extends State<CardsTab> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    for (var index = 0; index < _items.length; index++) ...[
+                    for (
+                      var index = 0;
+                      index < _cubit.state.visibleItems.length;
+                      index++
+                    ) ...[
                       if (index > 0) const SizedBox(width: 6),
                       Semantics(
                         button: true,
-                        selected: index == _selected,
-                        label: _items[index].id,
+                        selected: index == _cubit.state.selectedIndex,
+                        label: _cubit.state.visibleItems[index].id,
                         child: InkWell(
                           key: Key('cards_indicator_$index'),
                           onTap: () => _pages!.animateToPage(
@@ -350,10 +349,10 @@ class _CardsTabState extends State<CardsTab> {
                             curve: Curves.easeOut,
                           ),
                           child: Container(
-                            width: index == _selected ? 14 : 6,
+                            width: index == _cubit.state.selectedIndex ? 14 : 6,
                             height: 6,
                             decoration: BoxDecoration(
-                              color: index == _selected
+                              color: index == _cubit.state.selectedIndex
                                   ? AppDashboardColors.navActive
                                   : context.colors.border,
                               borderRadius: AppRadius.borderFull,
@@ -371,12 +370,14 @@ class _CardsTabState extends State<CardsTab> {
     },
   );
   Widget _bankCard(int index, double width) {
-    final card = _items[index];
-    final visible = _visible[card.id] ?? _items.length == 1;
+    final card = _cubit.state.visibleItems[index];
+    final visible =
+        _cubit.state.visibility[card.id] ??
+        _cubit.state.visibleItems.length == 1;
     return AppResalatCard(
       key: ValueKey('bank_card_${card.id}'),
       width: width,
-      size: _items.length == 1
+      size: _cubit.state.visibleItems.length == 1
           ? AppResalatCardSize.single
           : AppResalatCardSize.multi,
       cardType: card.kind == BankCardKind.current

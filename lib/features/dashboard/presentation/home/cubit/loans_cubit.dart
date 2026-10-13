@@ -6,11 +6,14 @@ import '../../../domain/entities/bank_loan.dart';
 import '../../../domain/repositories/dashboard_repositories.dart';
 import '../../../domain/usecases/home.dart';
 import 'loans_state.dart';
+export 'loans_state.dart';
 
 class LoansCubit extends Cubit<LoansState> {
-  LoansCubit({required DashboardLoansRepository repository})
-    : _loadItems = LoadDashboardItems(repository.getLoans),
-      super(const LoansState());
+  LoansCubit({
+    LoansState initialState = const LoansState(),
+    required DashboardLoansRepository repository,
+  }) : _loadItems = LoadDashboardItems(repository.getLoans),
+       super(_prepareState(initialState));
 
   LoadDashboardItems<BankLoan> _loadItems;
   int _request = 0;
@@ -18,22 +21,32 @@ class LoansCubit extends Cubit<LoansState> {
   Future<void> load() async {
     final token = ++_request;
     final previous = state;
-    emit(state.copyWith(status: RequestStatus.loading, failure: null));
+    emit(
+      _prepareState(
+        state.copyWith(status: RequestStatus.loading, failure: null),
+      ),
+    );
     final result = await _loadItems();
     if (isClosed || token != _request) return;
     switch (result) {
       case Err(:final failure):
-        emit(state.copyWith(status: RequestStatus.failure, failure: failure));
+        emit(
+          _prepareState(
+            state.copyWith(status: RequestStatus.failure, failure: failure),
+          ),
+        );
       case Success(:final data):
         final items = data.isEmpty ? null : data;
         final id = data.any((item) => item.id == previous.selectedId)
             ? previous.selectedId
             : data.firstOrNull?.id;
         emit(
-          state.copyWith(
-            status: RequestStatus.success,
-            items: items,
-            selectedId: id,
+          _prepareState(
+            state.copyWith(
+              status: RequestStatus.success,
+              items: items,
+              selectedId: id,
+            ),
           ),
         );
     }
@@ -53,12 +66,26 @@ class LoansCubit extends Cubit<LoansState> {
         index >= items.length) {
       return;
     }
-    emit(current.copyWith(selectedId: items[index].id));
+    emit(_prepareState(current.copyWith(selectedId: items[index].id)));
   }
 
   @override
   Future<void> close() {
     _request++;
     return super.close();
+  }
+
+  static LoansState _prepareState(LoansState next) {
+    final items = next.status == RequestStatus.success
+        ? next.items ?? const <BankLoan>[]
+        : const <BankLoan>[];
+    final selectedIndex = items.indexWhere(
+      (item) => item.id == next.selectedId,
+    );
+    return next.copyWith(
+      visibleItems: items,
+      selectedIndex: selectedIndex < 0 ? 0 : selectedIndex,
+      selectedLoan: selectedIndex < 0 ? null : items[selectedIndex],
+    );
   }
 }

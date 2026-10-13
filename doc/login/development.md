@@ -93,3 +93,7 @@ back navigation with retained values, and guest-service callbacks.
 package's Persian fonts. Native status/navigation bars and the operating
 system's keyboard are excluded; their dimensions are supplied as viewport
 insets. Golden tests are not introduced.
+
+## Cubit/State coding convention
+
+Follow [architecture Section 12](../architecture-smart-virtual-counter-v2-en.md#12-state-management-with-cubit) for new work and refactors. State is a plain Freezed data class with defaults and independent request statuses. Cubits accept an initial State, compute UI data and eligibility, and emit immutable snapshots through `copyWith`. UI reads those fields directly; no custom State/Cubit getters or UI-facing rules facade is used. Dependencies remain injectable and lifecycle/duplicate-request safeguards stay in place.

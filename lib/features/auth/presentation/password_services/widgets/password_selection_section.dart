@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:pishkhan_mobile/features/auth/domain/entities/password_data.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/password_services/cubit/password_rules.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/password_services/cubit/second_password_cubit.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/password_services/widgets/password_sheets.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/password_services/widgets/password_styles.dart';
@@ -63,7 +62,7 @@ class PasswordSelectionSection extends StatelessWidget {
         ),
         const SizedBox(height: 20),
         PasswordServiceSelect(
-          title: passwordCard(state) != null && state.secondPasswordSelected
+          title: state.card != null && state.secondPasswordSelected
               ? l.passwordOperation
               : l.passwordType,
           hint: l.passwordTypeHint,
@@ -89,7 +88,7 @@ class PasswordSelectionSection extends StatelessWidget {
             }
           },
         ),
-        if (passwordCard(state) != null && state.secondPasswordSelected) ...[
+        if (state.card != null && state.secondPasswordSelected) ...[
           const SizedBox(height: 20),
           SizedBox(
             height: 0,
@@ -143,7 +142,7 @@ class PasswordSelectionSection extends StatelessWidget {
               ],
             ),
         ],
-        if (passwordSelectionComplete(state) && !passwordIsChange(state)) ...[
+        if (state.selectionComplete && !state.isChange) ...[
           const SizedBox(height: 20),
           AppInvoice(
             totalAmount: CurrencyFormatter.format(state.catalog!.feeRial),
@@ -160,14 +159,14 @@ class PasswordSelectionSection extends StatelessWidget {
             borderRadius: BorderRadius.zero,
             zeroHeightDividers: true,
             labelColor: context.colors.textTertiary,
-            isWalletBalanceSufficient: passwordWalletSufficient(state),
+            isWalletBalanceSufficient: state.walletSufficient,
             walletSufficientLabel: l.issuanceWalletSufficient,
             walletInsufficientLabel: l.issuanceWalletInsufficient,
           ),
         ],
-        if (passwordCard(state) != null &&
+        if (state.card != null &&
             state.operation != null &&
-            !passwordCard(state)!.supports(state.operation!)) ...[
+            !state.card!.supports(state.operation!)) ...[
           const SizedBox(height: 12),
           Text(l.passwordUnsupported),
         ],

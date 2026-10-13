@@ -2,7 +2,6 @@ import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/password_services/cubit/password_rules.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/password_services/cubit/second_password_cubit.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/password_services/widgets/password_instruction_section.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/password_services/widgets/password_recording_section.dart';
@@ -37,7 +36,7 @@ class PasswordFlowContent extends StatelessWidget {
           previous.record != state.record ||
           previous.failure != state.failure,
       builder: (context, state) =>
-          passwordIsChange(state) &&
+          state.isChange &&
               state.record != null &&
               state.submissionStatus != RequestStatus.success
           ? SingleChildScrollView(
@@ -53,7 +52,7 @@ class PasswordFlowContent extends StatelessWidget {
               padding: EdgeInsetsDirectional.fromSTEB(
                 16,
                 (state.step == SecondPasswordStep.password &&
-                            !passwordIsChange(state)) ||
+                            !state.isChange) ||
                         state.step == SecondPasswordStep.serial
                     ? 14
                     : 16,

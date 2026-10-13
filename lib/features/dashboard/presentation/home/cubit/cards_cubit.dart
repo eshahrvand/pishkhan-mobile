@@ -6,11 +6,14 @@ import '../../../domain/entities/bank_card.dart';
 import '../../../domain/repositories/dashboard_repositories.dart';
 import '../../../domain/usecases/home.dart';
 import 'cards_state.dart';
+export 'cards_state.dart';
 
 class CardsCubit extends Cubit<CardsState> {
-  CardsCubit({required DashboardCardsRepository repository})
-    : _loadItems = LoadDashboardItems(repository.getCards),
-      super(const CardsState());
+  CardsCubit({
+    CardsState initialState = const CardsState(),
+    required DashboardCardsRepository repository,
+  }) : _loadItems = LoadDashboardItems(repository.getCards),
+       super(_prepareState(initialState));
 
   LoadDashboardItems<BankCard> _loadItems;
   int _request = 0;
@@ -18,26 +21,36 @@ class CardsCubit extends Cubit<CardsState> {
   Future<void> load() async {
     final token = ++_request;
     final previous = state;
-    emit(state.copyWith(status: RequestStatus.loading, failure: null));
+    emit(
+      _prepareState(
+        state.copyWith(status: RequestStatus.loading, failure: null),
+      ),
+    );
     final result = await _loadItems();
     if (isClosed || token != _request) return;
     switch (result) {
       case Err(:final failure):
-        emit(state.copyWith(status: RequestStatus.failure, failure: failure));
+        emit(
+          _prepareState(
+            state.copyWith(status: RequestStatus.failure, failure: failure),
+          ),
+        );
       case Success(:final data):
         final items = data.isEmpty ? null : data;
         final id = data.any((item) => item.id == previous.selectedId)
             ? previous.selectedId
             : data.firstOrNull?.id;
         emit(
-          state.copyWith(
-            status: RequestStatus.success,
-            items: items,
-            selectedId: id,
-            visibility: {
-              for (final item in data)
-                item.id: previous.visibility[item.id] ?? data.length == 1,
-            },
+          _prepareState(
+            state.copyWith(
+              status: RequestStatus.success,
+              items: items,
+              selectedId: id,
+              visibility: {
+                for (final item in data)
+                  item.id: previous.visibility[item.id] ?? data.length == 1,
+              },
+            ),
           ),
         );
     }
@@ -57,7 +70,7 @@ class CardsCubit extends Cubit<CardsState> {
         index >= items.length) {
       return;
     }
-    emit(current.copyWith(selectedId: items[index].id));
+    emit(_prepareState(current.copyWith(selectedId: items[index].id)));
   }
 
   void setVisibility(String id, bool value) {
@@ -66,12 +79,30 @@ class CardsCubit extends Cubit<CardsState> {
         !(current.items?.any((item) => item.id == id) ?? false)) {
       return;
     }
-    emit(current.copyWith(visibility: {...current.visibility, id: value}));
+    emit(
+      _prepareState(
+        current.copyWith(visibility: {...current.visibility, id: value}),
+      ),
+    );
   }
 
   @override
   Future<void> close() {
     _request++;
     return super.close();
+  }
+
+  static CardsState _prepareState(CardsState next) {
+    final items = next.status == RequestStatus.success
+        ? next.items ?? const <BankCard>[]
+        : const <BankCard>[];
+    final selectedIndex = items.indexWhere(
+      (item) => item.id == next.selectedId,
+    );
+    return next.copyWith(
+      visibleItems: items,
+      selectedIndex: selectedIndex < 0 ? 0 : selectedIndex,
+      selectedCard: selectedIndex < 0 ? null : items[selectedIndex],
+    );
   }
 }

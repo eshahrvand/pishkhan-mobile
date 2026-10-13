@@ -1,7 +1,6 @@
 import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
 import 'package:pishkhan_mobile/features/cards/domain/repositories/virtual_card_repository.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
-import 'package:pishkhan_mobile/features/cards/presentation/virtual_card_request/cubit/virtual_card_rules.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -43,6 +42,7 @@ class _VirtualCardRequestScreenState extends State<VirtualCardRequestScreen> {
   }
 
   void _createCubit() => cubit = VirtualCardCubit(
+    initialState: const VirtualCardState(),
     repository: widget.repository ?? MockVirtualCardRepository(),
     initialDepositNumber: widget.initialDepositNumber,
   )..load();
@@ -209,7 +209,7 @@ class _VirtualCardRequestScreenState extends State<VirtualCardRequestScreen> {
         ),
         const SizedBox(height: 20),
         IgnorePointer(
-          ignoring: !virtualCardEditable(state),
+          ignoring: !state.editable,
           child: AppSelect<String>(
             key: const Key('virtual_deposit'),
             label: l.virtualRequestDepositLabel,
@@ -240,7 +240,7 @@ class _VirtualCardRequestScreenState extends State<VirtualCardRequestScreen> {
         AppTextField(
           key: const Key('virtual_count'),
           controller: count,
-          enabled: virtualCardEditable(state),
+          enabled: state.editable,
           hintText: l.virtualRequestCountHint,
           hintColor: AppPalette.gray400,
           textStyle: _body(context),
@@ -253,7 +253,7 @@ class _VirtualCardRequestScreenState extends State<VirtualCardRequestScreen> {
             FilteringTextInputFormatter.digitsOnly,
             LengthLimitingTextInputFormatter(6),
           ],
-          errorText: state.countText.isNotEmpty && !virtualCardValidCount(state)
+          errorText: state.countText.isNotEmpty && !state.validCount
               ? l.virtualRequestCountError(state.catalog!.maxCount)
               : null,
           onChanged: cubit.countChanged,
@@ -329,7 +329,7 @@ class _VirtualCardRequestScreenState extends State<VirtualCardRequestScreen> {
             style: _body(context).copyWith(color: context.colors.error),
           ),
           AppButton(
-            onPressed: virtualCardEditable(state)
+            onPressed: state.editable
                 ? (state.quote == null ? cubit.refreshQuote : cubit.submit)
                 : null,
             label: l.dashboardRetry,
@@ -359,7 +359,7 @@ class _VirtualCardRequestScreenState extends State<VirtualCardRequestScreen> {
                 value: state.terms,
                 size: AppCheckboxSize.md,
                 onChanged:
-                    (virtualCardEditable(state) &&
+                    (state.editable &&
                         state.quoteStatus != RequestStatus.loading)
                     ? cubit.acceptTerms
                     : null,
@@ -403,7 +403,7 @@ class _VirtualCardRequestScreenState extends State<VirtualCardRequestScreen> {
         const SizedBox(height: 16),
         AppButton(
           key: const Key('virtual_submit'),
-          onPressed: virtualCardCanSubmit(state)
+          onPressed: state.canSubmit
               ? () {
                   FocusManager.instance.primaryFocus?.unfocus();
                   cubit.submit();

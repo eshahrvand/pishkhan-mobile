@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/password_services/cubit/password_rules.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/password_services/cubit/second_password_cubit.dart';
 import 'package:pishkhan_mobile/l10n/l10n.dart';
 
@@ -20,7 +19,7 @@ class PasswordFlowFooter extends StatelessWidget {
     BuildContext context,
   ) => BlocBuilder<SecondPasswordCubit, SecondPasswordState>(
     buildWhen: (a, b) =>
-        passwordCanContinue(a) != passwordCanContinue(b) ||
+        a.canContinue != b.canContinue ||
         a.status != b.status ||
         a.checkStatus != b.checkStatus ||
         a.submissionStatus != b.submissionStatus ||
@@ -29,7 +28,7 @@ class PasswordFlowFooter extends StatelessWidget {
         a.record != b.record ||
         a.catalog != b.catalog,
     builder: (context, state) {
-      if (passwordIsChange(state) &&
+      if (state.isChange &&
           state.record != null &&
           state.submissionStatus != RequestStatus.success) {
         return Padding(
@@ -66,7 +65,7 @@ class PasswordFlowFooter extends StatelessWidget {
                 ),
                 constraints: const BoxConstraints(minHeight: 44),
                 decoration: BoxDecoration(
-                  color: passwordIsChange(state)
+                  color: state.isChange
                       ? context.colors.surfaceSubtle
                       : context.colors.surface,
                   borderRadius: AppRadius.borderSm,
@@ -120,16 +119,16 @@ class PasswordFlowFooter extends StatelessWidget {
               const SizedBox(height: 16),
             ],
             AppButton(
-              onPressed: passwordCanContinue(state)
+              onPressed: state.canContinue
                   ? () {
                       FocusManager.instance.primaryFocus?.unfocus();
                       context.read<SecondPasswordCubit>().next();
                     }
                   : null,
               label:
-                  passwordIsChange(state) &&
+                  state.isChange &&
                       state.step == SecondPasswordStep.password &&
-                      passwordFormComplete(state)
+                      state.formComplete
                   ? context.l10n.passwordChangeSubmit
                   : state.step == SecondPasswordStep.instruction
                   ? context.l10n.passwordStartKyc

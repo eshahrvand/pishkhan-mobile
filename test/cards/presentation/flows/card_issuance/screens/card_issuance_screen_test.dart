@@ -1,7 +1,5 @@
 import '../../../../../support/router_test_app.dart';
 
-import 'package:pishkhan_mobile/features/cards/presentation/card_issuance/cubit/issuance_rules.dart';
-
 import 'dart:io';
 import 'dart:ui' as ui;
 
@@ -335,7 +333,7 @@ void main() {
       '۱۲۳۴۵۶۷۸۹۰',
     );
     await tap(tester, 'issuance_save_address');
-    expect(issuanceAddress(c.state)!.postalCode, '1234567890');
+    expect(c.state.address!.postalCode, '1234567890');
     expect(find.byType(AppAddressCard), findsOneWidget);
   });
   testWidgets('empty and load error states offer retry', (tester) async {
@@ -403,7 +401,7 @@ void main() {
       await tester.tap(find.text('open'));
       await tester.pumpAndSettle();
       expect(find.byType(CardIssuanceScreen), findsOneWidget);
-      expect(issuanceDeposit(controller(tester).state)!.id, 'deposit-1');
+      expect(controller(tester).state.deposit!.id, 'deposit-1');
     },
   );
   testWidgets(
@@ -419,7 +417,7 @@ void main() {
       await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
       expect(c.state.step, IssuanceStep.delivery);
-      expect(issuanceAddress(c.state)!.id, 'home');
+      expect(c.state.address!.id, 'home');
       final delete = find.descendant(
         of: find.byKey(const Key('issuance_address_card')),
         matching: find.byType(InkWell),
@@ -427,12 +425,12 @@ void main() {
       await tester.tap(delete);
       await tester.pumpAndSettle();
       await tap(tester, 'app_delete_address_cancel');
-      expect(issuanceAddress(c.state)!.id, 'home');
+      expect(c.state.address!.id, 'home');
       await tester.tap(delete);
       await tester.pumpAndSettle();
       await tap(tester, 'app_delete_address_confirm');
-      expect(issuanceAddress(c.state), isNull);
-      expect(issuanceCanContinue(c.state), false);
+      expect(c.state.address, isNull);
+      expect(c.state.canContinue, false);
       expect(find.byKey(const Key('issuance_add_address')), findsOneWidget);
     },
   );

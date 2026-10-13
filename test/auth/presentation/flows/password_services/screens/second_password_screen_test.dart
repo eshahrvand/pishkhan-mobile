@@ -8,8 +8,6 @@ import 'package:pishkhan_mobile/features/auth/auth_routes.dart';
 
 import '../../../../../support/router_test_app.dart';
 
-import 'package:pishkhan_mobile/features/auth/presentation/password_services/cubit/password_rules.dart';
-
 import 'dart:io';
 import 'dart:ui' as ui;
 
@@ -435,7 +433,7 @@ void main() {
         FocusManager.instance.primaryFocus?.unfocus();
         await t.pumpAndSettle();
         expect(controller.state.currentPassword, '123456');
-        expect(passwordCanContinue(controller.state), true);
+        expect(controller.state.canContinue, true);
       }
       if (frame == 'change-submitted') {
         await tap(t, 'password_next');
@@ -549,7 +547,7 @@ void main() {
       await t.pumpAndSettle();
       expect(controller.state.secondPasswordSelected, true);
       expect(controller.state.cardId, 'password-card-1');
-      expect(passwordCanContinue(controller.state), false);
+      expect(controller.state.canContinue, false);
       expect(find.byType(AppInvoice), findsNothing);
       expect(t.getTopLeft(authControl(t, 'password_operation')).dy, 434);
       if (frame == 'operation-sheet') {
@@ -565,7 +563,7 @@ void main() {
         await tap(t, 'password_operation');
         await tap(t, 'password_option_PasswordOperation.forgotPassword');
         expect(controller.state.operation, PasswordOperation.forgotPassword);
-        expect(passwordCanContinue(controller.state), true);
+        expect(controller.state.canContinue, true);
         expect(t.getSize(find.byType(AppInvoice)).height, 130);
       }
       await save(t, frame);

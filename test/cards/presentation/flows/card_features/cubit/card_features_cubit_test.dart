@@ -1,5 +1,4 @@
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
-import 'package:pishkhan_mobile/features/cards/presentation/card_features/cubit/card_features_rules.dart';
 
 import 'dart:async';
 
@@ -14,6 +13,23 @@ import '../support/test_cards_repository.dart';
 
 void main() {
   test(
+    'caller initial State retains its category and initializes display data',
+    () async {
+      final cubit = CardFeaturesCubit(
+        repository: MockCardsRepository(),
+        initialState: const CardFeaturesState(category: CardCategory.gift),
+      );
+      addTearDown(cubit.close);
+      await cubit.load();
+      expect(cubit.state.category, CardCategory.gift);
+      expect(cubit.state.visibleCards, hasLength(4));
+      expect(
+        cubit.state.visibleCards.every((c) => c.category == CardCategory.gift),
+        isTrue,
+      );
+    },
+  );
+  test(
     'loads immutable data and keeps independent category/query/selected state',
     () async {
       final cubit = CardFeaturesCubit(repository: MockCardsRepository());
@@ -21,19 +37,19 @@ void main() {
       final pending = cubit.load();
       expect(cubit.state.status, RequestStatus.loading);
       await pending;
-      expect(cardFeaturesVisibleCards(cubit.state).length, 4);
+      expect(cubit.state.visibleCards.length, 4);
       expect(() => cubit.state.cards!.clear(), throwsUnsupportedError);
       cubit.selectCard('resalat-1');
-      expect(cardFeaturesSelected(cubit.state)!.id, 'resalat-1');
+      expect(cubit.state.selectedCard!.id, 'resalat-1');
       cubit.selectCategory(CardCategory.family);
-      expect(cardFeaturesVisibleCards(cubit.state).length, 2);
-      expect(cardFeaturesSelected(cubit.state), isNull);
+      expect(cubit.state.visibleCards.length, 2);
+      expect(cubit.state.selectedCard, isNull);
       cubit.search('۵۰۴۱ ۷۲۱۴ ۵۶۷۸۳۴۰۷');
-      expect(cardFeaturesVisibleCards(cubit.state).length, 2);
+      expect(cubit.state.visibleCards.length, 2);
       cubit.search('٥٠٤١٧٢١٤٥٦٧٨٣٤٠٧');
-      expect(cardFeaturesVisibleCards(cubit.state).length, 2);
+      expect(cubit.state.visibleCards.length, 2);
       cubit.search('no result');
-      expect(cardFeaturesVisibleCards(cubit.state), isEmpty);
+      expect(cubit.state.visibleCards, isEmpty);
       await cubit.close();
     },
   );
@@ -44,7 +60,7 @@ void main() {
       await cubit.load();
       cubit.beginFilter();
       cubit.setDraft(const CardFilter(status: CardStatus.blocked));
-      expect(cardFeaturesVisibleCards(cubit.state).length, 4);
+      expect(cubit.state.visibleCards.length, 4);
       cubit.cancelFilter();
       expect(cubit.state.filter.isActive, false);
       cubit.beginFilter();
@@ -52,14 +68,14 @@ void main() {
         const CardFilter(status: CardStatus.blocked, deposit: '10-1234567-2'),
       );
       cubit.applyFilter();
-      expect(cardFeaturesVisibleCards(cubit.state).single.id, 'resalat-3');
+      expect(cubit.state.visibleCards.single.id, 'resalat-3');
       cubit.search('۱۰.۱۲۳۴۵۶۷.۲');
-      expect(cardFeaturesVisibleCards(cubit.state).length, 1);
+      expect(cubit.state.visibleCards.length, 1);
       cubit.beginFilter();
       cubit.clearDraftFilter();
       cubit.applyFilter();
       cubit.search('');
-      expect(cardFeaturesVisibleCards(cubit.state).length, 4);
+      expect(cubit.state.visibleCards.length, 4);
       await cubit.close();
     },
   );

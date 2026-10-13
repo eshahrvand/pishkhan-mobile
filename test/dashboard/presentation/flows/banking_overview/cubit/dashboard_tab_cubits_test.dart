@@ -13,11 +13,8 @@ import 'package:pishkhan_mobile/features/dashboard/domain/entities/dashboard_hom
 import 'package:pishkhan_mobile/features/dashboard/domain/entities/dashboard_item.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/home/cubit/dashboard_cubit.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/home/cubit/cards_cubit.dart';
-import 'package:pishkhan_mobile/features/dashboard/presentation/home/cubit/cards_state.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/home/cubit/deposits_cubit.dart';
-import 'package:pishkhan_mobile/features/dashboard/presentation/home/cubit/deposits_state.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/home/cubit/loans_cubit.dart';
-import 'package:pishkhan_mobile/features/dashboard/presentation/home/cubit/loans_state.dart';
 
 import '../../../../support/dashboard_test_repositories.dart';
 

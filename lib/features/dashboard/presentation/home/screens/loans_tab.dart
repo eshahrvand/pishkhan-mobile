@@ -4,7 +4,6 @@ import 'package:pishkhan_mobile/features/dashboard/domain/repositories/dashboard
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_async_view.dart';
 
 import '../cubit/loans_cubit.dart';
-import '../cubit/loans_state.dart';
 
 import 'dart:math' as math;
 
@@ -52,19 +51,15 @@ class _LoansTabState extends State<LoansTab> {
   double? _viewport;
   late final LoansCubit _cubit;
   String? _controllerItems;
-  List<BankLoan> get _items => _cubit.state.status == RequestStatus.success
-      ? _cubit.state.items ?? const []
-      : const [];
-  int get _selected => _items.isEmpty
-      ? 0
-      : _items.indexWhere((item) => item.id == _cubit.state.selectedId);
   @override
   void initState() {
     super.initState();
-    _cubit = LoansCubit(repository: widget.repository)..load();
+    _cubit = LoansCubit(
+      initialState: const LoansState(),
+      repository: widget.repository,
+    )..load();
   }
 
-  BankLoan get _loan => _items[_selected];
   @override
   void didUpdateWidget(covariant LoansTab oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -81,7 +76,7 @@ class _LoansTabState extends State<LoansTab> {
   }
 
   void _request(LoanAction action) => widget.onActionRequested?.call(
-    LoanActionRequest(action: action, loan: _loan),
+    LoanActionRequest(action: action, loan: _cubit.state.selectedLoan!),
   );
 
   Widget _group(
@@ -122,9 +117,7 @@ class _LoansTabState extends State<LoansTab> {
       listener: (context, state) {
         if (state.status == RequestStatus.loading) _controllerItems = null;
         if (state.status == RequestStatus.success && state.items != null) {
-          final selectedIndex = state.items!.indexWhere(
-            (item) => item.id == state.selectedId,
-          );
+          final selectedIndex = state.selectedIndex;
           if (_pages?.hasClients == true &&
               !_pages!.position.isScrollingNotifier.value &&
               ((_pages!.page ?? 0) - selectedIndex).abs() > .01) {
@@ -145,7 +138,7 @@ class _LoansTabState extends State<LoansTab> {
                   showLeadingActions: false,
                   onMenuPressed: widget.onMenuPressed,
                 ),
-                if (_items.isNotEmpty) _carousel(),
+                if (_cubit.state.visibleItems.isNotEmpty) _carousel(),
                 Expanded(
                   child: Stack(
                     children: [
@@ -166,7 +159,7 @@ class _LoansTabState extends State<LoansTab> {
                                 key: const Key("loans_error"),
                                 onRetry: _cubit.load,
                               )
-                            else if (_items.isEmpty)
+                            else if (_cubit.state.visibleItems.isEmpty)
                               Padding(
                                 padding: const EdgeInsets.all(24),
                                 child: Text(
@@ -175,7 +168,7 @@ class _LoansTabState extends State<LoansTab> {
                                   style: AppTypography.bodyMedium,
                                 ),
                               ),
-                            if (_items.isNotEmpty) ...[
+                            if (_cubit.state.visibleItems.isNotEmpty) ...[
                               _group(
                                 'loans_operations',
                                 context.l10n.loansOperations,
@@ -222,7 +215,7 @@ class _LoansTabState extends State<LoansTab> {
   );
   Widget _carousel() => LayoutBuilder(
     builder: (context, constraints) {
-      final single = _items.length == 1;
+      final single = _cubit.state.visibleItems.length == 1;
       final nativeWidth = single ? 335.0 : 316.0;
       const nativeHeight = 236.0;
       final width = math.min(
@@ -235,15 +228,18 @@ class _LoansTabState extends State<LoansTab> {
       if (!single &&
           (_pages == null ||
               _viewport != fraction ||
-              _controllerItems != _items.map((item) => item.id).join("|"))) {
+              _controllerItems !=
+                  _cubit.state.visibleItems.map((item) => item.id).join("|"))) {
         _pages?.dispose();
         _pages = PageController(
-          initialPage: _selected,
+          initialPage: _cubit.state.selectedIndex,
           keepPage: false,
           viewportFraction: fraction,
         );
         _viewport = fraction;
-        _controllerItems = _items.map((item) => item.id).join("|");
+        _controllerItems = _cubit.state.visibleItems
+            .map((item) => item.id)
+            .join("|");
       }
       return SizedBox(
         height: height + 46,
@@ -271,10 +267,12 @@ class _LoansTabState extends State<LoansTab> {
                       child: PageView.builder(
                         key: const Key('loans_carousel'),
                         controller: _pages,
-                        itemCount: _items.length,
+                        itemCount: _cubit.state.visibleItems.length,
                         onPageChanged: (index) {
                           _cubit.select(index);
-                          widget.onSelectedLoanChanged?.call(_loan);
+                          widget.onSelectedLoanChanged?.call(
+                            _cubit.state.selectedLoan!,
+                          );
                         },
                         itemBuilder: (context, index) =>
                             Center(child: _loanCard(index, width, height)),
@@ -289,12 +287,16 @@ class _LoansTabState extends State<LoansTab> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    for (var index = 0; index < _items.length; index++) ...[
+                    for (
+                      var index = 0;
+                      index < _cubit.state.visibleItems.length;
+                      index++
+                    ) ...[
                       if (index > 0) const SizedBox(width: 6),
                       Semantics(
                         button: true,
-                        selected: index == _selected,
-                        label: _items[index].number,
+                        selected: index == _cubit.state.selectedIndex,
+                        label: _cubit.state.visibleItems[index].number,
                         child: InkWell(
                           key: Key('loans_indicator_$index'),
                           onTap: () => _pages!.animateToPage(
@@ -303,10 +305,10 @@ class _LoansTabState extends State<LoansTab> {
                             curve: Curves.easeOut,
                           ),
                           child: Container(
-                            width: index == _selected ? 14 : 6,
+                            width: index == _cubit.state.selectedIndex ? 14 : 6,
                             height: 6,
                             decoration: BoxDecoration(
-                              color: index == _selected
+                              color: index == _cubit.state.selectedIndex
                                   ? AppDashboardColors.navActive
                                   : context.colors.border,
                               borderRadius: AppRadius.borderFull,
@@ -325,14 +327,14 @@ class _LoansTabState extends State<LoansTab> {
   );
 
   Widget _loanCard(int index, double width, double height) {
-    final loan = _items[index];
+    final loan = _cubit.state.visibleItems[index];
     return SizedBox(
       width: width,
       height: height,
       child: FittedBox(
         child: AppLoanCard(
           key: ValueKey('loan_card_${loan.id}'),
-          size: _items.length == 1
+          size: _cubit.state.visibleItems.length == 1
               ? AppLoanCardSize.single
               : AppLoanCardSize.multi,
           cardName: loan.title ?? context.l10n.loansDefaultName,

@@ -1,4 +1,3 @@
-import 'package:pishkhan_mobile/features/cards/presentation/card_issuance/cubit/issuance_rules.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -151,7 +150,7 @@ class IssuanceSelection extends StatelessWidget {
           if (v != null) cubit.selectDeposit(v);
         },
       ),
-      if (issuanceDeposit(state) != null) ...[
+      if (state.deposit != null) ...[
         const SizedBox(height: 12),
         Container(
           key: const Key('issuance_current_card'),
@@ -164,7 +163,7 @@ class IssuanceSelection extends StatelessWidget {
             children: [
               _CurrentCardRow(
                 label: context.l10n.issuanceCurrentCard,
-                value: issuanceDeposit(state)!.cardNumber,
+                value: state.deposit!.cardNumber,
                 asset: AppAssets.issuanceCredit,
               ),
               const SizedBox(height: 12),
@@ -183,7 +182,7 @@ class IssuanceSelection extends StatelessWidget {
               const SizedBox(height: 12),
               _CurrentCardRow(
                 label: context.l10n.issuanceExpiry,
-                value: issuanceDeposit(state)!.expiry,
+                value: state.deposit!.expiry,
                 asset: AppAssets.issuanceCalendar,
               ),
             ],
@@ -319,7 +318,7 @@ class _IssuanceDeliveryState extends State<IssuanceDelivery> {
               AppSelectOption(value: a.id, label: a.title),
           ],
           value: state.draft.addressId,
-          label: issuanceAddress(state) == null
+          label: state.address == null
               ? l.issuanceAddress
               : l.issuanceSelectAddress,
           hint: l.issuanceAddressHint,
@@ -328,13 +327,13 @@ class _IssuanceDeliveryState extends State<IssuanceDelivery> {
           },
         ),
         const SizedBox(height: 12),
-        if (issuanceAddress(state) != null)
+        if (state.address != null)
           AppAddressCard(
             key: const Key('issuance_address_card'),
             variant: AppAddressCardVariant.delivery,
             deleteLabel: l.issuanceDeleteAddress,
-            address: issuanceAddress(state)!.detail,
-            onDeleteTap: () => widget.onDeleteAddress(issuanceAddress(state)!),
+            address: state.address!.detail,
+            onDeleteTap: () => widget.onDeleteAddress(state.address!),
           )
         else
           Align(
@@ -461,7 +460,7 @@ class IssuanceConfirmation extends StatelessWidget {
                 expanded: state.summaryExpanded,
                 child: InkWell(
                   key: const Key('issuance_summary_toggle'),
-                  onTap: issuanceIsEditable(state)
+                  onTap: state.editable
                       ? () => cubit.expandSummary(!state.summaryExpanded)
                       : null,
                   child: Row(
@@ -487,7 +486,7 @@ class IssuanceConfirmation extends StatelessWidget {
                 const SizedBox(height: 16),
                 _SummaryRow(
                   label: l.issuanceDepositNumber,
-                  value: issuanceDeposit(state)!.number,
+                  value: state.deposit!.number,
                   asset: AppAssets.issuanceSummaryDivider,
                 ),
                 const SizedBox(height: 12),
@@ -509,12 +508,12 @@ class IssuanceConfirmation extends StatelessWidget {
           walletLabel: l.issuanceWallet,
           backgroundColor: context.colors.surface,
           labelColor: context.colors.textTertiary,
-          totalAmount: CurrencyFormatter.format(issuanceTotalRial(state)),
+          totalAmount: CurrencyFormatter.format(state.totalRial),
           walletBalance: CurrencyFormatter.format(
             state.catalog!.walletBalanceRial,
           ),
           lines: [
-            for (final fee in issuanceFees(state))
+            for (final fee in state.fees)
               AppInvoiceLine(
                 id: fee.kind.name,
                 label: switch (fee.kind) {
@@ -534,7 +533,7 @@ class IssuanceConfirmation extends StatelessWidget {
           onExpandedChanged: cubit.expandInvoice,
           walletSufficientLabel: l.issuanceWalletSufficient,
           walletInsufficientLabel: l.issuanceWalletInsufficient,
-          isWalletBalanceSufficient: issuanceWalletSufficient(state),
+          isWalletBalanceSufficient: state.walletSufficient,
         ),
         if (state.failure != null) ...[
           const SizedBox(height: 12),

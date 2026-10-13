@@ -1,5 +1,4 @@
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
-import 'package:pishkhan_mobile/features/cards/presentation/card_issuance/cubit/issuance_rules.dart';
 
 import 'dart:async';
 
@@ -63,17 +62,17 @@ void main() {
       c.setNoPhysicalCard(true);
       c.next();
       expect(c.state.step, IssuanceStep.selection);
-      expect(issuanceCanContinue(c.state), false);
+      expect(c.state.canContinue, false);
       c.selectDeposit('deposit-1');
-      expect(issuanceCanContinue(c.state), false);
+      expect(c.state.canContinue, false);
       c.selectType(IssuanceType.newNumber);
-      expect(issuanceCanContinue(c.state), true);
+      expect(c.state.canContinue, true);
       c.next();
       expect(c.state.step, IssuanceStep.confirmation);
-      expect(issuanceRequest(c.state)!.address, isNull);
-      expect(issuanceTotalRial(c.state), 600000);
+      expect(c.state.request!.address, isNull);
+      expect(c.state.totalRial, 600000);
       expect(
-        issuanceFees(c.state).any((f) => f.kind == IssuanceFeeKind.delivery),
+        c.state.fees.any((f) => f.kind == IssuanceFeeKind.delivery),
         false,
       );
       c.back();
@@ -85,14 +84,14 @@ void main() {
     select(c);
     c.next();
     expect(c.state.step, IssuanceStep.delivery);
-    expect(issuanceCanContinue(c.state), false);
+    expect(c.state.canContinue, false);
     c.selectAddress('home');
     c.next();
     expect(c.state.step, IssuanceStep.confirmation);
-    expect(issuanceTotalRial(c.state), 1600000);
-    expect(issuanceCanContinue(c.state), false);
+    expect(c.state.totalRial, 1600000);
+    expect(c.state.canContinue, false);
     c.acceptTerms(true);
-    expect(issuanceCanContinue(c.state), true);
+    expect(c.state.canContinue, true);
     c.back();
     c.selectAddress('home');
     expect(c.state.draft.termsAccepted, false);
@@ -105,7 +104,7 @@ void main() {
       c.next();
       c.selectAddress('home');
       c.setOtherRecipient(true);
-      expect(issuanceCanContinue(c.state), false);
+      expect(c.state.canContinue, false);
       c.setRecipient(
         const DeliveryPerson(
           name: 'گیرنده',
@@ -114,14 +113,14 @@ void main() {
         ),
       );
       expect(c.state.draft.recipient.nationalId, '1234567891');
-      expect(issuanceCanContinue(c.state), true);
+      expect(c.state.canContinue, true);
       c.setIncludeAgent(true);
-      expect(issuanceCanContinue(c.state), false);
+      expect(c.state.canContinue, false);
       c.setAgent(const BankAgent(name: 'کارشناس', code: '۱۲۳'));
-      expect(issuanceCanContinue(c.state), true);
+      expect(c.state.canContinue, true);
       c.next();
-      expect(issuanceRequest(c.state)!.recipient, isNotNull);
-      expect(issuanceRequest(c.state)!.agent!.code, '123');
+      expect(c.state.request!.recipient, isNotNull);
+      expect(c.state.request!.agent!.code, '123');
     },
   );
   test('hidden physical data is excluded from nonphysical request', () async {
@@ -133,9 +132,9 @@ void main() {
     c.back();
     c.setNoPhysicalCard(true);
     c.next();
-    expect(issuanceRequest(c.state)!.address, isNull);
-    expect(issuanceRequest(c.state)!.recipient, isNull);
-    expect(issuanceRequest(c.state)!.agent, isNull);
+    expect(c.state.request!.address, isNull);
+    expect(c.state.request!.recipient, isNull);
+    expect(c.state.request!.agent, isNull);
   });
   test('adding validates postal code, selects address, and deletion clears selection', () async {
     final c = await ready();
@@ -151,10 +150,10 @@ void main() {
       ),
       true,
     );
-    final id = issuanceAddress(c.state)!.id;
-    expect(issuanceAddress(c.state)!.postalCode, '1234567890');
+    final id = c.state.address!.id;
+    expect(c.state.address!.postalCode, '1234567890');
     c.removeAddress(id);
-    expect(issuanceAddress(c.state), isNull);
+    expect(c.state.address, isNull);
     expect(c.state.draft.addressId, isNull);
     expect(c.state.catalog!.addresses.length, 1);
   });
@@ -162,9 +161,9 @@ void main() {
     final c = await ready();
     c.selectDeposit('unknown');
     c.selectAddress('unknown');
-    expect(issuanceDeposit(c.state), isNull);
-    expect(issuanceAddress(c.state), isNull);
-    expect(issuanceSelectionComplete(c.state), false);
+    expect(c.state.deposit, isNull);
+    expect(c.state.address, isNull);
+    expect(c.state.selectionComplete, false);
   });
   test(
     'empty and failed catalogs are represented explicitly and can retry',
@@ -204,7 +203,7 @@ void main() {
       ),
     );
     confirm(c);
-    expect(issuanceCanContinue(c.state), false);
+    expect(c.state.canContinue, false);
     await c.submit();
     expect(c.state.status, RequestStatus.success);
   });
@@ -217,7 +216,7 @@ void main() {
     c.selectDeposit('deposit-2');
     expect(repository.calls, 1);
     expect(c.state.submissionStatus, RequestStatus.loading);
-    expect(issuanceDeposit(c.state)!.id, 'deposit-1');
+    expect(c.state.deposit!.id, 'deposit-1');
     expect(repository.captured!.address!.id, 'home');
     repository.submitting!.complete(repository.submitResult);
     await pending;
@@ -231,7 +230,7 @@ void main() {
     confirm(c);
     await c.submit();
     expect(c.state.failure!.code, 'rejected');
-    expect(issuanceCanContinue(c.state), true);
+    expect(c.state.canContinue, true);
     repository.submitResult = const Success(
       IssuanceReceipt(reference: 'retry', isMock: true),
     );
@@ -256,7 +255,7 @@ void main() {
     );
     addTearDown(c.close);
     await c.load();
-    expect(issuanceDeposit(c.state)!.id, 'deposit-1');
+    expect(c.state.deposit!.id, 'deposit-1');
     expect(c.state.draft.type, isNull);
   });
 }

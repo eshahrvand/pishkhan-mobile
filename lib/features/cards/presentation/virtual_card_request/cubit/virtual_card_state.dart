@@ -9,6 +9,10 @@ part 'virtual_card_state.freezed.dart';
 @freezed
 abstract class VirtualCardState with _$VirtualCardState {
   const factory VirtualCardState({
+    int? count,
+    @Default(false) bool validCount,
+    @Default(false) bool editable,
+    @Default(false) bool canSubmit,
     @Default(RequestStatus.initial) RequestStatus status,
     @Default(RequestStatus.initial) RequestStatus quoteStatus,
     @Default(RequestStatus.initial) RequestStatus submissionStatus,

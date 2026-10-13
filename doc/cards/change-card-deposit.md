@@ -30,7 +30,7 @@ The category-level `CardServicesRepository` is shared with the [expired gift bal
 
 ## UI composition
 
-The screen owns Cubit lifecycle, navigation and completion effects; the form owns the substantial input/invoice section. Inputs use `avp_ui` `AppSelect` directly, including the disabled current-deposit field. Buttons and checkboxes also come from `avp_ui`; the existing app invoice and top bar are reused. Shared request footer/status/spacing components are grouped under `presentation/shared/`, rather than creating a file per label or field. Handwritten UI files follow the widget skill's approximate 200-line target and allow cohesive sections around 200–300 lines.
+The screen supplies a `BlocProvider` whose `create` constructs the Cubit and calls `load()`. The provider closes it on removal and preserves it across ordinary rebuilds. Changing the repository or initial card starts a new provider scope. UI reads status and step directly from State. The Cubit computes selected records, empty-data state and action eligibility before emitting immutable State fields; no custom getters are defined. The view owns navigation and completion effects; the form owns the substantial input/invoice section. Inputs use `avp_ui` `AppSelect` directly, including the disabled current-deposit field. Buttons and checkboxes also come from `avp_ui`; the existing app invoice and top bar are reused. Shared request footer/status/spacing components are grouped under `presentation/shared/`, rather than creating a file per label or field. Handwritten UI files follow the widget skill's approximate 200-line target and allow cohesive sections around 200–300 lines.
 
 All new copy is localized in the Persian, English and Arabic ARBs. App controls remain RTL in every locale; card display grouping uses the package formatter. Original Figma helper icons are bundled locally; runtime code has no temporary Figma URLs.
 
@@ -45,3 +45,7 @@ CAPTURE_CARD_SERVICE_PREVIEWS=1 flutter test test/cards/card_services/card_servi
 ```
 
 They go to ignored `build/previews/card-services/`; no screenshots or galleries belong in `doc/`.
+
+## Cubit/State coding convention
+
+Follow [architecture Section 12](../architecture-smart-virtual-counter-v2-en.md#12-state-management-with-cubit) for new work and refactors. State is a plain Freezed data class with defaults and independent request statuses. Cubits accept an initial State, compute UI data and eligibility, and emit immutable snapshots through `copyWith`. UI reads those fields directly; no custom State/Cubit getters or UI-facing rules facade is used. Dependencies remain injectable and lifecycle/duplicate-request safeguards stay in place.

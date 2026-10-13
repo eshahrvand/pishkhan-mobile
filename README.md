@@ -27,6 +27,8 @@ samples, guidance on mobile development, and a full API reference.
 
 ## Documentation
 
+The authoritative Cubit/State coding convention is [architecture Section 12](doc/architecture-smart-virtual-counter-v2-en.md#12-state-management-with-cubit). New work and refactors use plain Freezed State fields, direct UI reads and Cubit-owned calculations.
+
 Each flow has one development document. Related card flows share `doc/cards/`.
 Visual captures are not stored in `doc`; optional test captures use ignored
 `build/previews/` output.

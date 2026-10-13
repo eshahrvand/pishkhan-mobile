@@ -1,5 +1,3 @@
-import 'package:pishkhan_mobile/features/cards/presentation/card_features/cubit/card_features_rules.dart';
-
 import 'dart:ui' as ui;
 
 import 'package:avp_ui/avp_ui.dart';
@@ -288,7 +286,7 @@ Future<void> showCardFilter(
                         value: 'all',
                         label: context.l10n.cardFeatureAll,
                       ),
-                      for (final deposit in cardFeaturesDeposits(state))
+                      for (final deposit in state.deposits)
                         AppSelectOption(value: deposit, label: deposit),
                     ],
                     onChanged: (value) => cubit.setDraft(

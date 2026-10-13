@@ -4,7 +4,6 @@ import 'package:pishkhan_mobile/features/dashboard/domain/repositories/dashboard
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_async_view.dart';
 
 import '../cubit/deposits_cubit.dart';
-import '../cubit/deposits_state.dart';
 
 import 'dart:math' as math;
 
@@ -51,19 +50,15 @@ class _DepositsTabState extends State<DepositsTab> {
   double? _viewport;
   late final DepositsCubit _cubit;
   String? _controllerItems;
-  List<BankDeposit> get _items => _cubit.state.status == RequestStatus.success
-      ? _cubit.state.items ?? const []
-      : const [];
-  int get _selected => _items.isEmpty
-      ? 0
-      : _items.indexWhere((item) => item.id == _cubit.state.selectedId);
   @override
   void initState() {
     super.initState();
-    _cubit = DepositsCubit(repository: widget.repository)..load();
+    _cubit = DepositsCubit(
+      initialState: const DepositsState(),
+      repository: widget.repository,
+    )..load();
   }
 
-  BankDeposit get _deposit => _items[_selected];
   @override
   void didUpdateWidget(covariant DepositsTab oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -80,7 +75,10 @@ class _DepositsTabState extends State<DepositsTab> {
   }
 
   void _request(DepositAction action) => widget.onActionRequested?.call(
-    DepositActionRequest(action: action, deposit: _deposit),
+    DepositActionRequest(
+      action: action,
+      deposit: _cubit.state.selectedDeposit!,
+    ),
   );
 
   Widget _group(
@@ -121,9 +119,7 @@ class _DepositsTabState extends State<DepositsTab> {
       listener: (context, state) {
         if (state.status == RequestStatus.loading) _controllerItems = null;
         if (state.status == RequestStatus.success && state.items != null) {
-          final selectedIndex = state.items!.indexWhere(
-            (item) => item.id == state.selectedId,
-          );
+          final selectedIndex = state.selectedIndex;
           if (_pages?.hasClients == true &&
               !_pages!.position.isScrollingNotifier.value &&
               ((_pages!.page ?? 0) - selectedIndex).abs() > .01) {
@@ -144,7 +140,7 @@ class _DepositsTabState extends State<DepositsTab> {
                   showLeadingActions: false,
                   onMenuPressed: widget.onMenuPressed,
                 ),
-                if (_items.isNotEmpty) _carousel(),
+                if (_cubit.state.visibleItems.isNotEmpty) _carousel(),
                 Expanded(
                   child: Stack(
                     children: [
@@ -165,7 +161,7 @@ class _DepositsTabState extends State<DepositsTab> {
                                 key: const Key("deposits_error"),
                                 onRetry: _cubit.load,
                               )
-                            else if (_items.isEmpty)
+                            else if (_cubit.state.visibleItems.isEmpty)
                               Padding(
                                 padding: const EdgeInsets.all(24),
                                 child: Text(
@@ -174,14 +170,17 @@ class _DepositsTabState extends State<DepositsTab> {
                                   style: AppTypography.bodyMedium,
                                 ),
                               ),
-                            if (_items.isNotEmpty) ...[
+                            if (_cubit.state.visibleItems.isNotEmpty) ...[
                               _group(
                                 'deposits_operations',
                                 context.l10n.depositsOperations,
                                 DepositAction.operations,
                               ),
                               const SizedBox(height: 16),
-                              if (_deposit.hasChequeOperations) ...[
+                              if (_cubit
+                                  .state
+                                  .selectedDeposit!
+                                  .hasChequeOperations) ...[
                                 _group(
                                   'deposits_cheque_operations',
                                   context.l10n.depositsChequeOperations,
@@ -229,7 +228,7 @@ class _DepositsTabState extends State<DepositsTab> {
   );
   Widget _carousel() => LayoutBuilder(
     builder: (context, constraints) {
-      final single = _items.length == 1;
+      final single = _cubit.state.visibleItems.length == 1;
       final nativeWidth = single ? 335.0 : 316.0;
       final nativeHeight = single ? 202.0 : 191.0;
       final width = math.min(
@@ -242,15 +241,18 @@ class _DepositsTabState extends State<DepositsTab> {
       if (!single &&
           (_pages == null ||
               _viewport != fraction ||
-              _controllerItems != _items.map((item) => item.id).join("|"))) {
+              _controllerItems !=
+                  _cubit.state.visibleItems.map((item) => item.id).join("|"))) {
         _pages?.dispose();
         _pages = PageController(
-          initialPage: _selected,
+          initialPage: _cubit.state.selectedIndex,
           keepPage: false,
           viewportFraction: fraction,
         );
         _viewport = fraction;
-        _controllerItems = _items.map((item) => item.id).join("|");
+        _controllerItems = _cubit.state.visibleItems
+            .map((item) => item.id)
+            .join("|");
       }
       return SizedBox(
         height: single ? height + 35 : height + 46,
@@ -278,10 +280,12 @@ class _DepositsTabState extends State<DepositsTab> {
                       child: PageView.builder(
                         key: const Key('deposits_carousel'),
                         controller: _pages,
-                        itemCount: _items.length,
+                        itemCount: _cubit.state.visibleItems.length,
                         onPageChanged: (index) {
                           _cubit.select(index);
-                          widget.onSelectedDepositChanged?.call(_deposit);
+                          widget.onSelectedDepositChanged?.call(
+                            _cubit.state.selectedDeposit!,
+                          );
                         },
                         itemBuilder: (context, index) =>
                             Center(child: _depositCard(index, width, height)),
@@ -296,12 +300,16 @@ class _DepositsTabState extends State<DepositsTab> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    for (var index = 0; index < _items.length; index++) ...[
+                    for (
+                      var index = 0;
+                      index < _cubit.state.visibleItems.length;
+                      index++
+                    ) ...[
                       if (index > 0) const SizedBox(width: 6),
                       Semantics(
                         button: true,
-                        selected: index == _selected,
-                        label: _items[index].number,
+                        selected: index == _cubit.state.selectedIndex,
+                        label: _cubit.state.visibleItems[index].number,
                         child: InkWell(
                           key: Key('deposits_indicator_$index'),
                           onTap: () => _pages!.animateToPage(
@@ -310,10 +318,10 @@ class _DepositsTabState extends State<DepositsTab> {
                             curve: Curves.easeOut,
                           ),
                           child: Container(
-                            width: index == _selected ? 14 : 6,
+                            width: index == _cubit.state.selectedIndex ? 14 : 6,
                             height: 6,
                             decoration: BoxDecoration(
-                              color: index == _selected
+                              color: index == _cubit.state.selectedIndex
                                   ? AppDashboardColors.navActive
                                   : context.colors.border,
                               borderRadius: AppRadius.borderFull,
@@ -332,14 +340,14 @@ class _DepositsTabState extends State<DepositsTab> {
   );
 
   Widget _depositCard(int index, double width, double height) {
-    final deposit = _items[index];
+    final deposit = _cubit.state.visibleItems[index];
     return SizedBox(
       width: width,
       height: height,
       child: FittedBox(
         child: AppDepositCard(
           key: ValueKey('deposit_card_${deposit.id}'),
-          size: _items.length == 1
+          size: _cubit.state.visibleItems.length == 1
               ? AppDepositCardSize.single
               : AppDepositCardSize.multi,
           cardType: deposit.typeLabel,

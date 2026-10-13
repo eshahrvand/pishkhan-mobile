@@ -1,7 +1,6 @@
 import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
 import 'package:pishkhan_mobile/core/router/card_features_navigation.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
-import 'package:pishkhan_mobile/features/cards/presentation/card_features/cubit/card_features_rules.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -44,6 +43,7 @@ class _CardFeaturesScreenState extends State<CardFeaturesScreen> {
   void initState() {
     super.initState();
     _cubit = CardFeaturesCubit(
+      initialState: const CardFeaturesState(),
       repository: widget.repository ?? MockCardsRepository(),
       initialCategory: widget.initialCategory,
     )..load();
@@ -96,7 +96,11 @@ class _CardFeaturesScreenState extends State<CardFeaturesScreen> {
     } else if (action == CardFeatureAction.requestVirtual) {
       openCardFeaturesService(context, 'card-virtual-request');
     } else if (action == CardFeatureAction.changeDeposit) {
-      openCardFeaturesService(context, 'card-deposit', initialCardNumber: card?.number);
+      openCardFeaturesService(
+        context,
+        'card-deposit',
+        initialCardNumber: card?.number,
+      );
     } else if (action == CardFeatureAction.expiredGiftBalance) {
       openCardFeaturesService(context, 'card-expired-gift');
     } else if (action == CardFeatureAction.reissue) {
@@ -338,7 +342,7 @@ class _CardFeaturesScreenState extends State<CardFeaturesScreen> {
         ),
       );
     }
-    final cards = cardFeaturesVisibleCards(state);
+    final cards = state.visibleCards;
     if (cards.isEmpty) {
       return Center(
         child: Text(

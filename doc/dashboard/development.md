@@ -83,7 +83,7 @@ The architectural product targets Android, iOS and mobile Safari as the iOS fall
 | --- | --- | --- |
 | Widgets | Flutter Material, public avp_ui primitives and existing shared widgets | Dedicated banking pages and reviewed variants |
 | State | flutter_bloc; DashboardCubit, DashboardNavigationCubit, CardsCubit, DepositsCubit, LoansCubit | Same Cubits with service-backed repositories |
-| Equality | Equatable 2.0.7; immutable entity/state collections | Keep immutable state contracts |
+| Equality | Equatable 2.0.7 domain entities; Freezed State and immutable collections | Keep immutable state contracts |
 | Domain | Dashboard summary entities, repository interfaces and loading use cases | Validated service DTO mapping |
 | Data | Async mock repository implementations and centralized mock fixtures | Remote datasources, transport DTOs, mappers and live repositories |
 | Localization/artwork | fa/en/ar ARBs, local AppAssets, flutter_svg and PNGs | Optional remote icon resolver/cache |
@@ -103,7 +103,7 @@ The local SDK requires access to its cache outside the repository when generatin
 
 ## 5. Third-Party Dependency Governance
 
-Equatable `^2.0.7` is added to implement the architecture's value-equality state rule without generated state code; the selected version is recorded in pubspec.lock. Existing flutter_bloc is retained. No HTTP, DI, image-caching or routing dependency is introduced.
+Equatable `^2.0.7` provides domain entity equality; all Cubit State classes use Freezed and generated `copyWith`/equality. The selected versions are recorded in pubspec.lock. Existing flutter_bloc is retained. No HTTP, DI, image-caching or routing dependency is introduced.
 
 A future remote icon implementation still needs an approved caching strategy. Existing SVG and artwork asset callsites do not accept arbitrary URLs. Introducing repository contracts does not by itself implement remote images, API decoding or durable storage.
 
@@ -712,7 +712,7 @@ success([]) -> Empty (no selected entity/actions)
 Error -> retry -> same repository -> new load result
 ```
 
-Tab load factories receive detached item snapshots. Card number parts and visibility maps cannot be mutated through state getters. Card visibility defaults to revealed for single-card layouts and hidden for multiple-card layouts; explicit per-ID choices survive selection/reload when the ID remains.
+Tab load factories receive detached item snapshots. Card number parts and visibility maps cannot be mutated through State fields. Card visibility defaults to revealed for single-card layouts and hidden for multiple-card layouts; explicit per-ID choices survive selection/reload when the ID remains.
 
 Cubit `select` ignores out-of-range indices and nonloaded states. A monotonically increasing request token makes the newest load win; completion after Cubit.close does not emit. Close invalidates pending responses; this guards emission, not transport cancellation.
 
@@ -1057,3 +1057,7 @@ Customization allows at most eight unique services. Draft additions/removals do 
 `onServiceRequested`, `onPromptSubmitted`, `onMenuPressed` and `onProfilePressed` remain caller integration points. Durable storage and banking service execution belong to the caller.
 
 The search frame repeats the card-deposit text under Wallet, while the all-services frame labels it as the wallet deposit. The implementation keeps the wallet-specific catalog label and service ID in search.
+
+## Cubit/State coding convention
+
+Follow [architecture Section 12](../architecture-smart-virtual-counter-v2-en.md#12-state-management-with-cubit) for new work and refactors. State is a plain Freezed data class with defaults and independent request statuses. Cubits accept an initial State, compute UI data and eligibility, and emit immutable snapshots through `copyWith`. UI reads those fields directly; no custom State/Cubit getters or UI-facing rules facade is used. Dependencies remain injectable and lifecycle/duplicate-request safeguards stay in place.

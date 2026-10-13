@@ -1,6 +1,5 @@
 import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
-import 'package:pishkhan_mobile/features/cards/presentation/card_issuance/cubit/issuance_rules.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -41,6 +40,7 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
   void initState() {
     super.initState();
     cubit = CardIssuanceCubit(
+      initialState: const CardIssuanceState(),
       repository: widget.repository ?? MockCardIssuanceRepository(),
       initialDepositNumber: widget.initialDepositNumber,
     )..load();
@@ -115,7 +115,6 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
         }
       },
       builder: (context, state) {
-        final confirmation = state.step == IssuanceStep.confirmation;
         final stepNumber = state.step.index + 1;
         final title = switch (state.step) {
           IssuanceStep.selection => context.l10n.issuanceSelectionTitle,
@@ -180,9 +179,7 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
                                     .issuanceStepSemantic(stepNumber, 3, title),
                               ),
                             ),
-                            Expanded(
-                              child: _body(context, state, confirmation),
-                            ),
+                            Expanded(child: _body(context, state)),
                           ],
                         ),
                         if (state.status == RequestStatus.success &&
@@ -191,7 +188,9 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
                             state.catalog?.types.isNotEmpty == true) ...[
                           Positioned(
                             left: 16,
-                            bottom: confirmation ? 136 : 76,
+                            bottom: (state.step == IssuanceStep.confirmation)
+                                ? 136
+                                : 76,
                             child: AppAssistantButton(
                               key: const Key('issuance_assistant'),
                               onPressed: widget.onAssistantPressed ?? _back,
@@ -201,7 +200,7 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
                             left: 0,
                             right: 0,
                             bottom: 0,
-                            child: _footer(context, state, confirmation),
+                            child: _footer(context, state),
                           ),
                         ],
                       ],
@@ -215,11 +214,7 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
       },
     ),
   );
-  Widget _body(
-    BuildContext context,
-    CardIssuanceState state,
-    bool confirmation,
-  ) {
+  Widget _body(BuildContext context, CardIssuanceState state) {
     if (state.status == RequestStatus.initial ||
         state.status == RequestStatus.loading) {
       return Center(
@@ -286,9 +281,14 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
       key: const Key('issuance_scroll'),
       controller: scroll,
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-      padding: EdgeInsets.fromLTRB(16, 0, 16, confirmation ? 196 : 136),
+      padding: EdgeInsets.fromLTRB(
+        16,
+        0,
+        16,
+        (state.step == IssuanceStep.confirmation) ? 196 : 136,
+      ),
       child: AbsorbPointer(
-        absorbing: !issuanceIsEditable(state),
+        absorbing: !state.editable,
         child: switch (state.step) {
           IssuanceStep.selection => IssuanceSelection(
             state: state,
@@ -309,17 +309,13 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
     );
   }
 
-  Widget _footer(
-    BuildContext context,
-    CardIssuanceState state,
-    bool confirmation,
-  ) => Container(
+  Widget _footer(BuildContext context, CardIssuanceState state) => Container(
     color: context.colors.surfaceSubtle,
     padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (confirmation) ...[
+        if (state.step == IssuanceStep.confirmation) ...[
           Container(
             key: const Key('issuance_terms_row'),
             constraints: const BoxConstraints(minHeight: 44),
@@ -336,9 +332,7 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
                     key: const Key('issuance_terms_checkbox'),
                     value: state.draft.termsAccepted,
                     size: AppCheckboxSize.md,
-                    onChanged: issuanceIsEditable(state)
-                        ? cubit.acceptTerms
-                        : null,
+                    onChanged: state.editable ? cubit.acceptTerms : null,
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -379,7 +373,7 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
         AppButton(
           key: const Key('issuance_continue'),
           size: AppButtonSize.lg,
-          label: confirmation
+          label: (state.step == IssuanceStep.confirmation)
               ? context.l10n.issuanceSubmit
               : context.l10n.issuanceNext,
           labelStyle: AppTypography.titleSmall.copyWith(
@@ -389,9 +383,9 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
           ),
           constrainLabel: true,
           isLoading: state.submissionStatus == RequestStatus.loading,
-          onPressed: issuanceCanContinue(state)
+          onPressed: state.canContinue
               ? () {
-                  if (confirmation) {
+                  if (state.step == IssuanceStep.confirmation) {
                     cubit.submit();
                   } else {
                     cubit.next();

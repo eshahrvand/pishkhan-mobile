@@ -79,3 +79,7 @@ Six unit cases cover validation, quote ordering/binding, consent/wallet, retry i
 ## 20. Remaining integration
 
 Authoritative deposit eligibility/limits, consistent bank tariff, quote expiry/repricing policy, official terms/version, production receipt/card-list refresh and any bank-required KYC remain undefined. A new quote must require renewed consent. The provided two-frame UI is complete with mock execution; it does not claim production banking behavior.
+
+## Cubit/State coding convention
+
+Follow [architecture Section 12](../architecture-smart-virtual-counter-v2-en.md#12-state-management-with-cubit) for new work and refactors. State is a plain Freezed data class with defaults and independent request statuses. Cubits accept an initial State, compute UI data and eligibility, and emit immutable snapshots through `copyWith`. UI reads those fields directly; no custom State/Cubit getters or UI-facing rules facade is used. Dependencies remain injectable and lifecycle/duplicate-request safeguards stay in place.

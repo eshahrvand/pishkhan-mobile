@@ -1,8 +1,6 @@
 import '../../../../../support/auth_ui_finders.dart';
 import '../../../../../support/router_test_app.dart';
 
-import 'package:pishkhan_mobile/features/auth/presentation/login/cubit/auth_rules.dart';
-
 import 'dart:io';
 import 'dart:ui' as ui;
 
@@ -14,7 +12,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/login/screens/auth_screen.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/login/cubit/auth_cubit.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/login/cubit/auth_state.dart';
 import 'package:pishkhan_mobile/l10n/l10n.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/shared/auth_assets.dart';
 
@@ -145,12 +142,15 @@ void main() {
         onAuthenticated: () => submitted = true,
       );
       expect(tester.takeException(), isNull);
-      for (final input in tester.widgetList<TextField>(find.byType(TextField))) {
+      for (final input in tester.widgetList<TextField>(
+        find.byType(TextField),
+      )) {
         expect(input.textDirection, TextDirection.rtl);
         expect(input.textAlign, TextAlign.start);
       }
       expect(tester.getTopLeft(authControl(tester, 'auth_menu_button')).dy, 28);
-      if (authIsOtp(state)) {
+      if (state.step == AuthStep.loginOtp ||
+          state.step == AuthStep.changePhoneOtp) {
         expect(find.text('کد ارسال شد.'), findsOneWidget);
         final submit = authControl(tester, 'submit_otp_button');
         expect(tester.getSize(submit).height, 44);
@@ -161,7 +161,7 @@ void main() {
         await preview(tester, name);
         await tester.tap(submit);
         await tester.pump();
-        expect(submitted, authIsOtpValid(state));
+        expect(submitted, name.endsWith('enter-otp'));
       } else {
         final nationalId = authControl(
           tester,
@@ -170,7 +170,10 @@ void main() {
         expect(tester.getSize(nationalId).height, 44);
         expect(
           tester.getTopLeft(nationalId).dy,
-          authIsChangePhone(state) ? 200 : 180,
+          (state.step == AuthStep.changePhone ||
+                  state.step == AuthStep.changePhoneOtp)
+              ? 200
+              : 180,
         );
         expect(
           tester.getSize(authControl(tester, 'auth_captcha_image')).width,
@@ -180,7 +183,10 @@ void main() {
         expect(tester.getSize(submit).height, 40);
         expect(
           tester.getTopLeft(submit).dy,
-          authIsChangePhone(state) ? 456 : 412,
+          (state.step == AuthStep.changePhone ||
+                  state.step == AuthStep.changePhoneOtp)
+              ? 456
+              : 412,
         );
         await preview(tester, name);
       }

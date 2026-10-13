@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import 'package:pishkhan_mobile/features/auth/presentation/password_services/cubit/password_rules.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/password_services/cubit/second_password_cubit.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/password_services/widgets/password_styles.dart';
 import 'package:pishkhan_mobile/l10n/l10n.dart';
@@ -53,7 +52,7 @@ class _PasswordFormState extends State<SecondPasswordForm> {
   @override
   Widget build(BuildContext context) {
     final c = context.read<SecondPasswordCubit>(), l = context.l10n;
-    final change = passwordIsChange(c.state);
+    final change = c.state.isChange;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -196,9 +195,9 @@ class PasswordRules extends StatelessWidget {
       builder: (context, state) => Column(
         children: [
           for (final rule in [
-            (l.passwordLengthRule, passwordLengthValid(state)),
-            (l.passwordPatternRule, passwordPatternValid(state)),
-            (l.passwordDateRule, passwordDateValid(state)),
+            (l.passwordLengthRule, state.lengthValid),
+            (l.passwordPatternRule, state.patternValid),
+            (l.passwordDateRule, state.dateValid),
           ]) ...[
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,

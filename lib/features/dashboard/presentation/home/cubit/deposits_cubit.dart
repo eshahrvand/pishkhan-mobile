@@ -6,11 +6,14 @@ import '../../../domain/entities/bank_deposit.dart';
 import '../../../domain/repositories/dashboard_repositories.dart';
 import '../../../domain/usecases/home.dart';
 import 'deposits_state.dart';
+export 'deposits_state.dart';
 
 class DepositsCubit extends Cubit<DepositsState> {
-  DepositsCubit({required DashboardDepositsRepository repository})
-    : _loadItems = LoadDashboardItems(repository.getDeposits),
-      super(const DepositsState());
+  DepositsCubit({
+    DepositsState initialState = const DepositsState(),
+    required DashboardDepositsRepository repository,
+  }) : _loadItems = LoadDashboardItems(repository.getDeposits),
+       super(_prepareState(initialState));
 
   LoadDashboardItems<BankDeposit> _loadItems;
   int _request = 0;
@@ -18,22 +21,32 @@ class DepositsCubit extends Cubit<DepositsState> {
   Future<void> load() async {
     final token = ++_request;
     final previous = state;
-    emit(state.copyWith(status: RequestStatus.loading, failure: null));
+    emit(
+      _prepareState(
+        state.copyWith(status: RequestStatus.loading, failure: null),
+      ),
+    );
     final result = await _loadItems();
     if (isClosed || token != _request) return;
     switch (result) {
       case Err(:final failure):
-        emit(state.copyWith(status: RequestStatus.failure, failure: failure));
+        emit(
+          _prepareState(
+            state.copyWith(status: RequestStatus.failure, failure: failure),
+          ),
+        );
       case Success(:final data):
         final items = data.isEmpty ? null : data;
         final id = data.any((item) => item.id == previous.selectedId)
             ? previous.selectedId
             : data.firstOrNull?.id;
         emit(
-          state.copyWith(
-            status: RequestStatus.success,
-            items: items,
-            selectedId: id,
+          _prepareState(
+            state.copyWith(
+              status: RequestStatus.success,
+              items: items,
+              selectedId: id,
+            ),
           ),
         );
     }
@@ -53,12 +66,26 @@ class DepositsCubit extends Cubit<DepositsState> {
         index >= items.length) {
       return;
     }
-    emit(current.copyWith(selectedId: items[index].id));
+    emit(_prepareState(current.copyWith(selectedId: items[index].id)));
   }
 
   @override
   Future<void> close() {
     _request++;
     return super.close();
+  }
+
+  static DepositsState _prepareState(DepositsState next) {
+    final items = next.status == RequestStatus.success
+        ? next.items ?? const <BankDeposit>[]
+        : const <BankDeposit>[];
+    final selectedIndex = items.indexWhere(
+      (item) => item.id == next.selectedId,
+    );
+    return next.copyWith(
+      visibleItems: items,
+      selectedIndex: selectedIndex < 0 ? 0 : selectedIndex,
+      selectedDeposit: selectedIndex < 0 ? null : items[selectedIndex],
+    );
   }
 }

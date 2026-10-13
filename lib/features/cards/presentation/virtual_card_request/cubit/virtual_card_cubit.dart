@@ -1,6 +1,5 @@
 import 'package:pishkhan_mobile/features/cards/domain/repositories/virtual_card_repository.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
-import 'package:pishkhan_mobile/features/cards/presentation/virtual_card_request/cubit/virtual_card_rules.dart';
 
 import 'dart:math';
 
@@ -16,8 +15,11 @@ import '../../../domain/entities/virtual_card_data.dart';
 import '../../../domain/usecases/virtual_card_request.dart';
 
 class VirtualCardCubit extends Cubit<VirtualCardState> {
-  VirtualCardCubit({required this.repository, this.initialDepositNumber})
-    : super(const VirtualCardState());
+  VirtualCardCubit({
+    VirtualCardState initialState = const VirtualCardState(),
+    required this.repository,
+    this.initialDepositNumber,
+  }) : super(_prepareState(initialState));
   final VirtualCardRepository repository;
   final String? initialDepositNumber;
   int _generation = 0;
@@ -26,25 +28,31 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
     final generation = ++_generation;
     _key = null;
     emit(
-      state.copyWith(
-        status: RequestStatus.loading,
-        quoteStatus: RequestStatus.initial,
-        submissionStatus: RequestStatus.initial,
-        catalog: null,
-        depositId: null,
-        countText: '',
-        quote: null,
-        terms: false,
-        expanded: true,
-        failure: null,
-        receipt: null,
+      _prepareState(
+        state.copyWith(
+          status: RequestStatus.loading,
+          quoteStatus: RequestStatus.initial,
+          submissionStatus: RequestStatus.initial,
+          catalog: null,
+          depositId: null,
+          countText: '',
+          quote: null,
+          terms: false,
+          expanded: true,
+          failure: null,
+          receipt: null,
+        ),
       ),
     );
     final result = await LoadVirtualCardCatalog(repository)();
     if (isClosed || generation != _generation) return;
     switch (result) {
       case Err(:final failure):
-        emit(VirtualCardState(status: RequestStatus.failure, failure: failure));
+        emit(
+          _prepareState(
+            VirtualCardState(status: RequestStatus.failure, failure: failure),
+          ),
+        );
       case Success(:final data):
         String? selected;
         for (final d in data.deposits) {
@@ -55,94 +63,112 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
           }
         }
         emit(
-          VirtualCardState(
-            status: RequestStatus.success,
-            catalog: data,
-            depositId: selected,
+          _prepareState(
+            VirtualCardState(
+              status: RequestStatus.success,
+              catalog: data,
+              depositId: selected,
+            ),
           ),
         );
     }
   }
 
   Future<void> selectDeposit(String id) async {
-    if (!virtualCardEditable(state) ||
+    if (!state.editable ||
         id == state.depositId ||
         !(state.catalog?.deposits.any((d) => d.id == id) ?? false)) {
       return;
     }
     _key = null;
     emit(
-      state.copyWith(depositId: id, quote: null, terms: false, failure: null),
+      _prepareState(
+        state.copyWith(depositId: id, quote: null, terms: false, failure: null),
+      ),
     );
     await refreshQuote();
   }
 
   Future<void> countChanged(String text) async {
-    if (!virtualCardEditable(state)) return;
+    if (!state.editable) return;
     final normalized = DigitNormalizer.normalize(text).trim();
     if (normalized == state.countText) return;
     _key = null;
     emit(
-      state.copyWith(
-        countText: normalized,
-        quote: null,
-        terms: false,
-        failure: null,
+      _prepareState(
+        state.copyWith(
+          countText: normalized,
+          quote: null,
+          terms: false,
+          failure: null,
+        ),
       ),
     );
     await refreshQuote();
   }
 
   Future<void> refreshQuote() async {
-    if (!virtualCardEditable(state)) return;
+    if (!state.editable) return;
     final generation = ++_generation;
     _key = null;
-    if (state.depositId == null || !virtualCardValidCount(state)) {
+    if (state.depositId == null || !state.validCount) {
       emit(
-        state.copyWith(
-          quoteStatus: RequestStatus.initial,
-          quote: null,
-          terms: false,
+        _prepareState(
+          state.copyWith(
+            quoteStatus: RequestStatus.initial,
+            quote: null,
+            terms: false,
+          ),
         ),
       );
       return;
     }
     emit(
-      state.copyWith(
-        quoteStatus: RequestStatus.loading,
-        quote: null,
-        terms: false,
-        failure: null,
+      _prepareState(
+        state.copyWith(
+          quoteStatus: RequestStatus.loading,
+          quote: null,
+          terms: false,
+          failure: null,
+        ),
       ),
     );
     final result = await QuoteVirtualCards(repository)(
       state.depositId!,
-      virtualCardCount(state)!,
+      state.count!,
     );
     if (isClosed || generation != _generation) return;
     switch (result) {
       case Err(:final failure):
         emit(
-          state.copyWith(quoteStatus: RequestStatus.failure, failure: failure),
+          _prepareState(
+            state.copyWith(
+              quoteStatus: RequestStatus.failure,
+              failure: failure,
+            ),
+          ),
         );
       case Success(:final data):
-        emit(state.copyWith(quoteStatus: RequestStatus.success, quote: data));
+        emit(
+          _prepareState(
+            state.copyWith(quoteStatus: RequestStatus.success, quote: data),
+          ),
+        );
     }
   }
 
   void acceptTerms(bool value) {
-    if ((virtualCardEditable(state) &&
-        state.quoteStatus != RequestStatus.loading)) {
-      emit(state.copyWith(terms: value));
+    if ((state.editable && state.quoteStatus != RequestStatus.loading)) {
+      emit(_prepareState(state.copyWith(terms: value)));
     }
   }
 
   void setExpanded(bool value) {
-    if (virtualCardEditable(state)) emit(state.copyWith(expanded: value));
+    if (state.editable) emit(_prepareState(state.copyWith(expanded: value)));
   }
 
   Future<void> submit() async {
-    if (!virtualCardCanSubmit(state)) return;
+    if (!state.canSubmit) return;
     _key ??= List.generate(
       16,
       (_) => Random.secure().nextInt(256).toRadixString(16).padLeft(2, '0'),
@@ -153,23 +179,29 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
     );
     final generation = ++_generation;
     emit(
-      state.copyWith(submissionStatus: RequestStatus.loading, failure: null),
+      _prepareState(
+        state.copyWith(submissionStatus: RequestStatus.loading, failure: null),
+      ),
     );
     final result = await virtualCardBoundary(() => repository.submit(request));
     if (isClosed || generation != _generation) return;
     switch (result) {
       case Err(:final failure):
         emit(
-          state.copyWith(
-            submissionStatus: RequestStatus.failure,
-            failure: failure,
+          _prepareState(
+            state.copyWith(
+              submissionStatus: RequestStatus.failure,
+              failure: failure,
+            ),
           ),
         );
       case Success(:final data):
         emit(
-          state.copyWith(
-            submissionStatus: RequestStatus.success,
-            receipt: data,
+          _prepareState(
+            state.copyWith(
+              submissionStatus: RequestStatus.success,
+              receipt: data,
+            ),
           ),
         );
     }
@@ -179,5 +211,33 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
   Future<void> close() {
     _generation++;
     return super.close();
+  }
+
+  static VirtualCardState _prepareState(VirtualCardState next) {
+    final count = int.tryParse(next.countText);
+    final valid =
+        RegExp(r'^[0-9]+$').hasMatch(next.countText) &&
+        count != null &&
+        count >= 1 &&
+        count <= (next.catalog?.maxCount ?? 0);
+    final editable =
+        next.status == RequestStatus.success &&
+        next.catalog?.deposits.isNotEmpty == true &&
+        next.submissionStatus != RequestStatus.loading &&
+        next.submissionStatus != RequestStatus.success;
+    return next.copyWith(
+      count: count,
+      validCount: valid,
+      editable: editable,
+      canSubmit:
+          editable &&
+          next.quoteStatus == RequestStatus.success &&
+          next.terms &&
+          valid &&
+          next.quote != null &&
+          next.quote!.depositId == next.depositId &&
+          next.quote!.count == count &&
+          next.quote!.walletSufficient,
+    );
   }
 }

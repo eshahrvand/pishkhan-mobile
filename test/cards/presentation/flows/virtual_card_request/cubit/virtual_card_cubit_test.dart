@@ -1,5 +1,4 @@
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
-import 'package:pishkhan_mobile/features/cards/presentation/virtual_card_request/cubit/virtual_card_rules.dart';
 
 import 'dart:async';
 
@@ -76,21 +75,21 @@ void main() {
       await c.selectDeposit('virtual-deposit-1');
       for (final value in ['', '0', '1000', '4.5', '-1', 'abc']) {
         await c.countChanged(value);
-        expect(virtualCardCanSubmit(c.state), false);
+        expect(c.state.canSubmit, false);
       }
       await c.countChanged('٤');
-      expect(virtualCardCount(c.state), 4);
+      expect(c.state.count, 4);
       expect(c.state.quote!.totalRial, 1300000);
-      expect(virtualCardCanSubmit(c.state), false);
+      expect(c.state.canSubmit, false);
       c.acceptTerms(true);
-      expect(virtualCardCanSubmit(c.state), true);
+      expect(c.state.canSubmit, true);
       await c.countChanged('5');
       expect(c.state.terms, false);
       expect(c.state.quote!.count, 5);
       r.wallet = 0;
       await c.refreshQuote();
       c.acceptTerms(true);
-      expect(virtualCardCanSubmit(c.state), false);
+      expect(c.state.canSubmit, false);
       await c.submit();
       expect(r.requests, isEmpty);
       await c.close();
@@ -140,7 +139,7 @@ void main() {
       await c.countChanged('3');
       await c.selectDeposit('virtual-deposit-2');
       expect(r.requests.length, 3);
-      expect(virtualCardCount(c.state), 2);
+      expect(c.state.count, 2);
       expect(
         r.requests.last.idempotencyKey,
         isNot(r.requests.first.idempotencyKey),
@@ -177,7 +176,7 @@ void main() {
     await c.load();
     r.quoteFailure = const DataFailure('network');
     await fillVirtual(c);
-    expect(virtualCardCanSubmit(c.state), false);
+    expect(c.state.canSubmit, false);
     expect(c.state.failure, isNotNull);
     r.quoteFailure = null;
     await c.refreshQuote();

@@ -14,6 +14,7 @@ class TestCardServicesRepository implements CardServicesRepository {
   TestCardServicesRepository({CardServiceCatalog? catalog})
     : mock = MockCardServicesRepository(catalog: catalog);
   final MockCardServicesRepository mock;
+  int loadCalls = 0;
   Completer<Result<CardServiceCatalog>>? pendingLoad;
   Completer<Result<CardServiceReceipt>>? pendingSubmit;
   bool failSubmit = false, throwLoad = false;
@@ -21,6 +22,7 @@ class TestCardServicesRepository implements CardServicesRepository {
   final transfers = <GiftBalanceRequest>[];
   @override
   Future<Result<CardServiceCatalog>> load() async {
+    loadCalls++;
     if (throwLoad) throw StateError('unavailable');
     return pendingLoad?.future ?? mock.load();
   }

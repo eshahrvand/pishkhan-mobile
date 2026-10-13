@@ -624,7 +624,7 @@ final class RequiresSignature extends ConfirmationPolicy { const RequiresSignatu
 Each use case declares its policy and a shared `RequestSubmitter` applies it. `RequiresSignature` is not implemented today, but the seam remains open.
 
 > [!WARNING]
-> **Consequence of removing OTP:** the interval between the user's action and submission is effectively zero. A double tap or a network retry produces a duplicate request. Two defensive layers are mandatory: `guarded` in `BaseCubit` (Section 12.4) and `Idempotency-Key` in the network layer (Section 10.3).
+> **Consequence of removing OTP:** the interval between the user's action and submission is effectively zero. A double tap or a network retry produces a duplicate request. Two defensive layers are mandatory: per-operation submission guards (Section 12.4) and `Idempotency-Key` in the network layer (Section 10.3).
 
 **Sensitive services:** the list of services that require additional confirmation despite the rule above (for example local biometric confirmation) is determined by the bank's security team. The architecture enables this through `ConfirmationPolicy` and server configuration.
 
@@ -973,46 +973,73 @@ extension ResultX<T> on Result<T> {
 
 State management uses `Cubit`. For the `assistant` feature, which is event-driven and stream-based by nature, using `Bloc` with event transformers will be evaluated in Section 19.
 
-### 12.2 Transitional States — freezed with a Shared Status Enum
+### 12.2 Cubit and State Coding Convention
 
-Each Cubit has a **single `freezed` state class** with a `status` field. The request lifecycle is expressed by one shared enum that lives in `app/lib/core/enums/`, rather than a separate enum per Cubit.
+This is the required convention for new features and refactors. The reference supplied by the project owner is from another application; its Cubit/State structure is adopted with this project's models, dependency injection and `RequestStatus` names.
 
-```dart
-// core/enums/request_status.dart
-enum RequestStatus { initial, loading, success, failure }
-```
+* Each Cubit owns one plain Freezed State, declared with `const factory`, `@Default` values and `part '<name>_state.freezed.dart'`.
+* State contains data only. Do not add handwritten getters, calculation methods or a private constructor solely to support them. Generated Freezed accessors, equality and `copyWith` are framework infrastructure, not custom business getters.
+* Give each independent async operation its own status field. Use `RequestStatus { initial, loading, success, failure }` from `core/enums/`. A single-operation Cubit may use `status`; multiple operations use meaningful names such as `checkStatus`, `quoteStatus` and `submissionStatus`.
+* UI reads State fields directly. Check `state.submissionStatus == RequestStatus.loading` directly in widget arguments; do not introduce getter aliases or local `loading`, `empty` or `form` variables in builders.
+* Calculations, filtering, selection resolution, totals and validation belong in Cubit action methods. Store results needed by UI in State fields and update them together with their inputs using `emit(state.copyWith(...))`. A feature-specific private helper may coordinate related updates; do not override `emit` to calculate business data or create a separate rules facade for UI to call.
+* Cubit constructors accept an initial State. The flow's composition root supplies its State and dependencies; preserve injectable repositories/use cases in this application. Do not copy the other application's service locator, models or imports, or add a locator just to imitate its syntax.
+* Keep defaults non-null for known values (`bool`, counters, lists and statuses). Use nullable fields when absence is meaningful. Do not copy nullable defaults mechanically from the reference.
+* Keep controllers, focus nodes and `BuildContext` in UI lifecycle owners. No global mutable feature caches. Preserve disposal, stale-response guards and duplicate-request protection.
+* Async methods must handle failure explicitly and avoid emitting after disposal. `async`/`await` and `.then` chains are both compatible with this State convention; each asynchronous branch must be awaited or returned.
+* Do not log credentials, OTPs, PINs or authentication tokens. Sensitive State types retain disabled generated `toString` output.
 
 ```dart
 @freezed
-abstract class BlockCardState with _$BlockCardState {
-  const factory BlockCardState({
+abstract class ChangeCardDepositState with _$ChangeCardDepositState {
+  const factory ChangeCardDepositState({
     @Default(RequestStatus.initial) RequestStatus status,
-    String? trackingId,
+    @Default(RequestStatus.initial) RequestStatus submissionStatus,
+    @Default(<CardServiceDeposit>[]) List<CardServiceDeposit> destinations,
+    CardServiceCatalog? catalog,
+    ServiceBankCard? card,
+    CardServiceDeposit? destination,
+    @Default(false) bool termsAccepted,
+    @Default(false) bool canSubmit,
     Failure? failure,
-  }) = _BlockCardState;
+  }) = _ChangeCardDepositState;
 }
+
+class ChangeCardDepositCubit extends Cubit<ChangeCardDepositState> {
+  ChangeCardDepositCubit({
+    required this.repository,
+    ChangeCardDepositState initialState = const ChangeCardDepositState(),
+  }) : super(initialState);
+
+  final CardServicesRepository repository;
+
+  void selectDestination(CardServiceDeposit destination) {
+    emit(state.copyWith(
+      destination: destination,
+      termsAccepted: false,
+      canSubmit: false,
+      failure: null,
+    ));
+  }
+}
+
+// Flow entry: create once, initialize explicitly, close on scope removal.
+BlocProvider(
+  create: (_) => ChangeCardDepositCubit(
+    repository: repository,
+    initialState: const ChangeCardDepositState(),
+  )..load(),
+  child: const ChangeCardDepositView(),
+);
+
+// UI reads existing fields and statuses directly.
+AppButton(
+  isLoading: state.submissionStatus == RequestStatus.loading,
+  onPressed: state.canSubmit ? cubit.submit : null,
+  label: context.l10n.cardServiceSubmit,
+);
 ```
 
-Because data stays in the same state object, it is preserved across status changes (for example, a list stays visible while it reloads). A `switch` over `state.status` is exhaustive over the enum:
-
-```dart
-final label = switch (state.status) {
-  RequestStatus.initial => 'initial',
-  RequestStatus.loading => 'loading',
-  RequestStatus.success => state.trackingId ?? '',
-  RequestStatus.failure => state.failure?.code ?? '',
-};
-```
-
-**Rules:**
-
-1. **Shared enums live in `core/enums/`.** An enum that is useful to more than one feature is placed there, not inside a feature.
-2. **`RequestStatus` describes only the lifecycle of an async request.** A value needed by a single feature is never added to it.
-3. **Anything beyond the four statuses is created inside the relevant feature, when it is actually needed:**
-   * a business outcome of a successful request is a data field in the state (for example an `outcome` enum), not an extra status value;
-   * a second independent operation in the same Cubit gets a second `RequestStatus` field;
-   * a flow whose lifecycle genuinely differs from the four statuses gets its own enum or state design inside its feature.
-4. **No guard getters are required.** The state is read directly through its fields.
+Data remains in the same State across request transitions unless an action explicitly clears or resets it. A business outcome is a State field, not a new value in the shared request-status enum. Shared enums live in `core/enums/`; flow-specific step/outcome enums stay with their feature.
 
 ### 12.3 Code Generation Policy
 
@@ -1028,36 +1055,32 @@ In `build.yaml`, each generator's scope is narrowed: `json_serializable` only un
 > [!NOTE]
 > `freezed` is applied to every Cubit state. The resulting `build_runner` cost (about one minute for the first full run) is accepted as a deliberate trade-off in exchange for a single uniform state pattern. Package versions are pinned as a set (Section 3.1).
 
-### 12.4 Base Cubit
+### 12.4 Cubit Actions and Request Lifecycle
+
+Use concrete Cubit methods and explicit `emit(state.copyWith(...))` transitions. The current application uses constructor-injected use cases/repositories and operation-specific status guards; a custom BaseCubit is not required by this coding convention.
 
 ```dart
-// core/cubit/base_cubit.dart
-abstract class BaseCubit<S> extends Cubit<S> {
-  BaseCubit(super.initialState);
+Future<void> load() async {
+  final generation = ++_generation;
+  emit(state.copyWith(status: RequestStatus.loading, failure: null));
 
-  bool _busy = false;
+  final result = await LoadCardServiceCatalog(repository)();
+  if (isClosed || generation != _generation) return;
 
-  /// Prevents double submission.
-  Future<void> guarded(Future<void> Function() action) async {
-    if (_busy) return;
-    _busy = true;
-    try {
-      await action();
-    } finally {
-      _busy = false;
-    }
-  }
-
-  @override
-  void emit(S state) {
-    if (isClosed) return;
-    super.emit(state);
+  switch (result) {
+    case Err(:final failure):
+      emit(state.copyWith(status: RequestStatus.failure, failure: failure));
+    case Success(:final data):
+      emit(state.copyWith(status: RequestStatus.success, catalog: data));
   }
 }
 ```
 
-* **`guarded` is mandatory for every submission operation.** With OTP removed from most flows, this is the only client-side defense against double taps.
-* **The `isClosed` check** prevents the `emit after close` exception, common in long forms when the user closes the screen mid-request.
+* Every submission checks its operation's loading/success status before starting and sets loading before awaiting. This prevents double taps and edits during a pending request. Server idempotency remains mandatory for bank execution.
+* Every asynchronous completion checks `isClosed`. Where requests can overlap or inputs/adapters change, a generation/request ID rejects obsolete responses as well.
+* Dispose timers and owned resources when the owning scope closes. Keep per-flow caches private and in memory only when their lifetime matches the flow; never use global mutable caches.
+* Related derived fields must be updated in one snapshot whenever their inputs change. A private Cubit helper may calculate a snapshot with `copyWith` and emit it; State and UI must not perform those calculations. Do not override `emit` to introduce implicit business behavior.
+* `BlocProvider(create: ...)` owns creation/disposal at the flow composition root. Existing controller-owning screens may expose an already-owned Cubit with `BlocProvider.value`; in that case the creator explicitly closes it. Never treat `BlocProvider.value` as the owner of an instance it did not create.
 
 ### 12.5 Form Pattern
 
@@ -1085,7 +1108,7 @@ abstract class LoanRequestFormState with _$LoanRequestFormState {
 
 ### 12.6 Flow Cubit Lifecycle
 
-* The cubit for a multi-step flow is provided at the `ShellRoute` level, not inside each screen's `build` (Section 15.4).
+* Provide each flow Cubit through `BlocProvider(create: ...)` at its route entry or `ShellRoute` scope (Section 15.4). A single-screen, internally stepped flow may own a provider at its screen boundary. Child views resolve it through `context.read` and builders/listeners; they do not manually own or close a second instance. The provider calls the initial action and owns disposal; ordinary widget rebuilds must retain the same flow state.
 * Registered in DI with `@injectable` (not `@singleton`) so each flow entry gets a fresh instance.
 * Screens must not call `getIt` directly.
 
@@ -1410,7 +1433,7 @@ On seeing the `resume` parameter, the flow fetches state from the server instead
 
 ### 16.3 Cubit Testing
 
-Using `bloc_test` to assert states are emitted in the correct order. For forms, tests cover field-level validation and the behavior of `guarded` against repeated invocation.
+Using `bloc_test` to assert states are emitted in the correct order. For forms, tests cover field-level validation and operation-status guards against repeated invocation.
 
 ### 16.4 End-to-End Testing
 
@@ -1661,6 +1684,8 @@ The complete list is provided in the separate document "Bank Requirements and De
 ---
 
 ## 21. Change Log
+
+**2026-10-13 convention update:** Section 12 now defines the owner-approved Cubit/State style: plain Freezed data, initial-State constructors, operation-specific request statuses, Cubit-owned calculations, direct UI field reads and no handwritten State/Cubit getters. This convention applies to all existing Cubits and future work.
 
 | Version | Description |
 |---|---|

@@ -12,6 +12,9 @@ abstract class LoansState with _$LoansState {
     @Default(RequestStatus.initial) RequestStatus status,
     List<BankLoan>? items,
     String? selectedId,
+    @Default(<BankLoan>[]) List<BankLoan> visibleItems,
+    @Default(0) int selectedIndex,
+    BankLoan? selectedLoan,
     Failure? failure,
   }) = _LoansState;
 }

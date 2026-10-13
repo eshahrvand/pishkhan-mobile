@@ -14,7 +14,7 @@ import '../cubit/change_card_deposit_cubit.dart';
 import '../widgets/change_card_deposit_form.dart';
 import '../../shared/card_service_widgets.dart';
 
-class ChangeCardDepositScreen extends StatefulWidget {
+class ChangeCardDepositScreen extends StatelessWidget {
   const ChangeCardDepositScreen({
     super.key,
     this.repository,
@@ -29,54 +29,39 @@ class ChangeCardDepositScreen extends StatefulWidget {
   final ValueChanged<CardServiceReceipt>? onCompleted;
 
   @override
-  State<ChangeCardDepositScreen> createState() =>
-      _ChangeCardDepositScreenState();
+  Widget build(BuildContext context) => BlocProvider<ChangeCardDepositCubit>(
+    // A changed adapter/seed starts a new flow; ordinary rebuilds retain it.
+    key: ValueKey((repository, initialCardNumber)),
+    lazy: false,
+    create: (_) => ChangeCardDepositCubit(
+      initialState: const ChangeCardDepositState(),
+      repository: repository ?? MockCardServicesRepository(),
+      initialCardNumber: initialCardNumber,
+    )..load(),
+    child: _ChangeCardDepositView(
+      onTermsRequested: onTermsRequested,
+      onCompleted: onCompleted,
+    ),
+  );
 }
 
-class _ChangeCardDepositScreenState extends State<ChangeCardDepositScreen> {
-  late ChangeCardDepositCubit cubit = _createCubit();
-
-  ChangeCardDepositCubit _createCubit() => ChangeCardDepositCubit(
-    repository: widget.repository ?? MockCardServicesRepository(),
-    initialCardNumber: widget.initialCardNumber,
-  )..load();
-
-  @override
-  void didUpdateWidget(covariant ChangeCardDepositScreen oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.repository != widget.repository ||
-        oldWidget.initialCardNumber != widget.initialCardNumber) {
-      cubit.close();
-      cubit = _createCubit();
-    }
-  }
-
-  @override
-  void dispose() {
-    cubit.close();
-    super.dispose();
-  }
+class _ChangeCardDepositView extends StatelessWidget {
+  const _ChangeCardDepositView({this.onTermsRequested, this.onCompleted});
+  final VoidCallback? onTermsRequested;
+  final ValueChanged<CardServiceReceipt>? onCompleted;
 
   @override
   Widget build(BuildContext context) => Directionality(
     textDirection: TextDirection.rtl,
     child: BlocConsumer<ChangeCardDepositCubit, ChangeCardDepositState>(
-      bloc: cubit,
       listenWhen: (old, next) => old.submissionStatus != next.submissionStatus,
       listener: (context, state) {
-        if (state.receipt != null) widget.onCompleted?.call(state.receipt!);
+        if (state.receipt != null) onCompleted?.call(state.receipt!);
       },
       builder: (context, state) {
-        final loading = state.submissionStatus == RequestStatus.loading;
-        final empty =
-            state.catalog?.cards.isEmpty == true ||
-            state.catalog?.deposits.isEmpty == true;
-        final form =
-            state.status == RequestStatus.success &&
-            !empty &&
-            state.receipt == null;
+        final cubit = context.read<ChangeCardDepositCubit>();
         return PopScope(
-          canPop: !loading,
+          canPop: state.submissionStatus != RequestStatus.loading,
           child: Scaffold(
             backgroundColor: context.colors.surfaceSubtle,
             body: SafeArea(
@@ -91,27 +76,34 @@ class _ChangeCardDepositScreenState extends State<ChangeCardDepositScreen> {
                     ),
                     trailingTooltip: context.l10n.backLabel,
                     onTrailingPressed: () {
-                      if (!loading) NavigationActions.back(context);
+                      if (state.submissionStatus != RequestStatus.loading) {
+                        NavigationActions.back(context);
+                      }
                     },
                   ),
                   Expanded(
-                    child: form
+                    child:
+                        (state.status == RequestStatus.success &&
+                            !state.isEmpty &&
+                            state.receipt == null)
                         ? ChangeCardDepositForm(cubit: cubit, state: state)
                         : CardServiceStatus(
                             status: state.status,
-                            empty: empty,
+                            empty: state.isEmpty,
                             receipt: state.receipt,
                             onRetry: cubit.load,
                           ),
                   ),
-                  if (form)
+                  if ((state.status == RequestStatus.success &&
+                      !state.isEmpty &&
+                      state.receipt == null))
                     CardServiceFooter(
                       label: context.l10n.cardServiceSubmit,
-                      loading: loading,
+                      loading: state.submissionStatus == RequestStatus.loading,
                       onSubmit: state.canSubmit ? cubit.submit : null,
                       termsAccepted: state.termsAccepted,
                       onTermsChanged: state.editable ? cubit.acceptTerms : null,
-                      onTermsRequested: widget.onTermsRequested,
+                      onTermsRequested: onTermsRequested,
                     ),
                 ],
               ),
