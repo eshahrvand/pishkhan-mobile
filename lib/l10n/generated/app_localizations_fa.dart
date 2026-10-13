@@ -1134,4 +1134,105 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get passwordStay => 'ادامه عملیات';
+
+  @override
+  String get changeCardDepositTitle => 'تغییر سپرده متصل به کارت';
+
+  @override
+  String get changeCardDepositIntro =>
+      'ابتدا کارت را انتخاب کنید، سپس سپرده‌ای که می‌خواهید به آن وصل شود را انتخاب کنید.';
+
+  @override
+  String get cardServiceCard => 'کارت';
+
+  @override
+  String get cardServiceCardHint => 'کارت مورد نظر خود را انتخاب کنید';
+
+  @override
+  String get cardServiceFromDeposit => 'از سپرده';
+
+  @override
+  String get cardServiceToDeposit => 'به سپرده';
+
+  @override
+  String get cardServiceToDepositHint =>
+      'سپرده‌ای که مایل هستید متصل به کارت باشد';
+
+  @override
+  String get cardServiceQarzDeposit => 'سپرده قرض الحسنه';
+
+  @override
+  String get cardServiceCurrentDeposit => 'سپرده جاری';
+
+  @override
+  String get cardServiceEmpty => 'موردی برای نمایش وجود ندارد.';
+
+  @override
+  String get cardServiceSubmit => 'تایید و ثبت درخواست';
+
+  @override
+  String get cardServiceSubmitError =>
+      'ثبت درخواست انجام نشد. دوباره تلاش کنید.';
+
+  @override
+  String get cardServiceMockComplete =>
+      'درخواست آزمایشی ثبت شد؛ عملیات بانکی انجام نشده است.';
+
+  @override
+  String get cardServiceComplete => 'درخواست با موفقیت ثبت شد.';
+
+  @override
+  String get giftBalanceTitle => 'واریز مانده کارت هدیه منقضی';
+
+  @override
+  String get giftBalanceSelection => 'انتخاب کارت‌ها';
+
+  @override
+  String get giftBalanceDestination => 'انتخاب سپرده جهت واریز';
+
+  @override
+  String get giftBalanceNextDestination => 'بعدی: انتخاب سپرده جهت واریز';
+
+  @override
+  String get giftBalanceIntro => 'کارت‌های هدیه منقضی شده را انتخاب کنید';
+
+  @override
+  String get giftBalanceSearch => 'جستجو بر اساس شماره کارت';
+
+  @override
+  String get giftBalanceSelectAll => 'انتخاب همه';
+
+  @override
+  String get giftBalanceRemaining => 'مانده موجودی (ریال)';
+
+  @override
+  String get giftBalanceCount => 'تعداد کارت هدیه منقضی';
+
+  @override
+  String get giftBalanceTotal => 'مجموع مبلغ (ریال)';
+
+  @override
+  String get giftBalanceTransferTo => 'انتقال به';
+
+  @override
+  String get giftBalanceDepositHint => 'سپرده مورد نظر خود را انتخاب کنید';
+
+  @override
+  String get giftBalanceNext => 'مرحله بعد';
+
+  @override
+  String get giftBalanceSubmit => 'ثبت درخواست';
+
+  @override
+  String get giftBalanceEnd => 'پایان';
+
+  @override
+  String giftBalanceSelectedList(int count) {
+    return 'لیست کارت‌های انتخاب شده ($count)';
+  }
+
+  @override
+  String giftBalanceRemoveCard(String number) {
+    return 'حذف کارت $number';
+  }
 }

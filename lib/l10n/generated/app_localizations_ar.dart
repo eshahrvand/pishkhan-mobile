@@ -1127,4 +1127,103 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get passwordStay => 'متابعة الإعداد';
+
+  @override
+  String get changeCardDepositTitle => 'تغيير الحساب المرتبط بالبطاقة';
+
+  @override
+  String get changeCardDepositIntro =>
+      'اختر البطاقة ثم الحساب الذي تريد ربطها به.';
+
+  @override
+  String get cardServiceCard => 'البطاقة';
+
+  @override
+  String get cardServiceCardHint => 'اختر البطاقة';
+
+  @override
+  String get cardServiceFromDeposit => 'من الحساب';
+
+  @override
+  String get cardServiceToDeposit => 'إلى الحساب';
+
+  @override
+  String get cardServiceToDepositHint => 'اختر الحساب الذي تريد ربطه بالبطاقة';
+
+  @override
+  String get cardServiceQarzDeposit => 'حساب قرض حسن';
+
+  @override
+  String get cardServiceCurrentDeposit => 'حساب جاري';
+
+  @override
+  String get cardServiceEmpty => 'لا توجد عناصر متاحة.';
+
+  @override
+  String get cardServiceSubmit => 'تأكيد وإرسال الطلب';
+
+  @override
+  String get cardServiceSubmitError => 'تعذر إرسال الطلب. حاول مرة أخرى.';
+
+  @override
+  String get cardServiceMockComplete =>
+      'تم تسجيل الطلب التجريبي؛ لم تُنفذ أي عملية مصرفية.';
+
+  @override
+  String get cardServiceComplete => 'تم إرسال الطلب بنجاح.';
+
+  @override
+  String get giftBalanceTitle => 'تحويل رصيد بطاقات الهدايا المنتهية';
+
+  @override
+  String get giftBalanceSelection => 'اختيار البطاقات';
+
+  @override
+  String get giftBalanceDestination => 'اختيار حساب الإيداع';
+
+  @override
+  String get giftBalanceNextDestination => 'التالي: اختيار حساب الإيداع';
+
+  @override
+  String get giftBalanceIntro => 'اختر بطاقات الهدايا المنتهية';
+
+  @override
+  String get giftBalanceSearch => 'البحث برقم البطاقة';
+
+  @override
+  String get giftBalanceSelectAll => 'اختيار الكل';
+
+  @override
+  String get giftBalanceRemaining => 'الرصيد المتبقي (ريال)';
+
+  @override
+  String get giftBalanceCount => 'عدد بطاقات الهدايا المنتهية';
+
+  @override
+  String get giftBalanceTotal => 'المبلغ الإجمالي (ريال)';
+
+  @override
+  String get giftBalanceTransferTo => 'التحويل إلى';
+
+  @override
+  String get giftBalanceDepositHint => 'اختر حساب الإيداع';
+
+  @override
+  String get giftBalanceNext => 'الخطوة التالية';
+
+  @override
+  String get giftBalanceSubmit => 'إرسال الطلب';
+
+  @override
+  String get giftBalanceEnd => 'النهاية';
+
+  @override
+  String giftBalanceSelectedList(int count) {
+    return 'البطاقات المختارة ($count)';
+  }
+
+  @override
+  String giftBalanceRemoveCard(String number) {
+    return 'إزالة البطاقة $number';
+  }
 }

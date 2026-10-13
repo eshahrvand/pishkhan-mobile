@@ -13,6 +13,7 @@ class AppTopBar extends StatelessWidget {
     this.onTrailingPressed,
     this.title,
     this.showLeadingActions = true,
+    this.leadingAction,
     this.onProfilePressed,
     this.onNotificationsPressed,
   });
@@ -23,6 +24,7 @@ class AppTopBar extends StatelessWidget {
   final String? trailingTooltip;
   final VoidCallback? onTrailingPressed;
   final bool showLeadingActions;
+  final Widget? leadingAction;
   final VoidCallback? onProfilePressed;
   final VoidCallback? onNotificationsPressed;
 
@@ -40,7 +42,9 @@ class AppTopBar extends StatelessWidget {
     child: Row(
       textDirection: TextDirection.ltr,
       children: [
-        if (showLeadingActions) ...[
+        if (leadingAction != null)
+          leadingAction!
+        else if (showLeadingActions) ...[
           _HeaderAction(
             asset: AppAssets.dashboardHeaderUser,
             tooltip: context.l10n.profileLabel,

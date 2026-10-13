@@ -2259,6 +2259,192 @@ abstract class AppLocalizations {
   /// In fa, this message translates to:
   /// **'ادامه عملیات'**
   String get passwordStay;
+
+  /// No description provided for @changeCardDepositTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'تغییر سپرده متصل به کارت'**
+  String get changeCardDepositTitle;
+
+  /// No description provided for @changeCardDepositIntro.
+  ///
+  /// In fa, this message translates to:
+  /// **'ابتدا کارت را انتخاب کنید، سپس سپرده‌ای که می‌خواهید به آن وصل شود را انتخاب کنید.'**
+  String get changeCardDepositIntro;
+
+  /// No description provided for @cardServiceCard.
+  ///
+  /// In fa, this message translates to:
+  /// **'کارت'**
+  String get cardServiceCard;
+
+  /// No description provided for @cardServiceCardHint.
+  ///
+  /// In fa, this message translates to:
+  /// **'کارت مورد نظر خود را انتخاب کنید'**
+  String get cardServiceCardHint;
+
+  /// No description provided for @cardServiceFromDeposit.
+  ///
+  /// In fa, this message translates to:
+  /// **'از سپرده'**
+  String get cardServiceFromDeposit;
+
+  /// No description provided for @cardServiceToDeposit.
+  ///
+  /// In fa, this message translates to:
+  /// **'به سپرده'**
+  String get cardServiceToDeposit;
+
+  /// No description provided for @cardServiceToDepositHint.
+  ///
+  /// In fa, this message translates to:
+  /// **'سپرده‌ای که مایل هستید متصل به کارت باشد'**
+  String get cardServiceToDepositHint;
+
+  /// No description provided for @cardServiceQarzDeposit.
+  ///
+  /// In fa, this message translates to:
+  /// **'سپرده قرض الحسنه'**
+  String get cardServiceQarzDeposit;
+
+  /// No description provided for @cardServiceCurrentDeposit.
+  ///
+  /// In fa, this message translates to:
+  /// **'سپرده جاری'**
+  String get cardServiceCurrentDeposit;
+
+  /// No description provided for @cardServiceEmpty.
+  ///
+  /// In fa, this message translates to:
+  /// **'موردی برای نمایش وجود ندارد.'**
+  String get cardServiceEmpty;
+
+  /// No description provided for @cardServiceSubmit.
+  ///
+  /// In fa, this message translates to:
+  /// **'تایید و ثبت درخواست'**
+  String get cardServiceSubmit;
+
+  /// No description provided for @cardServiceSubmitError.
+  ///
+  /// In fa, this message translates to:
+  /// **'ثبت درخواست انجام نشد. دوباره تلاش کنید.'**
+  String get cardServiceSubmitError;
+
+  /// No description provided for @cardServiceMockComplete.
+  ///
+  /// In fa, this message translates to:
+  /// **'درخواست آزمایشی ثبت شد؛ عملیات بانکی انجام نشده است.'**
+  String get cardServiceMockComplete;
+
+  /// No description provided for @cardServiceComplete.
+  ///
+  /// In fa, this message translates to:
+  /// **'درخواست با موفقیت ثبت شد.'**
+  String get cardServiceComplete;
+
+  /// No description provided for @giftBalanceTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'واریز مانده کارت هدیه منقضی'**
+  String get giftBalanceTitle;
+
+  /// No description provided for @giftBalanceSelection.
+  ///
+  /// In fa, this message translates to:
+  /// **'انتخاب کارت‌ها'**
+  String get giftBalanceSelection;
+
+  /// No description provided for @giftBalanceDestination.
+  ///
+  /// In fa, this message translates to:
+  /// **'انتخاب سپرده جهت واریز'**
+  String get giftBalanceDestination;
+
+  /// No description provided for @giftBalanceNextDestination.
+  ///
+  /// In fa, this message translates to:
+  /// **'بعدی: انتخاب سپرده جهت واریز'**
+  String get giftBalanceNextDestination;
+
+  /// No description provided for @giftBalanceIntro.
+  ///
+  /// In fa, this message translates to:
+  /// **'کارت‌های هدیه منقضی شده را انتخاب کنید'**
+  String get giftBalanceIntro;
+
+  /// No description provided for @giftBalanceSearch.
+  ///
+  /// In fa, this message translates to:
+  /// **'جستجو بر اساس شماره کارت'**
+  String get giftBalanceSearch;
+
+  /// No description provided for @giftBalanceSelectAll.
+  ///
+  /// In fa, this message translates to:
+  /// **'انتخاب همه'**
+  String get giftBalanceSelectAll;
+
+  /// No description provided for @giftBalanceRemaining.
+  ///
+  /// In fa, this message translates to:
+  /// **'مانده موجودی (ریال)'**
+  String get giftBalanceRemaining;
+
+  /// No description provided for @giftBalanceCount.
+  ///
+  /// In fa, this message translates to:
+  /// **'تعداد کارت هدیه منقضی'**
+  String get giftBalanceCount;
+
+  /// No description provided for @giftBalanceTotal.
+  ///
+  /// In fa, this message translates to:
+  /// **'مجموع مبلغ (ریال)'**
+  String get giftBalanceTotal;
+
+  /// No description provided for @giftBalanceTransferTo.
+  ///
+  /// In fa, this message translates to:
+  /// **'انتقال به'**
+  String get giftBalanceTransferTo;
+
+  /// No description provided for @giftBalanceDepositHint.
+  ///
+  /// In fa, this message translates to:
+  /// **'سپرده مورد نظر خود را انتخاب کنید'**
+  String get giftBalanceDepositHint;
+
+  /// No description provided for @giftBalanceNext.
+  ///
+  /// In fa, this message translates to:
+  /// **'مرحله بعد'**
+  String get giftBalanceNext;
+
+  /// No description provided for @giftBalanceSubmit.
+  ///
+  /// In fa, this message translates to:
+  /// **'ثبت درخواست'**
+  String get giftBalanceSubmit;
+
+  /// No description provided for @giftBalanceEnd.
+  ///
+  /// In fa, this message translates to:
+  /// **'پایان'**
+  String get giftBalanceEnd;
+
+  /// No description provided for @giftBalanceSelectedList.
+  ///
+  /// In fa, this message translates to:
+  /// **'لیست کارت‌های انتخاب شده ({count})'**
+  String giftBalanceSelectedList(int count);
+
+  /// No description provided for @giftBalanceRemoveCard.
+  ///
+  /// In fa, this message translates to:
+  /// **'حذف کارت {number}'**
+  String giftBalanceRemoveCard(String number);
 }
 
 class _AppLocalizationsDelegate

@@ -16,6 +16,8 @@ abstract final class CardsRoutes {
   static const list = '/cards/list';
   static const issuance = '/cards/issuance';
   static const virtualRequest = '/cards/virtual-request';
+  static const changeDeposit = '/cards/change-deposit';
+  static const expiredGiftBalance = '/cards/expired-gift-balance';
 }
 
 abstract final class ProfileRoutes {

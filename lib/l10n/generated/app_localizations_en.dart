@@ -1141,4 +1141,105 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get passwordStay => 'Continue setup';
+
+  @override
+  String get changeCardDepositTitle => 'Change linked card deposit';
+
+  @override
+  String get changeCardDepositIntro =>
+      'Select a card, then choose the deposit to link to it.';
+
+  @override
+  String get cardServiceCard => 'Card';
+
+  @override
+  String get cardServiceCardHint => 'Select your card';
+
+  @override
+  String get cardServiceFromDeposit => 'From deposit';
+
+  @override
+  String get cardServiceToDeposit => 'To deposit';
+
+  @override
+  String get cardServiceToDepositHint =>
+      'Select the deposit to link to this card';
+
+  @override
+  String get cardServiceQarzDeposit => 'Qarz al-Hasan deposit';
+
+  @override
+  String get cardServiceCurrentDeposit => 'Current deposit';
+
+  @override
+  String get cardServiceEmpty => 'No items available.';
+
+  @override
+  String get cardServiceSubmit => 'Confirm and submit request';
+
+  @override
+  String get cardServiceSubmitError =>
+      'The request could not be submitted. Try again.';
+
+  @override
+  String get cardServiceMockComplete =>
+      'Demo request recorded; no bank operation was performed.';
+
+  @override
+  String get cardServiceComplete => 'Request submitted successfully.';
+
+  @override
+  String get giftBalanceTitle => 'Transfer expired gift card balance';
+
+  @override
+  String get giftBalanceSelection => 'Select cards';
+
+  @override
+  String get giftBalanceDestination => 'Select destination deposit';
+
+  @override
+  String get giftBalanceNextDestination => 'Next: select destination deposit';
+
+  @override
+  String get giftBalanceIntro => 'Select expired gift cards';
+
+  @override
+  String get giftBalanceSearch => 'Search by card number';
+
+  @override
+  String get giftBalanceSelectAll => 'Select all';
+
+  @override
+  String get giftBalanceRemaining => 'Remaining balance (rial)';
+
+  @override
+  String get giftBalanceCount => 'Expired gift card count';
+
+  @override
+  String get giftBalanceTotal => 'Total amount (rial)';
+
+  @override
+  String get giftBalanceTransferTo => 'Transfer to';
+
+  @override
+  String get giftBalanceDepositHint => 'Select destination deposit';
+
+  @override
+  String get giftBalanceNext => 'Next step';
+
+  @override
+  String get giftBalanceSubmit => 'Submit request';
+
+  @override
+  String get giftBalanceEnd => 'End';
+
+  @override
+  String giftBalanceSelectedList(int count) {
+    return 'Selected cards ($count)';
+  }
+
+  @override
+  String giftBalanceRemoveCard(String number) {
+    return 'Remove card $number';
+  }
 }

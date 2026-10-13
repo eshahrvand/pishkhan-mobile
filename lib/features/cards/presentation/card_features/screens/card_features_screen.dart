@@ -95,6 +95,10 @@ class _CardFeaturesScreenState extends State<CardFeaturesScreen> {
       widget.onActionRequested!(request);
     } else if (action == CardFeatureAction.requestVirtual) {
       openCardFeaturesService(context, 'card-virtual-request');
+    } else if (action == CardFeatureAction.changeDeposit) {
+      openCardFeaturesService(context, 'card-deposit', initialCardNumber: card?.number);
+    } else if (action == CardFeatureAction.expiredGiftBalance) {
+      openCardFeaturesService(context, 'card-expired-gift');
     } else if (action == CardFeatureAction.reissue) {
       openCardFeaturesService(
         context,

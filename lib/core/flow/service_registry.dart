@@ -31,8 +31,17 @@ abstract final class ServiceRegistry {
     }
     final args = CardRouteArguments(
       initialDepositNumber: initialDepositNumber,
+      initialCardNumber: initialCardNumber,
       onAssistantPressed: onAssistantPressed,
     );
+    if (id == 'card-deposit') {
+      context.push<void>(CardsRoutes.changeDeposit, extra: args);
+      return true;
+    }
+    if (id == 'card-expired-gift') {
+      context.push<void>(CardsRoutes.expiredGiftBalance, extra: args);
+      return true;
+    }
     if (id == 'card-virtual' || id == 'card-virtual-request') {
       context.push<void>(CardsRoutes.virtualRequest, extra: args);
       return true;
@@ -44,7 +53,6 @@ abstract final class ServiceRegistry {
     final category = switch (id) {
       'card-list' => CardCategory.resalat,
       'card-virtual-list' => CardCategory.virtual,
-      'card-expired-gift' => CardCategory.gift,
       _ => null,
     };
     if (category == null) return false;

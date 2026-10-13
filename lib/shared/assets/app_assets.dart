@@ -4,6 +4,10 @@
 /// code. Feature-specific facades may alias these constants, but must not
 /// duplicate path strings.
 abstract final class AppAssets {
+  static const cardDepositInfo = 'assets/images/card_deposit_info.svg';
+  static const giftBalanceFilter = 'assets/images/gift_balance_filter.svg';
+  static const giftBalanceList = 'assets/images/gift_balance_list.svg';
+  static const cardDepositType = 'assets/images/card_deposit_type.svg';
   static const passwordRequestScrim =
       'assets/images/password_request_scrim.svg';
   static const passwordEyeSlash = 'assets/images/password_eye_slash.svg';

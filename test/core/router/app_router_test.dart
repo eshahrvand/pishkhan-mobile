@@ -52,6 +52,8 @@ void main() {
         CardsRoutes.list,
         CardsRoutes.issuance,
         CardsRoutes.virtualRequest,
+        CardsRoutes.changeDeposit,
+        CardsRoutes.expiredGiftBalance,
       ],
       '/profile/': [ProfileRoutes.messages, ProfileRoutes.messageDetail],
     };
@@ -71,6 +73,8 @@ void main() {
     () {
       for (final value in [
         CardsRoutes.virtualRequest,
+        CardsRoutes.changeDeposit,
+        CardsRoutes.expiredGiftBalance,
         '/cards/list?category=virtual',
         '/profile/messages/security-id',
         DashboardRoutes.allServices,

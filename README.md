@@ -35,6 +35,8 @@ Visual captures are not stored in `doc`; optional test captures use ignored
 - [Dashboard cards](doc/cards/my-cards.md)
 - [Card issuance](doc/cards/card-issuance.md)
 - [Virtual card requests](doc/cards/virtual-card-request.md)
+- [Change linked card deposit](doc/cards/change-card-deposit.md)
+- [Expired gift card balance](doc/cards/expired-gift-balance.md)
 - [Card password services](doc/cards/password-services.md)
 - [Login](doc/login/development.md)
 - [Dashboard](doc/dashboard/development.md)

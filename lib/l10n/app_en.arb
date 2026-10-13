@@ -361,5 +361,50 @@
   "passwordExitTitle": "Leave password setup?",
   "passwordExitBody": "Entered information will be cleared.",
   "passwordExit": "Leave",
-  "passwordStay": "Continue setup"
+  "passwordStay": "Continue setup",
+  "changeCardDepositTitle": "Change linked card deposit",
+  "changeCardDepositIntro": "Select a card, then choose the deposit to link to it.",
+  "cardServiceCard": "Card",
+  "cardServiceCardHint": "Select your card",
+  "cardServiceFromDeposit": "From deposit",
+  "cardServiceToDeposit": "To deposit",
+  "cardServiceToDepositHint": "Select the deposit to link to this card",
+  "cardServiceQarzDeposit": "Qarz al-Hasan deposit",
+  "cardServiceCurrentDeposit": "Current deposit",
+  "cardServiceEmpty": "No items available.",
+  "cardServiceSubmit": "Confirm and submit request",
+  "cardServiceSubmitError": "The request could not be submitted. Try again.",
+  "cardServiceMockComplete": "Demo request recorded; no bank operation was performed.",
+  "cardServiceComplete": "Request submitted successfully.",
+  "giftBalanceTitle": "Transfer expired gift card balance",
+  "giftBalanceSelection": "Select cards",
+  "giftBalanceDestination": "Select destination deposit",
+  "giftBalanceNextDestination": "Next: select destination deposit",
+  "giftBalanceIntro": "Select expired gift cards",
+  "giftBalanceSearch": "Search by card number",
+  "giftBalanceSelectAll": "Select all",
+  "giftBalanceRemaining": "Remaining balance (rial)",
+  "giftBalanceCount": "Expired gift card count",
+  "giftBalanceTotal": "Total amount (rial)",
+  "giftBalanceTransferTo": "Transfer to",
+  "giftBalanceDepositHint": "Select destination deposit",
+  "giftBalanceNext": "Next step",
+  "giftBalanceSubmit": "Submit request",
+  "giftBalanceEnd": "End",
+  "giftBalanceSelectedList": "Selected cards ({count})",
+  "giftBalanceRemoveCard": "Remove card {number}",
+  "@giftBalanceSelectedList": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@giftBalanceRemoveCard": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  }
 }

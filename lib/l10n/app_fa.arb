@@ -381,5 +381,50 @@
   "passwordExitTitle": "خروج از عملیات رمز؟",
   "passwordExitBody": "اطلاعات واردشده پاک می‌شود.",
   "passwordExit": "خروج",
-  "passwordStay": "ادامه عملیات"
+  "passwordStay": "ادامه عملیات",
+  "changeCardDepositTitle": "تغییر سپرده متصل به کارت",
+  "changeCardDepositIntro": "ابتدا کارت را انتخاب کنید، سپس سپرده‌ای که می‌خواهید به آن وصل شود را انتخاب کنید.",
+  "cardServiceCard": "کارت",
+  "cardServiceCardHint": "کارت مورد نظر خود را انتخاب کنید",
+  "cardServiceFromDeposit": "از سپرده",
+  "cardServiceToDeposit": "به سپرده",
+  "cardServiceToDepositHint": "سپرده‌ای که مایل هستید متصل به کارت باشد",
+  "cardServiceQarzDeposit": "سپرده قرض الحسنه",
+  "cardServiceCurrentDeposit": "سپرده جاری",
+  "cardServiceEmpty": "موردی برای نمایش وجود ندارد.",
+  "cardServiceSubmit": "تایید و ثبت درخواست",
+  "cardServiceSubmitError": "ثبت درخواست انجام نشد. دوباره تلاش کنید.",
+  "cardServiceMockComplete": "درخواست آزمایشی ثبت شد؛ عملیات بانکی انجام نشده است.",
+  "cardServiceComplete": "درخواست با موفقیت ثبت شد.",
+  "giftBalanceTitle": "واریز مانده کارت هدیه منقضی",
+  "giftBalanceSelection": "انتخاب کارت‌ها",
+  "giftBalanceDestination": "انتخاب سپرده جهت واریز",
+  "giftBalanceNextDestination": "بعدی: انتخاب سپرده جهت واریز",
+  "giftBalanceIntro": "کارت‌های هدیه منقضی شده را انتخاب کنید",
+  "giftBalanceSearch": "جستجو بر اساس شماره کارت",
+  "giftBalanceSelectAll": "انتخاب همه",
+  "giftBalanceRemaining": "مانده موجودی (ریال)",
+  "giftBalanceCount": "تعداد کارت هدیه منقضی",
+  "giftBalanceTotal": "مجموع مبلغ (ریال)",
+  "giftBalanceTransferTo": "انتقال به",
+  "giftBalanceDepositHint": "سپرده مورد نظر خود را انتخاب کنید",
+  "giftBalanceNext": "مرحله بعد",
+  "giftBalanceSubmit": "ثبت درخواست",
+  "giftBalanceEnd": "پایان",
+  "giftBalanceSelectedList": "لیست کارت‌های انتخاب شده ({count})",
+  "giftBalanceRemoveCard": "حذف کارت {number}",
+  "@giftBalanceSelectedList": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@giftBalanceRemoveCard": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  }
 }

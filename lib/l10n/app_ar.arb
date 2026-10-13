@@ -361,5 +361,50 @@
   "passwordExitTitle": "الخروج من إعداد كلمة المرور؟",
   "passwordExitBody": "سيتم حذف المعلومات المدخلة.",
   "passwordExit": "خروج",
-  "passwordStay": "متابعة الإعداد"
+  "passwordStay": "متابعة الإعداد",
+  "changeCardDepositTitle": "تغيير الحساب المرتبط بالبطاقة",
+  "changeCardDepositIntro": "اختر البطاقة ثم الحساب الذي تريد ربطها به.",
+  "cardServiceCard": "البطاقة",
+  "cardServiceCardHint": "اختر البطاقة",
+  "cardServiceFromDeposit": "من الحساب",
+  "cardServiceToDeposit": "إلى الحساب",
+  "cardServiceToDepositHint": "اختر الحساب الذي تريد ربطه بالبطاقة",
+  "cardServiceQarzDeposit": "حساب قرض حسن",
+  "cardServiceCurrentDeposit": "حساب جاري",
+  "cardServiceEmpty": "لا توجد عناصر متاحة.",
+  "cardServiceSubmit": "تأكيد وإرسال الطلب",
+  "cardServiceSubmitError": "تعذر إرسال الطلب. حاول مرة أخرى.",
+  "cardServiceMockComplete": "تم تسجيل الطلب التجريبي؛ لم تُنفذ أي عملية مصرفية.",
+  "cardServiceComplete": "تم إرسال الطلب بنجاح.",
+  "giftBalanceTitle": "تحويل رصيد بطاقات الهدايا المنتهية",
+  "giftBalanceSelection": "اختيار البطاقات",
+  "giftBalanceDestination": "اختيار حساب الإيداع",
+  "giftBalanceNextDestination": "التالي: اختيار حساب الإيداع",
+  "giftBalanceIntro": "اختر بطاقات الهدايا المنتهية",
+  "giftBalanceSearch": "البحث برقم البطاقة",
+  "giftBalanceSelectAll": "اختيار الكل",
+  "giftBalanceRemaining": "الرصيد المتبقي (ريال)",
+  "giftBalanceCount": "عدد بطاقات الهدايا المنتهية",
+  "giftBalanceTotal": "المبلغ الإجمالي (ريال)",
+  "giftBalanceTransferTo": "التحويل إلى",
+  "giftBalanceDepositHint": "اختر حساب الإيداع",
+  "giftBalanceNext": "الخطوة التالية",
+  "giftBalanceSubmit": "إرسال الطلب",
+  "giftBalanceEnd": "النهاية",
+  "giftBalanceSelectedList": "البطاقات المختارة ({count})",
+  "giftBalanceRemoveCard": "إزالة البطاقة {number}",
+  "@giftBalanceSelectedList": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@giftBalanceRemoveCard": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  }
 }

@@ -12,6 +12,8 @@ String validatedReturnLocation(String? location) {
     CardsRoutes.list,
     CardsRoutes.issuance,
     CardsRoutes.virtualRequest,
+    CardsRoutes.changeDeposit,
+    CardsRoutes.expiredGiftBalance,
     AuthRoutes.passwords,
     ProfileRoutes.messages,
   };

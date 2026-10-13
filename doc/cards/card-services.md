@@ -255,7 +255,7 @@ The existing assistant visual invokes a callback or returns from the route. No n
 
 - Supply authoritative card/deposit IDs, statuses, product types and service contracts.
 - Define supported actions per card type/status; the four-row menu is a UI prototype.
-- Reissue now opens the [Resalat issuance flow](card-issuance.md) by default; real execution remains unconnected. Supply change-deposit/block/gift-transfer/virtual-request flow designs and handlers.
+- Reissue opens the [Resalat issuance flow](card-issuance.md). Change deposit opens [change linked card deposit](change-card-deposit.md); the gift action opens [expired gift balance](expired-gift-balance.md); virtual requests open the [virtual request flow](virtual-card-request.md). These use mock execution; authoritative bank adapters and block-card behavior remain outstanding.
 - Decide whether query/filter should persist across route sessions; today they persist only within this route and across its category changes.
 - Replace preformatted dates/amounts with validated service mapping where needed.
 - Confirm whether sheet drag dismissal is required: current sheets support outside tap/back/explicit buttons; drag is disabled for the full-screen authored backdrop composition.
