@@ -406,5 +406,29 @@
         "type": "String"
       }
     }
-  }
+  },
+  "depositListAccountDetails": "Account details",
+  "depositListAccountType": "Account type",
+  "depositListBlock": "Deposit blocking",
+  "depositListBlocked": "Blocked",
+  "depositListClosed": "Closed",
+  "depositListCurrent": "Personal current account",
+  "depositListCustomerInformation": "Customer information",
+  "depositListLinkedCards": "Cards linked to account",
+  "depositListNationalId": "National ID",
+  "depositListNoMatches": "No deposits match these filters.",
+  "depositListNoOwners": "Account owner information is unavailable.",
+  "depositListNumber": "Deposit number",
+  "depositListOpen": "Open",
+  "depositListOwner": "Deposit owner",
+  "depositListOwnerAndSignatory": "Owner and signatory",
+  "depositListOwnerName": "Name",
+  "depositListOwnerPercent": "Share",
+  "depositListOwnerRole": "Role",
+  "depositListSavings": "Personal savings",
+  "depositListServiceUnavailable": "This service will be available after bank integration.",
+  "depositListSignatory": "Signatory",
+  "depositListSms": "SMS delivery settings",
+  "depositListStatement": "Statement | Average balance",
+  "depositListStatus": "Status"
 }

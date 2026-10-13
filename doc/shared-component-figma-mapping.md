@@ -77,6 +77,13 @@ AppServiceGridCard.stretchItems defaults to true; set false and itemSpacing to 6
 
 ## My Deposits (third primary tab)
 
+Standalone deposit list and its two distinct sheets (`28060:13805`,
+`28060:15113`, `28060:15220`) are documented in
+[Deposit list](deposits/deposit-list.md). `AppDepositList` adds optional
+localized label/divider slots and `alignContentToEdges`; existing defaults
+are retained. New consumers use `DepositActionsSheet` and
+`DepositAccountDetailsSheet` as separate compositions.
+
 Figma single deposit: `27902:82476`; multiple deposits: `27902:82503`. `DepositsTab` composes the existing `AppDepositCard`, `AppTopBar`, `AppServiceGridCard`, `AppServiceArtworkTile`, `AppAssistantButton` and `AppPrimaryNavigation` without modifying their source. The selected `BankDeposit.hasChequeOperations` controls cheque operations, independently of deposit count.
 
 See [Deposits development](deposits/development.md) and [Dashboard development document](dashboard/development.md) for exact component differences, integration callbacks, data/icon sources and future server mapping.

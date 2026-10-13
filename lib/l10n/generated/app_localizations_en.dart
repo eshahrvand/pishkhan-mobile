@@ -1242,4 +1242,77 @@ class AppLocalizationsEn extends AppLocalizations {
   String giftBalanceRemoveCard(String number) {
     return 'Remove card $number';
   }
+
+  @override
+  String get depositListAccountDetails => 'Account details';
+
+  @override
+  String get depositListAccountType => 'Account type';
+
+  @override
+  String get depositListBlock => 'Deposit blocking';
+
+  @override
+  String get depositListBlocked => 'Blocked';
+
+  @override
+  String get depositListClosed => 'Closed';
+
+  @override
+  String get depositListCurrent => 'Personal current account';
+
+  @override
+  String get depositListCustomerInformation => 'Customer information';
+
+  @override
+  String get depositListLinkedCards => 'Cards linked to account';
+
+  @override
+  String get depositListNationalId => 'National ID';
+
+  @override
+  String get depositListNoMatches => 'No deposits match these filters.';
+
+  @override
+  String get depositListNoOwners => 'Account owner information is unavailable.';
+
+  @override
+  String get depositListNumber => 'Deposit number';
+
+  @override
+  String get depositListOpen => 'Open';
+
+  @override
+  String get depositListOwner => 'Deposit owner';
+
+  @override
+  String get depositListOwnerAndSignatory => 'Owner and signatory';
+
+  @override
+  String get depositListOwnerName => 'Name';
+
+  @override
+  String get depositListOwnerPercent => 'Share';
+
+  @override
+  String get depositListOwnerRole => 'Role';
+
+  @override
+  String get depositListSavings => 'Personal savings';
+
+  @override
+  String get depositListServiceUnavailable =>
+      'This service will be available after bank integration.';
+
+  @override
+  String get depositListSignatory => 'Signatory';
+
+  @override
+  String get depositListSms => 'SMS delivery settings';
+
+  @override
+  String get depositListStatement => 'Statement | Average balance';
+
+  @override
+  String get depositListStatus => 'Status';
 }

@@ -44,6 +44,10 @@ class AppDepositList extends StatelessWidget {
     this.moreIcon,
     this.depositIcon,
     this.onMoreTap,
+    this.accountNumberLabel = 'شماره سپرده',
+    this.statusFieldLabel = 'وضعیت',
+    this.divider,
+    this.alignContentToEdges = false,
   });
 
   final String title;
@@ -53,6 +57,9 @@ class AppDepositList extends StatelessWidget {
   final Widget? moreIcon;
   final Widget? depositIcon;
   final VoidCallback? onMoreTap;
+  final String accountNumberLabel, statusFieldLabel;
+  final Widget? divider;
+  final bool alignContentToEdges;
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +82,7 @@ class AppDepositList extends StatelessWidget {
               children: [
                 _header(context),
                 const SizedBox(height: 8),
-                AppDepositListIcons.divider(),
+                divider ?? AppDepositListIcons.divider(),
                 const SizedBox(height: 8),
                 _detailRow(
                   context,
@@ -85,7 +92,7 @@ class AppDepositList extends StatelessWidget {
                     textDirection: TextDirection.ltr,
                     style: _mediumStyle(colors.textPrimary),
                   ),
-                  label: 'شماره سپرده',
+                  label: accountNumberLabel,
                 ),
                 const SizedBox(height: 8),
                 _detailRow(
@@ -96,7 +103,7 @@ class AppDepositList extends StatelessWidget {
                     background: AppBadgeBackground.light,
                     corner: AppBadgeCorner.rounded,
                   ),
-                  label: 'وضعیت',
+                  label: statusFieldLabel,
                 ),
               ],
             ),
@@ -125,16 +132,28 @@ class AppDepositList extends StatelessWidget {
                   borderRadius: AppRadius.borderXs,
                   child: more,
                 ),
-          const Spacer(),
-          Flexible(
-            child: Text(
-              title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.end,
-              style: _mediumStyle(colors.textPrimary),
+          if (!alignContentToEdges) const Spacer(),
+          if (alignContentToEdges) const SizedBox(width: 8),
+          if (alignContentToEdges)
+            Expanded(
+              child: Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.right,
+                style: _mediumStyle(colors.textPrimary),
+              ),
+            )
+          else
+            Flexible(
+              child: Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.end,
+                style: _mediumStyle(colors.textPrimary),
+              ),
             ),
-          ),
           const SizedBox(width: 4),
           SizedBox(
             width: 20,
@@ -155,8 +174,13 @@ class AppDepositList extends StatelessWidget {
     child: Row(
       textDirection: TextDirection.ltr,
       children: [
-        Flexible(child: leading),
-        const Spacer(),
+        if (alignContentToEdges)
+          Expanded(
+            child: Align(alignment: Alignment.centerLeft, child: leading),
+          )
+        else
+          Flexible(child: leading),
+        if (!alignContentToEdges) const Spacer(),
         Text(label, style: _regularStyle(context.colors.textSecondary)),
       ],
     ),

@@ -1226,4 +1226,77 @@ class AppLocalizationsAr extends AppLocalizations {
   String giftBalanceRemoveCard(String number) {
     return 'إزالة البطاقة $number';
   }
+
+  @override
+  String get depositListAccountDetails => 'تفاصيل الحساب';
+
+  @override
+  String get depositListAccountType => 'نوع الحساب';
+
+  @override
+  String get depositListBlock => 'حظر الوديعة';
+
+  @override
+  String get depositListBlocked => 'محظور';
+
+  @override
+  String get depositListClosed => 'مغلق';
+
+  @override
+  String get depositListCurrent => 'حساب جاري شخصي';
+
+  @override
+  String get depositListCustomerInformation => 'معلومات العميل';
+
+  @override
+  String get depositListLinkedCards => 'البطاقات المرتبطة بالحساب';
+
+  @override
+  String get depositListNationalId => 'الرقم الوطني';
+
+  @override
+  String get depositListNoMatches => 'لا توجد ودائع تطابق هذه المرشحات.';
+
+  @override
+  String get depositListNoOwners => 'معلومات أصحاب الحساب غير متوفرة.';
+
+  @override
+  String get depositListNumber => 'رقم الوديعة';
+
+  @override
+  String get depositListOpen => 'مفتوح';
+
+  @override
+  String get depositListOwner => 'صاحب الوديعة';
+
+  @override
+  String get depositListOwnerAndSignatory => 'صاحب الوديعة والموقّع';
+
+  @override
+  String get depositListOwnerName => 'الاسم';
+
+  @override
+  String get depositListOwnerPercent => 'النسبة';
+
+  @override
+  String get depositListOwnerRole => 'الدور';
+
+  @override
+  String get depositListSavings => 'ادخار شخصي';
+
+  @override
+  String get depositListServiceUnavailable =>
+      'ستتوفر هذه الخدمة بعد الربط بنظام البنك.';
+
+  @override
+  String get depositListSignatory => 'الموقّع';
+
+  @override
+  String get depositListSms => 'إعدادات إرسال الرسائل';
+
+  @override
+  String get depositListStatement => 'كشف الحساب | متوسط الرصيد';
+
+  @override
+  String get depositListStatus => 'الحالة';
 }

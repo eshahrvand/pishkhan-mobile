@@ -1235,4 +1235,77 @@ class AppLocalizationsFa extends AppLocalizations {
   String giftBalanceRemoveCard(String number) {
     return 'حذف کارت $number';
   }
+
+  @override
+  String get depositListAccountDetails => 'جزئیات حساب';
+
+  @override
+  String get depositListAccountType => 'نوع حساب';
+
+  @override
+  String get depositListBlock => 'مسدودی سپرده';
+
+  @override
+  String get depositListBlocked => 'مسدود';
+
+  @override
+  String get depositListClosed => 'بسته';
+
+  @override
+  String get depositListCurrent => 'جاری حقیقی';
+
+  @override
+  String get depositListCustomerInformation => 'اطلاعات مشتری';
+
+  @override
+  String get depositListLinkedCards => 'کارت‌های متصل به حساب';
+
+  @override
+  String get depositListNationalId => 'کدملی';
+
+  @override
+  String get depositListNoMatches => 'سپرده‌ای با این فیلترها پیدا نشد.';
+
+  @override
+  String get depositListNoOwners => 'اطلاعات صاحبان حساب در دسترس نیست.';
+
+  @override
+  String get depositListNumber => 'شماره سپرده';
+
+  @override
+  String get depositListOpen => 'باز';
+
+  @override
+  String get depositListOwner => 'صاحب سپرده';
+
+  @override
+  String get depositListOwnerAndSignatory => 'صاحب سپرده و امضا';
+
+  @override
+  String get depositListOwnerName => 'نام';
+
+  @override
+  String get depositListOwnerPercent => 'درصد';
+
+  @override
+  String get depositListOwnerRole => 'نقش';
+
+  @override
+  String get depositListSavings => 'پس انداز حقیقی';
+
+  @override
+  String get depositListServiceUnavailable =>
+      'این خدمت پس از اتصال به سامانه بانک در دسترس خواهد بود.';
+
+  @override
+  String get depositListSignatory => 'صاحب امضا';
+
+  @override
+  String get depositListSms => 'تنظیمات ارسال پیامک';
+
+  @override
+  String get depositListStatement => 'صورت حساب | معدل موجودی';
+
+  @override
+  String get depositListStatus => 'وضعیت';
 }

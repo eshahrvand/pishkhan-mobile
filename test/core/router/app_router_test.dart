@@ -56,6 +56,7 @@ void main() {
         CardsRoutes.expiredGiftBalance,
       ],
       '/profile/': [ProfileRoutes.messages, ProfileRoutes.messageDetail],
+      '/deposits/': [DepositsRoutes.list],
     };
     final declaredPaths = modulePaths.values.expand((paths) => paths).toList();
     expect(paths, unorderedEquals(declaredPaths));
@@ -75,6 +76,7 @@ void main() {
         CardsRoutes.virtualRequest,
         CardsRoutes.changeDeposit,
         CardsRoutes.expiredGiftBalance,
+        DepositsRoutes.list,
         '/cards/list?category=virtual',
         '/profile/messages/security-id',
         DashboardRoutes.allServices,

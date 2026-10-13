@@ -406,5 +406,29 @@
         "type": "String"
       }
     }
-  }
+  },
+  "depositListAccountDetails": "تفاصيل الحساب",
+  "depositListAccountType": "نوع الحساب",
+  "depositListBlock": "حظر الوديعة",
+  "depositListBlocked": "محظور",
+  "depositListClosed": "مغلق",
+  "depositListCurrent": "حساب جاري شخصي",
+  "depositListCustomerInformation": "معلومات العميل",
+  "depositListLinkedCards": "البطاقات المرتبطة بالحساب",
+  "depositListNationalId": "الرقم الوطني",
+  "depositListNoMatches": "لا توجد ودائع تطابق هذه المرشحات.",
+  "depositListNoOwners": "معلومات أصحاب الحساب غير متوفرة.",
+  "depositListNumber": "رقم الوديعة",
+  "depositListOpen": "مفتوح",
+  "depositListOwner": "صاحب الوديعة",
+  "depositListOwnerAndSignatory": "صاحب الوديعة والموقّع",
+  "depositListOwnerName": "الاسم",
+  "depositListOwnerPercent": "النسبة",
+  "depositListOwnerRole": "الدور",
+  "depositListSavings": "ادخار شخصي",
+  "depositListServiceUnavailable": "ستتوفر هذه الخدمة بعد الربط بنظام البنك.",
+  "depositListSignatory": "الموقّع",
+  "depositListSms": "إعدادات إرسال الرسائل",
+  "depositListStatement": "كشف الحساب | متوسط الرصيد",
+  "depositListStatus": "الحالة"
 }

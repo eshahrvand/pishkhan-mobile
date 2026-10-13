@@ -4,6 +4,36 @@
 /// code. Feature-specific facades may alias these constants, but must not
 /// duplicate path strings.
 abstract final class AppAssets {
+  static const depositFeatureBack = 'assets/images/deposit_list_back.svg';
+  static const depositFeatureDeposit =
+      'assets/images/deposit_feature_deposit.svg';
+  static const depositFeatureMore = 'assets/images/deposit_list_more.svg';
+  static const depositFeatureDivider = 'assets/images/deposit_list_divider.svg';
+  static const depositFeatureChevron = 'assets/images/deposit_list_chevron.svg';
+  static const depositFeatureClear = 'assets/images/deposit_list_clear.svg';
+  static const depositFeatureCards = 'assets/images/deposit_list_cards.svg';
+  static const depositFeatureStatement =
+      'assets/images/deposit_list_statement.svg';
+  static const depositFeatureCertificate =
+      'assets/images/deposit_list_certificate.svg';
+  static const depositFeatureSms = 'assets/images/deposit_list_sms.svg';
+  static const depositFeatureRepresentative =
+      'assets/images/deposit_list_representative.svg';
+  static const depositFeatureBlock = 'assets/images/deposit_list_block.svg';
+  static const depositFeatureLoans = 'assets/images/deposit_list_loans.svg';
+  static const depositFeatureScrim = 'assets/images/deposit_list_scrim.svg';
+  static const depositFeatureSheetDivider =
+      'assets/images/deposit_list_sheet_divider.svg';
+  static const depositFeatureNameDots =
+      'assets/images/deposit_list_name_dots.svg';
+  static const depositFeatureNationalIdDots =
+      'assets/images/deposit_list_national_id_dots.svg';
+  static const depositFeatureRoleDots =
+      'assets/images/deposit_list_role_dots.svg';
+  static const depositFeaturePercentDots =
+      'assets/images/deposit_list_percent_dots.svg';
+  static const depositFeatureSecondPercentDots =
+      'assets/images/deposit_list_second_percent_dots.svg';
   static const cardDepositInfo = 'assets/images/card_deposit_info.svg';
   static const giftBalanceFilter = 'assets/images/gift_balance_filter.svg';
   static const giftBalanceList = 'assets/images/gift_balance_list.svg';
@@ -443,6 +473,26 @@ abstract final class AppAssets {
   static const notificationSecurity = '$_root/notification_security.png';
 
   static const all = <String>[
+    depositFeatureBack,
+    depositFeatureDeposit,
+    depositFeatureMore,
+    depositFeatureDivider,
+    depositFeatureChevron,
+    depositFeatureClear,
+    depositFeatureCards,
+    depositFeatureStatement,
+    depositFeatureCertificate,
+    depositFeatureSms,
+    depositFeatureRepresentative,
+    depositFeatureBlock,
+    depositFeatureLoans,
+    depositFeatureScrim,
+    depositFeatureSheetDivider,
+    depositFeatureNameDots,
+    depositFeatureNationalIdDots,
+    depositFeatureRoleDots,
+    depositFeaturePercentDots,
+    depositFeatureSecondPercentDots,
     passwordRequestScrim,
     passwordEyeSlash,
     passwordCheckInactive,

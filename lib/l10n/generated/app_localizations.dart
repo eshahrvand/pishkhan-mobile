@@ -2445,6 +2445,150 @@ abstract class AppLocalizations {
   /// In fa, this message translates to:
   /// **'حذف کارت {number}'**
   String giftBalanceRemoveCard(String number);
+
+  /// No description provided for @depositListAccountDetails.
+  ///
+  /// In fa, this message translates to:
+  /// **'جزئیات حساب'**
+  String get depositListAccountDetails;
+
+  /// No description provided for @depositListAccountType.
+  ///
+  /// In fa, this message translates to:
+  /// **'نوع حساب'**
+  String get depositListAccountType;
+
+  /// No description provided for @depositListBlock.
+  ///
+  /// In fa, this message translates to:
+  /// **'مسدودی سپرده'**
+  String get depositListBlock;
+
+  /// No description provided for @depositListBlocked.
+  ///
+  /// In fa, this message translates to:
+  /// **'مسدود'**
+  String get depositListBlocked;
+
+  /// No description provided for @depositListClosed.
+  ///
+  /// In fa, this message translates to:
+  /// **'بسته'**
+  String get depositListClosed;
+
+  /// No description provided for @depositListCurrent.
+  ///
+  /// In fa, this message translates to:
+  /// **'جاری حقیقی'**
+  String get depositListCurrent;
+
+  /// No description provided for @depositListCustomerInformation.
+  ///
+  /// In fa, this message translates to:
+  /// **'اطلاعات مشتری'**
+  String get depositListCustomerInformation;
+
+  /// No description provided for @depositListLinkedCards.
+  ///
+  /// In fa, this message translates to:
+  /// **'کارت‌های متصل به حساب'**
+  String get depositListLinkedCards;
+
+  /// No description provided for @depositListNationalId.
+  ///
+  /// In fa, this message translates to:
+  /// **'کدملی'**
+  String get depositListNationalId;
+
+  /// No description provided for @depositListNoMatches.
+  ///
+  /// In fa, this message translates to:
+  /// **'سپرده‌ای با این فیلترها پیدا نشد.'**
+  String get depositListNoMatches;
+
+  /// No description provided for @depositListNoOwners.
+  ///
+  /// In fa, this message translates to:
+  /// **'اطلاعات صاحبان حساب در دسترس نیست.'**
+  String get depositListNoOwners;
+
+  /// No description provided for @depositListNumber.
+  ///
+  /// In fa, this message translates to:
+  /// **'شماره سپرده'**
+  String get depositListNumber;
+
+  /// No description provided for @depositListOpen.
+  ///
+  /// In fa, this message translates to:
+  /// **'باز'**
+  String get depositListOpen;
+
+  /// No description provided for @depositListOwner.
+  ///
+  /// In fa, this message translates to:
+  /// **'صاحب سپرده'**
+  String get depositListOwner;
+
+  /// No description provided for @depositListOwnerAndSignatory.
+  ///
+  /// In fa, this message translates to:
+  /// **'صاحب سپرده و امضا'**
+  String get depositListOwnerAndSignatory;
+
+  /// No description provided for @depositListOwnerName.
+  ///
+  /// In fa, this message translates to:
+  /// **'نام'**
+  String get depositListOwnerName;
+
+  /// No description provided for @depositListOwnerPercent.
+  ///
+  /// In fa, this message translates to:
+  /// **'درصد'**
+  String get depositListOwnerPercent;
+
+  /// No description provided for @depositListOwnerRole.
+  ///
+  /// In fa, this message translates to:
+  /// **'نقش'**
+  String get depositListOwnerRole;
+
+  /// No description provided for @depositListSavings.
+  ///
+  /// In fa, this message translates to:
+  /// **'پس انداز حقیقی'**
+  String get depositListSavings;
+
+  /// No description provided for @depositListServiceUnavailable.
+  ///
+  /// In fa, this message translates to:
+  /// **'این خدمت پس از اتصال به سامانه بانک در دسترس خواهد بود.'**
+  String get depositListServiceUnavailable;
+
+  /// No description provided for @depositListSignatory.
+  ///
+  /// In fa, this message translates to:
+  /// **'صاحب امضا'**
+  String get depositListSignatory;
+
+  /// No description provided for @depositListSms.
+  ///
+  /// In fa, this message translates to:
+  /// **'تنظیمات ارسال پیامک'**
+  String get depositListSms;
+
+  /// No description provided for @depositListStatement.
+  ///
+  /// In fa, this message translates to:
+  /// **'صورت حساب | معدل موجودی'**
+  String get depositListStatement;
+
+  /// No description provided for @depositListStatus.
+  ///
+  /// In fa, this message translates to:
+  /// **'وضعیت'**
+  String get depositListStatus;
 }
 
 class _AppLocalizationsDelegate

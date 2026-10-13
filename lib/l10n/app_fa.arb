@@ -426,5 +426,29 @@
         "type": "String"
       }
     }
-  }
+  },
+  "depositListAccountDetails": "جزئیات حساب",
+  "depositListAccountType": "نوع حساب",
+  "depositListBlock": "مسدودی سپرده",
+  "depositListBlocked": "مسدود",
+  "depositListClosed": "بسته",
+  "depositListCurrent": "جاری حقیقی",
+  "depositListCustomerInformation": "اطلاعات مشتری",
+  "depositListLinkedCards": "کارت‌های متصل به حساب",
+  "depositListNationalId": "کدملی",
+  "depositListNoMatches": "سپرده‌ای با این فیلترها پیدا نشد.",
+  "depositListNoOwners": "اطلاعات صاحبان حساب در دسترس نیست.",
+  "depositListNumber": "شماره سپرده",
+  "depositListOpen": "باز",
+  "depositListOwner": "صاحب سپرده",
+  "depositListOwnerAndSignatory": "صاحب سپرده و امضا",
+  "depositListOwnerName": "نام",
+  "depositListOwnerPercent": "درصد",
+  "depositListOwnerRole": "نقش",
+  "depositListSavings": "پس انداز حقیقی",
+  "depositListServiceUnavailable": "این خدمت پس از اتصال به سامانه بانک در دسترس خواهد بود.",
+  "depositListSignatory": "صاحب امضا",
+  "depositListSms": "تنظیمات ارسال پیامک",
+  "depositListStatement": "صورت حساب | معدل موجودی",
+  "depositListStatus": "وضعیت"
 }

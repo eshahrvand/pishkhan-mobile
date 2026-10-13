@@ -24,3 +24,7 @@ abstract final class ProfileRoutes {
   static const messages = '/profile/messages';
   static const messageDetail = '/profile/messages/:messageId';
 }
+
+abstract final class DepositsRoutes {
+  static const list = '/deposits/list';
+}

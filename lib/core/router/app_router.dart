@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pishkhan_mobile/features/auth/auth_routes.dart';
 import 'package:pishkhan_mobile/features/cards/cards_routes.dart';
+import 'package:pishkhan_mobile/features/deposits/deposits_routes.dart';
 import 'package:pishkhan_mobile/features/profile/profile_routes.dart';
 import 'package:pishkhan_mobile/features/dashboard/dashboard_routes.dart';
 import 'package:pishkhan_mobile/features/launch/launch_routes.dart';
@@ -31,6 +32,7 @@ List<RouteBase> buildAppRoutes({
     },
   ),
   ...buildCardsRoutes(),
+  ...buildDepositsRoutes(),
   ...buildProfileRoutes(),
 ];
 

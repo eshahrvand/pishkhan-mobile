@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pishkhan_mobile/features/auth/auth_routes.dart';
 import 'package:pishkhan_mobile/features/cards/cards_routes.dart';
+import 'package:pishkhan_mobile/features/deposits/deposits_routes.dart';
 import 'package:pishkhan_mobile/features/cards/domain/entities/listed_card.dart';
 
 abstract final class ServiceRegistry {
@@ -13,6 +14,18 @@ abstract final class ServiceRegistry {
     String? initialDepositNumber,
     String? initialCardNumber,
   }) {
+    if (id == 'deposit-list') {
+      context.push<void>(
+        DepositsRoutes.list,
+        extra: DepositListRouteArguments(
+          onAssistantPressed: () {
+            context.go(DashboardRoutes.home);
+            onAssistantPressed?.call();
+          },
+        ),
+      );
+      return true;
+    }
     if (const {
       'card-password',
       'card-pin-second-set',
