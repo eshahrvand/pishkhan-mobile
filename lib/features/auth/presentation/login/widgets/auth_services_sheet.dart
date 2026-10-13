@@ -4,9 +4,10 @@ import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/login/cubit/auth_cubit.dart';
+import 'package:pishkhan_mobile/features/auth/presentation/login/widgets/auth_services_grid.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/shared/auth_assets.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/shared/widgets/auth_services_grid.dart';
 import 'package:pishkhan_mobile/l10n/l10n.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_bottom_sheet_header.dart';
 
@@ -34,9 +35,9 @@ Future<void> showAuthServicesSheet(
             528.0,
           ),
           child: AuthServicesSheet(
-            onClose: () => Navigator.of(sheetContext).pop(),
+            onClose: () => sheetContext.pop(),
             onServiceRequested: (id) {
-              Navigator.of(sheetContext).pop();
+              sheetContext.pop();
               if (id == 'identity.changePhone') {
                 cubit.openChangePhone();
               } else {
@@ -74,7 +75,6 @@ class AuthServicesSheet extends StatelessWidget {
       onTap: () => onServiceRequested?.call(id),
     );
     return Material(
-      key: const Key('auth_services_sheet'),
       color: context.colors.surfaceSubtle,
       borderRadius: const BorderRadius.vertical(top: AppRadius.xl),
       clipBehavior: Clip.antiAlias,

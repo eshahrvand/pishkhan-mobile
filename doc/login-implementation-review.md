@@ -1,5 +1,24 @@
 # Login implementation — updated Figma frames
 
+## UI structure after the auth refactor
+
+`AuthScreen` lives in
+`lib/features/auth/presentation/login/screens/auth_screen.dart`. Bloc-driven login sections,
+direct package input bindings, reusable field icons, and the guest services sheet
+live under `lib/features/auth/presentation/login/widgets/`. The identity form
+keeps its field subscriptions and CAPTCHA together. The OTP form keeps its
+countdown widget in the same file, and `auth_form_shared.dart` groups the reused
+heading and field-icon helpers.
+When UI code grows beyond about 200 lines, review its responsibilities and
+prefer extracting a coherent Bloc subscription with its UI into a widget file.
+The threshold is a guide: keep tiny one-use fragments inline and related grid
+helpers together. Keep a stateful widget and its State class together.
+Typography derives from the installed theme. Tests find controls by public
+labels, hints, and widget types; only documented flow-transition keys remain
+to reset controllers. Existing layouts, validation, and demo callbacks are
+preserved. The applicable conventions are in
+[the Flutter widget UI style skill](../.agents/skills/flutter-widget-ui-style/SKILL.md).
+
 The login section is implemented from the Mobile Figma file
 `nYQNyZdSs98lwymCpt5Sag`. Screens share the bank header and background artwork;
 form and OTP values are controlled by `AuthCubit`.
@@ -22,9 +41,11 @@ form and OTP values are controlled by `AuthCubit`.
   physical left, and the exported divider.
 - `AuthSectionHeading`: exported 10×20px mark, 16px DemiBold title,
   8px gap, and 14px/20px supporting text.
-- `AuthNumericField` composes the public `AppTextField` with 14px/20px
-  typography, Persian/Arabic digit normalization, numeric input, and controlled
-  values. Filled numeric values are LTR and right-aligned.
+- Login, CAPTCHA, and OTP use the public `AppTextField` directly with 14px/20px
+  typography, Persian/Arabic digit normalization, numeric filtering and explicit
+  limits. Optional `value` and `onFocusLost` parameters provide controlled text
+  and focus-loss validation. Empty and filled text stays RTL with
+  `TextAlign.start`. The intermediary `AuthNumericField` has been removed.
 - `AppButton`: 40px send-code action and 44px OTP submission. The empty
   identity form retains the blue send-code action from Figma; invalid submission
   shows localized field errors. OTP submission is disabled until four digits are

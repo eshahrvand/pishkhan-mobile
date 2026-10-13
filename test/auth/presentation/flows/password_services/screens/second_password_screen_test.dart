@@ -1,3 +1,7 @@
+import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
+
+import '../../../../../support/auth_ui_finders.dart';
+
 import 'package:pishkhan_mobile/core/router/app_routes.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pishkhan_mobile/features/auth/auth_routes.dart';
@@ -97,13 +101,10 @@ void main() {
     await t.pumpAndSettle();
   }
 
-  SecondPasswordCubit c(WidgetTester t) => t
-      .element(
-        find.byType(BlocConsumer<SecondPasswordCubit, SecondPasswordState>),
-      )
-      .read<SecondPasswordCubit>();
+  SecondPasswordCubit c(WidgetTester t) =>
+      t.element(find.byType(AppTopBar)).read<SecondPasswordCubit>();
   Future<void> tap(WidgetTester t, String key) async {
-    await t.tap(find.byKey(Key(key)));
+    await t.tap(authControl(t, key));
     await t.pumpAndSettle();
   }
 
@@ -235,13 +236,10 @@ void main() {
         TextDirection.rtl,
       );
       if (frame == 'selection-empty') {
+        expect(t.getTopLeft(authControl(t, 'password_card_kind')).dy, 144);
+        expect(t.getTopLeft(authControl(t, 'password_next')).dy, 712);
         expect(
-          t.getTopLeft(find.byKey(const Key('password_card_kind'))).dy,
-          144,
-        );
-        expect(t.getTopLeft(find.byKey(const Key('password_next'))).dy, 712);
-        expect(
-          t.widget<AppButton>(find.byKey(const Key('password_next'))).onPressed,
+          t.widget<AppButton>(authControl(t, 'password_next')).onPressed,
           isNull,
         );
       }
@@ -288,7 +286,7 @@ void main() {
       Future<void> enter(String key, String value) async {
         await t.enterText(
           find.descendant(
-            of: find.byKey(Key(key)),
+            of: authControl(t, key),
             matching: find.byType(TextField),
           ),
           value,
@@ -300,7 +298,7 @@ void main() {
       await enter('password_confirmation', '٨٢٩١٦٤');
       final password = t.widget<TextField>(
         find.descendant(
-          of: find.byKey(const Key('password_value')),
+          of: authControl(t, 'password_value'),
           matching: find.byType(TextField),
         ),
       );
@@ -313,12 +311,12 @@ void main() {
       expect(find.byType(AppVideoPlayer), findsOneWidget);
       await tap(t, 'password_next');
       expect(
-        t.widget<AppButton>(find.byKey(const Key('password_next'))).onPressed,
+        t.widget<AppButton>(authControl(t, 'password_next')).onPressed,
         isNull,
       );
       await tap(t, 'password_confirm_mock');
       await tap(t, 'password_next');
-      expect(find.byKey(const Key('password_tracking')), findsOneWidget);
+      expect(authControl(t, 'password_tracking'), findsOneWidget);
       expect(c(t).state.password, '');
       expect(
         find.text(
@@ -335,7 +333,7 @@ void main() {
     await mount(t, repository: r);
     expect(find.text('کارتی برای نمایش وجود ندارد.'), findsNothing);
     r.catalog = MockPasswordServicesRepository.sampleCatalog;
-    await t.tap(find.byKey(const Key('password_retry')));
+    await t.tap(authControl(t, 'password_retry'));
     await t.pumpAndSettle();
     select(c(t));
     await c(t).next();
@@ -359,9 +357,9 @@ void main() {
       await readyToSubmit(c(t));
       await t.pumpAndSettle();
       expect(t.takeException(), isNull);
-      await t.ensureVisible(find.byKey(const Key('password_confirm_mock')));
+      await t.ensureVisible(authControl(t, 'password_confirm_mock'));
       await t.pump();
-      expect(find.byKey(const Key('password_next')), findsOneWidget);
+      expect(authControl(t, 'password_next'), findsOneWidget);
     });
   }
   for (final frame in [
@@ -415,12 +413,9 @@ void main() {
         'change-password-filled',
         'change-submitted',
       ].contains(frame)) {
-        expect(t.getTopLeft(find.byKey(const Key('password_current'))).dy, 144);
-        expect(t.getTopLeft(find.byKey(const Key('password_value'))).dy, 228);
-        expect(
-          t.getTopLeft(find.byKey(const Key('password_confirmation'))).dy,
-          292,
-        );
+        expect(t.getTopLeft(authControl(t, 'password_current')).dy, 144);
+        expect(t.getTopLeft(authControl(t, 'password_value')).dy, 228);
+        expect(t.getTopLeft(authControl(t, 'password_confirmation')).dy, 292);
       }
       if (frame == 'change-password-filled' || frame == 'change-submitted') {
         for (final entry in [
@@ -430,7 +425,7 @@ void main() {
         ]) {
           await t.enterText(
             find.descendant(
-              of: find.byKey(Key(entry.$1)),
+              of: authControl(t, entry.$1),
               matching: find.byType(TextField),
             ),
             entry.$2,
@@ -445,38 +440,29 @@ void main() {
       if (frame == 'change-submitted') {
         await tap(t, 'password_next');
         expect(
-          t.getTopLeft(find.byKey(const Key('password_result_badge'))).dy,
+          t.getTopLeft(authControl(t, 'password_result_badge')).dy,
           closeTo(476, .01),
         );
         expect(
-          t.getSize(find.byKey(const Key('password_result_badge'))).height,
+          t.getSize(authControl(t, 'password_result_badge')).height,
           closeTo(59.9961, .001),
         );
         expect(r.requests.single.operation, PasswordOperation.changePassword);
         expect(r.requests.single.currentPassword, '123456');
         expect(controller.state.currentPassword, isEmpty);
-        expect(find.byKey(const Key('password_status_page')), findsNothing);
-        expect(
-          find.byKey(const Key('password_record_dismiss')),
-          findsOneWidget,
-        );
+        expect(authControl(t, 'password_status_page'), findsNothing);
+        expect(authControl(t, 'password_record_dismiss'), findsOneWidget);
         expect(find.text('تغییر رمز شما با موفقیت انجام شد.'), findsOneWidget);
       }
       if (frame == 'change-status') {
-        expect(find.byKey(const Key('password_status_page')), findsOneWidget);
-        expect(find.byKey(const Key('password_record_dismiss')), findsNothing);
+        expect(authControl(t, 'password_status_page'), findsOneWidget);
+        expect(authControl(t, 'password_record_dismiss'), findsNothing);
+        expect(authControl(t, 'password_status_dismiss'), findsOneWidget);
         expect(
-          find.byKey(const Key('password_status_dismiss')),
-          findsOneWidget,
-        );
-        expect(
-          t.getSize(find.byKey(const Key('password_status_badge'))).height,
+          t.getSize(authControl(t, 'password_status_badge')).height,
           closeTo(99.9961, .001),
         );
-        expect(
-          t.getTopLeft(find.byKey(const Key('password_status_page'))).dy,
-          124,
-        );
+        expect(t.getTopLeft(authControl(t, 'password_status_page')).dy, 124);
       }
       await save(t, frame);
     });
@@ -499,8 +485,8 @@ void main() {
         await controller.next();
         await t.pumpAndSettle();
         expect(t.takeException(), isNull);
-        await t.ensureVisible(find.byKey(const Key('password_confirmation')));
-        expect(find.byKey(const Key('password_terms')), findsOneWidget);
+        await t.ensureVisible(authControl(t, 'password_confirmation'));
+        expect(authControl(t, 'password_terms'), findsOneWidget);
       },
     );
   }
@@ -544,8 +530,8 @@ void main() {
     controller.chooseOperation(PasswordOperation.changePassword);
     await controller.next();
     await t.pumpAndSettle();
-    expect(find.byKey(const Key('password_status_page')), findsOneWidget);
-    expect(find.byKey(const Key('password_record_dismiss')), findsNothing);
+    expect(authControl(t, 'password_status_page'), findsOneWidget);
+    expect(authControl(t, 'password_record_dismiss'), findsNothing);
     await tap(t, 'password_status_dismiss');
     expect(find.byType(SecondPasswordScreen), findsNothing);
     expect(find.text('Check'), findsOneWidget);
@@ -565,7 +551,7 @@ void main() {
       expect(controller.state.cardId, 'password-card-1');
       expect(passwordCanContinue(controller.state), false);
       expect(find.byType(AppInvoice), findsNothing);
-      expect(t.getTopLeft(find.byKey(const Key('password_operation'))).dy, 434);
+      expect(t.getTopLeft(authControl(t, 'password_operation')).dy, 434);
       if (frame == 'operation-sheet') {
         await tap(t, 'password_operation');
         expect(find.text('تغییر رمز عبور'), findsOneWidget);

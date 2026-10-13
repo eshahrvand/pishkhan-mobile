@@ -1,3 +1,4 @@
+import '../../support/auth_ui_finders.dart';
 import '../../dashboard/support/dashboard_test_repositories.dart';
 
 import 'package:pishkhan_mobile/core/router/app_routes.dart';
@@ -170,7 +171,7 @@ void main() {
       expect(cubit.requestOtp(), isTrue);
       cubit.otpChanged('1234');
       await tester.pumpAndSettle();
-      await tester.tap(find.byKey(const Key('submit_otp_button')));
+      await tester.tap(authControl(tester, 'submit_otp_button'));
       await tester.pumpAndSettle();
       expect(session.isAuthenticated, isTrue);
       expect(

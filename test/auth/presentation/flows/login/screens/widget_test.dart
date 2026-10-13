@@ -1,3 +1,5 @@
+import '../../../../../support/auth_ui_finders.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pishkhan_mobile/main.dart';
@@ -12,10 +14,8 @@ void main() {
     expect(find.text('ورود با کد ملی'), findsOneWidget);
     expect(find.text('درخواست ارسال رمز'), findsOneWidget);
 
-    final changePhoneAction = find.byKey(const Key('change_phone_button'));
-    final nationalIdField = find.byKey(
-      const ValueKey<String>('login-national-id'),
-    );
+    final changePhoneAction = authControl(tester, 'change_phone_button');
+    final nationalIdField = authControl(tester, 'login-national-id');
     expect(
       tester.getTopLeft(changePhoneAction).dx,
       tester.getTopLeft(nationalIdField).dx,
@@ -41,7 +41,7 @@ void main() {
   testWidgets('guest service tile opens the change-phone form', (tester) async {
     await tester.pumpWidget(const MyApp());
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('auth_menu_button')));
+    await tester.tap(authControl(tester, 'auth_menu_button'));
     await tester.pumpAndSettle();
 
     expect(find.text('خدمات بدون نیاز به لاگین'), findsOneWidget);
@@ -50,9 +50,6 @@ void main() {
 
     expect(find.text('لیست خدمات'), findsNothing);
     expect(find.text('درخواست ارسال رمز'), findsOneWidget);
-    expect(
-      find.byKey(const ValueKey<String>('changePhone-national-id')),
-      findsOneWidget,
-    );
+    expect(authControl(tester, 'changePhone-national-id'), findsOneWidget);
   });
 }

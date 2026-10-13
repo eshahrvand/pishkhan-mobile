@@ -1,14 +1,14 @@
-import 'package:pishkhan_mobile/features/auth/presentation/login/cubit/auth_rules.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+
 import 'package:pishkhan_mobile/features/auth/presentation/login/cubit/auth_cubit.dart';
+import 'package:pishkhan_mobile/features/auth/presentation/login/cubit/auth_rules.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/login/cubit/auth_state.dart';
+import 'package:pishkhan_mobile/features/auth/presentation/login/widgets/auth_form_shared.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/shared/auth_assets.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/shared/widgets/auth_field_icon.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/shared/widgets/auth_numeric_field.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/shared/widgets/auth_section_heading.dart';
 import 'package:pishkhan_mobile/l10n/l10n.dart';
 
 class AuthOtpForm extends StatelessWidget {
@@ -17,10 +17,7 @@ class AuthOtpForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cubit = context.read<AuthCubit>();
-    final step = cubit.state.step;
     return Column(
-      key: const Key('auth_otp_form'),
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         BlocSelector<AuthCubit, AuthState, String>(
@@ -37,27 +34,33 @@ class AuthOtpForm extends StatelessWidget {
             Expanded(
               child: BlocSelector<AuthCubit, AuthState, String>(
                 selector: (state) => state.otp,
-                builder: (context, otp) => AuthNumericField(
-                  key: ValueKey('${step.name}-otp'),
+                builder: (context, otp) => AppTextField(
                   value: otp,
                   hintText: context.l10n.otpHint,
                   prefixIcon: const AuthFieldIcon(AuthAssets.lock),
+                  textDirection: TextDirection.rtl,
+                  textAlign: TextAlign.start,
+                  textStyle: Theme.of(context).textTheme.bodyMedium!
+                      .copyWith(height: 20 / 14, letterSpacing: 0),
+                  normalizeDigits: true,
+                  focusRing: AppTextFieldFocusRing.subtle,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   maxLength: 4,
+                  keyboardType: TextInputType.number,
                   textInputAction: TextInputAction.done,
-                  onChanged: cubit.otpChanged,
+                  onChanged: context.read<AuthCubit>().otpChanged,
                   onSubmitted: (_) => _submit(context),
                 ),
               ),
             ),
             const SizedBox(width: 7),
-            const SizedBox(width: 148, child: _OtpTimer()),
+            const SizedBox(width: 148, child: AuthOtpTimer()),
           ],
         ),
         const SizedBox(height: 24),
         BlocSelector<AuthCubit, AuthState, bool>(
           selector: (state) => authIsOtpValid(state),
           builder: (context, valid) => AppButton(
-            key: const Key('submit_otp_button'),
             onPressed: valid ? () => _submit(context) : null,
             label: context.l10n.enterDashboard,
             size: AppButtonSize.lg,
@@ -74,8 +77,8 @@ class AuthOtpForm extends StatelessWidget {
   }
 }
 
-class _OtpTimer extends StatelessWidget {
-  const _OtpTimer();
+class AuthOtpTimer extends StatelessWidget {
+  const AuthOtpTimer({super.key});
 
   @override
   Widget build(BuildContext context) => BlocSelector<AuthCubit, AuthState, int>(
@@ -83,7 +86,6 @@ class _OtpTimer extends StatelessWidget {
     builder: (context, remaining) => SizedBox(
       height: 44,
       child: AppButton(
-        key: const Key('otp_timer_button'),
         onPressed: remaining == 0 ? context.read<AuthCubit>().resendOtp : () {},
         label: remaining == 0
             ? context.l10n.resendOtp

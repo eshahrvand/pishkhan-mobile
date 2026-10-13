@@ -1,5 +1,28 @@
 # Password Services Development Document
 
+## UI structure after the auth refactor
+
+`lib/features/auth/presentation/password_services/screens/second_password_screen.dart`
+owns the flow lifecycle, navigation, and receipt listener. The view, selection,
+instruction, recording, footer, serial, and substantial sheets retain their
+own files under `presentation/password_services/widgets/`. PIN fields and rule
+feedback stay with the password form; the select helper stays with its selection
+section. `password_request_status.dart` groups receipt-sheet and returning-status
+content. Around 200 lines is a
+review trigger for extracting a coherent Bloc-driven section, not a hard
+file-size limit. The flow body and footer own their Bloc
+subscriptions; small helpers stay with their owner. Stateful widgets retain
+their State classes in the same file.
+A filtered listener handles receipt sheets;
+the background, body, footer, recording confirmation, and password rules subscribe
+to the state they display. Reused fields receive controllers and callbacks.
+`widgets/password_sheets.dart` contains top-level route launchers; substantial
+sheets have their own files, while the reusable route layout and short exit
+dialog share the launcher file. Typography derives from the installed theme, modal
+dismissal uses `context.pop`, and tests use content/type finders. The documented
+step key recreates controllers and resets scrolling on step changes. Repository,
+validation, mock KYC, and submission contracts are preserved.
+
 **Date:** 2026-10-10  
 **Status:** Feature 1 implemented with a mock repository and real sample-video playback. Bank password changes, KYC capture and SMS execution are unconnected.  
 **Scope:** First-time second-password setup, forgotten second-password recovery and change-password requests share the same flow. Recovery/change add an operation selector; change asks for the current PIN and submits directly from the password form. First-PIN handling remains outside this implementation.

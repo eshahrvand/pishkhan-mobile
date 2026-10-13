@@ -1,3 +1,4 @@
+import '../../../../../support/auth_ui_finders.dart';
 import '../../../../../support/router_test_app.dart';
 
 import 'package:pishkhan_mobile/features/auth/presentation/login/cubit/auth_rules.dart';
@@ -144,16 +145,17 @@ void main() {
         onAuthenticated: () => submitted = true,
       );
       expect(tester.takeException(), isNull);
-      expect(
-        tester.getTopLeft(find.byKey(const Key('auth_menu_button'))).dy,
-        28,
-      );
+      for (final input in tester.widgetList<TextField>(find.byType(TextField))) {
+        expect(input.textDirection, TextDirection.rtl);
+        expect(input.textAlign, TextAlign.start);
+      }
+      expect(tester.getTopLeft(authControl(tester, 'auth_menu_button')).dy, 28);
       if (authIsOtp(state)) {
         expect(find.text('کد ارسال شد.'), findsOneWidget);
-        final submit = find.byKey(const Key('submit_otp_button'));
+        final submit = authControl(tester, 'submit_otp_button');
         expect(tester.getSize(submit).height, 44);
         expect(tester.getTopLeft(submit).dy, 248);
-        final otp = find.byKey(ValueKey('${state.step.name}-otp'));
+        final otp = authControl(tester, '${state.step.name}-otp');
         expect(tester.getSize(otp).width, 188);
         expect(tester.getTopLeft(otp).dy, 180);
         await preview(tester, name);
@@ -161,8 +163,9 @@ void main() {
         await tester.pump();
         expect(submitted, authIsOtpValid(state));
       } else {
-        final nationalId = find.byKey(
-          ValueKey('${state.step.name}-national-id'),
+        final nationalId = authControl(
+          tester,
+          '${state.step.name}-national-id',
         );
         expect(tester.getSize(nationalId).height, 44);
         expect(
@@ -170,10 +173,10 @@ void main() {
           authIsChangePhone(state) ? 200 : 180,
         );
         expect(
-          tester.getSize(find.byKey(const Key('auth_captcha_image'))).width,
+          tester.getSize(authControl(tester, 'auth_captcha_image')).width,
           148,
         );
-        final submit = find.byKey(const Key('request_otp_button'));
+        final submit = authControl(tester, 'request_otp_button');
         expect(tester.getSize(submit).height, 40);
         expect(
           tester.getTopLeft(submit).dy,
@@ -198,10 +201,10 @@ void main() {
         keyboard: false,
         onGuestServiceRequested: (id) => selected = id,
       );
-      await tester.tap(find.byKey(const Key('auth_menu_button')));
+      await tester.tap(authControl(tester, 'auth_menu_button'));
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
-      final sheet = find.byKey(const Key('auth_services_sheet'));
+      final sheet = authControl(tester, 'auth_services_sheet');
       expect(tester.getTopLeft(sheet).dy, 246);
       expect(tester.getSize(sheet).height, 528);
       expect(find.text('نکات امنیتی'), findsOneWidget);
@@ -210,7 +213,7 @@ void main() {
       await tester.tap(find.text('گزارش تمکن'));
       await tester.pumpAndSettle();
       expect(selected, 'deposits.assetReport');
-      expect(find.byKey(const Key('auth_services_sheet')), findsNothing);
+      expect(authControl(tester, 'auth_services_sheet'), findsNothing);
       debugDisableShadows = priorShadowSetting;
       await tester.pumpWidget(const SizedBox.shrink());
     },
@@ -220,7 +223,7 @@ void main() {
     'normalizes Persian input, validates submission and preserves fields on back',
     (tester) async {
       final cubit = await mount(tester);
-      await tester.tap(find.byKey(const Key('request_otp_button')));
+      await tester.tap(authControl(tester, 'request_otp_button'));
       await tester.pumpAndSettle();
       expect(cubit.state.invalidFields, {'nationalId', 'phone', 'captcha'});
       for (final (field, value) in [
@@ -229,7 +232,7 @@ void main() {
         ('captcha', '۰۱۱۷۵۹'),
       ]) {
         final finder = find.descendant(
-          of: find.byKey(ValueKey('login-$field')),
+          of: authControl(tester, 'login-$field'),
           matching: find.byType(TextField),
         );
         await tester.ensureVisible(finder);
@@ -238,8 +241,8 @@ void main() {
       await tester.pumpAndSettle();
       expect(cubit.state.nationalId, '0081234562');
       expect(cubit.state.invalidFields, isEmpty);
-      await tester.ensureVisible(find.byKey(const Key('request_otp_button')));
-      await tester.tap(find.byKey(const Key('request_otp_button')));
+      await tester.ensureVisible(authControl(tester, 'request_otp_button'));
+      await tester.tap(authControl(tester, 'request_otp_button'));
       await tester.pumpAndSettle();
       expect(cubit.state.step, AuthStep.loginOtp);
       await tester.binding.handlePopRoute();
@@ -262,10 +265,10 @@ void main() {
         ),
       );
       var submit = tester.widget<AppButton>(
-        find.byKey(const Key('submit_otp_button')),
+        authControl(tester, 'submit_otp_button'),
       );
       expect(submit.onPressed, isNull);
-      await tester.tap(find.byKey(const Key('otp_timer_button')));
+      await tester.tap(authControl(tester, 'otp_timer_button'));
       await tester.pump();
       expect(cubit.state.otp, isEmpty);
       expect(cubit.state.secondsRemaining, 60);
@@ -293,9 +296,9 @@ void main() {
       );
       tester.view.physicalSize = const Size(320, 480);
       await tester.pumpAndSettle();
-      await tester.ensureVisible(find.byKey(const Key('request_otp_button')));
+      await tester.ensureVisible(authControl(tester, 'request_otp_button'));
       expect(tester.takeException(), isNull);
-      await tester.tap(find.byKey(const Key('auth_menu_button')));
+      await tester.tap(authControl(tester, 'auth_menu_button'));
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
       await tester.ensureVisible(find.text('نکات امنیتی'));

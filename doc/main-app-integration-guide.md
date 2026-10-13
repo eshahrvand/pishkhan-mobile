@@ -244,8 +244,8 @@ text actions, such as the notification header. Omit it to keep the size defaults
 
 Use the public AppLoginColors semantic tokens for login canvas, ownership notice,
 service labels, and section labels. AppTextField accepts textAlign (default:
-TextAlign.start), so numeric values can use TextDirection.ltr and TextAlign.end
-without changing the surrounding RTL icon layout.
+TextAlign.start). Login, CAPTCHA, and OTP explicitly use TextDirection.rtl and
+TextAlign.start for both placeholders and entered text.
 
 ## Dashboard instance styling
 
@@ -317,3 +317,23 @@ Card Services `card-pin-second-change` enables operation selection on `SecondPas
 ### Virtual card requests
 
 `VirtualCardRequestScreen(repository: adapter, initialDepositNumber: number)` composes public avp_ui inputs/selects/buttons and the app-owned AppInvoice. `VirtualCardRepository` supplies catalog, bound fee quotes and idempotent submission receipts. `card-virtual`/`card-virtual-request` open the request form; `card-virtual-list` and card category chips retain list access. The virtual-list footer opens the same form unless a host callback handles it. See [request architecture and mock fee limits](virtual-card-request/virtual-card-request-development.md) and [two rendered states](virtual-card-request-review/index.html).
+
+## Direct state-driven text inputs
+
+`AppTextField` accepts optional `value`, `onFocusLost`, and `maxLength` inputs.
+Use either `value` or an external `controller`, never both. With `value`, the
+package owns a controller and synchronizes changes, including an empty string
+that clears the field. Unchanged values preserve selection/composition, and
+programmatic synchronization does not invoke `onChanged`. The package never
+disposes externally supplied controllers or focus nodes.
+
+`onFocusLost` runs on blur of the active focus node and can invoke app-owned
+validation. `maxLength` applies after digit normalization and custom formatters
+without displaying a counter. These parameters are opt-in; existing defaults
+and uncontrolled/controller-based fields retain their behavior.
+
+Login, CAPTCHA, and OTP pass their Cubit values directly, with
+`normalizeDigits: true`, `FilteringTextInputFormatter.digitsOnly`, and their
+individual length limits. Their text uses `TextDirection.rtl` and
+`TextAlign.start` in empty and filled states. Banking validation belongs to the
+app. No intermediary input widget is required.
