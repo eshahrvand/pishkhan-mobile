@@ -2589,6 +2589,426 @@ abstract class AppLocalizations {
   /// In fa, this message translates to:
   /// **'وضعیت'**
   String get depositListStatus;
+
+  /// No description provided for @certificateAddressHint.
+  ///
+  /// In fa, this message translates to:
+  /// **'آدرس ارسال گواهی را انتخاب کنید'**
+  String get certificateAddressHint;
+
+  /// No description provided for @certificateAgentIdentifier.
+  ///
+  /// In fa, this message translates to:
+  /// **'کد ملی یا تلفن کارشناس'**
+  String get certificateAgentIdentifier;
+
+  /// No description provided for @certificateAgentNotice.
+  ///
+  /// In fa, this message translates to:
+  /// **'چنانچه کارشناس بانکی جهت احراز می‌شناسید، با وارد کردن کد ملی یا شماره تلفن کارشناس مد نظر خود را انتخاب کنید.'**
+  String get certificateAgentNotice;
+
+  /// No description provided for @certificateAgentUnavailable.
+  ///
+  /// In fa, this message translates to:
+  /// **'استعلام کارشناس پس از اتصال به سامانه بانک فعال می‌شود.'**
+  String get certificateAgentUnavailable;
+
+  /// No description provided for @certificateAverageBalance.
+  ///
+  /// In fa, this message translates to:
+  /// **'معدل موجودی'**
+  String get certificateAverageBalance;
+
+  /// No description provided for @certificateAverageTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'درخواست صورت‌حساب | معدل موجودی'**
+  String get certificateAverageTitle;
+
+  /// No description provided for @certificateBothTurnovers.
+  ///
+  /// In fa, this message translates to:
+  /// **'واریز | برداشت'**
+  String get certificateBothTurnovers;
+
+  /// No description provided for @certificateCheckAgent.
+  ///
+  /// In fa, this message translates to:
+  /// **'بررسی'**
+  String get certificateCheckAgent;
+
+  /// No description provided for @certificateConditionsPrompt.
+  ///
+  /// In fa, this message translates to:
+  /// **'شرایط درخواست جهت درج روی گواهی را انتخاب کنید.'**
+  String get certificateConditionsPrompt;
+
+  /// No description provided for @certificateConditionsStep.
+  ///
+  /// In fa, this message translates to:
+  /// **'انتخاب سپرده و شرایط درخواست'**
+  String get certificateConditionsStep;
+
+  /// No description provided for @certificateDeleteAddressPrompt.
+  ///
+  /// In fa, this message translates to:
+  /// **'از حذف این آدرس مطمئن هستید؟'**
+  String get certificateDeleteAddressPrompt;
+
+  /// No description provided for @certificateDeliveryStep.
+  ///
+  /// In fa, this message translates to:
+  /// **'اطلاعات نحوه دریافت گواهی'**
+  String get certificateDeliveryStep;
+
+  /// No description provided for @certificateDepositsOnly.
+  ///
+  /// In fa, this message translates to:
+  /// **'واریز'**
+  String get certificateDepositsOnly;
+
+  /// No description provided for @certificateEnglish.
+  ///
+  /// In fa, this message translates to:
+  /// **'انگلیسی'**
+  String get certificateEnglish;
+
+  /// No description provided for @certificateFromDate.
+  ///
+  /// In fa, this message translates to:
+  /// **'از تاریخ'**
+  String get certificateFromDate;
+
+  /// No description provided for @certificateFromDateHint.
+  ///
+  /// In fa, this message translates to:
+  /// **'تاریخ شروع را مشخص کنید'**
+  String get certificateFromDateHint;
+
+  /// No description provided for @certificateLanguage.
+  ///
+  /// In fa, this message translates to:
+  /// **'زبان'**
+  String get certificateLanguage;
+
+  /// No description provided for @certificateMockComplete.
+  ///
+  /// In fa, this message translates to:
+  /// **'درخواست آزمایشی ثبت شد؛ گواهی صادر نشده و مبلغی برداشت نشده است.'**
+  String get certificateMockComplete;
+
+  /// No description provided for @certificateNextPrefix.
+  ///
+  /// In fa, this message translates to:
+  /// **'بعدی:'**
+  String get certificateNextPrefix;
+
+  /// No description provided for @certificateOptional.
+  ///
+  /// In fa, this message translates to:
+  /// **'اختیاری'**
+  String get certificateOptional;
+
+  /// No description provided for @certificatePersian.
+  ///
+  /// In fa, this message translates to:
+  /// **'فارسی'**
+  String get certificatePersian;
+
+  /// No description provided for @certificatePrintingNotice.
+  ///
+  /// In fa, this message translates to:
+  /// **'هزینه چاپ گزارش بر اساس تعداد صفحات محاسبه می‌شود.'**
+  String get certificatePrintingNotice;
+
+  /// No description provided for @certificateRecipientName.
+  ///
+  /// In fa, this message translates to:
+  /// **'نام و نام خانوادگی'**
+  String get certificateRecipientName;
+
+  /// No description provided for @certificateRecipientNameHint.
+  ///
+  /// In fa, this message translates to:
+  /// **'نام و نام خانوادگی گیرنده را وارد کنید'**
+  String get certificateRecipientNameHint;
+
+  /// No description provided for @certificateRecipientNationalIdHint.
+  ///
+  /// In fa, this message translates to:
+  /// **'کد ملی گیرنده را وارد کنید'**
+  String get certificateRecipientNationalIdHint;
+
+  /// No description provided for @certificateRecipientNotice.
+  ///
+  /// In fa, this message translates to:
+  /// **'بسته فقط به شما تحویل داده می‌شود. در صورت عدم حضور، مشخصات تحویل گیرنده دوم را وارد کنید.'**
+  String get certificateRecipientNotice;
+
+  /// No description provided for @certificateStatementLanguageHint.
+  ///
+  /// In fa, this message translates to:
+  /// **'زبان صورتحساب را انتخاب کنید'**
+  String get certificateStatementLanguageHint;
+
+  /// No description provided for @certificateToDate.
+  ///
+  /// In fa, this message translates to:
+  /// **'تا تاریخ'**
+  String get certificateToDate;
+
+  /// No description provided for @certificateToDateHint.
+  ///
+  /// In fa, this message translates to:
+  /// **'تاریخ پایان را مشخص کنید'**
+  String get certificateToDateHint;
+
+  /// No description provided for @certificateTurnover.
+  ///
+  /// In fa, this message translates to:
+  /// **'نوع گردش'**
+  String get certificateTurnover;
+
+  /// No description provided for @certificateTurnoverHint.
+  ///
+  /// In fa, this message translates to:
+  /// **'نوع گردش سپرده را انتخاب نمایید'**
+  String get certificateTurnoverHint;
+
+  /// No description provided for @certificateWithdrawalsOnly.
+  ///
+  /// In fa, this message translates to:
+  /// **'برداشت'**
+  String get certificateWithdrawalsOnly;
+
+  /// No description provided for @financialAuthority.
+  ///
+  /// In fa, this message translates to:
+  /// **'مرجع'**
+  String get financialAuthority;
+
+  /// No description provided for @financialAuthorityHint.
+  ///
+  /// In fa, this message translates to:
+  /// **'نام دقیق مرجع را بنویسید'**
+  String get financialAuthorityHint;
+
+  /// No description provided for @financialAverageBalanceCondition.
+  ///
+  /// In fa, this message translates to:
+  /// **'درج میانگین موجودی'**
+  String get financialAverageBalanceCondition;
+
+  /// No description provided for @financialCertificateTitle.
+  ///
+  /// In fa, this message translates to:
+  /// **'درخواست گواهی تمکن مالی'**
+  String get financialCertificateTitle;
+
+  /// No description provided for @financialCurrency.
+  ///
+  /// In fa, this message translates to:
+  /// **'ارز'**
+  String get financialCurrency;
+
+  /// No description provided for @financialCurrencyHint.
+  ///
+  /// In fa, this message translates to:
+  /// **'نوع ارز را انتخاب کنید'**
+  String get financialCurrencyHint;
+
+  /// No description provided for @financialDebitCredit.
+  ///
+  /// In fa, this message translates to:
+  /// **'درج مبلغ گردش بدهکار بستانکار'**
+  String get financialDebitCredit;
+
+  /// No description provided for @financialEmbassy.
+  ///
+  /// In fa, this message translates to:
+  /// **'سفارت'**
+  String get financialEmbassy;
+
+  /// No description provided for @financialEmbassyHint.
+  ///
+  /// In fa, this message translates to:
+  /// **'سفارت مورد نظر را انتخاب کنید'**
+  String get financialEmbassyHint;
+
+  /// No description provided for @financialEur.
+  ///
+  /// In fa, this message translates to:
+  /// **'یورو'**
+  String get financialEur;
+
+  /// No description provided for @financialExchangeRate.
+  ///
+  /// In fa, this message translates to:
+  /// **'درج نرخ برابری روز'**
+  String get financialExchangeRate;
+
+  /// No description provided for @financialExpiryHint.
+  ///
+  /// In fa, this message translates to:
+  /// **'تاریخ انقضای گذرنامه را وارد کنید'**
+  String get financialExpiryHint;
+
+  /// No description provided for @financialFatherHint.
+  ///
+  /// In fa, this message translates to:
+  /// **'نام پدر خود را به لاتین وارد کنید'**
+  String get financialFatherHint;
+
+  /// No description provided for @financialHomeAddress.
+  ///
+  /// In fa, this message translates to:
+  /// **'آدرس محل سکونت'**
+  String get financialHomeAddress;
+
+  /// No description provided for @financialIrr.
+  ///
+  /// In fa, this message translates to:
+  /// **'ریال ایران'**
+  String get financialIrr;
+
+  /// No description provided for @financialLatinAddress.
+  ///
+  /// In fa, this message translates to:
+  /// **'Address'**
+  String get financialLatinAddress;
+
+  /// No description provided for @financialLatinAddressHint.
+  ///
+  /// In fa, this message translates to:
+  /// **'Unit, No, Alley, St, City, Province, Country, Postal code'**
+  String get financialLatinAddressHint;
+
+  /// No description provided for @financialLatinAddressPrompt.
+  ///
+  /// In fa, this message translates to:
+  /// **'آدرس محل سکونت خود را به لاتین وارد کنید.'**
+  String get financialLatinAddressPrompt;
+
+  /// No description provided for @financialLatinExpiry.
+  ///
+  /// In fa, this message translates to:
+  /// **'Date of Expiry'**
+  String get financialLatinExpiry;
+
+  /// No description provided for @financialLatinFather.
+  ///
+  /// In fa, this message translates to:
+  /// **'Father’s name'**
+  String get financialLatinFather;
+
+  /// No description provided for @financialLatinName.
+  ///
+  /// In fa, this message translates to:
+  /// **'Name'**
+  String get financialLatinName;
+
+  /// No description provided for @financialLatinPassport.
+  ///
+  /// In fa, this message translates to:
+  /// **'Passport No'**
+  String get financialLatinPassport;
+
+  /// No description provided for @financialLatinStep.
+  ///
+  /// In fa, this message translates to:
+  /// **'اطلاعات فردی لاتین'**
+  String get financialLatinStep;
+
+  /// No description provided for @financialLatinSurname.
+  ///
+  /// In fa, this message translates to:
+  /// **'Surname'**
+  String get financialLatinSurname;
+
+  /// No description provided for @financialMaturityDate.
+  ///
+  /// In fa, this message translates to:
+  /// **'تاریخ سررسید سپرده'**
+  String get financialMaturityDate;
+
+  /// No description provided for @financialNameHint.
+  ///
+  /// In fa, this message translates to:
+  /// **'نام خود را به لاتین وارد کنید'**
+  String get financialNameHint;
+
+  /// No description provided for @financialOpenedAt.
+  ///
+  /// In fa, this message translates to:
+  /// **'درج تاریخ اولیه افتتاح سپرده'**
+  String get financialOpenedAt;
+
+  /// No description provided for @financialOtherAuthority.
+  ///
+  /// In fa, this message translates to:
+  /// **'سایر مراجع'**
+  String get financialOtherAuthority;
+
+  /// No description provided for @financialPassportHint.
+  ///
+  /// In fa, this message translates to:
+  /// **'شماره گذرنامه خود را وارد کنید'**
+  String get financialPassportHint;
+
+  /// No description provided for @financialPassportNumberCondition.
+  ///
+  /// In fa, this message translates to:
+  /// **'شماره گذرنامه / شماره ثبت'**
+  String get financialPassportNumberCondition;
+
+  /// No description provided for @financialPassportPrompt.
+  ///
+  /// In fa, this message translates to:
+  /// **'اطلاعات گذرنامه خود را به لاتین وارد کنید.'**
+  String get financialPassportPrompt;
+
+  /// No description provided for @financialRecipient.
+  ///
+  /// In fa, this message translates to:
+  /// **'گیرنده'**
+  String get financialRecipient;
+
+  /// No description provided for @financialRecipientHint.
+  ///
+  /// In fa, this message translates to:
+  /// **'گیرنده گواهی را انتخاب کنید'**
+  String get financialRecipientHint;
+
+  /// No description provided for @financialRecipientPrompt.
+  ///
+  /// In fa, this message translates to:
+  /// **'گیرنده گواهی تمکن مالی را انتخاب کنید.'**
+  String get financialRecipientPrompt;
+
+  /// No description provided for @financialRecipientStep.
+  ///
+  /// In fa, this message translates to:
+  /// **'انتخاب گیرنده گواهی'**
+  String get financialRecipientStep;
+
+  /// No description provided for @financialSurnameHint.
+  ///
+  /// In fa, this message translates to:
+  /// **'نام خانوادگی خود را به لاتین وارد کنید'**
+  String get financialSurnameHint;
+
+  /// No description provided for @financialUsd.
+  ///
+  /// In fa, this message translates to:
+  /// **'دلار آمریکا'**
+  String get financialUsd;
+
+  /// No description provided for @financialWithdrawalRules.
+  ///
+  /// In fa, this message translates to:
+  /// **'شرایط برداشت از سپرده‌های مشترک / حقوقی'**
+  String get financialWithdrawalRules;
 }
 
 class _AppLocalizationsDelegate

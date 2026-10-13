@@ -1308,4 +1308,226 @@ class AppLocalizationsFa extends AppLocalizations {
 
   @override
   String get depositListStatus => 'وضعیت';
+
+  @override
+  String get certificateAddressHint => 'آدرس ارسال گواهی را انتخاب کنید';
+
+  @override
+  String get certificateAgentIdentifier => 'کد ملی یا تلفن کارشناس';
+
+  @override
+  String get certificateAgentNotice =>
+      'چنانچه کارشناس بانکی جهت احراز می‌شناسید، با وارد کردن کد ملی یا شماره تلفن کارشناس مد نظر خود را انتخاب کنید.';
+
+  @override
+  String get certificateAgentUnavailable =>
+      'استعلام کارشناس پس از اتصال به سامانه بانک فعال می‌شود.';
+
+  @override
+  String get certificateAverageBalance => 'معدل موجودی';
+
+  @override
+  String get certificateAverageTitle => 'درخواست صورت‌حساب | معدل موجودی';
+
+  @override
+  String get certificateBothTurnovers => 'واریز | برداشت';
+
+  @override
+  String get certificateCheckAgent => 'بررسی';
+
+  @override
+  String get certificateConditionsPrompt =>
+      'شرایط درخواست جهت درج روی گواهی را انتخاب کنید.';
+
+  @override
+  String get certificateConditionsStep => 'انتخاب سپرده و شرایط درخواست';
+
+  @override
+  String get certificateDeleteAddressPrompt => 'از حذف این آدرس مطمئن هستید؟';
+
+  @override
+  String get certificateDeliveryStep => 'اطلاعات نحوه دریافت گواهی';
+
+  @override
+  String get certificateDepositsOnly => 'واریز';
+
+  @override
+  String get certificateEnglish => 'انگلیسی';
+
+  @override
+  String get certificateFromDate => 'از تاریخ';
+
+  @override
+  String get certificateFromDateHint => 'تاریخ شروع را مشخص کنید';
+
+  @override
+  String get certificateLanguage => 'زبان';
+
+  @override
+  String get certificateMockComplete =>
+      'درخواست آزمایشی ثبت شد؛ گواهی صادر نشده و مبلغی برداشت نشده است.';
+
+  @override
+  String get certificateNextPrefix => 'بعدی:';
+
+  @override
+  String get certificateOptional => 'اختیاری';
+
+  @override
+  String get certificatePersian => 'فارسی';
+
+  @override
+  String get certificatePrintingNotice =>
+      'هزینه چاپ گزارش بر اساس تعداد صفحات محاسبه می‌شود.';
+
+  @override
+  String get certificateRecipientName => 'نام و نام خانوادگی';
+
+  @override
+  String get certificateRecipientNameHint =>
+      'نام و نام خانوادگی گیرنده را وارد کنید';
+
+  @override
+  String get certificateRecipientNationalIdHint => 'کد ملی گیرنده را وارد کنید';
+
+  @override
+  String get certificateRecipientNotice =>
+      'بسته فقط به شما تحویل داده می‌شود. در صورت عدم حضور، مشخصات تحویل گیرنده دوم را وارد کنید.';
+
+  @override
+  String get certificateStatementLanguageHint => 'زبان صورتحساب را انتخاب کنید';
+
+  @override
+  String get certificateToDate => 'تا تاریخ';
+
+  @override
+  String get certificateToDateHint => 'تاریخ پایان را مشخص کنید';
+
+  @override
+  String get certificateTurnover => 'نوع گردش';
+
+  @override
+  String get certificateTurnoverHint => 'نوع گردش سپرده را انتخاب نمایید';
+
+  @override
+  String get certificateWithdrawalsOnly => 'برداشت';
+
+  @override
+  String get financialAuthority => 'مرجع';
+
+  @override
+  String get financialAuthorityHint => 'نام دقیق مرجع را بنویسید';
+
+  @override
+  String get financialAverageBalanceCondition => 'درج میانگین موجودی';
+
+  @override
+  String get financialCertificateTitle => 'درخواست گواهی تمکن مالی';
+
+  @override
+  String get financialCurrency => 'ارز';
+
+  @override
+  String get financialCurrencyHint => 'نوع ارز را انتخاب کنید';
+
+  @override
+  String get financialDebitCredit => 'درج مبلغ گردش بدهکار بستانکار';
+
+  @override
+  String get financialEmbassy => 'سفارت';
+
+  @override
+  String get financialEmbassyHint => 'سفارت مورد نظر را انتخاب کنید';
+
+  @override
+  String get financialEur => 'یورو';
+
+  @override
+  String get financialExchangeRate => 'درج نرخ برابری روز';
+
+  @override
+  String get financialExpiryHint => 'تاریخ انقضای گذرنامه را وارد کنید';
+
+  @override
+  String get financialFatherHint => 'نام پدر خود را به لاتین وارد کنید';
+
+  @override
+  String get financialHomeAddress => 'آدرس محل سکونت';
+
+  @override
+  String get financialIrr => 'ریال ایران';
+
+  @override
+  String get financialLatinAddress => 'Address';
+
+  @override
+  String get financialLatinAddressHint =>
+      'Unit, No, Alley, St, City, Province, Country, Postal code';
+
+  @override
+  String get financialLatinAddressPrompt =>
+      'آدرس محل سکونت خود را به لاتین وارد کنید.';
+
+  @override
+  String get financialLatinExpiry => 'Date of Expiry';
+
+  @override
+  String get financialLatinFather => 'Father’s name';
+
+  @override
+  String get financialLatinName => 'Name';
+
+  @override
+  String get financialLatinPassport => 'Passport No';
+
+  @override
+  String get financialLatinStep => 'اطلاعات فردی لاتین';
+
+  @override
+  String get financialLatinSurname => 'Surname';
+
+  @override
+  String get financialMaturityDate => 'تاریخ سررسید سپرده';
+
+  @override
+  String get financialNameHint => 'نام خود را به لاتین وارد کنید';
+
+  @override
+  String get financialOpenedAt => 'درج تاریخ اولیه افتتاح سپرده';
+
+  @override
+  String get financialOtherAuthority => 'سایر مراجع';
+
+  @override
+  String get financialPassportHint => 'شماره گذرنامه خود را وارد کنید';
+
+  @override
+  String get financialPassportNumberCondition => 'شماره گذرنامه / شماره ثبت';
+
+  @override
+  String get financialPassportPrompt =>
+      'اطلاعات گذرنامه خود را به لاتین وارد کنید.';
+
+  @override
+  String get financialRecipient => 'گیرنده';
+
+  @override
+  String get financialRecipientHint => 'گیرنده گواهی را انتخاب کنید';
+
+  @override
+  String get financialRecipientPrompt =>
+      'گیرنده گواهی تمکن مالی را انتخاب کنید.';
+
+  @override
+  String get financialRecipientStep => 'انتخاب گیرنده گواهی';
+
+  @override
+  String get financialSurnameHint => 'نام خانوادگی خود را به لاتین وارد کنید';
+
+  @override
+  String get financialUsd => 'دلار آمریکا';
+
+  @override
+  String get financialWithdrawalRules =>
+      'شرایط برداشت از سپرده‌های مشترک / حقوقی';
 }

@@ -44,6 +44,7 @@ Visual captures are not stored in `doc`; optional test captures use ignored
 - [Dashboard](doc/dashboard/development.md)
 - [Deposits](doc/deposits/development.md)
 - [Standalone deposit list and account sheets](doc/deposits/deposit-list.md)
+- [Statement / average balance request](doc/deposits/average-balance.md)
 - [Loans](doc/loans/development.md)
 
 General architecture and design-system guidance remain in the top-level `doc`

@@ -11,6 +11,8 @@ String validatedReturnLocation(String? location) {
     DashboardRoutes.allServices,
     CardsRoutes.list,
     DepositsRoutes.list,
+    DepositsRoutes.averageBalance,
+    DepositsRoutes.financialCertificate,
     CardsRoutes.issuance,
     CardsRoutes.virtualRequest,
     CardsRoutes.changeDeposit,

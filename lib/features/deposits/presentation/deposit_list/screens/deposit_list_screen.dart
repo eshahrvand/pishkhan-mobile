@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
+import 'package:pishkhan_mobile/core/flow/service_registry.dart';
 import 'package:pishkhan_mobile/l10n/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
@@ -57,6 +58,18 @@ class _DepositListView extends StatelessWidget {
     } else if (onActionRequested != null) {
       onActionRequested!(
         DepositListActionRequest(action: action, deposit: deposit),
+      );
+    } else if (action == DepositListAction.statement) {
+      ServiceRegistry.openCardService(
+        context,
+        'deposit-statement',
+        initialDepositNumber: deposit.number,
+      );
+    } else if (action == DepositListAction.certificate) {
+      ServiceRegistry.openCardService(
+        context,
+        'deposit-certificate',
+        initialDepositNumber: deposit.number,
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(

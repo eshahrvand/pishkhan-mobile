@@ -14,6 +14,24 @@ abstract final class ServiceRegistry {
     String? initialDepositNumber,
     String? initialCardNumber,
   }) {
+    if (id == 'deposit-certificate') {
+      context.push<void>(
+        DepositsRoutes.financialCertificate,
+        extra: CertificateRouteArguments(
+          initialDepositNumber: initialDepositNumber,
+        ),
+      );
+      return true;
+    }
+    if (id == 'deposit-statement') {
+      context.push<void>(
+        DepositsRoutes.averageBalance,
+        extra: CertificateRouteArguments(
+          initialDepositNumber: initialDepositNumber,
+        ),
+      );
+      return true;
+    }
     if (id == 'deposit-list') {
       context.push<void>(
         DepositsRoutes.list,

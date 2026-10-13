@@ -1315,4 +1315,230 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get depositListStatus => 'Status';
+
+  @override
+  String get certificateAddressHint =>
+      'Select the certificate delivery address';
+
+  @override
+  String get certificateAgentIdentifier => 'Agent national ID or phone';
+
+  @override
+  String get certificateAgentNotice =>
+      'If you know a bank agent, enter their national ID or phone number.';
+
+  @override
+  String get certificateAgentUnavailable =>
+      'Agent verification requires bank integration.';
+
+  @override
+  String get certificateAverageBalance => 'Average balance';
+
+  @override
+  String get certificateAverageTitle => 'Statement | Average balance request';
+
+  @override
+  String get certificateBothTurnovers => 'Deposits | Withdrawals';
+
+  @override
+  String get certificateCheckAgent => 'Check';
+
+  @override
+  String get certificateConditionsPrompt =>
+      'Select the conditions to include on the certificate.';
+
+  @override
+  String get certificateConditionsStep =>
+      'Select deposit and request conditions';
+
+  @override
+  String get certificateDeleteAddressPrompt => 'Delete this address?';
+
+  @override
+  String get certificateDeliveryStep => 'Certificate delivery information';
+
+  @override
+  String get certificateDepositsOnly => 'Deposits';
+
+  @override
+  String get certificateEnglish => 'English';
+
+  @override
+  String get certificateFromDate => 'From date';
+
+  @override
+  String get certificateFromDateHint => 'Select start date';
+
+  @override
+  String get certificateLanguage => 'Language';
+
+  @override
+  String get certificateMockComplete =>
+      'Demo request recorded; no certificate issued and no wallet debit.';
+
+  @override
+  String get certificateNextPrefix => 'Next:';
+
+  @override
+  String get certificateOptional => 'Optional';
+
+  @override
+  String get certificatePersian => 'Persian';
+
+  @override
+  String get certificatePrintingNotice =>
+      'Printing fees depend on the number of pages.';
+
+  @override
+  String get certificateRecipientName => 'Full name';
+
+  @override
+  String get certificateRecipientNameHint => 'Enter recipient full name';
+
+  @override
+  String get certificateRecipientNationalIdHint =>
+      'Enter recipient national ID';
+
+  @override
+  String get certificateRecipientNotice =>
+      'The package is delivered to you. If unavailable, provide the second recipient details.';
+
+  @override
+  String get certificateStatementLanguageHint => 'Select statement language';
+
+  @override
+  String get certificateToDate => 'To date';
+
+  @override
+  String get certificateToDateHint => 'Select end date';
+
+  @override
+  String get certificateTurnover => 'Transaction type';
+
+  @override
+  String get certificateTurnoverHint => 'Select deposit transaction type';
+
+  @override
+  String get certificateWithdrawalsOnly => 'Withdrawals';
+
+  @override
+  String get financialAuthority => 'Authority';
+
+  @override
+  String get financialAuthorityHint => 'Enter the exact authority name';
+
+  @override
+  String get financialAverageBalanceCondition => 'Include average balance';
+
+  @override
+  String get financialCertificateTitle =>
+      'Financial solvency certificate request';
+
+  @override
+  String get financialCurrency => 'Currency';
+
+  @override
+  String get financialCurrencyHint => 'Select currency';
+
+  @override
+  String get financialDebitCredit => 'Include debit and credit turnover';
+
+  @override
+  String get financialEmbassy => 'Embassy';
+
+  @override
+  String get financialEmbassyHint => 'Select embassy';
+
+  @override
+  String get financialEur => 'Euro';
+
+  @override
+  String get financialExchangeRate => 'Include current exchange rate';
+
+  @override
+  String get financialExpiryHint => 'Enter passport expiry date (YYYY/MM/DD)';
+
+  @override
+  String get financialFatherHint => 'Enter your father’s name in Latin letters';
+
+  @override
+  String get financialHomeAddress => 'Home address';
+
+  @override
+  String get financialIrr => 'Iranian rial';
+
+  @override
+  String get financialLatinAddress => 'Address';
+
+  @override
+  String get financialLatinAddressHint =>
+      'Unit, No, Alley, St, City, Province, Country, Postal code';
+
+  @override
+  String get financialLatinAddressPrompt =>
+      'Enter your home address in Latin letters.';
+
+  @override
+  String get financialLatinExpiry => 'Date of Expiry';
+
+  @override
+  String get financialLatinFather => 'Father’s name';
+
+  @override
+  String get financialLatinName => 'Name';
+
+  @override
+  String get financialLatinPassport => 'Passport No';
+
+  @override
+  String get financialLatinStep => 'Personal information in Latin letters';
+
+  @override
+  String get financialLatinSurname => 'Surname';
+
+  @override
+  String get financialMaturityDate => 'Deposit maturity date';
+
+  @override
+  String get financialNameHint => 'Enter your name in Latin letters';
+
+  @override
+  String get financialOpenedAt => 'Include original deposit opening date';
+
+  @override
+  String get financialOtherAuthority => 'Other authorities';
+
+  @override
+  String get financialPassportHint => 'Enter passport number';
+
+  @override
+  String get financialPassportNumberCondition =>
+      'Passport number / registration number';
+
+  @override
+  String get financialPassportPrompt =>
+      'Enter your passport information in Latin letters.';
+
+  @override
+  String get financialRecipient => 'Recipient';
+
+  @override
+  String get financialRecipientHint => 'Select certificate recipient';
+
+  @override
+  String get financialRecipientPrompt =>
+      'Select the solvency certificate recipient.';
+
+  @override
+  String get financialRecipientStep => 'Select certificate recipient';
+
+  @override
+  String get financialSurnameHint => 'Enter your surname in Latin letters';
+
+  @override
+  String get financialUsd => 'US dollar';
+
+  @override
+  String get financialWithdrawalRules =>
+      'Withdrawal conditions for joint / corporate deposits';
 }

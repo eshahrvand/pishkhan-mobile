@@ -27,4 +27,6 @@ abstract final class ProfileRoutes {
 
 abstract final class DepositsRoutes {
   static const list = '/deposits/list';
+  static const averageBalance = '/deposits/average-balance';
+  static const financialCertificate = '/deposits/financial-certificate';
 }

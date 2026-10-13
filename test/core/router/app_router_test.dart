@@ -56,7 +56,11 @@ void main() {
         CardsRoutes.expiredGiftBalance,
       ],
       '/profile/': [ProfileRoutes.messages, ProfileRoutes.messageDetail],
-      '/deposits/': [DepositsRoutes.list],
+      '/deposits/': [
+        DepositsRoutes.list,
+        DepositsRoutes.averageBalance,
+        DepositsRoutes.financialCertificate,
+      ],
     };
     final declaredPaths = modulePaths.values.expand((paths) => paths).toList();
     expect(paths, unorderedEquals(declaredPaths));

@@ -4,6 +4,29 @@
 /// code. Feature-specific facades may alias these constants, but must not
 /// duplicate path strings.
 abstract final class AppAssets {
+  static const financialCertificateOperation =
+      'assets/images/certificate_financial_operation.svg';
+  static const financialCertificateChevron =
+      'assets/images/certificate_financial_chevron.svg';
+  static const certificateChevronHint =
+      'assets/images/certificate_certChevronHint.svg';
+  static const certificateChevron = 'assets/images/certificate_certChevron.svg';
+  static const certificateCalendar =
+      'assets/images/certificate_certCalendar.svg';
+  static const certificateDivider = 'assets/images/certificate_certDivider.svg';
+  static const certificatePrintNotice =
+      'assets/images/certificate_certPrintNotice.svg';
+  static const certificatePlus = 'assets/images/certificate_certPlus.svg';
+  static const certificateSummaryDeposit =
+      'assets/images/certificate_certSummaryDeposit.svg';
+  static const certificateSummaryOperation =
+      'assets/images/certificate_certSummaryOperation.svg';
+  static const certificateSummaryChevron =
+      'assets/images/certificate_certSummaryChevron.svg';
+  static const certificateFeePrint =
+      'assets/images/certificate_certFeePrint.svg';
+  static const certificateFeeDelivery =
+      'assets/images/certificate_certFeeDelivery.svg';
   static const depositFeatureBack = 'assets/images/deposit_list_back.svg';
   static const depositFeatureDeposit =
       'assets/images/deposit_feature_deposit.svg';
@@ -473,6 +496,19 @@ abstract final class AppAssets {
   static const notificationSecurity = '$_root/notification_security.png';
 
   static const all = <String>[
+    financialCertificateOperation,
+    financialCertificateChevron,
+    certificateChevronHint,
+    certificateChevron,
+    certificateCalendar,
+    certificateDivider,
+    certificatePrintNotice,
+    certificatePlus,
+    certificateSummaryDeposit,
+    certificateSummaryOperation,
+    certificateSummaryChevron,
+    certificateFeePrint,
+    certificateFeeDelivery,
     depositFeatureBack,
     depositFeatureDeposit,
     depositFeatureMore,

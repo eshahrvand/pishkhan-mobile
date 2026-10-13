@@ -1299,4 +1299,224 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get depositListStatus => 'الحالة';
+
+  @override
+  String get certificateAddressHint => 'اختر عنوان إرسال الشهادة';
+
+  @override
+  String get certificateAgentIdentifier => 'الرقم الوطني أو هاتف الخبير';
+
+  @override
+  String get certificateAgentNotice =>
+      'إذا كنت تعرف خبيراً بنكياً، أدخل رقمه الوطني أو رقم هاتفه.';
+
+  @override
+  String get certificateAgentUnavailable =>
+      'يتطلب التحقق من الخبير الربط بنظام البنك.';
+
+  @override
+  String get certificateAverageBalance => 'متوسط الرصيد';
+
+  @override
+  String get certificateAverageTitle => 'طلب كشف الحساب | متوسط الرصيد';
+
+  @override
+  String get certificateBothTurnovers => 'إيداع | سحب';
+
+  @override
+  String get certificateCheckAgent => 'تحقق';
+
+  @override
+  String get certificateConditionsPrompt =>
+      'حدد شروط الطلب لإدراجها في الشهادة.';
+
+  @override
+  String get certificateConditionsStep => 'اختيار الوديعة وشروط الطلب';
+
+  @override
+  String get certificateDeleteAddressPrompt => 'هل تريد حذف هذا العنوان؟';
+
+  @override
+  String get certificateDeliveryStep => 'معلومات استلام الشهادة';
+
+  @override
+  String get certificateDepositsOnly => 'إيداع';
+
+  @override
+  String get certificateEnglish => 'الإنجليزية';
+
+  @override
+  String get certificateFromDate => 'من تاريخ';
+
+  @override
+  String get certificateFromDateHint => 'حدد تاريخ البداية';
+
+  @override
+  String get certificateLanguage => 'اللغة';
+
+  @override
+  String get certificateMockComplete =>
+      'تم تسجيل طلب تجريبي؛ لم تصدر شهادة ولم يُخصم أي مبلغ.';
+
+  @override
+  String get certificateNextPrefix => 'التالي:';
+
+  @override
+  String get certificateOptional => 'اختياري';
+
+  @override
+  String get certificatePersian => 'الفارسية';
+
+  @override
+  String get certificatePrintingNotice =>
+      'تُحسب رسوم الطباعة بناءً على عدد الصفحات.';
+
+  @override
+  String get certificateRecipientName => 'الاسم الكامل';
+
+  @override
+  String get certificateRecipientNameHint => 'أدخل الاسم الكامل للمستلم';
+
+  @override
+  String get certificateRecipientNationalIdHint => 'أدخل الرقم الوطني للمستلم';
+
+  @override
+  String get certificateRecipientNotice =>
+      'تُسلّم الحزمة لك. إذا كنت غائباً، أدخل بيانات المستلم البديل.';
+
+  @override
+  String get certificateStatementLanguageHint => 'اختر لغة كشف الحساب';
+
+  @override
+  String get certificateToDate => 'إلى تاريخ';
+
+  @override
+  String get certificateToDateHint => 'حدد تاريخ النهاية';
+
+  @override
+  String get certificateTurnover => 'نوع الحركة';
+
+  @override
+  String get certificateTurnoverHint => 'اختر نوع حركة الوديعة';
+
+  @override
+  String get certificateWithdrawalsOnly => 'سحب';
+
+  @override
+  String get financialAuthority => 'الجهة';
+
+  @override
+  String get financialAuthorityHint => 'اكتب الاسم الدقيق للجهة';
+
+  @override
+  String get financialAverageBalanceCondition => 'إدراج متوسط الرصيد';
+
+  @override
+  String get financialCertificateTitle => 'طلب شهادة الملاءة المالية';
+
+  @override
+  String get financialCurrency => 'العملة';
+
+  @override
+  String get financialCurrencyHint => 'اختر العملة';
+
+  @override
+  String get financialDebitCredit => 'إدراج حركة المدين والدائن';
+
+  @override
+  String get financialEmbassy => 'السفارة';
+
+  @override
+  String get financialEmbassyHint => 'اختر السفارة';
+
+  @override
+  String get financialEur => 'يورو';
+
+  @override
+  String get financialExchangeRate => 'إدراج سعر الصرف اليومي';
+
+  @override
+  String get financialExpiryHint => 'أدخل تاريخ انتهاء جواز السفر (YYYY/MM/DD)';
+
+  @override
+  String get financialFatherHint => 'أدخل اسم الأب بالأحرف اللاتينية';
+
+  @override
+  String get financialHomeAddress => 'عنوان السكن';
+
+  @override
+  String get financialIrr => 'ريال إيراني';
+
+  @override
+  String get financialLatinAddress => 'Address';
+
+  @override
+  String get financialLatinAddressHint =>
+      'Unit, No, Alley, St, City, Province, Country, Postal code';
+
+  @override
+  String get financialLatinAddressPrompt =>
+      'أدخل عنوان السكن بالأحرف اللاتينية.';
+
+  @override
+  String get financialLatinExpiry => 'Date of Expiry';
+
+  @override
+  String get financialLatinFather => 'Father’s name';
+
+  @override
+  String get financialLatinName => 'Name';
+
+  @override
+  String get financialLatinPassport => 'Passport No';
+
+  @override
+  String get financialLatinStep => 'المعلومات الشخصية بالأحرف اللاتينية';
+
+  @override
+  String get financialLatinSurname => 'Surname';
+
+  @override
+  String get financialMaturityDate => 'تاريخ استحقاق الوديعة';
+
+  @override
+  String get financialNameHint => 'أدخل اسمك بالأحرف اللاتينية';
+
+  @override
+  String get financialOpenedAt => 'إدراج تاريخ فتح الوديعة';
+
+  @override
+  String get financialOtherAuthority => 'جهات أخرى';
+
+  @override
+  String get financialPassportHint => 'أدخل رقم جواز السفر';
+
+  @override
+  String get financialPassportNumberCondition => 'رقم جواز السفر / رقم التسجيل';
+
+  @override
+  String get financialPassportPrompt =>
+      'أدخل معلومات جواز السفر بالأحرف اللاتينية.';
+
+  @override
+  String get financialRecipient => 'المستلم';
+
+  @override
+  String get financialRecipientHint => 'اختر مستلم الشهادة';
+
+  @override
+  String get financialRecipientPrompt => 'اختر مستلم شهادة الملاءة المالية.';
+
+  @override
+  String get financialRecipientStep => 'اختيار مستلم الشهادة';
+
+  @override
+  String get financialSurnameHint => 'أدخل اسم العائلة بالأحرف اللاتينية';
+
+  @override
+  String get financialUsd => 'دولار أمريكي';
+
+  @override
+  String get financialWithdrawalRules =>
+      'شروط السحب من الودائع المشتركة / المؤسسية';
 }
