@@ -99,7 +99,7 @@ void main() {
       );
       final image = await boundary.toImage(pixelRatio: 2);
       final data = await image.toByteData(format: ui.ImageByteFormat.png);
-      final directory = Directory('doc/card-issuance-review');
+      final directory = Directory('build/previews/card-issuance');
       await directory.create(recursive: true);
       await File('${directory.path}/$name.png')
           .writeAsBytes(data!.buffer.asUint8List());

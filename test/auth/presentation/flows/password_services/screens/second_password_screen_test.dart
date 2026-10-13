@@ -123,7 +123,7 @@ void main() {
       await Future<void>.delayed(const Duration(milliseconds: 50));
       final image = await boundary.toImage(pixelRatio: 2);
       final data = await image.toByteData(format: ui.ImageByteFormat.png);
-      final folder = Directory('doc/password-services-review');
+      final folder = Directory('build/previews/password-services');
       await folder.create(recursive: true);
       await File('${folder.path}/$name.png')
           .writeAsBytes(data!.buffer.asUint8List());

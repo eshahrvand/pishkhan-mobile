@@ -148,7 +148,7 @@ void main() {
                 format: ui.ImageByteFormat.png,
               );
               final name = single ? 'phase1-single' : 'phase2-multi';
-              final file = File('doc/deposits-review/$name.png');
+              final file = File('build/previews/deposits/$name.png');
               await file.parent.create(recursive: true);
               await file.writeAsBytes(bytes!.buffer.asUint8List());
               rendered.dispose();

@@ -49,7 +49,7 @@ they do not change the public API of `avp_ui`.
 
 ## Dashboard composition (updated design)
 
-See [dashboard-implementation-review.md](dashboard-implementation-review.md) for all nine updated frame mappings, the eight-service transactional editor, service sheet and search, full service catalog, motion, shared-component changes and rendered previews.
+See [Dashboard development](dashboard/development.md) for all nine updated frame mappings, the eight-service transactional editor, service sheet and search, full service catalog, motion, shared-component changes and rendered previews.
 
 ## Notifications
 
@@ -66,12 +66,12 @@ See [dashboard-implementation-review.md](dashboard-implementation-review.md) for
 
 ## Login (updated design)
 
-See [login-implementation-review.md](login-implementation-review.md) for all nine
-frame mappings, component composition, interaction behavior, and visual previews.
+See [Login development](login/development.md) for all nine
+frame mappings, component composition, and interaction behavior.
 
 ## My Cards (second primary tab)
 
-See [cards-implementation-review.md](cards-implementation-review.md) for the two Phase 1 frame mappings, rendered previews, shared component reuse, card carousel/visibility/copying behavior, and integration callbacks.
+See [Dashboard cards development](cards/my-cards.md) for the two Phase 1 frame mappings, shared component reuse, card carousel/visibility/copying behavior, and integration callbacks.
 
 AppServiceGridCard.stretchItems defaults to true; set false and itemSpacing to 6 for compact RTL rows. AppResalatCard accepts responsive width and semantic labels and masks expiry/CVV2 when isVisible is false. The shared AppTopBar, AppPrimaryNavigation, AppAssistantButton and AppServiceArtworkTile reuse the dashboard visuals.
 
@@ -79,21 +79,21 @@ AppServiceGridCard.stretchItems defaults to true; set false and itemSpacing to 6
 
 Figma single deposit: `27902:82476`; multiple deposits: `27902:82503`. `DepositsTab` composes the existing `AppDepositCard`, `AppTopBar`, `AppServiceGridCard`, `AppServiceArtworkTile`, `AppAssistantButton` and `AppPrimaryNavigation` without modifying their source. The selected `BankDeposit.hasChequeOperations` controls cheque operations, independently of deposit count.
 
-See [Deposits implementation review](deposits-implementation-review.md) and [Dashboard development document](dashboard/dashboard-development.md) for exact component differences, integration callbacks, data/icon sources and future server mapping, and [rendered previews](deposits-review/index.html).
+See [Deposits development](deposits/development.md) and [Dashboard development document](dashboard/development.md) for exact component differences, integration callbacks, data/icon sources and future server mapping.
 
 ## My Loans (fourth primary tab)
 
 Figma single loan: `27902:82623`; multiple loans: `27902:82592`. `LoansTab` reuses `AppLoanCard` and the shared top bar, operation/quick grids, assistant and navigation without changing shared source. `BankLoan` supplies summary values; `LoanActionRequest` supplies selected-loan callback context.
 
-See [Loans implementation review](loans-implementation-review.md), [Dashboard development document](dashboard/dashboard-development.md) (including all retained shared-component issues in Section 13.6), and [rendered previews](loans-review/index.html).
+See [Loans development](loans/development.md), [Dashboard development document](dashboard/development.md) (including all retained shared-component issues in Section 13.6),.
 
 ## Dedicated Cards flow variants
 
-Figma27997:10059–11563: AppCardsList coloredHeader uses the new instance colors/geometry without changing its legacy default. AppTopBar and AppBottomSheetHeader accept compatible trailing/action styling; avp_ui adds AppChips and compact input/button instance parameters. See [complete audit and flow architecture](cards/card-features-development.md) and [nine previews](card-features-review/index.html).
+Figma27997:10059–11563: AppCardsList coloredHeader uses the new instance colors/geometry without changing its legacy default. AppTopBar and AppBottomSheetHeader accept compatible trailing/action styling; avp_ui adds AppChips and compact input/button instance parameters. See [complete audit and flow architecture](cards/card-services.md).
 
 ## Resalat card issuance
 
-Stepper is owned/exported by avp_ui (27984:8986) and registered in both integration guides and its FigmaNameMapper example widget. AppInvoice gains optional backgroundColor/labelColor and wallet-status copy; AppAddressCard adds an opt-in delivery variant with delete action/copy. Existing defaults are retained. See [flow architecture and exact design audit](card-issuance/card-issuance-development.md) and [review gallery](card-issuance-review/index.html).
+Stepper is owned/exported by avp_ui (27984:8986) and registered in both integration guides and its FigmaNameMapper example widget. AppInvoice gains optional backgroundColor/labelColor and wallet-status copy; AppAddressCard adds an opt-in delivery variant with delete action/copy. Existing defaults are retained. See [flow architecture and exact design audit](cards/card-issuance.md).
 
 ## Password services and package Video player
 
@@ -101,19 +101,19 @@ Stepper is owned/exported by avp_ui (27984:8986) and registered in both integrat
 | --- | --- | --- | --- |
 | Video player | `27997:11898` in `27997:11891` | `AppVideoPlayer` (avp_ui) | sibling `avp_ui/lib/widgets/media/app_video_player.dart` |
 
-The package FigmaNameMapper registers and previews Video player. This app-side name mapping points to the same public component, rather than duplicating a player. Feature posters are app-owned; play artwork and video controls are package-owned. See [password-services architecture](password-services/password-services-development.md) and [14 rendered states](password-services-review/index.html).
+The package FigmaNameMapper registers and previews Video player. This app-side name mapping points to the same public component, rather than duplicating a player. Feature posters are app-owned; play artwork and video controls are package-owned. See [password-services architecture](cards/password-services.md).
 
 
 ## Forgot-password operation selector
 
-Frames `27997:12254`, `27997:12269`, `27997:12324` compose the existing `AppSelect<PasswordOperation>`, app-owned `AppBottomSheetHeader`, `AppInvoice` and `AppButton` inside `SecondPasswordScreen`. No additional avp_ui widget or separate password flow is needed. The selector uses `AppSelect.menuBuilder` and localized Change password / Forgot password options; all later stages reuse the existing password-services components. [Rendered selection states](password-services-review/index.html).
+Frames `27997:12254`, `27997:12269`, `27997:12324` compose the existing `AppSelect<PasswordOperation>`, app-owned `AppBottomSheetHeader`, `AppInvoice` and `AppButton` inside `SecondPasswordScreen`. No additional avp_ui widget or separate password flow is needed. The selector uses `AppSelect.menuBuilder` and localized Change password / Forgot password options; all later stages reuse the existing password-services components. .
 
 
 ## Change-password form and returning status
 
-Ordered frames `27997:11595`, `11607`, `11666`, `11722`, `11777`, `11791`, `11844`, `11858`, `12547`, `11994`, `12046` remain app compositions in `SecondPasswordScreen`. The form reuses `AppTextField` for current/new/confirmation PINs, `AppCheckbox` and `AppButton`; selection reuses `AppSelect.menuBuilder` and `AppBottomSheetHeader`. `PasswordStatusContent` is app-owned full-page content rather than a new package widget. The100px return badge and change-success scrim are original app assets; shared eye/check/divider artwork is reused without substitution. [28 rendered states](password-services-review/index.html).
+Ordered frames `27997:11595`, `11607`, `11666`, `11722`, `11777`, `11791`, `11844`, `11858`, `12547`, `11994`, `12046` remain app compositions in `SecondPasswordScreen`. The form reuses `AppTextField` for current/new/confirmation PINs, `AppCheckbox` and `AppButton`; selection reuses `AppSelect.menuBuilder` and `AppBottomSheetHeader`. `PasswordStatusContent` is app-owned full-page content rather than a new package widget. The100px return badge and change-success scrim are original app assets; shared eye/check/divider artwork is reused without substitution. .
 
 
 ## Virtual-card request
 
-Frames `27997:10100` and `27997:10897` compose AppTopBar, AppSelect, AppTextField, AppCheckbox, AppButton and app-owned AppInvoice in VirtualCardRequestScreen. No new package component is required. Instance artwork comes from `I27997:10898;13867:8754;13867:8738` (back) and `I27997:10915;16662:54695` (virtual-card fee icon); the latter preserves its16.2878×12.9544 glyph inside the20px slot. The info-circle is byte-identical to an existing app asset. [Rendered forms](virtual-card-request-review/index.html).
+Frames `27997:10100` and `27997:10897` compose AppTopBar, AppSelect, AppTextField, AppCheckbox, AppButton and app-owned AppInvoice in VirtualCardRequestScreen. No new package component is required. Instance artwork comes from `I27997:10898;13867:8754;13867:8738` (back) and `I27997:10915;16662:54695` (virtual-card fee icon); the latter preserves its16.2878×12.9544 glyph inside the20px slot. The info-circle is byte-identical to an existing app asset. .

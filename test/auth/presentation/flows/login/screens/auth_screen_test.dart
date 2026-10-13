@@ -102,7 +102,7 @@ void main() {
       final picture = recorder.endRecording();
       final image = await picture.toImage(375, height);
       final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
-      final directory = Directory('doc/login-review');
+      final directory = Directory('build/previews/login');
       await directory.create(recursive: true);
       await File('${directory.path}/$name.png')
           .writeAsBytes(bytes!.buffer.asUint8List());

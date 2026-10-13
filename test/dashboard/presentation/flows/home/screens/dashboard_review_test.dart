@@ -139,7 +139,7 @@ void main() {
           final picture = recorder.endRecording();
           final image = await picture.toImage(375, cropHeight);
           final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
-          final directory = Directory('doc/dashboard-review');
+          final directory = Directory('build/previews/dashboard');
           await directory.create(recursive: true);
           await File('${directory.path}/$name.png')
               .writeAsBytes(bytes!.buffer.asUint8List());
@@ -240,7 +240,7 @@ void main() {
           await Future<void>.delayed(const Duration(milliseconds: 50));
           final image = await boundary.toImage(pixelRatio: 2);
           final data = await image.toByteData(format: ui.ImageByteFormat.png);
-          final folder = Directory('doc/reso-background-review');
+          final folder = Directory('build/previews/reso-background');
           await folder.create(recursive: true);
           await File('${folder.path}/$name.png')
               .writeAsBytes(data!.buffer.asUint8List());

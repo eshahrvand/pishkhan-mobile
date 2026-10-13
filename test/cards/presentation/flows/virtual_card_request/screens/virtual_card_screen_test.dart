@@ -113,7 +113,7 @@ void main() {
       await Future<void>.delayed(const Duration(milliseconds: 50));
       final image = await boundary.toImage(pixelRatio: 2);
       final data = await image.toByteData(format: ui.ImageByteFormat.png);
-      final directory = Directory('doc/virtual-card-request-review');
+      final directory = Directory('build/previews/virtual-card-request');
       await directory.create(recursive: true);
       await File('${directory.path}/$name.png')
           .writeAsBytes(data!.buffer.asUint8List());

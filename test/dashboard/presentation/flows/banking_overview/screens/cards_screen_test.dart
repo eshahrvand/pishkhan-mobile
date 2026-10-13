@@ -153,7 +153,7 @@ void main() {
               final bytes = await image.toByteData(
                 format: ui.ImageByteFormat.png,
               );
-              final directory = Directory('doc/cards-review');
+              final directory = Directory('build/previews/cards');
               await directory.create(recursive: true);
               await File(
                 '${directory.path}/phase1-${single ? 'single' : 'multi'}.png',

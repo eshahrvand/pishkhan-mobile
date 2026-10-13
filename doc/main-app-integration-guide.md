@@ -249,7 +249,7 @@ TextAlign.start for both placeholders and entered text.
 
 ## Dashboard instance styling
 
-The shared package exports AppDashboardColors for dashboard-specific semantic styling. AppButton.foregroundColor supports text-action instance colors while preserving disabled styling. AppSearchField.clearIcon supplies the exact Figma clear icon while preserving automatic clearing and callbacks. See [dashboard-implementation-review.md](dashboard-implementation-review.md) for the page composition and shared micro-service instance sizing.
+The shared package exports AppDashboardColors for dashboard-specific semantic styling. AppButton.foregroundColor supports text-action instance colors while preserving disabled styling. AppSearchField.clearIcon supplies the exact Figma clear icon while preserving automatic clearing and callbacks. See [Dashboard development](dashboard/development.md) for the page composition and shared micro-service instance sizing.
 
 ## Loan progress alignment
 
@@ -257,11 +257,11 @@ AppProgressIndicator.fillAlignment optionally selects the origin. Default: Align
 
 ## Dashboard tab repository composition
 
-Import package:pishkhan_mobile/features/dashboard/dashboard.dart for DashboardScreen and its public data/action contracts. DashboardScreen.repositories accepts DashboardRepositories with Home/Cards/Deposits/Loans implementations. Leaving it unset builds mocks from the optional list/favorite seed arguments. Tab widgets and their Cubits receive typed repository interfaces rather than raw lists. Standalone feature folders no longer export dashboard tab screens. See the [Dashboard architecture and Figma audit](dashboard/dashboard-development.md) for exact paths, states and live-service adapter requirements.
+Import package:pishkhan_mobile/features/dashboard/dashboard.dart for DashboardScreen and its public data/action contracts. DashboardScreen.repositories accepts DashboardRepositories with Home/Cards/Deposits/Loans implementations. Leaving it unset builds mocks from the optional list/favorite seed arguments. Tab widgets and their Cubits receive typed repository interfaces rather than raw lists. Standalone feature folders no longer export dashboard tab screens. See the [Dashboard architecture and Figma audit](dashboard/development.md) for exact paths, states and live-service adapter requirements.
 
 ## Standalone Cards feature
 
-See [Cards architecture](cards/card-features-development.md) and [rendered flow](card-features-review/index.html). Import features/cards/cards.dart for CardFeaturesScreen, CardsRepository, ListedCard and typed CardFeatureRequest. Dashboard card summaries remain a separate feature. Compatible new package APIs are documented in avp_ui/docs/main-app-integration-guide.md; deploy the sibling package changes together with this app.
+See [Cards architecture](cards/card-services.md). Import features/cards/cards.dart for CardFeaturesScreen, CardsRepository, ListedCard and typed CardFeatureRequest. Dashboard card summaries remain a separate feature. Compatible new package APIs are documented in avp_ui/docs/main-app-integration-guide.md; deploy the sibling package changes together with this app.
 
 ## Stepper and card issuance instances
 
@@ -281,7 +281,7 @@ The example gallery's `FigmaNameMapper` registers Stepper → AppStepper and pre
 
 The app-owned `AppInvoice` opts into a white surface with `backgroundColor: context.colors.surface`, Gray/500 labels with `labelColor: context.colors.textTertiary`, and localized wallet-status copy through `walletSufficientLabel`/`walletInsufficientLabel`. Its existing defaults remain unchanged. `AppAddressCard.variant: AppAddressCardVariant.delivery` renders the compact white address/delete row; `full` remains the default. These widgets remain in the main app's shared layer and are not exports of avp_ui. The issuance toggle clips the thumb shadows to its rounded track, matching the original SVG.
 
-Known retained state differences: the existing primary button disabled surface is Gray/100 with no shadow, while issuance frames use Gray/200 with Shadow/xs; loading keeps the existing package spinner treatment. The shared invoice retains .5px divider layout slots, adding 1px to expanded and .5px to collapsed height compared with Figma's zero-height divider layout. See the main app's `doc/card-issuance/card-issuance-development.md` for the complete flow and design audit.
+Known retained state differences: the existing primary button disabled surface is Gray/100 with no shadow, while issuance frames use Gray/200 with Shadow/xs; loading keeps the existing package spinner treatment. The shared invoice retains .5px divider layout slots, adding 1px to expanded and .5px to collapsed height compared with Figma's zero-height divider layout. See the main app's `doc/cards/card-issuance.md` for the complete flow and design audit.
 
 ## Password services and Video player (2026-10-10)
 
@@ -306,17 +306,17 @@ The app-owned `AppInvoice` accepts optional `borderRadius` and `zeroHeightDivide
 
 ### Shared password recovery operation
 
-`SecondPasswordScreen(selectOperation: true, initialCardNumber: cardNumber)` enables the Figma Change password / Forgot password selector on the existing setup flow. `card-pin-second-forgot` routes here; setup routes retain the default mode. `PasswordOperation` is supplied to repository `status(cardId, operation: ...)` and `SetSecondPasswordRequest.operation`. Adapters distinguish initial setup eligibility from `PasswordCard.canResetSecondPassword` and implement operation-specific submission/status. The shared UI, PIN validation, serial, video, mock KYC and receipt stages remain common. See [password-services development](password-services/password-services-development.md) for the contract and prototype limits.
+`SecondPasswordScreen(selectOperation: true, initialCardNumber: cardNumber)` enables the Figma Change password / Forgot password selector on the existing setup flow. `card-pin-second-forgot` routes here; setup routes retain the default mode. `PasswordOperation` is supplied to repository `status(cardId, operation: ...)` and `SetSecondPasswordRequest.operation`. Adapters distinguish initial setup eligibility from `PasswordCard.canResetSecondPassword` and implement operation-specific submission/status. The shared UI, PIN validation, serial, video, mock KYC and receipt stages remain common. See [password-services development](cards/password-services.md) for the contract and prototype limits.
 
 
 ### Change password in the shared flow
 
-Card Services `card-pin-second-change` enables operation selection on `SecondPasswordScreen`. The change branch collects secure current/new/confirmation PINs and terms, omits the setup fee/serial/video stages, and submits `SetSecondPasswordRequest(operation: PasswordOperation.changePassword, currentPassword: ...)`. New results use the change-success sheet; returning status reads render the full-page tracking content. Adapters must verify the current credential at the bank; the mock validates its numeric format only. The existing public avp_ui inputs/buttons/selects are reused. See the ordered11-frame audit in [password-services development](password-services/password-services-development.md).
+Card Services `card-pin-second-change` enables operation selection on `SecondPasswordScreen`. The change branch collects secure current/new/confirmation PINs and terms, omits the setup fee/serial/video stages, and submits `SetSecondPasswordRequest(operation: PasswordOperation.changePassword, currentPassword: ...)`. New results use the change-success sheet; returning status reads render the full-page tracking content. Adapters must verify the current credential at the bank; the mock validates its numeric format only. The existing public avp_ui inputs/buttons/selects are reused. See the ordered11-frame audit in [password-services development](cards/password-services.md).
 
 
 ### Virtual card requests
 
-`VirtualCardRequestScreen(repository: adapter, initialDepositNumber: number)` composes public avp_ui inputs/selects/buttons and the app-owned AppInvoice. `VirtualCardRepository` supplies catalog, bound fee quotes and idempotent submission receipts. `card-virtual`/`card-virtual-request` open the request form; `card-virtual-list` and card category chips retain list access. The virtual-list footer opens the same form unless a host callback handles it. See [request architecture and mock fee limits](virtual-card-request/virtual-card-request-development.md) and [two rendered states](virtual-card-request-review/index.html).
+`VirtualCardRequestScreen(repository: adapter, initialDepositNumber: number)` composes public avp_ui inputs/selects/buttons and the app-owned AppInvoice. `VirtualCardRepository` supplies catalog, bound fee quotes and idempotent submission receipts. `card-virtual`/`card-virtual-request` open the request form; `card-virtual-list` and card category chips retain list access. The virtual-list footer opens the same form unless a host callback handles it. See [request architecture and mock fee limits](cards/virtual-card-request.md).
 
 ## Direct state-driven text inputs
 

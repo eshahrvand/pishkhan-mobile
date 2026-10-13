@@ -181,7 +181,7 @@ void main() {
                 format: ui.ImageByteFormat.png,
               );
               final file = File(
-                'doc/loans-review/${single ? "phase1-single" : "phase2-multi"}.png',
+                'build/previews/loans/${single ? "phase1-single" : "phase2-multi"}.png',
               );
               await file.parent.create(recursive: true);
               await file.writeAsBytes(bytes!.buffer.asUint8List());

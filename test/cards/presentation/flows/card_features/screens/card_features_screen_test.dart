@@ -73,7 +73,7 @@ Future<void> preview(WidgetTester tester, String name) async {
     );
     final image = await render.toImage();
     final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
-    final file = File('doc/card-features-review/$name.png');
+    final file = File('build/previews/card-features/$name.png');
     await file.parent.create(recursive: true);
     await file.writeAsBytes(bytes!.buffer.asUint8List());
     image.dispose();
