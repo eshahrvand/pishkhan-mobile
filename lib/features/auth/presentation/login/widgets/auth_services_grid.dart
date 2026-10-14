@@ -13,31 +13,34 @@ class AuthServicesRow extends StatelessWidget {
   final bool fillEmptySlots;
 
   @override
-  Widget build(BuildContext context) => LayoutBuilder(
-    builder: (context, constraints) {
-      final count = fillEmptySlots ? 4 : items.length;
-      if (constraints.maxWidth < count * 72) {
-        return Wrap(
-          alignment: WrapAlignment.start,
-          spacing: 12,
-          runSpacing: 12,
-          children: [for (final item in items) AuthServiceTile(item: item)],
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final count = fillEmptySlots ? 4 : items.length;
+        if (constraints.maxWidth < count * 72) {
+          return Wrap(
+            alignment: WrapAlignment.start,
+            spacing: 12,
+            runSpacing: 12,
+            children: [for (final item in items) AuthServiceTile(item: item)],
+          );
+        }
+        return ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 104),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (final item in items) AuthServiceTile(item: item),
+              if (fillEmptySlots)
+                for (var i = items.length; i < 4; i++)
+                  const SizedBox(width: 72),
+            ],
+          ),
         );
-      }
-      return ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: 104),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            for (final item in items) AuthServiceTile(item: item),
-            if (fillEmptySlots)
-              for (var i = items.length; i < 4; i++) const SizedBox(width: 72),
-          ],
-        ),
-      );
-    },
-  );
+      },
+    );
+  }
 }
 
 class AuthServicesSectionTitle extends StatelessWidget {
@@ -50,49 +53,53 @@ class AuthServicesSectionTitle extends StatelessWidget {
   final String dividerAsset;
 
   @override
-  Widget build(BuildContext context) => Row(
-    children: [
-      Flexible(
-        child: Text(
-          title,
-          style: Theme.of(context).textTheme.titleSmall!.copyWith(
-            color: AppLoginColors.sectionLabel,
-            fontWeight: FontWeight.w600,
-            height: 20 / 14,
-            letterSpacing: 0,
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Flexible(
+          child: Text(
+            title,
+            style: Theme.of(context).textTheme.titleSmall!.copyWith(
+              color: AppLoginColors.sectionLabel,
+              fontWeight: FontWeight.w600,
+              height: 20 / 14,
+              letterSpacing: 0,
+            ),
           ),
         ),
-      ),
-      const SizedBox(width: 12),
-      Expanded(
-        child: SvgPicture.asset(dividerAsset, height: 1, fit: BoxFit.fill),
-      ),
-    ],
-  );
+        const SizedBox(width: 12),
+        Expanded(
+          child: SvgPicture.asset(dividerAsset, height: 1, fit: BoxFit.fill),
+        ),
+      ],
+    );
+  }
 }
 
 class AuthServiceTile extends StatelessWidget {
   const AuthServiceTile({super.key, required this.item});
   final AuthServiceItemData item;
   @override
-  Widget build(BuildContext context) => AppServiceGridItemView(
-    item: AppServiceGridItem(
-      id: item.asset,
-      label: item.label,
-      icon: SvgPicture.asset(item.asset, width: 32, height: 32),
-      onTap: item.onTap,
-    ),
-    tileColor: context.colors.surface,
-    labelStyle: Theme.of(context).textTheme.labelSmall!.copyWith(
-      color: item.mutedLabel
-          ? AppLoginColors.serviceLabelMuted
-          : AppLoginColors.serviceLabel,
-      fontSize: 10,
-      fontWeight: FontWeight.w600,
-      height: 16 / 10,
-      letterSpacing: 0,
-    ),
-  );
+  Widget build(BuildContext context) {
+    return AppServiceGridItemView(
+      item: AppServiceGridItem(
+        id: item.asset,
+        label: item.label,
+        icon: SvgPicture.asset(item.asset, width: 32, height: 32),
+        onTap: item.onTap,
+      ),
+      tileColor: context.colors.surface,
+      labelStyle: Theme.of(context).textTheme.labelSmall!.copyWith(
+        color: item.mutedLabel
+            ? AppLoginColors.serviceLabelMuted
+            : AppLoginColors.serviceLabel,
+        fontSize: 10,
+        fontWeight: FontWeight.w600,
+        height: 16 / 10,
+        letterSpacing: 0,
+      ),
+    );
+  }
 }
 
 class AuthServiceItemData {

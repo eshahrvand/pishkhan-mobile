@@ -12,7 +12,7 @@ import 'certificate_test_support.dart';
 void main() {
   setUpAll(loadCertificateFonts);
   final catalog = MockDepositCertificatesRepository.examples;
-  final conditions = AverageBalanceState(
+  final conditions = AverageBalanceState.initial(
     deposit: catalog.deposits.first,
     language: CertificateLanguage.english,
     turnover: StatementTurnover.depositsAndWithdrawals,
@@ -20,8 +20,10 @@ void main() {
     toDate: DateTime.utc(2025, 12, 21),
   );
   final frames = <String, AverageBalanceState>{
-    'average-selection': const AverageBalanceState(),
-    'average-conditions': AverageBalanceState(deposit: catalog.deposits.first),
+    'average-selection': const AverageBalanceState.initial(),
+    'average-conditions': AverageBalanceState.initial(
+      deposit: catalog.deposits.first,
+    ),
     'average-filled': conditions,
     'average-address': conditions.copyWith(step: AverageBalanceStep.delivery),
     'average-delivery-filled': conditions.copyWith(

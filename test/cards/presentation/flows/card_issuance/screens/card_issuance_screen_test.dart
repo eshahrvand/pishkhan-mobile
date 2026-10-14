@@ -1,3 +1,5 @@
+import 'package:flutter_localizations/flutter_localizations.dart';
+
 import '../../../../../support/router_test_app.dart';
 
 import 'dart:io';
@@ -9,7 +11,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:pishkhan_mobile/l10n/l10n.dart';
+import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/features/cards/cards.dart';
 import 'package:pishkhan_mobile/core/router/card_features_navigation.dart';
 import 'package:pishkhan_mobile/features/cards/presentation/card_issuance/card_issuance.dart';
@@ -48,8 +50,13 @@ void main() {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       locale: locale,
-      supportedLocales: AppLocalizations.supportedLocales,
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: S.delegate.supportedLocales,
+      localizationsDelegates: const [
+        S.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
       builder: (context, child) => MediaQuery(
         data: MediaQuery.of(context)
             .copyWith(textScaler: TextScaler.linear(scale)),
@@ -75,10 +82,8 @@ void main() {
   }
 
   CardIssuanceCubit controller(WidgetTester tester) => tester
-      .widget<BlocConsumer<CardIssuanceCubit, CardIssuanceState>>(
-        find.byType(BlocConsumer<CardIssuanceCubit, CardIssuanceState>),
-      )
-      .bloc!;
+      .element(find.byType(BlocConsumer<CardIssuanceCubit, CardIssuanceState>))
+      .read<CardIssuanceCubit>();
   void selection(CardIssuanceCubit c) {
     c.selectDeposit('deposit-1');
     c.selectType(IssuanceType.newNumber);

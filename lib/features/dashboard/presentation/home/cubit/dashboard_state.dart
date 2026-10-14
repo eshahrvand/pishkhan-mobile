@@ -1,14 +1,13 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:pishkhan_mobile/core/enums/request_status.dart';
-import 'package:pishkhan_mobile/core/result/failure.dart';
-
-import '../../../domain/entities/dashboard_home_data.dart';
-
-part 'dashboard_state.freezed.dart';
+part of 'dashboard_cubit.dart';
 
 @freezed
 abstract class DashboardState with _$DashboardState {
-  const factory DashboardState({
+  const factory DashboardState.initial({
+    @Default(<String>[]) List<String> activeFavorites,
+    @Default(<DashboardService>[]) List<DashboardService> favoriteServices,
+    @Default(<DashboardService>[]) List<DashboardService> fixedServices,
+    @Default(true) bool canAddFavorite,
+    @Default(false) bool isFavoritesLimitReached,
     @Default(RequestStatus.initial) RequestStatus status,
     DashboardHomeData? data,
     List<String>? draft,

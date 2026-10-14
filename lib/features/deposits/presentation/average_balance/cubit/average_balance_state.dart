@@ -1,17 +1,10 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:pishkhan_mobile/core/enums/request_status.dart';
-import 'package:pishkhan_mobile/core/result/failure.dart';
-
-import '../../../domain/entities/certificate_data.dart';
-import '../../../domain/entities/listed_deposit.dart';
-
-part 'average_balance_state.freezed.dart';
+part of 'average_balance_cubit.dart';
 
 enum AverageBalanceStep { conditions, delivery, confirmation }
 
 @Freezed(toStringOverride: false)
 abstract class AverageBalanceState with _$AverageBalanceState {
-  const factory AverageBalanceState({
+  const factory AverageBalanceState.initial({
     @Default(RequestStatus.initial) RequestStatus status,
     @Default(RequestStatus.initial) RequestStatus submissionStatus,
     @Default(AverageBalanceStep.conditions) AverageBalanceStep step,

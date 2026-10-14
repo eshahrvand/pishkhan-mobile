@@ -8,20 +8,22 @@ class AppServiceArtworkTile extends StatelessWidget {
   const AppServiceArtworkTile({super.key, required this.asset});
   final String asset;
   @override
-  Widget build(BuildContext context) => DecoratedBox(
-    decoration: BoxDecoration(
-      color: context.colors.surfaceSubtle,
-      borderRadius: AppRadius.borderMd,
-      boxShadow: AppShadows.sm,
-    ),
-    child: SizedBox.square(
-      dimension: 64,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Positioned(left: -3, top: -2, child: SvgPicture.asset(asset)),
-        ],
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: context.colors.surfaceSubtle,
+        borderRadius: AppRadius.borderMd,
+        boxShadow: AppShadows.sm,
       ),
-    ),
-  );
+      child: SizedBox.square(
+        dimension: 64,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Positioned(left: -3, top: -2, child: SvgPicture.asset(asset)),
+          ],
+        ),
+      ),
+    );
+  }
 }

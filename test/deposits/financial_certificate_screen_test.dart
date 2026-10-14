@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/shared/widgets/app_address_card.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,7 +13,7 @@ import 'certificate_test_support.dart';
 void main() {
   setUpAll(loadCertificateFonts);
   final catalog = MockDepositCertificatesRepository.examples;
-  final conditions = FinancialCertificateState(
+  final conditions = FinancialCertificateState.initial(
     deposit: catalog.deposits.first,
     conditions: {
       FinancialCertificateCondition.homeAddress,
@@ -35,8 +36,8 @@ void main() {
     latinAddress: 'Unit 1, No 12, Shahid Beheshti St, Abbas Abad, Tehran, Iran, 1234567890',
   );
   final frames = <String, FinancialCertificateState>{
-    'financial-selection': const FinancialCertificateState(),
-    'financial-conditions': FinancialCertificateState(
+    'financial-selection': const FinancialCertificateState.initial(),
+    'financial-conditions': FinancialCertificateState.initial(
       deposit: catalog.deposits.first,
     ),
     'financial-conditions-filled': conditions,
@@ -102,8 +103,9 @@ void main() {
         expect(find.text('مرجع'), findsOneWidget);
         expect(find.text('نام دقیق مرجع را بنویسید'), findsOneWidget);
       }
-      if (entry.value.step == FinancialCertificateStep.confirmation)
+      if (entry.value.step == FinancialCertificateStep.confirmation) {
         expect(find.byType(AppInvoice), findsOneWidget);
+      }
       expect(tester.takeException(), isNull);
       await captureCertificate(tester, entry.key);
     });
@@ -214,12 +216,12 @@ void main() {
       await tester.pumpAndSettle();
       expect(cubit.state.address!.title, 'دفتر');
       expect(cubit.state.canContinue, isTrue);
-      await tester.tap(find.text('حذف آدرس').first);
+      tester.widget<AppAddressCard>(find.byType(AppAddressCard)).onDeleteTap!();
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key('app_delete_address_cancel')));
       await tester.pumpAndSettle();
       expect(cubit.state.address, isNotNull);
-      await tester.tap(find.text('حذف آدرس').first);
+      tester.widget<AppAddressCard>(find.byType(AppAddressCard)).onDeleteTap!();
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key('app_delete_address_confirm')));
       await tester.pumpAndSettle();

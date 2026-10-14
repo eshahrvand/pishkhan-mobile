@@ -2,7 +2,6 @@ import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/dashboard_services.dart';
-import 'package:pishkhan_mobile/l10n/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 class DashboardCategoryHeading extends StatelessWidget {
@@ -44,7 +43,7 @@ class DashboardCategoryHeading extends StatelessWidget {
         ),
         const SizedBox(width: 6),
         Text(
-          category.label(context.l10n),
+          category.label(),
           style: AppTypography.bodyMedium.copyWith(
             color: color,
             fontWeight: active ? FontWeight.w600 : FontWeight.w500,

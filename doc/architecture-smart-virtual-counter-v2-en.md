@@ -103,7 +103,7 @@ Users can obtain services through two paths:
 | **Routing & Deep Links** | `go_router` | Tree structure, central guard, web support |
 | **Local Secure Storage** | `flutter_secure_storage` (mobile only) | Keystore / Keychain |
 | **Error Handling** | `sealed class Result<T>` + `Equatable` | Exhaustive pattern matching and value equality in tests |
-| **Localization** | `flutter_localizations` + ARB | Persian, with infrastructure for English and Arabic |
+| **Localization** | `flutter_localizations` + `intl` + ARB, generated with `intl_utils` as `S` | Persian, English and Arabic; direct UI access through `S.current.<key>` |
 | **Dates** | Jalali calendar in the presentation layer | Domain always uses Gregorian/UTC |
 | **Linting** | `very_good_analysis` + `custom_lint` | Architectural rules enforced at error level |
 | **Testing** | `test`, `bloc_test`, `mocktail` | Mocking without code generation |
@@ -1035,7 +1035,7 @@ BlocProvider(
 AppButton(
   isLoading: state.submissionStatus == RequestStatus.loading,
   onPressed: state.canSubmit ? cubit.submit : null,
-  label: context.l10n.cardServiceSubmit,
+  label: S.current.cardServiceSubmit,
 );
 ```
 
@@ -1215,6 +1215,112 @@ Golden tests are **not implemented** in this phase and are deferred until after 
 * No string literals are written directly in widgets (enforced by `custom_lint`).
 * The Domain layer produces no text, only `code` (Section 11.2).
 * The `Accept-Language` header is sent by `LocaleInterceptor`.
+
+#### 14.1.1 Owner-Approved UI Access Convention
+
+**Decision, 2026-10-14:** use the same localization access style as the owner's Axino application: **`S.current.<key>`**. The class `S` is generated from ARB resources through `intl_utils`; it is not a handwritten facade over `AppLocalizations`.
+
+```dart
+import 'package:pishkhan_mobile/generated/l10n.dart';
+
+Text(S.current.mobileNumber);
+
+AppButton(
+  label: S.current.submitRequest,
+  isLoading: state.submissionStatus == RequestStatus.loading,
+  onPressed: state.canSubmit
+      ? () {
+          context.read<MyServiceCubit>().submit();
+        }
+      : null,
+);
+
+Text(S.current.otpSentMessage(state.maskedPhone));
+```
+
+These are target-convention examples, not a report of completed implementation. `mobileNumber` illustrates the requested key naming; an actual migration must preserve existing keys or explicitly update their consumers.
+
+**Mandatory rules for agents:**
+
+1. Read localized UI text directly as `S.current.<key>`; do not introduce `context.l10n`, repeated `AppLocalizations.of(context)` calls or local aliases such as `final l10n = ...` in new UI code following this convention.
+2. Keep translations in ARB files, including parameterized messages and plural forms. Use generated methods for arguments rather than assembling translated sentence fragments manually.
+3. Do not hand-edit generated Dart files or maintain a second generator for the same app messages.
+4. Keep `S.current` in Presentation. Domain and Cubit logic return codes, enums and data; they must not store localized button titles or messages in State.
+5. Helpers that map several steps to translated titles return a `String` and read `S.current` directly. They do not accept `BuildContext` solely to retrieve a translation.
+
+```dart
+String getAverageBalanceButtonTitle(AverageBalanceStep step) {
+  switch (step) {
+    case AverageBalanceStep.conditions:
+    case AverageBalanceStep.delivery:
+      return S.current.issuanceNext;
+    case AverageBalanceStep.confirmation:
+      return S.current.issuanceSubmit;
+  }
+}
+
+// In UI:
+AppButton(
+  label: getAverageBalanceButtonTitle(state.step),
+  // Other button properties belong to the service UI.
+);
+```
+
+#### 14.1.2 Target Generator Configuration and Resource Layout
+
+The planned configuration follows Axino's `intl_utils` approach, with Persian selected explicitly as the main locale. Dependency versions remain subject to Section 5 and compatibility with the project's existing code-generation toolchain; other Axino packages and SDK versions are not copied.
+
+```yaml
+# Target configuration for a separately authorized implementation task.
+dev_dependencies:
+  intl_utils: ^2.8.2
+
+flutter_intl:
+  enabled: true
+  class_name: S
+  main_locale: fa
+  arb_dir: lib/l10n
+  output_dir: lib/generated
+```
+
+```text
+lib/l10n/
+  intl_fa.arb
+  intl_en.arb
+  intl_ar.arb
+lib/generated/
+  l10n.dart              # Generated S class and localization delegate
+  intl/                  # Generated message implementations
+```
+
+Generation command: `dart run intl_utils:generate` (through FVM where required by Section 4). The package documents these configuration fields, ARB naming and output generation in its [official documentation](https://pub.dev/packages/intl_utils).
+
+`intl` supplies message/formatting infrastructure; `intl_utils` generates the app-facing class. Neither having `intl` nor setting `flutter.generate: true` alone creates `S.current`. During a future migration, the old `gen-l10n` configuration and any automatic generation flag must be reconciled so the same messages are not produced by two competing pipelines.
+
+#### 14.1.3 App Initialization and Locale Changes
+
+The app's localization delegates include `S.delegate` and Flutter's Material, Cupertino and Widgets delegates; supported locales come from `S.delegate.supportedLocales`.
+
+```dart
+MaterialApp.router(
+  localizationsDelegates: const [
+    S.delegate,
+    GlobalMaterialLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+  ],
+  supportedLocales: S.delegate.supportedLocales,
+  // locale and routerConfig are supplied by the app composition root.
+);
+```
+
+`S.current` must be read after its delegate has loaded. It is not a widget subscription by itself: a future runtime language selector must update the app locale and rebuild affected UI. Tests must also load the appropriate delegate/locale before reading messages. The convention assumes one active application locale; independently localized subtrees require an explicit design rather than silently relying on the global current instance.
+
+#### 14.1.4 Current Implementation Versus Approved Target
+
+**This revision changes documentation only.** The current app still uses Flutter `gen-l10n`, `AppLocalizations`, `context.l10n`, `app_{fa,en,ar}.arb` and the configuration in `l10n.yaml`. No localization migration, language selector, ARB rename or dependency addition is authorized by this documentation revision.
+
+A later, explicitly requested implementation must preserve all existing translations, placeholders and locale behavior, update delegates and tests together, and verify Persian, English and Arabic UI before retiring the old generated output. The owner-approved convention is `S.current`; its implementation is pending.
 
 ### 14.2 Persian and Arabic Digits
 
@@ -1684,6 +1790,8 @@ The complete list is provided in the separate document "Bank Requirements and De
 ---
 
 ## 21. Change Log
+
+**2026-10-14 localization convention update:** Section 14.1 records the owner-approved `intl_utils`/generated `S` approach and direct `S.current.<key>` access, including title helpers, initialization and migration boundaries. This is a documentation-only decision; the existing `gen-l10n` implementation remains in place until a separate implementation task is requested.
 
 **2026-10-13 convention update:** Section 12 now defines the owner-approved Cubit/State style: plain Freezed data, initial-State constructors, operation-specific request statuses, Cubit-owned calculations, direct UI field reads and no handwritten State/Cubit getters. This convention applies to all existing Cubits and future work.
 

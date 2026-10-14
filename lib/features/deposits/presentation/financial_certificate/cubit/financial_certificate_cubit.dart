@@ -1,3 +1,8 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:pishkhan_mobile/core/result/failure.dart';
+
+import '../../../domain/entities/listed_deposit.dart';
+
 import 'dart:math';
 
 import 'package:avp_ui/avp_ui.dart';
@@ -11,14 +16,16 @@ import '../../../domain/entities/certificate_data.dart';
 import '../../../domain/entities/financial_certificate_data.dart';
 import '../../../domain/repositories/financial_certificate_repository.dart';
 import '../../../domain/usecases/average_balance.dart';
-import 'financial_certificate_state.dart';
-export 'financial_certificate_state.dart';
+
+part 'financial_certificate_state.dart';
+part 'financial_certificate_cubit.freezed.dart';
 
 class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
   FinancialCertificateCubit({
     required this.repository,
     this.initialDepositNumber,
-    FinancialCertificateState initialState = const FinancialCertificateState(),
+    FinancialCertificateState initialState =
+        const FinancialCertificateState.initial(),
   }) : super(initialState);
   final FinancialCertificateRepository repository;
   final String? initialDepositNumber;

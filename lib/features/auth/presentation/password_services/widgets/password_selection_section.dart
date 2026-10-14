@@ -7,7 +7,7 @@ import 'package:pishkhan_mobile/features/auth/domain/entities/password_data.dart
 import 'package:pishkhan_mobile/features/auth/presentation/password_services/cubit/second_password_cubit.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/password_services/widgets/password_sheets.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/password_services/widgets/password_styles.dart';
-import 'package:pishkhan_mobile/l10n/l10n.dart';
+import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_invoice.dart';
 
@@ -20,26 +20,26 @@ class PasswordSelectionSection extends StatelessWidget {
   final SecondPasswordState state;
   final bool selectOperation;
   String _kind(BuildContext context, PasswordCardKind kind) => switch (kind) {
-    PasswordCardKind.resalat => context.l10n.cardFeatureResalat,
-    PasswordCardKind.coupon => context.l10n.cardFeatureCoupon,
-    PasswordCardKind.gift => context.l10n.cardFeatureGift,
-    PasswordCardKind.family => context.l10n.cardFeatureFamily,
+    PasswordCardKind.resalat => S.current.cardFeatureResalat,
+    PasswordCardKind.coupon => S.current.cardFeatureCoupon,
+    PasswordCardKind.gift => S.current.cardFeatureGift,
+    PasswordCardKind.family => S.current.cardFeatureFamily,
   };
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<SecondPasswordCubit>();
-    final l = context.l10n;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
-          l.passwordSelectionPrompt,
+          S.current.passwordSelectionPrompt,
           style: passwordBody(context).copyWith(fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 20),
         PasswordServiceSelect(
-          title: l.passwordCardType,
-          hint: l.passwordCardTypeHint,
+          title: S.current.passwordCardType,
+          hint: S.current.passwordCardTypeHint,
           value: state.kind,
           options: [
             for (final kind in PasswordCardKind.values)
@@ -49,8 +49,8 @@ class PasswordSelectionSection extends StatelessWidget {
         ),
         const SizedBox(height: 20),
         PasswordServiceSelect(
-          title: l.passwordCardNumber,
-          hint: l.passwordCardNumberHint,
+          title: S.current.passwordCardNumber,
+          hint: S.current.passwordCardNumberHint,
           value: state.cardId,
           options: [
             for (final card in state.catalog!.cards.where(
@@ -63,28 +63,29 @@ class PasswordSelectionSection extends StatelessWidget {
         const SizedBox(height: 20),
         PasswordServiceSelect(
           title: state.card != null && state.secondPasswordSelected
-              ? l.passwordOperation
-              : l.passwordType,
-          hint: l.passwordTypeHint,
+              ? S.current.passwordOperation
+              : S.current.passwordType,
+          hint: S.current.passwordTypeHint,
           value: state.secondPasswordSelected ? 'second' : null,
           options: [
             AppSelectOption(
               value: 'first',
-              label: l.passwordFirst,
-              supportingText: l.passwordFirstDescription,
+              label: S.current.passwordFirst,
+              supportingText: S.current.passwordFirstDescription,
             ),
             AppSelectOption(
               value: 'second',
-              label: l.passwordSecond,
-              supportingText: l.passwordSecondDescription,
+              label: S.current.passwordSecond,
+              supportingText: S.current.passwordSecondDescription,
             ),
           ],
           change: (value) {
             if (value == 'second') {
               cubit.selectSecondPassword();
             } else {
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(SnackBar(content: Text(l.passwordUnsupported)));
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(S.current.passwordUnsupported)),
+              );
             }
           },
         ),
@@ -104,18 +105,18 @@ class PasswordSelectionSection extends StatelessWidget {
           const SizedBox(height: 20),
           if (selectOperation)
             PasswordServiceSelect<PasswordOperation>(
-              title: l.passwordOperation,
-              hint: l.passwordOperationHint,
+              title: S.current.passwordOperation,
+              hint: S.current.passwordOperationHint,
               value: state.operation,
               operationSelection: true,
               options: [
                 AppSelectOption(
                   value: PasswordOperation.changePassword,
-                  label: l.passwordChange,
+                  label: S.current.passwordChange,
                 ),
                 AppSelectOption(
                   value: PasswordOperation.forgotPassword,
-                  label: l.passwordForgot,
+                  label: S.current.passwordForgot,
                 ),
               ],
               change: cubit.chooseOperation,
@@ -125,7 +126,7 @@ class PasswordSelectionSection extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  l.passwordOperation,
+                  S.current.passwordOperation,
                   style: Theme.of(context).textTheme.bodySmall!.copyWith(
                     fontWeight: FontWeight.w500,
                     height: 18 / 12,
@@ -134,7 +135,7 @@ class PasswordSelectionSection extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 AppTextField(
-                  hintText: l.passwordSetSecond,
+                  hintText: S.current.passwordSetSecond,
                   hintColor: context.colors.textSecondary,
                   readOnly: true,
                   textStyle: passwordBody(context),
@@ -153,22 +154,22 @@ class PasswordSelectionSection extends StatelessWidget {
             isExpanded: false,
             onExpandedChanged: (_) {},
             showToggle: false,
-            title: l.issuancePayable,
-            walletLabel: l.walletBalanceTitle,
+            title: S.current.issuancePayable,
+            walletLabel: S.current.walletBalanceTitle,
             backgroundColor: context.colors.surface,
             borderRadius: BorderRadius.zero,
             zeroHeightDividers: true,
             labelColor: context.colors.textTertiary,
             isWalletBalanceSufficient: state.walletSufficient,
-            walletSufficientLabel: l.issuanceWalletSufficient,
-            walletInsufficientLabel: l.issuanceWalletInsufficient,
+            walletSufficientLabel: S.current.issuanceWalletSufficient,
+            walletInsufficientLabel: S.current.issuanceWalletInsufficient,
           ),
         ],
         if (state.card != null &&
             state.operation != null &&
             !state.card!.supports(state.operation!)) ...[
           const SizedBox(height: 12),
-          Text(l.passwordUnsupported),
+          Text(S.current.passwordUnsupported),
         ],
       ],
     );
@@ -191,40 +192,44 @@ class PasswordServiceSelect<T> extends StatelessWidget {
   final ValueChanged<T> change;
   final bool operationSelection;
   @override
-  Widget build(BuildContext context) => AppSelect<T>(
-    label: title,
-    hintText: hint,
-    value: value,
-    options: options,
-    onChanged: change,
-    labelSpacing: 8,
-    labelStyle: Theme.of(context).textTheme.bodySmall!.copyWith(
-      height: 18 / 12,
-      fontWeight: FontWeight.w500,
-      color: context.colors.textSecondary,
-      letterSpacing: 0,
-    ),
-    textStyle: passwordBody(context).copyWith(
-      fontWeight: FontWeight.w400,
-      color: value == null
-          ? AppPasswordServiceColors.hint
-          : context.colors.textPrimary,
-    ),
-    trailing: SizedBox.square(
-      dimension: 20,
-      child: SvgPicture.asset(
-        value == null
-            ? AppAssets.issuanceSelectEmpty
-            : AppAssets.cardFeaturesChevron,
-        fit: BoxFit.contain,
+  Widget build(BuildContext context) {
+    return AppSelect<T>(
+      label: title,
+      hintText: hint,
+      value: value,
+      options: options,
+      onChanged: change,
+      labelSpacing: 8,
+      labelStyle: Theme.of(context).textTheme.bodySmall!.copyWith(
+        height: 18 / 12,
+        fontWeight: FontWeight.w500,
+        color: context.colors.textSecondary,
+        letterSpacing: 0,
       ),
-    ),
-    menuBuilder: (context, options, selected) => showPasswordOptions(
-      context,
-      title,
-      options,
-      selected,
-      scrimAsset: operationSelection ? AppAssets.passwordOperationScrim : null,
-    ),
-  );
+      textStyle: passwordBody(context).copyWith(
+        fontWeight: FontWeight.w400,
+        color: value == null
+            ? AppPasswordServiceColors.hint
+            : context.colors.textPrimary,
+      ),
+      trailing: SizedBox.square(
+        dimension: 20,
+        child: SvgPicture.asset(
+          value == null
+              ? AppAssets.issuanceSelectEmpty
+              : AppAssets.cardFeaturesChevron,
+          fit: BoxFit.contain,
+        ),
+      ),
+      menuBuilder: (context, options, selected) => showPasswordOptions(
+        context,
+        title,
+        options,
+        selected,
+        scrimAsset: operationSelection
+            ? AppAssets.passwordOperationScrim
+            : null,
+      ),
+    );
+  }
 }

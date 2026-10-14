@@ -52,7 +52,19 @@ class AppTransactionCard extends StatelessWidget {
       child: Row(
         textDirection: TextDirection.ltr,
         children: [
-          _amount(),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            textDirection: TextDirection.ltr,
+            children: [
+              Text('ریال', style: _currencyStyle),
+              const SizedBox(width: 2),
+              Text(
+                amount,
+                textDirection: TextDirection.ltr,
+                style: _amountStyle,
+              ),
+            ],
+          ),
           const SizedBox(width: 8),
           Expanded(
             child: Row(
@@ -112,16 +124,6 @@ class AppTransactionCard extends StatelessWidget {
             ),
     );
   }
-
-  Widget _amount() => Row(
-    mainAxisSize: MainAxisSize.min,
-    textDirection: TextDirection.ltr,
-    children: [
-      Text('ریال', style: _currencyStyle),
-      const SizedBox(width: 2),
-      Text(amount, textDirection: TextDirection.ltr, style: _amountStyle),
-    ],
-  );
 
   TextStyle get _currencyStyle => AppTypography.bodySmall.copyWith(
     color: AppPalette.gray700,

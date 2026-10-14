@@ -1,3 +1,4 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:pishkhan_mobile/features/auth/domain/repositories/password_services_repository.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 
@@ -10,19 +11,83 @@ import 'package:avp_ui/avp_ui.dart';
 import 'package:pishkhan_mobile/core/result/result.dart';
 import 'package:pishkhan_mobile/core/result/failure.dart';
 
-import 'second_password_state.dart';
-export 'second_password_state.dart';
-
 import '../../../domain/entities/password_data.dart';
 import '../../../domain/usecases/password_services.dart';
 
+part 'second_password_state.dart';
+part 'second_password_cubit.freezed.dart';
+
 class SecondPasswordCubit extends Cubit<SecondPasswordState> {
   SecondPasswordCubit({
-    SecondPasswordState initialState = const SecondPasswordState(),
+    SecondPasswordState initialState = const SecondPasswordState.initial(),
     required this.repository,
     this.initialCardNumber,
     this.selectOperation = false,
-  }) : super(_prepareState(initialState));
+  }) : super(initialState) {
+    {
+      final nextCard = getCard(state.catalog, state.cardId, state.kind);
+      final nextChange = state.operation == PasswordOperation.changePassword;
+      final nextEditable = checkEditable(
+        state.status,
+        state.catalog,
+        state.checkStatus,
+        state.submissionStatus,
+      );
+      final nextHasSelection = checkHasSelection(
+        state.secondPasswordSelected,
+        state.operation,
+        nextCard,
+      );
+      final nextCurrentComplete = checkCurrentComplete(
+        state.currentPassword,
+        nextChange,
+      );
+      final nextLength = SecondPasswordValidator.hasValidLength(state.password);
+      final nextPattern = SecondPasswordValidator.hasSafePattern(
+        state.password,
+      );
+      final nextDate = checkDate(state.password, nextCard);
+      final nextForm = checkForm(
+        state.password,
+        state.confirmation,
+        state.terms,
+        nextCurrentComplete,
+        nextLength,
+        nextPattern,
+        nextDate,
+      );
+      final nextSerial = SecondPasswordValidator.validSerial(state.serial);
+      emit(
+        state.copyWith(
+          card: nextCard,
+          editable: nextEditable,
+          isChange: nextChange,
+          currentPasswordComplete: nextCurrentComplete,
+          hasSelection: nextHasSelection,
+          selectionComplete:
+              nextHasSelection && nextCard!.supports(state.operation!),
+          lengthValid: nextLength,
+          patternValid: nextPattern,
+          dateValid: nextDate,
+          formComplete: nextForm,
+          serialComplete: nextSerial,
+          walletSufficient:
+              state.catalog != null &&
+              state.catalog!.walletBalanceRial >= state.catalog!.feeRial,
+          canContinue:
+              nextEditable &&
+              switch (state.step) {
+                SecondPasswordStep.selection => nextHasSelection,
+                SecondPasswordStep.password => nextForm,
+                SecondPasswordStep.serial => nextSerial,
+                SecondPasswordStep.instruction => true,
+                SecondPasswordStep.recording =>
+                  state.recordingConfirmed && nextForm && nextSerial,
+              },
+        ),
+      );
+    }
+  }
   final PasswordServicesRepository repository;
   final String? initialCardNumber;
   final bool selectOperation;
@@ -32,8 +97,37 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
   Future<void> load() async {
     final generation = ++_generation;
     _idempotencyKey = null;
-    emit(
-      _prepareState(
+    {
+      final nextCard = getCard((null), (null), (null));
+      final nextChange =
+          ((selectOperation ? null : PasswordOperation.setSecondPassword)) ==
+          PasswordOperation.changePassword;
+      final nextEditable = checkEditable(
+        (RequestStatus.loading),
+        (null),
+        (RequestStatus.initial),
+        (RequestStatus.initial),
+      );
+      final nextHasSelection = checkHasSelection(
+        false,
+        ((selectOperation ? null : PasswordOperation.setSecondPassword)),
+        nextCard,
+      );
+      final nextCurrentComplete = checkCurrentComplete((''), nextChange);
+      final nextLength = SecondPasswordValidator.hasValidLength((''));
+      final nextPattern = SecondPasswordValidator.hasSafePattern((''));
+      final nextDate = checkDate((''), nextCard);
+      final nextForm = checkForm(
+        (''),
+        (''),
+        false,
+        nextCurrentComplete,
+        nextLength,
+        nextPattern,
+        nextDate,
+      );
+      final nextSerial = SecondPasswordValidator.validSerial((''));
+      emit(
         state.copyWith(
           status: RequestStatus.loading,
           checkStatus: RequestStatus.initial,
@@ -54,21 +148,88 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
           recordingConfirmed: false,
           record: null,
           failure: null,
+          card: nextCard,
+          editable: nextEditable,
+          isChange: nextChange,
+          currentPasswordComplete: nextCurrentComplete,
+          hasSelection: nextHasSelection,
+          selectionComplete:
+              nextHasSelection &&
+              nextCard!.supports(
+                ((selectOperation
+                    ? null
+                    : PasswordOperation.setSecondPassword))!,
+              ),
+          lengthValid: nextLength,
+          patternValid: nextPattern,
+          dateValid: nextDate,
+          formComplete: nextForm,
+          serialComplete: nextSerial,
+          walletSufficient: false,
+          canContinue: nextEditable && nextHasSelection,
         ),
-      ),
-    );
+      );
+    }
     final result = await LoadPasswordCatalog(repository)();
     if (isClosed || generation != _generation) return;
     switch (result) {
       case Err(:final failure):
-        emit(
-          _prepareState(
-            SecondPasswordState(
+        {
+          final nextCard = getCard(
+            (null as PasswordCatalog?),
+            (null as String?),
+            (null as PasswordCardKind?),
+          );
+          final nextChange =
+              (PasswordOperation.setSecondPassword) ==
+              PasswordOperation.changePassword;
+          final nextEditable = checkEditable(
+            (RequestStatus.failure),
+            (null as PasswordCatalog?),
+            (RequestStatus.initial),
+            (RequestStatus.initial),
+          );
+          final nextHasSelection = checkHasSelection(
+            false,
+            (PasswordOperation.setSecondPassword),
+            nextCard,
+          );
+          final nextCurrentComplete = checkCurrentComplete((''), nextChange);
+          final nextLength = SecondPasswordValidator.hasValidLength((''));
+          final nextPattern = SecondPasswordValidator.hasSafePattern((''));
+          final nextDate = checkDate((''), nextCard);
+          final nextForm = checkForm(
+            (''),
+            (''),
+            false,
+            nextCurrentComplete,
+            nextLength,
+            nextPattern,
+            nextDate,
+          );
+          final nextSerial = SecondPasswordValidator.validSerial((''));
+          emit(
+            SecondPasswordState.initial(
               status: RequestStatus.failure,
               failure: failure,
+              card: nextCard,
+              editable: nextEditable,
+              isChange: nextChange,
+              currentPasswordComplete: nextCurrentComplete,
+              hasSelection: nextHasSelection,
+              selectionComplete:
+                  nextHasSelection &&
+                  nextCard!.supports((PasswordOperation.setSecondPassword)),
+              lengthValid: nextLength,
+              patternValid: nextPattern,
+              dateValid: nextDate,
+              formComplete: nextForm,
+              serialComplete: nextSerial,
+              walletSufficient: false,
+              canContinue: nextEditable && nextHasSelection,
             ),
-          ),
-        );
+          );
+        }
       case Success(:final data):
         PasswordCard? selected;
         for (final card in data.cards) {
@@ -79,9 +240,40 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
             selected = card;
           }
         }
-        emit(
-          _prepareState(
-            SecondPasswordState(
+        {
+          final nextCard = getCard((data), (selected?.id), (selected?.kind));
+          final nextChange =
+              ((selectOperation
+                  ? null
+                  : PasswordOperation.setSecondPassword)) ==
+              PasswordOperation.changePassword;
+          final nextEditable = checkEditable(
+            (RequestStatus.success),
+            (data),
+            (RequestStatus.initial),
+            (RequestStatus.initial),
+          );
+          final nextHasSelection = checkHasSelection(
+            false,
+            ((selectOperation ? null : PasswordOperation.setSecondPassword)),
+            nextCard,
+          );
+          final nextCurrentComplete = checkCurrentComplete((''), nextChange);
+          final nextLength = SecondPasswordValidator.hasValidLength((''));
+          final nextPattern = SecondPasswordValidator.hasSafePattern((''));
+          final nextDate = checkDate((''), nextCard);
+          final nextForm = checkForm(
+            (''),
+            (''),
+            false,
+            nextCurrentComplete,
+            nextLength,
+            nextPattern,
+            nextDate,
+          );
+          final nextSerial = SecondPasswordValidator.validSerial((''));
+          emit(
+            SecondPasswordState.initial(
               status: RequestStatus.success,
               catalog: data,
               operation: (selectOperation
@@ -89,26 +281,95 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
                   : PasswordOperation.setSecondPassword),
               kind: selected?.kind,
               cardId: selected?.id,
+              card: nextCard,
+              editable: nextEditable,
+              isChange: nextChange,
+              currentPasswordComplete: nextCurrentComplete,
+              hasSelection: nextHasSelection,
+              selectionComplete:
+                  nextHasSelection &&
+                  nextCard!.supports(
+                    ((selectOperation
+                        ? null
+                        : PasswordOperation.setSecondPassword))!,
+                  ),
+              lengthValid: nextLength,
+              patternValid: nextPattern,
+              dateValid: nextDate,
+              formComplete: nextForm,
+              serialComplete: nextSerial,
+              walletSufficient: (data).walletBalanceRial >= (data).feeRial,
+              canContinue: nextEditable && nextHasSelection,
             ),
-          ),
-        );
+          );
+        }
     }
   }
 
   void selectKind(PasswordCardKind kind) {
     if (!state.editable) return;
-    emit(
-      _prepareState(
-        SecondPasswordState(
+    {
+      final nextCard = getCard((state.catalog), (null as String?), (kind));
+      final nextChange =
+          ((selectOperation ? null : PasswordOperation.setSecondPassword)) ==
+          PasswordOperation.changePassword;
+      final nextEditable = checkEditable(
+        (RequestStatus.success),
+        (state.catalog),
+        (RequestStatus.initial),
+        (RequestStatus.initial),
+      );
+      final nextHasSelection = checkHasSelection(
+        false,
+        ((selectOperation ? null : PasswordOperation.setSecondPassword)),
+        nextCard,
+      );
+      final nextCurrentComplete = checkCurrentComplete((''), nextChange);
+      final nextLength = SecondPasswordValidator.hasValidLength((''));
+      final nextPattern = SecondPasswordValidator.hasSafePattern((''));
+      final nextDate = checkDate((''), nextCard);
+      final nextForm = checkForm(
+        (''),
+        (''),
+        false,
+        nextCurrentComplete,
+        nextLength,
+        nextPattern,
+        nextDate,
+      );
+      final nextSerial = SecondPasswordValidator.validSerial((''));
+      emit(
+        SecondPasswordState.initial(
           status: RequestStatus.success,
           catalog: state.catalog,
           operation: (selectOperation
               ? null
               : PasswordOperation.setSecondPassword),
           kind: kind,
+          card: nextCard,
+          editable: nextEditable,
+          isChange: nextChange,
+          currentPasswordComplete: nextCurrentComplete,
+          hasSelection: nextHasSelection,
+          selectionComplete:
+              nextHasSelection &&
+              nextCard!.supports(
+                ((selectOperation
+                    ? null
+                    : PasswordOperation.setSecondPassword))!,
+              ),
+          lengthValid: nextLength,
+          patternValid: nextPattern,
+          dateValid: nextDate,
+          formComplete: nextForm,
+          serialComplete: nextSerial,
+          walletSufficient:
+              (state.catalog) != null &&
+              (state.catalog)!.walletBalanceRial >= (state.catalog)!.feeRial,
+          canContinue: nextEditable && nextHasSelection,
         ),
-      ),
-    );
+      );
+    }
     _idempotencyKey = null;
   }
 
@@ -120,9 +381,42 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
             false)) {
       return;
     }
-    emit(
-      _prepareState(
-        SecondPasswordState(
+    {
+      final nextCard = getCard(
+        (state.catalog),
+        (id),
+        (state.catalog!.cards.firstWhere((card) => card.id == id).kind),
+      );
+      final nextChange =
+          ((selectOperation ? null : PasswordOperation.setSecondPassword)) ==
+          PasswordOperation.changePassword;
+      final nextEditable = checkEditable(
+        (RequestStatus.success),
+        (state.catalog),
+        (RequestStatus.initial),
+        (RequestStatus.initial),
+      );
+      final nextHasSelection = checkHasSelection(
+        (state.secondPasswordSelected),
+        ((selectOperation ? null : PasswordOperation.setSecondPassword)),
+        nextCard,
+      );
+      final nextCurrentComplete = checkCurrentComplete((''), nextChange);
+      final nextLength = SecondPasswordValidator.hasValidLength((''));
+      final nextPattern = SecondPasswordValidator.hasSafePattern((''));
+      final nextDate = checkDate((''), nextCard);
+      final nextForm = checkForm(
+        (''),
+        (''),
+        false,
+        nextCurrentComplete,
+        nextLength,
+        nextPattern,
+        nextDate,
+      );
+      final nextSerial = SecondPasswordValidator.validSerial((''));
+      emit(
+        SecondPasswordState.initial(
           status: RequestStatus.success,
           catalog: state.catalog,
           kind: state.catalog!.cards.firstWhere((card) => card.id == id).kind,
@@ -131,15 +425,62 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
               ? null
               : PasswordOperation.setSecondPassword),
           secondPasswordSelected: state.secondPasswordSelected,
+          card: nextCard,
+          editable: nextEditable,
+          isChange: nextChange,
+          currentPasswordComplete: nextCurrentComplete,
+          hasSelection: nextHasSelection,
+          selectionComplete:
+              nextHasSelection &&
+              nextCard!.supports(
+                ((selectOperation
+                    ? null
+                    : PasswordOperation.setSecondPassword))!,
+              ),
+          lengthValid: nextLength,
+          patternValid: nextPattern,
+          dateValid: nextDate,
+          formComplete: nextForm,
+          serialComplete: nextSerial,
+          walletSufficient:
+              (state.catalog) != null &&
+              (state.catalog)!.walletBalanceRial >= (state.catalog)!.feeRial,
+          canContinue: nextEditable && nextHasSelection,
         ),
-      ),
-    );
+      );
+    }
     _idempotencyKey = null;
   }
 
   void selectSecondPassword() {
     if (state.editable) {
-      emit(_prepareState(state.copyWith(secondPasswordSelected: true)));
+      {
+        final nextHasSelection = checkHasSelection(
+          true,
+          state.operation,
+          state.card,
+        );
+        emit(
+          state.copyWith(
+            secondPasswordSelected: true,
+            hasSelection: nextHasSelection,
+            selectionComplete:
+                nextHasSelection && state.card!.supports(state.operation!),
+            canContinue:
+                state.editable &&
+                switch (state.step) {
+                  SecondPasswordStep.selection => nextHasSelection,
+                  SecondPasswordStep.password => state.formComplete,
+                  SecondPasswordStep.serial => state.serialComplete,
+                  SecondPasswordStep.instruction => true,
+                  SecondPasswordStep.recording =>
+                    state.recordingConfirmed &&
+                        state.formComplete &&
+                        state.serialComplete,
+                },
+          ),
+        );
+      }
     }
   }
 
@@ -151,100 +492,339 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
       return;
     }
     _idempotencyKey = null;
-    emit(
-      _prepareState(
-        SecondPasswordState(
+    {
+      final nextCard = getCard((state.catalog), (state.cardId), (state.kind));
+      final nextChange = (operation) == PasswordOperation.changePassword;
+      final nextEditable = checkEditable(
+        (RequestStatus.success),
+        (state.catalog),
+        (RequestStatus.initial),
+        (RequestStatus.initial),
+      );
+      final nextHasSelection = checkHasSelection(
+        (state.secondPasswordSelected),
+        (operation),
+        nextCard,
+      );
+      final nextCurrentComplete = checkCurrentComplete((''), nextChange);
+      final nextLength = SecondPasswordValidator.hasValidLength((''));
+      final nextPattern = SecondPasswordValidator.hasSafePattern((''));
+      final nextDate = checkDate((''), nextCard);
+      final nextForm = checkForm(
+        (''),
+        (''),
+        false,
+        nextCurrentComplete,
+        nextLength,
+        nextPattern,
+        nextDate,
+      );
+      final nextSerial = SecondPasswordValidator.validSerial((''));
+      emit(
+        SecondPasswordState.initial(
           status: RequestStatus.success,
           catalog: state.catalog,
           kind: state.kind,
           cardId: state.cardId,
           secondPasswordSelected: state.secondPasswordSelected,
           operation: operation,
+          card: nextCard,
+          editable: nextEditable,
+          isChange: nextChange,
+          currentPasswordComplete: nextCurrentComplete,
+          hasSelection: nextHasSelection,
+          selectionComplete:
+              nextHasSelection && nextCard!.supports((operation)),
+          lengthValid: nextLength,
+          patternValid: nextPattern,
+          dateValid: nextDate,
+          formComplete: nextForm,
+          serialComplete: nextSerial,
+          walletSufficient:
+              (state.catalog) != null &&
+              (state.catalog)!.walletBalanceRial >= (state.catalog)!.feeRial,
+          canContinue: nextEditable && nextHasSelection,
         ),
+      );
+    }
+  }
+
+  void resetPasswordFormPresentation() {
+    emit(state.copyWith(showPassword: false, showConfirmation: false,
+      showCurrentPassword: false, isConfirmationError: false));
+  }
+
+  void resetSerialValidation() {
+    emit(state.copyWith(isSerialError: false));
+  }
+
+  void togglePasswordVisibility() {
+    emit(state.copyWith(showPassword: !state.showPassword));
+  }
+
+  void toggleConfirmationVisibility() {
+    emit(state.copyWith(showConfirmation: !state.showConfirmation));
+  }
+
+  void toggleCurrentPasswordVisibility() {
+    emit(state.copyWith(showCurrentPassword: !state.showCurrentPassword));
+  }
+
+  void validateConfirmation() {
+    emit(
+      state.copyWith(
+        isConfirmationError:
+            state.confirmation.isNotEmpty &&
+            state.password != state.confirmation,
+      ),
+    );
+  }
+
+  void validateSerial() {
+    emit(
+      state.copyWith(
+        isSerialError: state.serial.isNotEmpty && !state.serialComplete,
       ),
     );
   }
 
   void currentPasswordChanged(String value) {
+    if (state.isConfirmationError) {
+      emit(state.copyWith(isConfirmationError: false));
+    }
     if (!state.editable) return;
     final normalized = DigitNormalizer.normalize(value);
     if (normalized != state.currentPassword) _idempotencyKey = null;
-    emit(
-      _prepareState(
+    {
+      final nextCurrentComplete = checkCurrentComplete(
+        (normalized),
+        state.isChange,
+      );
+      final nextForm = checkForm(
+        state.password,
+        state.confirmation,
+        false,
+        nextCurrentComplete,
+        state.lengthValid,
+        state.patternValid,
+        state.dateValid,
+      );
+      emit(
         state.copyWith(
           currentPassword: normalized,
           terms: false,
           recordingConfirmed: false,
           failure: null,
+          currentPasswordComplete: nextCurrentComplete,
+          formComplete: nextForm,
+          canContinue:
+              state.editable &&
+              switch (state.step) {
+                SecondPasswordStep.selection => state.hasSelection,
+                SecondPasswordStep.password => nextForm,
+                SecondPasswordStep.serial => state.serialComplete,
+                SecondPasswordStep.instruction => true,
+                SecondPasswordStep.recording => false,
+              },
         ),
-      ),
-    );
+      );
+    }
   }
 
   void passwordChanged(String value) {
+    if (state.isConfirmationError) {
+      emit(state.copyWith(isConfirmationError: false));
+    }
     if (state.editable) {
       if (DigitNormalizer.normalize(value) != state.password) {
         _idempotencyKey = null;
       }
-      emit(
-        _prepareState(
+      {
+        final nextLength = SecondPasswordValidator.hasValidLength(
+          (DigitNormalizer.normalize(value)),
+        );
+        final nextPattern = SecondPasswordValidator.hasSafePattern(
+          (DigitNormalizer.normalize(value)),
+        );
+        final nextDate = checkDate(
+          (DigitNormalizer.normalize(value)),
+          state.card,
+        );
+        final nextForm = checkForm(
+          (DigitNormalizer.normalize(value)),
+          state.confirmation,
+          false,
+          state.currentPasswordComplete,
+          nextLength,
+          nextPattern,
+          nextDate,
+        );
+        emit(
           state.copyWith(
             password: DigitNormalizer.normalize(value),
             terms: false,
             recordingConfirmed: false,
             failure: null,
+            lengthValid: nextLength,
+            patternValid: nextPattern,
+            dateValid: nextDate,
+            formComplete: nextForm,
+            canContinue:
+                state.editable &&
+                switch (state.step) {
+                  SecondPasswordStep.selection => state.hasSelection,
+                  SecondPasswordStep.password => nextForm,
+                  SecondPasswordStep.serial => state.serialComplete,
+                  SecondPasswordStep.instruction => true,
+                  SecondPasswordStep.recording => false,
+                },
           ),
-        ),
-      );
+        );
+      }
     }
   }
 
   void confirmationChanged(String value) {
+    if (state.isConfirmationError) {
+      emit(state.copyWith(isConfirmationError: false));
+    }
     if (state.editable) {
-      emit(
-        _prepareState(
+      {
+        final nextForm = checkForm(
+          state.password,
+          (DigitNormalizer.normalize(value)),
+          false,
+          state.currentPasswordComplete,
+          state.lengthValid,
+          state.patternValid,
+          state.dateValid,
+        );
+        emit(
           state.copyWith(
             confirmation: DigitNormalizer.normalize(value),
             terms: false,
             recordingConfirmed: false,
             failure: null,
+            formComplete: nextForm,
+            canContinue:
+                state.editable &&
+                switch (state.step) {
+                  SecondPasswordStep.selection => state.hasSelection,
+                  SecondPasswordStep.password => nextForm,
+                  SecondPasswordStep.serial => state.serialComplete,
+                  SecondPasswordStep.instruction => true,
+                  SecondPasswordStep.recording => false,
+                },
           ),
-        ),
-      );
+        );
+      }
     }
   }
 
   void serialChanged(String value) {
+    if (state.isSerialError) {
+      emit(state.copyWith(isSerialError: false));
+    }
     if (state.editable) {
       if (DigitNormalizer.normalize(value).trim().toUpperCase() !=
           state.serial) {
         _idempotencyKey = null;
       }
-      emit(
-        _prepareState(
+      {
+        final nextSerial = SecondPasswordValidator.validSerial(
+          (DigitNormalizer.normalize(value).trim().toUpperCase()),
+        );
+        emit(
           state.copyWith(
             serial: DigitNormalizer.normalize(value).trim().toUpperCase(),
             recordingConfirmed: false,
             failure: null,
+            serialComplete: nextSerial,
+            canContinue:
+                state.editable &&
+                switch (state.step) {
+                  SecondPasswordStep.selection => state.hasSelection,
+                  SecondPasswordStep.password => state.formComplete,
+                  SecondPasswordStep.serial => nextSerial,
+                  SecondPasswordStep.instruction => true,
+                  SecondPasswordStep.recording => false,
+                },
           ),
+        );
+      }
+    }
+  }
+
+  void acceptTerms(bool value) {
+    if (state.editable) {
+      final nextForm = checkForm(
+        state.password,
+        state.confirmation,
+        (value),
+        state.currentPasswordComplete,
+        state.lengthValid,
+        state.patternValid,
+        state.dateValid,
+      );
+      emit(
+        state.copyWith(
+          terms: value,
+          formComplete: nextForm,
+          canContinue:
+              state.editable &&
+              switch (state.step) {
+                SecondPasswordStep.selection => state.hasSelection,
+                SecondPasswordStep.password => nextForm,
+                SecondPasswordStep.serial => state.serialComplete,
+                SecondPasswordStep.instruction => true,
+                SecondPasswordStep.recording =>
+                  state.recordingConfirmed && nextForm && state.serialComplete,
+              },
         ),
       );
     }
   }
 
-  void acceptTerms(bool value) {
-    if (state.editable) emit(_prepareState(state.copyWith(terms: value)));
-  }
-
   void confirmMockRecording() {
     if (state.editable && state.step == SecondPasswordStep.recording) {
-      emit(_prepareState(state.copyWith(recordingConfirmed: true)));
+      {
+        emit(
+          state.copyWith(
+            recordingConfirmed: true,
+            canContinue:
+                state.editable &&
+                switch (state.step) {
+                  SecondPasswordStep.selection => state.hasSelection,
+                  SecondPasswordStep.password => state.formComplete,
+                  SecondPasswordStep.serial => state.serialComplete,
+                  SecondPasswordStep.instruction => true,
+                  SecondPasswordStep.recording =>
+                    true && state.formComplete && state.serialComplete,
+                },
+          ),
+        );
+      }
     }
   }
 
   void recordAgain() {
     if (state.editable) {
-      emit(_prepareState(state.copyWith(recordingConfirmed: false)));
+      {
+        emit(
+          state.copyWith(
+            recordingConfirmed: false,
+            canContinue:
+                state.editable &&
+                switch (state.step) {
+                  SecondPasswordStep.selection => state.hasSelection,
+                  SecondPasswordStep.password => state.formComplete,
+                  SecondPasswordStep.serial => state.serialComplete,
+                  SecondPasswordStep.instruction => true,
+                  SecondPasswordStep.recording => false,
+                },
+          ),
+        );
+      }
     }
   }
 
@@ -252,15 +832,34 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
     if (!state.canContinue) return;
     if (state.step == SecondPasswordStep.selection) {
       final generation = ++_generation;
-      emit(
-        _prepareState(
+      {
+        final nextEditable = checkEditable(
+          state.status,
+          state.catalog,
+          (RequestStatus.loading),
+          state.submissionStatus,
+        );
+        emit(
           state.copyWith(
             checkStatus: RequestStatus.loading,
             failure: null,
             record: null,
+            editable: nextEditable,
+            canContinue:
+                nextEditable &&
+                switch (state.step) {
+                  SecondPasswordStep.selection => state.hasSelection,
+                  SecondPasswordStep.password => state.formComplete,
+                  SecondPasswordStep.serial => state.serialComplete,
+                  SecondPasswordStep.instruction => true,
+                  SecondPasswordStep.recording =>
+                    state.recordingConfirmed &&
+                        state.formComplete &&
+                        state.serialComplete,
+                },
           ),
-        ),
-      );
+        );
+      }
       final result = await CheckPasswordRequest(repository)(
         state.cardId!,
         operation: state.operation!,
@@ -268,59 +867,136 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
       if (isClosed || generation != _generation) return;
       switch (result) {
         case Err(:final failure):
-          emit(
-            _prepareState(
+          {
+            final nextEditable = checkEditable(
+              state.status,
+              state.catalog,
+              (RequestStatus.failure),
+              state.submissionStatus,
+            );
+            emit(
               state.copyWith(
                 checkStatus: RequestStatus.failure,
                 failure: failure,
+                editable: nextEditable,
+                canContinue:
+                    nextEditable &&
+                    switch (state.step) {
+                      SecondPasswordStep.selection => state.hasSelection,
+                      SecondPasswordStep.password => state.formComplete,
+                      SecondPasswordStep.serial => state.serialComplete,
+                      SecondPasswordStep.instruction => true,
+                      SecondPasswordStep.recording =>
+                        state.recordingConfirmed &&
+                            state.formComplete &&
+                            state.serialComplete,
+                    },
               ),
-            ),
-          );
+            );
+          }
         case Success(:final data):
           if (data.status != PasswordRequestStatus.none) {
-            emit(
-              _prepareState(
+            {
+              final nextEditable = checkEditable(
+                state.status,
+                state.catalog,
+                (RequestStatus.success),
+                state.submissionStatus,
+              );
+              emit(
                 state.copyWith(
                   checkStatus: RequestStatus.success,
                   record: data,
+                  editable: nextEditable,
+                  canContinue:
+                      nextEditable &&
+                      switch (state.step) {
+                        SecondPasswordStep.selection => state.hasSelection,
+                        SecondPasswordStep.password => state.formComplete,
+                        SecondPasswordStep.serial => state.serialComplete,
+                        SecondPasswordStep.instruction => true,
+                        SecondPasswordStep.recording =>
+                          state.recordingConfirmed &&
+                              state.formComplete &&
+                              state.serialComplete,
+                      },
                 ),
-              ),
-            );
+              );
+            }
             return;
           }
           if (!state.selectionComplete ||
               (!state.isChange && !state.walletSufficient)) {
-            emit(
-              _prepareState(
+            {
+              final nextEditable = checkEditable(
+                state.status,
+                state.catalog,
+                (RequestStatus.failure),
+                state.submissionStatus,
+              );
+              emit(
                 state.copyWith(
                   checkStatus: RequestStatus.failure,
                   failure: const DataFailure('password.request.ineligible'),
+                  editable: nextEditable,
+                  canContinue:
+                      nextEditable &&
+                      switch (state.step) {
+                        SecondPasswordStep.selection => state.hasSelection,
+                        SecondPasswordStep.password => state.formComplete,
+                        SecondPasswordStep.serial => state.serialComplete,
+                        SecondPasswordStep.instruction => true,
+                        SecondPasswordStep.recording =>
+                          state.recordingConfirmed &&
+                              state.formComplete &&
+                              state.serialComplete,
+                      },
                 ),
-              ),
-            );
+              );
+            }
             return;
           }
           _idempotencyKey = _newKey();
-          emit(
-            _prepareState(
+          {
+            final nextEditable = checkEditable(
+              state.status,
+              state.catalog,
+              (RequestStatus.success),
+              state.submissionStatus,
+            );
+            emit(
               state.copyWith(
                 checkStatus: RequestStatus.success,
                 step: SecondPasswordStep.password,
+                editable: nextEditable,
+                canContinue: nextEditable && state.formComplete,
               ),
-            ),
-          );
+            );
+          }
       }
     } else if (state.isChange && state.step == SecondPasswordStep.password) {
       await submit();
     } else if (state.step != SecondPasswordStep.recording) {
-      emit(
-        _prepareState(
+      {
+        emit(
           state.copyWith(
             step: SecondPasswordStep.values[state.step.index + 1],
             failure: null,
+            canContinue:
+                state.editable &&
+                switch ((SecondPasswordStep.values[state.step.index + 1])) {
+                  SecondPasswordStep.selection => state.hasSelection,
+                  SecondPasswordStep.password => state.formComplete,
+                  SecondPasswordStep.serial => state.serialComplete,
+                  SecondPasswordStep.instruction => true,
+                  SecondPasswordStep.recording =>
+                    state.recordingConfirmed &&
+                        state.formComplete &&
+                        state.serialComplete,
+                },
           ),
-        ),
-      );
+        );
+      }
     } else {
       await submit();
     }
@@ -330,20 +1006,34 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
     if (!state.editable || state.step == SecondPasswordStep.selection) {
       return false;
     }
-    emit(
-      _prepareState(
+    {
+      emit(
         state.copyWith(
           step: SecondPasswordStep.values[state.step.index - 1],
           record: null,
           failure: null,
+          canContinue:
+              state.editable &&
+              switch ((SecondPasswordStep.values[state.step.index - 1])) {
+                SecondPasswordStep.selection => state.hasSelection,
+                SecondPasswordStep.password => state.formComplete,
+                SecondPasswordStep.serial => state.serialComplete,
+                SecondPasswordStep.instruction => true,
+                SecondPasswordStep.recording =>
+                  state.recordingConfirmed &&
+                      state.formComplete &&
+                      state.serialComplete,
+              },
         ),
-      ),
-    );
+      );
+    }
     return true;
   }
 
   void dismissRecord() {
-    if (state.editable) emit(_prepareState(state.copyWith(record: null)));
+    if (state.editable) {
+      emit(state.copyWith(record: null));
+    }
   }
 
   Future<void> submit() async {
@@ -364,26 +1054,90 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
       idempotencyKey: _idempotencyKey!,
       kycReference: state.isChange ? '' : 'mock-kyc',
     );
-    emit(
-      _prepareState(
-        state.copyWith(submissionStatus: RequestStatus.loading, failure: null),
-      ),
-    );
+    {
+      final nextEditable = checkEditable(
+        state.status,
+        state.catalog,
+        state.checkStatus,
+        (RequestStatus.loading),
+      );
+      emit(
+        state.copyWith(
+          submissionStatus: RequestStatus.loading,
+          failure: null,
+          editable: nextEditable,
+          canContinue:
+              nextEditable &&
+              switch (state.step) {
+                SecondPasswordStep.selection => state.hasSelection,
+                SecondPasswordStep.password => state.formComplete,
+                SecondPasswordStep.serial => state.serialComplete,
+                SecondPasswordStep.instruction => true,
+                SecondPasswordStep.recording =>
+                  state.recordingConfirmed &&
+                      state.formComplete &&
+                      state.serialComplete,
+              },
+        ),
+      );
+    }
     final result = await SubmitSecondPassword(repository)(request);
     if (isClosed || generation != _generation) return;
     switch (result) {
       case Err(:final failure):
-        emit(
-          _prepareState(
+        {
+          final nextEditable = checkEditable(
+            state.status,
+            state.catalog,
+            state.checkStatus,
+            (RequestStatus.failure),
+          );
+          emit(
             state.copyWith(
               submissionStatus: RequestStatus.failure,
               failure: failure,
+              editable: nextEditable,
+              canContinue:
+                  nextEditable &&
+                  switch (state.step) {
+                    SecondPasswordStep.selection => state.hasSelection,
+                    SecondPasswordStep.password => state.formComplete,
+                    SecondPasswordStep.serial => state.serialComplete,
+                    SecondPasswordStep.instruction => true,
+                    SecondPasswordStep.recording =>
+                      state.recordingConfirmed &&
+                          state.formComplete &&
+                          state.serialComplete,
+                  },
             ),
-          ),
-        );
+          );
+        }
       case Success(:final data):
-        emit(
-          _prepareState(
+        {
+          final nextEditable = checkEditable(
+            state.status,
+            state.catalog,
+            state.checkStatus,
+            (RequestStatus.success),
+          );
+          final nextCurrentComplete = checkCurrentComplete(
+            (''),
+            state.isChange,
+          );
+          final nextLength = SecondPasswordValidator.hasValidLength((''));
+          final nextPattern = SecondPasswordValidator.hasSafePattern((''));
+          final nextDate = checkDate((''), state.card);
+          final nextForm = checkForm(
+            (''),
+            (''),
+            false,
+            nextCurrentComplete,
+            nextLength,
+            nextPattern,
+            nextDate,
+          );
+          final nextSerial = SecondPasswordValidator.validSerial((''));
+          emit(
             state.copyWith(
               submissionStatus: RequestStatus.success,
               record: data,
@@ -393,9 +1147,25 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
               serial: '',
               terms: false,
               recordingConfirmed: false,
+              editable: nextEditable,
+              currentPasswordComplete: nextCurrentComplete,
+              lengthValid: nextLength,
+              patternValid: nextPattern,
+              dateValid: nextDate,
+              formComplete: nextForm,
+              serialComplete: nextSerial,
+              canContinue:
+                  nextEditable &&
+                  switch (state.step) {
+                    SecondPasswordStep.selection => state.hasSelection,
+                    SecondPasswordStep.password => nextForm,
+                    SecondPasswordStep.serial => nextSerial,
+                    SecondPasswordStep.instruction => true,
+                    SecondPasswordStep.recording => false,
+                  },
             ),
-          ),
-        );
+          );
+        }
     }
   }
 
@@ -413,60 +1183,62 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
     return super.close();
   }
 
-  static SecondPasswordState _prepareState(SecondPasswordState next) {
-    final card = next.catalog?.cards
-        .where((c) => c.id == next.cardId && c.kind == next.kind)
+  PasswordCard? getCard(
+    PasswordCatalog? catalog,
+    String? cardId,
+    PasswordCardKind? kind,
+  ) {
+    return catalog?.cards
+        .where((c) => c.id == cardId && c.kind == kind)
         .firstOrNull;
-    final change = next.operation == PasswordOperation.changePassword;
-    final editable =
-        next.status == RequestStatus.success &&
-        next.catalog?.cards.isNotEmpty == true &&
-        next.checkStatus != RequestStatus.loading &&
-        next.submissionStatus != RequestStatus.loading &&
-        next.submissionStatus != RequestStatus.success;
-    final hasSelection =
-        card != null && next.secondPasswordSelected && next.operation != null;
-    final currentComplete =
-        !change || SecondPasswordValidator.hasValidLength(next.currentPassword);
-    final length = SecondPasswordValidator.hasValidLength(next.password);
-    final pattern = SecondPasswordValidator.hasSafePattern(next.password);
-    final date = SecondPasswordValidator.avoidsKnownDates(
-      next.password,
+  }
+
+  bool checkEditable(
+    RequestStatus status,
+    PasswordCatalog? catalog,
+    RequestStatus checkStatus,
+    RequestStatus submissionStatus,
+  ) {
+    return status == RequestStatus.success &&
+        catalog?.cards.isNotEmpty == true &&
+        checkStatus != RequestStatus.loading &&
+        submissionStatus != RequestStatus.loading &&
+        submissionStatus != RequestStatus.success;
+  }
+
+  bool checkHasSelection(
+    bool secondPasswordSelected,
+    PasswordOperation? operation,
+    PasswordCard? card,
+  ) {
+    return card != null && secondPasswordSelected && operation != null;
+  }
+
+  bool checkCurrentComplete(String currentPassword, bool change) {
+    return !change || SecondPasswordValidator.hasValidLength(currentPassword);
+  }
+
+  bool checkDate(String password, PasswordCard? card) {
+    return SecondPasswordValidator.avoidsKnownDates(
+      password,
       card?.datePinCandidates ?? [],
     );
-    final form =
-        currentComplete &&
+  }
+
+  bool checkForm(
+    String password,
+    String confirmation,
+    bool terms,
+    bool currentComplete,
+    bool length,
+    bool pattern,
+    bool date,
+  ) {
+    return currentComplete &&
         length &&
         pattern &&
         date &&
-        next.password == next.confirmation &&
-        next.terms;
-    final serial = SecondPasswordValidator.validSerial(next.serial);
-    return next.copyWith(
-      card: card,
-      editable: editable,
-      isChange: change,
-      currentPasswordComplete: currentComplete,
-      hasSelection: hasSelection,
-      selectionComplete: hasSelection && card.supports(next.operation!),
-      lengthValid: length,
-      patternValid: pattern,
-      dateValid: date,
-      formComplete: form,
-      serialComplete: serial,
-      walletSufficient:
-          next.catalog != null &&
-          next.catalog!.walletBalanceRial >= next.catalog!.feeRial,
-      canContinue:
-          editable &&
-          switch (next.step) {
-            SecondPasswordStep.selection => hasSelection,
-            SecondPasswordStep.password => form,
-            SecondPasswordStep.serial => serial,
-            SecondPasswordStep.instruction => true,
-            SecondPasswordStep.recording =>
-              next.recordingConfirmed && form && serial,
-          },
-    );
+        password == confirmation &&
+        terms;
   }
 }

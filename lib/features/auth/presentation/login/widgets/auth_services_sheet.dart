@@ -8,7 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/login/cubit/auth_cubit.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/login/widgets/auth_services_grid.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/shared/auth_assets.dart';
-import 'package:pishkhan_mobile/l10n/l10n.dart';
+import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_bottom_sheet_header.dart';
 
 Future<void> showAuthServicesSheet(
@@ -62,7 +62,6 @@ class AuthServicesSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = context.l10n;
     AuthServiceItemData item(
       String id,
       String label,
@@ -81,7 +80,7 @@ class AuthServicesSheet extends StatelessWidget {
       child: Column(
         children: [
           AppBottomSheetHeader(
-            title: l10n.servicesList,
+            title: S.current.servicesList,
             showRightIcon: false,
             leftIcon: SvgPicture.asset(AuthAssets.sheetClose),
             onLeftAction: onClose,
@@ -93,7 +92,7 @@ class AuthServicesSheet extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   AuthServicesSectionTitle(
-                    title: l10n.guestServices,
+                    title: S.current.guestServices,
                     dividerAsset: AuthAssets.sectionDivider1,
                   ),
                   const SizedBox(height: 16),
@@ -101,30 +100,30 @@ class AuthServicesSheet extends StatelessWidget {
                     items: [
                       item(
                         'deposits.assetReport',
-                        l10n.assetReport,
+                        S.current.assetReport,
                         AuthAssets.assetReport,
                       ),
                       item(
                         'identity.changePhone',
-                        l10n.changeMobileService,
+                        S.current.changeMobileService,
                         AuthAssets.changeMobile,
                       ),
                       item(
                         'requests.status',
-                        l10n.requestStatus,
+                        S.current.requestStatus,
                         AuthAssets.requestStatus,
                         mutedLabel: true,
                       ),
                       item(
                         'identity.inheritance',
-                        l10n.inheritance,
+                        S.current.inheritance,
                         AuthAssets.inheritance,
                       ),
                     ],
                   ),
                   const SizedBox(height: 24),
                   AuthServicesSectionTitle(
-                    title: l10n.relatedLinks,
+                    title: S.current.relatedLinks,
                     dividerAsset: AuthAssets.sectionDivider2,
                   ),
                   const SizedBox(height: 16),
@@ -132,22 +131,22 @@ class AuthServicesSheet extends StatelessWidget {
                     items: [
                       item(
                         'links.mobileBank',
-                        l10n.mobileBank,
+                        S.current.mobileBank,
                         AuthAssets.mobileBank,
                       ),
                       item(
                         'links.internetBank',
-                        l10n.internetBank,
+                        S.current.internetBank,
                         AuthAssets.internetBank,
                       ),
                       item(
                         'links.callCenter',
-                        l10n.memberContactCenter,
+                        S.current.memberContactCenter,
                         AuthAssets.callCenter,
                       ),
                       item(
                         'links.resalat',
-                        l10n.resalatApp,
+                        S.current.resalatApp,
                         AuthAssets.resalatService,
                       ),
                     ],
@@ -158,12 +157,12 @@ class AuthServicesSheet extends StatelessWidget {
                     items: [
                       item(
                         'links.security',
-                        l10n.securityTips,
+                        S.current.securityTips,
                         AuthAssets.security,
                       ),
                       item(
                         'links.updateGuide',
-                        l10n.updateGuide,
+                        S.current.updateGuide,
                         AuthAssets.updateGuide,
                       ),
                     ],

@@ -1,11 +1,9 @@
-import 'package:pishkhan_mobile/core/router/app_routes.dart';
-import 'package:go_router/go_router.dart';
-import 'package:pishkhan_mobile/features/dashboard/dashboard_routes.dart';
+import '../widgets/dashboard_home_panel.dart';
+
 import 'package:pishkhan_mobile/core/router/card_features_navigation.dart';
 import 'package:pishkhan_mobile/features/dashboard/domain/repositories/dashboard_repositories.dart';
 import 'package:pishkhan_mobile/core/router/dashboard_notifications_navigation.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/home/cubit/dashboard_navigation_cubit.dart';
-import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_async_view.dart';
 import 'package:pishkhan_mobile/features/dashboard/domain/entities/bank_loan.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/home/screens/loans_tab.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/loan_actions.dart';
@@ -15,22 +13,12 @@ import 'package:pishkhan_mobile/features/dashboard/presentation/shared/deposit_a
 import 'package:pishkhan_mobile/features/dashboard/domain/entities/bank_card.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/home/screens/cards_tab.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/app_primary_navigation.dart';
-import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
-import 'package:avp_ui/avp_ui.dart';
-import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/home/cubit/dashboard_cubit.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/dashboard_services.dart';
-import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_bank_services.dart';
-import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
-import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_reso_banner.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_services_sheet.dart';
-import 'package:pishkhan_mobile/l10n/l10n.dart';
 
-import 'package:pishkhan_mobile/shared/widgets/app_wallet_card.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({
@@ -69,12 +57,10 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
-  late final DashboardCubit _cubit;
+  // Retained only for the existing injected-repository update lifecycle.
+  DashboardCubit? _repositoryScope;
   final _promptFocus = FocusNode();
   late DashboardRepositories _repositories;
-  final _navigationCubit = DashboardNavigationCubit(
-    initialState: const DashboardNavigationState(),
-  );
   final _notifications = DashboardNotificationsNavigation();
 
   void _openNotifications() => _notifications.open(context);
@@ -84,10 +70,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     super.initState();
     _repositories =
         widget.repositories ?? context.read<DashboardRepositories>();
-    _cubit = DashboardCubit(
-      initialState: const DashboardState(),
-      repository: _repositories.home,
-    )..load();
   }
 
   @override
@@ -98,29 +80,32 @@ class _DashboardScreenState extends State<DashboardScreen> {
       _repositories =
           widget.repositories ?? context.read<DashboardRepositories>();
       if (previousHome != _repositories.home) {
-        _cubit.changeRepository(_repositories.home);
+        _repositoryScope?.changeRepository(_repositories.home);
       }
     }
   }
 
   @override
   void dispose() {
-    _cubit.close();
-    _navigationCubit.close();
     _promptFocus.dispose();
     super.dispose();
   }
 
-  void _openService(DashboardService service) {
+  void _openService(BuildContext context, DashboardService service) {
     if (service == DashboardService.assistant &&
         widget.onServiceRequested == null) {
       _promptFocus.requestFocus();
     } else {
-      _serviceId(service.id);
+      _serviceId(context, service.id);
     }
   }
 
-  void _serviceId(String id, {String? depositNumber, String? cardNumber}) {
+  void _serviceId(
+    BuildContext context,
+    String id, {
+    String? depositNumber,
+    String? cardNumber,
+  }) {
     if (widget.onServiceRequested != null) {
       widget.onServiceRequested!(id);
     } else {
@@ -130,75 +115,95 @@ class _DashboardScreenState extends State<DashboardScreen> {
         initialDepositNumber: depositNumber,
         initialCardNumber: cardNumber,
         onAssistantPressed: () {
-          _selectTab(AppPrimaryTab.dashboard);
+          _selectTab(context, AppPrimaryTab.dashboard);
           _promptFocus.requestFocus();
         },
       );
     }
   }
 
-  Future<void> _catalog({
+  Future<void> _catalog(
+    BuildContext context, {
     bool adding = false,
     List<DashboardService>? category,
   }) async {
     final selected = await showDashboardServicesSheet(
       context,
       excluded: adding
-          ? (_cubit.state.draft ??
-                    _cubit.state.data?.favorites ??
-                    const <String>[])
-                .toSet()
+          ? context.read<DashboardCubit>().state.activeFavorites.toSet()
           : const {},
       category: category,
     );
-    if (!mounted || selected == null) return;
+    if (!context.mounted || selected == null) return;
     if (adding) {
-      _cubit.add(selected.id);
+      context.read<DashboardCubit>().add(selected.id);
     } else {
-      _openService(selected);
+      _openService(context, selected);
     }
   }
 
-  Future<void> _reset() async {
-    if (await showDashboardResetSheet(context) != true || !mounted) return;
-    _cubit.reset();
+  Future<void> _reset(BuildContext context) async {
+    if (await showDashboardResetSheet(context) != true || !context.mounted) {
+      return;
+    }
+    context.read<DashboardCubit>().reset();
     widget.onFavoritesChanged?.call(
-      _cubit.state.data?.favorites ?? const <String>[],
+      context.read<DashboardCubit>().state.data?.favorites ?? const <String>[],
     );
   }
 
-  void _selectTab(AppPrimaryTab tab) {
+  void _selectTab(BuildContext context, AppPrimaryTab tab) {
     _promptFocus.unfocus();
-    _navigationCubit.select(tab);
+    context.read<DashboardNavigationCubit>().select(tab);
   }
 
   @override
-  Widget build(BuildContext context) =>
-      BlocSelector<
-        DashboardNavigationCubit,
-        DashboardNavigationState,
-        AppPrimaryTab
-      >(
-        bloc: _navigationCubit,
-        selector: (state) => state.selectedTab,
-        builder: (context, selectedTab) => IndexedStack(
-          index: _navigationCubit.state.selectedTab.index,
+  Widget build(BuildContext context) {
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<DashboardCubit>(
+          create: (context) {
+            final cubit = DashboardCubit(repository: _repositories.home);
+            _repositoryScope = cubit;
+            return cubit..load();
+          },
+        ),
+        BlocProvider<DashboardNavigationCubit>(
+          create: (context) => DashboardNavigationCubit(),
+        ),
+      ],
+      child: BlocBuilder<DashboardNavigationCubit, DashboardNavigationState>(
+        buildWhen: (previous, current) =>
+            previous.selectedTab != current.selectedTab,
+        builder: (context, state) => IndexedStack(
+          index: state.selectedTab.index,
           children: [
             TickerMode(
-              enabled:
-                  _navigationCubit.state.selectedTab == AppPrimaryTab.dashboard,
-              child: _dashboard(context),
+              enabled: state.selectedTab == AppPrimaryTab.dashboard,
+              child: DashboardHomePanel(
+                promptFocus: _promptFocus,
+                selectedTab: state.selectedTab,
+                enableAnimations: widget.enableAnimations,
+                onNotificationsPressed: _openNotifications,
+                onProfilePressed: widget.onProfilePressed,
+                onMenuPressed: widget.onMenuPressed ?? () => _catalog(context),
+                onPromptSubmitted: widget.onPromptSubmitted,
+                onFavoritesChanged: widget.onFavoritesChanged,
+                onAddService: () => _catalog(context, adding: true),
+                onResetFavorites: () => _reset(context),
+                onServiceRequested: (service) => _openService(context, service),
+                onTabSelected: (tab) => _selectTab(context, tab),
+              ),
             ),
             TickerMode(
-              enabled:
-                  _navigationCubit.state.selectedTab == AppPrimaryTab.cards,
+              enabled: state.selectedTab == AppPrimaryTab.cards,
               child: CardsTab(
                 repository: _repositories.cards,
-                onTabSelected: _selectTab,
-                onMenuPressed: widget.onMenuPressed ?? () => _catalog(),
+                onTabSelected: (tab) => _selectTab(context, tab),
+                onMenuPressed: widget.onMenuPressed ?? () => _catalog(context),
                 onAssistantPressed: () {
-                  _selectTab(AppPrimaryTab.dashboard);
-                  _openService(DashboardService.assistant);
+                  _selectTab(context, AppPrimaryTab.dashboard);
+                  _openService(context, DashboardService.assistant);
                 },
                 onMorePressed: widget.onCardMorePressed,
                 onActionRequested: (request) {
@@ -206,6 +211,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     widget.onCardActionRequested!(request);
                   } else {
                     _serviceId(
+                      context,
                       request.action.id,
                       cardNumber: request.card.number,
                     );
@@ -214,17 +220,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ),
             TickerMode(
-              enabled:
-                  _navigationCubit.state.selectedTab == AppPrimaryTab.deposits,
+              enabled: state.selectedTab == AppPrimaryTab.deposits,
               child: DepositsTab(
                 repository: _repositories.deposits,
-                onTabSelected: _selectTab,
+                onTabSelected: (tab) => _selectTab(context, tab),
                 onMenuPressed:
                     widget.onMenuPressed ??
-                    () => _catalog(category: DashboardService.deposits),
+                    () =>
+                        _catalog(context, category: DashboardService.deposits),
                 onAssistantPressed: () {
-                  _selectTab(AppPrimaryTab.dashboard);
-                  _openService(DashboardService.assistant);
+                  _selectTab(context, AppPrimaryTab.dashboard);
+                  _openService(context, DashboardService.assistant);
                 },
                 onSelectedDepositChanged: widget.onSelectedDepositChanged,
                 onActionRequested: (request) {
@@ -232,6 +238,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     widget.onDepositActionRequested!(request);
                   } else {
                     _serviceId(
+                      context,
                       request.action.id,
                       depositNumber: request.deposit.number,
                     );
@@ -240,17 +247,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ),
             TickerMode(
-              enabled:
-                  _navigationCubit.state.selectedTab == AppPrimaryTab.loans,
+              enabled: state.selectedTab == AppPrimaryTab.loans,
               child: LoansTab(
                 repository: _repositories.loans,
-                onTabSelected: _selectTab,
+                onTabSelected: (tab) => _selectTab(context, tab),
                 onMenuPressed:
                     widget.onMenuPressed ??
-                    () => _catalog(category: DashboardService.loans),
+                    () => _catalog(context, category: DashboardService.loans),
                 onAssistantPressed: () {
-                  _selectTab(AppPrimaryTab.dashboard);
-                  _openService(DashboardService.assistant);
+                  _selectTab(context, AppPrimaryTab.dashboard);
+                  _openService(context, DashboardService.assistant);
                 },
                 onSelectedLoanChanged: widget.onSelectedLoanChanged,
                 onDetailsRequested: widget.onLoanDetailsRequested,
@@ -258,210 +264,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   if (widget.onLoanActionRequested != null) {
                     widget.onLoanActionRequested!(request);
                   } else {
-                    _serviceId(request.action.id);
+                    _serviceId(context, request.action.id);
                   }
                 },
               ),
             ),
           ],
         ),
-      );
-
-  Widget _dashboard(BuildContext context) => Directionality(
-    textDirection: TextDirection.rtl,
-    child: BlocBuilder<DashboardCubit, DashboardState>(
-      bloc: _cubit,
-      builder: (context, state) => PopScope(
-        canPop:
-            state.draft == null &&
-            _navigationCubit.state.selectedTab == AppPrimaryTab.dashboard,
-        onPopInvokedWithResult: (didPop, _) {
-          if (!didPop) {
-            if (_navigationCubit.state.selectedTab != AppPrimaryTab.dashboard) {
-              _selectTab(AppPrimaryTab.dashboard);
-            } else {
-              _cubit.cancel();
-            }
-          }
-        },
-        child: state.status != RequestStatus.success || state.data == null
-            ? _homeStatus(context, state)
-            : Scaffold(
-                backgroundColor: context.colors.surfaceSubtle,
-                body: SafeArea(
-                  child: Column(
-                    children: [
-                      AppTopBar(
-                        onNotificationsPressed: _openNotifications,
-                        onProfilePressed: widget.onProfilePressed,
-                        onMenuPressed: widget.onMenuPressed ?? () => _catalog(),
-                      ),
-                      Expanded(
-                        child: Stack(
-                          children: [
-                            SingleChildScrollView(
-                              key: const Key('dashboard_scroll'),
-                              keyboardDismissBehavior:
-                                  ScrollViewKeyboardDismissBehavior.onDrag,
-                              child: Stack(
-                                children: [
-                                  Positioned(
-                                    top: 0,
-                                    left: 0,
-                                    right: 0,
-                                    height: 122,
-                                    child: SvgPicture.asset(
-                                      AppAssets.dashboardPatternUp,
-                                      fit: BoxFit.fill,
-                                    ),
-                                  ),
-                                  Positioned(
-                                    top: 1141,
-                                    left: 0,
-                                    right: 0,
-                                    height: 122,
-                                    child: SvgPicture.asset(
-                                      AppAssets.dashboardPatternDown,
-                                      fit: BoxFit.fill,
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.fromLTRB(
-                                      16,
-                                      16,
-                                      16,
-                                      126,
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.stretch,
-                                      children: [
-                                        AppWalletCard(
-                                          title:
-                                              context.l10n.walletBalanceTitle,
-                                          balance: state.data!.walletBalance,
-                                          currencyLabel:
-                                              context.l10n.rialCurrency,
-                                        ),
-                                        const SizedBox(height: 16),
-                                        DashboardResoBanner(
-                                          focusNode: _promptFocus,
-                                          enableAnimations:
-                                              widget.enableAnimations,
-                                          onPromptSubmitted:
-                                              widget.onPromptSubmitted,
-                                        ),
-                                        const SizedBox(height: 16),
-                                        DashboardBankServices(
-                                          state: state,
-                                          fixedServices: [
-                                            for (final id
-                                                in state.data!.fixedServiceIds)
-                                              for (final service
-                                                  in DashboardService.values)
-                                                if (service.id == id) service,
-                                          ],
-                                          onEdit: () => _cubit.edit(
-                                            suggestions:
-                                                state.data!.suggestedServiceIds,
-                                          ),
-                                          onAllServices: () =>
-                                              context.push<void>(
-                                                DashboardRoutes.allServices,
-                                                extra:
-                                                    AllServicesRouteArguments(
-                                                      _openService,
-                                                    ),
-                                              ),
-                                          onReset: _reset,
-                                          onAdd: () => _catalog(adding: true),
-                                          onRemove: _cubit.remove,
-                                          onConfirm: () {
-                                            _cubit.confirm();
-                                            widget.onFavoritesChanged?.call(
-                                              _cubit.state.data?.favorites ??
-                                                  const <String>[],
-                                            );
-                                          },
-                                          onCancel: _cubit.cancel,
-                                          onService: _openService,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Positioned(
-                              left: 16,
-                              bottom: 82,
-                              child: AppAssistantButton(
-                                key: const Key('dashboard_assistant_button'),
-                                onPressed: () =>
-                                    _openService(DashboardService.assistant),
-                              ),
-                            ),
-                            Positioned(
-                              left: 16,
-                              right: 16,
-                              bottom: 14,
-                              child: _navigation(context),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
       ),
-    ),
-  );
-
-  Widget _homeStatus(BuildContext context, DashboardState state) => Scaffold(
-    backgroundColor: context.colors.surfaceSubtle,
-    body: SafeArea(
-      child: Column(
-        children: [
-          AppTopBar(
-            onNotificationsPressed: _openNotifications,
-            onProfilePressed: widget.onProfilePressed,
-            onMenuPressed: widget.onMenuPressed ?? () => _catalog(),
-          ),
-          Expanded(
-            child: Stack(
-              children: [
-                DashboardAsyncView(
-                  key: const Key('dashboard_home_status'),
-                  loading:
-                      state.status == RequestStatus.initial ||
-                      state.status == RequestStatus.loading,
-                  emptyMessage:
-                      state.status == RequestStatus.success &&
-                          state.data == null
-                      ? context.l10n.dashboardEmpty
-                      : null,
-                  onRetry: state.status == RequestStatus.failure
-                      ? _cubit.load
-                      : null,
-                ),
-                Positioned(
-                  left: 16,
-                  right: 16,
-                  bottom: 14,
-                  child: _navigation(context),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    ),
-  );
-
-  Widget _navigation(BuildContext context) => AppPrimaryNavigation(
-    key: const Key('dashboard_navigation'),
-    selectedTab: AppPrimaryTab.dashboard,
-    onSelected: _selectTab,
-  );
+    );
+  }
 }

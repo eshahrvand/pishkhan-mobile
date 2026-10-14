@@ -1,113 +1,171 @@
-import 'package:pishkhan_mobile/core/validators/validators.dart';
-
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import 'auth_state.dart';
-export 'auth_state.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:pishkhan_mobile/core/enums/request_status.dart';
+import 'package:pishkhan_mobile/core/validators/validators.dart';
+part 'auth_state.dart';
+part 'auth_cubit.freezed.dart';
 
 /// UI state for the login prototype. Bank authentication is not connected yet.
 class AuthCubit extends Cubit<AuthState> {
-  AuthCubit({AuthState initialState = const AuthState()})
-    : super(_prepareState(initialState));
+  AuthCubit({AuthState initialState = const AuthState.initial()})
+    : super(initialState) {
+    emit(
+      state.copyWith(
+        isLoginForm: state.step == AuthStep.login,
+        isOtp:
+            state.step == AuthStep.loginOtp ||
+            state.step == AuthStep.changePhoneOtp,
+        isChangePhone:
+            state.step == AuthStep.changePhone ||
+            state.step == AuthStep.changePhoneOtp,
+        formValid: checkFormValid(state.nationalId, state.phone, state.captcha),
+        otpValid: checkOtpValid(state.otp, state.secondsRemaining),
+        maskedPhone: maskPhoneNumber(state.phone),
+      ),
+    );
+  }
   Timer? _timer;
 
-  Set<String> _clearError(String field) =>
-      {...state.invalidFields}..remove(field);
-
-  void nationalIdChanged(String value) => emit(
-    _prepareState(
+  void updateNationalId(String value) {
+    emit(
       state.copyWith(
         nationalId: value,
-        invalidFields: _clearError('nationalId'),
+        isNationalIdError: false,
+        formValid: checkFormValid(value, state.phone, state.captcha),
       ),
-    ),
-  );
-  void phoneChanged(String value) => emit(
-    _prepareState(
-      state.copyWith(phone: value, invalidFields: _clearError('phone')),
-    ),
-  );
-  void captchaChanged(String value) => emit(
-    _prepareState(
-      state.copyWith(captcha: value, invalidFields: _clearError('captcha')),
-    ),
-  );
-  void otpChanged(String value) =>
-      emit(_prepareState(state.copyWith(otp: value)));
+    );
+  }
 
-  bool _fieldIsValid(String field) => switch (field) {
-    'nationalId' => NationalCodeValidator.isValid(state.nationalId),
-    'phone' => PhoneNumberValidator.isValid(state.phone),
-    'captcha' => CodeValidator.isValid(state.captcha, length: 6),
-    _ => true,
-  };
+  void updatePhoneNumber(String value) {
+    emit(
+      state.copyWith(
+        phone: value,
+        isPhoneError: false,
+        formValid: checkFormValid(state.nationalId, value, state.captcha),
+        maskedPhone: maskPhoneNumber(value),
+      ),
+    );
+  }
 
-  void validateField(String field) {
+  void updateCaptcha(String value) {
+    emit(
+      state.copyWith(
+        captcha: value,
+        isCaptchaError: false,
+        formValid: checkFormValid(state.nationalId, state.phone, value),
+      ),
+    );
+  }
+
+  void updateOtp(String value) {
+    emit(
+      state.copyWith(
+        otp: value,
+        otpValid: checkOtpValid(value, state.secondsRemaining),
+      ),
+    );
+  }
+
+  void validateNationalId() {
     if (isClosed || state.isOtp) return;
-    final errors = {...state.invalidFields};
-    if (_fieldIsValid(field)) {
-      errors.remove(field);
-    } else {
-      errors.add(field);
-    }
-    emit(_prepareState(state.copyWith(invalidFields: errors)));
+    emit(
+      state.copyWith(
+        isNationalIdError: !NationalCodeValidator.isValid(state.nationalId),
+      ),
+    );
+  }
+
+  void validatePhoneNumber() {
+    if (isClosed || state.isOtp) return;
+    emit(
+      state.copyWith(isPhoneError: !PhoneNumberValidator.isValid(state.phone)),
+    );
+  }
+
+  void validateCaptcha() {
+    if (isClosed || state.isOtp) return;
+    emit(
+      state.copyWith(
+        isCaptchaError: !CodeValidator.isValid(state.captcha, length: 6),
+      ),
+    );
   }
 
   bool requestOtp() {
     if (state.isOtp) return false;
-    final errors = {
-      for (final field in ['nationalId', 'phone', 'captcha'])
-        if (!_fieldIsValid(field)) field,
-    };
-    if (errors.isNotEmpty) {
-      emit(_prepareState(state.copyWith(invalidFields: errors)));
+    final nationalIdValid = NationalCodeValidator.isValid(state.nationalId);
+    final phoneValid = PhoneNumberValidator.isValid(state.phone);
+    final captchaValid = CodeValidator.isValid(state.captcha, length: 6);
+    if (!nationalIdValid || !phoneValid || !captchaValid) {
+      emit(
+        state.copyWith(
+          isNationalIdError: !nationalIdValid,
+          isPhoneError: !phoneValid,
+          isCaptchaError: !captchaValid,
+        ),
+      );
       return false;
     }
+    final changePhone = state.step == AuthStep.changePhone;
     emit(
-      _prepareState(
-        state.copyWith(
-          step: state.step == AuthStep.changePhone
-              ? AuthStep.changePhoneOtp
-              : AuthStep.loginOtp,
-          otp: '',
-          secondsRemaining: 60,
-          invalidFields: {},
-        ),
+      state.copyWith(
+        step: changePhone ? AuthStep.changePhoneOtp : AuthStep.loginOtp,
+        isLoginForm: false,
+        isOtp: true,
+        isChangePhone: changePhone,
+        otp: '',
+        otpValid: false,
+        secondsRemaining: 60,
+        isNationalIdError: false,
+        isPhoneError: false,
+        isCaptchaError: false,
       ),
     );
     _startTimer();
     return true;
   }
 
-  void refreshCaptcha() => emit(
-    _prepareState(
-      state.copyWith(captcha: '', invalidFields: _clearError('captcha')),
-    ),
-  );
+  void refreshCaptcha() {
+    emit(state.copyWith(captcha: '', isCaptchaError: false, formValid: false));
+  }
 
   void resendOtp() {
     if (!state.isOtp || state.secondsRemaining > 0) return;
-    emit(_prepareState(state.copyWith(otp: '', secondsRemaining: 60)));
+    emit(state.copyWith(otp: '', otpValid: false, secondsRemaining: 60));
     _startTimer();
   }
 
   void openChangePhone() {
     _timer?.cancel();
-    emit(_prepareState(const AuthState(step: AuthStep.changePhone)));
+    emit(
+      const AuthState.initial(
+        step: AuthStep.changePhone,
+        isLoginForm: false,
+        isChangePhone: true,
+      ),
+    );
   }
 
   void closeChangePhone() {
     _timer?.cancel();
-    emit(_prepareState(const AuthState()));
+    emit(const AuthState.initial());
   }
 
   void backToChangePhoneForm() {
     _timer?.cancel();
     emit(
-      _prepareState(
-        state.copyWith(step: AuthStep.changePhone, otp: '', invalidFields: {}),
+      state.copyWith(
+        step: AuthStep.changePhone,
+        isLoginForm: false,
+        isOtp: false,
+        isChangePhone: true,
+        otp: '',
+        otpValid: false,
+        isNationalIdError: false,
+        isPhoneError: false,
+        isCaptchaError: false,
       ),
     );
   }
@@ -119,12 +177,20 @@ class AuthCubit extends Cubit<AuthState> {
         break;
       case AuthStep.loginOtp:
         emit(
-          _prepareState(
-            state.copyWith(step: AuthStep.login, otp: '', invalidFields: {}),
+          state.copyWith(
+            step: AuthStep.login,
+            isLoginForm: true,
+            isOtp: false,
+            isChangePhone: false,
+            otp: '',
+            otpValid: false,
+            isNationalIdError: false,
+            isPhoneError: false,
+            isCaptchaError: false,
           ),
         );
       case AuthStep.changePhone:
-        emit(_prepareState(const AuthState()));
+        emit(const AuthState.initial());
       case AuthStep.changePhoneOtp:
         backToChangePhoneForm();
     }
@@ -140,38 +206,33 @@ class AuthCubit extends Cubit<AuthState> {
       final remaining = state.secondsRemaining - 1;
       if (remaining <= 0) timer.cancel();
       emit(
-        _prepareState(
-          state.copyWith(secondsRemaining: remaining < 0 ? 0 : remaining),
+        state.copyWith(
+          secondsRemaining: remaining < 0 ? 0 : remaining,
+          otpValid: checkOtpValid(state.otp, remaining),
         ),
       );
     });
+  }
+
+  bool checkFormValid(String nationalId, String phone, String captcha) {
+    return NationalCodeValidator.isValid(nationalId) &&
+        PhoneNumberValidator.isValid(phone) &&
+        CodeValidator.isValid(captcha, length: 6);
+  }
+
+  bool checkOtpValid(String otp, int remainingSeconds) {
+    return CodeValidator.isValid(otp, length: 4) && remainingSeconds > 0;
+  }
+
+  String maskPhoneNumber(String phone) {
+    return phone.length != 11
+        ? '0912*******42'
+        : '${phone.substring(0, 4)}*******${phone.substring(9)}';
   }
 
   @override
   Future<void> close() {
     _timer?.cancel();
     return super.close();
-  }
-
-  static AuthState _prepareState(AuthState next) {
-    final otp =
-        next.step == AuthStep.loginOtp || next.step == AuthStep.changePhoneOtp;
-    return next.copyWith(
-      isLoginForm: next.step == AuthStep.login,
-      isOtp: otp,
-      isChangePhone:
-          next.step == AuthStep.changePhone ||
-          next.step == AuthStep.changePhoneOtp,
-      formValid:
-          NationalCodeValidator.isValid(next.nationalId) &&
-          PhoneNumberValidator.isValid(next.phone) &&
-          CodeValidator.isValid(next.captcha, length: 6),
-      otpValid:
-          CodeValidator.isValid(next.otp, length: 4) &&
-          next.secondsRemaining > 0,
-      maskedPhone: next.phone.length != 11
-          ? '0912*******42'
-          : '${next.phone.substring(0, 4)}*******${next.phone.substring(9)}',
-    );
   }
 }

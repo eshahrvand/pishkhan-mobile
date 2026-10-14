@@ -1,29 +1,31 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:pishkhan_mobile/l10n/l10n.dart';
+import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 class AppAssistantButton extends StatelessWidget {
   const AppAssistantButton({super.key, required this.onPressed});
   final VoidCallback onPressed;
   @override
-  Widget build(BuildContext context) => Semantics(
-    button: true,
-    label: context.l10n.dashboardAssistant,
-    child: Material(
-      color: AppDashboardColors.assistantAccent,
-      shape: const CircleBorder(),
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onPressed,
-        child: const SizedBox.square(
-          dimension: 44,
-          child: Center(child: AppAssistantIcon(floating: true)),
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: S.current.dashboardAssistant,
+      child: Material(
+        color: AppDashboardColors.assistantAccent,
+        shape: const CircleBorder(),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onPressed,
+          child: const SizedBox.square(
+            dimension: 44,
+            child: Center(child: AppAssistantIcon(floating: true)),
+          ),
         ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 class AppAssistantIcon extends StatelessWidget {

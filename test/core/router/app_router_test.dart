@@ -1,3 +1,5 @@
+import 'package:flutter_localizations/flutter_localizations.dart';
+
 import '../../support/auth_ui_finders.dart';
 import '../../dashboard/support/dashboard_test_repositories.dart';
 
@@ -15,7 +17,7 @@ import 'package:pishkhan_mobile/features/auth/presentation/login/cubit/auth_cubi
 import 'package:pishkhan_mobile/features/cards/cards_routes.dart';
 import 'package:pishkhan_mobile/features/cards/presentation/virtual_card_request/screens/virtual_card_request_screen.dart';
 import 'package:pishkhan_mobile/features/launch/presentation/shared/widgets/route_unavailable_screen.dart';
-import 'package:pishkhan_mobile/l10n/l10n.dart';
+import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/features/launch/presentation/splash/screens/splash_screen.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/home/screens/dashboard_screen.dart';
 
@@ -25,8 +27,13 @@ Widget app(GoRouter router) => RepositoryProvider.value(
     routerConfig: router,
     theme: AppTheme.light(),
     locale: const Locale('fa'),
-    supportedLocales: AppLocalizations.supportedLocales,
-    localizationsDelegates: AppLocalizations.localizationsDelegates,
+    supportedLocales: S.delegate.supportedLocales,
+    localizationsDelegates: const [
+      S.delegate,
+      GlobalMaterialLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+    ],
   ),
 );
 
@@ -175,11 +182,11 @@ void main() {
         CardsRoutes.virtualRequest,
       );
       final cubit = tester.element(find.byType(AuthScreen)).read<AuthCubit>();
-      cubit.nationalIdChanged('0081234562');
-      cubit.phoneChanged('09121234567');
-      cubit.captchaChanged('123456');
+      cubit.updateNationalId('0081234562');
+      cubit.updatePhoneNumber('09121234567');
+      cubit.updateCaptcha('123456');
       expect(cubit.requestOtp(), isTrue);
-      cubit.otpChanged('1234');
+      cubit.updateOtp('1234');
       await tester.pumpAndSettle();
       await tester.tap(authControl(tester, 'submit_otp_button'));
       await tester.pumpAndSettle();

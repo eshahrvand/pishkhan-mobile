@@ -1,3 +1,5 @@
+import 'package:flutter_localizations/flutter_localizations.dart';
+
 import 'dart:io';
 import 'dart:ui' as ui;
 
@@ -11,7 +13,7 @@ import 'package:pishkhan_mobile/core/router/app_routes.dart';
 import 'package:pishkhan_mobile/core/router/app_router.dart';
 import 'package:pishkhan_mobile/core/router/router_session.dart';
 import 'package:pishkhan_mobile/features/deposits/deposits.dart';
-import 'package:pishkhan_mobile/l10n/l10n.dart';
+import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_deposit_list.dart';
 
 import '../support/router_test_app.dart';
@@ -25,8 +27,13 @@ Widget _app(Widget home, {String locale = 'fa', double scale = 1}) =>
         home: home,
         theme: AppTheme.light(),
         locale: Locale(locale),
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
-        supportedLocales: AppLocalizations.supportedLocales,
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+        ],
+        supportedLocales: S.delegate.supportedLocales,
         builder: (context, child) => MediaQuery(
           data: MediaQuery.of(context).copyWith(
             padding: const EdgeInsets.only(top: 24, bottom: 40),
@@ -161,8 +168,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byType(DepositActionsSheet), findsOneWidget);
       expect(tester.takeException(), isNull);
-      final context = tester.element(find.byType(DepositActionsSheet));
-      final detailsLabel = context.l10n.depositListAccountDetails;
+      final detailsLabel = S.current.depositListAccountDetails;
       await tester.tap(find.text(detailsLabel));
       await tester.pumpAndSettle();
       expect(find.byType(DepositAccountDetailsSheet), findsOneWidget);
@@ -196,8 +202,13 @@ void main() {
         routerConfig: router,
         theme: AppTheme.light(),
         locale: const Locale('fa'),
-        supportedLocales: AppLocalizations.supportedLocales,
-        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: S.delegate.supportedLocales,
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+        ],
       ),
     );
     await tester.pumpAndSettle();

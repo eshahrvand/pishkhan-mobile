@@ -1,6 +1,6 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:pishkhan_mobile/l10n/l10n.dart';
+import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_invoice.dart';
 
@@ -17,7 +17,7 @@ class ChangeCardDepositForm extends StatelessWidget {
   final ChangeCardDepositState state;
   @override
   Widget build(BuildContext context) {
-    final l = context.l10n, catalog = state.catalog!;
+    final catalog = state.catalog!;
     final valueStyle = AppTypography.bodyMedium.copyWith(
       height: 20 / 14,
       letterSpacing: 0,
@@ -31,14 +31,14 @@ class ChangeCardDepositForm extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              l.changeCardDepositIntro,
+              S.current.changeCardDepositIntro,
               style: valueStyle.copyWith(fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 20),
             AppSelect<String>(
               value: state.cardId,
-              label: l.cardServiceCard,
-              hintText: l.cardServiceCardHint,
+              label: S.current.cardServiceCard,
+              hintText: S.current.cardServiceCardHint,
               labelSpacing: 8,
               labelStyle: cardServiceSmall(context, medium: true),
               textStyle: valueStyle.copyWith(
@@ -65,7 +65,7 @@ class ChangeCardDepositForm extends StatelessWidget {
               AppSelect<String>(
                 value: state.source!.id,
                 enabled: false,
-                label: l.cardServiceFromDeposit,
+                label: S.current.cardServiceFromDeposit,
                 labelSpacing: 8,
                 labelStyle: cardServiceSmall(context, medium: true),
                 textStyle: valueStyle,
@@ -94,8 +94,8 @@ class ChangeCardDepositForm extends StatelessWidget {
               const SizedBox(height: 20),
               AppSelect<String>(
                 value: state.destinationId,
-                label: l.cardServiceToDeposit,
-                hintText: l.cardServiceToDepositHint,
+                label: S.current.cardServiceToDeposit,
+                hintText: S.current.cardServiceToDepositHint,
                 labelSpacing: 8,
                 labelStyle: cardServiceSmall(context, medium: true),
                 textStyle: valueStyle.copyWith(
@@ -144,17 +144,17 @@ class ChangeCardDepositForm extends StatelessWidget {
               backgroundColor: context.colors.surface,
               labelColor: context.colors.textTertiary,
               isWalletBalanceSufficient: state.walletSufficient,
-              title: l.issuancePayable,
-              walletLabel: l.issuanceWallet,
-              walletSufficientLabel: l.issuanceWalletSufficient,
-              walletInsufficientLabel: l.issuanceWalletInsufficient,
+              title: S.current.issuancePayable,
+              walletLabel: S.current.issuanceWallet,
+              walletSufficientLabel: S.current.issuanceWalletSufficient,
+              walletInsufficientLabel: S.current.issuanceWalletInsufficient,
             ),
             if (state.failure != null) ...[
               const SizedBox(height: 12),
               Semantics(
                 liveRegion: true,
                 child: Text(
-                  l.cardServiceSubmitError,
+                  S.current.cardServiceSubmitError,
                   style: cardServiceSmall(context, color: context.colors.error),
                 ),
               ),

@@ -1,3 +1,5 @@
+import 'package:flutter_localizations/flutter_localizations.dart';
+
 import '../../../../../support/auth_ui_finders.dart';
 import '../../../../../support/router_test_app.dart';
 
@@ -12,7 +14,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/login/screens/auth_screen.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/login/cubit/auth_cubit.dart';
-import 'package:pishkhan_mobile/l10n/l10n.dart';
+import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/shared/auth_assets.dart';
 
 const previewKey = Key('auth_preview');
@@ -32,7 +34,7 @@ void main() {
 
   Future<AuthCubit> mount(
     WidgetTester tester, {
-    AuthState state = const AuthState(),
+    AuthState state = const AuthState.initial(),
     bool keyboard = true,
     VoidCallback? onAuthenticated,
     ValueChanged<String>? onGuestServiceRequested,
@@ -51,8 +53,13 @@ void main() {
           debugShowCheckedModeBanner: false,
           theme: AppTheme.light(),
           locale: const Locale('fa'),
-          supportedLocales: AppLocalizations.supportedLocales,
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: S.delegate.supportedLocales,
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+          ],
           builder: (context, child) =>
               Directionality(textDirection: TextDirection.rtl, child: child!),
           home: BlocProvider.value(
@@ -109,17 +116,17 @@ void main() {
     });
   }
 
-  const filled = AuthState(
+  const filled = AuthState.initial(
     nationalId: '0081234562',
     phone: '09121127934',
     captcha: '011759',
   );
   final cases = <(String, AuthState)>[
-    ('phase1-empty', const AuthState()),
+    ('phase1-empty', const AuthState.initial()),
     ('phase1-filled', filled),
     ('phase1-wait-otp', filled.copyWith(step: AuthStep.loginOtp)),
     ('phase1-enter-otp', filled.copyWith(step: AuthStep.loginOtp, otp: '2345')),
-    ('phase3-empty', const AuthState(step: AuthStep.changePhone)),
+    ('phase3-empty', const AuthState.initial(step: AuthStep.changePhone)),
     ('phase3-filled', filled.copyWith(step: AuthStep.changePhone)),
     ('phase3-wait-otp', filled.copyWith(step: AuthStep.changePhoneOtp)),
     (
@@ -231,7 +238,14 @@ void main() {
       final cubit = await mount(tester);
       await tester.tap(authControl(tester, 'request_otp_button'));
       await tester.pumpAndSettle();
-      expect(cubit.state.invalidFields, {'nationalId', 'phone', 'captcha'});
+      expect(
+        [
+          cubit.state.isNationalIdError,
+          cubit.state.isPhoneError,
+          cubit.state.isCaptchaError,
+        ],
+        [true, true, true],
+      );
       for (final (field, value) in [
         ('national-id', '۰۰۸۱۲۳۴۵۶۲'),
         ('phone', '۰۹۱۲۱۱۲۷۹۳۴'),
@@ -246,7 +260,14 @@ void main() {
       }
       await tester.pumpAndSettle();
       expect(cubit.state.nationalId, '0081234562');
-      expect(cubit.state.invalidFields, isEmpty);
+      expect(
+        [
+          cubit.state.isNationalIdError,
+          cubit.state.isPhoneError,
+          cubit.state.isCaptchaError,
+        ],
+        [false, false, false],
+      );
       await tester.ensureVisible(authControl(tester, 'request_otp_button'));
       await tester.tap(authControl(tester, 'request_otp_button'));
       await tester.pumpAndSettle();
@@ -297,7 +318,7 @@ void main() {
       await mount(
         tester,
         keyboard: false,
-        state: const AuthState(step: AuthStep.changePhone),
+        state: const AuthState.initial(step: AuthStep.changePhone),
         onGuestServiceRequested: (id) => selected = id,
       );
       tester.view.physicalSize = const Size(320, 480);

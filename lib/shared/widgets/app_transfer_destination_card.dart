@@ -39,102 +39,104 @@ class AppTransferDestinationCard extends StatelessWidget {
   };
 
   @override
-  Widget build(BuildContext context) => Directionality(
-    textDirection: TextDirection.rtl,
-    child: Container(
-      key: const Key('app_transfer_destination_card'),
-      width: 343,
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        border: Border.all(color: AppPalette.gray200),
-        borderRadius: AppRadius.borderLg,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            height: 48,
-            padding: const EdgeInsets.fromLTRB(24, 16, 24, 12),
-            color: AppPalette.white,
-            child: Row(
-              textDirection: TextDirection.ltr,
-              children: [
-                InkWell(
-                  key: const Key('app_transfer_destination_delete'),
-                  onTap: onDelete,
-                  child: SvgPicture.asset(
-                    AppAssets.transferDestinationCardTrash,
-                    width: 20,
-                    height: 20,
+  Widget build(BuildContext context) {
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Container(
+        key: const Key('app_transfer_destination_card'),
+        width: 343,
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          border: Border.all(color: AppPalette.gray200),
+          borderRadius: AppRadius.borderLg,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              height: 48,
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 12),
+              color: AppPalette.white,
+              child: Row(
+                textDirection: TextDirection.ltr,
+                children: [
+                  InkWell(
+                    key: const Key('app_transfer_destination_delete'),
+                    onTap: onDelete,
+                    child: SvgPicture.asset(
+                      AppAssets.transferDestinationCardTrash,
+                      width: 20,
+                      height: 20,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    recipientName,
-                    textAlign: TextAlign.right,
-                    style: _nameStyle,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
-            decoration: const BoxDecoration(
-              color: AppPalette.gray25,
-              border: Border(
-                top: BorderSide(color: AppPalette.gray300, width: .5),
-              ),
-            ),
-            child: Column(
-              children: [
-                _row(
-                  depositNumber,
-                  'شماره سپرده',
-                  AppAssets.transferDestinationCardDivider1,
-                ),
-                const SizedBox(height: 10),
-                _row(
-                  _amount,
-                  'مبلغ (ریال)',
-                  method == AppTransferMethod.satna
-                      ? AppAssets.transferDestinationCardDivider5
-                      : AppAssets.transferDestinationCardDivider2,
-                ),
-                const SizedBox(height: 10),
-                _row(
-                  _methodLabel,
-                  'روش انتقال',
-                  method == AppTransferMethod.paya
-                      ? AppAssets.transferDestinationCardDivider8
-                      : method == AppTransferMethod.satna
-                      ? AppAssets.transferDestinationCardDivider6
-                      : AppAssets.transferDestinationCardDivider3,
-                ),
-                const SizedBox(height: 10),
-                _row(
-                  _isExternal ? purpose : depositIdentifier,
-                  _isExternal ? 'بابت' : 'شناسه واریز',
-                  _isExternal
-                      ? AppAssets.transferDestinationCardDivider7
-                      : AppAssets.transferDestinationCardDivider4,
-                ),
-                if (_isExternal) ...[
-                  const SizedBox(height: 10),
-                  _row(
-                    depositIdentifier,
-                    'شناسه واریز',
-                    AppAssets.transferDestinationCardDivider4,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      recipientName,
+                      textAlign: TextAlign.right,
+                      style: _nameStyle,
+                    ),
                   ),
                 ],
-              ],
+              ),
             ),
-          ),
-        ],
+            Container(
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+              decoration: const BoxDecoration(
+                color: AppPalette.gray25,
+                border: Border(
+                  top: BorderSide(color: AppPalette.gray300, width: .5),
+                ),
+              ),
+              child: Column(
+                children: [
+                  _row(
+                    depositNumber,
+                    'شماره سپرده',
+                    AppAssets.transferDestinationCardDivider1,
+                  ),
+                  const SizedBox(height: 10),
+                  _row(
+                    _amount,
+                    'مبلغ (ریال)',
+                    method == AppTransferMethod.satna
+                        ? AppAssets.transferDestinationCardDivider5
+                        : AppAssets.transferDestinationCardDivider2,
+                  ),
+                  const SizedBox(height: 10),
+                  _row(
+                    _methodLabel,
+                    'روش انتقال',
+                    method == AppTransferMethod.paya
+                        ? AppAssets.transferDestinationCardDivider8
+                        : method == AppTransferMethod.satna
+                        ? AppAssets.transferDestinationCardDivider6
+                        : AppAssets.transferDestinationCardDivider3,
+                  ),
+                  const SizedBox(height: 10),
+                  _row(
+                    _isExternal ? purpose : depositIdentifier,
+                    _isExternal ? 'بابت' : 'شناسه واریز',
+                    _isExternal
+                        ? AppAssets.transferDestinationCardDivider7
+                        : AppAssets.transferDestinationCardDivider4,
+                  ),
+                  if (_isExternal) ...[
+                    const SizedBox(height: 10),
+                    _row(
+                      depositIdentifier,
+                      'شناسه واریز',
+                      AppAssets.transferDestinationCardDivider4,
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
-    ),
-  );
+    );
+  }
 
   Widget _row(String value, String label, String divider) => SizedBox(
     height: 18,

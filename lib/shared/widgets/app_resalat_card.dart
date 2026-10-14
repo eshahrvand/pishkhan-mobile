@@ -75,12 +75,113 @@ class AppResalatCard extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _header(),
+          Row(
+            textDirection: TextDirection.ltr,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _assetAction(
+                path: AppAssets.resalatCardMoreVertical,
+                label: moreLabel,
+                size: 24,
+                onTap: onMorePressed,
+                key: const Key('app_resalat_card_more'),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Align(
+                  alignment: Alignment.topRight,
+                  child: IntrinsicWidth(
+                    child: DecoratedBox(
+                      decoration: const BoxDecoration(
+                        color: AppPalette.warning400,
+                        borderRadius: AppRadius.borderXs,
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        child: Text(
+                          cardType,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTypography.labelSmall.copyWith(
+                            color: AppPalette.brand700,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            height: 16 / 10,
+                            letterSpacing: 0,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
           Column(
             children: [
-              _cardNumber(),
+              SizedBox(
+                width: double.infinity,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    textDirection: TextDirection.ltr,
+                    children: [
+                      Row(
+                        textDirection: TextDirection.ltr,
+                        children: [
+                          for (
+                            var index = 0;
+                            index < cardNumberParts.length;
+                            index++
+                          ) ...[
+                            if (index > 0) const SizedBox(width: 20),
+                            Text(
+                              cardNumberParts[index],
+                              style: _cardNumberStyle,
+                            ),
+                          ],
+                        ],
+                      ),
+                      const SizedBox(width: 8),
+                      _assetAction(
+                        path: AppAssets.iconCopy16White,
+                        size: 16,
+                        onTap: onCopyCardNumber,
+                        label: copyNumberLabel,
+                        key: const Key('app_resalat_card_copy_number'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
               const SizedBox(height: 16),
-              _iban(),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                textDirection: TextDirection.ltr,
+                children: [
+                  Flexible(
+                    child: Text(
+                      iban,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      textDirection: TextDirection.ltr,
+                      style: _detailStyle(fontSize: 14, height: 20 / 14),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  _assetAction(
+                    path: AppAssets.iconCopy16White,
+                    size: 16,
+                    onTap: onCopyIban,
+                    label: copyIbanLabel,
+                    key: const Key('app_resalat_card_copy_iban'),
+                  ),
+                ],
+              ),
               const SizedBox(height: 16),
               _securityDetails(),
             ],
@@ -111,103 +212,6 @@ class AppResalatCard extends StatelessWidget {
       ),
     );
   }
-
-  Widget _header() => Row(
-    textDirection: TextDirection.ltr,
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      _assetAction(
-        path: AppAssets.resalatCardMoreVertical,
-        label: moreLabel,
-        size: 24,
-        onTap: onMorePressed,
-        key: const Key('app_resalat_card_more'),
-      ),
-      const SizedBox(width: 12),
-      Expanded(
-        child: Align(
-          alignment: Alignment.topRight,
-          child: IntrinsicWidth(
-            child: DecoratedBox(
-              decoration: const BoxDecoration(
-                color: AppPalette.warning400,
-                borderRadius: AppRadius.borderXs,
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                child: Text(
-                  cardType,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTypography.labelSmall.copyWith(
-                    color: AppPalette.brand700,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                    height: 16 / 10,
-                    letterSpacing: 0,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    ],
-  );
-
-  Widget _cardNumber() => SizedBox(
-    width: double.infinity,
-    child: FittedBox(
-      fit: BoxFit.scaleDown,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        textDirection: TextDirection.ltr,
-        children: [
-          Row(
-            textDirection: TextDirection.ltr,
-            children: [
-              for (var index = 0; index < cardNumberParts.length; index++) ...[
-                if (index > 0) const SizedBox(width: 20),
-                Text(cardNumberParts[index], style: _cardNumberStyle),
-              ],
-            ],
-          ),
-          const SizedBox(width: 8),
-          _assetAction(
-            path: AppAssets.iconCopy16White,
-            size: 16,
-            onTap: onCopyCardNumber,
-            label: copyNumberLabel,
-            key: const Key('app_resalat_card_copy_number'),
-          ),
-        ],
-      ),
-    ),
-  );
-
-  Widget _iban() => Row(
-    mainAxisSize: MainAxisSize.min,
-    textDirection: TextDirection.ltr,
-    children: [
-      Flexible(
-        child: Text(
-          iban,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          textDirection: TextDirection.ltr,
-          style: _detailStyle(fontSize: 14, height: 20 / 14),
-        ),
-      ),
-      const SizedBox(width: 8),
-      _assetAction(
-        path: AppAssets.iconCopy16White,
-        size: 16,
-        onTap: onCopyIban,
-        label: copyIbanLabel,
-        key: const Key('app_resalat_card_copy_iban'),
-      ),
-    ],
-  );
 
   Widget _securityDetails() {
     Widget detail(

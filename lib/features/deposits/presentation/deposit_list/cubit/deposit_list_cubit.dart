@@ -1,3 +1,5 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:pishkhan_mobile/core/result/failure.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/result/result.dart';
@@ -5,13 +7,14 @@ import 'package:pishkhan_mobile/core/result/result.dart';
 import '../../../domain/entities/listed_deposit.dart';
 import '../../../domain/repositories/deposits_repository.dart';
 import '../../../domain/usecases/deposit_list.dart';
-import 'deposit_list_state.dart';
-export 'deposit_list_state.dart';
+
+part 'deposit_list_state.dart';
+part 'deposit_list_cubit.freezed.dart';
 
 class DepositListCubit extends Cubit<DepositListState> {
   DepositListCubit({
     required DepositsRepository repository,
-    DepositListState initialState = const DepositListState(),
+    DepositListState initialState = const DepositListState.initial(),
   }) : _loadDeposits = LoadDeposits(repository),
        super(initialState);
   final LoadDeposits _loadDeposits;

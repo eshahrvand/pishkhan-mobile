@@ -17,7 +17,9 @@ void main() {
     () async {
       final cubit = CardFeaturesCubit(
         repository: MockCardsRepository(),
-        initialState: const CardFeaturesState(category: CardCategory.gift),
+        initialState: const CardFeaturesState.initial(
+          category: CardCategory.gift,
+        ),
       );
       addTearDown(cubit.close);
       await cubit.load();

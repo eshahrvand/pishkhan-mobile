@@ -1,11 +1,4 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:pishkhan_mobile/core/enums/request_status.dart';
-import 'package:pishkhan_mobile/core/result/failure.dart';
-
-import '../../../domain/entities/certificate_data.dart';
-import '../../../domain/entities/financial_certificate_data.dart';
-import '../../../domain/entities/listed_deposit.dart';
-part 'financial_certificate_state.freezed.dart';
+part of 'financial_certificate_cubit.dart';
 
 enum FinancialCertificateStep {
   conditions,
@@ -17,7 +10,7 @@ enum FinancialCertificateStep {
 
 @Freezed(toStringOverride: false)
 abstract class FinancialCertificateState with _$FinancialCertificateState {
-  const factory FinancialCertificateState({
+  const factory FinancialCertificateState.initial({
     @Default(RequestStatus.initial) RequestStatus status,
     @Default(RequestStatus.initial) RequestStatus submissionStatus,
     @Default(FinancialCertificateStep.conditions) FinancialCertificateStep step,

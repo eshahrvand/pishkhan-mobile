@@ -1,3 +1,5 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:pishkhan_mobile/core/result/failure.dart';
 import 'package:pishkhan_mobile/features/cards/domain/repositories/virtual_card_repository.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 
@@ -5,21 +7,43 @@ import 'dart:math';
 
 import 'package:avp_ui/avp_ui.dart';
 
-import 'virtual_card_state.dart';
-export 'virtual_card_state.dart';
-
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/core/result/result.dart';
 
 import '../../../domain/entities/virtual_card_data.dart';
 import '../../../domain/usecases/virtual_card_request.dart';
 
+part 'virtual_card_state.dart';
+part 'virtual_card_cubit.freezed.dart';
+
 class VirtualCardCubit extends Cubit<VirtualCardState> {
   VirtualCardCubit({
-    VirtualCardState initialState = const VirtualCardState(),
+    VirtualCardState initialState = const VirtualCardState.initial(),
     required this.repository,
     this.initialDepositNumber,
-  }) : super(_prepareState(initialState));
+  }) : super(initialState) {
+    emit(
+      initialState.copyWith(
+        count: int.tryParse(state.countText),
+        validCount: checkCountValid(state.countText, state.catalog),
+        editable: checkEditable(
+          state.status,
+          state.submissionStatus,
+          state.catalog,
+        ),
+        canSubmit: checkCanSubmit(
+          state.status,
+          state.submissionStatus,
+          state.catalog,
+          state.quoteStatus,
+          state.terms,
+          state.countText,
+          state.quote,
+          state.depositId,
+        ),
+      ),
+    );
+  }
   final VirtualCardRepository repository;
   final String? initialDepositNumber;
   int _generation = 0;
@@ -28,19 +52,34 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
     final generation = ++_generation;
     _key = null;
     emit(
-      _prepareState(
-        state.copyWith(
-          status: RequestStatus.loading,
-          quoteStatus: RequestStatus.initial,
-          submissionStatus: RequestStatus.initial,
-          catalog: null,
-          depositId: null,
-          countText: '',
-          quote: null,
-          terms: false,
-          expanded: true,
-          failure: null,
-          receipt: null,
+      state.copyWith(
+        status: RequestStatus.loading,
+        quoteStatus: RequestStatus.initial,
+        submissionStatus: RequestStatus.initial,
+        catalog: null,
+        depositId: null,
+        countText: '',
+        quote: null,
+        terms: false,
+        expanded: true,
+        failure: null,
+        receipt: null,
+        count: int.tryParse(('')),
+        validCount: checkCountValid((''), (null)),
+        editable: checkEditable(
+          (RequestStatus.loading),
+          (RequestStatus.initial),
+          (null),
+        ),
+        canSubmit: checkCanSubmit(
+          (RequestStatus.loading),
+          (RequestStatus.initial),
+          (null),
+          (RequestStatus.initial),
+          (false),
+          (''),
+          (null),
+          (null),
         ),
       ),
     );
@@ -49,8 +88,26 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
     switch (result) {
       case Err(:final failure):
         emit(
-          _prepareState(
-            VirtualCardState(status: RequestStatus.failure, failure: failure),
+          VirtualCardState.initial(
+            status: RequestStatus.failure,
+            failure: failure,
+            count: int.tryParse(''),
+            validCount: checkCountValid('', null),
+            editable: checkEditable(
+              (RequestStatus.failure),
+              RequestStatus.initial,
+              null,
+            ),
+            canSubmit: checkCanSubmit(
+              (RequestStatus.failure),
+              RequestStatus.initial,
+              null,
+              RequestStatus.initial,
+              false,
+              '',
+              null,
+              null,
+            ),
           ),
         );
       case Success(:final data):
@@ -63,11 +120,26 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
           }
         }
         emit(
-          _prepareState(
-            VirtualCardState(
-              status: RequestStatus.success,
-              catalog: data,
-              depositId: selected,
+          VirtualCardState.initial(
+            status: RequestStatus.success,
+            catalog: data,
+            depositId: selected,
+            count: int.tryParse(''),
+            validCount: checkCountValid('', (data)),
+            editable: checkEditable(
+              (RequestStatus.success),
+              RequestStatus.initial,
+              (data),
+            ),
+            canSubmit: checkCanSubmit(
+              (RequestStatus.success),
+              RequestStatus.initial,
+              (data),
+              RequestStatus.initial,
+              false,
+              '',
+              null,
+              (selected),
             ),
           ),
         );
@@ -82,8 +154,28 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
     }
     _key = null;
     emit(
-      _prepareState(
-        state.copyWith(depositId: id, quote: null, terms: false, failure: null),
+      state.copyWith(
+        depositId: id,
+        quote: null,
+        terms: false,
+        failure: null,
+        count: int.tryParse(state.countText),
+        validCount: checkCountValid(state.countText, state.catalog),
+        editable: checkEditable(
+          state.status,
+          state.submissionStatus,
+          state.catalog,
+        ),
+        canSubmit: checkCanSubmit(
+          state.status,
+          state.submissionStatus,
+          state.catalog,
+          state.quoteStatus,
+          (false),
+          state.countText,
+          (null),
+          (id),
+        ),
       ),
     );
     await refreshQuote();
@@ -95,12 +187,27 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
     if (normalized == state.countText) return;
     _key = null;
     emit(
-      _prepareState(
-        state.copyWith(
-          countText: normalized,
-          quote: null,
-          terms: false,
-          failure: null,
+      state.copyWith(
+        countText: normalized,
+        quote: null,
+        terms: false,
+        failure: null,
+        count: int.tryParse((normalized)),
+        validCount: checkCountValid((normalized), state.catalog),
+        editable: checkEditable(
+          state.status,
+          state.submissionStatus,
+          state.catalog,
+        ),
+        canSubmit: checkCanSubmit(
+          state.status,
+          state.submissionStatus,
+          state.catalog,
+          state.quoteStatus,
+          (false),
+          (normalized),
+          (null),
+          state.depositId,
         ),
       ),
     );
@@ -113,23 +220,53 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
     _key = null;
     if (state.depositId == null || !state.validCount) {
       emit(
-        _prepareState(
-          state.copyWith(
-            quoteStatus: RequestStatus.initial,
-            quote: null,
-            terms: false,
+        state.copyWith(
+          quoteStatus: RequestStatus.initial,
+          quote: null,
+          terms: false,
+          count: int.tryParse(state.countText),
+          validCount: checkCountValid(state.countText, state.catalog),
+          editable: checkEditable(
+            state.status,
+            state.submissionStatus,
+            state.catalog,
+          ),
+          canSubmit: checkCanSubmit(
+            state.status,
+            state.submissionStatus,
+            state.catalog,
+            (RequestStatus.initial),
+            (false),
+            state.countText,
+            (null),
+            state.depositId,
           ),
         ),
       );
       return;
     }
     emit(
-      _prepareState(
-        state.copyWith(
-          quoteStatus: RequestStatus.loading,
-          quote: null,
-          terms: false,
-          failure: null,
+      state.copyWith(
+        quoteStatus: RequestStatus.loading,
+        quote: null,
+        terms: false,
+        failure: null,
+        count: int.tryParse(state.countText),
+        validCount: checkCountValid(state.countText, state.catalog),
+        editable: checkEditable(
+          state.status,
+          state.submissionStatus,
+          state.catalog,
+        ),
+        canSubmit: checkCanSubmit(
+          state.status,
+          state.submissionStatus,
+          state.catalog,
+          (RequestStatus.loading),
+          (false),
+          state.countText,
+          (null),
+          state.depositId,
         ),
       ),
     );
@@ -141,17 +278,50 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
     switch (result) {
       case Err(:final failure):
         emit(
-          _prepareState(
-            state.copyWith(
-              quoteStatus: RequestStatus.failure,
-              failure: failure,
+          state.copyWith(
+            quoteStatus: RequestStatus.failure,
+            failure: failure,
+            count: int.tryParse(state.countText),
+            validCount: checkCountValid(state.countText, state.catalog),
+            editable: checkEditable(
+              state.status,
+              state.submissionStatus,
+              state.catalog,
+            ),
+            canSubmit: checkCanSubmit(
+              state.status,
+              state.submissionStatus,
+              state.catalog,
+              (RequestStatus.failure),
+              state.terms,
+              state.countText,
+              state.quote,
+              state.depositId,
             ),
           ),
         );
       case Success(:final data):
         emit(
-          _prepareState(
-            state.copyWith(quoteStatus: RequestStatus.success, quote: data),
+          state.copyWith(
+            quoteStatus: RequestStatus.success,
+            quote: data,
+            count: int.tryParse(state.countText),
+            validCount: checkCountValid(state.countText, state.catalog),
+            editable: checkEditable(
+              state.status,
+              state.submissionStatus,
+              state.catalog,
+            ),
+            canSubmit: checkCanSubmit(
+              state.status,
+              state.submissionStatus,
+              state.catalog,
+              (RequestStatus.success),
+              state.terms,
+              state.countText,
+              (data),
+              state.depositId,
+            ),
           ),
         );
     }
@@ -159,12 +329,56 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
 
   void acceptTerms(bool value) {
     if ((state.editable && state.quoteStatus != RequestStatus.loading)) {
-      emit(_prepareState(state.copyWith(terms: value)));
+      emit(
+        state.copyWith(
+          terms: value,
+          count: int.tryParse(state.countText),
+          validCount: checkCountValid(state.countText, state.catalog),
+          editable: checkEditable(
+            state.status,
+            state.submissionStatus,
+            state.catalog,
+          ),
+          canSubmit: checkCanSubmit(
+            state.status,
+            state.submissionStatus,
+            state.catalog,
+            state.quoteStatus,
+            (value),
+            state.countText,
+            state.quote,
+            state.depositId,
+          ),
+        ),
+      );
     }
   }
 
   void setExpanded(bool value) {
-    if (state.editable) emit(_prepareState(state.copyWith(expanded: value)));
+    if (state.editable) {
+      emit(
+        state.copyWith(
+          expanded: value,
+          count: int.tryParse(state.countText),
+          validCount: checkCountValid(state.countText, state.catalog),
+          editable: checkEditable(
+            state.status,
+            state.submissionStatus,
+            state.catalog,
+          ),
+          canSubmit: checkCanSubmit(
+            state.status,
+            state.submissionStatus,
+            state.catalog,
+            state.quoteStatus,
+            state.terms,
+            state.countText,
+            state.quote,
+            state.depositId,
+          ),
+        ),
+      );
+    }
   }
 
   Future<void> submit() async {
@@ -179,8 +393,26 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
     );
     final generation = ++_generation;
     emit(
-      _prepareState(
-        state.copyWith(submissionStatus: RequestStatus.loading, failure: null),
+      state.copyWith(
+        submissionStatus: RequestStatus.loading,
+        failure: null,
+        count: int.tryParse(state.countText),
+        validCount: checkCountValid(state.countText, state.catalog),
+        editable: checkEditable(
+          state.status,
+          (RequestStatus.loading),
+          state.catalog,
+        ),
+        canSubmit: checkCanSubmit(
+          state.status,
+          (RequestStatus.loading),
+          state.catalog,
+          state.quoteStatus,
+          state.terms,
+          state.countText,
+          state.quote,
+          state.depositId,
+        ),
       ),
     );
     final result = await virtualCardBoundary(() => repository.submit(request));
@@ -188,19 +420,49 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
     switch (result) {
       case Err(:final failure):
         emit(
-          _prepareState(
-            state.copyWith(
-              submissionStatus: RequestStatus.failure,
-              failure: failure,
+          state.copyWith(
+            submissionStatus: RequestStatus.failure,
+            failure: failure,
+            count: int.tryParse(state.countText),
+            validCount: checkCountValid(state.countText, state.catalog),
+            editable: checkEditable(
+              state.status,
+              (RequestStatus.failure),
+              state.catalog,
+            ),
+            canSubmit: checkCanSubmit(
+              state.status,
+              (RequestStatus.failure),
+              state.catalog,
+              state.quoteStatus,
+              state.terms,
+              state.countText,
+              state.quote,
+              state.depositId,
             ),
           ),
         );
       case Success(:final data):
         emit(
-          _prepareState(
-            state.copyWith(
-              submissionStatus: RequestStatus.success,
-              receipt: data,
+          state.copyWith(
+            submissionStatus: RequestStatus.success,
+            receipt: data,
+            count: int.tryParse(state.countText),
+            validCount: checkCountValid(state.countText, state.catalog),
+            editable: checkEditable(
+              state.status,
+              (RequestStatus.success),
+              state.catalog,
+            ),
+            canSubmit: checkCanSubmit(
+              state.status,
+              (RequestStatus.success),
+              state.catalog,
+              state.quoteStatus,
+              state.terms,
+              state.countText,
+              state.quote,
+              state.depositId,
             ),
           ),
         );
@@ -213,31 +475,43 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
     return super.close();
   }
 
-  static VirtualCardState _prepareState(VirtualCardState next) {
-    final count = int.tryParse(next.countText);
-    final valid =
-        RegExp(r'^[0-9]+$').hasMatch(next.countText) &&
+  bool checkCountValid(String text, VirtualCardCatalog? catalog) {
+    final count = int.tryParse(text);
+    return RegExp(r'^[0-9]+$').hasMatch(text) &&
         count != null &&
         count >= 1 &&
-        count <= (next.catalog?.maxCount ?? 0);
-    final editable =
-        next.status == RequestStatus.success &&
-        next.catalog?.deposits.isNotEmpty == true &&
-        next.submissionStatus != RequestStatus.loading &&
-        next.submissionStatus != RequestStatus.success;
-    return next.copyWith(
-      count: count,
-      validCount: valid,
-      editable: editable,
-      canSubmit:
-          editable &&
-          next.quoteStatus == RequestStatus.success &&
-          next.terms &&
-          valid &&
-          next.quote != null &&
-          next.quote!.depositId == next.depositId &&
-          next.quote!.count == count &&
-          next.quote!.walletSufficient,
-    );
+        count <= (catalog?.maxCount ?? 0);
+  }
+
+  bool checkEditable(
+    RequestStatus status,
+    RequestStatus submissionStatus,
+    VirtualCardCatalog? catalog,
+  ) {
+    return status == RequestStatus.success &&
+        catalog?.deposits.isNotEmpty == true &&
+        submissionStatus != RequestStatus.loading &&
+        submissionStatus != RequestStatus.success;
+  }
+
+  bool checkCanSubmit(
+    RequestStatus status,
+    RequestStatus submissionStatus,
+    VirtualCardCatalog? catalog,
+    RequestStatus quoteStatus,
+    bool terms,
+    String countText,
+    VirtualCardQuote? quote,
+    String? depositId,
+  ) {
+    final count = int.tryParse(countText);
+    return checkEditable(status, submissionStatus, catalog) &&
+        quoteStatus == RequestStatus.success &&
+        terms &&
+        checkCountValid(countText, catalog) &&
+        quote != null &&
+        quote.depositId == depositId &&
+        quote.count == count &&
+        quote.walletSufficient;
   }
 }

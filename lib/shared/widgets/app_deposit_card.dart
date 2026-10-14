@@ -56,7 +56,45 @@ class AppDepositCard extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _header(),
+          Row(
+            textDirection: TextDirection.ltr,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (showLogo)
+                SizedBox.square(
+                  dimension: 24,
+                  child:
+                      logo ??
+                      SvgPicture.asset(
+                        AppAssets.depositCardResalatLogo,
+                        fit: BoxFit.contain,
+                      ),
+                ),
+              const Spacer(),
+              DecoratedBox(
+                decoration: const BoxDecoration(
+                  color: AppPalette.warning400,
+                  borderRadius: AppRadius.borderXs,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  child: Text(
+                    cardType,
+                    style: AppTypography.labelSmall.copyWith(
+                      color: AppPalette.purple700,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                      height: 16 / 10,
+                      letterSpacing: 0,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
           Column(
             children: [
               _dataRow(
@@ -101,43 +139,6 @@ class AppDepositCard extends StatelessWidget {
       ),
     );
   }
-
-  Widget _header() => Row(
-    textDirection: TextDirection.ltr,
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      if (showLogo)
-        SizedBox.square(
-          dimension: 24,
-          child:
-              logo ??
-              SvgPicture.asset(
-                AppAssets.depositCardResalatLogo,
-                fit: BoxFit.contain,
-              ),
-        ),
-      const Spacer(),
-      DecoratedBox(
-        decoration: const BoxDecoration(
-          color: AppPalette.warning400,
-          borderRadius: AppRadius.borderXs,
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          child: Text(
-            cardType,
-            style: AppTypography.labelSmall.copyWith(
-              color: AppPalette.purple700,
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-              height: 16 / 10,
-              letterSpacing: 0,
-            ),
-          ),
-        ),
-      ),
-    ],
-  );
 
   Widget _dataRow({
     required String value,

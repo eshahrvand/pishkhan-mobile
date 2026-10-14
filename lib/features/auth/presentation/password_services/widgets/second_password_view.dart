@@ -6,7 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/password_services/cubit/second_password_cubit.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/password_services/widgets/password_flow_content.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/password_services/widgets/password_flow_footer.dart';
-import 'package:pishkhan_mobile/l10n/l10n.dart';
+import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
 
@@ -25,55 +25,60 @@ class SecondPasswordView extends StatelessWidget {
   final VoidCallback onBack;
   final VoidCallback? onTermsRequested;
   @override
-  Widget build(BuildContext context) => Scaffold(
-    backgroundColor: Colors.transparent,
-    body: Stack(
-      children: [
-        Positioned.fill(
-          child: BlocSelector<SecondPasswordCubit, SecondPasswordState, bool>(
-            selector: (state) =>
-                state.isChange ||
-                (selectOperation &&
-                    state.step == SecondPasswordStep.selection) ||
-                state.step.index >= SecondPasswordStep.instruction.index,
-            builder: (context, whiteSurface) => ColoredBox(
-              color: whiteSurface
-                  ? context.colors.surface
-                  : context.colors.surfaceSubtle,
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: BlocBuilder<SecondPasswordCubit, SecondPasswordState>(
+              buildWhen: (previous, current) =>
+                  previous.isChange != current.isChange ||
+                  previous.step != current.step,
+              builder: (context, state) => ColoredBox(
+                color:
+                    (state.isChange ||
+                        (selectOperation &&
+                            state.step == SecondPasswordStep.selection) ||
+                        state.step.index >=
+                            SecondPasswordStep.instruction.index)
+                    ? context.colors.surface
+                    : context.colors.surfaceSubtle,
+              ),
             ),
           ),
-        ),
-        SafeArea(
-          child: Column(
-            children: [
-              AppTopBar(
-                title: context.l10n.passwordTitle,
-                showLeadingActions: false,
-                trailingIcon: SizedBox.square(
-                  dimension: 24,
-                  child: SvgPicture.asset(
-                    AppAssets.cardFeaturesBack,
-                    fit: BoxFit.contain,
+          SafeArea(
+            child: Column(
+              children: [
+                AppTopBar(
+                  title: S.current.passwordTitle,
+                  showLeadingActions: false,
+                  trailingIcon: SizedBox.square(
+                    dimension: 24,
+                    child: SvgPicture.asset(
+                      AppAssets.cardFeaturesBack,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                  trailingTooltip: S.current.backLabel,
+                  onTrailingPressed: onBack,
+                ),
+                Expanded(
+                  child: PasswordFlowContent(
+                    selectOperation: selectOperation,
+                    video: video,
+                    instructionVideoUrl: instructionVideoUrl,
                   ),
                 ),
-                trailingTooltip: context.l10n.backLabel,
-                onTrailingPressed: onBack,
-              ),
-              Expanded(
-                child: PasswordFlowContent(
-                  selectOperation: selectOperation,
-                  video: video,
-                  instructionVideoUrl: instructionVideoUrl,
+                PasswordFlowFooter(
+                  onTermsRequested: onTermsRequested,
+                  onBack: onBack,
                 ),
-              ),
-              PasswordFlowFooter(
-                onTermsRequested: onTermsRequested,
-                onBack: onBack,
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ],
-    ),
-  );
+        ],
+      ),
+    );
+  }
 }

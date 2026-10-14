@@ -1,5 +1,5 @@
 import 'package:pishkhan_mobile/features/dashboard/domain/entities/bank_deposit.dart';
-import 'package:pishkhan_mobile/l10n/l10n.dart';
+import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 /// Supported UI actions. IDs are integration keys, not arbitrary routes.
@@ -48,26 +48,26 @@ enum DepositAction {
     phoneBank,
   ];
 
-  String label(AppLocalizations l10n) => switch (this) {
-    statement => l10n.balanceAverageStatement,
-    certificate => l10n.financialCertificate,
-    sms => l10n.smsSettings,
-    block => l10n.dashboardBlockDeposit,
-    representative => l10n.depositsRepresentative,
-    virtualCard => l10n.dashboardVirtualCard,
-    linkedCards => l10n.depositsLinkedCards,
-    linkedLoans => l10n.depositsLinkedLoans,
-    issueCheque => l10n.issueChequeBook,
-    cancelCheque => l10n.dashboardCancelCheque,
-    clearCheque => l10n.dashboardClearCheque,
-    issueCard => l10n.issueResalatCard,
-    localTransfer => l10n.depositsLocalTransfer,
-    estimateLoan => l10n.loanEstimate,
-    introduceLoan => l10n.introduceLoan,
-    proxy => l10n.proxyDeposit,
-    mobileBank => l10n.depositsMobileBank,
-    internetBank => l10n.internetBank,
-    phoneBank => l10n.dashboardPhoneBank,
+  String label() => switch (this) {
+    statement => S.current.balanceAverageStatement,
+    certificate => S.current.financialCertificate,
+    sms => S.current.smsSettings,
+    block => S.current.dashboardBlockDeposit,
+    representative => S.current.depositsRepresentative,
+    virtualCard => S.current.dashboardVirtualCard,
+    linkedCards => S.current.depositsLinkedCards,
+    linkedLoans => S.current.depositsLinkedLoans,
+    issueCheque => S.current.issueChequeBook,
+    cancelCheque => S.current.dashboardCancelCheque,
+    clearCheque => S.current.dashboardClearCheque,
+    issueCard => S.current.issueResalatCard,
+    localTransfer => S.current.depositsLocalTransfer,
+    estimateLoan => S.current.loanEstimate,
+    introduceLoan => S.current.introduceLoan,
+    proxy => S.current.proxyDeposit,
+    mobileBank => S.current.depositsMobileBank,
+    internetBank => S.current.internetBank,
+    phoneBank => S.current.dashboardPhoneBank,
   };
 
   String get asset => switch (this) {

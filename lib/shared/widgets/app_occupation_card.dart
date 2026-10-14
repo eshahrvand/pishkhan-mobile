@@ -21,75 +21,79 @@ class AppOccupationCard extends StatelessWidget {
   final VoidCallback? onMoreTap;
 
   @override
-  Widget build(BuildContext context) => Directionality(
-    textDirection: TextDirection.rtl,
-    child: Container(
-      key: const Key('app_occupation_card'),
-      width: 343,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: AppPalette.gray50,
-        borderRadius: AppRadius.borderMd,
-        boxShadow: AppShadows.sm,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          SizedBox(
-            height: 20,
-            child: Row(
-              textDirection: TextDirection.ltr,
-              children: [
-                InkWell(
-                  key: const Key('app_occupation_more'),
-                  onTap: onMoreTap,
-                  child: Transform.rotate(
-                    angle: -math.pi / 2,
-                    child: SvgPicture.asset(
-                      AppAssets.iconMoreVertical20Gray700,
+  Widget build(BuildContext context) {
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Container(
+        key: const Key('app_occupation_card'),
+        width: 343,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: AppPalette.gray50,
+          borderRadius: AppRadius.borderMd,
+          boxShadow: AppShadows.sm,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SizedBox(
+              height: 20,
+              child: Row(
+                textDirection: TextDirection.ltr,
+                children: [
+                  InkWell(
+                    key: const Key('app_occupation_more'),
+                    onTap: onMoreTap,
+                    child: Transform.rotate(
+                      angle: -math.pi / 2,
+                      child: SvgPicture.asset(
+                        AppAssets.iconMoreVertical20Gray700,
+                      ),
                     ),
                   ),
-                ),
-                const Spacer(),
-                if (headerTitle case final value?) ...[
-                  Flexible(
-                    child: Text(
-                      value,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.right,
-                      style: _mediumStyle(AppPalette.gray900),
+                  const Spacer(),
+                  if (headerTitle case final value?) ...[
+                    Flexible(
+                      child: Text(
+                        value,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.right,
+                        style: _mediumStyle(AppPalette.gray900),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                  ],
+                  Transform.rotate(
+                    angle: math.pi,
+                    child: Transform.flip(
+                      flipY: true,
+                      child: SvgPicture.asset(
+                        AppAssets.occupationCardBriefcase,
+                      ),
                     ),
                   ),
-                  const SizedBox(width: 4),
                 ],
-                Transform.rotate(
-                  angle: math.pi,
-                  child: Transform.flip(
-                    flipY: true,
-                    child: SvgPicture.asset(AppAssets.occupationCardBriefcase),
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
-          const SizedBox(height: 8),
-          SizedBox(
-            height: .5,
-            child: SvgPicture.asset(
-              AppAssets.dividerCardGray200,
-              fit: BoxFit.fill,
+            const SizedBox(height: 8),
+            SizedBox(
+              height: .5,
+              child: SvgPicture.asset(
+                AppAssets.dividerCardGray200,
+                fit: BoxFit.fill,
+              ),
             ),
-          ),
-          const SizedBox(height: 8),
-          _detailRow(value: title, label: 'عنوان'),
-          const SizedBox(height: 8),
-          _detailRow(value: description, label: 'شرح'),
-        ],
+            const SizedBox(height: 8),
+            _detailRow(value: title, label: 'عنوان'),
+            const SizedBox(height: 8),
+            _detailRow(value: description, label: 'شرح'),
+          ],
+        ),
       ),
-    ),
-  );
+    );
+  }
 
   Widget _detailRow({required String value, required String label}) => SizedBox(
     height: 22,

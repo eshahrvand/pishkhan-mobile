@@ -1,14 +1,8 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:pishkhan_mobile/core/enums/request_status.dart';
-import 'package:pishkhan_mobile/core/result/failure.dart';
-
-import '../../../domain/entities/bank_loan.dart';
-
-part 'loans_state.freezed.dart';
+part of 'loans_cubit.dart';
 
 @freezed
 abstract class LoansState with _$LoansState {
-  const factory LoansState({
+  const factory LoansState.initial({
     @Default(RequestStatus.initial) RequestStatus status,
     List<BankLoan>? items,
     String? selectedId,

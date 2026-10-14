@@ -1,4 +1,5 @@
 import 'package:pishkhan_mobile/core/result/result.dart';
+
 import '../entities/virtual_card_data.dart';
 
 abstract interface class VirtualCardRepository {

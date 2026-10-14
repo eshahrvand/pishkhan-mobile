@@ -10,7 +10,7 @@ import 'package:pishkhan_mobile/features/auth/presentation/password_services/wid
 import 'package:pishkhan_mobile/features/auth/presentation/password_services/widgets/password_request_status.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/password_services/widgets/password_styles.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/password_services/widgets/second_password_form.dart';
-import 'package:pishkhan_mobile/l10n/l10n.dart';
+import 'package:pishkhan_mobile/generated/l10n.dart';
 
 class PasswordFlowContent extends StatelessWidget {
   const PasswordFlowContent({
@@ -85,14 +85,14 @@ class PasswordFlowBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<SecondPasswordCubit>();
-    final l = context.l10n;
+
     if (state.status == RequestStatus.initial ||
         state.status == RequestStatus.loading) {
       return Center(
         child: AppButton(
           onPressed: null,
           isLoading: true,
-          label: l.dashboardLoading,
+          label: S.current.dashboardLoading,
         ),
       );
     }
@@ -102,11 +102,11 @@ class PasswordFlowBody extends StatelessWidget {
         children: [
           Text(
             state.catalog?.cards.isEmpty == true
-                ? l.cardsEmpty
-                : l.dashboardLoadError,
+                ? S.current.cardsEmpty
+                : S.current.dashboardLoadError,
           ),
           const SizedBox(height: 16),
-          AppButton(onPressed: cubit.load, label: l.dashboardRetry),
+          AppButton(onPressed: cubit.load, label: S.current.dashboardRetry),
         ],
       );
     }
@@ -115,7 +115,7 @@ class PasswordFlowBody extends StatelessWidget {
       children: [
         if (state.failure != null) ...[
           Text(
-            l.dashboardLoadError,
+            S.current.dashboardLoadError,
             style: passwordBody(context).copyWith(color: context.colors.error),
           ),
           const SizedBox(height: 12),

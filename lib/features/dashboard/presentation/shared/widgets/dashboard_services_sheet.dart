@@ -1,3 +1,8 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../cubit/dashboard_services_sheet_cubit.dart';
+import 'dashboard_service_option.dart';
+
 import 'dart:ui' as ui;
 import 'dart:math' as math;
 
@@ -6,7 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/dashboard_services.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_category_heading.dart';
-import 'package:pishkhan_mobile/l10n/l10n.dart';
+import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_bottom_sheet_header.dart';
 
@@ -42,13 +47,10 @@ class DashboardServicesSheet extends StatefulWidget {
 
 class _DashboardServicesSheetState extends State<DashboardServicesSheet> {
   late final TextEditingController _controller;
-  late String _query;
-  final _collapsed = <DashboardCategory>{};
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController(text: widget.initialQuery);
-    _query = widget.initialQuery;
   }
 
   @override
@@ -57,234 +59,202 @@ class _DashboardServicesSheetState extends State<DashboardServicesSheet> {
     super.dispose();
   }
 
-  String _normalize(String value) => value
-      .trim()
-      .replaceAll('ي', 'ی')
-      .replaceAll('ك', 'ک')
-      .replaceAll('\u200c', ' ')
-      .replaceAll(RegExp(r'\s+'), ' ');
   @override
   Widget build(BuildContext context) {
-    final searching = _query.isNotEmpty;
-    final groups = [
-      for (final category in DashboardCategory.values)
-        (
-          category,
-          category.services
-              .where(
-                (service) =>
-                    (widget.category == null ||
-                        widget.category!.contains(service)) &&
-                    _normalize(service.catalogLabel(context.l10n))
-                        .contains(_normalize(_query)),
-              )
-              .toList(),
-        ),
-    ].where((group) => group.$2.isNotEmpty).toList();
-    final insets = MediaQuery.viewInsetsOf(context).bottom;
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final available =
-            constraints.maxHeight -
-            insets -
-            MediaQuery.paddingOf(context).bottom;
-        return Directionality(
-          textDirection: TextDirection.rtl,
-          child: Padding(
-            padding: EdgeInsets.only(bottom: insets),
-            child: SafeArea(
-              top: false,
-              child: SizedBox(
-                height: math.min(728, math.max(180, available - 20)),
-                child: Material(
-                  key: const Key('dashboard_services_sheet'),
-                  color: context.colors.surfaceSubtle,
-                  borderRadius: const BorderRadius.vertical(top: AppRadius.xl),
-                  clipBehavior: Clip.antiAlias,
-                  child: Column(
-                    children: [
-                      AppBottomSheetHeader(
-                        title: context.l10n.servicesList,
-                        showRightIcon: false,
-                        leftIcon: SvgPicture.asset(
-                          AppAssets.iconClose24Gray700,
+    return BlocProvider(
+      create: (context) =>
+          DashboardServicesSheetCubit(initialQuery: widget.initialQuery),
+      child: BlocBuilder<DashboardServicesSheetCubit, DashboardServicesSheetState>(
+        buildWhen: (previous, current) =>
+            previous.query != current.query ||
+            previous.collapsedCategories != current.collapsedCategories,
+        builder: (context, state) {
+          final groups = {
+            for (final category in DashboardCategory.values)
+              category: context
+                  .read<DashboardServicesSheetCubit>()
+                  .searchServices(category, widget.category),
+          }..removeWhere((category, services) => services.isEmpty);
+          final insets = MediaQuery.viewInsetsOf(context).bottom;
+          return LayoutBuilder(
+            builder: (context, constraints) {
+              final available =
+                  constraints.maxHeight -
+                  insets -
+                  MediaQuery.paddingOf(context).bottom;
+              return Directionality(
+                textDirection: TextDirection.rtl,
+                child: Padding(
+                  padding: EdgeInsets.only(bottom: insets),
+                  child: SafeArea(
+                    top: false,
+                    child: SizedBox(
+                      height: math.min(728, math.max(180, available - 20)),
+                      child: Material(
+                        key: const Key('dashboard_services_sheet'),
+                        color: context.colors.surfaceSubtle,
+                        borderRadius: const BorderRadius.vertical(
+                          top: AppRadius.xl,
                         ),
-                        onLeftAction: () => Navigator.of(context).pop(),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-                        child: AppSearchField(
-                          key: const Key('dashboard_service_search'),
-                          controller: _controller,
-                          clearIcon: SvgPicture.asset(
-                            AppAssets.dashboardSearchClear,
-                          ),
-                          hintText: context.l10n.dashboardSearchHint,
-                          textStyle: AppTypography.bodyMedium.copyWith(
-                            height: 20 / 14,
-                            letterSpacing: 0,
-                          ),
-                          searchIcon: SizedBox(
-                            width: 48,
-                            height: 44,
-                            child: Center(
-                              child: SvgPicture.asset(
-                                AppAssets.dashboardCatalogSearch,
+                        clipBehavior: Clip.antiAlias,
+                        child: Column(
+                          children: [
+                            AppBottomSheetHeader(
+                              title: S.current.servicesList,
+                              showRightIcon: false,
+                              leftIcon: SvgPicture.asset(
+                                AppAssets.iconClose24Gray700,
                               ),
+                              onLeftAction: () => Navigator.of(context).pop(),
                             ),
-                          ),
-                          focusRing: AppTextFieldFocusRing.subtle,
-                          onChanged: (value) =>
-                              setState(() => _query = value.trim()),
-                        ),
-                      ),
-                      Expanded(
-                        child: SingleChildScrollView(
-                          key: const Key('dashboard_service_options_scroll'),
-                          padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              if (groups.isEmpty)
-                                Text(
-                                  context.l10n.dashboardNoServices,
-                                  style: AppTypography.bodyMedium,
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+                              child: AppSearchField(
+                                key: const Key('dashboard_service_search'),
+                                controller: _controller,
+                                clearIcon: SvgPicture.asset(
+                                  AppAssets.dashboardSearchClear,
                                 ),
-                              for (final group in groups) ...[
-                                if (group != groups.first)
-                                  SizedBox(
-                                    height:
-                                        group.$1 == DashboardCategory.transfers
-                                        ? 32
-                                        : 16,
-                                  ),
-                                DashboardCategoryHeading(
-                                  key: Key(
-                                    'dashboard_category_${group.$1.name}',
-                                  ),
-                                  category: group.$1,
-                                  compact: true,
-                                  collapsed: _collapsed.contains(group.$1),
-                                  active:
-                                      !searching &&
-                                      group.$1 == DashboardCategory.cards,
-                                  search: searching,
-                                  onTap:
-                                      searching ||
-                                          group.$1 != DashboardCategory.cards
-                                      ? null
-                                      : () => setState(() {
-                                          if (!_collapsed.remove(group.$1)) {
-                                            _collapsed.add(group.$1);
-                                          }
-                                        }),
+                                hintText: S.current.dashboardSearchHint,
+                                textStyle: AppTypography.bodyMedium.copyWith(
+                                  height: 20 / 14,
+                                  letterSpacing: 0,
                                 ),
-                                if (searching) ...[
-                                  const SizedBox(height: 16),
-                                  for (final service in group.$2) ...[
-                                    _option(context, service, plain: true),
-                                    if (service != group.$2.last)
-                                      const SizedBox(height: 16),
-                                  ],
-                                ] else if (!_collapsed.contains(group.$1)) ...[
-                                  const SizedBox(height: 16),
-                                  LayoutBuilder(
-                                    builder: (context, constraints) => Wrap(
-                                      spacing: 8,
-                                      runSpacing: 8,
-                                      children: [
-                                        for (final service in group.$2)
-                                          SizedBox(
-                                            width:
-                                                service ==
-                                                        DashboardService
-                                                            .cardDeposit ||
-                                                    service ==
-                                                        DashboardService
-                                                            .expiredGift ||
-                                                    (group.$2.length.isOdd &&
-                                                        service ==
-                                                            group.$2.last)
-                                                ? constraints.maxWidth
-                                                : (constraints.maxWidth - 8) /
-                                                      2,
-                                            child: _option(context, service),
-                                          ),
-                                      ],
+                                searchIcon: SizedBox(
+                                  width: 48,
+                                  height: 44,
+                                  child: Center(
+                                    child: SvgPicture.asset(
+                                      AppAssets.dashboardCatalogSearch,
                                     ),
                                   ),
-                                ],
-                              ],
-                            ],
-                          ),
+                                ),
+                                focusRing: AppTextFieldFocusRing.subtle,
+                                onChanged: (value) => context
+                                    .read<DashboardServicesSheetCubit>()
+                                    .updateQuery(value),
+                              ),
+                            ),
+                            Expanded(
+                              child: SingleChildScrollView(
+                                key: const Key(
+                                  'dashboard_service_options_scroll',
+                                ),
+                                padding: const EdgeInsets.fromLTRB(
+                                  20,
+                                  24,
+                                  20,
+                                  32,
+                                ),
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: [
+                                    if (groups.isEmpty)
+                                      Text(
+                                        S.current.dashboardNoServices,
+                                        style: AppTypography.bodyMedium,
+                                      ),
+                                    for (final group in groups.entries) ...[
+                                      if (group.key != groups.keys.first)
+                                        SizedBox(
+                                          height:
+                                              group.key ==
+                                                  DashboardCategory.transfers
+                                              ? 32
+                                              : 16,
+                                        ),
+                                      DashboardCategoryHeading(
+                                        key: Key(
+                                          'dashboard_category_${group.key.name}',
+                                        ),
+                                        category: group.key,
+                                        compact: true,
+                                        collapsed: state.collapsedCategories
+                                            .contains(group.key),
+                                        active:
+                                            state.query.isEmpty &&
+                                            group.key ==
+                                                DashboardCategory.cards,
+                                        search: state.query.isNotEmpty,
+                                        onTap:
+                                            state.query.isNotEmpty ||
+                                                group.key !=
+                                                    DashboardCategory.cards
+                                            ? null
+                                            : () => context
+                                                  .read<
+                                                    DashboardServicesSheetCubit
+                                                  >()
+                                                  .toggleCategory(group.key),
+                                      ),
+                                      if (state.query.isNotEmpty) ...[
+                                        const SizedBox(height: 16),
+                                        for (final service in group.value) ...[
+                                          DashboardServiceOption(
+                                            service: service,
+                                            enabled: !widget.excluded.contains(
+                                              service.id,
+                                            ),
+                                            plain: true,
+                                          ),
+                                          if (service != group.value.last)
+                                            const SizedBox(height: 16),
+                                        ],
+                                      ] else if (!state.collapsedCategories
+                                          .contains(group.key)) ...[
+                                        const SizedBox(height: 16),
+                                        LayoutBuilder(
+                                          builder: (context, constraints) => Wrap(
+                                            spacing: 8,
+                                            runSpacing: 8,
+                                            children: [
+                                              for (final service in group.value)
+                                                SizedBox(
+                                                  width:
+                                                      service ==
+                                                              DashboardService
+                                                                  .cardDeposit ||
+                                                          service ==
+                                                              DashboardService
+                                                                  .expiredGift ||
+                                                          (group
+                                                                  .value
+                                                                  .length
+                                                                  .isOdd &&
+                                                              service ==
+                                                                  group
+                                                                      .value
+                                                                      .last)
+                                                      ? constraints.maxWidth
+                                                      : (constraints.maxWidth -
+                                                                8) /
+                                                            2,
+                                                  child: DashboardServiceOption(
+                                                    service: service,
+                                                    enabled: !widget.excluded
+                                                        .contains(service.id),
+                                                  ),
+                                                ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
+                    ),
                   ),
                 ),
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _option(
-    BuildContext context,
-    DashboardService service, {
-    bool plain = false,
-  }) {
-    final enabled = !widget.excluded.contains(service.id);
-    return Semantics(
-      button: true,
-      enabled: enabled,
-      label: service.catalogLabel(context.l10n),
-      child: Opacity(
-        opacity: enabled ? 1 : .45,
-        child: Material(
-          color: plain ? Colors.transparent : AppDashboardColors.tileSurface,
-          borderRadius: AppRadius.borderMd,
-          child: InkWell(
-            key: Key('app_service_grid_icon_catalog-${service.id}'),
-            onTap: enabled ? () => Navigator.of(context).pop(service) : null,
-            borderRadius: AppRadius.borderMd,
-            child: Container(
-              constraints: BoxConstraints(minHeight: plain ? 20 : 40),
-              padding: plain
-                  ? EdgeInsets.zero
-                  : const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              decoration: plain
-                  ? null
-                  : BoxDecoration(
-                      border: Border.all(
-                        color: context.colors.border,
-                        width: .8,
-                      ),
-                      borderRadius: AppRadius.borderMd,
-                    ),
-              child: Row(
-                children: [
-                  SvgPicture.asset(service.optionAsset),
-                  const SizedBox(width: 4),
-                  Expanded(
-                    child: Text(
-                      service.catalogLabel(context.l10n),
-                      style: AppTypography.bodySmall.copyWith(
-                        color: plain
-                            ? context.colors.textPrimary
-                            : AppDashboardColors.optionText,
-                        fontWeight: FontWeight.w500,
-                        height: 18 / 12,
-                        letterSpacing: 0,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
+              );
+            },
+          );
+        },
       ),
     );
   }
@@ -312,14 +282,14 @@ Future<bool?> showDashboardResetSheet(BuildContext context) =>
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   AppBottomSheetHeader(
-                    title: context.l10n.dashboardResetTitle,
+                    title: S.current.dashboardResetTitle,
                     showRightIcon: false,
                     showLeftAction: false,
                   ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
                     child: Text(
-                      context.l10n.dashboardResetDescription,
+                      S.current.dashboardResetDescription,
                       style: AppTypography.bodyMedium.copyWith(
                         fontWeight: FontWeight.w500,
                         height: 20 / 14,
@@ -337,7 +307,7 @@ Future<bool?> showDashboardResetSheet(BuildContext context) =>
                           child: AppButton(
                             key: const Key('dashboard_reset_confirm'),
                             onPressed: () => Navigator.of(context).pop(true),
-                            label: context.l10n.dashboardResetConfirm,
+                            label: S.current.dashboardResetConfirm,
                             size: AppButtonSize.lg,
                           ),
                         ),
@@ -346,7 +316,7 @@ Future<bool?> showDashboardResetSheet(BuildContext context) =>
                           child: AppButton(
                             key: const Key('dashboard_reset_cancel'),
                             onPressed: () => Navigator.of(context).pop(false),
-                            label: context.l10n.dashboardCancel,
+                            label: S.current.dashboardCancel,
                             variant: AppButtonVariant.secondaryGray,
                             size: AppButtonSize.lg,
                           ),

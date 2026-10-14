@@ -48,130 +48,131 @@ class AppAddressCard extends StatelessWidget {
           : 'تهران - خیابان آزادی - خیابان دکتر هوشیار - نبش خیابان گرانمایه - پلاک ۱ - واحد ۳ ');
 
   @override
-  Widget build(BuildContext context) =>
-      variant == AppAddressCardVariant.delivery
-      ? _delivery(context)
-      : Directionality(
-          textDirection: TextDirection.rtl,
-          child: Container(
-            key: const Key('app_address_card'),
-            width: 343,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: AppPalette.gray50,
-              borderRadius: AppRadius.borderMd,
-              boxShadow: AppShadows.sm,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                SizedBox(
-                  height: 20,
-                  child: Row(
-                    textDirection: TextDirection.ltr,
-                    children: [
-                      InkWell(
-                        key: const Key('app_address_more'),
-                        onTap: onMoreTap,
-                        child: Transform.rotate(
-                          angle: -math.pi / 2,
-                          child: SvgPicture.asset(
-                            AppAssets.iconMoreVertical20Gray700,
-                            width: 20,
-                            height: 20,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                      Expanded(
-                        child: Text(
-                          _isHome ? 'خانه' : 'محل کار',
-                          textAlign: TextAlign.right,
-                          style: _mediumStyle(AppPalette.gray900),
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                      Transform.rotate(
-                        angle: math.pi,
-                        child: Transform.flip(
-                          flipY: true,
-                          child: SvgPicture.asset(
-                            _isHome
-                                ? AppAssets.addressCardHomeHeart
-                                : AppAssets.addressCardBuildings,
-                            width: 20,
-                            height: 20,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 8),
-                SizedBox(
-                  height: .5,
-                  child: SvgPicture.asset(
-                    AppAssets.dividerCardGray200,
-                    fit: BoxFit.fill,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                _detailRow(_phoneNumber, 'شماره تلفن:'),
-                const SizedBox(height: 8),
-                _detailRow(postalCode, 'آدرس پستی:'),
-                const SizedBox(height: 8),
-                Text(
-                  _address,
-                  textAlign: TextAlign.right,
-                  style: _mediumStyle(AppPalette.gray900),
-                ),
-                if (_isHome) ...[
-                  const SizedBox(height: 8),
+  Widget build(BuildContext context) {
+    return variant == AppAddressCardVariant.delivery
+        ? _delivery(context)
+        : Directionality(
+            textDirection: TextDirection.rtl,
+            child: Container(
+              key: const Key('app_address_card'),
+              width: 343,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: AppPalette.gray50,
+                borderRadius: AppRadius.borderMd,
+                boxShadow: AppShadows.sm,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
                   SizedBox(
-                    height: 22,
+                    height: 20,
                     child: Row(
                       textDirection: TextDirection.ltr,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         InkWell(
-                          key: const Key('app_address_review'),
-                          onTap: onReviewTap,
-                          borderRadius: AppRadius.borderSm,
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            textDirection: TextDirection.ltr,
-                            children: [
-                              SvgPicture.asset(
-                                AppAssets.addressCardAngleLeft,
-                                width: 20,
-                                height: 20,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                'بررسی',
-                                style: _mediumStyle(AppPalette.brand600),
-                              ),
-                            ],
+                          key: const Key('app_address_more'),
+                          onTap: onMoreTap,
+                          child: Transform.rotate(
+                            angle: -math.pi / 2,
+                            child: SvgPicture.asset(
+                              AppAssets.iconMoreVertical20Gray700,
+                              width: 20,
+                              height: 20,
+                            ),
                           ),
                         ),
+                        const SizedBox(width: 4),
                         Expanded(
                           child: Text(
-                            'وضعیت اسکان و املاک',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                            _isHome ? 'خانه' : 'محل کار',
                             textAlign: TextAlign.right,
-                            style: _regularStyle(AppPalette.gray700),
+                            style: _mediumStyle(AppPalette.gray900),
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Transform.rotate(
+                          angle: math.pi,
+                          child: Transform.flip(
+                            flipY: true,
+                            child: SvgPicture.asset(
+                              _isHome
+                                  ? AppAssets.addressCardHomeHeart
+                                  : AppAssets.addressCardBuildings,
+                              width: 20,
+                              height: 20,
+                            ),
                           ),
                         ),
                       ],
                     ),
                   ),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    height: .5,
+                    child: SvgPicture.asset(
+                      AppAssets.dividerCardGray200,
+                      fit: BoxFit.fill,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  _detailRow(_phoneNumber, 'شماره تلفن:'),
+                  const SizedBox(height: 8),
+                  _detailRow(postalCode, 'آدرس پستی:'),
+                  const SizedBox(height: 8),
+                  Text(
+                    _address,
+                    textAlign: TextAlign.right,
+                    style: _mediumStyle(AppPalette.gray900),
+                  ),
+                  if (_isHome) ...[
+                    const SizedBox(height: 8),
+                    SizedBox(
+                      height: 22,
+                      child: Row(
+                        textDirection: TextDirection.ltr,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          InkWell(
+                            key: const Key('app_address_review'),
+                            onTap: onReviewTap,
+                            borderRadius: AppRadius.borderSm,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              textDirection: TextDirection.ltr,
+                              children: [
+                                SvgPicture.asset(
+                                  AppAssets.addressCardAngleLeft,
+                                  width: 20,
+                                  height: 20,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'بررسی',
+                                  style: _mediumStyle(AppPalette.brand600),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Expanded(
+                            child: Text(
+                              'وضعیت اسکان و املاک',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.right,
+                              style: _regularStyle(AppPalette.gray700),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
-          ),
-        );
+          );
+  }
 
   Widget _detailRow(String value, String label) => SizedBox(
     height: 22,

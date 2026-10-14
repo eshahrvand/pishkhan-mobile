@@ -36,27 +36,29 @@ class CertificateSelect<T> extends StatelessWidget {
   final T? value;
   final bool enabled;
   @override
-  Widget build(BuildContext context) => AppSelect<T>(
-    label: label,
-    hintText: hint,
-    value: value,
-    options: options,
-    onChanged: onChanged,
-    enabled: enabled,
-    labelSpacing: 8,
-    labelStyle: certificateLabelStyle(context),
-    textStyle: certificateValueStyle(context).copyWith(
-      color: value == null
-          ? context.colors.textDisabled
-          : context.colors.textPrimary,
-    ),
-    trailing: depositIcon(
-      value == null
-          ? AppAssets.certificateChevronHint
-          : AppAssets.certificateChevron,
-      size: 20,
-    ),
-  );
+  Widget build(BuildContext context) {
+    return AppSelect<T>(
+      label: label,
+      hintText: hint,
+      value: value,
+      options: options,
+      onChanged: onChanged,
+      enabled: enabled,
+      labelSpacing: 8,
+      labelStyle: certificateLabelStyle(context),
+      textStyle: certificateValueStyle(context).copyWith(
+        color: value == null
+            ? context.colors.textDisabled
+            : context.colors.textPrimary,
+      ),
+      trailing: depositIcon(
+        value == null
+            ? AppAssets.certificateChevronHint
+            : AppAssets.certificateChevron,
+        size: 20,
+      ),
+    );
+  }
 }
 
 /// Labeled package input with certificate-instance typography.
@@ -79,25 +81,27 @@ class CertificateInput extends StatelessWidget {
   final Widget? addonEnd;
   final int? maxLength;
   @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      Text(label, style: certificateLabelStyle(context)),
-      const SizedBox(height: 8),
-      AppTextField(
-        value: value,
-        hintText: hint,
-        onChanged: onChanged,
-        readOnly: readOnly,
-        normalizeDigits: numeric,
-        maxLength: maxLength,
-        keyboardType: numeric ? TextInputType.number : TextInputType.text,
-        textDirection: latin ? TextDirection.ltr : TextDirection.rtl,
-        textAlign: TextAlign.right,
-        hintTextDirection: TextDirection.rtl,
-        textStyle: certificateValueStyle(context),
-        suffixIcon: addonEnd,
-      ),
-    ],
-  );
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(label, style: certificateLabelStyle(context)),
+        const SizedBox(height: 8),
+        AppTextField(
+          value: value,
+          hintText: hint,
+          onChanged: onChanged,
+          readOnly: readOnly,
+          normalizeDigits: numeric,
+          maxLength: maxLength,
+          keyboardType: numeric ? TextInputType.number : TextInputType.text,
+          textDirection: latin ? TextDirection.ltr : TextDirection.rtl,
+          textAlign: TextAlign.right,
+          hintTextDirection: TextDirection.rtl,
+          textStyle: certificateValueStyle(context),
+          suffixIcon: addonEnd,
+        ),
+      ],
+    );
+  }
 }

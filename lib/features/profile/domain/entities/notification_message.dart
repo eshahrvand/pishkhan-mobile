@@ -1,4 +1,4 @@
-import 'package:pishkhan_mobile/l10n/l10n.dart';
+import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 /// Presentation data; a repository can supply messages without changing the UI.
@@ -35,38 +35,38 @@ class NotificationMessage {
   );
 
   /// The supplied Figma examples until a notification repository is connected.
-  static List<NotificationMessage> examples(AppLocalizations l10n) => [
+  static List<NotificationMessage> examples() => [
     NotificationMessage(
       id: 'secured-loan',
-      title: l10n.notificationLoanTitle,
-      subtitle: l10n.notificationLoanSubtitle,
-      dateLabel: l10n.notificationToday,
+      title: S.current.notificationLoanTitle,
+      subtitle: S.current.notificationLoanSubtitle,
+      dateLabel: S.current.notificationToday,
     ),
     NotificationMessage(
       id: 'gold-investment',
-      title: l10n.notificationInvestmentTitle,
-      subtitle: l10n.notificationInvestmentSubtitle,
-      dateLabel: l10n.notificationYesterday,
+      title: S.current.notificationInvestmentTitle,
+      subtitle: S.current.notificationInvestmentSubtitle,
+      dateLabel: S.current.notificationYesterday,
     ),
     for (final date in [
-      l10n.notificationFiveDays,
-      l10n.notificationSevenDays,
-      l10n.notificationSampleDate,
+      S.current.notificationFiveDays,
+      S.current.notificationSevenDays,
+      S.current.notificationSampleDate,
     ])
       NotificationMessage(
         id: 'security-$date',
-        title: l10n.notificationSecurityTitle,
-        subtitle: l10n.notificationSecuritySubtitle,
+        title: S.current.notificationSecurityTitle,
+        subtitle: S.current.notificationSecuritySubtitle,
         dateLabel: date,
         isRead: true,
-        intro: l10n.notificationSecurityIntro,
-        advice: l10n.notificationSecurityAdvice,
+        intro: S.current.notificationSecurityIntro,
+        advice: S.current.notificationSecurityAdvice,
         bullets: [
-          l10n.notificationSecurityCode,
-          l10n.notificationSecurityLinks,
-          l10n.notificationSecurityOfficial,
+          S.current.notificationSecurityCode,
+          S.current.notificationSecurityLinks,
+          S.current.notificationSecurityOfficial,
         ],
-        closing: l10n.notificationSecurityClosing,
+        closing: S.current.notificationSecurityClosing,
         imageAsset: AppAssets.notificationSecurity,
       ),
   ];

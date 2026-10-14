@@ -1,7 +1,7 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pishkhan_mobile/l10n/l10n.dart';
+import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_address_card.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_delete_address_sheet.dart';
@@ -40,166 +40,168 @@ class CertificateDeliveryForm extends StatelessWidget {
   final ValueChanged<bool> onOtherRecipient, onIncludeAgent;
   final void Function(String, String) onRecipient;
   @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      CertificateSelect<String>(
-        label: address == null
-            ? context.l10n.issuanceAddress
-            : context.l10n.issuanceSelectAddress,
-        hint: context.l10n.certificateAddressHint,
-        value: address?.id,
-        options: [
-          for (final a in addresses)
-            AppSelectOption(value: a.id, label: a.title),
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        CertificateSelect<String>(
+          label: address == null
+              ? S.current.issuanceAddress
+              : S.current.issuanceSelectAddress,
+          hint: S.current.certificateAddressHint,
+          value: address?.id,
+          options: [
+            for (final a in addresses)
+              AppSelectOption(value: a.id, label: a.title),
+          ],
+          onChanged: onAddress,
+        ),
+        const SizedBox(height: 12),
+        if (address == null)
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: IntrinsicWidth(
+              child: SizedBox(
+                height: 20,
+                child: AppButton(
+                  label: S.current.issuanceAddAddress,
+                  variant: AppButtonVariant.text,
+                  leadingIcon: depositIcon(AppAssets.certificatePlus, size: 20),
+                  size: AppButtonSize.sm,
+                  horizontalPadding: 0,
+                  labelStyle: certificateValueStyle(context)
+                      .copyWith(fontWeight: FontWeight.w500),
+                  onPressed: () async {
+                    final result = await showCertificateAddressSheet(context);
+                    if (context.mounted && result != null) onAddAddress(result);
+                  },
+                ),
+              ),
+            ),
+          )
+        else
+          AppAddressCard(
+            variant: AppAddressCardVariant.delivery,
+            address: address!.detail,
+            postalCode: address!.postalCode,
+            deleteIcon: depositIcon(AppAssets.issuanceTrash, size: 20),
+            deleteLabel: S.current.issuanceDeleteAddress,
+            onDeleteTap: () async {
+              final confirmed = await showModalBottomSheet<bool>(
+                context: context,
+                isScrollControlled: true,
+                useSafeArea: true,
+                builder: (sheetContext) => AppDeleteAddressSheet(
+                  address: address!.detail,
+                  postalCode: address!.postalCode,
+                  title: S.current.issuanceDeleteAddress,
+                  prompt: S.current.certificateDeleteAddressPrompt,
+                  confirmLabel: S.current.issuanceDeleteAddress,
+                  cancelLabel: S.current.backLabel,
+                  onConfirm: () => sheetContext.pop(true),
+                  onCancel: () => sheetContext.pop(false),
+                ),
+              );
+              if (context.mounted && confirmed == true) onDeleteAddress();
+            },
+          ),
+        const SizedBox(height: 20),
+        const DepositDivider(asset: AppAssets.certificateDivider),
+        const SizedBox(height: 20),
+        Row(
+          children: [
+            AppToggle(
+              value: otherRecipient,
+              onChanged: onOtherRecipient,
+              size: AppToggleSize.sm,
+              appearance: AppToggleAppearance.issuance,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                S.current.issuanceOtherRecipient,
+                style: certificateValueStyle(context),
+              ),
+            ),
+          ],
+        ),
+        if (otherRecipient) ...[
+          const SizedBox(height: 20),
+          Text(
+            S.current.certificateRecipientNotice,
+            style: certificateValueStyle(context)
+                .copyWith(fontWeight: FontWeight.w500),
+          ),
+          const SizedBox(height: 20),
+          CertificateInput(
+            label: S.current.certificateRecipientName,
+            hint: S.current.certificateRecipientNameHint,
+            value: recipientName,
+            onChanged: (value) => onRecipient(value, recipientNationalId),
+          ),
+          const SizedBox(height: 20),
+          CertificateInput(
+            label: S.current.depositListNationalId,
+            hint: S.current.certificateRecipientNationalIdHint,
+            value: recipientNationalId,
+            numeric: true,
+            maxLength: 10,
+            onChanged: (value) => onRecipient(recipientName, value),
+          ),
         ],
-        onChanged: onAddress,
-      ),
-      const SizedBox(height: 12),
-      if (address == null)
-        Align(
-          alignment: AlignmentDirectional.centerStart,
-          child: IntrinsicWidth(
-            child: SizedBox(
-              height: 20,
+        const SizedBox(height: 20),
+        const DepositDivider(asset: AppAssets.certificateDivider),
+        const SizedBox(height: 20),
+        Row(
+          children: [
+            AppToggle(
+              value: includeAgent,
+              onChanged: onIncludeAgent,
+              size: AppToggleSize.sm,
+              appearance: AppToggleAppearance.issuance,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                S.current.issuanceIncludeAgent,
+                style: certificateValueStyle(context),
+              ),
+            ),
+          ],
+        ),
+        if (includeAgent) ...[
+          const SizedBox(height: 20),
+          Text(
+            S.current.certificateAgentNotice,
+            style: certificateValueStyle(context)
+                .copyWith(fontWeight: FontWeight.w500),
+          ),
+          const SizedBox(height: 20),
+          CertificateInput(
+            label: S.current.certificateAgentIdentifier,
+            hint: S.current.certificateOptional,
+            value: agentIdentifier,
+            numeric: true,
+            onChanged: onAgent,
+            addonEnd: SizedBox(
+              width: 48 * MediaQuery.textScalerOf(context).scale(1),
               child: AppButton(
-                label: context.l10n.issuanceAddAddress,
+                label: S.current.certificateCheckAgent,
                 variant: AppButtonVariant.text,
-                leadingIcon: depositIcon(AppAssets.certificatePlus, size: 20),
                 size: AppButtonSize.sm,
-                horizontalPadding: 0,
-                labelStyle: certificateValueStyle(context)
-                    .copyWith(fontWeight: FontWeight.w500),
-                onPressed: () async {
-                  final result = await showCertificateAddressSheet(context);
-                  if (context.mounted && result != null) onAddAddress(result);
-                },
-              ),
-            ),
-          ),
-        )
-      else
-        AppAddressCard(
-          variant: AppAddressCardVariant.delivery,
-          address: address!.detail,
-          postalCode: address!.postalCode,
-          deleteIcon: depositIcon(AppAssets.issuanceTrash, size: 20),
-          deleteLabel: context.l10n.issuanceDeleteAddress,
-          onDeleteTap: () async {
-            final confirmed = await showModalBottomSheet<bool>(
-              context: context,
-              isScrollControlled: true,
-              useSafeArea: true,
-              builder: (sheetContext) => AppDeleteAddressSheet(
-                address: address!.detail,
-                postalCode: address!.postalCode,
-                title: context.l10n.issuanceDeleteAddress,
-                prompt: context.l10n.certificateDeleteAddressPrompt,
-                confirmLabel: context.l10n.issuanceDeleteAddress,
-                cancelLabel: context.l10n.backLabel,
-                onConfirm: () => sheetContext.pop(true),
-                onCancel: () => sheetContext.pop(false),
-              ),
-            );
-            if (context.mounted && confirmed == true) onDeleteAddress();
-          },
-        ),
-      const SizedBox(height: 20),
-      const DepositDivider(asset: AppAssets.certificateDivider),
-      const SizedBox(height: 20),
-      Row(
-        children: [
-          AppToggle(
-            value: otherRecipient,
-            onChanged: onOtherRecipient,
-            size: AppToggleSize.sm,
-            appearance: AppToggleAppearance.issuance,
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              context.l10n.issuanceOtherRecipient,
-              style: certificateValueStyle(context),
-            ),
-          ),
-        ],
-      ),
-      if (otherRecipient) ...[
-        const SizedBox(height: 20),
-        Text(
-          context.l10n.certificateRecipientNotice,
-          style: certificateValueStyle(context)
-              .copyWith(fontWeight: FontWeight.w500),
-        ),
-        const SizedBox(height: 20),
-        CertificateInput(
-          label: context.l10n.certificateRecipientName,
-          hint: context.l10n.certificateRecipientNameHint,
-          value: recipientName,
-          onChanged: (value) => onRecipient(value, recipientNationalId),
-        ),
-        const SizedBox(height: 20),
-        CertificateInput(
-          label: context.l10n.depositListNationalId,
-          hint: context.l10n.certificateRecipientNationalIdHint,
-          value: recipientNationalId,
-          numeric: true,
-          maxLength: 10,
-          onChanged: (value) => onRecipient(recipientName, value),
-        ),
-      ],
-      const SizedBox(height: 20),
-      const DepositDivider(asset: AppAssets.certificateDivider),
-      const SizedBox(height: 20),
-      Row(
-        children: [
-          AppToggle(
-            value: includeAgent,
-            onChanged: onIncludeAgent,
-            size: AppToggleSize.sm,
-            appearance: AppToggleAppearance.issuance,
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              context.l10n.issuanceIncludeAgent,
-              style: certificateValueStyle(context),
-            ),
-          ),
-        ],
-      ),
-      if (includeAgent) ...[
-        const SizedBox(height: 20),
-        Text(
-          context.l10n.certificateAgentNotice,
-          style: certificateValueStyle(context)
-              .copyWith(fontWeight: FontWeight.w500),
-        ),
-        const SizedBox(height: 20),
-        CertificateInput(
-          label: context.l10n.certificateAgentIdentifier,
-          hint: context.l10n.certificateOptional,
-          value: agentIdentifier,
-          numeric: true,
-          onChanged: onAgent,
-          addonEnd: SizedBox(
-            width: 48 * MediaQuery.textScalerOf(context).scale(1),
-            child: AppButton(
-              label: context.l10n.certificateCheckAgent,
-              variant: AppButtonVariant.text,
-              size: AppButtonSize.sm,
-              horizontalPadding: 4,
-              onPressed: agentIdentifier.trim().isEmpty
-                  ? null
-                  : () => ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(context.l10n.certificateAgentUnavailable),
+                horizontalPadding: 4,
+                onPressed: agentIdentifier.trim().isEmpty
+                    ? null
+                    : () => ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(S.current.certificateAgentUnavailable),
+                        ),
                       ),
-                    ),
+              ),
             ),
           ),
-        ),
+        ],
       ],
-    ],
-  );
+    );
+  }
 }

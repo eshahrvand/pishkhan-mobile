@@ -1,12 +1,8 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:pishkhan_mobile/core/enums/request_status.dart';
-import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/app_primary_navigation.dart';
-
-part 'dashboard_navigation_state.freezed.dart';
+part of 'dashboard_navigation_cubit.dart';
 
 @freezed
 abstract class DashboardNavigationState with _$DashboardNavigationState {
-  const factory DashboardNavigationState({
+  const factory DashboardNavigationState.initial({
     @Default(RequestStatus.initial) RequestStatus status,
     @Default(AppPrimaryTab.dashboard) AppPrimaryTab selectedTab,
   }) = _DashboardNavigationState;

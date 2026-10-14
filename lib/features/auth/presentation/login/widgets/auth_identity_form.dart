@@ -7,7 +7,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/login/cubit/auth_cubit.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/login/widgets/auth_form_shared.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/shared/auth_assets.dart';
-import 'package:pishkhan_mobile/l10n/l10n.dart';
+import 'package:pishkhan_mobile/generated/l10n.dart';
 
 class AuthIdentityForm extends StatelessWidget {
   const AuthIdentityForm({required this.changePhone, super.key});
@@ -16,15 +16,17 @@ class AuthIdentityForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<AuthCubit>();
-    final l10n = context.l10n;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         AuthSectionHeading(
-          title: changePhone ? l10n.changeMobileTitle : l10n.loginTitle,
+          title: changePhone
+              ? S.current.changeMobileTitle
+              : S.current.loginTitle,
           description: changePhone
-              ? l10n.changeMobileDescription
-              : l10n.loginDescription,
+              ? S.current.changeMobileDescription
+              : S.current.loginDescription,
         ),
         const SizedBox(height: 32),
         AuthIdentityFields(changePhone: changePhone),
@@ -32,7 +34,7 @@ class AuthIdentityForm extends StatelessWidget {
         const AuthCaptchaRow(),
         const SizedBox(height: 24),
         AppButton(
-          label: l10n.requestOtp,
+          label: S.current.requestOtp,
           size: AppButtonSize.md,
           onPressed: () {
             if (cubit.requestOtp()) {
@@ -55,16 +57,19 @@ class AuthCaptchaRow extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
-          child: BlocSelector<AuthCubit, AuthState, (String, bool)>(
-            selector: (state) =>
-                (state.captcha, state.invalidFields.contains('captcha')),
-            builder: (context, value) => AppTextField(
-              value: value.$1,
-              hintText: context.l10n.captchaHint,
-              errorText: value.$2 ? context.l10n.authInvalidCaptcha : null,
+          child: BlocBuilder<AuthCubit, AuthState>(
+            buildWhen: (previous, current) =>
+                previous.captcha != current.captcha ||
+                previous.isCaptchaError != current.isCaptchaError,
+            builder: (context, state) => AppTextField(
+              value: state.captcha,
+              hintText: S.current.captchaHint,
+              errorText: state.isCaptchaError
+                  ? S.current.authInvalidCaptcha
+                  : null,
               suffixIcon: AuthFieldIcon(
                 AuthAssets.refresh,
-                semanticLabel: context.l10n.refreshCaptcha,
+                semanticLabel: S.current.refreshCaptcha,
                 onPressed: cubit.refreshCaptcha,
               ),
               textDirection: TextDirection.rtl,
@@ -77,8 +82,8 @@ class AuthCaptchaRow extends StatelessWidget {
               maxLength: 6,
               keyboardType: TextInputType.number,
               textInputAction: TextInputAction.done,
-              onChanged: cubit.captchaChanged,
-              onFocusLost: () => cubit.validateField('captcha'),
+              onChanged: cubit.updateCaptcha,
+              onFocusLost: () => cubit.validateCaptcha(),
               onSubmitted: (_) {
                 if (cubit.requestOtp()) {
                   FocusManager.instance.primaryFocus?.unfocus();
@@ -118,19 +123,22 @@ class AuthIdentityFields extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<AuthCubit>();
-    final l10n = context.l10n;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        BlocSelector<AuthCubit, AuthState, (String, bool)>(
-          selector: (state) =>
-              (state.nationalId, state.invalidFields.contains('nationalId')),
-          builder: (context, value) => AppTextField(
-            value: value.$1,
+        BlocBuilder<AuthCubit, AuthState>(
+          buildWhen: (previous, current) =>
+              previous.nationalId != current.nationalId ||
+              previous.isNationalIdError != current.isNationalIdError,
+          builder: (context, state) => AppTextField(
+            value: state.nationalId,
             hintText: changePhone
-                ? l10n.changeNationalIdHint
-                : l10n.loginNationalIdHint,
-            errorText: value.$2 ? l10n.authInvalidNationalId : null,
+                ? S.current.changeNationalIdHint
+                : S.current.loginNationalIdHint,
+            errorText: state.isNationalIdError
+                ? S.current.authInvalidNationalId
+                : null,
             prefixIcon: const AuthFieldIcon(AuthAssets.user),
             textDirection: TextDirection.rtl,
             textAlign: TextAlign.start,
@@ -142,18 +150,21 @@ class AuthIdentityFields extends StatelessWidget {
             keyboardType: TextInputType.number,
             textInputAction: TextInputAction.next,
             maxLength: 10,
-            onChanged: cubit.nationalIdChanged,
-            onFocusLost: () => cubit.validateField('nationalId'),
+            onChanged: cubit.updateNationalId,
+            onFocusLost: () => cubit.validateNationalId(),
           ),
         ),
         const SizedBox(height: 20),
-        BlocSelector<AuthCubit, AuthState, (String, bool)>(
-          selector: (state) =>
-              (state.phone, state.invalidFields.contains('phone')),
-          builder: (context, value) => AppTextField(
-            value: value.$1,
-            hintText: changePhone ? l10n.changePhoneHint : l10n.loginPhoneHint,
-            errorText: value.$2 ? l10n.authInvalidPhone : null,
+        BlocBuilder<AuthCubit, AuthState>(
+          buildWhen: (previous, current) =>
+              previous.phone != current.phone ||
+              previous.isPhoneError != current.isPhoneError,
+          builder: (context, state) => AppTextField(
+            value: state.phone,
+            hintText: changePhone
+                ? S.current.changePhoneHint
+                : S.current.loginPhoneHint,
+            errorText: state.isPhoneError ? S.current.authInvalidPhone : null,
             prefixIcon: const AuthFieldIcon(AuthAssets.mobile),
             textDirection: TextDirection.rtl,
             textAlign: TextAlign.start,
@@ -165,8 +176,8 @@ class AuthIdentityFields extends StatelessWidget {
             textInputAction: TextInputAction.next,
             maxLength: 11,
             keyboardType: TextInputType.phone,
-            onChanged: cubit.phoneChanged,
-            onFocusLost: () => cubit.validateField('phone'),
+            onChanged: cubit.updatePhoneNumber,
+            onFocusLost: () => cubit.validatePhoneNumber(),
           ),
         ),
         const SizedBox(height: 12),
@@ -184,7 +195,7 @@ class AuthIdentityFields extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    context.l10n.phoneOwnershipNotice,
+                    S.current.phoneOwnershipNotice,
                     style: Theme.of(context).textTheme.labelMedium!.copyWith(
                       color: AppLoginColors.noticeText,
                       fontWeight: FontWeight.w500,
@@ -201,7 +212,7 @@ class AuthIdentityFields extends StatelessWidget {
             alignment: AlignmentDirectional.centerEnd,
             child: Semantics(
               button: true,
-              label: l10n.changePhoneAction,
+              label: S.current.changePhoneAction,
               child: InkWell(
                 onTap: () {
                   FocusManager.instance.primaryFocus?.unfocus();
@@ -211,7 +222,7 @@ class AuthIdentityFields extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4),
                   child: Text(
-                    l10n.changePhoneAction,
+                    S.current.changePhoneAction,
                     style: Theme.of(context).textTheme.titleSmall!.copyWith(
                       color: context.colors.primary,
                       fontSize: 14,

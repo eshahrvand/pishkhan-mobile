@@ -1,7 +1,6 @@
 import 'package:pishkhan_mobile/core/router/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pishkhan_mobile/l10n/l10n.dart';
 
 import 'domain/entities/notification_message.dart';
 import 'presentation/message_center/screens/notifications_screen.dart';
@@ -21,7 +20,7 @@ List<RouteBase> buildProfileRoutes() => [
           ? state.extra as MessageCenterRouteArguments
           : null;
       return NotificationsScreen(
-        messages: args?.messages ?? NotificationMessage.examples(context.l10n),
+        messages: args?.messages ?? NotificationMessage.examples(),
         onChanged: args?.onChanged,
       );
     },
@@ -31,7 +30,7 @@ List<RouteBase> buildProfileRoutes() => [
     builder: (context, state) {
       final message = state.extra is NotificationMessage
           ? state.extra as NotificationMessage
-          : NotificationMessage.examples(context.l10n)
+          : NotificationMessage.examples()
                 .where((m) => m.id == state.pathParameters['messageId'])
                 .firstOrNull;
       return message == null

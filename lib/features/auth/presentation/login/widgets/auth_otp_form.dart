@@ -7,7 +7,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/login/cubit/auth_cubit.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/login/widgets/auth_form_shared.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/shared/auth_assets.dart';
-import 'package:pishkhan_mobile/l10n/l10n.dart';
+import 'package:pishkhan_mobile/generated/l10n.dart';
 
 class AuthOtpForm extends StatelessWidget {
   const AuthOtpForm({this.onAuthenticated, super.key});
@@ -18,11 +18,14 @@ class AuthOtpForm extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        BlocSelector<AuthCubit, AuthState, String>(
-          selector: (state) => state.maskedPhone,
-          builder: (context, phone) => AuthSectionHeading(
-            title: context.l10n.otpSentTitle,
-            description: context.l10n.otpSentMessage('\u2066$phone\u2069'),
+        BlocBuilder<AuthCubit, AuthState>(
+          buildWhen: (previous, current) =>
+              previous.maskedPhone != current.maskedPhone,
+          builder: (context, state) => AuthSectionHeading(
+            title: S.current.otpSentTitle,
+            description: S.current.otpSentMessage(
+              '\u2066${state.maskedPhone}\u2069',
+            ),
           ),
         ),
         const SizedBox(height: 32),
@@ -30,11 +33,11 @@ class AuthOtpForm extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
-              child: BlocSelector<AuthCubit, AuthState, String>(
-                selector: (state) => state.otp,
-                builder: (context, otp) => AppTextField(
-                  value: otp,
-                  hintText: context.l10n.otpHint,
+              child: BlocBuilder<AuthCubit, AuthState>(
+                buildWhen: (previous, current) => previous.otp != current.otp,
+                builder: (context, state) => AppTextField(
+                  value: state.otp,
+                  hintText: S.current.otpHint,
                   prefixIcon: const AuthFieldIcon(AuthAssets.lock),
                   textDirection: TextDirection.rtl,
                   textAlign: TextAlign.start,
@@ -46,7 +49,7 @@ class AuthOtpForm extends StatelessWidget {
                   maxLength: 4,
                   keyboardType: TextInputType.number,
                   textInputAction: TextInputAction.done,
-                  onChanged: context.read<AuthCubit>().otpChanged,
+                  onChanged: context.read<AuthCubit>().updateOtp,
                   onSubmitted: (_) => _submit(context),
                 ),
               ),
@@ -56,11 +59,12 @@ class AuthOtpForm extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 24),
-        BlocSelector<AuthCubit, AuthState, bool>(
-          selector: (state) => state.otpValid,
-          builder: (context, valid) => AppButton(
-            onPressed: valid ? () => _submit(context) : null,
-            label: context.l10n.enterDashboard,
+        BlocBuilder<AuthCubit, AuthState>(
+          buildWhen: (previous, current) =>
+              previous.otpValid != current.otpValid,
+          builder: (context, state) => AppButton(
+            onPressed: state.otpValid ? () => _submit(context) : null,
+            label: S.current.enterDashboard,
             size: AppButtonSize.lg,
           ),
         ),
@@ -79,20 +83,29 @@ class AuthOtpTimer extends StatelessWidget {
   const AuthOtpTimer({super.key});
 
   @override
-  Widget build(BuildContext context) => BlocSelector<AuthCubit, AuthState, int>(
-    selector: (state) => state.secondsRemaining,
-    builder: (context, remaining) => SizedBox(
-      height: 44,
-      child: AppButton(
-        onPressed: remaining == 0 ? context.read<AuthCubit>().resendOtp : () {},
-        label: remaining == 0
-            ? context.l10n.resendOtp
-            : '00:${remaining.toString().padLeft(2, '0')}',
-        trailingIcon: SvgPicture.asset(AuthAssets.clock, width: 20, height: 20),
-        variant: AppButtonVariant.text,
-        size: AppButtonSize.lg,
-        horizontalPadding: 4,
+  Widget build(BuildContext context) {
+    return BlocBuilder<AuthCubit, AuthState>(
+      buildWhen: (previous, current) =>
+          previous.secondsRemaining != current.secondsRemaining,
+      builder: (context, state) => SizedBox(
+        height: 44,
+        child: AppButton(
+          onPressed: state.secondsRemaining == 0
+              ? context.read<AuthCubit>().resendOtp
+              : () {},
+          label: state.secondsRemaining == 0
+              ? S.current.resendOtp
+              : '00:${state.secondsRemaining.toString().padLeft(2, '0')}',
+          trailingIcon: SvgPicture.asset(
+            AuthAssets.clock,
+            width: 20,
+            height: 20,
+          ),
+          variant: AppButtonVariant.text,
+          size: AppButtonSize.lg,
+          horizontalPadding: 4,
+        ),
       ),
-    ),
-  );
+    );
+  }
 }

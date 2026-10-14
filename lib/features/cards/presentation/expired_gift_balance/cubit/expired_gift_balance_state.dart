@@ -1,16 +1,10 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:pishkhan_mobile/core/enums/request_status.dart';
-import 'package:pishkhan_mobile/core/result/failure.dart';
-
-import '../../../domain/entities/card_service_data.dart';
-
-part 'expired_gift_balance_state.freezed.dart';
+part of 'expired_gift_balance_cubit.dart';
 
 enum GiftBalanceStep { selection, destination }
 
 @freezed
 abstract class ExpiredGiftBalanceState with _$ExpiredGiftBalanceState {
-  const factory ExpiredGiftBalanceState({
+  const factory ExpiredGiftBalanceState.initial({
     @Default(RequestStatus.initial) RequestStatus status,
     @Default(RequestStatus.initial) RequestStatus submissionStatus,
     @Default(GiftBalanceStep.selection) GiftBalanceStep step,

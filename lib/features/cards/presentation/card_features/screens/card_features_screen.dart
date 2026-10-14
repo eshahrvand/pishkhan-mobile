@@ -1,13 +1,13 @@
+import '../widgets/card_features_content.dart';
+
 import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
 import 'package:pishkhan_mobile/core/router/card_features_navigation.dart';
-import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pishkhan_mobile/l10n/l10n.dart';
+import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
-import 'package:pishkhan_mobile/shared/widgets/app_cards_list.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
 
 import '../../../data/repositories/mock_cards_repository.dart';
@@ -35,46 +35,41 @@ class CardFeaturesScreen extends StatefulWidget {
 }
 
 class _CardFeaturesScreenState extends State<CardFeaturesScreen> {
-  late final CardFeaturesCubit _cubit;
+  // Retained only to synchronize this screen's existing runtime repository API.
+  // BlocProvider owns and closes the instance; rendering/actions use context.read.
+  CardFeaturesCubit? _repositoryScope;
   final _search = TextEditingController();
   final _chips = ScrollController();
   final _chipKeys = {for (final c in CardCategory.values) c: GlobalKey()};
   @override
-  void initState() {
-    super.initState();
-    _cubit = CardFeaturesCubit(
-      initialState: const CardFeaturesState(),
-      repository: widget.repository ?? MockCardsRepository(),
-      initialCategory: widget.initialCategory,
-    )..load();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _revealCategory());
-  }
-
-  @override
   void didUpdateWidget(covariant CardFeaturesScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.repository != widget.repository) {
-      _cubit.changeRepository(widget.repository ?? MockCardsRepository());
+      _repositoryScope?.changeRepository(
+        widget.repository ?? MockCardsRepository(),
+      );
     }
   }
 
   @override
   void dispose() {
-    _cubit.close();
     _search.dispose();
     _chips.dispose();
     super.dispose();
   }
 
-  Future<void> _revealCategory() async {
+  Future<void> _revealCategory(CardFeaturesCubit cubit) async {
     if (!mounted || !_chips.hasClients) return;
-    final category = _cubit.state.category;
+    final category = cubit.state.category;
     await _chips.animateTo(
       category.index >= 3 ? _chips.position.maxScrollExtent : 0,
       duration: const Duration(milliseconds: 200),
       curve: Curves.easeOut,
     );
-    if (!mounted || _cubit.state.category != category) return;
+    if (!mounted ||
+        cubit.state.category != category) {
+      return;
+    }
     final target = _chipKeys[category]?.currentContext;
     if (target != null && target.mounted && category.index < 3) {
       await Scrollable.ensureVisible(
@@ -85,11 +80,15 @@ class _CardFeaturesScreenState extends State<CardFeaturesScreen> {
     }
   }
 
-  void _request(CardFeatureAction action, {ListedCard? card}) {
+  void _request(
+    BuildContext context,
+    CardFeatureAction action, {
+    ListedCard? card,
+  }) {
     final request = CardFeatureRequest(
       action: action,
       card: card,
-      category: _cubit.state.category,
+      category: context.read<CardFeaturesCubit>().state.category,
     );
     if (widget.onActionRequested != null) {
       widget.onActionRequested!(request);
@@ -111,264 +110,242 @@ class _CardFeaturesScreenState extends State<CardFeaturesScreen> {
         onAssistantPressed: widget.onAssistantPressed,
       );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(context.l10n.cardFeatureUnavailable)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(S.current.cardFeatureUnavailable)));
     }
   }
 
-  Future<void> _more(ListedCard card) async {
-    _cubit.selectCard(card.id);
+  Future<void> _more(BuildContext context, ListedCard card) async {
+    context.read<CardFeaturesCubit>().selectCard(card.id);
     final action = await showCardActions(context, card);
-    if (!mounted || action == null) return;
+    if (!context.mounted || action == null) return;
     if (action == CardFeatureAction.details) {
       await showCardDetails(context, card);
     } else {
-      _request(action, card: card);
+      _request(context, action, card: card);
     }
   }
 
   @override
-  Widget build(BuildContext context) => Directionality(
-    textDirection: TextDirection.rtl,
-    child: BlocBuilder<CardFeaturesCubit, CardFeaturesState>(
-      bloc: _cubit,
-      builder: (context, state) {
-        final footerAction = switch (state.category) {
-          CardCategory.gift => CardFeatureAction.expiredGiftBalance,
-          CardCategory.virtual => CardFeatureAction.requestVirtual,
-          _ => null,
-        };
-        return Scaffold(
-          backgroundColor: context.colors.surfaceSubtle,
-          body: SafeArea(
-            child: Column(
-              children: [
-                AppTopBar(
-                  title: context.l10n.dashboardCardsList,
-                  showLeadingActions: false,
-                  trailingIcon: cardFeatureIcon(
-                    AppAssets.cardFeaturesBack,
-                    size: 24,
-                  ),
-                  trailingTooltip: context.l10n.backLabel,
-                  onTrailingPressed: () => NavigationActions.back(context),
-                ),
-                Expanded(
-                  child: Stack(
-                    children: [
-                      Column(
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (providerContext) {
+        final cubit = CardFeaturesCubit(
+          repository: widget.repository ?? MockCardsRepository(),
+          initialCategory: widget.initialCategory,
+        );
+        _repositoryScope = cubit;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) _revealCategory(cubit);
+        });
+        return cubit..load();
+      },
+      child: Directionality(
+        textDirection: TextDirection.rtl,
+        child: BlocBuilder<CardFeaturesCubit, CardFeaturesState>(
+          builder: (context, state) {
+            final footerAction = switch (state.category) {
+              CardCategory.gift => CardFeatureAction.expiredGiftBalance,
+              CardCategory.virtual => CardFeatureAction.requestVirtual,
+              _ => null,
+            };
+            return Scaffold(
+              backgroundColor: context.colors.surfaceSubtle,
+              body: SafeArea(
+                child: Column(
+                  children: [
+                    AppTopBar(
+                      title: S.current.dashboardCardsList,
+                      showLeadingActions: false,
+                      trailingIcon: cardFeatureIcon(
+                        AppAssets.cardFeaturesBack,
+                        size: 24,
+                      ),
+                      trailingTooltip: S.current.backLabel,
+                      onTrailingPressed: () => NavigationActions.back(context),
+                    ),
+                    Expanded(
+                      child: Stack(
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.only(top: 12),
-                            child: SingleChildScrollView(
-                              key: const Key('card_features_categories'),
-                              controller: _chips,
-                              scrollDirection: Axis.horizontal,
-                              padding: const EdgeInsetsDirectional.only(
-                                start: 16,
-                                end: 0,
-                                top: 4,
-                                bottom: 4,
-                              ),
-                              child: Row(
-                                children: [
-                                  for (final category
-                                      in CardCategory.values) ...[
-                                    if (category != CardCategory.resalat)
-                                      const SizedBox(width: 12),
-                                    KeyedSubtree(
-                                      key: _chipKeys[category],
-                                      child: AppChips(
-                                        key: Key(
-                                          'card_category_${category.name}',
+                          Column(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(top: 12),
+                                child: SingleChildScrollView(
+                                  key: const Key('card_features_categories'),
+                                  controller: _chips,
+                                  scrollDirection: Axis.horizontal,
+                                  padding: const EdgeInsetsDirectional.only(
+                                    start: 16,
+                                    end: 0,
+                                    top: 4,
+                                    bottom: 4,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      for (final category
+                                          in CardCategory.values) ...[
+                                        if (category != CardCategory.resalat)
+                                          const SizedBox(width: 12),
+                                        KeyedSubtree(
+                                          key: _chipKeys[category],
+                                          child: AppChips(
+                                            key: Key(
+                                              'card_category_${category.name}',
+                                            ),
+                                            label: categoryLabel(
+                                              context,
+                                              category,
+                                            ),
+                                            labelStyle: category.index >= 3
+                                                ? AppTypography.labelLarge
+                                                      .copyWith(
+                                                        color: context
+                                                            .colors
+                                                            .textSecondary,
+                                                      )
+                                                : null,
+                                            selected:
+                                                state.category == category,
+                                            onPressed: () {
+                                              context
+                                                  .read<CardFeaturesCubit>()
+                                                  .selectCategory(category);
+                                              _revealCategory(context.read<CardFeaturesCubit>());
+                                            },
+                                          ),
                                         ),
-                                        label: categoryLabel(context, category),
-                                        labelStyle: category.index >= 3
-                                            ? AppTypography.labelLarge.copyWith(
-                                                color: context
-                                                    .colors
-                                                    .textSecondary,
-                                              )
-                                            : null,
-                                        selected: state.category == category,
-                                        onPressed: () {
-                                          _cubit.selectCategory(category);
-                                          _revealCategory();
-                                        },
+                                      ],
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                ),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: AppSearchField(
+                                        key: const Key('card_features_search'),
+                                        controller: _search,
+                                        hintText: S.current.dashboardSearchHint,
+                                        hintColor:
+                                            AppCardFeatureColors.searchHint,
+                                        focusRing: AppTextFieldFocusRing.none,
+                                        textStyle: AppTypography.bodyMedium
+                                            .copyWith(
+                                              height: 20 / 14,
+                                              letterSpacing: 0,
+                                            ),
+                                        searchIcon: cardFeatureIcon(
+                                          AppAssets.cardFeaturesSearch,
+                                        ),
+                                        clearIcon: cardFeatureIcon(
+                                          AppAssets.dashboardSearchClear,
+                                        ),
+                                        onChanged: context
+                                            .read<CardFeaturesCubit>()
+                                            .search,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    AppButton(
+                                      key: const Key(
+                                        'card_features_filter_button',
+                                      ),
+                                      onPressed: () => showCardFilter(
+                                        context,
+                                        context.read<CardFeaturesCubit>(),
+                                      ),
+                                      size: AppButtonSize.lg,
+                                      backgroundColor:
+                                          AppCardFeatureColors.filterButton,
+                                      tooltip: S.current.cardFeatureFilter,
+                                      icon: cardFeatureIcon(
+                                        AppAssets.cardFeaturesFilter,
                                       ),
                                     ),
                                   ],
-                                ],
+                                ),
                               ),
+                              const SizedBox(height: 16),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                ),
+                                child: Image.asset(
+                                  AppAssets.cardFeaturesSeparator,
+                                  height: 1,
+                                  width: double.infinity,
+                                  fit: BoxFit.fill,
+                                ),
+                              ),
+                              const SizedBox(height: 15),
+                              Expanded(
+                                child: CardFeaturesContent(
+                                  hasFooter: footerAction != null,
+                                  onMore: (card) => _more(context, card),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Positioned(
+                            left: 16,
+                            bottom: footerAction == null ? 16 : 76,
+                            child: AppAssistantButton(
+                              key: const Key('card_features_assistant'),
+                              onPressed:
+                                  widget.onAssistantPressed ??
+                                  () => NavigationActions.back(context),
                             ),
                           ),
-                          const SizedBox(height: 12),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: AppSearchField(
-                                    key: const Key('card_features_search'),
-                                    controller: _search,
-                                    hintText: context.l10n.dashboardSearchHint,
-                                    hintColor: AppCardFeatureColors.searchHint,
-                                    focusRing: AppTextFieldFocusRing.none,
-                                    textStyle: AppTypography.bodyMedium
+                          if (footerAction != null)
+                            Positioned(
+                              left: 0,
+                              right: 0,
+                              bottom: 0,
+                              child: ColoredBox(
+                                color: context.colors.surface,
+                                child: Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                    16,
+                                    0,
+                                    16,
+                                    16,
+                                  ),
+                                  child: AppButton(
+                                    key: const Key('card_features_footer'),
+                                    size: AppButtonSize.lg,
+                                    label: actionLabel(context, footerAction),
+                                    labelStyle: AppTypography.titleMedium
                                         .copyWith(
-                                          height: 20 / 14,
+                                          height: 24 / 16,
                                           letterSpacing: 0,
                                         ),
-                                    searchIcon: cardFeatureIcon(
-                                      AppAssets.cardFeaturesSearch,
+                                    contentGap: 10,
+                                    constrainLabel: true,
+                                    leadingIcon: cardFeatureIcon(
+                                      actionAsset(footerAction),
                                     ),
-                                    clearIcon: cardFeatureIcon(
-                                      AppAssets.dashboardSearchClear,
-                                    ),
-                                    onChanged: _cubit.search,
+                                    onPressed: () =>
+                                        _request(context, footerAction),
                                   ),
                                 ),
-                                const SizedBox(width: 8),
-                                AppButton(
-                                  key: const Key('card_features_filter_button'),
-                                  onPressed: () =>
-                                      showCardFilter(context, _cubit),
-                                  size: AppButtonSize.lg,
-                                  backgroundColor:
-                                      AppCardFeatureColors.filterButton,
-                                  tooltip: context.l10n.cardFeatureFilter,
-                                  icon: cardFeatureIcon(
-                                    AppAssets.cardFeaturesFilter,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: Image.asset(
-                              AppAssets.cardFeaturesSeparator,
-                              height: 1,
-                              width: double.infinity,
-                              fit: BoxFit.fill,
-                            ),
-                          ),
-                          const SizedBox(height: 15),
-                          Expanded(
-                            child: _content(
-                              context,
-                              state,
-                              footerAction != null,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Positioned(
-                        left: 16,
-                        bottom: footerAction == null ? 16 : 76,
-                        child: AppAssistantButton(
-                          key: const Key('card_features_assistant'),
-                          onPressed:
-                              widget.onAssistantPressed ??
-                              () => NavigationActions.back(context),
-                        ),
-                      ),
-                      if (footerAction != null)
-                        Positioned(
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          child: ColoredBox(
-                            color: context.colors.surface,
-                            child: Padding(
-                              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                              child: AppButton(
-                                key: const Key('card_features_footer'),
-                                size: AppButtonSize.lg,
-                                label: actionLabel(context, footerAction),
-                                labelStyle: AppTypography.titleMedium.copyWith(
-                                  height: 24 / 16,
-                                  letterSpacing: 0,
-                                ),
-                                contentGap: 10,
-                                constrainLabel: true,
-                                leadingIcon: cardFeatureIcon(
-                                  actionAsset(footerAction),
-                                ),
-                                onPressed: () => _request(footerAction),
                               ),
                             ),
-                          ),
-                        ),
-                    ],
-                  ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-        );
-      },
-    ),
-  );
-  Widget _content(
-    BuildContext context,
-    CardFeaturesState state,
-    bool hasFooter,
-  ) {
-    if (state.status == RequestStatus.loading ||
-        state.status == RequestStatus.initial) {
-      return Center(
-        child: AppButton(
-          onPressed: null,
-          label: context.l10n.dashboardLoading,
-          isLoading: true,
+              ),
+            );
+          },
         ),
-      );
-    }
-    if (state.status == RequestStatus.failure) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(context.l10n.dashboardLoadError),
-            AppButton(
-              key: const Key('card_features_retry'),
-              onPressed: _cubit.load,
-              label: context.l10n.dashboardRetry,
-            ),
-          ],
-        ),
-      );
-    }
-    final cards = state.visibleCards;
-    if (cards.isEmpty) {
-      return Center(
-        child: Text(
-          state.cards?.isEmpty == true
-              ? context.l10n.cardsEmpty
-              : context.l10n.cardFeatureNoResults,
-        ),
-      );
-    }
-    return ListView.separated(
-      key: const Key('card_features_list'),
-      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-      padding: EdgeInsets.fromLTRB(16, 0, 16, hasFooter ? 120 : 70),
-      itemCount: cards.length,
-      separatorBuilder: (_, index) => const SizedBox(height: 10),
-      itemBuilder: (context, index) => AppCardsList(
-        key: ValueKey('listed_card_${cards[index].id}'),
-        type: listType(state.category),
-        coloredHeader: true,
-        cardIcon: cardCategoryIcon(state.category),
-        title: categoryLabel(context, state.category),
-        cardNumber: cards[index].number,
-        linkedDeposit: cards[index].linkedDeposit,
-        cardNumberLabel: context.l10n.cardFeatureNumber,
-        linkedDepositLabel: context.l10n.cardFeatureDeposit,
-        onMoreTap: () => _more(cards[index]),
       ),
     );
   }

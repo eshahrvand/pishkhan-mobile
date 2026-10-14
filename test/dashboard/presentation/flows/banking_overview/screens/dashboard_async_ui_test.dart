@@ -1,3 +1,5 @@
+import 'package:flutter_localizations/flutter_localizations.dart';
+
 import '../../../../../support/router_test_app.dart';
 
 import 'dart:async';
@@ -16,15 +18,20 @@ import 'package:pishkhan_mobile/features/dashboard/data/datasources/dashboard_mo
 import 'package:pishkhan_mobile/features/dashboard/presentation/home/screens/cards_tab.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/home/screens/deposits_tab.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/home/screens/loans_tab.dart';
-import 'package:pishkhan_mobile/l10n/l10n.dart';
+import 'package:pishkhan_mobile/generated/l10n.dart';
 
 import '../../../../support/dashboard_test_repositories.dart';
 
 Widget subject(Widget child) => TestRouterApp(
   theme: AppTheme.light(),
   locale: const Locale('fa'),
-  supportedLocales: AppLocalizations.supportedLocales,
-  localizationsDelegates: AppLocalizations.localizationsDelegates,
+  supportedLocales: S.delegate.supportedLocales,
+  localizationsDelegates: const [
+    S.delegate,
+    GlobalMaterialLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+  ],
   home: child,
 );
 void main() {

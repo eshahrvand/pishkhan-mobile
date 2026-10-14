@@ -1,14 +1,8 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:pishkhan_mobile/core/enums/request_status.dart';
-import 'package:pishkhan_mobile/core/result/failure.dart';
-
-import '../../../domain/entities/virtual_card_data.dart';
-
-part 'virtual_card_state.freezed.dart';
+part of 'virtual_card_cubit.dart';
 
 @freezed
 abstract class VirtualCardState with _$VirtualCardState {
-  const factory VirtualCardState({
+  const factory VirtualCardState.initial({
     int? count,
     @Default(false) bool validCount,
     @Default(false) bool editable,

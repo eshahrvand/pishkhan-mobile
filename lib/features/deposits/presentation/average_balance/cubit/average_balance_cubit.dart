@@ -1,3 +1,8 @@
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:pishkhan_mobile/core/result/failure.dart';
+
+import '../../../domain/entities/listed_deposit.dart';
+
 import 'dart:math';
 
 import 'package:avp_ui/avp_ui.dart';
@@ -9,14 +14,15 @@ import 'package:pishkhan_mobile/core/validators/postal_code_validator.dart';
 import '../../../domain/entities/certificate_data.dart';
 import '../../../domain/repositories/deposit_certificates_repository.dart';
 import '../../../domain/usecases/average_balance.dart';
-import 'average_balance_state.dart';
-export 'average_balance_state.dart';
+
+part 'average_balance_state.dart';
+part 'average_balance_cubit.freezed.dart';
 
 class AverageBalanceCubit extends Cubit<AverageBalanceState> {
   AverageBalanceCubit({
     required this.repository,
     this.initialDepositNumber,
-    AverageBalanceState initialState = const AverageBalanceState(),
+    AverageBalanceState initialState = const AverageBalanceState.initial(),
   }) : super(initialState);
   final DepositCertificatesRepository repository;
   final String? initialDepositNumber;

@@ -1,7 +1,7 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pishkhan_mobile/l10n/l10n.dart';
+import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_bottom_sheet_header.dart';
 
@@ -34,14 +34,14 @@ class DepositActionsSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final labels = [
-      context.l10n.depositListAccountDetails,
-      context.l10n.depositListLinkedCards,
-      context.l10n.depositListStatement,
-      context.l10n.financialCertificate,
-      context.l10n.depositListSms,
-      context.l10n.depositsRepresentative,
-      context.l10n.depositListBlock,
-      context.l10n.depositsLinkedLoans,
+      S.current.depositListAccountDetails,
+      S.current.depositListLinkedCards,
+      S.current.depositListStatement,
+      S.current.financialCertificate,
+      S.current.depositListSms,
+      S.current.depositsRepresentative,
+      S.current.depositListBlock,
+      S.current.depositsLinkedLoans,
     ];
     const assets = [
       AppAssets.cardFeaturesInfo,

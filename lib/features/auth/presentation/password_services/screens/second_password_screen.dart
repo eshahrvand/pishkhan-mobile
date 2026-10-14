@@ -1,6 +1,14 @@
+import 'package:avp_ui/avp_ui.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:pishkhan_mobile/generated/l10n.dart';
+import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
+import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
+
+import '../widgets/password_flow_content.dart';
+import '../widgets/password_flow_footer.dart';
+
 import 'dart:async';
 
-import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -12,7 +20,6 @@ import 'package:pishkhan_mobile/features/auth/domain/repositories/password_servi
 import 'package:pishkhan_mobile/features/auth/presentation/password_services/cubit/second_password_cubit.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/password_services/password_service_constants.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/password_services/widgets/password_sheets.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/password_services/widgets/second_password_view.dart';
 
 class SecondPasswordScreen extends StatefulWidget {
   const SecondPasswordScreen({
@@ -37,22 +44,14 @@ class SecondPasswordScreen extends StatefulWidget {
 }
 
 class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
-  late SecondPasswordCubit cubit;
   VideoPlayerController? video;
   bool _sheetOpen = false;
   @override
   void initState() {
     super.initState();
-    _createCubit();
     _createVideo();
   }
 
-  void _createCubit() => cubit = SecondPasswordCubit(
-    initialState: const SecondPasswordState(),
-    repository: widget.repository ?? MockPasswordServicesRepository(),
-    initialCardNumber: widget.initialCardNumber,
-    selectOperation: widget.selectOperation,
-  )..load();
   void _createVideo() => video =
       widget.videoController ??
       (widget.instructionVideoUrl == null
@@ -63,12 +62,7 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
   @override
   void didUpdateWidget(SecondPasswordScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.repository != widget.repository ||
-        oldWidget.initialCardNumber != widget.initialCardNumber ||
-        oldWidget.selectOperation != widget.selectOperation) {
-      cubit.close();
-      _createCubit();
-    }
+
     if (oldWidget.instructionVideoUrl != widget.instructionVideoUrl ||
         oldWidget.videoController != widget.videoController) {
       if (oldWidget.videoController == null) video?.dispose();
@@ -78,27 +72,29 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
 
   @override
   void dispose() {
-    cubit.close();
     if (widget.videoController == null) video?.dispose();
     super.dispose();
   }
 
-  Future<void> _back() async {
-    if (cubit.state.checkStatus == RequestStatus.loading ||
-        cubit.state.submissionStatus == RequestStatus.loading) {
+  Future<void> _back(BuildContext context) async {
+    if (context.read<SecondPasswordCubit>().state.checkStatus ==
+            RequestStatus.loading ||
+        context.read<SecondPasswordCubit>().state.submissionStatus ==
+            RequestStatus.loading) {
       return;
     }
-    if (_fullStatus(cubit.state)) {
+    if (_fullStatus(context.read<SecondPasswordCubit>().state)) {
       NavigationActions.back(context);
       return;
     }
-    if (cubit.back()) return;
-    if (cubit.state.submissionStatus != RequestStatus.success &&
-        cubit.state.selectionComplete) {
+    if (context.read<SecondPasswordCubit>().back()) return;
+    if (context.read<SecondPasswordCubit>().state.submissionStatus !=
+            RequestStatus.success &&
+        context.read<SecondPasswordCubit>().state.selectionComplete) {
       final leave = await showPasswordExitDialog(context);
-      if (leave != true || !mounted) return;
+      if (leave != true || !context.mounted) return;
     }
-    if (mounted) NavigationActions.back(context);
+    if (context.mounted) NavigationActions.back(context);
   }
 
   bool _fullStatus(SecondPasswordState state) =>
@@ -106,9 +102,9 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
       state.record != null &&
       state.submissionStatus != RequestStatus.success;
 
-  Future<void> _record(SecondPasswordState state) async {
+  Future<void> _record(BuildContext context, SecondPasswordState state) async {
     if (_fullStatus(state)) return;
-    if (_sheetOpen || state.record == null || !mounted) return;
+    if (_sheetOpen || state.record == null || !context.mounted) return;
     _sheetOpen = true;
     final submitted = state.submissionStatus == RequestStatus.success;
     if (submitted) widget.onSubmitted?.call(state.record!);
@@ -119,38 +115,111 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
       operation: state.operation!,
     );
     _sheetOpen = false;
-    if (!mounted) return;
+    if (!context.mounted) return;
     if (submitted) {
       NavigationActions.returnHome(context);
     } else {
-      cubit.dismissRecord();
+      context.read<SecondPasswordCubit>().dismissRecord();
     }
   }
 
   @override
-  Widget build(BuildContext context) => BlocProvider.value(
-    value: cubit,
-    child: Directionality(
-      textDirection: TextDirection.rtl,
-      child: BlocListener<SecondPasswordCubit, SecondPasswordState>(
-        listenWhen: (previous, state) =>
-            previous.record != state.record ||
-            previous.submissionStatus != state.submissionStatus,
-        listener: (context, state) => _record(state),
-        child: PopScope<void>(
-          canPop: false,
-          onPopInvokedWithResult: (didPop, _) {
-            if (!didPop) _back();
-          },
-          child: SecondPasswordView(
-            selectOperation: widget.selectOperation,
-            video: video,
-            instructionVideoUrl: widget.instructionVideoUrl,
-            onTermsRequested: widget.onTermsRequested,
-            onBack: _back,
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      // These existing entry parameters intentionally restart the flow when changed.
+      key: ValueKey((
+        widget.repository,
+        widget.initialCardNumber,
+        widget.selectOperation,
+      )),
+      create: (context) => SecondPasswordCubit(
+        repository: widget.repository ?? MockPasswordServicesRepository(),
+        initialCardNumber: widget.initialCardNumber,
+        selectOperation: widget.selectOperation,
+      )..load(),
+      child: Directionality(
+        textDirection: TextDirection.rtl,
+        child: BlocListener<SecondPasswordCubit, SecondPasswordState>(
+          listenWhen: (previous, state) =>
+              previous.record != state.record ||
+              previous.submissionStatus != state.submissionStatus,
+          listener: (context, state) => _record(context, state),
+          child: BlocBuilder<SecondPasswordCubit, SecondPasswordState>(
+            buildWhen: (previous, current) =>
+                previous.isChange != current.isChange ||
+                previous.step != current.step,
+            builder: (context, state) {
+              return PopScope<void>(
+                canPop: false,
+                onPopInvokedWithResult: (didPop, _) {
+                  if (!didPop) _back(context);
+                },
+                child: Scaffold(
+                  backgroundColor: Colors.transparent,
+                  body: Stack(
+                    children: [
+                      Positioned.fill(
+                        child:
+                            BlocBuilder<
+                              SecondPasswordCubit,
+                              SecondPasswordState
+                            >(
+                              buildWhen: (previous, current) =>
+                                  previous.isChange != current.isChange ||
+                                  previous.step != current.step,
+                              builder: (context, state) => ColoredBox(
+                                color:
+                                    (state.isChange ||
+                                        (widget.selectOperation &&
+                                            state.step ==
+                                                SecondPasswordStep.selection) ||
+                                        state.step.index >=
+                                            SecondPasswordStep
+                                                .instruction
+                                                .index)
+                                    ? context.colors.surface
+                                    : context.colors.surfaceSubtle,
+                              ),
+                            ),
+                      ),
+                      SafeArea(
+                        child: Column(
+                          children: [
+                            AppTopBar(
+                              title: S.current.passwordTitle,
+                              showLeadingActions: false,
+                              trailingIcon: SizedBox.square(
+                                dimension: 24,
+                                child: SvgPicture.asset(
+                                  AppAssets.cardFeaturesBack,
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
+                              trailingTooltip: S.current.backLabel,
+                              onTrailingPressed: () => _back(context),
+                            ),
+                            Expanded(
+                              child: PasswordFlowContent(
+                                selectOperation: widget.selectOperation,
+                                video: video,
+                                instructionVideoUrl: widget.instructionVideoUrl,
+                              ),
+                            ),
+                            PasswordFlowFooter(
+                              onTermsRequested: widget.onTermsRequested,
+                              onBack: () => _back(context),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
           ),
         ),
       ),
-    ),
-  );
+    );
+  }
 }

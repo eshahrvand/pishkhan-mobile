@@ -1,16 +1,15 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:pishkhan_mobile/core/enums/request_status.dart';
-import 'package:pishkhan_mobile/core/result/failure.dart';
-
-import '../../../domain/entities/password_data.dart';
-
-part 'second_password_state.freezed.dart';
+part of 'second_password_cubit.dart';
 
 enum SecondPasswordStep { selection, password, serial, instruction, recording }
 
 @Freezed(toStringOverride: false)
 abstract class SecondPasswordState with _$SecondPasswordState {
-  const factory SecondPasswordState({
+  const factory SecondPasswordState.initial({
+    @Default(false) bool showPassword,
+    @Default(false) bool showConfirmation,
+    @Default(false) bool showCurrentPassword,
+    @Default(false) bool isConfirmationError,
+    @Default(false) bool isSerialError,
     @Default(false) bool editable,
     @Default(false) bool isChange,
     @Default(true) bool currentPasswordComplete,

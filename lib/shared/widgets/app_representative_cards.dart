@@ -26,17 +26,19 @@ class AppMeAsRepresentativeCard extends StatelessWidget {
   final VoidCallback? onMorePressed;
 
   @override
-  Widget build(BuildContext context) => _RepresentativeCard(
-    key: const Key('app_me_as_representative_card'),
-    title: depositNumber,
-    status: status,
-    onMorePressed: onMorePressed,
-    rows: [
-      (label: 'نوع نمایندگی', value: kind),
-      (label: 'نام صاحب سپرده', value: owner),
-      (label: 'تاریخ اعتبار', value: validUntil),
-    ],
-  );
+  Widget build(BuildContext context) {
+    return _RepresentativeCard(
+      key: const Key('app_me_as_representative_card'),
+      title: depositNumber,
+      status: status,
+      onMorePressed: onMorePressed,
+      rows: [
+        (label: 'نوع نمایندگی', value: kind),
+        (label: 'نام صاحب سپرده', value: owner),
+        (label: 'تاریخ اعتبار', value: validUntil),
+      ],
+    );
+  }
 }
 
 /// A representation the current user has granted to another person.
@@ -61,18 +63,20 @@ class AppMyRepresentativeCard extends StatelessWidget {
   final VoidCallback? onMorePressed;
 
   @override
-  Widget build(BuildContext context) => _RepresentativeCard(
-    key: const Key('app_my_representative_card'),
-    title: name,
-    secondary: identityNumber,
-    status: status,
-    onMorePressed: onMorePressed,
-    rows: [
-      (label: 'نوع نمایندگی', value: kind),
-      (label: 'سپرده', value: depositNumber),
-      (label: 'تاریخ اعتبار', value: validUntil),
-    ],
-  );
+  Widget build(BuildContext context) {
+    return _RepresentativeCard(
+      key: const Key('app_my_representative_card'),
+      title: name,
+      secondary: identityNumber,
+      status: status,
+      onMorePressed: onMorePressed,
+      rows: [
+        (label: 'نوع نمایندگی', value: kind),
+        (label: 'سپرده', value: depositNumber),
+        (label: 'تاریخ اعتبار', value: validUntil),
+      ],
+    );
+  }
 }
 
 class _RepresentativeCard extends StatelessWidget {

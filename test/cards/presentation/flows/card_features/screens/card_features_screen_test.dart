@@ -1,3 +1,5 @@
+import 'package:flutter_localizations/flutter_localizations.dart';
+
 import '../../../../../dashboard/support/dashboard_test_repositories.dart';
 import '../../../../../support/router_test_app.dart';
 
@@ -19,7 +21,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:pishkhan_mobile/features/cards/cards.dart';
 import 'package:pishkhan_mobile/features/cards/data/repositories/mock_cards_repository.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/home/screens/dashboard_screen.dart';
-import 'package:pishkhan_mobile/l10n/l10n.dart';
+import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_cards_list.dart';
 
 const boundary = Key('cards_flow_preview');
@@ -29,8 +31,13 @@ Widget subject(Widget home, {double scale = 1}) => RepaintBoundary(
     debugShowCheckedModeBanner: false,
     theme: AppTheme.light(),
     locale: const Locale('fa'),
-    supportedLocales: AppLocalizations.supportedLocales,
-    localizationsDelegates: AppLocalizations.localizationsDelegates,
+    supportedLocales: S.delegate.supportedLocales,
+    localizationsDelegates: const [
+      S.delegate,
+      GlobalMaterialLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+    ],
     builder: (context, child) => Directionality(
       textDirection: TextDirection.rtl,
       child: MediaQuery(

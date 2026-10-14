@@ -1,14 +1,8 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:pishkhan_mobile/core/enums/request_status.dart';
-import 'package:pishkhan_mobile/core/result/failure.dart';
-
-import '../../../domain/entities/card_service_data.dart';
-
-part 'change_card_deposit_state.freezed.dart';
+part of 'change_card_deposit_cubit.dart';
 
 @freezed
 abstract class ChangeCardDepositState with _$ChangeCardDepositState {
-  const factory ChangeCardDepositState({
+  const factory ChangeCardDepositState.initial({
     @Default(RequestStatus.initial) RequestStatus status,
     @Default(RequestStatus.initial) RequestStatus submissionStatus,
     CardServiceCatalog? catalog,

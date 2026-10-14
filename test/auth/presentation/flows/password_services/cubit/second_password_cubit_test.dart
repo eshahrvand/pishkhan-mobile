@@ -76,7 +76,7 @@ void main() {
   test(
     'Freezed password state never prints credentials, including after copyWith',
     () {
-      const state = SecondPasswordState(
+      const state = SecondPasswordState.initial(
         password: '829164',
         currentPassword: '5638',
         confirmation: '829164',

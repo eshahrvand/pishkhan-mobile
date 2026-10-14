@@ -1,18 +1,11 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:pishkhan_mobile/core/enums/request_status.dart';
-import 'package:pishkhan_mobile/core/result/failure.dart';
-
-import '../../../domain/entities/issuance_data.dart';
-import '../../../domain/entities/issuance_draft.dart';
-export '../../../domain/entities/issuance_draft.dart';
-
-part 'card_issuance_state.freezed.dart';
+part of 'card_issuance_cubit.dart';
 
 enum IssuanceStep { selection, delivery, confirmation }
 
 @freezed
 abstract class CardIssuanceState with _$CardIssuanceState {
-  const factory CardIssuanceState({
+  const factory CardIssuanceState.initial({
+    @Default(false) bool isAddressFormError,
     IssuanceDeposit? deposit,
     IssuanceAddress? address,
     @Default(false) bool selectionComplete,

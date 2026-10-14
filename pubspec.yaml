@@ -28,13 +28,14 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  characters: ^1.4.1
   flutter:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
 
   avp_ui:
-    path:  C:\Users\mahdi\StudioProjects\avp_ui
+    path:  /Users/mahdi/StudioProjects/avp_ui
 #    /Users/mahdi/StudioProjects/avp_ui
   flutter_svg: ^2.0.17
 
@@ -63,14 +64,20 @@ dev_dependencies:
   json_serializable: ^6.14.1
   retrofit_generator: ^10.2.11
   build_runner: ^2.16.2
+  intl_utils: ^2.8.2
+
+flutter_intl:
+  enabled: true
+  class_name: S
+  main_locale: fa
+  arb_dir: lib/l10n
+  output_dir: lib/generated
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
 # The following section is specific to Flutter packages.
 flutter:
-
-  generate: true
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in

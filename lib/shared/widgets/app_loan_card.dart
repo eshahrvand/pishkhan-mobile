@@ -94,7 +94,40 @@ class AppLoanCard extends StatelessWidget {
                   ),
                   child: Column(
                     children: [
-                      _loanNumberRow(),
+                      SizedBox(
+                        height: 22,
+                        child: Row(
+                          textDirection: TextDirection.ltr,
+                          children: [
+                            Expanded(
+                              child: Row(
+                                textDirection: TextDirection.ltr,
+                                children: [
+                                  Flexible(
+                                    child: Text(
+                                      loanNumber,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      textDirection: TextDirection.ltr,
+                                      style: _valueStyle,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  _copyButton(),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                'شماره تسهیلات',
+                                textAlign: TextAlign.right,
+                                style: _labelStyle,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                       const SizedBox(height: 12),
                       _amountRow(value: loanTotal, label: 'مبلغ وام'),
                       const SizedBox(height: 12),
@@ -103,7 +136,20 @@ class AppLoanCard extends StatelessWidget {
                         label: 'مبلغ هر قسط',
                       ),
                       const SizedBox(height: 12),
-                      _divider(),
+                      SizedBox(
+                        height: 0,
+                        width: double.infinity,
+                        child: OverflowBox(
+                          minHeight: 1,
+                          maxHeight: 1,
+                          child: SvgPicture.asset(
+                            _isSingle
+                                ? AppAssets.loanCardDividerSingle
+                                : AppAssets.loanCardDividerMulti,
+                            fit: BoxFit.fill,
+                          ),
+                        ),
+                      ),
                       const SizedBox(height: 12),
                       LayoutBuilder(
                         builder: (context, constraints) => AppProgressIndicator(
@@ -113,7 +159,56 @@ class AppLoanCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      _footer(),
+                      SizedBox(
+                        height: 22,
+                        child: Row(
+                          textDirection: TextDirection.ltr,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            SizedBox(
+                              width: 140,
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  textDirection: TextDirection.ltr,
+                                  children: [
+                                    Text(nextInstallment, style: _mediumStyle),
+                                    const SizedBox(width: 10),
+                                    Text('قسط بعدی', style: _footerLabelStyle),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Container(
+                              width: 1,
+                              height: 22,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF3F3F3),
+                                border: Border.all(color: AppPalette.gray100),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 133,
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  textDirection: TextDirection.ltr,
+                                  children: [
+                                    Text(installmentsPaid, style: _mediumStyle),
+                                    const SizedBox(width: 10),
+                                    Text(
+                                      'اقساط پرداخت شده',
+                                      style: _footerLabelStyle,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -124,41 +219,6 @@ class AppLoanCard extends StatelessWidget {
       ),
     );
   }
-
-  Widget _loanNumberRow() => SizedBox(
-    height: 22,
-    child: Row(
-      textDirection: TextDirection.ltr,
-      children: [
-        Expanded(
-          child: Row(
-            textDirection: TextDirection.ltr,
-            children: [
-              Flexible(
-                child: Text(
-                  loanNumber,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textDirection: TextDirection.ltr,
-                  style: _valueStyle,
-                ),
-              ),
-              const SizedBox(width: 8),
-              _copyButton(),
-            ],
-          ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Text(
-            'شماره تسهیلات',
-            textAlign: TextAlign.right,
-            style: _labelStyle,
-          ),
-        ),
-      ],
-    ),
-  );
 
   Widget _amountRow({required String value, required String label}) => SizedBox(
     height: 22,
@@ -186,69 +246,6 @@ class AppLoanCard extends StatelessWidget {
         const SizedBox(width: 10),
         Expanded(
           child: Text(label, textAlign: TextAlign.right, style: _labelStyle),
-        ),
-      ],
-    ),
-  );
-
-  Widget _divider() => SizedBox(
-    height: 0,
-    width: double.infinity,
-    child: OverflowBox(
-      minHeight: 1,
-      maxHeight: 1,
-      child: SvgPicture.asset(
-        _isSingle
-            ? AppAssets.loanCardDividerSingle
-            : AppAssets.loanCardDividerMulti,
-        fit: BoxFit.fill,
-      ),
-    ),
-  );
-
-  Widget _footer() => SizedBox(
-    height: 22,
-    child: Row(
-      textDirection: TextDirection.ltr,
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        SizedBox(
-          width: 140,
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              textDirection: TextDirection.ltr,
-              children: [
-                Text(nextInstallment, style: _mediumStyle),
-                const SizedBox(width: 10),
-                Text('قسط بعدی', style: _footerLabelStyle),
-              ],
-            ),
-          ),
-        ),
-        Container(
-          width: 1,
-          height: 22,
-          decoration: BoxDecoration(
-            color: const Color(0xFFF3F3F3),
-            border: Border.all(color: AppPalette.gray100),
-          ),
-        ),
-        SizedBox(
-          width: 133,
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              textDirection: TextDirection.ltr,
-              children: [
-                Text(installmentsPaid, style: _mediumStyle),
-                const SizedBox(width: 10),
-                Text('اقساط پرداخت شده', style: _footerLabelStyle),
-              ],
-            ),
-          ),
         ),
       ],
     ),

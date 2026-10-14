@@ -8,7 +8,7 @@ import 'package:pishkhan_mobile/features/auth/presentation/login/widgets/auth_id
 import 'package:pishkhan_mobile/features/auth/presentation/login/widgets/auth_otp_form.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/login/widgets/auth_services_sheet.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/shared/auth_assets.dart';
-import 'package:pishkhan_mobile/l10n/l10n.dart';
+import 'package:pishkhan_mobile/generated/l10n.dart';
 
 class AuthScreen extends StatelessWidget {
   const AuthScreen({
@@ -70,12 +70,13 @@ class AuthScreen extends StatelessWidget {
                 child: ColoredBox(color: colors.surface),
               ),
               SafeArea(
-                child: BlocSelector<AuthCubit, AuthState, AuthStep>(
-                  selector: (state) => state.step,
-                  builder: (context, step) {
+                child: BlocBuilder<AuthCubit, AuthState>(
+                  buildWhen: (previous, current) =>
+                      previous.step != current.step,
+                  builder: (context, state) {
                     final cubit = context.read<AuthCubit>();
                     return PopScope(
-                      canPop: step == AuthStep.login,
+                      canPop: state.step == AuthStep.login,
                       onPopInvokedWithResult: (didPop, result) {
                         if (!didPop) cubit.back();
                       },
@@ -106,18 +107,19 @@ class AuthScreen extends StatelessWidget {
                                     maxWidth: 343,
                                   ),
                                   child:
-                                      step == AuthStep.loginOtp ||
-                                          step == AuthStep.changePhoneOtp
+                                      state.step == AuthStep.loginOtp ||
+                                          state.step == AuthStep.changePhoneOtp
                                       ? AuthOtpForm(
                                           // Reset controllers when switching between login and change-phone OTP.
-                                          key: ValueKey(step),
+                                          key: ValueKey(state.step),
                                           onAuthenticated: onAuthenticated,
                                         )
                                       : AuthIdentityForm(
                                           // Reset controllers when switching between identity forms.
-                                          key: ValueKey(step),
+                                          key: ValueKey(state.step),
                                           changePhone:
-                                              step == AuthStep.changePhone,
+                                              state.step ==
+                                              AuthStep.changePhone,
                                         ),
                                 ),
                               ),
@@ -143,44 +145,46 @@ class AuthHeader extends StatelessWidget {
   final VoidCallback onMenu;
 
   @override
-  Widget build(BuildContext context) => SizedBox(
-    height: 56,
-    child: Stack(
-      children: [
-        PositionedDirectional(
-          start: 4,
-          top: 4,
-          child: AppButton(
-            onPressed: onMenu,
-            icon: SvgPicture.asset(AuthAssets.menu, width: 24, height: 24),
-            variant: AppButtonVariant.text,
-            size: AppButtonSize.xl,
-            semanticLabel: context.l10n.servicesMenuLabel,
-          ),
-        ),
-        PositionedDirectional(
-          end: 16,
-          top: 16,
-          child: SizedBox(
-            width: 22,
-            height: 24,
-            child: SvgPicture.asset(
-              AuthAssets.resalatLogo,
-              fit: BoxFit.contain,
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 56,
+      child: Stack(
+        children: [
+          PositionedDirectional(
+            start: 4,
+            top: 4,
+            child: AppButton(
+              onPressed: onMenu,
+              icon: SvgPicture.asset(AuthAssets.menu, width: 24, height: 24),
+              variant: AppButtonVariant.text,
+              size: AppButtonSize.xl,
+              semanticLabel: S.current.servicesMenuLabel,
             ),
           ),
-        ),
-        Positioned(
-          left: 0,
-          right: 0,
-          bottom: 0,
-          child: SvgPicture.asset(
-            AuthAssets.headerDivider,
-            height: .8,
-            fit: BoxFit.fill,
+          PositionedDirectional(
+            end: 16,
+            top: 16,
+            child: SizedBox(
+              width: 22,
+              height: 24,
+              child: SvgPicture.asset(
+                AuthAssets.resalatLogo,
+                fit: BoxFit.contain,
+              ),
+            ),
           ),
-        ),
-      ],
-    ),
-  );
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: SvgPicture.asset(
+              AuthAssets.headerDivider,
+              height: .8,
+              fit: BoxFit.fill,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:pishkhan_mobile/features/auth/domain/entities/password_data.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/password_services/widgets/password_styles.dart';
-import 'package:pishkhan_mobile/l10n/l10n.dart';
+import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_bottom_sheet_header.dart';
 
@@ -23,7 +23,7 @@ class PasswordRecordSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final change = operation == PasswordOperation.changePassword;
     final approved = record.status == PasswordRequestStatus.approved || change;
-    final l = context.l10n;
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -45,10 +45,10 @@ class PasswordRecordSheet extends StatelessWidget {
               ],
               Text(
                 approved
-                    ? l.passwordApprovedTitle
+                    ? S.current.passwordApprovedTitle
                     : newlySubmitted
-                    ? l.passwordSubmittedTitle
-                    : l.passwordPendingTitle,
+                    ? S.current.passwordSubmittedTitle
+                    : S.current.passwordPendingTitle,
                 textAlign: TextAlign.center,
                 style: passwordBody(context)
                     .copyWith(fontWeight: FontWeight.w600),
@@ -56,12 +56,12 @@ class PasswordRecordSheet extends StatelessWidget {
               const SizedBox(height: 20),
               Text(
                 change
-                    ? l.passwordChangeSuccessBody
+                    ? S.current.passwordChangeSuccessBody
                     : approved
-                    ? l.passwordApprovedBody
+                    ? S.current.passwordApprovedBody
                     : newlySubmitted
-                    ? l.passwordSubmittedBody
-                    : l.passwordPendingBody,
+                    ? S.current.passwordSubmittedBody
+                    : S.current.passwordPendingBody,
                 textAlign: approved || newlySubmitted
                     ? TextAlign.center
                     : TextAlign.start,
@@ -83,7 +83,7 @@ class PasswordRecordSheet extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          l.passwordTracking,
+                          S.current.passwordTracking,
                           style: Theme.of(context).textTheme.bodySmall!
                               .copyWith(
                                 color: context.colors.textTertiary,
@@ -106,7 +106,7 @@ class PasswordRecordSheet extends StatelessWidget {
               if (record.isMock) ...[
                 const SizedBox(height: 12),
                 Text(
-                  l.passwordMockReceipt,
+                  S.current.passwordMockReceipt,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodySmall!.copyWith(
                     color: context.colors.textTertiary,
@@ -121,7 +121,7 @@ class PasswordRecordSheet extends StatelessWidget {
           padding: const EdgeInsetsDirectional.fromSTEB(20, 0, 20, 24),
           child: AppButton(
             onPressed: () => context.pop(),
-            label: l.passwordUnderstood,
+            label: S.current.passwordUnderstood,
             size: AppButtonSize.lg,
             constrainLabel: true,
           ),
@@ -138,7 +138,7 @@ class PasswordStatusContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final approved = record.status == PasswordRequestStatus.approved;
-    final l = context.l10n;
+
     return Column(
       children: [
         SizedBox(
@@ -148,13 +148,17 @@ class PasswordStatusContent extends StatelessWidget {
         ),
         const SizedBox(height: 40),
         Text(
-          approved ? l.passwordApprovedTitle : l.passwordStatusRegisteredTitle,
+          approved
+              ? S.current.passwordApprovedTitle
+              : S.current.passwordStatusRegisteredTitle,
           textAlign: TextAlign.center,
           style: passwordBody(context).copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 20),
         Text(
-          approved ? l.passwordChangeSuccessBody : l.passwordSubmittedBody,
+          approved
+              ? S.current.passwordChangeSuccessBody
+              : S.current.passwordSubmittedBody,
           textAlign: TextAlign.center,
           style: passwordBody(context),
         ),
@@ -170,7 +174,7 @@ class PasswordStatusContent extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  l.passwordTracking,
+                  S.current.passwordTracking,
                   style: Theme.of(context).textTheme.bodySmall!.copyWith(
                     color: context.colors.textTertiary,
                     height: 18 / 12,
@@ -192,7 +196,7 @@ class PasswordStatusContent extends StatelessWidget {
         if (record.isMock) ...[
           const SizedBox(height: 12),
           Text(
-            l.passwordMockReceipt,
+            S.current.passwordMockReceipt,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodySmall!
                 .copyWith(color: context.colors.textTertiary, height: 18 / 12),

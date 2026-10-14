@@ -29,7 +29,7 @@ void main() {
         await subscription.cancel();
         await cubit.close();
       });
-      expect(cubit.state, const DashboardState());
+      expect(cubit.state, const DashboardState.initial());
       final first = Completer<Result<DashboardHomeData?>>();
       repository.requests.add(first);
       final load = cubit.load();
@@ -44,12 +44,15 @@ void main() {
       final failed = Completer<Result<DashboardHomeData?>>();
       repository.requests.add(failed);
       final reload = cubit.load();
-      expect(cubit.state, const DashboardState(status: RequestStatus.loading));
+      expect(
+        cubit.state,
+        const DashboardState.initial(status: RequestStatus.loading),
+      );
       failed.complete(const Err(DataFailure('offline')));
       await reload;
       expect(
         cubit.state,
-        const DashboardState(
+        const DashboardState.initial(
           status: RequestStatus.failure,
           failure: DataFailure('offline'),
         ),
@@ -58,30 +61,35 @@ void main() {
       final empty = Completer<Result<DashboardHomeData?>>();
       repository.requests.add(empty);
       final retry = cubit.load();
-      expect(cubit.state, const DashboardState(status: RequestStatus.loading));
+      expect(
+        cubit.state,
+        const DashboardState.initial(status: RequestStatus.loading),
+      );
       empty.complete(const Success(null));
       await retry;
       await Future<void>.delayed(Duration.zero);
       expect(states, [
-        const DashboardState(status: RequestStatus.loading),
-        DashboardState(status: RequestStatus.success, data: data),
-        DashboardState(
+        const DashboardState.initial(status: RequestStatus.loading),
+        DashboardState.initial(status: RequestStatus.success, data: data, activeFavorites: ['one']),
+        DashboardState.initial(
           status: RequestStatus.success,
           data: data,
           draft: ['one'],
+          activeFavorites: ['one'],
         ),
-        DashboardState(
+        DashboardState.initial(
           status: RequestStatus.success,
           data: data,
           draft: ['one', 'two'],
+          activeFavorites: ['one', 'two'],
         ),
-        const DashboardState(status: RequestStatus.loading),
-        const DashboardState(
+        const DashboardState.initial(status: RequestStatus.loading),
+        const DashboardState.initial(
           status: RequestStatus.failure,
           failure: DataFailure('offline'),
         ),
-        const DashboardState(status: RequestStatus.loading),
-        const DashboardState(status: RequestStatus.success),
+        const DashboardState.initial(status: RequestStatus.loading),
+        const DashboardState.initial(status: RequestStatus.success),
       ]);
     },
   );
