@@ -41,7 +41,7 @@
 * **Presentation separated from validation:** display formatters live in the `avp_ui` package; pure validators live in `core/validators`.
 * **Independent design system:** visual components, theming, tokens, and shared widgets reside in the standalone `packages/avp_ui`.
 * **Single source of truth for the data contract:** the bank's OpenAPI specification is the shared basis for both the app and the Agent layer, preventing divergence between the traditional form path and the conversational path.
-* **Team scalability:** parallel development by multiple engineers without collisions, enforced by module boundaries at the lint level.
+* **Team scalability:** parallel development by multiple engineers without collisions, enforced by feature boundaries at the lint level.
 * **Platform-appropriate security:** one security policy with different implementations on Android, iOS, and Web, backed by an explicit capability matrix.
 * **Configurable security decisions:** adjustable thresholds and policies (timeout, device risk, sensitive services) are externalized from code and served remotely.
 * **Targeted testability:** full coverage of pure logic and mappers, without imposing unnecessary cost on the UI layer.
@@ -94,7 +94,7 @@ Users can obtain services through two paths:
 | Layer / Concern | Chosen Solution | Rationale |
 |---|---|---|
 | **State Management** | `flutter_bloc` (Cubit) | Minimal boilerplate, high testability, simple mental model |
-| **Immutability** | Native Dart 3 `sealed class` + `freezed` (limited) | Reduced code generation; freezed reserved for form states |
+| **Immutability (Cubit states)** | `freezed` for all Cubit states, with a shared `RequestStatus` enum from `core/enums/` | Single uniform pattern; one state class per Cubit; generated `copyWith`, `==`, `hashCode` |
 | **UI Package** | `packages/avp_ui` (local package) | Independent design system: tokens, theme, widgets, formatters |
 | **Pure Validators** | `app/lib/core/validators` | Pure validation (Luhn, IBAN, national ID) with no Flutter dependency |
 | **Network Client** | `dio` + `retrofit` | Type-safe, advanced interceptors |
@@ -107,6 +107,26 @@ Users can obtain services through two paths:
 | **Dates** | Jalali calendar in the presentation layer | Domain always uses Gregorian/UTC |
 | **Linting** | `very_good_analysis` + `custom_lint` | Architectural rules enforced at error level |
 | **Testing** | `test`, `bloc_test`, `mocktail` | Mocking without code generation |
+
+### 3.1 Code Generation Package Versions
+
+The following versions are the latest available at the time of writing. `freezed`, `json_serializable`, and `retrofit_generator` share the same analyzer / `build_runner` toolchain, and mismatched versions between them are a known source of dependency conflicts during code generation. They are therefore pinned together as one set:
+
+```yaml
+dependencies:
+   freezed_annotation: ^3.1.0
+   json_annotation: ^4.12.0
+   retrofit: ^4.10.0
+
+dev_dependencies:
+   build_runner: ^2.16.2
+   freezed: ^4.0.2
+   json_serializable: ^6.14.1
+   retrofit_generator: ^10.2.11
+```
+
+> [!IMPORTANT]
+> These versions must be updated **as a set** whenever the Flutter / Dart version changes. Upgrading any one of them in isolation is not permitted; the whole set is re-resolved and verified with a full `build_runner` run before the change is merged. Because the Flutter version is locked for the duration of the project (Section 4.1), this set changes only together with an approved Flutter upgrade.
 
 ---
 
@@ -210,16 +230,17 @@ graph TD
 
 ### 6.1 Granularity Principle: Feature = Service Category
 
-With 80+ services, creating a three-layer module per service would produce 80 folders and 240 sub-layers, making maintenance cost, code generation volume, and DI complexity unmanageable.
+With 80+ services, creating a three-layer feature per service would produce 80 folders and 240 sub-layers, making maintenance cost, code generation volume, and DI complexity unmanageable.
 
-**Decision:** the unit of modularization is the **service category**, not the individual service. Related services share entities and repositories; each service has its own use case and its own presentation flow.
+**Decision:** the unit of modularization is the **service category**, not the individual service. Related services share entities and repositories; each service has its own use case and its own presentation folder.
 
 ### 6.2 Module List
 
 | Module | Scope |
 |---|---|
 | `auth` | Login, OTP, password, biometrics, password change |
-| `shell` | Home screens, navigation, service catalog and search, onboarding |
+| `launch` | Splash, onboarding (planned, not yet specified), and the screens that route guards redirect to |
+| `dashboard` | Home screens, bottom navigation, service catalog and search |
 | `cards` | Card services |
 | `deposits` | Deposit and account services |
 | `loans` | Facility services |
@@ -237,12 +258,12 @@ With 80+ services, creating a three-layer module per service would produce 80 fo
 
 ### 6.3 Decision: Folders Instead of Packages
 
-Modules are implemented as **folders** under `app/lib/features/`, not as standalone packages with `melos`. Rationale: lower setup complexity and learning curve for a four-person team.
+Features are implemented as **folders** under `app/lib/features/`, not as standalone packages with `melos`. Rationale: lower setup complexity and learning curve for a four-person team.
 
 Three safeguards this decision removes, which must be compensated for:
 
 1. **Import boundaries:** enforced by a `custom_lint` rule (Section 17.4).
-2. **Git conflict hotspots:** resolved by distributing routes and constants into modules and by automatic DI registration.
+2. **Git conflict hotspots:** resolved by distributing routes and constants into features and by automatic DI registration.
 3. **Code generation speed:** addressed by narrowing generator scope and limiting `freezed` usage (Section 12.3).
 
 ### 6.4 Directory Tree
@@ -324,8 +345,11 @@ pishkhan_project/
         │   │   └── push_service.dart          # Interface + platform implementations
         │   ├── cubit/
         │   │   └── base_cubit.dart
+        │   ├── enums/
+        │   │   └── request_status.dart        # Shared enums (request lifecycle status)
         │   └── router/
         │       ├── app_router.dart
+        │       ├── app_routes.dart            # All route path constants (Section 15.3)
         │       └── guards/
         │           ├── security_guard.dart
         │           ├── update_guard.dart
@@ -336,10 +360,14 @@ pishkhan_project/
         │
         └── features/
             ├── cards/
+            │   ├── cards_routes.dart    # Route constants + route definitions
+            │   │
             │   ├── domain/
             │   │   ├── entities/
             │   │   ├── repositories/
-            │   │   └── usecases/
+            │   │   └── usecases/        # One file per service use case
+            │   │       ├── block_card.dart
+            │   │       └── issue_card.dart
             │   ├── data/
             │   │   ├── datasources/
             │   │   ├── models/
@@ -347,14 +375,16 @@ pishkhan_project/
             │   │   │   └── ...
             │   │   ├── mappers/
             │   │   └── repositories/
-            │   ├── presentation/
-            │   │   ├── flows/           # One sub-folder per service
-            │   │   │   └── block_card/
-            │   │   │       ├── cubit/
-            │   │   │       ├── screens/
-            │   │   │       └── widgets/
-            │   │   └── shared/          # Widgets shared within this category
-            │   └── cards_routes.dart    # Route constants + route definitions
+            │   └── presentation/
+            │       ├── block_card/      # One sub-folder per service
+            │       │   ├── cubit/
+            │       │   ├── screens/
+            │       │   └── widgets/
+            │       ├── issue_card/
+            │       │   ├── cubit/
+            │       │   ├── screens/
+            │       │   └── widgets/
+            │       └── shared/          # Widgets shared within this category
             │
             ├── loans/
             ├── deposits/
@@ -363,6 +393,15 @@ pishkhan_project/
             ├── assistant/
             └── ...
 ```
+
+### 6.5 Service Placement and Naming
+
+Following the granularity principle (Section 6.1):
+
+1. **The top-level folders under `app/lib/features/` are exactly the features listed in Section 6.2.** A service never gets its own top-level folder; it lives inside the feature of its category (for example, card issuance and virtual card services live inside `cards`).
+2. **Entities, repositories, mappers, and DTOs stay at the feature level** and are shared by the services of that feature. The use case and the presentation flow are per service.
+3. **Each service uses one folder name** (`snake_case`, English), identical in `domain/usecases/<service>.dart` and `presentation/<service>/`.
+4. **`presentation/<service>/` holds only the UI layer of that service** (`cubit/`, `screens/`, `widgets/`); its use cases live in the same-named file under `domain/usecases/`, and entities and repositories live at the feature level. A service with no domain logic (for example, a catalog screen) has only the presentation folder.
 
 ---
 
@@ -399,15 +438,15 @@ graph TD
 | Domain imports nothing from Flutter or the UI package | `custom_lint` |
 | DTOs never enter the Domain layer; conversion only in `mappers/` | Review + folder structure |
 | `dio` and `DioException` are prohibited outside `data/` | `custom_lint` |
-| No feature module imports another feature module | `custom_lint` |
+| No feature imports another feature | `custom_lint` |
 | Every entity and every model inside a state must be `Equatable` | `custom_lint` |
 
-### 7.2 Inter-Module Communication
+### 7.2 Inter-Feature Communication
 
-Modules do not talk to each other directly. Three permitted paths:
+Features do not talk to each other directly. Three permitted paths:
 
 1. **Through `core`:** shared services (network, security, configuration).
-2. **Through the router:** opening another module's flow via `ServiceRegistry` (Section 8.2).
+2. **Through the router:** opening another feature's flow via `ServiceRegistry` (Section 8.2).
 3. **Through `requests`:** any submitted request appears in the shared list.
 
 ### 7.3 Pure Validators
@@ -507,7 +546,7 @@ A flow may have any internal structure, but must:
 * produce a `FlowOutcome`;
 * support the `resume` parameter if it is resumable (Section 8.4).
 
-Three consumers of this contract: `shell` (service catalog), `requests` (resumption), `assistant` (fallback from conversation to the traditional interface).
+Three consumers of this contract: `dashboard` (service catalog), `requests` (resumption), `assistant` (fallback from conversation to the traditional interface).
 
 ### 8.3 Service Registry
 
@@ -526,7 +565,7 @@ abstract final class ServiceRegistry {
 }
 ```
 
-This is the only file that deliberately depends on all modules. `serviceId` is the shared identifier across the service catalog, `requests`, and the Agent layer contract.
+This is the only file that deliberately depends on all features. `serviceId` is the shared identifier across the service catalog, `requests`, and the Agent layer contract.
 
 ### 8.4 Suspended Requests — Key Decision
 
@@ -585,7 +624,7 @@ final class RequiresSignature extends ConfirmationPolicy { const RequiresSignatu
 Each use case declares its policy and a shared `RequestSubmitter` applies it. `RequiresSignature` is not implemented today, but the seam remains open.
 
 > [!WARNING]
-> **Consequence of removing OTP:** the interval between the user's action and submission is effectively zero. A double tap or a network retry produces a duplicate request. Two defensive layers are mandatory: `guarded` in `BaseCubit` (Section 12.4) and `Idempotency-Key` in the network layer (Section 10.3).
+> **Consequence of removing OTP:** the interval between the user's action and submission is effectively zero. A double tap or a network retry produces a duplicate request. Two defensive layers are mandatory: per-operation submission guards (Section 12.4) and `Idempotency-Key` in the network layer (Section 10.3).
 
 **Sensitive services:** the list of services that require additional confirmation despite the rule above (for example local biometric confirmation) is determined by the bank's security team. The architecture enables this through `ConfirmationPolicy` and server configuration.
 
@@ -775,7 +814,7 @@ Response / error path:
 
 **`IdempotencyInterceptor`:** the key is generated **on flow entry**, not at send time. This way both automatic retries and repeat user taps carry the same key.
 
-**`ErrorMappingInterceptor`:** no feature module should ever see a `DioException`. Enforced by `custom_lint`.
+**`ErrorMappingInterceptor`:** no feature should ever see a `DioException`. Enforced by `custom_lint`.
 
 **`LoggingInterceptor`:** full body logging, even in staging, means national IDs and account numbers land in system logs. The list of masked fields is defined and applied centrally.
 
@@ -932,36 +971,81 @@ extension ResultX<T> on Result<T> {
 
 ### 12.1 Choosing Cubit
 
-State management uses `Cubit`. For the `assistant` module, which is event-driven and stream-based by nature, using `Bloc` with event transformers will be evaluated in Section 19.
+State management uses `Cubit`. For the `assistant` feature, which is event-driven and stream-based by nature, using `Bloc` with event transformers will be evaluated in Section 19.
 
-### 12.2 Transitional States — No Code Generation
+### 12.2 Cubit and State Coding Convention
+
+This is the required convention for new features and refactors. The reference supplied by the project owner is from another application; its Cubit/State structure is adopted with this project's models, dependency injection and `RequestStatus` names.
+
+* Each Cubit owns one plain Freezed State, declared with `const factory`, `@Default` values and `part '<name>_state.freezed.dart'`.
+* State contains data only. Do not add handwritten getters, calculation methods or a private constructor solely to support them. Generated Freezed accessors, equality and `copyWith` are framework infrastructure, not custom business getters.
+* Give each independent async operation its own status field. Use `RequestStatus { initial, loading, success, failure }` from `core/enums/`. A single-operation Cubit may use `status`; multiple operations use meaningful names such as `checkStatus`, `quoteStatus` and `submissionStatus`.
+* UI reads State fields directly. Check `state.submissionStatus == RequestStatus.loading` directly in widget arguments; do not introduce getter aliases or local `loading`, `empty` or `form` variables in builders.
+* Calculations, filtering, selection resolution, totals and validation belong in Cubit action methods. Store results needed by UI in State fields and update them together with their inputs using `emit(state.copyWith(...))`. A feature-specific private helper may coordinate related updates; do not override `emit` to calculate business data or create a separate rules facade for UI to call.
+* Cubit constructors accept an initial State. The flow's composition root supplies its State and dependencies; preserve injectable repositories/use cases in this application. Do not copy the other application's service locator, models or imports, or add a locator just to imitate its syntax.
+* Keep defaults non-null for known values (`bool`, counters, lists and statuses). Use nullable fields when absence is meaningful. Do not copy nullable defaults mechanically from the reference.
+* Keep controllers, focus nodes and `BuildContext` in UI lifecycle owners. No global mutable feature caches. Preserve disposal, stale-response guards and duplicate-request protection.
+* Async methods must handle failure explicitly and avoid emitting after disposal. `async`/`await` and `.then` chains are both compatible with this State convention; each asynchronous branch must be awaited or returned.
+* Do not log credentials, OTPs, PINs or authentication tokens. Sensitive State types retain disabled generated `toString` output.
 
 ```dart
-sealed class BlockCardState {
-  const BlockCardState();
+@freezed
+abstract class ChangeCardDepositState with _$ChangeCardDepositState {
+  const factory ChangeCardDepositState({
+    @Default(RequestStatus.initial) RequestStatus status,
+    @Default(RequestStatus.initial) RequestStatus submissionStatus,
+    @Default(<CardServiceDeposit>[]) List<CardServiceDeposit> destinations,
+    CardServiceCatalog? catalog,
+    ServiceBankCard? card,
+    CardServiceDeposit? destination,
+    @Default(false) bool termsAccepted,
+    @Default(false) bool canSubmit,
+    Failure? failure,
+  }) = _ChangeCardDepositState;
 }
 
-final class BlockCardInitial extends BlockCardState { const BlockCardInitial(); }
-final class BlockCardLoading extends BlockCardState { const BlockCardLoading(); }
+class ChangeCardDepositCubit extends Cubit<ChangeCardDepositState> {
+  ChangeCardDepositCubit({
+    required this.repository,
+    ChangeCardDepositState initialState = const ChangeCardDepositState(),
+  }) : super(initialState);
 
-final class BlockCardSuccess extends BlockCardState {
-  final String trackingId;
-  const BlockCardSuccess(this.trackingId);
+  final CardServicesRepository repository;
+
+  void selectDestination(CardServiceDeposit destination) {
+    emit(state.copyWith(
+      destination: destination,
+      termsAccepted: false,
+      canSubmit: false,
+      failure: null,
+    ));
+  }
 }
 
-final class BlockCardFailure extends BlockCardState {
-  final Failure failure;
-  const BlockCardFailure(this.failure);
-}
+// Flow entry: create once, initialize explicitly, close on scope removal.
+BlocProvider(
+  create: (_) => ChangeCardDepositCubit(
+    repository: repository,
+    initialState: const ChangeCardDepositState(),
+  )..load(),
+  child: const ChangeCardDepositView(),
+);
+
+// UI reads existing fields and statuses directly.
+AppButton(
+  isLoading: state.submissionStatus == RequestStatus.loading,
+  onPressed: state.canSubmit ? cubit.submit : null,
+  label: context.l10n.cardServiceSubmit,
+);
 ```
 
-A `switch` over this structure is natively exhaustive, providing the same guarantee `when` offered in freezed, with zero code generation.
+Data remains in the same State across request transitions unless an action explicitly clears or resets it. A business outcome is a State field, not a new value in the shared request-status enum. Shared enums live in `core/enums/`; flow-specific step/outcome enums stay with their feature.
 
 ### 12.3 Code Generation Policy
 
 | Case | Tool | Reason |
 |---|---|---|
-| Transitional state (initial/loading/success/failure) | Hand-written `sealed class` | No `copyWith` needed |
+| Transitional state (initial/loading/success/failure) | `freezed` single class + shared `RequestStatus` enum | Uniform pattern with form states; data preserved across statuses; generated `==`/`hashCode`/`copyWith` |
 | Form state with several fields | `freezed` | Frequent `copyWith`; hand-writing is error-prone |
 | DTOs | `json_serializable` | Unavoidable, scoped to `data/models/` |
 | Entities | Hand-written + `Equatable` | Simple and stable |
@@ -969,38 +1053,34 @@ A `switch` over this structure is natively exhaustive, providing the same guaran
 In `build.yaml`, each generator's scope is narrowed: `json_serializable` only under `data/models/`, `freezed` only under `presentation/` and defined paths.
 
 > [!NOTE]
-> With 80 services and several cubits each, applying `freezed` to every state pushes `build_runner` time into the minutes, a cost every developer pays several times a day. The split above cuts code generation volume by roughly two-thirds.
+> `freezed` is applied to every Cubit state. The resulting `build_runner` cost (about one minute for the first full run) is accepted as a deliberate trade-off in exchange for a single uniform state pattern. Package versions are pinned as a set (Section 3.1).
 
-### 12.4 Base Cubit
+### 12.4 Cubit Actions and Request Lifecycle
+
+Use concrete Cubit methods and explicit `emit(state.copyWith(...))` transitions. The current application uses constructor-injected use cases/repositories and operation-specific status guards; a custom BaseCubit is not required by this coding convention.
 
 ```dart
-// core/cubit/base_cubit.dart
-abstract class BaseCubit<S> extends Cubit<S> {
-  BaseCubit(super.initialState);
+Future<void> load() async {
+  final generation = ++_generation;
+  emit(state.copyWith(status: RequestStatus.loading, failure: null));
 
-  bool _busy = false;
+  final result = await LoadCardServiceCatalog(repository)();
+  if (isClosed || generation != _generation) return;
 
-  /// Prevents double submission.
-  Future<void> guarded(Future<void> Function() action) async {
-    if (_busy) return;
-    _busy = true;
-    try {
-      await action();
-    } finally {
-      _busy = false;
-    }
-  }
-
-  @override
-  void emit(S state) {
-    if (isClosed) return;
-    super.emit(state);
+  switch (result) {
+    case Err(:final failure):
+      emit(state.copyWith(status: RequestStatus.failure, failure: failure));
+    case Success(:final data):
+      emit(state.copyWith(status: RequestStatus.success, catalog: data));
   }
 }
 ```
 
-* **`guarded` is mandatory for every submission operation.** With OTP removed from most flows, this is the only client-side defense against double taps.
-* **The `isClosed` check** prevents the `emit after close` exception, common in long forms when the user closes the screen mid-request.
+* Every submission checks its operation's loading/success status before starting and sets loading before awaiting. This prevents double taps and edits during a pending request. Server idempotency remains mandatory for bank execution.
+* Every asynchronous completion checks `isClosed`. Where requests can overlap or inputs/adapters change, a generation/request ID rejects obsolete responses as well.
+* Dispose timers and owned resources when the owning scope closes. Keep per-flow caches private and in memory only when their lifetime matches the flow; never use global mutable caches.
+* Related derived fields must be updated in one snapshot whenever their inputs change. A private Cubit helper may calculate a snapshot with `copyWith` and emit it; State and UI must not perform those calculations. Do not override `emit` to introduce implicit business behavior.
+* `BlocProvider(create: ...)` owns creation/disposal at the flow composition root. Existing controller-owning screens may expose an already-owned Cubit with `BlocProvider.value`; in that case the creator explicitly closes it. Never treat `BlocProvider.value` as the owner of an instance it did not create.
 
 ### 12.5 Form Pattern
 
@@ -1008,7 +1088,7 @@ abstract class BaseCubit<S> extends Cubit<S> {
 
 ```dart
 @freezed
-sealed class LoanRequestFormState with _$LoanRequestFormState {
+abstract class LoanRequestFormState with _$LoanRequestFormState {
   const factory LoanRequestFormState({
     @Default('') String amount,
     @Default(null) LoanPurpose? purpose,
@@ -1028,7 +1108,7 @@ sealed class LoanRequestFormState with _$LoanRequestFormState {
 
 ### 12.6 Flow Cubit Lifecycle
 
-* The cubit for a multi-step flow is provided at the `ShellRoute` level, not inside each screen's `build` (Section 15.4).
+* Provide each flow Cubit through `BlocProvider(create: ...)` at its route entry or `ShellRoute` scope (Section 15.4). A single-screen, internally stepped flow may own a provider at its screen boundary. Child views resolve it through `context.read` and builders/listeners; they do not manually own or close a second instance. The provider calls the initial action and owns disposal; ordinary widget rebuilds must retain the same flow state.
 * Registered in DI with `@injectable` (not `@singleton`) so each flow entry gets a fresh instance.
 * Screens must not call `getIt` directly.
 
@@ -1200,12 +1280,14 @@ String? globalRedirect(BuildContext context, GoRouterState state) {
 ```dart
 String? securityRedirect(GoRouterState state) {
   final verdict = securityService.cachedVerdict;   // never null
-  if (verdict is Blocked && state.matchedLocation != Routes.securityBlocked) {
-    return Routes.securityBlocked;
+  if (verdict is Blocked && state.matchedLocation != LaunchRoutes.securityBlocked) {
+    return LaunchRoutes.securityBlocked;
   }
   return null;
 }
 ```
+
+The guard logic lives in `core/router/guards/`. The screens a guard redirects to (security-blocked, update-required, maintenance) live in the `launch` feature, and their paths are defined in `core/router/app_routes.dart` (Section 15.3).
 
 > [!NOTE]
 > Security evaluation runs at app startup and on every `resumed`, and the result is cached (Section 9.3). Awaiting a MethodChannel on every navigation would produce hundreds of unnecessary calls and visual flicker across multi-step flows.
@@ -1221,46 +1303,63 @@ A user arriving via notification or deep link whose session has expired must be 
 > [!CAUTION]
 > **The return destination must be validated against a whitelist of legitimate routes.** With deep links enabled, a tampered destination could send the user somewhere unintended.
 
-### 15.3 Route Definitions — Distributed Across Modules
+### 15.3 Route Paths and Definitions
 
-There is no central `route_names.dart`. Each module keeps its constants and route definitions in one file.
+All route **path constants** live in one file: `core/router/app_routes.dart`. Route **definitions** (the `GoRoute` objects and their screens) stay inside each feature, in one file per feature that reads its paths from the central file.
 
 ```dart
-// features/cards/cards_routes.dart
+// core/router/app_routes.dart — path constants only; imports nothing from features
+abstract final class LaunchRoutes {
+  static const splash = '/launch/splash';
+  static const securityBlocked = '/launch/security-blocked';
+}
+
+abstract final class DashboardRoutes {
+  static const home = '/dashboard/home';
+}
+
 abstract final class CardsRoutes {
   static const block = '/cards/block';
   static const virtual = '/cards/virtual';
-
-  static List<RouteBase> build() => [
-    GoRoute(path: block, builder: (_, __) => const BlockCardScreen()),
-    // ...
-  ];
 }
+
+// ... one class per feature
+```
+
+```dart
+// features/cards/cards_routes.dart
+List<RouteBase> buildCardsRoutes() => [
+  GoRoute(path: CardsRoutes.block, builder: (_, __) => const BlockCardScreen()),
+  // ...
+];
 ```
 
 ```dart
 // core/router/app_router.dart — rarely changes once settled
 final appRouter = GoRouter(
-  initialLocation: ShellRoutes.splash,
+  initialLocation: LaunchRoutes.splash,
   redirect: globalRedirect,
   routes: [
-    ...ShellRoutes.build(),
-    ...AuthRoutes.build(),
-    ...CardsRoutes.build(),
-    ...DepositsRoutes.build(),
-    ...LoansRoutes.build(),
-    ...ChequeRoutes.build(),
-    ...RequestsRoutes.build(),
+    ...buildLaunchRoutes(),
+    ...buildDashboardRoutes(),
+    ...buildAuthRoutes(),
+    ...buildCardsRoutes(),
+    ...buildDepositsRoutes(),
+    ...buildLoansRoutes(),
+    ...buildChequeRoutes(),
+    ...buildRequestsRoutes(),
     // ...
   ],
 );
 ```
 
-**Rationale:** with four developers and 80 services, a central route constants file changes several times a day and becomes a chronic source of Git conflicts — conflicts with no logic behind them, but which consume time and risk silently dropping a line during resolution.
+**Rationale:** `core` (guards, the post-login whitelist in Section 15.2, `ServiceRegistry`) and every feature navigate by importing only this file for route paths, never another feature. Route paths therefore no longer create dependencies between `core` and the features, or between features.
+
+**Trade-off:** every developer who adds a route edits this file, so it can produce Git conflicts. The file is kept to path constants only and grouped as one class per feature, so conflicts, when they happen, stay limited to adjacent line additions.
 
 **Two mandatory safeguards:**
 
-1. **Mandatory prefix:** all routes in the `cards` module begin with `/cards/`. Under this rule, route collisions are effectively impossible and the defining file is identifiable from the route itself.
+1. **Mandatory prefix:** all routes of the `cards` feature begin with `/cards/` and are declared in the `CardsRoutes` class. Under this rule, route collisions are effectively impossible and the owning feature is identifiable from the route itself.
 2. **Duplicate detection test:** a simple test that collects all routes and asserts uniqueness.
 
 ### 15.4 Flow Lifecycle
@@ -1318,8 +1417,8 @@ On seeing the `resume` parameter, the flow fetches state from the server instead
 | **Pure validators** | Luhn, IBAN, national ID | **100%** — no exceptions |
 | **Error mapping and Result** | `ErrorMappingInterceptor`, failures, extensions | **90%+** |
 | **Security and session** | `SecurityVerdict`, `TokenStore`, timeout, `ActivityTracker` | **90%+** |
-| **Mappers (DTO ↔ Entity)** | All modules | **80%** |
-| **Service use cases and cubits** | All service modules | **70%** |
+| **Mappers (DTO ↔ Entity)** | All features | **80%** |
+| **Service use cases and cubits** | All service features | **70%** |
 | **UI and widgets** | Screens | No mandatory minimum |
 
 **Two changes from the previous document:**
@@ -1334,7 +1433,7 @@ On seeing the `resume` parameter, the flow fetches state from the server instead
 
 ### 16.3 Cubit Testing
 
-Using `bloc_test` to assert states are emitted in the correct order. For forms, tests cover field-level validation and the behavior of `guarded` against repeated invocation.
+Using `bloc_test` to assert states are emitted in the correct order. For forms, tests cover field-level validation and operation-status guards against repeated invocation.
 
 ### 16.4 End-to-End Testing
 
@@ -1413,7 +1512,7 @@ Six rules, all at `error` level in CI:
 
 | # | Rule | Guarantees |
 |---|---|---|
-| 1 | No imports between feature modules | Module boundaries (Section 6.3) |
+| 1 | No imports between features | Feature boundaries (Section 6.3) |
 | 2 | No hardcoded colors or numbers in features | Design system integrity |
 | 3 | No raw Material widgets outside `avp_ui` | Design system integrity |
 | 4 | No `dio` or `DioException` outside `data/` | Layer boundaries (Section 7.1) |
@@ -1530,7 +1629,7 @@ Despite deferring this section, two infrastructure decisions **cannot be deferre
 * Fallback from conversation to the traditional interface via `ServiceFlow`
 * Conversation history persistence and synchronization
 * Behavior under errors, disconnection, and guardrail responses
-* Choosing `Bloc` over `Cubit` for this module
+* Choosing `Bloc` over `Cubit` for this feature
 
 ### 19.3 Established Principles Governing This Section
 
@@ -1585,6 +1684,8 @@ The complete list is provided in the separate document "Bank Requirements and De
 ---
 
 ## 21. Change Log
+
+**2026-10-13 convention update:** Section 12 now defines the owner-approved Cubit/State style: plain Freezed data, initial-State constructors, operation-specific request statuses, Cubit-owned calculations, direct UI field reads and no handwritten State/Cubit getters. This convention applies to all existing Cubits and future work.
 
 | Version | Description |
 |---|---|

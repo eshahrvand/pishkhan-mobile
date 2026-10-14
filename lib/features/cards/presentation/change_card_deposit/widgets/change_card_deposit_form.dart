@@ -1,0 +1,167 @@
+import 'package:avp_ui/avp_ui.dart';
+import 'package:flutter/material.dart';
+import 'package:pishkhan_mobile/l10n/l10n.dart';
+import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
+import 'package:pishkhan_mobile/shared/widgets/app_invoice.dart';
+
+import '../cubit/change_card_deposit_cubit.dart';
+import '../../shared/card_service_widgets.dart';
+
+class ChangeCardDepositForm extends StatelessWidget {
+  const ChangeCardDepositForm({
+    super.key,
+    required this.cubit,
+    required this.state,
+  });
+  final ChangeCardDepositCubit cubit;
+  final ChangeCardDepositState state;
+  @override
+  Widget build(BuildContext context) {
+    final l = context.l10n, catalog = state.catalog!;
+    final valueStyle = AppTypography.bodyMedium.copyWith(
+      height: 20 / 14,
+      letterSpacing: 0,
+      color: context.colors.textPrimary,
+    );
+    return AbsorbPointer(
+      absorbing: !state.editable,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              l.changeCardDepositIntro,
+              style: valueStyle.copyWith(fontWeight: FontWeight.w500),
+            ),
+            const SizedBox(height: 20),
+            AppSelect<String>(
+              value: state.cardId,
+              label: l.cardServiceCard,
+              hintText: l.cardServiceCardHint,
+              labelSpacing: 8,
+              labelStyle: cardServiceSmall(context, medium: true),
+              textStyle: valueStyle.copyWith(
+                color: state.card == null
+                    ? context.colors.textDisabled
+                    : context.colors.textPrimary,
+              ),
+              trailing: cardServiceIcon(AppAssets.cardFeaturesChevron),
+              options: [
+                for (final c in catalog.cards)
+                  AppSelectOption(
+                    value: c.id,
+                    // Keep grouped digits in reading order within the RTL field.
+                    label:
+                        '\u200e${CardDisplayFormatter.format(c.number, separator: ' ')}',
+                  ),
+              ],
+              onChanged: cubit.selectCard,
+            ),
+            const SizedBox(height: 20),
+            const CardServiceDivider(),
+            const SizedBox(height: 20),
+            if (state.source != null) ...[
+              AppSelect<String>(
+                value: state.source!.id,
+                enabled: false,
+                label: l.cardServiceFromDeposit,
+                labelSpacing: 8,
+                labelStyle: cardServiceSmall(context, medium: true),
+                textStyle: valueStyle,
+                trailing: const SizedBox.shrink(),
+                options: [
+                  AppSelectOption(
+                    value: state.source!.id,
+                    label: state.source!.number,
+                  ),
+                ],
+                onChanged: null,
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  cardServiceIcon(AppAssets.cardDepositInfo, size: 14),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      cardDepositLabel(context, state.source!),
+                      style: cardServiceSmall(context),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              AppSelect<String>(
+                value: state.destinationId,
+                label: l.cardServiceToDeposit,
+                hintText: l.cardServiceToDepositHint,
+                labelSpacing: 8,
+                labelStyle: cardServiceSmall(context, medium: true),
+                textStyle: valueStyle.copyWith(
+                  color: state.destination == null
+                      ? context.colors.textDisabled
+                      : context.colors.textPrimary,
+                ),
+                trailing: cardServiceIcon(AppAssets.cardFeaturesChevron),
+                options: [
+                  for (final d in state.destinations)
+                    AppSelectOption(value: d.id, label: d.number),
+                ],
+                onChanged: cubit.selectDestination,
+              ),
+              if (state.destination != null) ...[
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    cardServiceIcon(AppAssets.cardDepositType, size: 14),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        cardDepositLabel(context, state.destination!),
+                        style: cardServiceSmall(context),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+              const SizedBox(height: 20),
+              const CardServiceDivider(),
+              const SizedBox(height: 20),
+            ],
+            AppInvoice(
+              totalAmount: CurrencyFormatter.format(
+                catalog.changeDepositFeeRial,
+              ),
+              walletBalance: CurrencyFormatter.format(
+                catalog.walletBalanceRial,
+              ),
+              lines: const [],
+              isExpanded: false,
+              onExpandedChanged: (_) {},
+              showToggle: false,
+              zeroHeightDividers: true,
+              backgroundColor: context.colors.surface,
+              labelColor: context.colors.textTertiary,
+              isWalletBalanceSufficient: state.walletSufficient,
+              title: l.issuancePayable,
+              walletLabel: l.issuanceWallet,
+              walletSufficientLabel: l.issuanceWalletSufficient,
+              walletInsufficientLabel: l.issuanceWalletInsufficient,
+            ),
+            if (state.failure != null) ...[
+              const SizedBox(height: 12),
+              Semantics(
+                liveRegion: true,
+                child: Text(
+                  l.cardServiceSubmitError,
+                  style: cardServiceSmall(context, color: context.colors.error),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}

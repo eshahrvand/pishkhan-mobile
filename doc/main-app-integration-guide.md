@@ -26,8 +26,8 @@ Install the package theme near the root of the app:
 
 ```dart
 MaterialApp(
-  theme: AppTheme.light(),
-  home: const MyScreen(),
+theme: AppTheme.light(),
+home: const MyScreen(),
 )
 ```
 
@@ -48,6 +48,8 @@ Unless a row explicitly says **Not implemented**, the component is implemented a
 
 | Figma component | Figma node | Flutter component | Notes |
 | --- | --- | --- | --- |
+| Stepper | `27984:8986` | `AppStepper` | Controlled step count, title, next/end text; see issuance notes below. |
+| Chips (default / selected) | `27902:85120`, `27902:85127` | `AppChips` | 40px category chips; optional icon and labelStyle for reviewed frame instances. |
 | Button | `15699:34979` | `AppButton` | Variants, sizes, destructive, loading, icons, tooltip, disabled state. |
 | Badge | `15743:28288` | `AppBadge` | Background, color, size, corner, icon/dot/avatar options. |
 | Input field | `15652:17725` | `AppTextField` | Label, hint, helper/error text, icons, add-ons, digit normalization, direction, multiline support. |
@@ -66,6 +68,50 @@ Unless a row explicitly says **Not implemented**, the component is implemented a
 | Slider | `1086:534` | `AppSlider` | Dual-thumb range slider based on `RangeValues`; optional label positions and extra bars. |
 | Avatar | `19:1012` | `AppAvatar` | Standard 24–64px avatar with photo, initials, placeholder, focus, online/company badge. |
 | Avatar profile photo | `1217:108477` | `AppAvatarProfilePhoto` | Large 96px/160px avatar profile-photo component. |
+
+## Typography
+
+`AppTheme.light()` installs the package-owned `IRANYekanX` family and the
+complete `AppTypography.textTheme`. The consuming app must not register,
+bundle, or set this font family again.
+
+For normal screen copy, use the themed semantic role:
+
+```dart
+Text(
+  'اطلاعات حساب',
+  style: Theme.of(context).textTheme.titleMedium,
+)
+```
+
+For a Figma-specific variation, derive it from an `AppTypography` semantic
+role. Do not create a new `TextStyle` or set `fontFamily` in a screen or
+component.
+
+```dart
+Text(
+  'ادامه',
+  style: AppTypography.titleMedium.copyWith(
+    color: context.colors.textPrimary,
+    letterSpacing: 0,
+  ),
+)
+```
+
+Use the role that describes the content, not a size-based name:
+
+| Content | Start with |
+| --- | --- |
+| Large page hero | `displayLarge`, `displayMedium`, `displaySmall` |
+| Page or section heading | `headlineLarge`, `headlineMedium`, `headlineSmall` |
+| Section title or prominent action | `titleLarge`, `titleMedium`, `titleSmall` |
+| Paragraph, field value, or supporting copy | `bodyLarge`, `bodyMedium`, `bodySmall` |
+| Field label, compact control, or metadata | `labelLarge`, `labelMedium`, `labelSmall` |
+
+`copyWith(...)` is for contextual properties—such as color, a Figma-required
+line-height, weight, or letter spacing. It retains the package font family and
+RTL-safe typography settings. Shared `avp_ui` components already apply these
+roles internally; application code only needs them for custom composition.
 
 ## Common usage patterns
 
@@ -90,6 +136,12 @@ AppSelect<String>(
   onChanged: (value) => setState(() => state.requestType = value),
 )
 ```
+
+`AppTextField` also accepts `textStyle` for a Figma typography variation and
+`onSubmitted` for keyboard actions. `AppSearchField` accepts `textStyle` and
+`searchIcon` when the design supplies an exact icon asset. Derive text overrides
+from `AppTypography`; the field retains its package font when an override omits
+the font family. Existing callers keep their current defaults.
 
 ### Boolean controls
 
@@ -153,6 +205,8 @@ For remote images, the main app owns loading, caching, failure, and authenticati
 ## Tokens and RTL
 
 - Use `AppTheme.light()` to install the package theme.
+- Use `Theme.of(context).textTheme` for normal screen typography and derive
+  Figma-specific variations from `AppTypography` with `.copyWith(...)`.
 - Prefer semantic theme colors in app-specific composition: `context.colors.primary`, `context.colors.textPrimary`, and related values from `AppThemeContextX`.
 - `AppPalette` is available for package-level design-system work, but app screens should prefer `context.colors`.
 - Use `DirectionalIcon` and `AlignmentDirectional` when an icon or placement must mirror in RTL.
@@ -160,7 +214,7 @@ For remote images, the main app owns loading, caching, failure, and authenticati
 
 ## Package assets and boundaries
 
-The package owns the SVG/PNG assets required by Figma components under `assets/icons/` and `assets/images/`. Consumers must not hard-code these paths or create copies in the main app.
+The package owns the SVG/PNG assets required by Figma components under `assets/icons/` and `assets/images/`, plus the registered `IRANYekanX` font files under `assets/fonts/`. Consumers must not hard-code these paths or create copies in the main app.
 
 The main app owns:
 
@@ -170,7 +224,7 @@ The main app owns:
 
 `avp_ui` owns:
 
-- Shared tokens, component visuals, interaction primitives, Figma assets, and component tests.
+- Shared tokens, typography and font registration, component visuals, interaction primitives, Figma assets, and component tests.
 
 ## Verification when changing `avp_ui`
 
@@ -182,3 +236,106 @@ flutter test
 ```
 
 Add or update a focused widget test in `test/widgets/`. Keep the mapping table in this document updated whenever a new Figma component is implemented or an existing mapping changes.
+
+`AppButton.horizontalPadding` optionally adjusts horizontal inset for compact
+text actions, such as the notification header. Omit it to keep the size defaults.
+
+## Updated login support
+
+Use the public AppLoginColors semantic tokens for login canvas, ownership notice,
+service labels, and section labels. AppTextField accepts textAlign (default:
+TextAlign.start). Login, CAPTCHA, and OTP explicitly use TextDirection.rtl and
+TextAlign.start for both placeholders and entered text.
+
+## Dashboard instance styling
+
+The shared package exports AppDashboardColors for dashboard-specific semantic styling. AppButton.foregroundColor supports text-action instance colors while preserving disabled styling. AppSearchField.clearIcon supplies the exact Figma clear icon while preserving automatic clearing and callbacks. See [Dashboard development](dashboard/development.md) for the page composition and shared micro-service instance sizing.
+
+## Loan progress alignment
+
+AppProgressIndicator.fillAlignment optionally selects the origin. Default: AlignmentDirectional.centerStart. AppLoanCard passes Alignment.centerLeft for the loan frames in RTL. The foreground now keeps the full 8px track height. Calculate installment progress from validated numeric paid/total counts, with zero-total handling.
+
+## Dashboard tab repository composition
+
+Import package:pishkhan_mobile/features/dashboard/dashboard.dart for DashboardScreen and its public data/action contracts. DashboardScreen.repositories accepts DashboardRepositories with Home/Cards/Deposits/Loans implementations. Leaving it unset builds mocks from the optional list/favorite seed arguments. Tab widgets and their Cubits receive typed repository interfaces rather than raw lists. Standalone feature folders no longer export dashboard tab screens. See the [Dashboard architecture and Figma audit](dashboard/development.md) for exact paths, states and live-service adapter requirements.
+
+## Standalone Cards feature
+
+See [Cards architecture](cards/card-services.md). Import features/cards/cards.dart for CardFeaturesScreen, CardsRepository, ListedCard and typed CardFeatureRequest. Dashboard card summaries remain a separate feature. Compatible new package APIs are documented in avp_ui/docs/main-app-integration-guide.md; deploy the sibling package changes together with this app.
+
+## Stepper and card issuance instances
+
+| Figma name | Node | Public widget | Source |
+| --- | --- | --- | --- |
+| Stepper / stepper | `27984:8986` | `AppStepper` | `lib/widgets/layout/app_stepper.dart` |
+
+Use `AppStepper(currentStep: 1, totalSteps: 3, title: title, supportingText: nextLabel)`. Step numbers are one-based; total must be positive. State, navigation, validation, localized title/next/end labels and accessibility copy belong to the app. The 42px ring stays on the physical left in RTL, with a 24px gap, 4px warning dot, 12px/18px DemiBold title and 10px/16px Light supporting copy. The original 42px Figma ring SVGs live in package assets; dynamic progress clips the full foreground ring. Default progress is current/total. `progress` optionally reproduces authored samples: the library first 1/5 frame uses .1, and issuance frames use .3/.6/1 despite displaying 1/3, 2/3, 3/3. This visual override does not alter step numbering or validation. Long copy wraps and can increase the component height.
+
+The title row hugs its content so the warning dot stays adjacent to the title. The title column explicitly uses physical-right alignment under RTL; supporting text is inset 8px from that edge, with a 6px vertical gap. This shared fix also applies to the [expired gift balance flow](cards/expired-gift-balance.md).
+
+The example gallery's `FigmaNameMapper` registers Stepper → AppStepper and previews it; the Components tab also renders first/last variants.
+
+`AppToggle.appearance: AppToggleAppearance.issuance` opts into Gray/100 off track, the two Shadow/sm thumb layers and physical off-left/on-right alignment. Default `standard` retains existing colors, shadow and direction-aware alignment. Disabled behavior is unchanged.
+
+`AppCardIssuanceColors` owns the summary Brand/25 surface, summary title, terms surface and input hint instance tokens. The main app composes them with existing semantic colors. No bank workflow or payment behavior lives in avp_ui.
+
+### Shared app composition for issuance
+
+The app-owned `AppInvoice` opts into a white surface with `backgroundColor: context.colors.surface`, Gray/500 labels with `labelColor: context.colors.textTertiary`, and localized wallet-status copy through `walletSufficientLabel`/`walletInsufficientLabel`. Its existing defaults remain unchanged. `AppAddressCard.variant: AppAddressCardVariant.delivery` renders the compact white address/delete row; `full` remains the default. These widgets remain in the main app's shared layer and are not exports of avp_ui. The issuance toggle clips the thumb shadows to its rounded track, matching the original SVG.
+
+Known retained state differences: the existing primary button disabled surface is Gray/100 with no shadow, while issuance frames use Gray/200 with Shadow/xs; loading keeps the existing package spinner treatment. The shared invoice retains .5px divider layout slots, adding 1px to expanded and .5px to collapsed height compared with Figma's zero-height divider layout. See the main app's `doc/cards/card-issuance.md` for the complete flow and design audit.
+
+## Password services and Video player (2026-10-10)
+
+| Figma name | Node | Public widget | Source |
+| --- | --- | --- | --- |
+| Video player | `27997:11898` (instance in `27997:11891`) | `AppVideoPlayer` | `lib/widgets/media/app_video_player.dart` |
+
+`AppVideoPlayer` uses Flutter's official `video_player` plugin (2.14.1, BSD-3-Clause, flutter.dev publisher) for real inline playback on Android/iOS/web. The app creates a `VideoPlayerController.networkUrl` or `.asset`, passes it with a poster and localized play/pause/retry/unavailable/seek labels, and disposes it. Controller types are re-exported through the public barrel. The widget initializes on Play, handles buffering/error/retry, seeks on an LTR timeline inside RTL layouts, reports completion, preserves the full video frame with configurable videoFit (default contain), and pauses on backgrounding/removal. Replacement ignores old initialization completions. It does not own URLs, authentication, caching, recording or KYC. Its default is a square, rounded8px viewport with authored16px Play and8px track. `aspectRatio` and `showControls` support other instances. A missing controller keeps the poster and disables playback; errors retain the poster and expose Retry.
+
+The Figma name mapper registers Video player once and includes a poster-only preview. Original shared play SVGs belong to the package; posters belong to the consuming feature. Do not use a screen screenshot as a poster.
+
+Additive APIs retain existing defaults:
+- `AppTextField.obscureText`, `obscuringCharacter`, `autocorrect`, `enableSuggestions` and `enableIMEPersonalizedLearning` enable secure password fields. Optional hintTextDirection aligns localized placeholders independently of the surrounding RTL icon layout; the default remains unchanged. Password callers must disable suggestions, autocorrection and personalized learning.
+- `AppSelect.menuBuilder` optionally returns a selection from an app-composed sheet. `null` cancels. The default option sheet remains unchanged.
+- `AppButton.disabledAppearance: AppButtonDisabledAppearance.service` opts primary disabled buttons into Gray200 plus Shadow/xs. Standard/default and loading states remain unchanged.
+- `AppPasswordServiceColors` owns the password-instance title/body/hint/camera-notice/recording-scrim tokens.
+
+Dependency review: video_player supplies native/web media surfaces; in-house platform playback would require three separate engines. Chewie adds an unnecessary control system; media_kit brings a larger engine/dependency footprint. Network videos require Android INTERNET permission, HTTPS on iOS, and a host with supported codecs/range/CORS behavior on web. Dependency resolution and tests do not prove device/browser media decoding.
+
+The app-owned `AppInvoice` accepts optional `borderRadius` and `zeroHeightDividers` for the square white130px password-fee instance. Defaults remain16px corners and.5px divider slots; this widget is not an avp_ui export.
+
+
+### Shared password recovery operation
+
+`SecondPasswordScreen(selectOperation: true, initialCardNumber: cardNumber)` enables the Figma Change password / Forgot password selector on the existing setup flow. `card-pin-second-forgot` routes here; setup routes retain the default mode. `PasswordOperation` is supplied to repository `status(cardId, operation: ...)` and `SetSecondPasswordRequest.operation`. Adapters distinguish initial setup eligibility from `PasswordCard.canResetSecondPassword` and implement operation-specific submission/status. The shared UI, PIN validation, serial, video, mock KYC and receipt stages remain common. See [password-services development](cards/password-services.md) for the contract and prototype limits.
+
+
+### Change password in the shared flow
+
+Card Services `card-pin-second-change` enables operation selection on `SecondPasswordScreen`. The change branch collects secure current/new/confirmation PINs and terms, omits the setup fee/serial/video stages, and submits `SetSecondPasswordRequest(operation: PasswordOperation.changePassword, currentPassword: ...)`. New results use the change-success sheet; returning status reads render the full-page tracking content. Adapters must verify the current credential at the bank; the mock validates its numeric format only. The existing public avp_ui inputs/buttons/selects are reused. See the ordered11-frame audit in [password-services development](cards/password-services.md).
+
+
+### Virtual card requests
+
+`VirtualCardRequestScreen(repository: adapter, initialDepositNumber: number)` composes public avp_ui inputs/selects/buttons and the app-owned AppInvoice. `VirtualCardRepository` supplies catalog, bound fee quotes and idempotent submission receipts. `card-virtual`/`card-virtual-request` open the request form; `card-virtual-list` and card category chips retain list access. The virtual-list footer opens the same form unless a host callback handles it. See [request architecture and mock fee limits](cards/virtual-card-request.md).
+
+## Direct state-driven text inputs
+
+`AppTextField` accepts optional `value`, `onFocusLost`, and `maxLength` inputs.
+Use either `value` or an external `controller`, never both. With `value`, the
+package owns a controller and synchronizes changes, including an empty string
+that clears the field. Unchanged values preserve selection/composition, and
+programmatic synchronization does not invoke `onChanged`. The package never
+disposes externally supplied controllers or focus nodes.
+
+`onFocusLost` runs on blur of the active focus node and can invoke app-owned
+validation. `maxLength` applies after digit normalization and custom formatters
+without displaying a counter. These parameters are opt-in; existing defaults
+and uncontrolled/controller-based fields retain their behavior.
+
+Login, CAPTCHA, and OTP pass their Cubit values directly, with
+`normalizeDigits: true`, `FilteringTextInputFormatter.digitsOnly`, and their
+individual length limits. Their text uses `TextDirection.rtl` and
+`TextAlign.start` in empty and filled states. Banking validation belongs to the
+app. No intermediary input widget is required.
