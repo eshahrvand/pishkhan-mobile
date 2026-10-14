@@ -473,7 +473,7 @@ void updateNationalId(String value) {
     state.copyWith(
       nationalId: value,
       isNationalIdError:
-          value.length < 10 ? false : !NationalCodeValidator.isValid(value),
+          value.isNotEmpty && !NationalCodeValidator.isValid(value),
       canRequestOtp: checkOtpButtonEnable(
         phoneNumber: state.phoneNumber,
         nationalId: value,
@@ -537,7 +537,7 @@ AppTextField(
 
 The validator's name differs between the reference and the current project; do not build a second algorithm. The current project's national-ID authority is `NationalCodeValidator.isValid`. If the owner selects another function as the final authority, consumers use that function rather than parallel regex/checksum implementations in UI and Cubit.
 
-Error-display timing must be explicit. Following the reference, incomplete input may remain without a displayed error while typing. On completion, focus loss and submit, call the central validator. Button eligibility may be calculated on each change. This defined behavior differs from showing an error prematurely on every keystroke, and no error is stored through `setState`.
+**Owner clarification: live validation starts with the first entered digit in the login national-ID and mobile-number fields, including the shared change-phone input.** Every `onChanged` event calls its field-specific Cubit action, which checks the shared validator and emits both the fresh value and its error flag together. Any nonempty invalid value, including incomplete input, immediately shows the existing red error text. Do not wait for the full length, focus loss, a debounce or submit. A valid value immediately clears the error. An untouched empty field has no typing error; required-field errors on focus loss or submit remain supported. UI reads the error flag directly through its existing BlocBuilder, and no error is stored with `setState`. This explicit clarification takes precedence over the older reference snippet that delayed national-ID errors until ten digits.
 
 String field identifiers in server error contracts are a separate concern. Do not infer automatic changes to server fieldErrors contracts from the prohibition on String-based dispatch in fixed forms.
 

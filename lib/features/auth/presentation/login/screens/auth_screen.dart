@@ -13,125 +13,130 @@ import 'package:pishkhan_mobile/generated/l10n.dart';
 class AuthScreen extends StatelessWidget {
   const AuthScreen({
     super.key,
+    this.initialState = const AuthState.initial(),
     this.onAuthenticated,
     this.onGuestServiceRequested,
   });
 
+  final AuthState initialState;
   final VoidCallback? onAuthenticated;
   final ValueChanged<String>? onGuestServiceRequested;
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    return Theme(
-      data: Theme.of(context).copyWith(
-        extensions: [
-          ...Theme.of(context).extensions.values
-              .where((value) => value is! AppColorScheme),
-          colors.copyWith(surfaceDisabled: colors.borderSubtle),
-        ],
-      ),
-      child: AnnotatedRegion<SystemUiOverlayStyle>(
-        value: SystemUiOverlayStyle(
-          statusBarColor: colors.surface,
-          statusBarIconBrightness: Brightness.dark,
-          statusBarBrightness: Brightness.light,
-          systemNavigationBarColor: colors.surface,
-          systemNavigationBarIconBrightness: Brightness.dark,
+    return BlocProvider(
+      create: (context) => AuthCubit(initialState: initialState),
+      child: Theme(
+        data: Theme.of(context).copyWith(
+          extensions: [
+            ...Theme.of(context).extensions.values
+                .where((value) => value is! AppColorScheme),
+            colors.copyWith(surfaceDisabled: colors.borderSubtle),
+          ],
         ),
-        child: Scaffold(
-          backgroundColor: AppLoginColors.canvas,
-          body: Stack(
-            children: [
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                child: IgnorePointer(
-                  child: Image.asset(
-                    AuthAssets.background,
-                    fit: BoxFit.fitWidth,
-                    excludeFromSemantics: true,
+        child: AnnotatedRegion<SystemUiOverlayStyle>(
+          value: SystemUiOverlayStyle(
+            statusBarColor: colors.surface,
+            statusBarIconBrightness: Brightness.dark,
+            statusBarBrightness: Brightness.light,
+            systemNavigationBarColor: colors.surface,
+            systemNavigationBarIconBrightness: Brightness.dark,
+          ),
+          child: Scaffold(
+            backgroundColor: AppLoginColors.canvas,
+            body: Stack(
+              children: [
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: IgnorePointer(
+                    child: Image.asset(
+                      AuthAssets.background,
+                      fit: BoxFit.fitWidth,
+                      excludeFromSemantics: true,
+                    ),
                   ),
                 ),
-              ),
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                height: MediaQuery.paddingOf(context).top,
-                child: ColoredBox(color: colors.surface),
-              ),
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                height: MediaQuery.paddingOf(context).bottom,
-                child: ColoredBox(color: colors.surface),
-              ),
-              SafeArea(
-                child: BlocBuilder<AuthCubit, AuthState>(
-                  buildWhen: (previous, current) =>
-                      previous.step != current.step,
-                  builder: (context, state) {
-                    final cubit = context.read<AuthCubit>();
-                    return PopScope(
-                      canPop: state.step == AuthStep.login,
-                      onPopInvokedWithResult: (didPop, result) {
-                        if (!didPop) cubit.back();
-                      },
-                      child: Column(
-                        children: [
-                          AuthHeader(
-                            onMenu: () {
-                              FocusManager.instance.primaryFocus?.unfocus();
-                              showAuthServicesSheet(
-                                context,
-                                onServiceRequested: onGuestServiceRequested,
-                              );
-                            },
-                          ),
-                          Expanded(
-                            child: SingleChildScrollView(
-                              keyboardDismissBehavior:
-                                  ScrollViewKeyboardDismissBehavior.onDrag,
-                              padding: const EdgeInsetsDirectional.fromSTEB(
-                                16,
-                                16,
-                                16,
-                                24,
-                              ),
-                              child: Center(
-                                child: ConstrainedBox(
-                                  constraints: const BoxConstraints(
-                                    maxWidth: 343,
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: MediaQuery.paddingOf(context).top,
+                  child: ColoredBox(color: colors.surface),
+                ),
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  height: MediaQuery.paddingOf(context).bottom,
+                  child: ColoredBox(color: colors.surface),
+                ),
+                SafeArea(
+                  child: BlocBuilder<AuthCubit, AuthState>(
+                    buildWhen: (previous, current) =>
+                        previous.step != current.step,
+                    builder: (context, state) {
+                      return PopScope(
+                        canPop: state.step == AuthStep.login,
+                        onPopInvokedWithResult: (didPop, result) {
+                          if (!didPop) context.read<AuthCubit>().back();
+                        },
+                        child: Column(
+                          children: [
+                            AuthHeader(
+                              onMenu: () {
+                                FocusManager.instance.primaryFocus?.unfocus();
+                                showAuthServicesSheet(
+                                  context,
+                                  onServiceRequested: onGuestServiceRequested,
+                                );
+                              },
+                            ),
+                            Expanded(
+                              child: SingleChildScrollView(
+                                keyboardDismissBehavior:
+                                    ScrollViewKeyboardDismissBehavior.onDrag,
+                                padding: const EdgeInsetsDirectional.fromSTEB(
+                                  16,
+                                  16,
+                                  16,
+                                  24,
+                                ),
+                                child: Center(
+                                  child: ConstrainedBox(
+                                    constraints: const BoxConstraints(
+                                      maxWidth: 343,
+                                    ),
+                                    child:
+                                        state.step == AuthStep.loginOtp ||
+                                            state.step ==
+                                                AuthStep.changePhoneOtp
+                                        ? AuthOtpForm(
+                                            // Reset controllers when switching between login and change-phone OTP.
+                                            key: ValueKey(state.step),
+                                            onAuthenticated: onAuthenticated,
+                                          )
+                                        : AuthIdentityForm(
+                                            // Reset controllers when switching between identity forms.
+                                            key: ValueKey(state.step),
+                                            changePhone:
+                                                state.step ==
+                                                AuthStep.changePhone,
+                                          ),
                                   ),
-                                  child:
-                                      state.step == AuthStep.loginOtp ||
-                                          state.step == AuthStep.changePhoneOtp
-                                      ? AuthOtpForm(
-                                          // Reset controllers when switching between login and change-phone OTP.
-                                          key: ValueKey(state.step),
-                                          onAuthenticated: onAuthenticated,
-                                        )
-                                      : AuthIdentityForm(
-                                          // Reset controllers when switching between identity forms.
-                                          key: ValueKey(state.step),
-                                          changePhone:
-                                              state.step ==
-                                              AuthStep.changePhone,
-                                        ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
+                          ],
+                        ),
+                      );
+                    },
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

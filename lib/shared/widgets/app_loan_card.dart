@@ -1,3 +1,6 @@
+import 'app_loan_card_amount_row.dart';
+import 'app_loan_card_copy_button.dart';
+
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -113,7 +116,9 @@ class AppLoanCard extends StatelessWidget {
                                     ),
                                   ),
                                   const SizedBox(width: 8),
-                                  _copyButton(),
+                                  AppLoanCardCopyButton(
+                                    onCopyLoanNumber: onCopyLoanNumber,
+                                  ),
                                 ],
                               ),
                             ),
@@ -129,9 +134,9 @@ class AppLoanCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      _amountRow(value: loanTotal, label: 'مبلغ وام'),
+                      AppLoanCardAmountRow(value: loanTotal, label: 'مبلغ وام'),
                       const SizedBox(height: 12),
-                      _amountRow(
+                      AppLoanCardAmountRow(
                         value: installmentAmount,
                         label: 'مبلغ هر قسط',
                       ),
@@ -218,51 +223,6 @@ class AppLoanCard extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  Widget _amountRow({required String value, required String label}) => SizedBox(
-    height: 22,
-    child: Row(
-      textDirection: TextDirection.ltr,
-      children: [
-        Expanded(
-          child: Row(
-            textDirection: TextDirection.ltr,
-            children: [
-              Text('ریال', style: _labelStyle),
-              const SizedBox(width: 4),
-              Flexible(
-                child: Text(
-                  value,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textDirection: TextDirection.ltr,
-                  style: _valueStyle,
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Text(label, textAlign: TextAlign.right, style: _labelStyle),
-        ),
-      ],
-    ),
-  );
-
-  Widget _copyButton() {
-    final icon = SizedBox.square(
-      dimension: 16,
-      child: SvgPicture.asset(AppAssets.loanCardCopy, fit: BoxFit.contain),
-    );
-    return onCopyLoanNumber == null
-        ? KeyedSubtree(key: const Key('app_loan_card_copy'), child: icon)
-        : InkWell(
-            key: const Key('app_loan_card_copy'),
-            onTap: onCopyLoanNumber,
-            child: icon,
-          );
   }
 
   TextStyle get _valueStyle => AppTypography.bodySmall.copyWith(

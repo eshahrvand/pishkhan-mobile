@@ -181,7 +181,9 @@ void main() {
         router.routeInformationProvider.value.uri.queryParameters['from'],
         CardsRoutes.virtualRequest,
       );
-      final cubit = tester.element(find.byType(AuthScreen)).read<AuthCubit>();
+      final cubit = tester
+          .element(find.byType(BlocBuilder<AuthCubit, AuthState>).first)
+          .read<AuthCubit>();
       cubit.updateNationalId('0081234562');
       cubit.updatePhoneNumber('09121234567');
       cubit.updateCaptcha('123456');

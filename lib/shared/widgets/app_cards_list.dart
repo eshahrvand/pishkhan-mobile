@@ -1,3 +1,6 @@
+import 'app_cards_list_header.dart';
+import 'app_cards_list_detail_row.dart';
+
 import 'dart:math' as math;
 
 import 'package:avp_ui/avp_ui.dart';
@@ -113,7 +116,14 @@ class AppCardsList extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _header(context),
+                AppCardsListHeader(
+                  cardIcon: cardIcon,
+                  coloredHeader: coloredHeader,
+                  moreIcon: moreIcon,
+                  onMoreTap: onMoreTap,
+                  title: title,
+                  type: type,
+                ),
                 const SizedBox(height: 8),
                 if (!coloredHeader) ...[
                   AppCardsListIcons.divider(),
@@ -125,16 +135,16 @@ class AppCardsList extends StatelessWidget {
                   ),
                   child: Column(
                     children: [
-                      _detailRow(
-                        context,
+                      AppCardsListDetailRow(
                         value: cardNumber,
                         label: cardNumberLabel,
+                        coloredHeader: coloredHeader,
                       ),
                       const SizedBox(height: 8),
-                      _detailRow(
-                        context,
+                      AppCardsListDetailRow(
                         value: linkedDeposit,
                         label: linkedDepositLabel,
+                        coloredHeader: coloredHeader,
                       ),
                     ],
                   ),
@@ -146,91 +156,6 @@ class AppCardsList extends StatelessWidget {
       ),
     );
   }
-
-  Widget _header(BuildContext context) {
-    final more = SizedBox(
-      width: 20,
-      height: 20,
-      child: Center(child: moreIcon ?? AppCardsListIcons.moreHorizontal()),
-    );
-    return Container(
-      height: coloredHeader ? 36 : 20,
-      padding: coloredHeader ? const EdgeInsets.all(8) : EdgeInsets.zero,
-      decoration: coloredHeader
-          ? BoxDecoration(
-              borderRadius: AppRadius.borderSm,
-              color: switch (type) {
-                AppCardsListType.resalat => AppCardFeatureColors.resalatHeader,
-                AppCardsListType.gift => AppCardFeatureColors.giftHeader,
-                AppCardsListType.virtual => AppCardFeatureColors.virtualHeader,
-                AppCardsListType.coupon => AppCardFeatureColors.couponHeader,
-                AppCardsListType.family => AppCardFeatureColors.familyHeader,
-              },
-            )
-          : null,
-      child: Row(
-        textDirection: TextDirection.ltr,
-        children: [
-          onMoreTap == null
-              ? more
-              : InkWell(
-                  onTap: onMoreTap,
-                  borderRadius: AppRadius.borderXs,
-                  child: more,
-                ),
-          if (!coloredHeader) const Spacer(),
-          if (coloredHeader)
-            Expanded(child: _titleText(context))
-          else
-            Flexible(child: _titleText(context)),
-          const SizedBox(width: 4),
-          SizedBox(
-            width: 20,
-            height: 20,
-            child: Center(child: cardIcon ?? AppCardsListIcons.forType(type)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _titleText(BuildContext context) => Text(
-    _title,
-    maxLines: 1,
-    overflow: TextOverflow.ellipsis,
-    textAlign: coloredHeader ? TextAlign.right : TextAlign.end,
-    style: _mediumStyle(context.colors.textPrimary),
-  );
-
-  Widget _detailRow(
-    BuildContext context, {
-    required String value,
-    required String label,
-  }) => SizedBox(
-    height: 22,
-    child: Row(
-      textDirection: TextDirection.ltr,
-      children: [
-        Expanded(
-          child: Text(
-            value,
-            overflow: TextOverflow.ellipsis,
-            textDirection: TextDirection.ltr,
-            style: _mediumStyle(context.colors.textPrimary),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Text(
-          label,
-          style: _regularStyle(
-            coloredHeader
-                ? context.colors.textTertiary
-                : context.colors.textSecondary,
-          ),
-        ),
-      ],
-    ),
-  );
 
   TextStyle _regularStyle(Color color) => AppTypography.bodySmall.copyWith(
     color: color,

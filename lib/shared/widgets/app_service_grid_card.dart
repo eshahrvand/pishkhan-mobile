@@ -1,3 +1,5 @@
+import 'app_service_grid_item_view_icon.dart';
+
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -202,9 +204,9 @@ class AppServiceGridItemView extends StatelessWidget {
                     borderRadius: AppRadius.borderMd,
                     boxShadow: AppShadows.sm,
                   ),
-                  child: Center(child: _icon()),
+                  child: Center(child: AppServiceGridItemViewIcon(item: item)),
                 )
-              : Center(child: _icon()),
+              : Center(child: AppServiceGridItemViewIcon(item: item)),
         ),
         const SizedBox(height: AppSpacing.sm),
         SizedBox(
@@ -242,14 +244,4 @@ class AppServiceGridItemView extends StatelessWidget {
       ),
     );
   }
-
-  Widget _icon() => OverflowBox(
-    maxWidth: item.iconSize.width,
-    maxHeight: item.iconSize.height,
-    child: SizedBox(
-      width: item.iconSize.width,
-      height: item.iconSize.height,
-      child: Center(child: item.icon),
-    ),
-  );
 }

@@ -1,3 +1,5 @@
+import 'app_confirmer_details_card_detail_row.dart';
+
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_compact_status_badge.dart';
@@ -84,11 +86,17 @@ class AppConfirmerDetailsCard extends StatelessWidget {
               color: context.colors.surfaceSubtle,
               child: Column(
                 children: [
-                  _detailRow(value: role, label: 'نقش'),
+                  AppConfirmerDetailsCardDetailRow(value: role, label: 'نقش'),
                   const SizedBox(height: 12),
-                  _detailRow(value: depositRelation, label: 'ارتباط با سپرده'),
+                  AppConfirmerDetailsCardDetailRow(
+                    value: depositRelation,
+                    label: 'ارتباط با سپرده',
+                  ),
                   const SizedBox(height: 12),
-                  _detailRow(value: sharePercentage, label: 'درصد اشتراک'),
+                  AppConfirmerDetailsCardDetailRow(
+                    value: sharePercentage,
+                    label: 'درصد اشتراک',
+                  ),
                 ],
               ),
             ),
@@ -97,21 +105,6 @@ class AppConfirmerDetailsCard extends StatelessWidget {
       ),
     );
   }
-
-  Widget _detailRow({required String value, required String label}) => SizedBox(
-    height: 18,
-    child: Row(
-      textDirection: TextDirection.ltr,
-      children: [
-        Expanded(
-          child: Text(value, textAlign: TextAlign.left, style: _valueStyle),
-        ),
-        Expanded(
-          child: Text(label, textAlign: TextAlign.right, style: _labelStyle),
-        ),
-      ],
-    ),
-  );
 
   TextStyle get _nameStyle => AppTypography.titleSmall.copyWith(
     color: const Color(0xFF181D27),

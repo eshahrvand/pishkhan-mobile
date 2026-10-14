@@ -1,3 +1,8 @@
+import 'app_invoice_wallet_row.dart';
+import 'app_invoice_line_row.dart';
+import 'app_invoice_header.dart';
+import 'app_invoice_styles.dart';
+
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -122,7 +127,7 @@ class AppInvoice extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _InvoiceHeader(
+          AppInvoiceHeader(
             title: title,
             totalAmount: totalAmount,
             costIcon: costIcon ?? AppInvoiceIcons.cost(),
@@ -136,7 +141,7 @@ class AppInvoice extends StatelessWidget {
           if (isExpanded && lines.isNotEmpty) ...[
             for (var index = 0; index < lines.length; index++) ...[
               if (index > 0) const SizedBox(height: 12),
-              _InvoiceLine(
+              AppInvoiceLineRow(
                 line: lines[index],
                 labelColor: labelColor ?? colors.textSecondary,
               ),
@@ -145,7 +150,7 @@ class AppInvoice extends StatelessWidget {
             AppInvoiceIcons.divider(zeroHeight: zeroHeightDividers),
             const SizedBox(height: 12),
           ],
-          _WalletRow(
+          AppInvoiceWalletRow(
             label: walletLabel,
             amount: walletBalance,
             icon: walletIcon ?? AppInvoiceIcons.wallet(),
@@ -184,210 +189,6 @@ class AppInvoice extends StatelessWidget {
   }
 }
 
-class _InvoiceHeader extends StatelessWidget {
-  final Color labelColor;
-  const _InvoiceHeader({
-    required this.title,
-    required this.totalAmount,
-    required this.costIcon,
-    required this.showToggle,
-    required this.isExpanded,
-    required this.labelColor,
-  });
-
-  final String title;
-  final String totalAmount;
-  final Widget costIcon;
-  final bool showToggle;
-  final bool isExpanded;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-    return Row(
-      textDirection: TextDirection.ltr,
-      children: [
-        Expanded(
-          child: _Amount(
-            amount: totalAmount,
-            style: _invoiceTextStyle(
-              AppTypography.bodySmall,
-              color: colors.primary,
-              fontWeight: FontWeight.w600,
-            ),
-            isPrimary: true,
-          ),
-        ),
-        const SizedBox(width: 8),
-        Row(
-          // Figma pins the cost icon to the physical right and the angle to
-          // the physical left, regardless of the surrounding RTL direction.
-          textDirection: TextDirection.ltr,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (showToggle)
-              KeyedSubtree(
-                key: const Key('app_invoice_toggle_icon'),
-                child: isExpanded
-                    ? AppInvoiceIcons.chevronUp()
-                    : AppInvoiceIcons.chevronDown(),
-              ),
-            if (showToggle) const SizedBox(width: 4),
-            Text(
-              key: const Key('app_invoice_title'),
-              title,
-              textDirection: TextDirection.rtl,
-              style: _invoiceTextStyle(
-                AppTypography.bodySmall,
-                color: labelColor,
-              ),
-            ),
-            const SizedBox(width: 4),
-            SizedBox(
-              key: const Key('app_invoice_cost_icon'),
-              width: 20,
-              height: 20,
-              child: Center(child: costIcon),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class _InvoiceLine extends StatelessWidget {
-  const _InvoiceLine({required this.line, required this.labelColor});
-  final Color labelColor;
-  final AppInvoiceLine line;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-    return Row(
-      textDirection: TextDirection.ltr,
-      children: [
-        Expanded(
-          child: _Amount(
-            amount: line.amount,
-            style: _invoiceTextStyle(
-              AppTypography.bodySmall,
-              color: colors.textPrimary,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            textDirection: TextDirection.ltr,
-            children: [
-              Flexible(
-                child: Text(
-                  line.label,
-                  overflow: TextOverflow.ellipsis,
-                  textDirection: TextDirection.rtl,
-                  textAlign: TextAlign.right,
-                  style: _invoiceTextStyle(
-                    AppTypography.bodySmall,
-                    color: labelColor,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 4),
-              SizedBox(width: 20, height: 20, child: Center(child: line.icon)),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _WalletRow extends StatelessWidget {
-  const _WalletRow({
-    required this.label,
-    required this.amount,
-    required this.icon,
-    required this.labelColor,
-  });
-  final Color labelColor;
-  final String label;
-  final String amount;
-  final Widget icon;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-    return Row(
-      textDirection: TextDirection.ltr,
-      children: [
-        Expanded(
-          child: _Amount(
-            amount: amount,
-            style: _invoiceTextStyle(
-              AppTypography.bodySmall,
-              color: colors.textPrimary,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            textDirection: TextDirection.ltr,
-            children: [
-              Flexible(
-                child: Text(
-                  label,
-                  overflow: TextOverflow.ellipsis,
-                  textDirection: TextDirection.rtl,
-                  textAlign: TextAlign.right,
-                  style: _invoiceTextStyle(
-                    AppTypography.bodySmall,
-                    color: labelColor,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 4),
-              SizedBox(width: 20, height: 20, child: Center(child: icon)),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _Amount extends StatelessWidget {
-  const _Amount({
-    required this.amount,
-    required this.style,
-    this.isPrimary = false,
-  });
-  final String amount;
-  final TextStyle style;
-  final bool isPrimary;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      textDirection: TextDirection.ltr,
-      children: [
-        isPrimary
-            ? AppInvoiceIcons.currencyPrimary()
-            : AppInvoiceIcons.currency(),
-        const SizedBox(width: 2),
-        Flexible(
-          child: Text(amount, overflow: TextOverflow.ellipsis, style: style),
-        ),
-      ],
-    );
-  }
-}
-
 /// The two Figma wallet-status variants: sufficient (green) and insufficient
 /// (red).
 class AppWalletBalanceStatus extends StatelessWidget {
@@ -411,7 +212,7 @@ class AppWalletBalanceStatus extends StatelessWidget {
       child: Text(
         isSufficient ? sufficientLabel : insufficientLabel,
         textAlign: TextAlign.center,
-        style: _invoiceTextStyle(
+        style: getInvoiceTextStyle(
           AppTypography.bodySmall,
           color: isSufficient ? colors.success : colors.error,
           fontWeight: FontWeight.w500,
@@ -425,14 +226,3 @@ class AppWalletBalanceStatus extends StatelessWidget {
 /// Applies the exact Figma 12px/18px invoice rhythm to the design-system
 /// typography token. The family, fallbacks, and all other defaults remain
 /// owned by `avp_ui`.
-TextStyle _invoiceTextStyle(
-  TextStyle base, {
-  required Color color,
-  FontWeight fontWeight = FontWeight.w400,
-  double height = 18 / 12,
-}) => base.copyWith(
-  color: color,
-  fontWeight: fontWeight,
-  height: height,
-  letterSpacing: 0,
-);

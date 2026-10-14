@@ -1,3 +1,5 @@
+import 'app_request_report_card_detail_row.dart';
+
 import 'dart:math' as math;
 
 import 'package:avp_ui/avp_ui.dart';
@@ -118,10 +120,16 @@ class AppRequestReportCard extends StatelessWidget {
                   ),
             ),
             SizedBox(height: sectionSpacing),
-            _detailRow(value: requestNumber, label: identifierLabel),
+            AppRequestReportCardDetailRow(
+              value: requestNumber,
+              label: identifierLabel,
+            ),
             if (showDetails) ...[
               SizedBox(height: sectionSpacing),
-              _detailRow(value: details, label: detailsLabel),
+              AppRequestReportCardDetailRow(
+                value: details,
+                label: detailsLabel,
+              ),
             ],
             SizedBox(height: footerSpacing),
             SizedBox(
@@ -154,26 +162,6 @@ class AppRequestReportCard extends StatelessWidget {
       ),
     );
   }
-
-  Widget _detailRow({required String value, required String label}) => SizedBox(
-    height: 22,
-    child: Row(
-      textDirection: TextDirection.ltr,
-      children: [
-        Expanded(
-          child: Text(
-            value,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.left,
-            style: _mediumStyle(AppPalette.gray900),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Text(label, style: _regularStyle(AppPalette.gray700)),
-      ],
-    ),
-  );
 
   TextStyle get _titleStyle => AppTypography.bodySmall.copyWith(
     color: AppPalette.gray900,

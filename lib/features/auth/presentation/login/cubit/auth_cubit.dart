@@ -32,7 +32,8 @@ class AuthCubit extends Cubit<AuthState> {
     emit(
       state.copyWith(
         nationalId: value,
-        isNationalIdError: false,
+        isNationalIdError:
+            value.isNotEmpty && !NationalCodeValidator.isValid(value),
         formValid: checkFormValid(value, state.phone, state.captcha),
       ),
     );
@@ -42,7 +43,7 @@ class AuthCubit extends Cubit<AuthState> {
     emit(
       state.copyWith(
         phone: value,
-        isPhoneError: false,
+        isPhoneError: value.isNotEmpty && !PhoneNumberValidator.isValid(value),
         formValid: checkFormValid(state.nationalId, value, state.captcha),
         maskedPhone: maskPhoneNumber(value),
       ),

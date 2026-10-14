@@ -1,3 +1,5 @@
+import 'app_occupation_card_detail_row.dart';
+
 import 'dart:math' as math;
 
 import 'package:avp_ui/avp_ui.dart';
@@ -86,34 +88,14 @@ class AppOccupationCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            _detailRow(value: title, label: 'عنوان'),
+            AppOccupationCardDetailRow(value: title, label: 'عنوان'),
             const SizedBox(height: 8),
-            _detailRow(value: description, label: 'شرح'),
+            AppOccupationCardDetailRow(value: description, label: 'شرح'),
           ],
         ),
       ),
     );
   }
-
-  Widget _detailRow({required String value, required String label}) => SizedBox(
-    height: 22,
-    child: Row(
-      textDirection: TextDirection.ltr,
-      children: [
-        Expanded(
-          child: Text(
-            value,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            textDirection: TextDirection.ltr,
-            style: _mediumStyle(AppPalette.gray900),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Text(label, style: _regularStyle(AppPalette.gray700)),
-      ],
-    ),
-  );
 
   TextStyle _regularStyle(Color color) => AppTypography.bodySmall.copyWith(
     color: color,

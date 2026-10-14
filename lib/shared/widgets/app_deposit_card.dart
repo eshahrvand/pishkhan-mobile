@@ -1,3 +1,6 @@
+import 'app_deposit_card_data_row.dart';
+import 'app_deposit_card_plain_row.dart';
+
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -97,21 +100,24 @@ class AppDepositCard extends StatelessWidget {
           ),
           Column(
             children: [
-              _dataRow(
+              AppDepositCardDataRow(
                 value: depositNumber,
                 label: 'شماره سپرده:',
                 onCopy: onCopyDepositNumber,
                 copyKey: const Key('app_deposit_card_copy_number'),
               ),
               SizedBox(height: _isSingle ? 20 : 16),
-              _dataRow(
+              AppDepositCardDataRow(
                 value: iban,
                 label: 'شماره شبا:',
                 onCopy: onCopyIban,
                 copyKey: const Key('app_deposit_card_copy_iban'),
               ),
               SizedBox(height: _isSingle ? 20 : 16),
-              _plainRow(value: openingDate, label: 'تاریخ افتتاح:'),
+              AppDepositCardPlainRow(
+                value: openingDate,
+                label: 'تاریخ افتتاح:',
+              ),
             ],
           ),
         ],
@@ -138,72 +144,6 @@ class AppDepositCard extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  Widget _dataRow({
-    required String value,
-    required String label,
-    required VoidCallback? onCopy,
-    required Key copyKey,
-  }) => Row(
-    textDirection: TextDirection.ltr,
-    children: [
-      Expanded(
-        child: Row(
-          textDirection: TextDirection.ltr,
-          children: [
-            Flexible(
-              child: Text(
-                value,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                textDirection: TextDirection.ltr,
-                style: _valueStyle,
-              ),
-            ),
-            const SizedBox(width: 8),
-            _copyButton(onTap: onCopy, key: copyKey),
-          ],
-        ),
-      ),
-      const SizedBox(width: 8),
-      Text(label, textDirection: TextDirection.rtl, style: _labelStyle),
-    ],
-  );
-
-  Widget _plainRow({required String value, required String label}) => Row(
-    textDirection: TextDirection.ltr,
-    children: [
-      Expanded(
-        child: Text(
-          value,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          textDirection: TextDirection.ltr,
-          style: _valueStyle,
-        ),
-      ),
-      const SizedBox(width: 8),
-      Flexible(
-        child: Text(
-          label,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          textDirection: TextDirection.rtl,
-          style: _labelStyle,
-        ),
-      ),
-    ],
-  );
-
-  Widget _copyButton({required VoidCallback? onTap, required Key key}) {
-    final icon = SizedBox.square(
-      dimension: 16,
-      child: SvgPicture.asset(AppAssets.iconCopy16White, fit: BoxFit.contain),
-    );
-    return onTap == null
-        ? KeyedSubtree(key: key, child: icon)
-        : InkWell(key: key, onTap: onTap, child: icon);
   }
 
   TextStyle get _valueStyle => AppTypography.bodySmall.copyWith(

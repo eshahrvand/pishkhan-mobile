@@ -45,7 +45,6 @@ void main() {
     tester.view.padding = FakeViewPadding(top: 24, bottom: keyboard ? 0 : 40);
     tester.view.viewInsets = FakeViewPadding(bottom: keyboard ? 315 : 0);
     addTearDown(tester.view.reset);
-    final cubit = AuthCubit(initialState: state);
     await tester.pumpWidget(
       RepaintBoundary(
         key: previewKey,
@@ -62,12 +61,10 @@ void main() {
           ],
           builder: (context, child) =>
               Directionality(textDirection: TextDirection.rtl, child: child!),
-          home: BlocProvider.value(
-            value: cubit,
-            child: AuthScreen(
-              onAuthenticated: onAuthenticated,
-              onGuestServiceRequested: onGuestServiceRequested,
-            ),
+          home: AuthScreen(
+            initialState: state,
+            onAuthenticated: onAuthenticated,
+            onGuestServiceRequested: onGuestServiceRequested,
           ),
         ),
       ),
@@ -79,8 +76,9 @@ void main() {
       await precacheImage(const AssetImage(AuthAssets.captcha), context);
     });
     await tester.pumpAndSettle();
-    addTearDown(cubit.close);
-    return cubit;
+    return tester
+        .element(find.byType(BlocBuilder<AuthCubit, AuthState>).first)
+        .read<AuthCubit>();
   }
 
   Future<void> preview(
@@ -228,6 +226,46 @@ void main() {
       expect(selected, 'deposits.assetReport');
       expect(authControl(tester, 'auth_services_sheet'), findsNothing);
       debugDisableShadows = priorShadowSetting;
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
+
+  testWidgets(
+    'identity errors appear from the first digit and clear on valid input',
+    (tester) async {
+      final cubit = await mount(tester, keyboard: false);
+      final national = find.descendant(
+        of: authControl(tester, 'login-national-id'),
+        matching: find.byType(TextField),
+      );
+      final phone = find.descendant(
+        of: authControl(tester, 'login-phone'),
+        matching: find.byType(TextField),
+      );
+      expect(cubit.state.isNationalIdError, isFalse);
+      expect(cubit.state.isPhoneError, isFalse);
+
+      await tester.enterText(national, '۰');
+      await tester.pump();
+      expect(cubit.state.isNationalIdError, isTrue);
+      expect(find.text(S.current.authInvalidNationalId), findsOneWidget);
+      await tester.enterText(national, '۰۰۸۱۲۳۴۵۶۲');
+      await tester.pump();
+      expect(cubit.state.isNationalIdError, isFalse);
+      expect(find.text(S.current.authInvalidNationalId), findsNothing);
+
+      await tester.enterText(phone, '۰');
+      await tester.pump();
+      expect(cubit.state.isPhoneError, isTrue);
+      expect(find.text(S.current.authInvalidPhone), findsOneWidget);
+      await tester.enterText(phone, '۰۹۱۲۱۱۲۷۹۳۴');
+      await tester.pump();
+      expect(cubit.state.isPhoneError, isFalse);
+      expect(find.text(S.current.authInvalidPhone), findsNothing);
+      await tester.enterText(phone, '۰۹');
+      await tester.pump();
+      expect(cubit.state.isPhoneError, isTrue);
+      expect(find.text(S.current.authInvalidPhone), findsOneWidget);
       await tester.pumpWidget(const SizedBox.shrink());
     },
   );

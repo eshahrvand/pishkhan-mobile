@@ -1,3 +1,6 @@
+import 'app_wallet_card_amount.dart';
+import 'app_wallet_card_title.dart';
+
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -85,13 +88,16 @@ class AppWalletCard extends StatelessWidget {
                                     ),
                                   ),
                                   const Spacer(),
-                                  _title(context),
+                                  AppWalletCardTitle(title: title),
                                 ],
                               ),
                               const SizedBox(height: 14),
                               Align(
                                 alignment: Alignment.centerRight,
-                                child: _amount(context),
+                                child: AppWalletCardAmount(
+                                  balance: balance,
+                                  currencyLabel: currencyLabel,
+                                ),
                               ),
                             ],
                           ),
@@ -106,7 +112,10 @@ class AppWalletCard extends StatelessWidget {
                                   child: FittedBox(
                                     fit: BoxFit.scaleDown,
                                     alignment: Alignment.centerLeft,
-                                    child: _amount(context),
+                                    child: AppWalletCardAmount(
+                                      balance: balance,
+                                      currencyLabel: currencyLabel,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -114,7 +123,7 @@ class AppWalletCard extends StatelessWidget {
                               Flexible(
                                 child: Align(
                                   alignment: Alignment.centerRight,
-                                  child: _title(context),
+                                  child: AppWalletCardTitle(title: title),
                                 ),
                               ),
                             ],
@@ -156,42 +165,4 @@ class AppWalletCard extends StatelessWidget {
       ),
     );
   }
-
-  Widget _amount(BuildContext context) {
-    final colors = context.colors;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      textDirection: TextDirection.ltr,
-      children: [
-        Text(
-          currencyLabel,
-          style: AppTypography.bodyMedium.copyWith(
-            color: colors.textTertiary,
-            letterSpacing: 0,
-          ),
-        ),
-        const SizedBox(width: 4),
-        Text(
-          balance,
-          style: AppTypography.bodyMedium.copyWith(
-            color: colors.textPrimary,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _title(BuildContext context) => Text(
-    title,
-    maxLines: 1,
-    overflow: TextOverflow.ellipsis,
-    textAlign: TextAlign.start,
-    style: AppTypography.bodySmall.copyWith(
-      color: context.colors.textPrimary,
-      height: 18 / 12,
-      letterSpacing: 0,
-    ),
-  );
 }

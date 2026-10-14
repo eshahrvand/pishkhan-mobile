@@ -1,3 +1,6 @@
+import 'app_credit_card_mockup_header.dart';
+import 'app_credit_card_mockup_footer.dart';
+
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -79,7 +82,16 @@ class AppCreditCardMockup extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      SizedBox(height: 20, child: _header()),
+                      SizedBox(
+                        height: 20,
+                        child: AppCreditCardMockupHeader(
+                          channel: channel,
+                          onActivate: onActivate,
+                          onRefresh: onRefresh,
+                          state: state,
+                          walletBalance: walletBalance,
+                        ),
+                      ),
                       const SizedBox(height: 24),
                       SizedBox(
                         height: 1,
@@ -89,7 +101,14 @@ class AppCreditCardMockup extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 23),
-                      SizedBox(height: 20, child: _footer()),
+                      SizedBox(
+                        height: 20,
+                        child: AppCreditCardMockupFooter(
+                          linkedDeposit: linkedDeposit,
+                          state: state,
+                          userName: userName,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -107,130 +126,6 @@ class AppCreditCardMockup extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _header() {
-    if (_isWallet) {
-      return Row(
-        textDirection: TextDirection.ltr,
-        children: [
-          Expanded(
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: Alignment.centerLeft,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                textDirection: TextDirection.ltr,
-                children: [
-                  Text('ریال', style: _walletRegularStyle),
-                  const SizedBox(width: 4.25),
-                  Text(walletBalance, style: _walletMediumStyle),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: Alignment.centerRight,
-              child: InkWell(
-                key: const Key('app_credit_card_mockup_refresh'),
-                onTap: onRefresh,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    SvgPicture.asset(
-                      AppAssets.bankingChannelCardRefresh,
-                      width: 17,
-                      height: 17,
-                    ),
-                    const SizedBox(width: 8.5),
-                    Text('موجودی', style: _walletRegularStyle),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ],
-      );
-    }
-    return Row(
-      textDirection: TextDirection.ltr,
-      children: [
-        if (state == AppCreditCardMockupState.inactive) ...[
-          SizedBox(
-            width: 91,
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: Alignment.centerLeft,
-              child: InkWell(
-                key: const Key('app_credit_card_mockup_activate'),
-                onTap: onActivate,
-                borderRadius: AppRadius.borderSm,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  textDirection: TextDirection.ltr,
-                  children: [
-                    SvgPicture.asset(
-                      AppAssets.bankingChannelCardAngleLeft,
-                      width: 20,
-                      height: 20,
-                    ),
-                    const SizedBox(width: 8),
-                    Text('فعالسازی', style: _mediumStyle(AppPalette.brand600)),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 10),
-        ],
-        Expanded(
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: Alignment.centerRight,
-            child: Text(
-              _channelTitle,
-              textAlign: TextAlign.right,
-              style: _demiBoldStyle(const Color(0xFF24292E)),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _footer() {
-    final inactive = state == AppCreditCardMockupState.inactive;
-    return Row(
-      textDirection: TextDirection.ltr,
-      children: [
-        Expanded(
-          child: Text(
-            _isWallet
-                ? linkedDeposit
-                : inactive
-                ? 'نیاز به فعالسازی'
-                : userName,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            textDirection: TextDirection.ltr,
-            style: _mediumStyle(
-              inactive ? AppPalette.warning600 : AppPalette.gray700,
-            ),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Text(
-            _isWallet ? 'سپرده متصل' : 'نام کاربری',
-            textAlign: TextAlign.right,
-            style: _regularStyle(AppPalette.gray700),
-          ),
-        ),
-      ],
     );
   }
 

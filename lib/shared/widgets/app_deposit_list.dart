@@ -1,3 +1,6 @@
+import 'app_deposit_list_header.dart';
+import 'app_deposit_list_detail_row.dart';
+
 import 'dart:math' as math;
 
 import 'package:avp_ui/avp_ui.dart';
@@ -80,12 +83,17 @@ class AppDepositList extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _header(context),
+                AppDepositListHeader(
+                  alignContentToEdges: alignContentToEdges,
+                  depositIcon: depositIcon,
+                  moreIcon: moreIcon,
+                  onMoreTap: onMoreTap,
+                  title: title,
+                ),
                 const SizedBox(height: 8),
                 divider ?? AppDepositListIcons.divider(),
                 const SizedBox(height: 8),
-                _detailRow(
-                  context,
+                AppDepositListDetailRow(
                   leading: Text(
                     accountNumber,
                     overflow: TextOverflow.ellipsis,
@@ -93,10 +101,10 @@ class AppDepositList extends StatelessWidget {
                     style: _mediumStyle(colors.textPrimary),
                   ),
                   label: accountNumberLabel,
+                  alignContentToEdges: alignContentToEdges,
                 ),
                 const SizedBox(height: 8),
-                _detailRow(
-                  context,
+                AppDepositListDetailRow(
                   leading: AppBadge(
                     label: statusLabel,
                     color: statusColor,
@@ -104,6 +112,7 @@ class AppDepositList extends StatelessWidget {
                     corner: AppBadgeCorner.rounded,
                   ),
                   label: statusFieldLabel,
+                  alignContentToEdges: alignContentToEdges,
                 ),
               ],
             ),
@@ -112,79 +121,6 @@ class AppDepositList extends StatelessWidget {
       ),
     );
   }
-
-  Widget _header(BuildContext context) {
-    final colors = context.colors;
-    final more = SizedBox(
-      width: 20,
-      height: 20,
-      child: Center(child: moreIcon ?? AppDepositListIcons.moreHorizontal()),
-    );
-    return SizedBox(
-      height: 20,
-      child: Row(
-        textDirection: TextDirection.ltr,
-        children: [
-          onMoreTap == null
-              ? more
-              : InkWell(
-                  onTap: onMoreTap,
-                  borderRadius: AppRadius.borderXs,
-                  child: more,
-                ),
-          if (!alignContentToEdges) const Spacer(),
-          if (alignContentToEdges) const SizedBox(width: 8),
-          if (alignContentToEdges)
-            Expanded(
-              child: Text(
-                title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.right,
-                style: _mediumStyle(colors.textPrimary),
-              ),
-            )
-          else
-            Flexible(
-              child: Text(
-                title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.end,
-                style: _mediumStyle(colors.textPrimary),
-              ),
-            ),
-          const SizedBox(width: 4),
-          SizedBox(
-            width: 20,
-            height: 20,
-            child: Center(child: depositIcon ?? AppDepositListIcons.deposit()),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _detailRow(
-    BuildContext context, {
-    required Widget leading,
-    required String label,
-  }) => SizedBox(
-    height: 22,
-    child: Row(
-      textDirection: TextDirection.ltr,
-      children: [
-        if (alignContentToEdges)
-          Expanded(
-            child: Align(alignment: Alignment.centerLeft, child: leading),
-          )
-        else
-          Flexible(child: leading),
-        if (!alignContentToEdges) const Spacer(),
-        Text(label, style: _regularStyle(context.colors.textSecondary)),
-      ],
-    ),
-  );
 
   TextStyle _regularStyle(Color color) => AppTypography.bodySmall.copyWith(
     color: color,

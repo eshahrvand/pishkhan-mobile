@@ -1,11 +1,9 @@
 import 'package:pishkhan_mobile/core/router/app_routes.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'domain/repositories/password_services_repository.dart';
 import 'data/repositories/mock_password_repository.dart';
-import 'presentation/login/cubit/auth_cubit.dart';
 import 'presentation/login/screens/auth_screen.dart';
 import 'presentation/password_services/screens/second_password_screen.dart';
 
@@ -28,12 +26,8 @@ List<RouteBase> buildAuthRoutes({
   return [
     GoRoute(
       path: AuthRoutes.login,
-      builder: (context, state) => BlocProvider(
-        create: (_) => AuthCubit(initialState: const AuthState.initial()),
-        child: AuthScreen(
-          onAuthenticated: () => onAuthenticated(context, state),
-        ),
-      ),
+      builder: (context, state) =>
+          AuthScreen(onAuthenticated: () => onAuthenticated(context, state)),
     ),
     GoRoute(
       path: AuthRoutes.passwords,

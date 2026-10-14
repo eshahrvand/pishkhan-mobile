@@ -1,3 +1,6 @@
+import 'app_address_card_detail_row.dart';
+import 'app_address_card_delivery.dart';
+
 import 'dart:math' as math;
 
 import 'package:avp_ui/avp_ui.dart';
@@ -50,7 +53,13 @@ class AppAddressCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return variant == AppAddressCardVariant.delivery
-        ? _delivery(context)
+        ? AppAddressCardDelivery(
+            address: address,
+            deleteIcon: deleteIcon,
+            deleteLabel: deleteLabel,
+            onDeleteTap: onDeleteTap,
+            type: type,
+          )
         : Directionality(
             textDirection: TextDirection.rtl,
             child: Container(
@@ -117,9 +126,15 @@ class AppAddressCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  _detailRow(_phoneNumber, 'شماره تلفن:'),
+                  AppAddressCardDetailRow(
+                    value: _phoneNumber,
+                    label: 'شماره تلفن:',
+                  ),
                   const SizedBox(height: 8),
-                  _detailRow(postalCode, 'آدرس پستی:'),
+                  AppAddressCardDetailRow(
+                    value: postalCode,
+                    label: 'آدرس پستی:',
+                  ),
                   const SizedBox(height: 8),
                   Text(
                     _address,
@@ -174,26 +189,6 @@ class AppAddressCard extends StatelessWidget {
           );
   }
 
-  Widget _detailRow(String value, String label) => SizedBox(
-    height: 22,
-    child: Row(
-      textDirection: TextDirection.ltr,
-      children: [
-        Expanded(
-          child: Text(
-            value,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            textDirection: TextDirection.ltr,
-            style: _mediumStyle(AppPalette.gray900),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Text(label, style: _regularStyle(AppPalette.gray700)),
-      ],
-    ),
-  );
-
   TextStyle _regularStyle(Color color) => AppTypography.bodySmall.copyWith(
     color: color,
     height: 18 / 12,
@@ -202,47 +197,4 @@ class AppAddressCard extends StatelessWidget {
 
   TextStyle _mediumStyle(Color color) =>
       _regularStyle(color).copyWith(fontWeight: FontWeight.w500);
-
-  Widget _delivery(BuildContext context) => Directionality(
-    textDirection: TextDirection.rtl,
-    child: Container(
-      key: const Key('app_address_delivery'),
-      width: double.infinity,
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Row(
-        textDirection: TextDirection.ltr,
-        children: [
-          Semantics(
-            button: true,
-            label: deleteLabel,
-            child: InkWell(
-              onTap: onDeleteTap,
-              child: SizedBox(
-                width: 20,
-                height: 20,
-                child: deleteIcon ?? SvgPicture.asset(AppAssets.issuanceTrash),
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              _address,
-              textDirection: TextDirection.rtl,
-              textAlign: TextAlign.right,
-              style: AppTypography.bodyMedium.copyWith(
-                color: context.colors.textPrimary,
-                height: 20 / 14,
-                letterSpacing: 0,
-              ),
-            ),
-          ),
-        ],
-      ),
-    ),
-  );
 }

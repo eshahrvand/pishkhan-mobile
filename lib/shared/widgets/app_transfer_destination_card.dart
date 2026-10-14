@@ -1,3 +1,5 @@
+import 'app_transfer_destination_card_row.dart';
+
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -90,43 +92,43 @@ class AppTransferDestinationCard extends StatelessWidget {
               ),
               child: Column(
                 children: [
-                  _row(
-                    depositNumber,
-                    'شماره سپرده',
-                    AppAssets.transferDestinationCardDivider1,
+                  AppTransferDestinationCardRow(
+                    value: depositNumber,
+                    label: 'شماره سپرده',
+                    divider: AppAssets.transferDestinationCardDivider1,
                   ),
                   const SizedBox(height: 10),
-                  _row(
-                    _amount,
-                    'مبلغ (ریال)',
-                    method == AppTransferMethod.satna
+                  AppTransferDestinationCardRow(
+                    value: _amount,
+                    label: 'مبلغ (ریال)',
+                    divider: method == AppTransferMethod.satna
                         ? AppAssets.transferDestinationCardDivider5
                         : AppAssets.transferDestinationCardDivider2,
                   ),
                   const SizedBox(height: 10),
-                  _row(
-                    _methodLabel,
-                    'روش انتقال',
-                    method == AppTransferMethod.paya
+                  AppTransferDestinationCardRow(
+                    value: _methodLabel,
+                    label: 'روش انتقال',
+                    divider: method == AppTransferMethod.paya
                         ? AppAssets.transferDestinationCardDivider8
                         : method == AppTransferMethod.satna
                         ? AppAssets.transferDestinationCardDivider6
                         : AppAssets.transferDestinationCardDivider3,
                   ),
                   const SizedBox(height: 10),
-                  _row(
-                    _isExternal ? purpose : depositIdentifier,
-                    _isExternal ? 'بابت' : 'شناسه واریز',
-                    _isExternal
+                  AppTransferDestinationCardRow(
+                    value: _isExternal ? purpose : depositIdentifier,
+                    label: _isExternal ? 'بابت' : 'شناسه واریز',
+                    divider: _isExternal
                         ? AppAssets.transferDestinationCardDivider7
                         : AppAssets.transferDestinationCardDivider4,
                   ),
                   if (_isExternal) ...[
                     const SizedBox(height: 10),
-                    _row(
-                      depositIdentifier,
-                      'شناسه واریز',
-                      AppAssets.transferDestinationCardDivider4,
+                    AppTransferDestinationCardRow(
+                      value: depositIdentifier,
+                      label: 'شناسه واریز',
+                      divider: AppAssets.transferDestinationCardDivider4,
                     ),
                   ],
                 ],
@@ -137,43 +139,6 @@ class AppTransferDestinationCard extends StatelessWidget {
       ),
     );
   }
-
-  Widget _row(String value, String label, String divider) => SizedBox(
-    height: 18,
-    child: Row(
-      textDirection: TextDirection.ltr,
-      children: [
-        Flexible(
-          fit: FlexFit.loose,
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: Alignment.centerLeft,
-            child: Text(
-              value,
-              textDirection: TextDirection.ltr,
-              style: _valueStyle,
-            ),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: SizedBox(
-            height: .5,
-            child: SvgPicture.asset(divider, fit: BoxFit.fill),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Flexible(
-          fit: FlexFit.loose,
-          child: FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: Alignment.centerRight,
-            child: Text(label, style: _labelStyle),
-          ),
-        ),
-      ],
-    ),
-  );
 
   TextStyle get _nameStyle => AppTypography.bodySmall.copyWith(
     color: AppPalette.gray900,

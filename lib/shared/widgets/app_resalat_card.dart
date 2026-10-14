@@ -1,8 +1,10 @@
+import 'app_resalat_card_security_details.dart';
+import 'app_resalat_card_asset_action.dart';
+
 import 'dart:math' as math;
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 enum AppResalatCardSize { single, multi }
@@ -79,12 +81,12 @@ class AppResalatCard extends StatelessWidget {
             textDirection: TextDirection.ltr,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _assetAction(
+              AppResalatCardAssetAction(
                 path: AppAssets.resalatCardMoreVertical,
                 label: moreLabel,
                 size: 24,
                 onTap: onMorePressed,
-                key: const Key('app_resalat_card_more'),
+                contentKey: const Key('app_resalat_card_more'),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -147,12 +149,12 @@ class AppResalatCard extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(width: 8),
-                      _assetAction(
+                      AppResalatCardAssetAction(
                         path: AppAssets.iconCopy16White,
                         size: 16,
                         onTap: onCopyCardNumber,
                         label: copyNumberLabel,
-                        key: const Key('app_resalat_card_copy_number'),
+                        contentKey: const Key('app_resalat_card_copy_number'),
                       ),
                     ],
                   ),
@@ -173,17 +175,25 @@ class AppResalatCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  _assetAction(
+                  AppResalatCardAssetAction(
                     path: AppAssets.iconCopy16White,
                     size: 16,
                     onTap: onCopyIban,
                     label: copyIbanLabel,
-                    key: const Key('app_resalat_card_copy_iban'),
+                    contentKey: const Key('app_resalat_card_copy_iban'),
                   ),
                 ],
               ),
               const SizedBox(height: 16),
-              _securityDetails(),
+              AppResalatCardSecurityDetails(
+                cvv2: cvv2,
+                expiry: expiry,
+                expiryLabel: expiryLabel,
+                isVisible: isVisible,
+                onVisibilityChanged: onVisibilityChanged,
+                size: size,
+                visibilityLabel: visibilityLabel,
+              ),
             ],
           ),
         ],
@@ -213,66 +223,6 @@ class AppResalatCard extends StatelessWidget {
     );
   }
 
-  Widget _securityDetails() {
-    Widget detail(
-      String label,
-      String value, {
-      bool latin = false,
-      bool center = false,
-    }) => SizedBox(
-      width: 64,
-      child: FittedBox(
-        fit: BoxFit.scaleDown,
-        alignment: center ? Alignment.center : Alignment.centerLeft,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          textDirection: TextDirection.ltr,
-          children: [
-            Text(
-              label,
-              textDirection: latin ? TextDirection.ltr : TextDirection.rtl,
-              style: _detailStyle(),
-            ),
-            const SizedBox(width: 4),
-            Text(
-              value,
-              textDirection: TextDirection.ltr,
-              style: _detailStyle().copyWith(
-                fontWeight: _isSingle ? FontWeight.w600 : FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-    return Row(
-      textDirection: TextDirection.ltr,
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        detail(expiryLabel, isVisible ? expiry : '**/**'),
-        detail('CVV2:', isVisible ? cvv2 : '****', latin: true, center: true),
-        SizedBox(
-          width: 64,
-          height: 20,
-          child: Align(
-            alignment: Alignment.centerRight,
-            child: _assetAction(
-              path: isVisible
-                  ? AppAssets.resalatCardEye
-                  : AppAssets.resalatCardEyeSlash,
-              size: 20,
-              label: visibilityLabel,
-              onTap: onVisibilityChanged == null
-                  ? null
-                  : () => onVisibilityChanged!(!isVisible),
-              key: const Key('app_resalat_card_visibility'),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
   TextStyle get _cardNumberStyle => AppTypography.titleMedium.copyWith(
     color: AppPalette.white,
     fontSize: 16,
@@ -288,24 +238,4 @@ class AppResalatCard extends StatelessWidget {
         height: height,
         letterSpacing: 0,
       );
-
-  Widget _assetAction({
-    required String path,
-    required double size,
-    required VoidCallback? onTap,
-    required Key key,
-    String? label,
-  }) {
-    final icon = SizedBox.square(
-      dimension: size,
-      child: SvgPicture.asset(path, fit: BoxFit.contain),
-    );
-    return onTap == null
-        ? KeyedSubtree(key: key, child: icon)
-        : Semantics(
-            button: true,
-            label: label,
-            child: InkWell(key: key, onTap: onTap, child: icon),
-          );
-  }
 }
