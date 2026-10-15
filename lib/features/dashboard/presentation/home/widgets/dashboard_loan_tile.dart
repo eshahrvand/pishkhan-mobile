@@ -29,7 +29,6 @@ class DashboardLoanTile extends StatelessWidget {
       height: height,
       child: FittedBox(
         child: AppLoanCard(
-          key: ValueKey('loan_card_${loan.id}'),
           size: isSingle ? AppLoanCardSize.single : AppLoanCardSize.multi,
           cardName: loan.title ?? S.current.loansDefaultName,
           loanNumber: loan.number,

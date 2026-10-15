@@ -28,7 +28,6 @@ class DashboardDepositTile extends StatelessWidget {
       height: height,
       child: FittedBox(
         child: AppDepositCard(
-          key: ValueKey('deposit_card_${deposit.id}'),
           size: isSingle ? AppDepositCardSize.single : AppDepositCardSize.multi,
           cardType: deposit.typeLabel,
           depositNumber: deposit.number,

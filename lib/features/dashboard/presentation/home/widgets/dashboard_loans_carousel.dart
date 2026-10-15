@@ -30,6 +30,7 @@ class DashboardLoansCarousel extends StatefulWidget {
 
 class _DashboardLoansCarouselState extends State<DashboardLoansCarousel> {
   PageController? _pages;
+  bool _syncingPages = false;
   double? _viewport;
   String? _controllerItems;
 
@@ -83,6 +84,15 @@ class _DashboardLoansCarouselState extends State<DashboardLoansCarousel> {
                 keepPage: false,
                 viewportFraction: fraction,
               );
+              // Reposition the attached scroll view explicitly when its controller changes.
+              _syncingPages = true;
+              final controller = _pages!;
+              final selectedIndex = state.selectedIndex;
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (!mounted || !identical(_pages, controller)) return;
+                if (controller.hasClients) controller.jumpToPage(selectedIndex);
+                _syncingPages = false;
+              });
               _viewport = fraction;
               _controllerItems = state.visibleItems
                   .map((item) => item.id)
@@ -118,30 +128,24 @@ class _DashboardLoansCarouselState extends State<DashboardLoansCarousel> {
                               onDetailsRequested: widget.onDetailsRequested,
                             ),
                           )
-                        : KeyedSubtree(
-                            key: ObjectKey(_pages),
-                            child: PageView.builder(
-                              key: const Key('loans_carousel'),
-                              controller: _pages,
-                              itemCount: state.visibleItems.length,
-                              onPageChanged: (index) {
-                                context.read<LoansCubit>().select(index);
-                                widget.onSelectedLoanChanged?.call(
-                                  context
-                                      .read<LoansCubit>()
-                                      .state
-                                      .selectedLoan!,
-                                );
-                              },
-                              itemBuilder: (context, index) => Center(
-                                child: DashboardLoanTile(
-                                  loan: state.visibleItems[index],
-                                  width: width,
-                                  isSingle: state.visibleItems.length == 1,
-                                  height: height,
-                                  onCopyNumber: widget.onCopyNumber,
-                                  onDetailsRequested: widget.onDetailsRequested,
-                                ),
+                        : PageView.builder(
+                            controller: _pages,
+                            itemCount: state.visibleItems.length,
+                            onPageChanged: (index) {
+                              if (_syncingPages) return;
+                              context.read<LoansCubit>().select(index);
+                              widget.onSelectedLoanChanged?.call(
+                                context.read<LoansCubit>().state.selectedLoan!,
+                              );
+                            },
+                            itemBuilder: (context, index) => Center(
+                              child: DashboardLoanTile(
+                                loan: state.visibleItems[index],
+                                width: width,
+                                isSingle: state.visibleItems.length == 1,
+                                height: height,
+                                onCopyNumber: widget.onCopyNumber,
+                                onDetailsRequested: widget.onDetailsRequested,
                               ),
                             ),
                           ),
@@ -165,7 +169,6 @@ class _DashboardLoansCarouselState extends State<DashboardLoansCarousel> {
                               selected: index == state.selectedIndex,
                               label: state.visibleItems[index].number,
                               child: InkWell(
-                                key: Key('loans_indicator_$index'),
                                 onTap: () => _pages!.animateToPage(
                                   index,
                                   duration: const Duration(milliseconds: 250),

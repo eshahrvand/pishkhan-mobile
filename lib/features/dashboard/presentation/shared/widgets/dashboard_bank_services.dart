@@ -40,7 +40,6 @@ class DashboardBankServices extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Container(
-              key: const Key('dashboard_bank_services'),
               padding: const EdgeInsets.all(15.2),
               decoration: BoxDecoration(
                 color: context.colors.surface,
@@ -69,7 +68,6 @@ class DashboardBankServices extends StatelessWidget {
                         width: 113 * MediaQuery.textScalerOf(context).scale(1),
                         height: 20,
                         child: AppButton(
-                          key: const Key('dashboard_all_services'),
                           onPressed: onAllServices,
                           label: S.current.dashboardViewAll,
                           trailingIcon: AvpImage(
@@ -149,14 +147,12 @@ class DashboardBankServices extends StatelessWidget {
                   gap: 8,
                 ),
                 child: Container(
-                  key: const Key('dashboard_add_favorites'),
                   height: 44,
                   decoration: BoxDecoration(
                     color: AppDashboardColors.favoritesSurface,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: AppButton(
-                    key: const Key('dashboard_customize'),
                     onPressed: onEdit,
                     label: S.current.dashboardAddFavorites,
                     foregroundColor: AppDashboardColors.favoritesAction,

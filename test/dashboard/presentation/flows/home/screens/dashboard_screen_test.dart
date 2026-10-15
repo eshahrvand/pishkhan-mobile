@@ -1,3 +1,5 @@
+import '../../../../support/dashboard_ui_finders.dart';
+
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import '../../../../support/dashboard_test_repositories.dart';
@@ -8,7 +10,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/home/screens/dashboard_screen.dart';
-import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_wallet_card.dart';
 
 void main() {
@@ -66,8 +67,7 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  Future<void> tap(WidgetTester tester, String key) async {
-    final finder = find.byKey(Key(key));
+  Future<void> tap(WidgetTester tester, Finder finder) async {
     await tester.ensureVisible(finder);
     await tester.tap(finder);
     await tester.pumpAndSettle();
@@ -80,9 +80,18 @@ void main() {
       expect(find.byType(AppWalletCard), findsOneWidget);
       expect(find.text('به رِسو بسپار!'), findsOneWidget);
       expect(find.text('خدمات بانک رسالت'), findsOneWidget);
-      expect(find.byKey(const Key('dashboard_favorites_editor')), findsNothing);
+      expect(dashboardButton(S.current.dashboardConfirm), findsNothing);
       expect(
-        tester.getSize(find.byKey(const Key('dashboard_reso_banner'))),
+        tester.getSize(
+          find
+              .descendant(
+                of: find.byType(DashboardResoBannerPanel),
+                matching: find.byWidgetPredicate(
+                  (widget) => widget is SizedBox && widget.height != null,
+                ),
+              )
+              .first,
+        ),
         const Size(343, 194),
       );
       expect(
@@ -108,23 +117,43 @@ void main() {
         tester,
         subject(favorites: ['card-issue'], onChanged: (value) => saved = value),
       );
-      await tap(tester, 'dashboard_customize');
-      await tap(tester, 'dashboard_remove_card-issue');
-      await tap(tester, 'dashboard_add_service');
+      await tap(
+        tester,
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is AppButton &&
+              (widget.label == S.current.dashboardEdit ||
+                  widget.label == S.current.dashboardAddFavorites),
+        ),
+      );
+      await tap(
+        tester,
+        dashboardSemantic(
+          '${S.current.dashboardRemoveService} ${DashboardService.issue.label()}',
+        ),
+      );
+      await tap(tester, dashboardSemantic(S.current.dashboardAddService));
       await tester.enterText(
         find.descendant(
-          of: find.byKey(const Key('dashboard_service_search')),
+          of: find.byType(AppSearchField),
           matching: find.byType(TextField),
         ),
         'برآورد',
       );
       await tester.pumpAndSettle();
-      await tap(tester, 'app_service_grid_icon_catalog-loan-estimate');
+      await tap(
+        tester,
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is DashboardServiceOption &&
+              widget.service.id == 'loan-estimate',
+        ),
+      );
       expect(
         find.byKey(const Key('app_service_grid_icon_favorite-loan-estimate')),
         findsOneWidget,
       );
-      await tap(tester, 'dashboard_cancel');
+      await tap(tester, dashboardButton(S.current.dashboardCancel));
       expect(
         find.byKey(const Key('app_service_grid_icon_favorite-card-issue')),
         findsOneWidget,
@@ -156,23 +185,35 @@ void main() {
           onChanged: (value) => saved = value,
         ),
       );
-      await tap(tester, 'dashboard_customize');
-      await tap(tester, 'dashboard_add_service');
+      await tap(
+        tester,
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is AppButton &&
+              (widget.label == S.current.dashboardEdit ||
+                  widget.label == S.current.dashboardAddFavorites),
+        ),
+      );
+      await tap(tester, dashboardSemantic(S.current.dashboardAddService));
       await tester.enterText(
         find.descendant(
-          of: find.byKey(const Key('dashboard_service_search')),
+          of: find.byType(AppSearchField),
           matching: find.byType(TextField),
         ),
         'برآورد',
       );
       await tester.pumpAndSettle();
-      await tap(tester, 'app_service_grid_icon_catalog-loan-estimate');
-      expect(find.byKey(const Key('dashboard_add_service')), findsNothing);
-      expect(
-        find.byKey(const Key('dashboard_favorites_limit')),
-        findsOneWidget,
+      await tap(
+        tester,
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is DashboardServiceOption &&
+              widget.service.id == 'loan-estimate',
+        ),
       );
-      await tap(tester, 'dashboard_confirm');
+      expect(dashboardSemantic(S.current.dashboardAddService), findsNothing);
+      expect(find.text(S.current.dashboardFavoritesLimit), findsOneWidget);
+      await tap(tester, dashboardButton(S.current.dashboardConfirm));
       expect(saved, [
         'card-issue',
         'card-password',
@@ -183,7 +224,7 @@ void main() {
         'deposit-representative',
         'loan-estimate',
       ]);
-      expect(find.byKey(const Key('dashboard_favorites_editor')), findsNothing);
+      expect(dashboardButton(S.current.dashboardConfirm), findsNothing);
       expect(
         find.byKey(const Key('app_service_grid_icon_favorite-loan-estimate')),
         findsOneWidget,
@@ -199,19 +240,29 @@ void main() {
       tester,
       subject(favorites: ['card-issue'], onChanged: (value) => saved = value),
     );
-    await tap(tester, 'dashboard_customize');
-    await tap(tester, 'dashboard_reset');
+    await tap(
+      tester,
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is AppButton &&
+            (widget.label == S.current.dashboardEdit ||
+                widget.label == S.current.dashboardAddFavorites),
+      ),
+    );
+    await tap(tester, dashboardButton(S.current.dashboardResetTitle));
     expect(find.text('بازنشانی تنظیمات'), findsNWidgets(2));
-    await tap(tester, 'dashboard_reset_cancel');
+    await tap(tester, dashboardResetButton(S.current.dashboardCancel));
     expect(
-      find.byKey(const Key('dashboard_remove_card-issue')),
+      dashboardSemantic(
+        '${S.current.dashboardRemoveService} ${DashboardService.issue.label()}',
+      ),
       findsOneWidget,
     );
     expect(saved, isNull);
-    await tap(tester, 'dashboard_reset');
-    await tap(tester, 'dashboard_reset_confirm');
+    await tap(tester, dashboardButton(S.current.dashboardResetTitle));
+    await tap(tester, dashboardResetButton(S.current.dashboardResetConfirm));
     expect(saved, isEmpty);
-    expect(find.byKey(const Key('dashboard_favorites_editor')), findsNothing);
+    expect(dashboardButton(S.current.dashboardConfirm), findsNothing);
     expect(
       find.byKey(const Key('app_service_grid_icon_favorite-card-issue')),
       findsNothing,
@@ -222,10 +273,18 @@ void main() {
     'catalog search handles no results, clear and duplicate selection',
     (tester) async {
       await render(tester, subject(favorites: ['card-issue']));
-      await tap(tester, 'dashboard_customize');
-      await tap(tester, 'dashboard_add_service');
+      await tap(
+        tester,
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is AppButton &&
+              (widget.label == S.current.dashboardEdit ||
+                  widget.label == S.current.dashboardAddFavorites),
+        ),
+      );
+      await tap(tester, dashboardSemantic(S.current.dashboardAddService));
       final field = find.descendant(
-        of: find.byKey(const Key('dashboard_service_search')),
+        of: find.byType(AppSearchField),
         matching: find.byType(TextField),
       );
       await tester.enterText(field, 'xxxxxxxx');
@@ -233,8 +292,15 @@ void main() {
       expect(find.text('خدمتی پیدا نشد'), findsOneWidget);
       await tester.enterText(field, '');
       await tester.pumpAndSettle();
-      await tap(tester, 'app_service_grid_icon_catalog-card-issue');
-      expect(find.byKey(const Key('dashboard_services_sheet')), findsOneWidget);
+      await tap(
+        tester,
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is DashboardServiceOption &&
+              widget.service.id == 'card-issue',
+        ),
+      );
+      expect(find.byType(DashboardServicesSheet), findsOneWidget);
       expect(tester.takeException(), isNull);
     },
   );
@@ -251,16 +317,16 @@ void main() {
         onPrompt: (value) => prompt = value,
       ),
     );
-    await tap(tester, 'app_service_grid_icon_card-password');
+    await tap(tester, find.byKey(Key('app_service_grid_icon_card-password')));
     expect(service, 'card-password');
     await tester.enterText(
       find.descendant(
-        of: find.byKey(const Key('dashboard_assistant_prompt')),
+        of: find.byType(AppTextField),
         matching: find.byType(TextField),
       ),
       '  سوال من  ',
     );
-    await tap(tester, 'dashboard_submit_prompt');
+    await tap(tester, dashboardSemantic(S.current.dashboardSendPrompt));
     expect(prompt, 'سوال من');
   });
 
@@ -280,11 +346,19 @@ void main() {
         ),
         size: const Size(320, 640),
       );
-      await tap(tester, 'dashboard_customize');
-      await tap(tester, 'dashboard_confirm');
-      await tap(tester, 'dashboard_menu_button');
-      expect(find.byKey(const Key('dashboard_services_sheet')), findsOneWidget);
-      await tap(tester, 'app_bottom_sheet_left_action');
+      await tap(
+        tester,
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is AppButton &&
+              (widget.label == S.current.dashboardEdit ||
+                  widget.label == S.current.dashboardAddFavorites),
+        ),
+      );
+      await tap(tester, dashboardButton(S.current.dashboardConfirm));
+      await tap(tester, find.byKey(Key('dashboard_menu_button')));
+      expect(find.byType(DashboardServicesSheet), findsOneWidget);
+      await tap(tester, find.byKey(Key('app_bottom_sheet_left_action')));
       expect(tester.takeException(), isNull);
     },
   );
@@ -294,55 +368,107 @@ void main() {
     (tester) async {
       String? selected;
       await render(tester, subject(onService: (value) => selected = value));
-      await tap(tester, 'dashboard_all_services');
+      await tap(tester, dashboardButton(S.current.dashboardViewAll));
       expect(
-        find.byKey(const Key('dashboard_all_services_scroll')),
+        find.descendant(
+          of: find.byType(DashboardAllServicesScreen),
+          matching: find.byType(SingleChildScrollView),
+        ),
         findsOneWidget,
       );
-      expect(find.byKey(const Key('dashboard_services_sheet')), findsNothing);
-      await tap(tester, 'app_service_grid_icon_all-requests-list');
+      expect(find.byType(DashboardServicesSheet), findsNothing);
+      await tap(
+        tester,
+        find.byKey(Key('app_service_grid_icon_all-requests-list')),
+      );
       expect(selected, 'requests-list');
-      await tap(tester, 'dashboard_catalog_back');
-      expect(find.byKey(const Key('dashboard_bank_services')), findsOneWidget);
+      await tap(
+        tester,
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is AppButton &&
+              widget.icon is AvpImage &&
+              (widget.icon as AvpImage).image == AppAssets.dashboardCatalogBack,
+        ),
+      );
+      expect(find.byType(DashboardBankServices), findsOneWidget);
     },
   );
   testWidgets(
     'service groups collapse and Arabic search variants match Persian labels',
     (tester) async {
       await render(tester, subject());
-      await tap(tester, 'dashboard_menu_button');
-      await tap(tester, 'dashboard_category_cards');
+      await tap(tester, find.byKey(Key('dashboard_menu_button')));
+      await tap(
+        tester,
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is DashboardCategoryHeading &&
+              widget.category == DashboardCategory.cards,
+        ),
+      );
       expect(
-        find.byKey(const Key('app_service_grid_icon_catalog-card-issue')),
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is DashboardServiceOption &&
+              widget.service.id == 'card-issue',
+        ),
         findsNothing,
       );
-      await tap(tester, 'dashboard_category_cards');
+      await tap(
+        tester,
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is DashboardCategoryHeading &&
+              widget.category == DashboardCategory.cards,
+        ),
+      );
       expect(
-        find.byKey(const Key('app_service_grid_icon_catalog-card-issue')),
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is DashboardServiceOption &&
+              widget.service.id == 'card-issue',
+        ),
         findsOneWidget,
       );
       await tester.enterText(
         find.descendant(
-          of: find.byKey(const Key('dashboard_service_search')),
+          of: find.byType(AppSearchField),
           matching: find.byType(TextField),
         ),
         'تغيير',
       );
       await tester.pumpAndSettle();
       expect(
-        find.byKey(const Key('app_service_grid_icon_catalog-card-deposit')),
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is DashboardServiceOption &&
+              widget.service.id == 'card-deposit',
+        ),
         findsOneWidget,
       );
       expect(
-        find.byKey(const Key('app_service_grid_icon_catalog-wallet-deposit')),
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is DashboardServiceOption &&
+              widget.service.id == 'wallet-deposit',
+        ),
         findsOneWidget,
       );
       expect(
-        find.byKey(const Key('app_service_grid_icon_catalog-identity-phone')),
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is DashboardServiceOption &&
+              widget.service.id == 'identity-phone',
+        ),
         findsOneWidget,
       );
       expect(
-        find.byKey(const Key('app_service_grid_icon_catalog-identity-change')),
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is DashboardServiceOption &&
+              widget.service.id == 'identity-change',
+        ),
         findsOneWidget,
       );
       final clear = find.byType(AppSearchField);
@@ -353,7 +479,11 @@ void main() {
       await tester.tap(clearButton);
       await tester.pumpAndSettle();
       expect(
-        find.byKey(const Key('dashboard_category_modern')),
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is DashboardCategoryHeading &&
+              widget.category == DashboardCategory.modern,
+        ),
         findsOneWidget,
       );
       expect(tester.takeException(), isNull);

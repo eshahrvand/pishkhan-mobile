@@ -75,7 +75,6 @@ class DashboardFavoritesGrid extends StatelessWidget {
                               label:
                                   '${S.current.dashboardRemoveService} ${service.label()}',
                               child: InkWell(
-                                key: Key('dashboard_remove_${service.id}'),
                                 onTap: () => onRemove(service.id),
                                 child: SizedBox.square(
                                   dimension: 20,
@@ -107,7 +106,6 @@ class DashboardFavoritesGrid extends StatelessWidget {
                       button: true,
                       label: S.current.dashboardAddService,
                       child: InkWell(
-                        key: const Key('dashboard_add_service'),
                         onTap: onAdd,
                         borderRadius: AppRadius.borderMd,
                         child: Column(

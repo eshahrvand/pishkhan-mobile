@@ -718,7 +718,7 @@ Cubit `select` ignores out-of-range indices and nonloaded states. A monotonicall
 
 ### 12.3 View resources, lifecycle and dashboard
 
-Each tab constructs its Cubit from its required repository, calls load, observes BlocConsumer, reloads when repository identity changes and closes it at disposal. Retry delegates to Cubit.load. PageController is not canonical state: selected ID/index comes from Loaded. Controllers are recreated when item order/IDs or viewport fraction changes; keepPage is false and an ObjectKey on the controller replaces the associated page subtree. Bloc listeners synchronize valid programmatic selection when the controller is idle.
+Each tab constructs its Cubit from its required repository, calls load, observes BlocConsumer, reloads when repository identity changes and closes it at disposal. Retry delegates to Cubit.load. PageController is not canonical state: selected ID/index comes from Loaded. Controllers are recreated when item order/IDs or viewport fraction changes; keepPage is false and a guarded post-frame jump synchronizes the attached scroll view to the selected index without a manually assigned widget Key. Page-change callbacks are ignored during this controller synchronization. Bloc listeners synchronize valid programmatic selection when the controller is idle.
 
 DashboardNavigationCubit owns selected AppPrimaryTab. IndexedStack preserves all four tab instances; each loads once on mount, including offstage tabs. TickerMode pauses hidden animations. Back returns to Home or cancels a Home favorite draft. The dashboard reuses unchanged default mock repository objects on seed changes, so replacing loans does not reset Home favorites.
 

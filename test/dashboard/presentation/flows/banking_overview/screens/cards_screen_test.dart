@@ -1,3 +1,5 @@
+import '../../../../support/dashboard_ui_finders.dart';
+
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import '../../../../support/dashboard_test_repositories.dart';
@@ -15,9 +17,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pishkhan_mobile/features/dashboard/domain/entities/bank_card.dart';
-import 'package:pishkhan_mobile/features/dashboard/presentation/home/screens/cards_tab.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/home/screens/dashboard_screen.dart';
-import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_resalat_card.dart';
 
 const _preview = Key('cards_preview');
@@ -68,8 +68,7 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  Future<void> tap(WidgetTester tester, String key) async {
-    final finder = find.byKey(Key(key));
+  Future<void> tap(WidgetTester tester, Finder finder) async {
     await tester.ensureVisible(finder);
     await tester.tap(finder);
     await tester.pumpAndSettle();
@@ -96,27 +95,23 @@ void main() {
           );
           expect(tester.takeException(), isNull);
           expect(
-            tester.getTopLeft(find.byKey(const Key('cards_operations'))).dy,
+            tester.getTopLeft(dashboardGroup(S.current.cardsOperations)).dy,
             341,
           );
           expect(
-            tester.getSize(find.byKey(const Key('cards_operations'))).height,
+            tester.getSize(dashboardGroup(S.current.cardsOperations)).height,
             176,
           );
           expect(
-            tester
-                .getSize(find.byKey(const Key('cards_pin_operations')))
-                .height,
+            tester.getSize(dashboardGroup(S.current.cardsPinOperations)).height,
             160,
           );
           expect(
-            tester.getSize(find.byKey(const Key('cards_quick_access'))).height,
+            tester.getSize(dashboardGroup(S.current.cardsQuickAccess)).height,
             176,
           );
           final active = find.descendant(
-            of: find.byKey(
-              ValueKey('bank_card_${single ? 'current' : 'qarz-1'}'),
-            ),
+            of: dashboardCard(single ? 'current' : 'qarz-1'),
             matching: find.byKey(const Key('app_resalat_card')),
           );
           expect(
@@ -125,10 +120,10 @@ void main() {
           );
           expect(tester.getTopLeft(active).dy, 104);
           expect(
-            find.byKey(const Key('cards_carousel')),
+            dashboardCarousel(DashboardCardsCarousel),
             single ? findsNothing : findsOneWidget,
           );
-          final operations = find.byKey(const Key('cards_operations'));
+          final operations = dashboardGroup(S.current.cardsOperations);
           final block = find.descendant(
             of: operations,
             matching: find.byKey(const Key('app_service_grid_icon_card-block')),
@@ -203,16 +198,16 @@ void main() {
         ),
       );
       expect(find.text('536'), findsOneWidget);
-      await tap(tester, 'app_resalat_card_visibility');
+      await tap(tester, find.byKey(Key('app_resalat_card_visibility')));
       expect(find.text('536'), findsNothing);
       expect(find.text('****'), findsOneWidget);
-      await tap(tester, 'app_resalat_card_copy_number');
-      await tap(tester, 'app_resalat_card_copy_iban');
+      await tap(tester, find.byKey(Key('app_resalat_card_copy_number')));
+      await tap(tester, find.byKey(Key('app_resalat_card_copy_iban')));
       expect(copiedNumber, card.number);
       expect(copiedIban, card.iban);
-      await tap(tester, 'app_resalat_card_more');
+      await tap(tester, find.byKey(Key('app_resalat_card_more')));
       expect(more?.id, 'test');
-      await tap(tester, 'app_service_grid_icon_card-reissue');
+      await tap(tester, find.byKey(Key('app_service_grid_icon_card-reissue')));
       expect(request?.action, CardAction.reissue);
       expect(request?.card.id, 'test');
     },
@@ -236,7 +231,7 @@ void main() {
           ),
         ),
       );
-      final first = find.byKey(const ValueKey('bank_card_first'));
+      final first = dashboardCard('first');
       await tester.tap(
         find.descendant(
           of: first,
@@ -246,7 +241,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('111'), findsOneWidget);
       await tester.drag(
-        find.byKey(const Key('cards_carousel')),
+        dashboardCarousel(DashboardCardsCarousel),
         const Offset(330, 0),
       );
       await tester.pumpAndSettle();
@@ -255,9 +250,9 @@ void main() {
         find.byKey(const Key('app_service_grid_icon_card-pin-second-forgot')),
         findsOneWidget,
       );
-      await tap(tester, 'app_service_grid_icon_card-block');
+      await tap(tester, find.byKey(Key('app_service_grid_icon_card-block')));
       expect(request?.card.id, 'second');
-      await tap(tester, 'cards_indicator_0');
+      await tap(tester, dashboardIndicator(DashboardCardsCarousel, 0));
       expect(find.text('111'), findsOneWidget);
       expect(tester.takeException(), isNull);
     },
@@ -274,7 +269,13 @@ void main() {
           ),
         ),
       );
-      await tap(tester, 'primary_tab_cards');
+      await tap(
+        tester,
+        find.descendant(
+          of: find.byType(AppPrimaryNavigation),
+          matching: find.text(S.current.dashboardCardsTab),
+        ),
+      );
       expect(find.text('کارت‌های من'), findsOneWidget);
       await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
@@ -282,8 +283,20 @@ void main() {
         find.byKey(const Key('app_service_grid_icon_favorite-card-issue')),
         findsOneWidget,
       );
-      await tap(tester, 'primary_tab_cards');
-      await tap(tester, 'primary_tab_dashboard');
+      await tap(
+        tester,
+        find.descendant(
+          of: find.byType(AppPrimaryNavigation),
+          matching: find.text(S.current.dashboardCardsTab),
+        ),
+      );
+      await tap(
+        tester,
+        find.descendant(
+          of: find.byType(AppPrimaryNavigation),
+          matching: find.text(S.current.dashboardTab),
+        ),
+      );
       expect(
         find.byKey(const Key('app_service_grid_icon_favorite-card-issue')),
         findsOneWidget,
@@ -301,7 +314,10 @@ void main() {
       ),
       size: const Size(320, 640),
     );
-    await tap(tester, 'app_service_grid_icon_card-gift-balance');
+    await tap(
+      tester,
+      find.byKey(Key('app_service_grid_icon_card-gift-balance')),
+    );
     expect(tester.takeException(), isNull);
   });
   testWidgets('an empty card list renders without a selected-card lookup', (

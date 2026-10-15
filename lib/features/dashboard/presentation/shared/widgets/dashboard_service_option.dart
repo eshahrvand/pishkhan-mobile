@@ -25,7 +25,6 @@ class DashboardServiceOption extends StatelessWidget {
           color: plain ? Colors.transparent : AppDashboardColors.tileSurface,
           borderRadius: AppRadius.borderMd,
           child: InkWell(
-            key: Key('app_service_grid_icon_catalog-${service.id}'),
             onTap: enabled ? () => Navigator.of(context).pop(service) : null,
             borderRadius: AppRadius.borderMd,
             child: Container(

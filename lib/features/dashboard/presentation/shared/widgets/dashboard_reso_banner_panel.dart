@@ -177,7 +177,6 @@ class _DashboardResoBannerPanelState extends State<DashboardResoBannerPanel>
                     _captionHeight(context, 173 * scale) - 62,
                   );
                   return SizedBox(
-                    key: const Key('dashboard_reso_banner'),
                     height: 194 + extra,
                     child: Stack(
                       children: [
@@ -191,7 +190,6 @@ class _DashboardResoBannerPanelState extends State<DashboardResoBannerPanel>
                               ),
                         ),
                         Positioned(
-                          key: const Key('dashboard_reso_foreground'),
                           left: -20 * scale,
                           top: 7,
                           width: 217 * scale,
@@ -203,7 +201,6 @@ class _DashboardResoBannerPanelState extends State<DashboardResoBannerPanel>
                           ),
                         ),
                         Positioned(
-                          key: const Key('dashboard_reso_caption'),
                           right: 16,
                           top: 43,
                           width: 173 * scale,
@@ -237,7 +234,6 @@ class _DashboardResoBannerPanelState extends State<DashboardResoBannerPanel>
                           right: 16,
                           top: 126 + extra,
                           child: AppTextField(
-                            key: const Key('dashboard_assistant_prompt'),
                             controller: _controller,
                             textStyle: AppTypography.bodyMedium.copyWith(
                               height: 20 / 14,
@@ -255,7 +251,6 @@ class _DashboardResoBannerPanelState extends State<DashboardResoBannerPanel>
                             textDirection: TextDirection.rtl,
                             textInputAction: TextInputAction.send,
                             suffixIcon: InkWell(
-                              key: const Key('dashboard_submit_prompt'),
                               onTap: () => _submit(_controller.text),
                               child: Semantics(
                                 button: true,

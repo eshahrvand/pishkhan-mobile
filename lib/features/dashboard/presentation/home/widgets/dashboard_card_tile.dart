@@ -31,7 +31,6 @@ class DashboardCardTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppResalatCard(
-      key: ValueKey('bank_card_${card.id}'),
       width: width,
       size: isSingle ? AppResalatCardSize.single : AppResalatCardSize.multi,
       cardType: card.kind == BankCardKind.current

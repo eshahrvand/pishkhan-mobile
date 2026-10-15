@@ -36,7 +36,6 @@ class DashboardFavoritesCard extends StatelessWidget {
           previous.isFavoritesLimitReached != current.isFavoritesLimitReached,
       builder: (context, state) {
         return Container(
-          key: const Key('dashboard_favorites_card'),
           padding: const EdgeInsets.all(15.2),
           decoration: BoxDecoration(
             color: AppDashboardColors.favoritesSurface,
@@ -67,7 +66,6 @@ class DashboardFavoritesCard extends StatelessWidget {
                       width: 20,
                       height: 20,
                       child: AppButton(
-                        key: const Key('dashboard_reset'),
                         onPressed: onReset,
                         icon: AvpImage(
                           image: AppAssets.dashboardReset,
@@ -83,7 +81,6 @@ class DashboardFavoritesCard extends StatelessWidget {
                       width: 80 * MediaQuery.textScalerOf(context).scale(1),
                       height: 20,
                       child: AppButton(
-                        key: const Key('dashboard_customize'),
                         onPressed: onEdit,
                         label: S.current.dashboardEdit,
                         foregroundColor: AppDashboardColors.favoritesAction,
@@ -101,7 +98,6 @@ class DashboardFavoritesCard extends StatelessWidget {
               const SizedBox(height: 20),
               if (state.draft != null) ...[
                 Container(
-                  key: const Key('dashboard_favorites_editor'),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 7.2,
                     vertical: 11.2,
@@ -125,7 +121,6 @@ class DashboardFavoritesCard extends StatelessWidget {
                       if (state.isFavoritesLimitReached) ...[
                         const SizedBox(height: 12),
                         Container(
-                          key: const Key('dashboard_favorites_limit'),
                           constraints: const BoxConstraints(minHeight: 40),
                           padding: const EdgeInsetsDirectional.fromSTEB(
                             14,
@@ -170,7 +165,6 @@ class DashboardFavoritesCard extends StatelessWidget {
                     SizedBox(
                       width: 100,
                       child: AppButton(
-                        key: const Key('dashboard_confirm'),
                         onPressed: onConfirm,
                         label: S.current.dashboardConfirm,
                         size: AppButtonSize.sm,
@@ -178,7 +172,6 @@ class DashboardFavoritesCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 12),
                     AppButton(
-                      key: const Key('dashboard_cancel'),
                       onPressed: onCancel,
                       label: S.current.dashboardCancel,
                       foregroundColor: context.colors.textSecondary,

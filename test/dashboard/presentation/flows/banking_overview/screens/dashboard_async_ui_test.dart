@@ -1,3 +1,5 @@
+import '../../../../support/dashboard_ui_finders.dart';
+
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import '../../../../../support/router_test_app.dart';
@@ -15,10 +17,6 @@ import 'package:pishkhan_mobile/features/dashboard/domain/entities/dashboard_hom
 import 'package:pishkhan_mobile/features/dashboard/domain/repositories/dashboard_repositories.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/home/screens/dashboard_screen.dart';
 import 'package:pishkhan_mobile/features/dashboard/data/datasources/dashboard_mock_data.dart';
-import 'package:pishkhan_mobile/features/dashboard/presentation/home/screens/cards_tab.dart';
-import 'package:pishkhan_mobile/features/dashboard/presentation/home/screens/deposits_tab.dart';
-import 'package:pishkhan_mobile/features/dashboard/presentation/home/screens/loans_tab.dart';
-import 'package:pishkhan_mobile/generated/l10n.dart';
 
 import '../../../../support/dashboard_test_repositories.dart';
 
@@ -61,16 +59,16 @@ void main() {
         };
         await tester.pumpWidget(subject(tab));
         await tester.pumpAndSettle();
-        expect(find.byKey(Key('${kind}_error')), findsOneWidget);
-        expect(find.byKey(Key('${kind}_navigation')), findsOneWidget);
+        expect(find.text(S.current.dashboardLoadError), findsOneWidget);
+        expect(find.byType(AppPrimaryNavigation), findsOneWidget);
         repository.cards = const Success([]);
         repository.deposits = const Success([]);
         repository.loans = const Success([]);
-        await tester.tap(find.byKey(const Key('dashboard_retry')));
+        await tester.tap(dashboardButton(S.current.dashboardRetry));
         await tester.pumpAndSettle();
-        expect(find.byKey(Key('${kind}_error')), findsNothing);
-        expect(find.byKey(Key('${kind}_navigation')), findsOneWidget);
-        expect(find.byKey(Key('${kind}_carousel')), findsNothing);
+        expect(find.text(S.current.dashboardLoadError), findsNothing);
+        expect(find.byType(AppPrimaryNavigation), findsOneWidget);
+        expect(find.byType(PageView), findsNothing);
         expect(tester.takeException(), isNull);
       },
     );
@@ -82,16 +80,32 @@ void main() {
       final repository = TestRepositories()..loanQueue.add(request);
       await tester.pumpWidget(subject(LoansTab(repository: repository)));
       await tester.pump();
-      expect(find.byKey(const Key('loans_loading')), findsOneWidget);
-      expect(find.byKey(const Key('loans_navigation')), findsOneWidget);
+      expect(
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is AppButton &&
+              widget.isLoading &&
+              widget.label == S.current.dashboardLoading,
+        ),
+        findsOneWidget,
+      );
+      expect(find.byType(AppPrimaryNavigation), findsOneWidget);
       request.complete(const Success([DashboardMockData.singleLoan]));
       await tester.pumpAndSettle();
-      expect(find.byKey(const Key('loan_card_loan-single')), findsOneWidget);
+      expect(dashboardLoan('loan-single'), findsOneWidget);
       final pending = Completer<Result<List<BankLoan>>>();
       final replacement = TestRepositories()..loanQueue.add(pending);
       await tester.pumpWidget(subject(LoansTab(repository: replacement)));
       await tester.pump();
-      expect(find.byKey(const Key('loans_loading')), findsOneWidget);
+      expect(
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is AppButton &&
+              widget.isLoading &&
+              widget.label == S.current.dashboardLoading,
+        ),
+        findsOneWidget,
+      );
       await tester.pumpWidget(const SizedBox.shrink());
       pending.complete(const Success([]));
       await tester.pump();
@@ -120,17 +134,31 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    expect(find.byKey(const Key('dashboard_retry')), findsOneWidget);
-    await tester.tap(find.byKey(const Key('primary_tab_loans')).first);
+    expect(dashboardButton(S.current.dashboardRetry), findsOneWidget);
+    await tester.tap(
+      find
+          .descendant(
+            of: find.byType(AppPrimaryNavigation),
+            matching: find.text(S.current.dashboardLoansTab),
+          )
+          .first,
+    );
     await tester.pumpAndSettle();
-    expect(find.byKey(const Key('loans_operations')), findsOneWidget);
-    await tester.tap(find.byKey(const Key('primary_tab_dashboard')).last);
+    expect(dashboardGroup(S.current.loansOperations), findsOneWidget);
+    await tester.tap(
+      find
+          .descendant(
+            of: find.byType(AppPrimaryNavigation),
+            matching: find.text(S.current.dashboardTab),
+          )
+          .last,
+    );
     await tester.pumpAndSettle();
     repository.home = Success(DashboardHomeData(walletBalance: '123'));
-    await tester.tap(find.byKey(const Key('dashboard_retry')));
+    await tester.tap(dashboardButton(S.current.dashboardRetry));
     await tester.pumpAndSettle();
-    expect(find.byKey(const Key('dashboard_bank_services')), findsOneWidget);
-    expect(find.byKey(const Key('dashboard_retry')), findsNothing);
+    expect(find.byType(DashboardBankServices), findsOneWidget);
+    expect(dashboardButton(S.current.dashboardRetry), findsNothing);
     expect(tester.takeException(), isNull);
   });
 }

@@ -8,7 +8,6 @@ import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/d
 
 import '../cubit/deposits_cubit.dart';
 
-
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:pishkhan_mobile/features/dashboard/domain/entities/bank_deposit.dart';
@@ -73,7 +72,6 @@ class _DepositsTabState extends State<DepositsTab> {
         builder: (context, state) => Directionality(
           textDirection: TextDirection.rtl,
           child: Scaffold(
-            key: const Key('deposits_screen'),
             backgroundColor: context.colors.surfaceSubtle,
             body: SafeArea(
               child: Column(
@@ -93,20 +91,15 @@ class _DepositsTabState extends State<DepositsTab> {
                     child: Stack(
                       children: [
                         SingleChildScrollView(
-                          key: const Key('deposits_services_scroll'),
                           padding: const EdgeInsets.fromLTRB(16, 16, 16, 126),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
                               if (state.status == RequestStatus.initial ||
                                   state.status == RequestStatus.loading)
-                                const DashboardAsyncView(
-                                  key: Key("deposits_loading"),
-                                  loading: true,
-                                )
+                                const DashboardAsyncView(loading: true)
                               else if (state.status == RequestStatus.failure)
                                 DashboardAsyncView(
-                                  key: const Key("deposits_error"),
                                   onRetry: context.read<DepositsCubit>().load,
                                 )
                               else if (state.visibleItems.isEmpty)
@@ -120,7 +113,6 @@ class _DepositsTabState extends State<DepositsTab> {
                                 ),
                               if (state.visibleItems.isNotEmpty) ...[
                                 DashboardDepositsServiceGroup(
-                                  groupId: 'deposits_operations',
                                   title: S.current.depositsOperations,
                                   actions: DepositAction.operations,
                                   onActionRequested: (action) =>
@@ -131,7 +123,6 @@ class _DepositsTabState extends State<DepositsTab> {
                                     .selectedDeposit!
                                     .hasChequeOperations) ...[
                                   DashboardDepositsServiceGroup(
-                                    groupId: 'deposits_cheque_operations',
                                     title: S.current.depositsChequeOperations,
                                     actions: DepositAction.cheques,
                                     onActionRequested: (action) =>
@@ -140,7 +131,6 @@ class _DepositsTabState extends State<DepositsTab> {
                                   const SizedBox(height: 16),
                                 ],
                                 DashboardDepositsServiceGroup(
-                                  groupId: 'deposits_quick_access',
                                   title: S.current.cardsQuickAccess,
                                   actions: DepositAction.quick,
                                   onActionRequested: (action) =>
@@ -155,7 +145,6 @@ class _DepositsTabState extends State<DepositsTab> {
                           left: 16,
                           bottom: 84,
                           child: AppAssistantButton(
-                            key: const Key('deposits_assistant_button'),
                             onPressed: widget.onAssistantPressed ?? () {},
                           ),
                         ),
@@ -164,7 +153,6 @@ class _DepositsTabState extends State<DepositsTab> {
                           right: 16,
                           bottom: 16,
                           child: AppPrimaryNavigation(
-                            key: const Key('deposits_navigation'),
                             selectedTab: AppPrimaryTab.deposits,
                             onSelected: (tab) =>
                                 widget.onTabSelected?.call(tab),

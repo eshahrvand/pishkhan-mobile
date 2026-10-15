@@ -35,11 +35,7 @@ class DashboardAsyncView extends StatelessWidget {
               ),
             if (onRetry != null) ...[
               const SizedBox(height: 16),
-              AppButton(
-                key: const Key('dashboard_retry'),
-                label: S.current.dashboardRetry,
-                onPressed: onRetry,
-              ),
+              AppButton(label: S.current.dashboardRetry, onPressed: onRetry),
             ],
           ],
         ),

@@ -12,13 +12,11 @@ export '../../shared/card_actions.dart';
 class DashboardCardsServiceGroup extends StatelessWidget {
   const DashboardCardsServiceGroup({
     super.key,
-    required this.groupId,
     required this.title,
     required this.actions,
     required this.onActionRequested,
     this.quick = false,
   });
-  final String groupId;
   final String title;
   final List<CardAction> actions;
   final ValueChanged<CardAction> onActionRequested;
@@ -26,7 +24,6 @@ class DashboardCardsServiceGroup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppServiceGridCard(
-      key: Key(groupId),
       title: title,
       itemSpacing: 6,
       stretchItems: false,

@@ -32,12 +32,14 @@ class CardsTab extends StatefulWidget {
     this.onMenuPressed,
     this.onAssistantPressed,
   });
+
   final DashboardCardsRepository repository;
   final ValueChanged<CardActionRequest>? onActionRequested;
   final ValueChanged<BankCard>? onMorePressed, onSelectedCardChanged;
   final ValueChanged<String>? onCopyNumber, onCopyIban;
   final ValueChanged<AppPrimaryTab>? onTabSelected;
   final VoidCallback? onMenuPressed, onAssistantPressed;
+
   @override
   State<CardsTab> createState() => _CardsTabState();
 }
@@ -46,6 +48,7 @@ class _CardsTabState extends State<CardsTab> {
   // Only used by the existing runtime repository update API.
   // Provider owns the instance; UI actions and rendering read the scope directly.
   CardsCubit? _repositoryScope;
+
   @override
   void didUpdateWidget(covariant CardsTab oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -61,6 +64,7 @@ class _CardsTabState extends State<CardsTab> {
           card: context.read<CardsCubit>().state.selectedCard!,
         ),
       );
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -93,20 +97,15 @@ class _CardsTabState extends State<CardsTab> {
                     child: Stack(
                       children: [
                         SingleChildScrollView(
-                          key: const Key('cards_services_scroll'),
                           padding: const EdgeInsets.fromLTRB(16, 16, 16, 112),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
                               if (state.status == RequestStatus.initial ||
                                   state.status == RequestStatus.loading)
-                                const DashboardAsyncView(
-                                  key: Key("cards_loading"),
-                                  loading: true,
-                                )
+                                const DashboardAsyncView(loading: true)
                               else if (state.status == RequestStatus.failure)
                                 DashboardAsyncView(
-                                  key: const Key("cards_error"),
                                   onRetry: context.read<CardsCubit>().load,
                                 )
                               else if (state.visibleItems.isEmpty)
@@ -120,7 +119,6 @@ class _CardsTabState extends State<CardsTab> {
                                 ),
                               if (state.visibleItems.isNotEmpty) ...[
                                 DashboardCardsServiceGroup(
-                                  groupId: 'cards_operations',
                                   title: S.current.cardsOperations,
                                   actions: [
                                     CardAction.reissue,
@@ -132,7 +130,6 @@ class _CardsTabState extends State<CardsTab> {
                                 ),
                                 const SizedBox(height: 16),
                                 DashboardCardsServiceGroup(
-                                  groupId: 'cards_pin_operations',
                                   title: S.current.cardsPinOperations,
                                   actions: [
                                     CardAction.changeFirstPin,
@@ -146,7 +143,6 @@ class _CardsTabState extends State<CardsTab> {
                                 ),
                                 const SizedBox(height: 16),
                                 DashboardCardsServiceGroup(
-                                  groupId: 'cards_quick_access',
                                   title: S.current.cardsQuickAccess,
                                   actions: [
                                     CardAction.issue,
@@ -166,7 +162,6 @@ class _CardsTabState extends State<CardsTab> {
                           left: 16,
                           bottom: 84,
                           child: AppAssistantButton(
-                            key: const Key('cards_assistant_button'),
                             onPressed: widget.onAssistantPressed ?? () {},
                           ),
                         ),
@@ -175,7 +170,6 @@ class _CardsTabState extends State<CardsTab> {
                           right: 16,
                           bottom: 16,
                           child: AppPrimaryNavigation(
-                            key: const Key('cards_navigation'),
                             selectedTab: AppPrimaryTab.cards,
                             onSelected: (tab) =>
                                 widget.onTabSelected?.call(tab),

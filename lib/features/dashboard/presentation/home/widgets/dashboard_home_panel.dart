@@ -78,7 +78,6 @@ class DashboardHomePanel extends StatelessWidget {
                           child: Stack(
                             children: [
                               DashboardAsyncView(
-                                key: const Key('dashboard_home_status'),
                                 loading:
                                     state.status == RequestStatus.initial ||
                                     state.status == RequestStatus.loading,
@@ -96,7 +95,6 @@ class DashboardHomePanel extends StatelessWidget {
                                 right: 16,
                                 bottom: 14,
                                 child: AppPrimaryNavigation(
-                                  key: const Key('dashboard_navigation'),
                                   selectedTab: AppPrimaryTab.dashboard,
                                   onSelected: onTabSelected,
                                 ),
@@ -122,7 +120,6 @@ class DashboardHomePanel extends StatelessWidget {
                           child: Stack(
                             children: [
                               SingleChildScrollView(
-                                key: const Key('dashboard_scroll'),
                                 keyboardDismissBehavior:
                                     ScrollViewKeyboardDismissBehavior.onDrag,
                                 child: Stack(
@@ -221,7 +218,6 @@ class DashboardHomePanel extends StatelessWidget {
                                 left: 16,
                                 bottom: 82,
                                 child: AppAssistantButton(
-                                  key: const Key('dashboard_assistant_button'),
                                   onPressed: () => onServiceRequested(
                                     DashboardService.assistant,
                                   ),
@@ -232,7 +228,6 @@ class DashboardHomePanel extends StatelessWidget {
                                 right: 16,
                                 bottom: 14,
                                 child: AppPrimaryNavigation(
-                                  key: const Key('dashboard_navigation'),
                                   selectedTab: AppPrimaryTab.dashboard,
                                   onSelected: onTabSelected,
                                 ),

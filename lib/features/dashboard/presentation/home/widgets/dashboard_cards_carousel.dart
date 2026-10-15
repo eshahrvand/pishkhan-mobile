@@ -34,6 +34,7 @@ class DashboardCardsCarousel extends StatefulWidget {
 
 class _DashboardCardsCarouselState extends State<DashboardCardsCarousel> {
   PageController? _pages;
+  bool _syncingPages = false;
   double? _viewport;
   String? _controllerItems;
 
@@ -88,6 +89,15 @@ class _DashboardCardsCarouselState extends State<DashboardCardsCarousel> {
                 keepPage: false,
                 viewportFraction: fraction,
               );
+              // Reposition the attached scroll view explicitly when its controller changes.
+              _syncingPages = true;
+              final controller = _pages!;
+              final selectedIndex = state.selectedIndex;
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (!mounted || !identical(_pages, controller)) return;
+                if (controller.hasClients) controller.jumpToPage(selectedIndex);
+                _syncingPages = false;
+              });
               _viewport = fraction;
               _controllerItems = state.visibleItems
                   .map((item) => item.id)
@@ -131,41 +141,35 @@ class _DashboardCardsCarouselState extends State<DashboardCardsCarousel> {
                                   ),
                             ),
                           )
-                        : KeyedSubtree(
-                            key: ObjectKey(_pages),
-                            child: PageView.builder(
-                              clipBehavior: Clip.none,
-                              key: const Key('cards_carousel'),
-                              controller: _pages,
-                              itemCount: state.visibleItems.length,
-                              onPageChanged: (index) {
-                                context.read<CardsCubit>().select(index);
-                                widget.onSelectedCardChanged?.call(
-                                  context
-                                      .read<CardsCubit>()
-                                      .state
-                                      .selectedCard!,
-                                );
-                              },
-                              itemBuilder: (context, index) => Center(
-                                child: DashboardCardTile(
-                                  card: state.visibleItems[index],
-                                  width: width,
-                                  isSingle: state.visibleItems.length == 1,
-                                  onCopyNumber: widget.onCopyNumber,
-                                  onCopyIban: widget.onCopyIban,
-                                  onMorePressed: widget.onMorePressed,
-                                  isVisible:
-                                      state.visibility[state
-                                          .visibleItems[index]
-                                          .id] ??
-                                      state.visibleItems.length == 1,
-                                  onVisibilityChanged: (value) =>
-                                      context.read<CardsCubit>().setVisibility(
-                                        state.visibleItems[index].id,
-                                        value,
-                                      ),
-                                ),
+                        : PageView.builder(
+                            clipBehavior: Clip.none,
+                            controller: _pages,
+                            itemCount: state.visibleItems.length,
+                            onPageChanged: (index) {
+                              if (_syncingPages) return;
+                              context.read<CardsCubit>().select(index);
+                              widget.onSelectedCardChanged?.call(
+                                context.read<CardsCubit>().state.selectedCard!,
+                              );
+                            },
+                            itemBuilder: (context, index) => Center(
+                              child: DashboardCardTile(
+                                card: state.visibleItems[index],
+                                width: width,
+                                isSingle: state.visibleItems.length == 1,
+                                onCopyNumber: widget.onCopyNumber,
+                                onCopyIban: widget.onCopyIban,
+                                onMorePressed: widget.onMorePressed,
+                                isVisible:
+                                    state.visibility[state
+                                        .visibleItems[index]
+                                        .id] ??
+                                    state.visibleItems.length == 1,
+                                onVisibilityChanged: (value) =>
+                                    context.read<CardsCubit>().setVisibility(
+                                      state.visibleItems[index].id,
+                                      value,
+                                    ),
                               ),
                             ),
                           ),
@@ -189,7 +193,6 @@ class _DashboardCardsCarouselState extends State<DashboardCardsCarousel> {
                               selected: index == state.selectedIndex,
                               label: state.visibleItems[index].id,
                               child: InkWell(
-                                key: Key('cards_indicator_$index'),
                                 onTap: () => _pages!.animateToPage(
                                   index,
                                   duration: const Duration(milliseconds: 250),

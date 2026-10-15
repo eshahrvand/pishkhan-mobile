@@ -73,7 +73,6 @@ class _LoansTabState extends State<LoansTab> {
         builder: (context, state) => Directionality(
           textDirection: TextDirection.rtl,
           child: Scaffold(
-            key: const Key('loans_screen'),
             backgroundColor: context.colors.surfaceSubtle,
             body: SafeArea(
               child: Column(
@@ -93,20 +92,15 @@ class _LoansTabState extends State<LoansTab> {
                     child: Stack(
                       children: [
                         SingleChildScrollView(
-                          key: const Key('loans_services_scroll'),
                           padding: const EdgeInsets.fromLTRB(16, 12, 16, 126),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
                               if (state.status == RequestStatus.initial ||
                                   state.status == RequestStatus.loading)
-                                const DashboardAsyncView(
-                                  key: Key("loans_loading"),
-                                  loading: true,
-                                )
+                                const DashboardAsyncView(loading: true)
                               else if (state.status == RequestStatus.failure)
                                 DashboardAsyncView(
-                                  key: const Key("loans_error"),
                                   onRetry: context.read<LoansCubit>().load,
                                 )
                               else if (state.visibleItems.isEmpty)
@@ -120,7 +114,6 @@ class _LoansTabState extends State<LoansTab> {
                                 ),
                               if (state.visibleItems.isNotEmpty) ...[
                                 DashboardLoansServiceGroup(
-                                  groupId: 'loans_operations',
                                   title: S.current.loansOperations,
                                   actions: LoanAction.operations,
                                   onActionRequested: (action) =>
@@ -128,7 +121,6 @@ class _LoansTabState extends State<LoansTab> {
                                 ),
                                 const SizedBox(height: 12),
                                 DashboardLoansServiceGroup(
-                                  groupId: 'loans_quick_access',
                                   title: S.current.cardsQuickAccess,
                                   actions: LoanAction.quick,
                                   onActionRequested: (action) =>
@@ -143,7 +135,6 @@ class _LoansTabState extends State<LoansTab> {
                           left: 16,
                           bottom: 84,
                           child: AppAssistantButton(
-                            key: const Key('loans_assistant_button'),
                             onPressed: widget.onAssistantPressed ?? () {},
                           ),
                         ),
@@ -152,7 +143,6 @@ class _LoansTabState extends State<LoansTab> {
                           right: 16,
                           bottom: 16,
                           child: AppPrimaryNavigation(
-                            key: const Key('loans_navigation'),
                             selectedTab: AppPrimaryTab.loans,
                             onSelected: (tab) =>
                                 widget.onTabSelected?.call(tab),

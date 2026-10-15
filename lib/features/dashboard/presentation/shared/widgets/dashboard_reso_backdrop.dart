@@ -44,7 +44,6 @@ class DashboardResoBackdrop extends StatelessWidget {
                 children: [
                   Positioned.fill(
                     child: DecoratedBox(
-                      key: const Key('dashboard_reso_gradient'),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           begin: gradient.begin,
@@ -68,7 +67,6 @@ class DashboardResoBackdrop extends StatelessWidget {
                       ),
                     ),
                   Positioned(
-                    key: const Key('dashboard_reso_overlay'),
                     left: (-12.9785 + 16 * wave) * scale,
                     top: -12.9785 - 10 * wave,
                     width: 368.957 * scale,
@@ -81,7 +79,6 @@ class DashboardResoBackdrop extends StatelessWidget {
                     ),
                   ),
                   Positioned(
-                    key: const Key('dashboard_banner_glow_large'),
                     left: (-68.6 - 152.033 + 175 * circleWave) * scale,
                     top: -59.33 - 152.033 + 55 * circleWave,
                     width: 487.616 * scale,
@@ -95,7 +92,6 @@ class DashboardResoBackdrop extends StatelessWidget {
                     ),
                   ),
                   Positioned(
-                    key: const Key('dashboard_banner_glow_small'),
                     left: (218.78 - 57.4755 - 105 * circleWave) * scale,
                     top: 164.08 - 57.4755 - 72 * circleWave,
                     width: 213.216 * scale,

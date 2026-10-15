@@ -41,7 +41,6 @@ class AppPrimaryNavigation extends StatelessWidget {
                           : Colors.transparent,
                       borderRadius: AppRadius.borderSm,
                       child: InkWell(
-                        key: Key('primary_tab_${tab.name}'),
                         onTap: () => onSelected(tab),
                         borderRadius: AppRadius.borderSm,
                         child: Padding(

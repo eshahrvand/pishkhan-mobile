@@ -1,3 +1,5 @@
+import '../../../../support/dashboard_ui_finders.dart';
+
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import '../../../../support/dashboard_test_repositories.dart';
@@ -16,9 +18,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/home/screens/dashboard_screen.dart';
 import 'package:pishkhan_mobile/features/dashboard/domain/entities/bank_loan.dart';
-import 'package:pishkhan_mobile/features/dashboard/presentation/home/screens/loans_tab.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/loan_actions.dart';
-import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_loan_card.dart';
 
 const preview = Key('loans_preview');
@@ -78,17 +78,14 @@ Future<void> mount(
   await tester.pumpAndSettle();
 }
 
-Future<void> tap(WidgetTester tester, String key) async {
-  final finder = find.byKey(Key(key));
+Future<void> tap(WidgetTester tester, Finder finder) async {
   await tester.ensureVisible(finder);
   await tester.tap(finder);
   await tester.pumpAndSettle();
 }
 
-Finder inLoan(String id, String key) => find.descendant(
-  of: find.byKey(ValueKey('loan_card_$id')),
-  matching: find.byKey(Key(key)),
-);
+Finder inLoan(String id, String key) =>
+    find.descendant(of: dashboardLoan(id), matching: find.byKey(Key(key)));
 
 void main() {
   setUpAll(() async {
@@ -124,11 +121,11 @@ void main() {
           );
           expect(tester.takeException(), isNull);
           expect(
-            tester.getTopLeft(find.byKey(const Key('loans_operations'))).dy,
+            tester.getTopLeft(dashboardGroup(S.current.loansOperations)).dy,
             382,
           );
           expect(
-            tester.getTopLeft(find.byKey(const Key('loans_quick_access'))).dy,
+            tester.getTopLeft(dashboardGroup(S.current.cardsQuickAccess)).dy,
             570,
           );
           final card = tester.widget<AppLoanCard>(
@@ -143,7 +140,7 @@ void main() {
             Size(single ? 335 : 316, 236),
           );
           expect(
-            find.byKey(const Key('loans_carousel')),
+            dashboardCarousel(DashboardLoansCarousel),
             single ? findsNothing : findsOneWidget,
           );
           final pay = tester
@@ -219,11 +216,9 @@ void main() {
           ),
         ),
       );
-      await tap(tester, 'loans_indicator_1');
+      await tap(tester, dashboardIndicator(DashboardLoansCarousel, 1));
       expect(selected?.id, 'b');
-      final card = tester.widget<AppLoanCard>(
-        find.byKey(const ValueKey('loan_card_b')),
-      );
+      final card = tester.widget<AppLoanCard>(dashboardLoan('b'));
       expect(card.cardName, 'وام دوم');
       expect(card.loanTotal, '200,000');
       expect(card.installmentAmount, '20,000');
@@ -231,7 +226,10 @@ void main() {
       expect(card.nextInstallment, '۱۴۰۴/۰۸/۰۲');
       expect(card.progress, .7);
       for (final action in LoanAction.values) {
-        await tap(tester, 'app_service_grid_icon_loans-${action.id}');
+        await tap(
+          tester,
+          find.byKey(Key('app_service_grid_icon_loans-${action.id}')),
+        );
         expect(request?.action, action);
         expect(request?.loan.id, 'b');
       }
@@ -253,7 +251,7 @@ void main() {
       ),
     );
     await tester.drag(
-      find.byKey(const Key('loans_carousel')),
+      dashboardCarousel(DashboardLoansCarousel),
       const Offset(300, 0),
     );
     await tester.pumpAndSettle();
@@ -273,7 +271,7 @@ void main() {
           ),
         ),
       );
-      await tap(tester, 'app_loan_card_copy');
+      await tap(tester, find.byKey(Key('app_loan_card_copy')));
       expect(copied, '001-123');
       tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
         SystemChannels.platform,
@@ -298,7 +296,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      await tap(tester, 'app_loan_card_copy');
+      await tap(tester, find.byKey(Key('app_loan_card_copy')));
       expect(copied, '002-456');
     },
   );
@@ -314,7 +312,7 @@ void main() {
           ),
         ),
       );
-      await tap(tester, 'loans_indicator_1');
+      await tap(tester, dashboardIndicator(DashboardLoansCarousel, 1));
       await tester.pumpWidget(
         subject(
           const LoansTab(
@@ -324,7 +322,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       var controller = tester
-          .widget<PageView>(find.byKey(const Key('loans_carousel')))
+          .widget<PageView>(dashboardCarousel(DashboardLoansCarousel))
           .controller!;
       expect(controller.page, 0);
       await tester.pumpWidget(
@@ -346,8 +344,8 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(find.byType(AppLoanCard), findsNothing);
-      expect(find.byKey(const Key('loans_operations')), findsNothing);
-      expect(find.byKey(const Key('loans_navigation')), findsOneWidget);
+      expect(dashboardGroup(S.current.loansOperations), findsNothing);
+      expect(find.byType(AppPrimaryNavigation), findsOneWidget);
       expect(tester.takeException(), isNull);
     },
   );
@@ -368,19 +366,46 @@ void main() {
           ),
         ),
       );
-      await tap(tester, 'primary_tab_loans');
-      await tap(tester, 'loans_indicator_1');
-      await tap(tester, 'primary_tab_deposits');
-      await tap(tester, 'primary_tab_cards');
-      await tap(tester, 'primary_tab_loans');
-      await tap(tester, 'app_service_grid_icon_loans-loan-deposit');
+      await tap(
+        tester,
+        find.descendant(
+          of: find.byType(AppPrimaryNavigation),
+          matching: find.text(S.current.dashboardLoansTab),
+        ),
+      );
+      await tap(tester, dashboardIndicator(DashboardLoansCarousel, 1));
+      await tap(
+        tester,
+        find.descendant(
+          of: find.byType(AppPrimaryNavigation),
+          matching: find.text(S.current.dashboardDepositsTab),
+        ),
+      );
+      await tap(
+        tester,
+        find.descendant(
+          of: find.byType(AppPrimaryNavigation),
+          matching: find.text(S.current.dashboardCardsTab),
+        ),
+      );
+      await tap(
+        tester,
+        find.descendant(
+          of: find.byType(AppPrimaryNavigation),
+          matching: find.text(S.current.dashboardLoansTab),
+        ),
+      );
+      await tap(
+        tester,
+        find.byKey(Key('app_service_grid_icon_loans-loan-deposit')),
+      );
       expect(request?.loan.id, 'b');
       await tester.tap(inLoan('b', 'app_arrow_button'));
       await tester.pumpAndSettle();
       expect(details?.id, 'b');
       await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
-      expect(find.byKey(const Key('dashboard_bank_services')), findsOneWidget);
+      expect(find.byType(DashboardBankServices), findsOneWidget);
       expect(tester.takeException(), isNull);
     },
   );
@@ -399,17 +424,26 @@ void main() {
           ),
         ),
       );
-      await tap(tester, 'primary_tab_loans');
-      await tap(tester, 'app_service_grid_icon_loans-loan-defer');
+      await tap(
+        tester,
+        find.descendant(
+          of: find.byType(AppPrimaryNavigation),
+          matching: find.text(S.current.dashboardLoansTab),
+        ),
+      );
+      await tap(
+        tester,
+        find.byKey(Key('app_service_grid_icon_loans-loan-defer')),
+      );
       expect(ids.last, 'loan-defer');
-      await tap(tester, 'dashboard_menu_button');
-      expect(find.byKey(const Key('dashboard_services_sheet')), findsOneWidget);
+      await tap(tester, find.byKey(Key('dashboard_menu_button')));
+      expect(find.byType(DashboardServicesSheet), findsOneWidget);
       expect(find.text('وام‌های من'), findsWidgets);
       await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
-      await tap(tester, 'loans_assistant_button');
+      await tap(tester, find.byType(AppAssistantButton));
       expect(ids.last, 'assistant');
-      expect(find.byKey(const Key('dashboard_bank_services')), findsOneWidget);
+      expect(find.byType(DashboardBankServices), findsOneWidget);
     },
   );
 
@@ -425,10 +459,16 @@ void main() {
         ),
       ),
     );
-    await tap(tester, 'primary_tab_loans');
-    await tap(tester, 'dashboard_menu_button');
+    await tap(
+      tester,
+      find.descendant(
+        of: find.byType(AppPrimaryNavigation),
+        matching: find.text(S.current.dashboardLoansTab),
+      ),
+    );
+    await tap(tester, find.byKey(Key('dashboard_menu_button')));
     expect(menus, 1);
-    expect(find.byKey(const Key('dashboard_services_sheet')), findsNothing);
+    expect(find.byType(DashboardServicesSheet), findsNothing);
   });
 
   testWidgets(
@@ -446,9 +486,12 @@ void main() {
         ),
         size: const Size(320, 700),
       );
-      await tap(tester, 'app_service_grid_icon_loans-loan-relationships');
+      await tap(
+        tester,
+        find.byKey(Key('app_service_grid_icon_loans-loan-relationships')),
+      );
       expect(request?.action, LoanAction.relationships);
-      expect(find.byKey(const Key('loans_navigation')), findsOneWidget);
+      expect(find.byType(AppPrimaryNavigation), findsOneWidget);
       expect(tester.takeException(), isNull);
     },
   );
@@ -457,7 +500,7 @@ void main() {
     'single and every carousel loan paint their paid installment ratio',
     (tester) async {
       void verify(BankLoan loan) {
-        final card = find.byKey(ValueKey('loan_card_${loan.id}'));
+        final card = dashboardLoan(loan.id);
         final indicator = find.descendant(
           of: card,
           matching: find.byType(AppProgressIndicator),
@@ -509,7 +552,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       for (var index = 0; index < DashboardMockData.loans.length; index++) {
-        await tap(tester, 'loans_indicator_$index');
+        await tap(tester, dashboardIndicator(DashboardLoansCarousel, index));
         verify(DashboardMockData.loans[index]);
       }
       expect(tester.takeException(), isNull);

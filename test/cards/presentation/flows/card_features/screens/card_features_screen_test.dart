@@ -1,3 +1,5 @@
+import '../../../../../dashboard/support/dashboard_ui_finders.dart';
+
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import '../../../../../dashboard/support/dashboard_test_repositories.dart';
@@ -21,7 +23,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:pishkhan_mobile/features/cards/cards.dart';
 import 'package:pishkhan_mobile/features/cards/data/repositories/mock_cards_repository.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/home/screens/dashboard_screen.dart';
-import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_cards_list.dart';
 
 const boundary = Key('cards_flow_preview');
@@ -260,7 +261,7 @@ void main() {
       expect(find.byType(CardFeaturesScreen), findsOneWidget);
       await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
-      expect(find.byKey(const Key('dashboard_bank_services')), findsOneWidget);
+      expect(find.byType(DashboardBankServices), findsOneWidget);
     },
   );
   testWidgets('empty repository has usable controls and no card operations', (

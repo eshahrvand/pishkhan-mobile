@@ -90,7 +90,6 @@ class _DashboardServicesSheetState extends State<DashboardServicesSheet> {
                     child: SizedBox(
                       height: math.min(728, math.max(180, available - 20)),
                       child: Material(
-                        key: const Key('dashboard_services_sheet'),
                         color: context.colors.surfaceSubtle,
                         borderRadius: const BorderRadius.vertical(
                           top: AppRadius.xl,
@@ -109,7 +108,6 @@ class _DashboardServicesSheetState extends State<DashboardServicesSheet> {
                             Padding(
                               padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
                               child: AppSearchField(
-                                key: const Key('dashboard_service_search'),
                                 controller: _controller,
                                 clearIcon: AvpImage(
                                   image: AppAssets.dashboardSearchClear,
@@ -136,9 +134,6 @@ class _DashboardServicesSheetState extends State<DashboardServicesSheet> {
                             ),
                             Expanded(
                               child: SingleChildScrollView(
-                                key: const Key(
-                                  'dashboard_service_options_scroll',
-                                ),
                                 padding: const EdgeInsets.fromLTRB(
                                   20,
                                   24,
@@ -164,9 +159,6 @@ class _DashboardServicesSheetState extends State<DashboardServicesSheet> {
                                               : 16,
                                         ),
                                       DashboardCategoryHeading(
-                                        key: Key(
-                                          'dashboard_category_${group.key.name}',
-                                        ),
                                         category: group.key,
                                         compact: true,
                                         collapsed: state.collapsedCategories
@@ -271,7 +263,6 @@ Future<bool?> showDashboardResetSheet(BuildContext context) =>
         child: Directionality(
           textDirection: TextDirection.rtl,
           child: Material(
-            key: const Key('dashboard_reset_sheet'),
             color: context.colors.surfaceSubtle,
             borderRadius: const BorderRadius.vertical(top: AppRadius.xl),
             clipBehavior: Clip.antiAlias,
@@ -304,7 +295,6 @@ Future<bool?> showDashboardResetSheet(BuildContext context) =>
                       children: [
                         Expanded(
                           child: AppButton(
-                            key: const Key('dashboard_reset_confirm'),
                             onPressed: () => Navigator.of(context).pop(true),
                             label: S.current.dashboardResetConfirm,
                             size: AppButtonSize.lg,
@@ -313,7 +303,6 @@ Future<bool?> showDashboardResetSheet(BuildContext context) =>
                         const SizedBox(width: 12),
                         Expanded(
                           child: AppButton(
-                            key: const Key('dashboard_reset_cancel'),
                             onPressed: () => Navigator.of(context).pop(false),
                             label: S.current.dashboardCancel,
                             variant: AppButtonVariant.secondaryGray,

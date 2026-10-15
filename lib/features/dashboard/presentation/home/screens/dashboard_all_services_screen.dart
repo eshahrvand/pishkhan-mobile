@@ -34,7 +34,6 @@ class DashboardAllServicesScreen extends StatelessWidget {
                 child: Row(
                   children: [
                     AppButton(
-                      key: const Key('dashboard_catalog_back'),
                       onPressed: () => NavigationActions.back(context),
                       variant: AppButtonVariant.text,
                       semanticLabel: MaterialLocalizations.of(context)
@@ -56,7 +55,6 @@ class DashboardAllServicesScreen extends StatelessWidget {
               ),
               Expanded(
                 child: SingleChildScrollView(
-                  key: const Key('dashboard_all_services_scroll'),
                   padding: const EdgeInsets.fromLTRB(16, 18, 16, 32),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,

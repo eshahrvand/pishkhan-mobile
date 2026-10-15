@@ -1,3 +1,5 @@
+import '../../../../support/dashboard_ui_finders.dart';
+
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import '../../../../support/dashboard_test_repositories.dart';
@@ -13,8 +15,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/home/screens/dashboard_screen.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_reso_banner.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
-import 'package:pishkhan_mobile/generated/l10n.dart';
 
 const _preview = Key('dashboard_preview');
 const _six = [
@@ -59,9 +59,7 @@ void main() {
       home: home,
     ),
   );
-  Future<void> tap(WidgetTester tester, String key) async {
-    final finder = find.byKey(Key(key));
-
+  Future<void> tap(WidgetTester tester, Finder finder) async {
     await tester.tap(finder);
     await tester.pumpAndSettle();
   }
@@ -105,18 +103,28 @@ void main() {
       });
       await tester.pumpAndSettle();
       if (action == 'edit' || action == 'reset') {
-        await tap(tester, 'dashboard_customize');
+        await tap(
+          tester,
+          find.byWidgetPredicate(
+            (widget) =>
+                widget is AppButton &&
+                (widget.label == S.current.dashboardEdit ||
+                    widget.label == S.current.dashboardAddFavorites),
+          ),
+        );
       }
-      if (action == 'reset') await tap(tester, 'dashboard_reset');
+      if (action == 'reset') {
+        await tap(tester, dashboardButton(S.current.dashboardResetTitle));
+      }
       if (action == 'sheet' || action == 'search') {
-        await tap(tester, 'dashboard_menu_button');
+        await tap(tester, find.byKey(Key('dashboard_menu_button')));
       }
       if (action == 'search') {
         tester.view.viewInsets = const FakeViewPadding(bottom: 315);
         tester.view.padding = const FakeViewPadding(top: 24);
         await tester.enterText(
           find.descendant(
-            of: find.byKey(const Key('dashboard_service_search')),
+            of: find.byType(AppSearchField),
             matching: find.byType(TextField),
           ),
           'تغییر',
@@ -127,7 +135,9 @@ void main() {
         FocusManager.instance.primaryFocus?.unfocus();
         await tester.pumpAndSettle();
       }
-      if (action == 'all') await tap(tester, 'dashboard_all_services');
+      if (action == 'all') {
+        await tap(tester, dashboardButton(S.current.dashboardViewAll));
+      }
       expect(tester.takeException(), isNull);
       if (Platform.environment['UPDATE_DASHBOARD_PREVIEWS'] == '1') {
         await tester.runAsync(() async {
@@ -171,7 +181,7 @@ void main() {
       final field = find.byType(TextField);
       String? hint() => tester.widget<TextField>(field).decoration?.hintText;
       final start = hint();
-      final glow = find.byKey(const Key('dashboard_banner_glow_large'));
+      final glow = dashboardImagePosition(AppAssets.dashboardGlowLarge);
       final startX = tester.widget<Positioned>(glow).left;
       await tester.pump(const Duration(milliseconds: 450));
       expect(hint(), isNot(start));
@@ -218,12 +228,17 @@ void main() {
         );
       });
       await tester.pump();
-      final person = find.byKey(const Key('dashboard_reso_foreground'));
-      final caption = find.byKey(const Key('dashboard_reso_caption'));
-      final field = find.byKey(const Key('dashboard_assistant_prompt'));
-      final large = find.byKey(const Key('dashboard_banner_glow_large'));
-      final small = find.byKey(const Key('dashboard_banner_glow_small'));
-      final overlay = find.byKey(const Key('dashboard_reso_overlay'));
+      final person = dashboardImagePosition(AppAssets.dashboardReso);
+      final caption = find
+          .ancestor(
+            of: find.text(S.current.dashboardResoTitle),
+            matching: find.byType(Positioned),
+          )
+          .first;
+      final field = find.byType(AppTextField);
+      final large = dashboardImagePosition(AppAssets.dashboardGlowLarge);
+      final small = dashboardImagePosition(AppAssets.dashboardGlowSmall);
+      final overlay = dashboardImagePosition(AppAssets.dashboardResoOverlay);
       final fixed = [
         tester.getRect(person),
         tester.getRect(caption),
@@ -266,7 +281,14 @@ void main() {
         if (name == 'midpoint') {
           final glowRect = tester.getRect(large);
           final bannerRect = tester.getRect(
-            find.byKey(const Key('dashboard_reso_banner')),
+            find
+                .descendant(
+                  of: find.byType(DashboardResoBannerPanel),
+                  matching: find.byWidgetPredicate(
+                    (widget) => widget is SizedBox && widget.height != null,
+                  ),
+                )
+                .first,
           );
           expect(
             glowRect.center.dx,

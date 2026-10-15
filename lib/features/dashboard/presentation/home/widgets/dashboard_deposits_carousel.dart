@@ -31,6 +31,7 @@ class DashboardDepositsCarousel extends StatefulWidget {
 
 class _DashboardDepositsCarouselState extends State<DashboardDepositsCarousel> {
   PageController? _pages;
+  bool _syncingPages = false;
   double? _viewport;
   String? _controllerItems;
 
@@ -84,6 +85,15 @@ class _DashboardDepositsCarouselState extends State<DashboardDepositsCarousel> {
                 keepPage: false,
                 viewportFraction: fraction,
               );
+              // Reposition the attached scroll view explicitly when its controller changes.
+              _syncingPages = true;
+              final controller = _pages!;
+              final selectedIndex = state.selectedIndex;
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (!mounted || !identical(_pages, controller)) return;
+                if (controller.hasClients) controller.jumpToPage(selectedIndex);
+                _syncingPages = false;
+              });
               _viewport = fraction;
               _controllerItems = state.visibleItems
                   .map((item) => item.id)
@@ -119,30 +129,27 @@ class _DashboardDepositsCarouselState extends State<DashboardDepositsCarousel> {
                               onCopyIban: widget.onCopyIban,
                             ),
                           )
-                        : KeyedSubtree(
-                            key: ObjectKey(_pages),
-                            child: PageView.builder(
-                              key: const Key('deposits_carousel'),
-                              controller: _pages,
-                              itemCount: state.visibleItems.length,
-                              onPageChanged: (index) {
-                                context.read<DepositsCubit>().select(index);
-                                widget.onSelectedDepositChanged?.call(
-                                  context
-                                      .read<DepositsCubit>()
-                                      .state
-                                      .selectedDeposit!,
-                                );
-                              },
-                              itemBuilder: (context, index) => Center(
-                                child: DashboardDepositTile(
-                                  deposit: state.visibleItems[index],
-                                  width: width,
-                                  isSingle: state.visibleItems.length == 1,
-                                  height: height,
-                                  onCopyNumber: widget.onCopyNumber,
-                                  onCopyIban: widget.onCopyIban,
-                                ),
+                        : PageView.builder(
+                            controller: _pages,
+                            itemCount: state.visibleItems.length,
+                            onPageChanged: (index) {
+                              if (_syncingPages) return;
+                              context.read<DepositsCubit>().select(index);
+                              widget.onSelectedDepositChanged?.call(
+                                context
+                                    .read<DepositsCubit>()
+                                    .state
+                                    .selectedDeposit!,
+                              );
+                            },
+                            itemBuilder: (context, index) => Center(
+                              child: DashboardDepositTile(
+                                deposit: state.visibleItems[index],
+                                width: width,
+                                isSingle: state.visibleItems.length == 1,
+                                height: height,
+                                onCopyNumber: widget.onCopyNumber,
+                                onCopyIban: widget.onCopyIban,
                               ),
                             ),
                           ),
@@ -166,7 +173,6 @@ class _DashboardDepositsCarouselState extends State<DashboardDepositsCarousel> {
                               selected: index == state.selectedIndex,
                               label: state.visibleItems[index].number,
                               child: InkWell(
-                                key: Key('deposits_indicator_$index'),
                                 onTap: () => _pages!.animateToPage(
                                   index,
                                   duration: const Duration(milliseconds: 250),

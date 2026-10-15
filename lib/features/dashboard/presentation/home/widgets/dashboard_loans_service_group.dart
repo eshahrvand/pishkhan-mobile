@@ -9,13 +9,11 @@ import 'package:pishkhan_mobile/shared/widgets/app_service_grid_card.dart';
 class DashboardLoansServiceGroup extends StatelessWidget {
   const DashboardLoansServiceGroup({
     super.key,
-    required this.groupId,
     required this.title,
     required this.actions,
     required this.onActionRequested,
     this.quick = false,
   });
-  final String groupId;
   final String title;
   final List<LoanAction> actions;
   final ValueChanged<LoanAction> onActionRequested;
@@ -23,7 +21,6 @@ class DashboardLoansServiceGroup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppServiceGridCard(
-      key: Key(groupId),
       title: title,
       stretchItems: false,
       itemSpacing: 6,
