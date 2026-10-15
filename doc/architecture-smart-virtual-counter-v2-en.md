@@ -263,7 +263,7 @@ Features are implemented as **folders** under `app/lib/features/`, not as standa
 Three safeguards this decision removes, which must be compensated for:
 
 1. **Import boundaries:** enforced by a `custom_lint` rule (Section 17.4).
-2. **Git conflict hotspots:** resolved by distributing routes and constants into features and by automatic DI registration.
+2. **Git conflict hotspots:** route paths and definitions are centralized by owner decision (Section 15.3), grouped by feature, and kept free of business logic; automatic DI registration limits manual DI edits.
 3. **Code generation speed:** addressed by narrowing generator scope and limiting `freezed` usage (Section 12.3).
 
 ### 6.4 Directory Tree
@@ -348,8 +348,8 @@ pishkhan_project/
         │   ├── enums/
         │   │   └── request_status.dart        # Shared enums (request lifecycle status)
         │   └── router/
-        │       ├── app_router.dart
-        │       ├── app_routes.dart            # All route path constants (Section 15.3)
+        │       ├── app_router.dart            # GoRouter, all GoRoute definitions and route arguments
+        │       ├── app_routes.dart            # Single AppRoutes class and URL builders (Section 15.3)
         │       └── guards/
         │           ├── security_guard.dart
         │           ├── update_guard.dart
@@ -360,8 +360,6 @@ pishkhan_project/
         │
         └── features/
             ├── cards/
-            │   ├── cards_routes.dart    # Route constants + route definitions
-            │   │
             │   ├── domain/
             │   │   ├── entities/
             │   │   ├── repositories/
@@ -554,10 +552,10 @@ Three consumers of this contract: `dashboard` (service catalog), `requests` (res
 // core/flow/service_registry.dart
 abstract final class ServiceRegistry {
   static const _paths = <String, String>{
-    'card.block'   : CardsRoutes.block,
-    'card.virtual' : CardsRoutes.virtual,
-    'loan.request' : LoansRoutes.request,
-    'cheque.issue' : ChequeRoutes.issue,
+    'card.block'   : AppRoutes.blockCard,
+    'card.virtual' : AppRoutes.virtualCardRequest,
+    'loan.request' : AppRoutes.requestLoan,
+    'cheque.issue' : AppRoutes.issueCheque,
     // ... one entry per independently startable service
   };
 
@@ -1386,8 +1384,8 @@ String? globalRedirect(BuildContext context, GoRouterState state) {
 ```dart
 String? securityRedirect(GoRouterState state) {
   final verdict = securityService.cachedVerdict;   // never null
-  if (verdict is Blocked && state.matchedLocation != LaunchRoutes.securityBlocked) {
-    return LaunchRoutes.securityBlocked;
+  if (verdict is Blocked && state.matchedLocation != AppRoutes.securityBlocked) {
+    return AppRoutes.securityBlocked;
   }
   return null;
 }
@@ -1411,64 +1409,86 @@ A user arriving via notification or deep link whose session has expired must be 
 
 ### 15.3 Route Paths and Definitions
 
-All route **path constants** live in one file: `core/router/app_routes.dart`. Route **definitions** (the `GoRoute` objects and their screens) stay inside each feature, in one file per feature that reads its paths from the central file.
+**Approved routing contract:** use two central files. All path constants live in a single `AppRoutes` class in `core/router/app_routes.dart`. All `GoRoute` definitions live directly in the `routes` list of the `GoRouter` constructed in `core/router/app_router.dart`. Do not create per-feature route files or route-list factories such as `buildAuthRoutes`, `buildCardsRoutes` or `buildAppRoutes`.
+
+This decision supersedes the earlier distributed route-definition design. Feature folders still own their screens, Cubits, domain contracts and data adapters; only route composition is centralized.
 
 ```dart
-// core/router/app_routes.dart — path constants only; imports nothing from features
-abstract final class LaunchRoutes {
+// core/router/app_routes.dart — imports nothing from features
+abstract final class AppRoutes {
   static const splash = '/launch/splash';
-  static const securityBlocked = '/launch/security-blocked';
-}
-
-abstract final class DashboardRoutes {
   static const home = '/dashboard/home';
-}
+  static const login = '/auth/login';
+  static const cardPasswords = '/cards/password-services';
+  static const cardList = '/cards/list';
+  static const virtualCardRequest = '/cards/virtual-request';
+  static const depositList = '/deposits/list';
+  static const messages = '/profile/messages';
+  static const messageDetail = '/profile/messages/:messageId';
+  // Other implemented paths are declared in this same class.
 
-abstract final class CardsRoutes {
-  static const block = '/cards/block';
-  static const virtual = '/cards/virtual';
-}
+  static String cardListLocation(String category) =>
+      Uri(path: cardList, queryParameters: {'category': category}).toString();
 
-// ... one class per feature
+  static String messageDetailLocation(String id) =>
+      '$messages/${Uri.encodeComponent(id)}';
+}
 ```
 
 ```dart
-// features/cards/cards_routes.dart
-List<RouteBase> buildCardsRoutes() => [
-  GoRoute(path: CardsRoutes.block, builder: (_, __) => const BlockCardScreen()),
-  // ...
-];
+// core/router/app_router.dart — excerpt; all route entries are written here
+GoRouter createAppRouter({required RouterSession session}) {
+  return GoRouter(
+    initialLocation: AppRoutes.splash,
+    refreshListenable: session,
+    redirect: (context, state) => globalRedirect(session, state),
+    routes: [
+      GoRoute(
+        path: AppRoutes.splash,
+        builder: (context, state) => const SplashScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.home,
+        builder: (context, state) => const DashboardScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.virtualCardRequest,
+        builder: (context, state) {
+          final args = state.extra is CardRouteArguments
+              ? state.extra as CardRouteArguments
+              : null;
+          return VirtualCardRequestScreen(
+            initialDepositNumber: args?.initialDepositNumber,
+          );
+        },
+      ),
+      // The remaining GoRoute entries are defined directly in this list.
+    ],
+    errorBuilder: (context, state) => const RouteUnavailableScreen(),
+  );
+}
 ```
 
-```dart
-// core/router/app_router.dart — rarely changes once settled
-final appRouter = GoRouter(
-  initialLocation: LaunchRoutes.splash,
-  redirect: globalRedirect,
-  routes: [
-    ...buildLaunchRoutes(),
-    ...buildDashboardRoutes(),
-    ...buildAuthRoutes(),
-    ...buildCardsRoutes(),
-    ...buildDepositsRoutes(),
-    ...buildLoansRoutes(),
-    ...buildChequeRoutes(),
-    ...buildRequestsRoutes(),
-    // ...
-  ],
-);
-```
+`createAppRouter` creates an instance, not a feature route list. The app owns its session and router and disposes both. The implementation retains `homeBuilder` and `initialLocation` injection for tests. Do not replace this lifecycle with a mutable global router/session singleton.
 
-**Rationale:** `core` (guards, the post-login whitelist in Section 15.2, `ServiceRegistry`) and every feature navigate by importing only this file for route paths, never another feature. Route paths therefore no longer create dependencies between `core` and the features, or between features.
+**Route inputs and dependencies:** typed route argument classes live in `app_router.dart`. The router reads path/query parameters and `state.extra`, connects callbacks, and injects dependencies. Create the prototype password repository once per router instance so receipts survive route re-entry; do not instantiate it inside a page builder. URL-only helpers belong to `AppRoutes`, accept simple strings and encode dynamic segments/query values; they must not import feature entities. In-memory `extra` values are not a persistent URL payload and do not survive a browser reload by themselves.
 
-**Trade-off:** every developer who adds a route edits this file, so it can produce Git conflicts. The file is kept to path constants only and grouped as one class per feature, so conflicts, when they happen, stay limited to adjacent line additions.
+**Navigation boundaries:** `ServiceRegistry` and existing navigation adapters dispatch through the central paths and argument contracts. Widgets still perform `context.push`, `context.go`, `context.pop` and open local dialogs/sheets where appropriate. Screen/Cubit business logic and widget composition are not moved into the router. Guards and the post-login destination validator remain separate, with one global redirect entry (Sections 15.1–15.2).
+
+**Rationale:** developers can inspect the complete route table in one file and all path strings in another. A route addition changes `AppRoutes` and the central `GoRouter` list without adding another route factory. Importing a path must not require importing another feature's routing implementation.
+
+**Trade-off:** the central router imports destination screens and grows as routes are added. It is an explicit application composition boundary and may depend on feature screens/contracts. Keep entries grouped by feature, resolve Git conflicts carefully, and avoid moving business logic into builders. The router is not split into feature factories merely to satisfy a UI widget-file size guideline.
 
 **Two mandatory safeguards:**
 
-1. **Mandatory prefix:** all routes of the `cards` feature begin with `/cards/` and are declared in the `CardsRoutes` class. Under this rule, route collisions are effectively impossible and the owning feature is identifiable from the route itself.
-2. **Duplicate detection test:** a simple test that collects all routes and asserts uniqueness.
+1. **Mandatory prefix:** paths retain their owning feature prefix, such as `/cards/` and `/deposits/`, and have distinct names in the single `AppRoutes` class, such as `cardList` and `depositList`. Existing URLs are preserved during routing refactors.
+2. **Duplicate detection test:** collect routes from the actual `GoRouter` configuration and assert uniqueness and feature prefixes. Do not maintain a second production route list just for tests. Authentication, validated post-login return, typed inputs, Back and unavailable-route behavior must also remain covered.
 
 ### 15.4 Flow Lifecycle
+
+When a future service needs URL-addressable steps, declare its step paths in
+`AppRoutes` and place this `ShellRoute` directly in the central router list.
+This loan flow is a design example, not a set of currently registered routes.
 
 ```dart
 ShellRoute(
@@ -1477,9 +1497,9 @@ ShellRoute(
     child: child,
   ),
   routes: [
-    GoRoute(path: '/loans/request/amount',    builder: ...),
-    GoRoute(path: '/loans/request/documents', builder: ...),
-    GoRoute(path: '/loans/request/review',    builder: ...),
+    GoRoute(path: AppRoutes.loanRequestAmount,    builder: ...),
+    GoRoute(path: AppRoutes.loanRequestDocuments, builder: ...),
+    GoRoute(path: AppRoutes.loanRequestReview,    builder: ...),
   ],
 )
 ```
@@ -1790,6 +1810,8 @@ The complete list is provided in the separate document "Bank Requirements and De
 ---
 
 ## 21. Change Log
+
+**2026-10-15 routing convention update:** Section 15.3 now specifies the owner-approved centralized structure: a single `AppRoutes` class and all `GoRoute` definitions directly in `core/router/app_router.dart`. Feature route factories and files are removed from the application. Existing URLs, global redirect, post-login return validation, typed route inputs and router-scoped mock receipts are preserved. Sections 6.3–6.4 and the flow example are aligned with this decision. This supersedes the distributed routing design recorded in the original version history below.
 
 **2026-10-14 localization convention update:** Section 14.1 records the owner-approved `intl_utils`/generated `S` approach and direct `S.current.<key>` access, including title helpers, initialization and migration boundaries. This is a documentation-only decision; the existing `gen-l10n` implementation remains in place until a separate implementation task is requested.
 

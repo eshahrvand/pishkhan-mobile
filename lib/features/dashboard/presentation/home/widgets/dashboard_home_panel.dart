@@ -1,6 +1,6 @@
 import 'package:pishkhan_mobile/core/router/app_routes.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pishkhan_mobile/features/dashboard/dashboard_routes.dart';
+import 'package:pishkhan_mobile/core/router/app_router.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_async_view.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/app_primary_navigation.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
@@ -182,7 +182,7 @@ class DashboardHomePanel extends StatelessWidget {
                                                 ),
                                             onAllServices: () =>
                                                 context.push<void>(
-                                                  DashboardRoutes.allServices,
+                                                  AppRoutes.allServices,
                                                   extra:
                                                       AllServicesRouteArguments(
                                                         onServiceRequested,

@@ -1,6 +1,6 @@
 import 'package:pishkhan_mobile/core/router/app_routes.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pishkhan_mobile/features/profile/profile_routes.dart';
+import 'package:pishkhan_mobile/core/router/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:pishkhan_mobile/features/profile/domain/entities/notification_message.dart';
 
@@ -10,7 +10,7 @@ class DashboardNotificationsNavigation {
   void open(BuildContext context) {
     _messages ??= NotificationMessage.examples();
     context.push<void>(
-      ProfileRoutes.messages,
+      AppRoutes.messages,
       extra: MessageCenterRouteArguments(
         messages: _messages!,
         onChanged: (messages) => _messages = messages,

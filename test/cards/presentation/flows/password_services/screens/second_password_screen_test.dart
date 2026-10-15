@@ -5,7 +5,7 @@ import '../../../../../support/auth_ui_finders.dart';
 
 import 'package:pishkhan_mobile/core/router/app_routes.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pishkhan_mobile/features/cards/cards_routes.dart';
+import 'package:pishkhan_mobile/core/router/app_router.dart';
 
 import '../../../../../support/router_test_app.dart';
 
@@ -516,7 +516,7 @@ void main() {
             body: AppButton(
               label: 'Check',
               onPressed: () => context.push<void>(
-                CardsRoutes.passwords,
+                AppRoutes.cardPasswords,
                 extra: PasswordRouteArguments(
                   repository: r,
                   selectOperation: true,

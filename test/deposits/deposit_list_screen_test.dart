@@ -195,7 +195,7 @@ void main() {
     final session = RouterSession();
     final router = createAppRouter(
       session: session,
-      initialLocation: DepositsRoutes.list,
+      initialLocation: AppRoutes.depositList,
     );
     await tester.pumpWidget(
       MaterialApp.router(
@@ -212,10 +212,10 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    expect(router.routeInformationProvider.value.uri.path, AuthRoutes.login);
+    expect(router.routeInformationProvider.value.uri.path, AppRoutes.login);
     expect(
       router.routeInformationProvider.value.uri.queryParameters['from'],
-      DepositsRoutes.list,
+      AppRoutes.depositList,
     );
     session.signIn();
     await tester.pumpAndSettle();

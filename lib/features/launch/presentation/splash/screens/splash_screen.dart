@@ -16,7 +16,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) context.go(DashboardRoutes.home);
+      if (mounted) context.go(AppRoutes.home);
     });
   }
 

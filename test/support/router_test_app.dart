@@ -32,7 +32,7 @@ class _TestRouterAppState extends State<TestRouterApp> {
   late final home = ValueNotifier<Widget>(widget.home);
   late final GoRouter router = createAppRouter(
     session: session,
-    initialLocation: DashboardRoutes.home,
+    initialLocation: AppRoutes.home,
     homeBuilder: (_) => ValueListenableBuilder<Widget>(
       valueListenable: home,
       builder: (_, child, _) => child,

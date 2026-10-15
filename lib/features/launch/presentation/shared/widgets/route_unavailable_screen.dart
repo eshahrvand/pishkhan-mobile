@@ -19,7 +19,7 @@ class RouteUnavailableScreen extends StatelessWidget {
               const SizedBox(height: 16),
               AppButton(
                 label: S.current.backLabel,
-                onPressed: () => context.go(DashboardRoutes.home),
+                onPressed: () => context.go(AppRoutes.home),
               ),
             ],
           ),

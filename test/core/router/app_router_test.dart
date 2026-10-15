@@ -14,7 +14,6 @@ import 'package:pishkhan_mobile/core/router/app_router.dart';
 import 'package:pishkhan_mobile/core/router/router_session.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/login/screens/auth_screen.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/login/cubit/auth_cubit.dart';
-import 'package:pishkhan_mobile/features/cards/cards_routes.dart';
 import 'package:pishkhan_mobile/features/cards/presentation/virtual_card_request/screens/virtual_card_request_screen.dart';
 import 'package:pishkhan_mobile/features/launch/presentation/shared/widgets/route_unavailable_screen.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
@@ -49,25 +48,30 @@ void main() {
   });
   test('all implemented paths are unique and module-prefixed', () {
     final session = RouterSession();
-    final routes = buildAppRoutes(session: session).cast<GoRoute>();
+    final router = createAppRouter(session: session);
+    addTearDown(() {
+      router.dispose();
+      session.dispose();
+    });
+    final routes = router.configuration.routes.cast<GoRoute>();
     final paths = routes.map((r) => r.path).toList();
     const modulePaths = {
-      '/launch/': [LaunchRoutes.splash],
-      '/dashboard/': [DashboardRoutes.home, DashboardRoutes.allServices],
-      '/auth/': [AuthRoutes.login],
+      '/launch/': [AppRoutes.splash],
+      '/dashboard/': [AppRoutes.home, AppRoutes.allServices],
+      '/auth/': [AppRoutes.login],
       '/cards/': [
-        CardsRoutes.passwords,
-        CardsRoutes.list,
-        CardsRoutes.issuance,
-        CardsRoutes.virtualRequest,
-        CardsRoutes.changeDeposit,
-        CardsRoutes.expiredGiftBalance,
+        AppRoutes.cardPasswords,
+        AppRoutes.cardList,
+        AppRoutes.cardIssuance,
+        AppRoutes.virtualCardRequest,
+        AppRoutes.changeCardDeposit,
+        AppRoutes.expiredGiftBalance,
       ],
-      '/profile/': [ProfileRoutes.messages, ProfileRoutes.messageDetail],
+      '/profile/': [AppRoutes.messages, AppRoutes.messageDetail],
       '/deposits/': [
-        DepositsRoutes.list,
-        DepositsRoutes.averageBalance,
-        DepositsRoutes.financialCertificate,
+        AppRoutes.depositList,
+        AppRoutes.averageBalance,
+        AppRoutes.financialCertificate,
       ],
     };
     final declaredPaths = modulePaths.values.expand((paths) => paths).toList();
@@ -79,20 +83,19 @@ void main() {
         expect(path.startsWith(module.key), isTrue, reason: path);
       }
     }
-    session.dispose();
   });
   test(
     'return destination accepts implemented local routes and rejects tampering',
     () {
       for (final value in [
-        CardsRoutes.virtualRequest,
-        CardsRoutes.passwords,
-        CardsRoutes.changeDeposit,
-        CardsRoutes.expiredGiftBalance,
-        DepositsRoutes.list,
+        AppRoutes.virtualCardRequest,
+        AppRoutes.cardPasswords,
+        AppRoutes.changeCardDeposit,
+        AppRoutes.expiredGiftBalance,
+        AppRoutes.depositList,
         '/cards/list?category=virtual',
         '/profile/messages/security-id',
-        DashboardRoutes.allServices,
+        AppRoutes.allServices,
       ]) {
         expect(validatedReturnLocation(value), value);
       }
@@ -101,18 +104,14 @@ void main() {
         '',
         'https://evil.example/cards/list',
         '//evil.example/cards/list',
-        AuthRoutes.login,
+        AppRoutes.login,
         '/unknown',
         '/cards/list?category=virtual&category=gift',
         '/cards/list?category=unsupported',
         '/dashboard/home?token=secret',
         '/cards/list#bad',
       ]) {
-        expect(
-          validatedReturnLocation(value),
-          DashboardRoutes.home,
-          reason: value,
-        );
+        expect(validatedReturnLocation(value), AppRoutes.home, reason: value);
       }
     },
   );
@@ -141,7 +140,7 @@ void main() {
         expect(find.byType(SplashScreen), findsNothing);
         expect(
           router.routeInformationProvider.value.uri.path,
-          authenticated ? DashboardRoutes.home : AuthRoutes.login,
+          authenticated ? AppRoutes.home : AppRoutes.login,
         );
         expect(
           find.byType(authenticated ? DashboardScreen : AuthScreen),
@@ -151,7 +150,7 @@ void main() {
         if (!authenticated) {
           expect(
             router.routeInformationProvider.value.uri.queryParameters['from'],
-            DashboardRoutes.home,
+            AppRoutes.home,
           );
         }
         await tester.pumpWidget(const SizedBox.shrink());
@@ -164,7 +163,7 @@ void main() {
       final session = RouterSession();
       final router = createAppRouter(
         session: session,
-        initialLocation: CardsRoutes.virtualRequest,
+        initialLocation: AppRoutes.virtualCardRequest,
         homeBuilder: (_) => const Scaffold(body: Text('Home')),
       );
       addTearDown(() {
@@ -174,14 +173,14 @@ void main() {
       await tester.pumpWidget(app(router));
       await tester.pumpAndSettle();
       router.go(
-        CardsRoutes.virtualRequest,
+        AppRoutes.virtualCardRequest,
         extra: const CardRouteArguments(initialDepositNumber: '10.123.1'),
       );
       await tester.pumpAndSettle();
-      expect(router.routeInformationProvider.value.uri.path, AuthRoutes.login);
+      expect(router.routeInformationProvider.value.uri.path, AppRoutes.login);
       expect(
         router.routeInformationProvider.value.uri.queryParameters['from'],
-        CardsRoutes.virtualRequest,
+        AppRoutes.virtualCardRequest,
       );
       final cubit = tester
           .element(find.byType(BlocBuilder<AuthCubit, AuthState>).first)
@@ -197,7 +196,7 @@ void main() {
       expect(session.isAuthenticated, isTrue);
       expect(
         router.routeInformationProvider.value.uri.path,
-        CardsRoutes.virtualRequest,
+        AppRoutes.virtualCardRequest,
       );
       expect(find.byType(VirtualCardRequestScreen), findsOneWidget);
       expect(

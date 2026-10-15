@@ -8,6 +8,8 @@
 
 ## فهرست گزارش‌ها
 
+- [پیاده‌سازی router مرکزی و کلاس AppRoutes — ۲۰۲۶/۱۰/۱۵](2026-10-15-centralized-router-implementation.md)
+- [بررسی متمرکزکردن تعریف مسیرهای GoRouter — ۲۰۲۶/۱۰/۱۵](2026-10-15-centralized-router-review.md)
 - [انتقال سرویس رمز کارت از auth به cards — ۲۰۲۶/۱۰/۱۵](2026-10-15-card-password-services-migration.md)
 - [ساخت AvpImage و انتقال تصاویر برنامه — ۲۰۲۶/۱۰/۱۵](2026-10-15-avp-image-implementation.md)
 - [اصلاح نمایش دقیقه و ثانیهٔ تایمر OTP — ۲۰۲۶/۱۰/۱۵](2026-10-15-otp-timer-display.md)

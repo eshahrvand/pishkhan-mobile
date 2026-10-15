@@ -326,7 +326,7 @@ void main() {
       expect(find.byType(ChangeCardDepositScreen), findsOneWidget);
       expect(changeCubit(t).state.card!.number, '1234123412341234');
       final context = t.element(find.byType(ChangeCardDepositScreen));
-      expect(GoRouterState.of(context).uri.path, CardsRoutes.changeDeposit);
+      expect(GoRouterState.of(context).uri.path, AppRoutes.changeCardDeposit);
       GoRouter.of(context).pop();
       await t.pumpAndSettle();
       openCardFeaturesService(t.element(button('open')), 'card-expired-gift');

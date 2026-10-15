@@ -4,8 +4,8 @@
 
 Card password setup, change and recovery belong to the `cards` feature. Login,
 login OTP and application authentication remain in `auth`. The route is
-`CardsRoutes.passwords` (`/cards/password-services`), registered by
-`buildCardsRoutes` with `PasswordRouteArguments`. Its route-session mock repository
+`AppRoutes.cardPasswords` (`/cards/password-services`), registered by
+`createAppRouter` in `lib/core/router/app_router.dart` with `PasswordRouteArguments`. Its router-scoped mock repository
 retains receipts across entries without retaining PINs or identity serials.
 
 `lib/features/cards/presentation/password_services/screens/second_password_screen.dart`
@@ -72,7 +72,6 @@ video_player is flutter.dev-published, BSD-3-Clause and supplies the actual plat
 
 ```text
 lib/features/cards/
-  cards_routes.dart                          route and route-session repository
   domain/entities/password_data.dart         immutable summaries and request payload
   domain/repositories/password_services_repository.dart
   domain/usecases/password_services.dart     load/status/submit exception boundaries
@@ -85,12 +84,14 @@ lib/features/cards/
     widgets/                                 forms, sections and sheets
 test/cards/presentation/flows/password_services/
 lib/core/validators/second_password_validator.dart
+lib/core/router/app_routes.dart             AppRoutes.cardPasswords
+lib/core/router/app_router.dart             GoRoute, route arguments and mock repository lifetime
 lib/core/router/card_features_navigation.dart allowlisted entry
 avp_ui/lib/widgets/media/app_video_player.dart
 avp_ui/example/lib/figma_name_mapper.dart      searchable package mapping and preview
 ```
 
-Dashboard card summaries remain separate. `ServiceRegistry` forwards card-password services to the cards route. The cards route factory owns the prototype mock status repository across entries; it retains receipts only, never passwords/serials. The app-side Figma-name mapping is doc/shared-component-figma-mapping.md.
+Dashboard card summaries remain separate. `ServiceRegistry` forwards card-password services to the central card-password route. `createAppRouter` owns the prototype mock status repository across entries; it retains receipts only, never passwords/serials. The app-side Figma-name mapping is doc/shared-component-figma-mapping.md.
 
 ## 7. Layering Pattern
 

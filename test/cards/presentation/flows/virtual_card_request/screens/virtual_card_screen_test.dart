@@ -1,6 +1,6 @@
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pishkhan_mobile/features/cards/cards_routes.dart';
+import 'package:pishkhan_mobile/core/router/app_routes.dart';
 
 import '../../../../../support/router_test_app.dart';
 
@@ -233,8 +233,9 @@ void main() {
             builder: (context) => Scaffold(
               body: AppButton(
                 label: 'Main page',
-                onPressed: () =>
-                    context.push<void>(cardsListLocation(CardCategory.virtual)),
+                onPressed: () => context.push<void>(
+                  AppRoutes.cardListLocation(CardCategory.virtual.name),
+                ),
               ),
             ),
           ),

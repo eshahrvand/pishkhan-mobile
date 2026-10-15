@@ -261,9 +261,16 @@ Import package:pishkhan_mobile/features/dashboard/dashboard.dart for DashboardSc
 
 ## Standalone Cards feature
 
+Routing uses two central files for every feature: `core/router/app_routes.dart`
+contains the single `AppRoutes` class and URL builders; `core/router/app_router.dart`
+contains all `GoRoute` definitions directly in `createAppRouter`, plus typed route
+arguments. Add routes there; per-feature `*_routes.dart` files and `build*Routes`
+factories are no longer used. The app owns and disposes its router/session.
+
 Card password setup, change and recovery are owned by `features/cards`, including
-their presentation, domain and mock data layers. Use `CardsRoutes.passwords`
-(`/cards/password-services`) and `PasswordRouteArguments` from `cards_routes.dart`.
+their presentation, domain and mock data layers. Use `AppRoutes.cardPasswords`
+(`/cards/password-services`) from `core/router/app_routes.dart` and
+`PasswordRouteArguments` from `core/router/app_router.dart`.
 `ServiceRegistry.openCardService` forwards the existing password service IDs to
 this route. Login and login OTP remain in `features/auth`. See
 [Password services](cards/password-services.md) for paths and flow contracts.

@@ -1,8 +1,7 @@
 import 'package:pishkhan_mobile/core/router/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pishkhan_mobile/features/cards/cards_routes.dart';
-import 'package:pishkhan_mobile/features/deposits/deposits_routes.dart';
+import 'package:pishkhan_mobile/core/router/app_router.dart';
 import 'package:pishkhan_mobile/features/cards/domain/entities/listed_card.dart';
 
 abstract final class ServiceRegistry {
@@ -15,7 +14,7 @@ abstract final class ServiceRegistry {
   }) {
     if (id == 'deposit-certificate') {
       context.push<void>(
-        DepositsRoutes.financialCertificate,
+        AppRoutes.financialCertificate,
         extra: CertificateRouteArguments(
           initialDepositNumber: initialDepositNumber,
         ),
@@ -24,7 +23,7 @@ abstract final class ServiceRegistry {
     }
     if (id == 'deposit-statement') {
       context.push<void>(
-        DepositsRoutes.averageBalance,
+        AppRoutes.averageBalance,
         extra: CertificateRouteArguments(
           initialDepositNumber: initialDepositNumber,
         ),
@@ -33,10 +32,10 @@ abstract final class ServiceRegistry {
     }
     if (id == 'deposit-list') {
       context.push<void>(
-        DepositsRoutes.list,
+        AppRoutes.depositList,
         extra: DepositListRouteArguments(
           onAssistantPressed: () {
-            context.go(DashboardRoutes.home);
+            context.go(AppRoutes.home);
             onAssistantPressed?.call();
           },
         ),
@@ -50,7 +49,7 @@ abstract final class ServiceRegistry {
       'card-pin-second-change',
     }.contains(id)) {
       context.push<void>(
-        CardsRoutes.passwords,
+        AppRoutes.cardPasswords,
         extra: PasswordRouteArguments(
           initialCardNumber: initialCardNumber,
           selectOperation:
@@ -65,19 +64,19 @@ abstract final class ServiceRegistry {
       onAssistantPressed: onAssistantPressed,
     );
     if (id == 'card-deposit') {
-      context.push<void>(CardsRoutes.changeDeposit, extra: args);
+      context.push<void>(AppRoutes.changeCardDeposit, extra: args);
       return true;
     }
     if (id == 'card-expired-gift') {
-      context.push<void>(CardsRoutes.expiredGiftBalance, extra: args);
+      context.push<void>(AppRoutes.expiredGiftBalance, extra: args);
       return true;
     }
     if (id == 'card-virtual' || id == 'card-virtual-request') {
-      context.push<void>(CardsRoutes.virtualRequest, extra: args);
+      context.push<void>(AppRoutes.virtualCardRequest, extra: args);
       return true;
     }
     if (id == 'card-issue' || id == 'card-reissue') {
-      context.push<void>(CardsRoutes.issuance, extra: args);
+      context.push<void>(AppRoutes.cardIssuance, extra: args);
       return true;
     }
     final category = switch (id) {
@@ -86,10 +85,9 @@ abstract final class ServiceRegistry {
       _ => null,
     };
     if (category == null) return false;
-    context.push<void>(cardsListLocation(category), extra: args);
+    context.push<void>(AppRoutes.cardListLocation(category.name), extra: args);
     return true;
   }
 
-  static void returnHome(BuildContext context) =>
-      context.go(DashboardRoutes.home);
+  static void returnHome(BuildContext context) => context.go(AppRoutes.home);
 }

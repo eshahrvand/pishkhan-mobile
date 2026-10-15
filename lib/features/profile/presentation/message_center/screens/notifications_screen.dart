@@ -4,7 +4,7 @@ import '../cubit/notifications_cubit.dart';
 import '../widgets/notification_group.dart';
 
 import 'package:go_router/go_router.dart';
-import 'package:pishkhan_mobile/features/profile/profile_routes.dart';
+import 'package:pishkhan_mobile/core/router/app_routes.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:pishkhan_mobile/features/profile/domain/entities/notification_message.dart';
@@ -27,7 +27,7 @@ class NotificationsScreen extends StatelessWidget {
       context.read<NotificationsCubit>().markRead(message.id);
     }
     context.push<void>(
-      profileMessageDetailLocation(message.id),
+      AppRoutes.messageDetailLocation(message.id),
       extra: message.markRead(),
     );
   }

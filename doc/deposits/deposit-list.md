@@ -69,7 +69,7 @@ All new interface copy is in fa/en/ar ARBs, and every locale remains RTL.
 
 ## Entry and integration
 
-`DepositsRoutes.list` is `/deposits/list`, protected by the existing auth guard
+`AppRoutes.depositList` is `/deposits/list`, protected by the existing auth guard
 and included in the validated post-login destination allowlist. The
 `deposit-list` service ID opens it through the existing core service registry;
 explicit dashboard service callbacks keep precedence. The assistant returns to
