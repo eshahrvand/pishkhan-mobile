@@ -8,6 +8,7 @@ class AuthServicesRow extends StatelessWidget {
     this.fillEmptySlots = false,
     super.key,
   });
+
   final List<AuthServiceItemData> items;
   final bool fillEmptySlots;
 
@@ -48,6 +49,7 @@ class AuthServicesSectionTitle extends StatelessWidget {
     required this.dividerAsset,
     super.key,
   });
+
   final String title;
   final String dividerAsset;
 
@@ -77,7 +79,9 @@ class AuthServicesSectionTitle extends StatelessWidget {
 
 class AuthServiceTile extends StatelessWidget {
   const AuthServiceTile({super.key, required this.item});
+
   final AuthServiceItemData item;
+
   @override
   Widget build(BuildContext context) {
     return AppServiceGridItemView(
@@ -108,6 +112,7 @@ class AuthServiceItemData {
     this.onTap,
     this.mutedLabel = false,
   });
+
   final String label;
   final String asset;
   final VoidCallback? onTap;

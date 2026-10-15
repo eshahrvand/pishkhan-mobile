@@ -10,6 +10,7 @@ import 'package:pishkhan_mobile/generated/l10n.dart';
 
 class AuthOtpForm extends StatelessWidget {
   const AuthOtpForm({this.onAuthenticated, super.key});
+
   final VoidCallback? onAuthenticated;
 
   @override
