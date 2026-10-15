@@ -1,5 +1,5 @@
-import 'package:pishkhan_mobile/features/auth/presentation/password_services/widgets/password_request_status.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/password_services/widgets/password_flow_footer.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/password_services/widgets/password_request_status.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/password_services/widgets/password_flow_footer.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -23,8 +23,7 @@ Finder authControl(WidgetTester tester, String name) {
   Finder badge(String asset) => find
       .ancestor(
         of: find.byWidgetPredicate(
-          (widget) =>
-              widget is AvpImage && widget.image == asset,
+          (widget) => widget is AvpImage && widget.image == asset,
         ),
         matching: find.byType(SizedBox),
       )

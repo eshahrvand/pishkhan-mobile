@@ -261,6 +261,13 @@ Import package:pishkhan_mobile/features/dashboard/dashboard.dart for DashboardSc
 
 ## Standalone Cards feature
 
+Card password setup, change and recovery are owned by `features/cards`, including
+their presentation, domain and mock data layers. Use `CardsRoutes.passwords`
+(`/cards/password-services`) and `PasswordRouteArguments` from `cards_routes.dart`.
+`ServiceRegistry.openCardService` forwards the existing password service IDs to
+this route. Login and login OTP remain in `features/auth`. See
+[Password services](cards/password-services.md) for paths and flow contracts.
+
 See [Cards architecture](cards/card-services.md). Import features/cards/cards.dart for CardFeaturesScreen, CardsRepository, ListedCard and typed CardFeatureRequest. Dashboard card summaries remain a separate feature. Compatible new package APIs are documented in avp_ui/docs/main-app-integration-guide.md; deploy the sibling package changes together with this app.
 
 ## Stepper and card issuance instances

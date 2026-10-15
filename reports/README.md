@@ -8,6 +8,7 @@
 
 ## فهرست گزارش‌ها
 
+- [انتقال سرویس رمز کارت از auth به cards — ۲۰۲۶/۱۰/۱۵](2026-10-15-card-password-services-migration.md)
 - [ساخت AvpImage و انتقال تصاویر برنامه — ۲۰۲۶/۱۰/۱۵](2026-10-15-avp-image-implementation.md)
 - [اصلاح نمایش دقیقه و ثانیهٔ تایمر OTP — ۲۰۲۶/۱۰/۱۵](2026-10-15-otp-timer-display.md)
 - [پیاده‌سازی isActive و کنترل دکمهٔ لاگین — ۲۰۲۶/۱۰/۱۵](2026-10-15-button-active-loading-implementation.md)

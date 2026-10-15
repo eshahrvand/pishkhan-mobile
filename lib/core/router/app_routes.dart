@@ -9,10 +9,10 @@ abstract final class DashboardRoutes {
 
 abstract final class AuthRoutes {
   static const login = '/auth/login';
-  static const passwords = '/auth/password-services';
 }
 
 abstract final class CardsRoutes {
+  static const passwords = '/cards/password-services';
   static const list = '/cards/list';
   static const issuance = '/cards/issuance';
   static const virtualRequest = '/cards/virtual-request';

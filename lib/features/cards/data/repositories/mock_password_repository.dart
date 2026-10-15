@@ -1,4 +1,4 @@
-import 'package:pishkhan_mobile/features/auth/domain/repositories/password_services_repository.dart';
+import 'package:pishkhan_mobile/features/cards/domain/repositories/password_services_repository.dart';
 import 'package:pishkhan_mobile/core/result/result.dart';
 import 'package:pishkhan_mobile/core/result/failure.dart';
 import 'package:pishkhan_mobile/core/validators/second_password_validator.dart';

@@ -54,8 +54,9 @@ void main() {
     const modulePaths = {
       '/launch/': [LaunchRoutes.splash],
       '/dashboard/': [DashboardRoutes.home, DashboardRoutes.allServices],
-      '/auth/': [AuthRoutes.login, AuthRoutes.passwords],
+      '/auth/': [AuthRoutes.login],
       '/cards/': [
+        CardsRoutes.passwords,
         CardsRoutes.list,
         CardsRoutes.issuance,
         CardsRoutes.virtualRequest,
@@ -85,6 +86,7 @@ void main() {
     () {
       for (final value in [
         CardsRoutes.virtualRequest,
+        CardsRoutes.passwords,
         CardsRoutes.changeDeposit,
         CardsRoutes.expiredGiftBalance,
         DepositsRoutes.list,

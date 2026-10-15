@@ -1,7 +1,6 @@
 import 'package:pishkhan_mobile/core/router/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pishkhan_mobile/features/auth/auth_routes.dart';
 import 'package:pishkhan_mobile/features/cards/cards_routes.dart';
 import 'package:pishkhan_mobile/features/deposits/deposits_routes.dart';
 import 'package:pishkhan_mobile/features/cards/domain/entities/listed_card.dart';
@@ -51,7 +50,7 @@ abstract final class ServiceRegistry {
       'card-pin-second-change',
     }.contains(id)) {
       context.push<void>(
-        AuthRoutes.passwords,
+        CardsRoutes.passwords,
         extra: PasswordRouteArguments(
           initialCardNumber: initialCardNumber,
           selectOperation:

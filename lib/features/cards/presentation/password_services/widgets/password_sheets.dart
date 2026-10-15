@@ -3,9 +3,9 @@ import 'dart:ui' as ui;
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pishkhan_mobile/features/auth/domain/entities/password_data.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/password_services/widgets/password_options_sheet.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/password_services/widgets/password_request_status.dart';
+import 'package:pishkhan_mobile/features/cards/domain/entities/password_data.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/password_services/widgets/password_options_sheet.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/password_services/widgets/password_request_status.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 

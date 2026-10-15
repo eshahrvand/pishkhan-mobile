@@ -13,12 +13,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
-import 'package:pishkhan_mobile/features/auth/data/repositories/mock_password_repository.dart';
-import 'package:pishkhan_mobile/features/auth/domain/entities/password_data.dart';
-import 'package:pishkhan_mobile/features/auth/domain/repositories/password_services_repository.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/password_services/cubit/second_password_cubit.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/password_services/password_service_constants.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/password_services/widgets/password_sheets.dart';
+import 'package:pishkhan_mobile/features/cards/data/repositories/mock_password_repository.dart';
+import 'package:pishkhan_mobile/features/cards/domain/entities/password_data.dart';
+import 'package:pishkhan_mobile/features/cards/domain/repositories/password_services_repository.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/password_services/cubit/second_password_cubit.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/password_services/password_service_constants.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/password_services/widgets/password_sheets.dart';
 
 class SecondPasswordScreen extends StatefulWidget {
   const SecondPasswordScreen({

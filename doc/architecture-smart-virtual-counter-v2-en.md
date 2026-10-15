@@ -238,10 +238,10 @@ With 80+ services, creating a three-layer feature per service would produce 80 f
 
 | Module | Scope |
 |---|---|
-| `auth` | Login, OTP, password, biometrics, password change |
+| `auth` | Login, login OTP, application authentication credentials and biometrics |
 | `launch` | Splash, onboarding (planned, not yet specified), and the screens that route guards redirect to |
 | `dashboard` | Home screens, bottom navigation, service catalog and search |
-| `cards` | Card services |
+| `cards` | Card services, including card PIN/password setup, change and recovery |
 | `deposits` | Deposit and account services |
 | `loans` | Facility services |
 | `cheque` | Cheque services |

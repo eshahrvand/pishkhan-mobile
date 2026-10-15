@@ -2,7 +2,7 @@ import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:pishkhan_mobile/features/auth/presentation/password_services/widgets/password_styles.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/password_services/widgets/password_styles.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_bottom_sheet_header.dart';
 

@@ -5,7 +5,7 @@ import '../../../../../support/auth_ui_finders.dart';
 
 import 'package:pishkhan_mobile/core/router/app_routes.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pishkhan_mobile/features/auth/auth_routes.dart';
+import 'package:pishkhan_mobile/features/cards/cards_routes.dart';
 
 import '../../../../../support/router_test_app.dart';
 
@@ -19,8 +19,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pishkhan_mobile/core/router/card_features_navigation.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/password_services/password_services.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/password_services/cubit/second_password_cubit.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/password_services/password_services.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/password_services/cubit/second_password_cubit.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_invoice.dart';
 
@@ -516,7 +516,7 @@ void main() {
             body: AppButton(
               label: 'Check',
               onPressed: () => context.push<void>(
-                AuthRoutes.passwords,
+                CardsRoutes.passwords,
                 extra: PasswordRouteArguments(
                   repository: r,
                   selectOperation: true,

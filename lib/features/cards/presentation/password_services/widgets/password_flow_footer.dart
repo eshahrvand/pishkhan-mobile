@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/password_services/cubit/second_password_cubit.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/password_services/cubit/second_password_cubit.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 
 class PasswordFlowFooter extends StatelessWidget {

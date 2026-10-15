@@ -1,8 +1,14 @@
 # Password Services Development Document
 
-## UI structure after the auth refactor
+## UI structure and feature ownership
 
-`lib/features/auth/presentation/password_services/screens/second_password_screen.dart`
+Card password setup, change and recovery belong to the `cards` feature. Login,
+login OTP and application authentication remain in `auth`. The route is
+`CardsRoutes.passwords` (`/cards/password-services`), registered by
+`buildCardsRoutes` with `PasswordRouteArguments`. Its route-session mock repository
+retains receipts across entries without retaining PINs or identity serials.
+
+`lib/features/cards/presentation/password_services/screens/second_password_screen.dart`
 owns the flow lifecycle, navigation, and receipt listener. The view, selection,
 instruction, recording, footer, serial, and substantial sheets retain their
 own files under `presentation/password_services/widgets/`. PIN fields and rule
@@ -29,7 +35,7 @@ validation, mock KYC, and submission contracts are preserved.
 
 ## 1. Architectural Goals and Principles
 
-Presentation composes existing shared/package widgets. Immutable Equatable state owns selection, draft and transitions; pure PIN/serial validation lives in core/validators. Domain use cases form the repository/error boundary. The video player has no bank logic. The explicit request to simulate Phase 6 takes precedence over the recorded-video picture.
+Presentation composes existing shared/package widgets. Immutable Freezed state owns selection, draft and transitions; pure PIN/serial validation lives in core/validators. Domain use cases form the repository/error boundary. The video player has no bank logic. The explicit request to simulate Phase 6 takes precedence over the recorded-video picture.
 
 ## 2. Product Scope and Target Platforms
 
@@ -65,21 +71,26 @@ video_player is flutter.dev-published, BSD-3-Clause and supplies the actual plat
 ## 6. Project Structure and Modularization
 
 ```text
-lib/features/password_services/
-  password_services.dart
-  domain/password_data.dart                   immutable summaries, payload and repository
-  domain/password_usecases.dart               load/status/submit exception boundaries
-  data/mock_password_repository.dart          catalog and in-memory status/receipt store
-  presentation/cubit/second_password_cubit.dart state, gates, stale-response/submission guards
-  presentation/second_password_screen.dart    composition and controllers
-  presentation/password_sheets.dart          selection/status sheets
+lib/features/cards/
+  cards_routes.dart                          route and route-session repository
+  domain/entities/password_data.dart         immutable summaries and request payload
+  domain/repositories/password_services_repository.dart
+  domain/usecases/password_services.dart     load/status/submit exception boundaries
+  data/repositories/mock_password_repository.dart
+  presentation/password_services/
+    password_services.dart                   flow exports
+    cubit/second_password_cubit.dart          state, gates and async guards
+    cubit/second_password_state.dart          Freezed state
+    screens/second_password_screen.dart       lifecycle and navigation
+    widgets/                                 forms, sections and sheets
+test/cards/presentation/flows/password_services/
 lib/core/validators/second_password_validator.dart
 lib/core/router/card_features_navigation.dart allowlisted entry
 avp_ui/lib/widgets/media/app_video_player.dart
 avp_ui/example/lib/figma_name_mapper.dart      searchable package mapping and preview
 ```
 
-Dashboard card summaries remain separate. The core navigation bridge owns the prototype mock status repository across route entries; it retains receipts only, never passwords/serials. The app-side Figma-name mapping is doc/shared-component-figma-mapping.md.
+Dashboard card summaries remain separate. `ServiceRegistry` forwards card-password services to the cards route. The cards route factory owns the prototype mock status repository across entries; it retains receipts only, never passwords/serials. The app-side Figma-name mapping is doc/shared-component-figma-mapping.md.
 
 ## 7. Layering Pattern
 

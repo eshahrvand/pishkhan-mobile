@@ -2,10 +2,10 @@ import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:pishkhan_mobile/features/auth/domain/entities/password_data.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/password_services/cubit/second_password_cubit.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/password_services/widgets/password_sheets.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/password_services/widgets/password_styles.dart';
+import 'package:pishkhan_mobile/features/cards/domain/entities/password_data.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/password_services/cubit/second_password_cubit.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/password_services/widgets/password_sheets.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/password_services/widgets/password_styles.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_invoice.dart';

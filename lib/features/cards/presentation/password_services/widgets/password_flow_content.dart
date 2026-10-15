@@ -2,14 +2,14 @@ import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/password_services/cubit/second_password_cubit.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/password_services/widgets/password_instruction_section.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/password_services/widgets/password_recording_section.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/password_services/widgets/password_selection_section.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/password_services/widgets/password_serial_form.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/password_services/widgets/password_request_status.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/password_services/widgets/password_styles.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/password_services/widgets/second_password_form.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/password_services/cubit/second_password_cubit.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/password_services/widgets/password_instruction_section.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/password_services/widgets/password_recording_section.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/password_services/widgets/password_selection_section.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/password_services/widgets/password_serial_form.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/password_services/widgets/password_request_status.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/password_services/widgets/password_styles.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/password_services/widgets/second_password_form.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 
 class PasswordFlowContent extends StatelessWidget {

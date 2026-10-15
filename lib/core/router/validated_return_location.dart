@@ -17,7 +17,7 @@ String validatedReturnLocation(String? location) {
     CardsRoutes.virtualRequest,
     CardsRoutes.changeDeposit,
     CardsRoutes.expiredGiftBalance,
-    AuthRoutes.passwords,
+    CardsRoutes.passwords,
     ProfileRoutes.messages,
   };
   final messageSegments = Uri.parse(ProfileRoutes.messages).pathSegments;

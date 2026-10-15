@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:pishkhan_mobile/features/auth/domain/repositories/password_services_repository.dart';
+import 'package:pishkhan_mobile/features/cards/domain/repositories/password_services_repository.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 
 import 'dart:math';
@@ -550,8 +550,14 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
   }
 
   void resetPasswordFormPresentation() {
-    emit(state.copyWith(showPassword: false, showConfirmation: false,
-      showCurrentPassword: false, isConfirmationError: false));
+    emit(
+      state.copyWith(
+        showPassword: false,
+        showConfirmation: false,
+        showCurrentPassword: false,
+        isConfirmationError: false,
+      ),
+    );
   }
 
   void resetSerialValidation() {

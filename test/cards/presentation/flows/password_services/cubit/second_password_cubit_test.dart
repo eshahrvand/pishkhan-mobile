@@ -6,8 +6,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:pishkhan_mobile/core/result/result.dart';
 import 'package:pishkhan_mobile/core/result/failure.dart';
 import 'package:pishkhan_mobile/core/validators/second_password_validator.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/password_services/password_services.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/password_services/cubit/second_password_cubit.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/password_services/password_services.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/password_services/cubit/second_password_cubit.dart';
 
 class ControlledPasswordRepository implements PasswordServicesRepository {
   PasswordCatalog catalog = MockPasswordServicesRepository.sampleCatalog;
