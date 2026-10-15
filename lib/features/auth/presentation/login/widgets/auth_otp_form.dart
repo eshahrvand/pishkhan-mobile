@@ -95,7 +95,7 @@ class AuthOtpTimer extends StatelessWidget {
               : () {},
           label: state.secondsRemaining == 0
               ? S.current.resendOtp
-              : '00:${state.secondsRemaining.toString().padLeft(2, '0')}',
+              : getOtpRemainingTime(state.secondsRemaining),
           trailingIcon: SvgPicture.asset(
             AuthAssets.clock,
             width: 20,
@@ -108,4 +108,9 @@ class AuthOtpTimer extends StatelessWidget {
       ),
     );
   }
+}
+
+String getOtpRemainingTime(int secondsRemaining) {
+  return '${(secondsRemaining ~/ 60).toString().padLeft(2, '0')}:'
+      '${(secondsRemaining % 60).toString().padLeft(2, '0')}';
 }

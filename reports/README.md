@@ -8,6 +8,7 @@
 
 ## فهرست گزارش‌ها
 
+- [اصلاح نمایش دقیقه و ثانیهٔ تایمر OTP — ۲۰۲۶/۱۰/۱۵](2026-10-15-otp-timer-display.md)
 - [پیاده‌سازی isActive و کنترل دکمهٔ لاگین — ۲۰۲۶/۱۰/۱۵](2026-10-15-button-active-loading-implementation.md)
 - [بررسی فعال‌بودن دکمهٔ درخواست رمز و API دکمهٔ avp_ui — ۲۰۲۶/۱۰/۱۵](2026-10-15-login-button-active-loading-review.md)
 - [حذف emit از سازندهٔ AuthCubit — ۲۰۲۶/۱۰/۱۵](2026-10-15-auth-cubit-constructor.md)

@@ -88,7 +88,7 @@ Finder authControl(WidgetTester tester, String name) {
       (widget) =>
           widget is AppButton &&
           (widget.label == S.current.resendOtp ||
-              (widget.label?.startsWith('00:') ?? false)),
+              RegExp(r'^\d{2,}:\d{2}$').hasMatch(widget.label ?? '')),
     ),
     'password_card_kind' => select(S.current.passwordCardTypeHint),
     'password_card_number' => select(S.current.passwordCardNumberHint),

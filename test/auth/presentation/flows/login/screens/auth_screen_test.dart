@@ -423,6 +423,24 @@ void main() {
     },
   );
 
+  testWidgets('OTP timer displays minutes and seconds from remaining state', (
+    tester,
+  ) async {
+    for (final (seconds, label) in [
+      (125, '02:05'),
+      (60, '01:00'),
+      (59, '00:59'),
+      (1, '00:01'),
+    ]) {
+      await mount(tester, state: loginOtp.copyWith(secondsRemaining: seconds));
+      expect(
+        tester.widget<AppButton>(authControl(tester, 'otp_timer_button')).label,
+        label,
+      );
+      await tester.pumpWidget(const SizedBox.shrink());
+    }
+  });
+
   testWidgets(
     'expired OTP clears on resend and change-phone back keeps entered values',
     (tester) async {
@@ -438,7 +456,10 @@ void main() {
       await tester.pump();
       expect(cubit.state.otp, isEmpty);
       expect(cubit.state.secondsRemaining, 60);
-      await tester.pump(const Duration(seconds: 60));
+      expect(find.text('01:00'), findsOneWidget);
+      await tester.pump(const Duration(seconds: 1));
+      expect(find.text('00:59'), findsOneWidget);
+      await tester.pump(const Duration(seconds: 59));
       expect(cubit.state.secondsRemaining, 0);
       await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
