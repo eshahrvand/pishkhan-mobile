@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
+import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/login/cubit/auth_cubit.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/login/widgets/auth_form_shared.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/shared/auth_assets.dart';
@@ -15,8 +16,6 @@ class AuthIdentityForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cubit = context.read<AuthCubit>();
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -33,13 +32,23 @@ class AuthIdentityForm extends StatelessWidget {
         const SizedBox(height: 24),
         const AuthCaptchaRow(),
         const SizedBox(height: 24),
-        AppButton(
-          label: S.current.requestOtp,
-          size: AppButtonSize.md,
-          onPressed: () {
-            if (cubit.requestOtp()) {
-              FocusManager.instance.primaryFocus?.unfocus();
-            }
+        BlocBuilder<AuthCubit, AuthState>(
+          buildWhen: (previous, current) {
+            return previous.formValid != current.formValid ||
+                previous.status != current.status;
+          },
+          builder: (context, state) {
+            return AppButton(
+              label: S.current.requestOtp,
+              size: AppButtonSize.md,
+              isActive: state.formValid,
+              isLoading: state.status == RequestStatus.loading,
+              onPressed: () {
+                if (context.read<AuthCubit>().requestOtp()) {
+                  FocusManager.instance.primaryFocus?.unfocus();
+                }
+              },
+            );
           },
         ),
       ],

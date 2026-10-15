@@ -4,28 +4,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/validators/validators.dart';
+
 part 'auth_state.dart';
+
 part 'auth_cubit.freezed.dart';
 
 /// UI state for the login prototype. Bank authentication is not connected yet.
 class AuthCubit extends Cubit<AuthState> {
   AuthCubit({AuthState initialState = const AuthState.initial()})
-    : super(initialState) {
-    emit(
-      state.copyWith(
-        isLoginForm: state.step == AuthStep.login,
-        isOtp:
-            state.step == AuthStep.loginOtp ||
-            state.step == AuthStep.changePhoneOtp,
-        isChangePhone:
-            state.step == AuthStep.changePhone ||
-            state.step == AuthStep.changePhoneOtp,
-        formValid: checkFormValid(state.nationalId, state.phone, state.captcha),
-        otpValid: checkOtpValid(state.otp, state.secondsRemaining),
-        maskedPhone: maskPhoneNumber(state.phone),
-      ),
-    );
-  }
+    : super(initialState);
+
   Timer? _timer;
 
   void updateNationalId(String value) {
@@ -95,7 +83,7 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   bool requestOtp() {
-    if (state.isOtp) return false;
+    if (state.isOtp || state.status == RequestStatus.loading) return false;
     final nationalIdValid = NationalCodeValidator.isValid(state.nationalId);
     final phoneValid = PhoneNumberValidator.isValid(state.phone);
     final captchaValid = CodeValidator.isValid(state.captcha, length: 6);

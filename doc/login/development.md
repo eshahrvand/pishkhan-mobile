@@ -46,10 +46,13 @@ form and OTP values are controlled by `AuthCubit`.
   limits. Optional `value` and `onFocusLost` parameters provide controlled text
   and focus-loss validation. Empty and filled text stays RTL with
   `TextAlign.start`. The intermediary `AuthNumericField` has been removed.
-- `AppButton`: 40px send-code action and 44px OTP submission. The empty
-  identity form retains the blue send-code action from Figma; invalid submission
-  shows localized field errors. OTP submission is disabled until four digits are
-  present and the code has not expired.
+- `AppButton`: 40px send-code action and 44px OTP submission. The send-code
+  action uses `isActive: state.formValid` and remains disabled until the national
+  ID checksum, mobile format and six-digit CAPTCHA format are valid. CAPTCHA
+  correctness remains server-owned. `isLoading` reads the request status and
+  displays the package spinner while blocking interaction. Keyboard submission
+  also respects the Cubit's loading guard. OTP submission is disabled until four
+  digits are present and the code has not expired.
 - CAPTCHA and timer slots are 148px wide, separated from the field by 7px.
 - `AuthServicesSheet`: 528px at the reference viewport, 56px shared header,
   20px/32px body insets, 104px service rows, and 24px/12px section gaps.

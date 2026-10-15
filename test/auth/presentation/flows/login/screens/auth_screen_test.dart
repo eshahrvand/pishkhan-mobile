@@ -12,6 +12,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/login/screens/auth_screen.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/login/cubit/auth_cubit.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
@@ -118,19 +119,39 @@ void main() {
     nationalId: '0081234562',
     phone: '09121127934',
     captcha: '011759',
+    formValid: true,
+    maskedPhone: '0912*******34',
+  );
+  final loginOtp = filled.copyWith(
+    step: AuthStep.loginOtp,
+    isLoginForm: false,
+    isOtp: true,
+  );
+  final changePhone = filled.copyWith(
+    step: AuthStep.changePhone,
+    isLoginForm: false,
+    isChangePhone: true,
+  );
+  final changePhoneOtp = changePhone.copyWith(
+    step: AuthStep.changePhoneOtp,
+    isOtp: true,
   );
   final cases = <(String, AuthState)>[
     ('phase1-empty', const AuthState.initial()),
     ('phase1-filled', filled),
-    ('phase1-wait-otp', filled.copyWith(step: AuthStep.loginOtp)),
-    ('phase1-enter-otp', filled.copyWith(step: AuthStep.loginOtp, otp: '2345')),
-    ('phase3-empty', const AuthState.initial(step: AuthStep.changePhone)),
-    ('phase3-filled', filled.copyWith(step: AuthStep.changePhone)),
-    ('phase3-wait-otp', filled.copyWith(step: AuthStep.changePhoneOtp)),
+    ('phase1-wait-otp', loginOtp),
+    ('phase1-enter-otp', loginOtp.copyWith(otp: '2345', otpValid: true)),
     (
-      'phase3-enter-otp',
-      filled.copyWith(step: AuthStep.changePhoneOtp, otp: '2345'),
+      'phase3-empty',
+      const AuthState.initial(
+        step: AuthStep.changePhone,
+        isLoginForm: false,
+        isChangePhone: true,
+      ),
     ),
+    ('phase3-filled', changePhone),
+    ('phase3-wait-otp', changePhoneOtp),
+    ('phase3-enter-otp', changePhoneOtp.copyWith(otp: '2345', otpValid: true)),
   ];
 
   for (final (name, state) in cases) {
@@ -282,7 +303,7 @@ void main() {
           cubit.state.isPhoneError,
           cubit.state.isCaptchaError,
         ],
-        [true, true, true],
+        [false, false, false],
       );
       for (final (field, value) in [
         ('national-id', '۰۰۸۱۲۳۴۵۶۲'),
@@ -318,16 +339,96 @@ void main() {
     },
   );
 
+  for (final changePhone in [false, true]) {
+    testWidgets(
+      'request OTP requires valid identity and complete captcha (changePhone: $changePhone)',
+      (tester) async {
+        final cubit = await mount(
+          tester,
+          keyboard: false,
+          state: changePhone
+              ? const AuthState.initial(
+                  step: AuthStep.changePhone,
+                  isLoginForm: false,
+                  isChangePhone: true,
+                )
+              : const AuthState.initial(),
+        );
+        final step = changePhone ? 'changePhone' : 'login';
+        final button = authControl(tester, 'request_otp_button');
+        Finder input(String field) => find.descendant(
+          of: authControl(tester, '$step-$field'),
+          matching: find.byType(TextField),
+        );
+        void expectActive(bool active) {
+          expect(tester.widget<AppButton>(button).isActive, active);
+          expect(
+            tester
+                .widget<InkWell>(
+                  find.descendant(of: button, matching: find.byType(InkWell)),
+                )
+                .onTap,
+            active ? isNotNull : isNull,
+          );
+        }
+
+        expectActive(false);
+        await tester.tap(button);
+        await tester.pump();
+        expect(cubit.state.isOtp, isFalse);
+        expect(cubit.state.isNationalIdError, isFalse);
+
+        await tester.enterText(input('captcha'), '۱۲۳۴۵');
+        await tester.enterText(input('national-id'), '۰۰۸۱۲۳۴۵۶۲');
+        await tester.enterText(input('phone'), '۰۹۱۲۱۱۲۷۹۳۴');
+        await tester.pump();
+        expectActive(false);
+
+        await tester.enterText(input('captcha'), '۱۲۳۴۵۶');
+        await tester.pump();
+        expectActive(true);
+
+        await tester.enterText(input('national-id'), '۰۰۸۱۲۳۴۵۶۳');
+        await tester.pump();
+        expectActive(false);
+        await tester.enterText(input('national-id'), '۰۰۸۱۲۳۴۵۶۲');
+        await tester.pump();
+        expectActive(true);
+
+        await tester.enterText(input('phone'), '۰۸۱۲۱۱۲۷۹۳۴');
+        await tester.pump();
+        expectActive(false);
+        await tester.enterText(input('phone'), '۰۹۱۲۱۱۲۷۹۳۴');
+        await tester.pump();
+        expectActive(true);
+
+        cubit.refreshCaptcha();
+        await tester.pump();
+        expectActive(false);
+        expect(cubit.state.captcha, isEmpty);
+        await tester.pumpWidget(const SizedBox.shrink());
+      },
+    );
+  }
+
+  test(
+    'request OTP blocks keyboard or direct submission while loading',
+    () async {
+      final cubit = AuthCubit(
+        initialState: filled.copyWith(status: RequestStatus.loading),
+      );
+      expect(cubit.requestOtp(), isFalse);
+      expect(cubit.state.step, AuthStep.login);
+      await cubit.close();
+    },
+  );
+
   testWidgets(
     'expired OTP clears on resend and change-phone back keeps entered values',
     (tester) async {
       final cubit = await mount(
         tester,
-        state: filled.copyWith(
-          step: AuthStep.changePhoneOtp,
-          otp: '2345',
-          secondsRemaining: 0,
-        ),
+        state: changePhoneOtp.copyWith(otp: '2345', secondsRemaining: 0),
       );
       var submit = tester.widget<AppButton>(
         authControl(tester, 'submit_otp_button'),
@@ -356,7 +457,11 @@ void main() {
       await mount(
         tester,
         keyboard: false,
-        state: const AuthState.initial(step: AuthStep.changePhone),
+        state: const AuthState.initial(
+          step: AuthStep.changePhone,
+          isLoginForm: false,
+          isChangePhone: true,
+        ),
         onGuestServiceRequested: (id) => selected = id,
       );
       tester.view.physicalSize = const Size(320, 480);

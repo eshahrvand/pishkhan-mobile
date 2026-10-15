@@ -320,6 +320,19 @@ Card Services `card-pin-second-change` enables operation selection on `SecondPas
 
 `VirtualCardRequestScreen(repository: adapter, initialDepositNumber: number)` composes public avp_ui inputs/selects/buttons and the app-owned AppInvoice. `VirtualCardRepository` supplies catalog, bound fee quotes and idempotent submission receipts. `card-virtual`/`card-virtual-request` open the request form; `card-virtual-list` and card category chips retain list access. The virtual-list footer opens the same form unless a host callback handles it. See [request architecture and mock fee limits](cards/virtual-card-request.md).
 
+## Button activity and loading
+
+`AppButton.isActive` defaults to `true`; set it to `false` to disable interaction
+and apply disabled styling while keeping an `onPressed` callback. A null callback
+still disables the button. `isLoading: true` shows the existing spinner in place
+of its content and blocks interaction regardless of `isActive`. Existing callers
+that omit `isActive` keep their previous behavior.
+
+Login supplies `isActive: state.formValid` and
+`isLoading: state.status == RequestStatus.loading`. The current synchronous login
+prototype does not create artificial loading states; real request status changes
+belong to future bank integration.
+
 ## Direct state-driven text inputs
 
 `AppTextField` accepts optional `value`, `onFocusLost`, and `maxLength` inputs.
