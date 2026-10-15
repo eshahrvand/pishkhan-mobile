@@ -8,7 +8,6 @@ import 'package:avp_ui/avp_ui.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/home/cubit/dashboard_cubit.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/dashboard_services.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_bank_services.dart';
@@ -133,8 +132,8 @@ class DashboardHomePanel extends StatelessWidget {
                                       left: 0,
                                       right: 0,
                                       height: 122,
-                                      child: SvgPicture.asset(
-                                        AppAssets.dashboardPatternUp,
+                                      child: AvpImage(
+                                        image: AppAssets.dashboardPatternUp,
                                         fit: BoxFit.fill,
                                       ),
                                     ),
@@ -143,8 +142,8 @@ class DashboardHomePanel extends StatelessWidget {
                                       left: 0,
                                       right: 0,
                                       height: 122,
-                                      child: SvgPicture.asset(
-                                        AppAssets.dashboardPatternDown,
+                                      child: AvpImage(
+                                        image: AppAssets.dashboardPatternDown,
                                         fit: BoxFit.fill,
                                       ),
                                     ),

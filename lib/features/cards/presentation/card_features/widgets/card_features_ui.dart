@@ -1,5 +1,5 @@
+import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_cards_list.dart';
@@ -41,7 +41,9 @@ String actionAsset(CardFeatureAction action) => switch (action) {
 };
 Widget cardFeatureIcon(String path, {double size = 20}) => SizedBox.square(
   dimension: size,
-  child: Center(child: SvgPicture.asset(path, fit: BoxFit.contain)),
+  child: Center(
+    child: AvpImage(image: path, fit: BoxFit.contain),
+  ),
 );
 
 Widget cardCategoryIcon(CardCategory category) {
@@ -62,7 +64,7 @@ Widget cardCategoryIcon(CardCategory category) {
             top: 3.334,
             width: 16.284,
             height: 12.95,
-            child: SvgPicture.asset(asset),
+            child: AvpImage(image: asset),
           ),
         ],
       ),

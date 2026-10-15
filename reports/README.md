@@ -8,6 +8,7 @@
 
 ## فهرست گزارش‌ها
 
+- [ساخت AvpImage و انتقال تصاویر برنامه — ۲۰۲۶/۱۰/۱۵](2026-10-15-avp-image-implementation.md)
 - [اصلاح نمایش دقیقه و ثانیهٔ تایمر OTP — ۲۰۲۶/۱۰/۱۵](2026-10-15-otp-timer-display.md)
 - [پیاده‌سازی isActive و کنترل دکمهٔ لاگین — ۲۰۲۶/۱۰/۱۵](2026-10-15-button-active-loading-implementation.md)
 - [بررسی فعال‌بودن دکمهٔ درخواست رمز و API دکمهٔ avp_ui — ۲۰۲۶/۱۰/۱۵](2026-10-15-login-button-active-loading-review.md)

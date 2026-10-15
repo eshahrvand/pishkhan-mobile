@@ -4,7 +4,6 @@ import 'dashboard_dashed_border.dart';
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/home/cubit/dashboard_cubit.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/dashboard_services.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_service_tile.dart';
@@ -87,8 +86,8 @@ class DashboardFavoritesGrid extends StatelessWidget {
                                         child: OverflowBox(
                                           maxWidth: 20,
                                           maxHeight: 20,
-                                          child: SvgPicture.asset(
-                                            AppAssets.dashboardMinus,
+                                          child: AvpImage(
+                                            image: AppAssets.dashboardMinus,
                                           ),
                                         ),
                                       ),
@@ -128,8 +127,8 @@ class DashboardFavoritesGrid extends StatelessWidget {
                                   borderRadius: AppRadius.borderMd,
                                 ),
                                 child: Center(
-                                  child: SvgPicture.asset(
-                                    AppAssets.dashboardGreenPlus,
+                                  child: AvpImage(
+                                    image: AppAssets.dashboardGreenPlus,
                                     width: 20,
                                     height: 20,
                                   ),

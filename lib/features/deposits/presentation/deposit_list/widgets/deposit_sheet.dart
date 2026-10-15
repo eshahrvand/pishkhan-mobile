@@ -2,7 +2,6 @@ import 'dart:ui' as ui;
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
@@ -32,8 +31,8 @@ Future<T?> showDepositSheet<T>(BuildContext context, Widget panel) {
                 child: ClipRect(
                   child: BackdropFilter(
                     filter: ui.ImageFilter.blur(sigmaX: 2, sigmaY: 2),
-                    child: SvgPicture.asset(
-                      AppAssets.depositFeatureScrim,
+                    child: AvpImage(
+                      image: AppAssets.depositFeatureScrim,
                       fit: BoxFit.fill,
                     ),
                   ),

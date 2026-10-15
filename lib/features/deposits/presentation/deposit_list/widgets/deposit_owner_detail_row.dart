@@ -1,6 +1,5 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class DepositOwnerDetailRow extends StatelessWidget {
   const DepositOwnerDetailRow({
@@ -32,8 +31,8 @@ class DepositOwnerDetailRow extends StatelessWidget {
             ),
             const SizedBox(width: 8),
             Expanded(
-              child: SvgPicture.asset(
-                separatorAsset,
+              child: AvpImage(
+                image: separatorAsset,
                 height: .5,
                 fit: BoxFit.fill,
               ),

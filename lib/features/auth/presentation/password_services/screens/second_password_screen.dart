@@ -1,5 +1,4 @@
 import 'package:avp_ui/avp_ui.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
@@ -190,8 +189,8 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
                               showLeadingActions: false,
                               trailingIcon: SizedBox.square(
                                 dimension: 24,
-                                child: SvgPicture.asset(
-                                  AppAssets.cardFeaturesBack,
+                                child: AvpImage(
+                                  image: AppAssets.cardFeaturesBack,
                                   fit: BoxFit.contain,
                                 ),
                               ),

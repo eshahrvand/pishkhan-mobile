@@ -1,6 +1,5 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 enum AppTransactionType { discharge, charge, transfer, shopping }
@@ -101,7 +100,7 @@ class AppTransactionCard extends StatelessWidget {
                     color: AppPalette.white,
                     shape: BoxShape.circle,
                   ),
-                  child: SvgPicture.asset(_icon),
+                  child: AvpImage(image: _icon),
                 ),
               ],
             ),

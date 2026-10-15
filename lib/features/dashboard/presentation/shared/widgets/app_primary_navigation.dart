@@ -1,6 +1,5 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
@@ -50,20 +49,22 @@ class AppPrimaryNavigation extends StatelessWidget {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              SvgPicture.asset(switch (tab) {
-                                AppPrimaryTab.dashboard =>
-                                  tab == selectedTab
-                                      ? AppAssets.dashboardNavHome
-                                      : AppAssets.cardsNavHome,
-                                AppPrimaryTab.cards =>
-                                  tab == selectedTab
-                                      ? AppAssets.cardsNavActive
-                                      : AppAssets.dashboardNavCard,
-                                AppPrimaryTab.deposits =>
-                                  AppAssets.dashboardNavDeposit,
-                                AppPrimaryTab.loans =>
-                                  AppAssets.dashboardNavLoan,
-                              }),
+                              AvpImage(
+                                image: switch (tab) {
+                                  AppPrimaryTab.dashboard =>
+                                    tab == selectedTab
+                                        ? AppAssets.dashboardNavHome
+                                        : AppAssets.cardsNavHome,
+                                  AppPrimaryTab.cards =>
+                                    tab == selectedTab
+                                        ? AppAssets.cardsNavActive
+                                        : AppAssets.dashboardNavCard,
+                                  AppPrimaryTab.deposits =>
+                                    AppAssets.dashboardNavDeposit,
+                                  AppPrimaryTab.loans =>
+                                    AppAssets.dashboardNavLoan,
+                                },
+                              ),
                               const SizedBox(width: 2),
                               Flexible(
                                 child: Text(

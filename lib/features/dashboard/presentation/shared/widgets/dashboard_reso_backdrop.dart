@@ -3,7 +3,6 @@ import 'dart:ui' as ui;
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 class DashboardResoBackdrop extends StatelessWidget {
@@ -77,7 +76,7 @@ class DashboardResoBackdrop extends StatelessWidget {
                     child: ClipRect(
                       child: BackdropFilter(
                         filter: ui.ImageFilter.blur(sigmaX: .927, sigmaY: .927),
-                        child: SvgPicture.asset(AppAssets.dashboardResoOverlay),
+                        child: AvpImage(image: AppAssets.dashboardResoOverlay),
                       ),
                     ),
                   ),
@@ -92,7 +91,7 @@ class DashboardResoBackdrop extends StatelessWidget {
                         sigmaX: 76.0162,
                         sigmaY: 76.0162,
                       ),
-                      child: SvgPicture.asset(AppAssets.dashboardGlowLarge),
+                      child: AvpImage(image: AppAssets.dashboardGlowLarge),
                     ),
                   ),
                   Positioned(
@@ -106,7 +105,7 @@ class DashboardResoBackdrop extends StatelessWidget {
                         sigmaX: 28.7378,
                         sigmaY: 28.7378,
                       ),
-                      child: SvgPicture.asset(AppAssets.dashboardGlowSmall),
+                      child: AvpImage(image: AppAssets.dashboardGlowSmall),
                     ),
                   ),
                 ],

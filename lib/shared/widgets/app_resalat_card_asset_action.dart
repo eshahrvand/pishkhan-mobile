@@ -1,7 +1,6 @@
+import 'package:avp_ui/avp_ui.dart';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-
 
 class AppResalatCardAssetAction extends StatelessWidget {
   const AppResalatCardAssetAction({
@@ -22,7 +21,7 @@ class AppResalatCardAssetAction extends StatelessWidget {
   Widget build(BuildContext context) {
     final icon = SizedBox.square(
       dimension: size,
-      child: SvgPicture.asset(path, fit: BoxFit.contain),
+      child: AvpImage(image: path, fit: BoxFit.contain),
     );
     return onTap == null
         ? KeyedSubtree(key: contentKey, child: icon)

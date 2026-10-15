@@ -1,7 +1,5 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-
 
 class AppTransferDestinationCardRow extends StatelessWidget {
   const AppTransferDestinationCardRow({
@@ -37,7 +35,7 @@ class AppTransferDestinationCardRow extends StatelessWidget {
           Expanded(
             child: SizedBox(
               height: .5,
-              child: SvgPicture.asset(divider, fit: BoxFit.fill),
+              child: AvpImage(image: divider, fit: BoxFit.fill),
             ),
           ),
           const SizedBox(width: 8),

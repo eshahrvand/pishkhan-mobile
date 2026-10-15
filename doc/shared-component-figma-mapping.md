@@ -32,6 +32,7 @@ they do not change the public API of `avp_ui`.
 
 ## Usage rules
 
+- Render image assets with the public `AvpImage` primitive from `avp_ui`; the shared component continues to own its asset and composition. `AvpImage` does not introduce new Figma artwork.
 - Compose these components in screens with feature data and callbacks; do not
   put navigation, API calls, or domain state inside them.
 - Keep every new shared component RTL-first and use `avp_ui` tokens and public

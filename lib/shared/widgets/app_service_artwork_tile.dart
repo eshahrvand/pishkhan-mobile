@@ -1,6 +1,5 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 /// The supplied quick-service artwork includes its wave and icon.
 /// Flutter draws its shadow because SVG filter effects are unsupported.
@@ -20,7 +19,7 @@ class AppServiceArtworkTile extends StatelessWidget {
         child: Stack(
           clipBehavior: Clip.none,
           children: [
-            Positioned(left: -3, top: -2, child: SvgPicture.asset(asset)),
+            Positioned(left: -3, top: -2, child: AvpImage(image: asset)),
           ],
         ),
       ),

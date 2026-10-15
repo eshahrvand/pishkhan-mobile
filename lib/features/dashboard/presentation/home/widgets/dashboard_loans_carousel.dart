@@ -7,7 +7,6 @@ import 'dart:math' as math;
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/features/dashboard/domain/entities/bank_loan.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
@@ -98,8 +97,8 @@ class _DashboardLoansCarouselState extends State<DashboardLoansCarousel> {
                     left: 0,
                     right: 0,
                     height: 122,
-                    child: SvgPicture.asset(
-                      AppAssets.loansPatternUp,
+                    child: AvpImage(
+                      image: AppAssets.loansPatternUp,
                       fit: BoxFit.fill,
                     ),
                   ),

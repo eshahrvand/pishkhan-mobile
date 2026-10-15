@@ -3,7 +3,6 @@ import 'app_wallet_card_title.dart';
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 /// Figma WalletCard layouts.
@@ -17,7 +16,7 @@ abstract final class AppWalletCardIcons {
   static Widget _svg(String path, {required double size}) => SizedBox(
     width: size,
     height: size,
-    child: SvgPicture.asset(path, fit: BoxFit.contain),
+    child: AvpImage(image: path, fit: BoxFit.contain),
   );
 }
 

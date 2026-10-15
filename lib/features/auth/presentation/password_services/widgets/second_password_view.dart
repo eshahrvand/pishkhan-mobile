@@ -1,7 +1,6 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:pishkhan_mobile/features/auth/presentation/password_services/cubit/second_password_cubit.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/password_services/widgets/password_flow_content.dart';
@@ -55,8 +54,8 @@ class SecondPasswordView extends StatelessWidget {
                   showLeadingActions: false,
                   trailingIcon: SizedBox.square(
                     dimension: 24,
-                    child: SvgPicture.asset(
-                      AppAssets.cardFeaturesBack,
+                    child: AvpImage(
+                      image: AppAssets.cardFeaturesBack,
                       fit: BoxFit.contain,
                     ),
                   ),

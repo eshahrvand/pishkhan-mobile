@@ -6,7 +6,6 @@ import 'dart:ui' as ui;
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_bottom_sheet_header.dart';
@@ -40,8 +39,8 @@ Future<T?> _sheet<T>(BuildContext context, WidgetBuilder panel) {
                 child: ClipRect(
                   child: BackdropFilter(
                     filter: ui.ImageFilter.blur(sigmaX: 2, sigmaY: 2),
-                    child: SvgPicture.asset(
-                      AppAssets.cardFeaturesScrim,
+                    child: AvpImage(
+                      image: AppAssets.cardFeaturesScrim,
                       fit: BoxFit.fill,
                     ),
                   ),

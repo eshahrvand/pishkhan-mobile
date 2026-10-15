@@ -1,7 +1,6 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:pishkhan_mobile/features/auth/domain/entities/password_data.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/password_services/cubit/second_password_cubit.dart';
@@ -96,8 +95,8 @@ class PasswordSelectionSection extends StatelessWidget {
             child: OverflowBox(
               minHeight: 1,
               maxHeight: 1,
-              child: SvgPicture.asset(
-                AppAssets.issuanceDivider,
+              child: AvpImage(
+                image: AppAssets.issuanceDivider,
                 fit: BoxFit.fill,
               ),
             ),
@@ -214,8 +213,8 @@ class PasswordServiceSelect<T> extends StatelessWidget {
       ),
       trailing: SizedBox.square(
         dimension: 20,
-        child: SvgPicture.asset(
-          value == null
+        child: AvpImage(
+          image: value == null
               ? AppAssets.issuanceSelectEmpty
               : AppAssets.cardFeaturesChevron,
           fit: BoxFit.contain,

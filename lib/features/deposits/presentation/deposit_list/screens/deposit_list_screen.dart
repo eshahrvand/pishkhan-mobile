@@ -69,8 +69,8 @@ class DepositListScreen extends StatelessWidget {
                               child: OverflowBox(
                                 minHeight: 1,
                                 maxHeight: 1,
-                                child: Image.asset(
-                                  AppAssets.cardFeaturesSeparator,
+                                child: AvpImage(
+                                  image: AppAssets.cardFeaturesSeparator,
                                   fit: BoxFit.fill,
                                 ),
                               ),

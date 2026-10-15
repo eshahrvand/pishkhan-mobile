@@ -2,7 +2,6 @@ import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/d
 import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/dashboard_services.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
@@ -40,7 +39,7 @@ class DashboardAllServicesScreen extends StatelessWidget {
                       variant: AppButtonVariant.text,
                       semanticLabel: MaterialLocalizations.of(context)
                           .backButtonTooltip,
-                      icon: SvgPicture.asset(AppAssets.dashboardCatalogBack),
+                      icon: AvpImage(image: AppAssets.dashboardCatalogBack),
                     ),
                     const SizedBox(width: 4),
                     Expanded(
@@ -91,8 +90,8 @@ class DashboardAllServicesScreen extends StatelessWidget {
                                     item: AppServiceGridItem(
                                       id: 'all-${service.id}',
                                       label: service.catalogLabel(),
-                                      icon: SvgPicture.asset(
-                                        service.catalogAsset,
+                                      icon: AvpImage(
+                                        image: service.catalogAsset,
                                       ),
                                       onTap: () =>
                                           onServiceRequested?.call(service),

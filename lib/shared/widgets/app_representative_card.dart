@@ -3,7 +3,6 @@ import 'app_representative_card_detail_row.dart';
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 import 'app_representative_cards.dart';
@@ -55,8 +54,8 @@ class AppRepresentativeCard extends StatelessWidget {
                       child: Center(
                         child: SizedBox.square(
                           dimension: 20,
-                          child: SvgPicture.asset(
-                            AppAssets.representativeCardMoreVertical,
+                          child: AvpImage(
+                            image: AppAssets.representativeCardMoreVertical,
                             fit: BoxFit.contain,
                           ),
                         ),

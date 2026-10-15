@@ -1,6 +1,5 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class IssuanceSummaryRow extends StatelessWidget {
   const IssuanceSummaryRow({
@@ -32,7 +31,7 @@ class IssuanceSummaryRow extends StatelessWidget {
         Expanded(
           child: SizedBox(
             height: .5,
-            child: SvgPicture.asset(asset, fit: BoxFit.fill),
+            child: AvpImage(image: asset, fit: BoxFit.fill),
           ),
         ),
         const SizedBox(width: 8),

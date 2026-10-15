@@ -5,7 +5,6 @@ import 'dashboard_dashed_border.dart';
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/home/cubit/dashboard_cubit.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/dashboard_services.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
@@ -73,8 +72,8 @@ class DashboardBankServices extends StatelessWidget {
                           key: const Key('dashboard_all_services'),
                           onPressed: onAllServices,
                           label: S.current.dashboardViewAll,
-                          trailingIcon: SvgPicture.asset(
-                            AppAssets.dashboardAllAngle,
+                          trailingIcon: AvpImage(
+                            image: AppAssets.dashboardAllAngle,
                             width: 20,
                             height: 20,
                           ),
@@ -105,8 +104,8 @@ class DashboardBankServices extends StatelessWidget {
                                     label: service.label(),
                                     icon: service == DashboardService.assistant
                                         ? const AppAssistantIcon()
-                                        : SvgPicture.asset(
-                                            service.fixedAsset,
+                                        : AvpImage(
+                                            image: service.fixedAsset,
                                             width: 32,
                                             height: 32,
                                           ),
@@ -161,8 +160,8 @@ class DashboardBankServices extends StatelessWidget {
                     onPressed: onEdit,
                     label: S.current.dashboardAddFavorites,
                     foregroundColor: AppDashboardColors.favoritesAction,
-                    leadingIcon: SvgPicture.asset(
-                      AppAssets.dashboardAddFavorites,
+                    leadingIcon: AvpImage(
+                      image: AppAssets.dashboardAddFavorites,
                       width: 20,
                       height: 20,
                     ),

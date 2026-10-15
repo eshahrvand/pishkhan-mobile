@@ -1,7 +1,5 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-
 
 class AppTopBarAction extends StatelessWidget {
   const AppTopBarAction({
@@ -27,7 +25,7 @@ class AppTopBarAction extends StatelessWidget {
         onPressed: onPressed ?? () {},
         variant: AppButtonVariant.text,
         tooltip: tooltip,
-        icon: icon ?? SvgPicture.asset(asset, width: 24, height: 24),
+        icon: icon ?? AvpImage(image: asset, width: 24, height: 24),
       ),
     );
   }

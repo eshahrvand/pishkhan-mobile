@@ -4,7 +4,6 @@ import 'dart:math' as math;
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 /// Figma occupation summary card used by the personal-information flow.
@@ -49,8 +48,10 @@ class AppOccupationCard extends StatelessWidget {
                     onTap: onMoreTap,
                     child: Transform.rotate(
                       angle: -math.pi / 2,
-                      child: SvgPicture.asset(
-                        AppAssets.iconMoreVertical20Gray700,
+                      child: AvpImage(
+                        image: AppAssets.iconMoreVertical20Gray700,
+                        width: 20,
+                        height: 20,
                       ),
                     ),
                   ),
@@ -71,9 +72,7 @@ class AppOccupationCard extends StatelessWidget {
                     angle: math.pi,
                     child: Transform.flip(
                       flipY: true,
-                      child: SvgPicture.asset(
-                        AppAssets.occupationCardBriefcase,
-                      ),
+                      child: AvpImage(image: AppAssets.occupationCardBriefcase),
                     ),
                   ),
                 ],
@@ -82,8 +81,8 @@ class AppOccupationCard extends StatelessWidget {
             const SizedBox(height: 8),
             SizedBox(
               height: .5,
-              child: SvgPicture.asset(
-                AppAssets.dividerCardGray200,
+              child: AvpImage(
+                image: AppAssets.dividerCardGray200,
                 fit: BoxFit.fill,
               ),
             ),

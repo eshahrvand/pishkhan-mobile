@@ -8,7 +8,6 @@ import 'dart:ui' as ui;
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
@@ -197,8 +196,8 @@ class _DashboardResoBannerPanelState extends State<DashboardResoBannerPanel>
                           top: 7,
                           width: 217 * scale,
                           height: 122,
-                          child: Image.asset(
-                            AppAssets.dashboardReso,
+                          child: AvpImage(
+                            image: AppAssets.dashboardReso,
                             fit: BoxFit.cover,
                             excludeFromSemantics: true,
                           ),
@@ -265,8 +264,8 @@ class _DashboardResoBannerPanelState extends State<DashboardResoBannerPanel>
                                   width: 48,
                                   height: 44,
                                   child: Center(
-                                    child: SvgPicture.asset(
-                                      AppAssets.dashboardPromptArrow,
+                                    child: AvpImage(
+                                      image: AppAssets.dashboardPromptArrow,
                                       width: 20,
                                       height: 20,
                                     ),

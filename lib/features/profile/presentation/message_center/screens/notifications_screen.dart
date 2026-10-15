@@ -7,7 +7,6 @@ import 'package:go_router/go_router.dart';
 import 'package:pishkhan_mobile/features/profile/profile_routes.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/features/profile/domain/entities/notification_message.dart';
 import 'package:pishkhan_mobile/features/profile/presentation/message_center/widgets/notification_header.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
@@ -62,8 +61,8 @@ class NotificationsScreen extends StatelessWidget {
                         variant: AppButtonVariant.text,
                         size: AppButtonSize.md,
                         horizontalPadding: 2,
-                        leadingIcon: SvgPicture.asset(
-                          AppAssets.notificationReadAll,
+                        leadingIcon: AvpImage(
+                          image: AppAssets.notificationReadAll,
                         ),
                         onPressed: state.unreadMessages.isEmpty
                             ? null

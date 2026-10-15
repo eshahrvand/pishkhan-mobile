@@ -2,7 +2,6 @@ import 'app_service_grid_item_view_icon.dart';
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 /// The two Figma visual treatments for a service category card.
@@ -23,7 +22,7 @@ abstract final class AppServiceGridIcons {
       SizedBox(
         width: size.width,
         height: size.height,
-        child: SvgPicture.asset(path, fit: BoxFit.contain),
+        child: AvpImage(image: path, fit: BoxFit.contain),
       );
 }
 

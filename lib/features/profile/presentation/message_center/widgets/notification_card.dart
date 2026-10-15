@@ -1,6 +1,5 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/features/profile/domain/entities/notification_message.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
@@ -43,8 +42,8 @@ class NotificationCard extends StatelessWidget {
                   ),
                   child: Padding(
                     padding: const EdgeInsets.all(8),
-                    child: SvgPicture.asset(
-                      message.isRead
+                    child: AvpImage(
+                      image: message.isRead
                           ? AppAssets.notificationLogoGray
                           : AppAssets.notificationLogoBlue,
                     ),
@@ -82,8 +81,8 @@ class NotificationCard extends StatelessWidget {
                           ),
                           if (!message.isRead) ...[
                             const SizedBox(width: 8),
-                            SvgPicture.asset(
-                              AppAssets.notificationUnread,
+                            AvpImage(
+                              image: AppAssets.notificationUnread,
                               key: Key('notification_unread_${message.id}'),
                             ),
                           ],

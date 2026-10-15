@@ -1,8 +1,6 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
-
 
 class AppBottomSheetHeaderTitleRow extends StatelessWidget {
   const AppBottomSheetHeaderTitleRow({
@@ -56,8 +54,8 @@ class AppBottomSheetHeaderTitleRow extends StatelessWidget {
                     dimension: 20,
                     child:
                         leftIcon ??
-                        SvgPicture.asset(
-                          AppAssets.iconClose24Gray700,
+                        AvpImage(
+                          image: AppAssets.iconClose24Gray700,
                           fit: BoxFit.contain,
                         ),
                   ),
@@ -91,8 +89,8 @@ class AppBottomSheetHeaderTitleRow extends StatelessWidget {
                   dimension: 20,
                   child:
                       rightIcon ??
-                      SvgPicture.asset(
-                        AppAssets.bottomSheetHeaderWallet,
+                      AvpImage(
+                        image: AppAssets.bottomSheetHeaderWallet,
                         fit: BoxFit.contain,
                       ),
                 ),

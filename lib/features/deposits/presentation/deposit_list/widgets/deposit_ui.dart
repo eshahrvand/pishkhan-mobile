@@ -1,5 +1,5 @@
+import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
@@ -19,7 +19,7 @@ String depositStatusLabel(BuildContext context, DepositStatus status) =>
 
 Widget depositIcon(String asset, {double size = 24}) => SizedBox.square(
   dimension: size,
-  child: Center(child: SvgPicture.asset(asset)),
+  child: Center(child: AvpImage(image: asset)),
 );
 
 /// Zero-height layout slot, preserving the original half-pixel divider asset.
@@ -36,7 +36,7 @@ class DepositDivider extends StatelessWidget {
       child: OverflowBox(
         minHeight: .5,
         maxHeight: .5,
-        child: SvgPicture.asset(asset, fit: BoxFit.fill),
+        child: AvpImage(image: asset, fit: BoxFit.fill),
       ),
     );
   }

@@ -2,7 +2,6 @@ import 'app_transfer_destination_card_row.dart';
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 enum AppTransferMethod { internal, satna, paya }
@@ -65,8 +64,8 @@ class AppTransferDestinationCard extends StatelessWidget {
                   InkWell(
                     key: const Key('app_transfer_destination_delete'),
                     onTap: onDelete,
-                    child: SvgPicture.asset(
-                      AppAssets.transferDestinationCardTrash,
+                    child: AvpImage(
+                      image: AppAssets.transferDestinationCardTrash,
                       width: 20,
                       height: 20,
                     ),

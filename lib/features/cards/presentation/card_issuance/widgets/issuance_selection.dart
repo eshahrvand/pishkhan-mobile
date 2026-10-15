@@ -1,7 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
@@ -65,8 +64,8 @@ class IssuanceSelection extends StatelessWidget {
                       child: OverflowBox(
                         minHeight: .5,
                         maxHeight: .5,
-                        child: SvgPicture.asset(
-                          AppAssets.issuanceCardDivider,
+                        child: AvpImage(
+                          image: AppAssets.issuanceCardDivider,
                           fit: BoxFit.fill,
                         ),
                       ),

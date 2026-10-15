@@ -66,8 +66,7 @@ class _CardFeaturesScreenState extends State<CardFeaturesScreen> {
       duration: const Duration(milliseconds: 200),
       curve: Curves.easeOut,
     );
-    if (!mounted ||
-        cubit.state.category != category) {
+    if (!mounted || cubit.state.category != category) {
       return;
     }
     final target = _chipKeys[category]?.currentContext;
@@ -212,7 +211,10 @@ class _CardFeaturesScreenState extends State<CardFeaturesScreen> {
                                               context
                                                   .read<CardFeaturesCubit>()
                                                   .selectCategory(category);
-                                              _revealCategory(context.read<CardFeaturesCubit>());
+                                              _revealCategory(
+                                                context
+                                                    .read<CardFeaturesCubit>(),
+                                              );
                                             },
                                           ),
                                         ),
@@ -277,8 +279,8 @@ class _CardFeaturesScreenState extends State<CardFeaturesScreen> {
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 16,
                                 ),
-                                child: Image.asset(
-                                  AppAssets.cardFeaturesSeparator,
+                                child: AvpImage(
+                                  image: AppAssets.cardFeaturesSeparator,
                                   height: 1,
                                   width: double.infinity,
                                   fit: BoxFit.fill,

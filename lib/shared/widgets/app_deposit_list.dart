@@ -5,7 +5,6 @@ import 'dart:math' as math;
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 /// Local Figma SVG assets used by [AppDepositList].
@@ -26,13 +25,13 @@ abstract final class AppDepositListIcons {
   static Widget divider() => SizedBox(
     height: .5,
     width: double.infinity,
-    child: SvgPicture.asset(AppAssets.dividerCardGray200, fit: BoxFit.fill),
+    child: AvpImage(image: AppAssets.dividerCardGray200, fit: BoxFit.fill),
   );
 
   static Widget _svg(String path) => SizedBox(
     width: 20,
     height: 20,
-    child: SvgPicture.asset(path, fit: BoxFit.contain),
+    child: AvpImage(image: path, fit: BoxFit.contain),
   );
 }
 

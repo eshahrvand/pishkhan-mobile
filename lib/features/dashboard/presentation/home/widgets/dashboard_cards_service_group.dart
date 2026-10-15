@@ -1,6 +1,5 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_service_grid_card.dart';
@@ -37,7 +36,7 @@ class DashboardCardsServiceGroup extends StatelessWidget {
       type: quick
           ? AppServiceGridCardType.quick
           : AppServiceGridCardType.service,
-      headerAction: quick ? SvgPicture.asset(AppAssets.cardsQuickAccess) : null,
+      headerAction: quick ? AvpImage(image: AppAssets.cardsQuickAccess) : null,
       items: [
         for (final action in actions)
           AppServiceGridItem(
@@ -47,7 +46,7 @@ class DashboardCardsServiceGroup extends StatelessWidget {
             iconSize: Size.square(quick ? 64 : 32),
             icon: quick
                 ? AppServiceArtworkTile(asset: getCardActionAsset(action))
-                : SvgPicture.asset(getCardActionAsset(action)),
+                : AvpImage(image: getCardActionAsset(action)),
           ),
       ],
     );

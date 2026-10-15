@@ -3,7 +3,6 @@ import 'app_credit_card_mockup_footer.dart';
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 enum AppBankingChannel { mobile, web, phone }
@@ -62,8 +61,8 @@ class AppCreditCardMockup extends StatelessWidget {
         child: Stack(
           children: [
             Positioned.fill(
-              child: Image.asset(
-                AppAssets.bankingChannelCardBackground,
+              child: AvpImage(
+                image: AppAssets.bankingChannelCardBackground,
                 fit: BoxFit.cover,
               ),
             ),
@@ -95,8 +94,8 @@ class AppCreditCardMockup extends StatelessWidget {
                       const SizedBox(height: 24),
                       SizedBox(
                         height: 1,
-                        child: SvgPicture.asset(
-                          AppAssets.bankingChannelCardDivider,
+                        child: AvpImage(
+                          image: AppAssets.bankingChannelCardDivider,
                           fit: BoxFit.fill,
                         ),
                       ),
@@ -119,8 +118,10 @@ class AppCreditCardMockup extends StatelessWidget {
               top: 47,
               width: 40,
               height: 40,
-              child: SvgPicture.asset(
-                _isWallet ? AppAssets.bankingChannelCardWallet : _channelIcon,
+              child: AvpImage(
+                image: _isWallet
+                    ? AppAssets.bankingChannelCardWallet
+                    : _channelIcon,
               ),
             ),
           ],

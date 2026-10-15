@@ -3,7 +3,6 @@ import 'app_deposit_card_plain_row.dart';
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 enum AppDepositCardSize { single, multi }
@@ -68,8 +67,8 @@ class AppDepositCard extends StatelessWidget {
                   dimension: 24,
                   child:
                       logo ??
-                      SvgPicture.asset(
-                        AppAssets.depositCardResalatLogo,
+                      AvpImage(
+                        image: AppAssets.depositCardResalatLogo,
                         fit: BoxFit.contain,
                       ),
                 ),

@@ -2,7 +2,6 @@ import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:pishkhan_mobile/features/auth/presentation/password_services/cubit/second_password_cubit.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/password_services/widgets/password_styles.dart';
@@ -82,7 +81,7 @@ class _SerialFormState extends State<PasswordSerialForm> {
               children: [
                 SizedBox.square(
                   dimension: 14,
-                  child: SvgPicture.asset(AppAssets.passwordInfo),
+                  child: AvpImage(image: AppAssets.passwordInfo),
                 ),
                 const SizedBox(width: 8),
                 Expanded(

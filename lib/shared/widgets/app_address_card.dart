@@ -5,7 +5,6 @@ import 'dart:math' as math;
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 enum AppAddressType { home, work }
@@ -85,8 +84,8 @@ class AppAddressCard extends StatelessWidget {
                           onTap: onMoreTap,
                           child: Transform.rotate(
                             angle: -math.pi / 2,
-                            child: SvgPicture.asset(
-                              AppAssets.iconMoreVertical20Gray700,
+                            child: AvpImage(
+                              image: AppAssets.iconMoreVertical20Gray700,
                               width: 20,
                               height: 20,
                             ),
@@ -105,8 +104,8 @@ class AppAddressCard extends StatelessWidget {
                           angle: math.pi,
                           child: Transform.flip(
                             flipY: true,
-                            child: SvgPicture.asset(
-                              _isHome
+                            child: AvpImage(
+                              image: _isHome
                                   ? AppAssets.addressCardHomeHeart
                                   : AppAssets.addressCardBuildings,
                               width: 20,
@@ -120,8 +119,8 @@ class AppAddressCard extends StatelessWidget {
                   const SizedBox(height: 8),
                   SizedBox(
                     height: .5,
-                    child: SvgPicture.asset(
-                      AppAssets.dividerCardGray200,
+                    child: AvpImage(
+                      image: AppAssets.dividerCardGray200,
                       fit: BoxFit.fill,
                     ),
                   ),
@@ -157,8 +156,8 @@ class AppAddressCard extends StatelessWidget {
                               mainAxisSize: MainAxisSize.min,
                               textDirection: TextDirection.ltr,
                               children: [
-                                SvgPicture.asset(
-                                  AppAssets.addressCardAngleLeft,
+                                AvpImage(
+                                  image: AppAssets.addressCardAngleLeft,
                                   width: 20,
                                   height: 20,
                                 ),

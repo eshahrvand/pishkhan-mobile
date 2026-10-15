@@ -4,7 +4,6 @@ import 'dart:math' as math;
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 enum AppRequestReportCardType { standard, dashboard }
@@ -91,8 +90,8 @@ class AppRequestReportCard extends StatelessWidget {
                     onTap: onMoreTap,
                     child: Transform.rotate(
                       angle: math.pi / 2,
-                      child: SvgPicture.asset(
-                        AppAssets.iconMoreVertical20Gray700,
+                      child: AvpImage(
+                        image: AppAssets.iconMoreVertical20Gray700,
                       ),
                     ),
                   ),
@@ -114,8 +113,8 @@ class AppRequestReportCard extends StatelessWidget {
               height: dividerHeight,
               child:
                   divider ??
-                  SvgPicture.asset(
-                    AppAssets.dividerCardGray200,
+                  AvpImage(
+                    image: AppAssets.dividerCardGray200,
                     fit: BoxFit.fill,
                   ),
             ),

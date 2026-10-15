@@ -1,6 +1,5 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/features/profile/domain/entities/notification_message.dart';
 import 'package:pishkhan_mobile/features/profile/presentation/message_center/widgets/notification_header.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
@@ -62,8 +61,8 @@ class NotificationDetailScreen extends StatelessWidget {
                         child: OverflowBox(
                           minHeight: .5,
                           maxHeight: .5,
-                          child: SvgPicture.asset(
-                            AppAssets.notificationDivider,
+                          child: AvpImage(
+                            image: AppAssets.notificationDivider,
                             fit: BoxFit.fill,
                           ),
                         ),
@@ -107,8 +106,8 @@ class NotificationDetailScreen extends StatelessWidget {
                             maxWidth: 234,
                             minHeight: 156,
                             maxHeight: 156,
-                            child: Image.asset(
-                              message.imageAsset!,
+                            child: AvpImage(
+                              image: message.imageAsset!,
                               width: 234,
                               height: 156,
                               fit: BoxFit.cover,

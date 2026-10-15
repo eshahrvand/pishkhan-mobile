@@ -2,7 +2,6 @@ import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/login/cubit/auth_cubit.dart';
@@ -113,8 +112,8 @@ class AuthCaptchaRow extends StatelessWidget {
               borderRadius: AppRadius.borderSm,
               boxShadow: AppShadows.xs,
             ),
-            child: Image.asset(
-              AuthAssets.captcha,
+            child: AvpImage(
+              image: AuthAssets.captcha,
               width: 100,
               height: 34,
               fit: BoxFit.cover,
@@ -200,7 +199,7 @@ class AuthIdentityFields extends StatelessWidget {
             ),
             child: Row(
               children: [
-                SvgPicture.asset(AuthAssets.infoCircle, width: 20, height: 20),
+                AvpImage(image: AuthAssets.infoCircle, width: 20, height: 20),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(

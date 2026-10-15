@@ -2,7 +2,6 @@ import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/login/cubit/auth_cubit.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/login/widgets/auth_identity_form.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/login/widgets/auth_otp_form.dart';
@@ -52,8 +51,8 @@ class AuthScreen extends StatelessWidget {
                   left: 0,
                   right: 0,
                   child: IgnorePointer(
-                    child: Image.asset(
-                      AuthAssets.background,
+                    child: AvpImage(
+                      image: AuthAssets.background,
                       fit: BoxFit.fitWidth,
                       excludeFromSemantics: true,
                     ),
@@ -160,7 +159,7 @@ class AuthHeader extends StatelessWidget {
             top: 4,
             child: AppButton(
               onPressed: onMenu,
-              icon: SvgPicture.asset(AuthAssets.menu, width: 24, height: 24),
+              icon: AvpImage(image: AuthAssets.menu, width: 24, height: 24),
               variant: AppButtonVariant.text,
               size: AppButtonSize.xl,
               semanticLabel: S.current.servicesMenuLabel,
@@ -172,8 +171,8 @@ class AuthHeader extends StatelessWidget {
             child: SizedBox(
               width: 22,
               height: 24,
-              child: SvgPicture.asset(
-                AuthAssets.resalatLogo,
+              child: AvpImage(
+                image: AuthAssets.resalatLogo,
                 fit: BoxFit.contain,
               ),
             ),
@@ -182,8 +181,8 @@ class AuthHeader extends StatelessWidget {
             left: 0,
             right: 0,
             bottom: 0,
-            child: SvgPicture.asset(
-              AuthAssets.headerDivider,
+            child: AvpImage(
+              image: AuthAssets.headerDivider,
               height: .8,
               fit: BoxFit.fill,
             ),

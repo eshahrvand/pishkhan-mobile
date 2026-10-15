@@ -1,6 +1,5 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:pishkhan_mobile/features/auth/presentation/shared/auth_assets.dart';
 
@@ -21,7 +20,7 @@ class AuthSectionHeading extends StatelessWidget {
       children: [
         Row(
           children: [
-            SvgPicture.asset(AuthAssets.sectionMark, width: 10, height: 20),
+            AvpImage(image: AuthAssets.sectionMark, width: 10, height: 20),
             const SizedBox(width: 6),
             Flexible(
               child: Text(
@@ -67,7 +66,7 @@ class AuthFieldIcon extends StatelessWidget {
     final icon = SizedBox(
       width: 48,
       height: 44,
-      child: Center(child: SvgPicture.asset(asset, width: 20, height: 20)),
+      child: Center(child: AvpImage(image: asset, width: 20, height: 20)),
     );
     if (onPressed == null) return icon;
     return SizedBox(
@@ -75,7 +74,7 @@ class AuthFieldIcon extends StatelessWidget {
       height: 44,
       child: AppButton(
         onPressed: onPressed,
-        icon: SvgPicture.asset(asset, width: 20, height: 20),
+        icon: AvpImage(image: asset, width: 20, height: 20),
         tooltip: semanticLabel,
         semanticLabel: semanticLabel,
         variant: AppButtonVariant.text,

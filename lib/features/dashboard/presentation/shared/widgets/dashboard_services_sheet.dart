@@ -8,7 +8,6 @@ import 'dart:math' as math;
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/dashboard_services.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_category_heading.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
@@ -102,8 +101,8 @@ class _DashboardServicesSheetState extends State<DashboardServicesSheet> {
                             AppBottomSheetHeader(
                               title: S.current.servicesList,
                               showRightIcon: false,
-                              leftIcon: SvgPicture.asset(
-                                AppAssets.iconClose24Gray700,
+                              leftIcon: AvpImage(
+                                image: AppAssets.iconClose24Gray700,
                               ),
                               onLeftAction: () => Navigator.of(context).pop(),
                             ),
@@ -112,8 +111,8 @@ class _DashboardServicesSheetState extends State<DashboardServicesSheet> {
                               child: AppSearchField(
                                 key: const Key('dashboard_service_search'),
                                 controller: _controller,
-                                clearIcon: SvgPicture.asset(
-                                  AppAssets.dashboardSearchClear,
+                                clearIcon: AvpImage(
+                                  image: AppAssets.dashboardSearchClear,
                                 ),
                                 hintText: S.current.dashboardSearchHint,
                                 textStyle: AppTypography.bodyMedium.copyWith(
@@ -124,8 +123,8 @@ class _DashboardServicesSheetState extends State<DashboardServicesSheet> {
                                   width: 48,
                                   height: 44,
                                   child: Center(
-                                    child: SvgPicture.asset(
-                                      AppAssets.dashboardCatalogSearch,
+                                    child: AvpImage(
+                                      image: AppAssets.dashboardCatalogSearch,
                                     ),
                                   ),
                                 ),

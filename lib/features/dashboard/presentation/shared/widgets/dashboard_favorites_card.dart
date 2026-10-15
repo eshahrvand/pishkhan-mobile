@@ -4,7 +4,6 @@ import 'dashboard_favorites_grid.dart';
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/home/cubit/dashboard_cubit.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/dashboard_services.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
@@ -70,8 +69,8 @@ class DashboardFavoritesCard extends StatelessWidget {
                       child: AppButton(
                         key: const Key('dashboard_reset'),
                         onPressed: onReset,
-                        icon: SvgPicture.asset(
-                          AppAssets.dashboardReset,
+                        icon: AvpImage(
+                          image: AppAssets.dashboardReset,
                           width: 20,
                           height: 20,
                         ),
@@ -88,8 +87,8 @@ class DashboardFavoritesCard extends StatelessWidget {
                         onPressed: onEdit,
                         label: S.current.dashboardEdit,
                         foregroundColor: AppDashboardColors.favoritesAction,
-                        leadingIcon: SvgPicture.asset(
-                          AppAssets.dashboardEdit,
+                        leadingIcon: AvpImage(
+                          image: AppAssets.dashboardEdit,
                           width: 20,
                           height: 20,
                         ),
@@ -140,8 +139,8 @@ class DashboardFavoritesCard extends StatelessWidget {
                           ),
                           child: Row(
                             children: [
-                              SvgPicture.asset(
-                                AppAssets.authInfoCircle,
+                              AvpImage(
+                                image: AppAssets.authInfoCircle,
                                 width: 20,
                                 height: 20,
                               ),

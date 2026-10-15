@@ -1,7 +1,6 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:pishkhan_mobile/features/auth/presentation/password_services/cubit/second_password_cubit.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/password_services/widgets/password_styles.dart';
@@ -28,7 +27,7 @@ class PasswordRecordingSection extends StatelessWidget {
             child: Stack(
               fit: StackFit.expand,
               children: [
-                Image.asset(AppAssets.passwordRecording, fit: BoxFit.cover),
+                AvpImage(image: AppAssets.passwordRecording, fit: BoxFit.cover),
                 ColoredBox(
                   color: AppPasswordServiceColors.recordingScrim.withValues(
                     alpha: .4,
@@ -43,8 +42,8 @@ class PasswordRecordingSection extends StatelessWidget {
                     onPressed: cubit.confirmMockRecording,
                     icon: SizedBox.square(
                       dimension: 23,
-                      child: SvgPicture.asset(
-                        AppAssets.passwordRecordPlay,
+                      child: AvpImage(
+                        image: AppAssets.passwordRecordPlay,
                         fit: BoxFit.contain,
                       ),
                     ),

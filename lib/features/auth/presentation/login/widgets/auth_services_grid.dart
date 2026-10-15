@@ -1,6 +1,5 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_service_grid_card.dart';
 
 class AuthServicesRow extends StatelessWidget {
@@ -69,7 +68,7 @@ class AuthServicesSectionTitle extends StatelessWidget {
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: SvgPicture.asset(dividerAsset, height: 1, fit: BoxFit.fill),
+          child: AvpImage(image: dividerAsset, height: 1, fit: BoxFit.fill),
         ),
       ],
     );
@@ -85,7 +84,7 @@ class AuthServiceTile extends StatelessWidget {
       item: AppServiceGridItem(
         id: item.asset,
         label: item.label,
-        icon: SvgPicture.asset(item.asset, width: 32, height: 32),
+        icon: AvpImage(image: item.asset, width: 32, height: 32),
         onTap: item.onTap,
       ),
       tileColor: context.colors.surface,

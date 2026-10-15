@@ -1,7 +1,5 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-
 
 class CertificateSummaryRow extends StatelessWidget {
   const CertificateSummaryRow({
@@ -21,7 +19,9 @@ class CertificateSummaryRow extends StatelessWidget {
               .copyWith(color: context.colors.textSecondary, height: 18 / 12),
         ),
         const SizedBox(width: 8),
-        Expanded(child: SvgPicture.asset(asset, height: .5, fit: BoxFit.fill)),
+        Expanded(
+          child: AvpImage(image: asset, height: .5, fit: BoxFit.fill),
+        ),
         const SizedBox(width: 8),
         ConstrainedBox(
           constraints: BoxConstraints(

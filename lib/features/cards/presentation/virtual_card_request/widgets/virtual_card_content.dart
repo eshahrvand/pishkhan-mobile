@@ -1,10 +1,10 @@
 import 'virtual_card_icon.dart';
+
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_invoice.dart';
@@ -93,8 +93,8 @@ class VirtualCardContent extends StatelessWidget {
                       ? AppPalette.gray400
                       : context.colors.textPrimary,
                 ),
-                trailing: VirtualCardIcon(path: 
-                  state.depositId == null
+                trailing: VirtualCardIcon(
+                  path: state.depositId == null
                       ? AppAssets.issuanceSelectEmpty
                       : AppAssets.cardFeaturesChevron,
                 ),
@@ -133,8 +133,8 @@ class VirtualCardContent extends StatelessWidget {
               child: OverflowBox(
                 minHeight: 1,
                 maxHeight: 1,
-                child: SvgPicture.asset(
-                  AppAssets.issuanceDivider,
+                child: AvpImage(
+                  image: AppAssets.issuanceDivider,
                   fit: BoxFit.fill,
                 ),
               ),
@@ -164,8 +164,8 @@ class VirtualCardContent extends StatelessWidget {
                             key: const Key('virtual_card_fee_art'),
                             width: 16.2878,
                             height: 12.9544,
-                            child: SvgPicture.asset(
-                              AppAssets.virtualRequestCard,
+                            child: AvpImage(
+                              image: AppAssets.virtualRequestCard,
                             ),
                           ),
                         ],

@@ -2,7 +2,6 @@ import 'dart:ui' as ui;
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pishkhan_mobile/features/auth/domain/entities/password_data.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/password_services/widgets/password_options_sheet.dart';
@@ -103,8 +102,9 @@ class PasswordSheetLayout extends StatelessWidget {
                 child: ClipRect(
                   child: BackdropFilter(
                     filter: ui.ImageFilter.blur(sigmaX: 2, sigmaY: 2),
-                    child: SvgPicture.asset(
-                      scrimAsset ??
+                    child: AvpImage(
+                      image:
+                          scrimAsset ??
                           (requestStatus
                               ? AppAssets.passwordRequestScrim
                               : AppAssets.passwordScrim),

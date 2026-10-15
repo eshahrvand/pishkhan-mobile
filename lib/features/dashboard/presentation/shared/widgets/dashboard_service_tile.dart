@@ -1,7 +1,6 @@
 import 'package:pishkhan_mobile/shared/widgets/app_service_artwork_tile.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/dashboard_services.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
@@ -37,7 +36,7 @@ class DashboardServiceTile extends StatelessWidget {
                       top: 27.5,
                       width: 64,
                       height: 37,
-                      child: SvgPicture.asset(AppAssets.dashboardTileWave),
+                      child: AvpImage(image: AppAssets.dashboardTileWave),
                     ),
                     Center(
                       child: service == DashboardService.issueCheque
@@ -50,15 +49,16 @@ class DashboardServiceTile extends StatelessWidget {
                                     top: 32 * .2083,
                                     right: 32 * .1432,
                                     bottom: 32 * .127,
-                                    child: SvgPicture.asset(
-                                      AppAssets.dashboardFavoriteChequeIcon,
+                                    child: AvpImage(
+                                      image:
+                                          AppAssets.dashboardFavoriteChequeIcon,
                                     ),
                                   ),
                                 ],
                               ),
                             )
-                          : SvgPicture.asset(
-                              service.catalogAsset,
+                          : AvpImage(
+                              image: service.catalogAsset,
                               width: 32,
                               height: 32,
                             ),

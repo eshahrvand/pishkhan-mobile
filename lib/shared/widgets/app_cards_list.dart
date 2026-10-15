@@ -5,7 +5,6 @@ import 'dart:math' as math;
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 /// Figma CardsList variants.
@@ -21,7 +20,7 @@ abstract final class AppCardsListIcons {
   static Widget divider() => SizedBox(
     height: .5,
     width: double.infinity,
-    child: SvgPicture.asset(AppAssets.dividerCardGray200, fit: BoxFit.fill),
+    child: AvpImage(image: AppAssets.dividerCardGray200, fit: BoxFit.fill),
   );
 
   static Widget forType(AppCardsListType type) {
@@ -33,7 +32,7 @@ abstract final class AppCardsListIcons {
           child: SizedBox(
             width: 16.284,
             height: 12.95,
-            child: SvgPicture.asset(AppAssets.cardsListVirtualCard),
+            child: AvpImage(image: AppAssets.cardsListVirtualCard),
           ),
         ),
       );
@@ -55,7 +54,7 @@ abstract final class AppCardsListIcons {
   static Widget _svg(String path) => SizedBox(
     width: 20,
     height: 20,
-    child: SvgPicture.asset(path, fit: BoxFit.contain),
+    child: AvpImage(image: path, fit: BoxFit.contain),
   );
 }
 

@@ -3,7 +3,6 @@ import 'app_drawer_navigation.dart';
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 /// The Figma-exported icons used by the Pishkhan drawer examples.
@@ -33,12 +32,12 @@ abstract final class AppDrawerIcons {
   static Widget submenuLine({required double height}) => SizedBox(
     width: 2,
     height: height,
-    child: SvgPicture.asset(AppAssets.drawerSubmenuLine, fit: BoxFit.fill),
+    child: AvpImage(image: AppAssets.drawerSubmenuLine, fit: BoxFit.fill),
   );
 
   static Widget _svg(String path, {double width = 20, double height = 20}) {
-    return SvgPicture.asset(
-      path,
+    return AvpImage(
+      image: path,
       width: width,
       height: height,
       fit: BoxFit.contain,

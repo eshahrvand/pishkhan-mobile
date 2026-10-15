@@ -1,6 +1,5 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 import '../dashboard_services.dart';
 
@@ -45,7 +44,7 @@ class DashboardServiceOption extends StatelessWidget {
                     ),
               child: Row(
                 children: [
-                  SvgPicture.asset(service.optionAsset),
+                  AvpImage(image: service.optionAsset),
                   const SizedBox(width: 4),
                   Expanded(
                     child: Text(

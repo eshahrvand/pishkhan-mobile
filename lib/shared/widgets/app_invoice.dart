@@ -5,7 +5,6 @@ import 'app_invoice_styles.dart';
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 /// Local Figma SVG assets used by [AppInvoice].
@@ -35,7 +34,7 @@ abstract final class AppInvoiceIcons {
     child: OverflowBox(
       minHeight: .5,
       maxHeight: .5,
-      child: SvgPicture.asset(AppAssets.invoiceDivider, fit: BoxFit.fill),
+      child: AvpImage(image: AppAssets.invoiceDivider, fit: BoxFit.fill),
     ),
   );
 
@@ -47,7 +46,7 @@ abstract final class AppInvoiceIcons {
           child: SizedBox(
             width: assetSize?.width,
             height: assetSize?.height,
-            child: SvgPicture.asset(path, fit: BoxFit.contain),
+            child: AvpImage(image: path, fit: BoxFit.contain),
           ),
         ),
       );

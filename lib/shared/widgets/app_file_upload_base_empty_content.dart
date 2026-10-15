@@ -1,8 +1,6 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
-
 
 class AppFileUploadBaseEmptyContent extends StatelessWidget {
   const AppFileUploadBaseEmptyContent({super.key});
@@ -21,8 +19,8 @@ class AppFileUploadBaseEmptyContent extends StatelessWidget {
             shape: BoxShape.circle,
           ),
           child: Center(
-            child: SvgPicture.asset(
-              AppAssets.fileUploadUploadCloud,
+            child: AvpImage(
+              image: AppAssets.fileUploadUploadCloud,
               width: 20,
               height: 20,
             ),

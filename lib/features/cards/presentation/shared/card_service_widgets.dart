@@ -1,6 +1,5 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
@@ -20,7 +19,7 @@ TextStyle cardServiceSmall(
 );
 
 Widget cardServiceIcon(String asset, {double size = 20}) =>
-    SvgPicture.asset(asset, width: size, height: size);
+    AvpImage(image: asset, width: size, height: size);
 
 String cardDepositLabel(BuildContext context, CardServiceDeposit deposit) =>
     switch (deposit.kind) {
@@ -196,7 +195,7 @@ class CardServiceDivider extends StatelessWidget {
       child: OverflowBox(
         minHeight: 1,
         maxHeight: 1,
-        child: SvgPicture.asset(AppAssets.issuanceDivider, fit: BoxFit.fill),
+        child: AvpImage(image: AppAssets.issuanceDivider, fit: BoxFit.fill),
       ),
     );
   }
@@ -212,10 +211,7 @@ class CardServiceRowDivider extends StatelessWidget {
       child: OverflowBox(
         minHeight: .5,
         maxHeight: .5,
-        child: SvgPicture.asset(
-          AppAssets.cardFeaturesDivider,
-          fit: BoxFit.fill,
-        ),
+        child: AvpImage(image: AppAssets.cardFeaturesDivider, fit: BoxFit.fill),
       ),
     );
   }

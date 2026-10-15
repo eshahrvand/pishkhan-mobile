@@ -2,7 +2,6 @@ import 'package:pishkhan_mobile/features/auth/presentation/password_services/wid
 import 'package:pishkhan_mobile/features/auth/presentation/password_services/widgets/password_flow_footer.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/login/widgets/auth_services_sheet.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/shared/auth_assets.dart';
@@ -25,9 +24,7 @@ Finder authControl(WidgetTester tester, String name) {
       .ancestor(
         of: find.byWidgetPredicate(
           (widget) =>
-              widget is SvgPicture &&
-              widget.bytesLoader is SvgAssetLoader &&
-              (widget.bytesLoader as SvgAssetLoader).assetName == asset,
+              widget is AvpImage && widget.image == asset,
         ),
         matching: find.byType(SizedBox),
       )

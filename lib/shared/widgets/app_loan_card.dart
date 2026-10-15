@@ -3,7 +3,6 @@ import 'app_loan_card_copy_button.dart';
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_arrow_button.dart';
 
@@ -147,8 +146,8 @@ class AppLoanCard extends StatelessWidget {
                         child: OverflowBox(
                           minHeight: 1,
                           maxHeight: 1,
-                          child: SvgPicture.asset(
-                            _isSingle
+                          child: AvpImage(
+                            image: _isSingle
                                 ? AppAssets.loanCardDividerSingle
                                 : AppAssets.loanCardDividerMulti,
                             fit: BoxFit.fill,

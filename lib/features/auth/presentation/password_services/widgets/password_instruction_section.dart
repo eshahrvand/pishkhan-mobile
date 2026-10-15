@@ -1,6 +1,5 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/password_services/password_service_constants.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/password_services/widgets/password_styles.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
@@ -35,8 +34,8 @@ class PasswordInstructionSection extends StatelessWidget {
                     top: -constraints.maxHeight * .1162,
                     width: constraints.maxWidth,
                     height: constraints.maxHeight * 1.4286,
-                    child: Image.asset(
-                      AppAssets.passwordInstruction,
+                    child: AvpImage(
+                      image: AppAssets.passwordInstruction,
                       fit: BoxFit.fill,
                     ),
                   ),
@@ -61,8 +60,8 @@ class PasswordInstructionSection extends StatelessWidget {
             children: [
               SizedBox.square(
                 dimension: 20,
-                child: SvgPicture.asset(
-                  AppAssets.passwordCameraInfo,
+                child: AvpImage(
+                  image: AppAssets.passwordCameraInfo,
                   fit: BoxFit.contain,
                 ),
               ),

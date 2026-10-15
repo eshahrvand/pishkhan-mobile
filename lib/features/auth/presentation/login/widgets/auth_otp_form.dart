@@ -2,7 +2,6 @@ import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:pishkhan_mobile/features/auth/presentation/login/cubit/auth_cubit.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/login/widgets/auth_form_shared.dart';
@@ -96,8 +95,8 @@ class AuthOtpTimer extends StatelessWidget {
           label: state.secondsRemaining == 0
               ? S.current.resendOtp
               : getOtpRemainingTime(state.secondsRemaining),
-          trailingIcon: SvgPicture.asset(
-            AuthAssets.clock,
+          trailingIcon: AvpImage(
+            image: AuthAssets.clock,
             width: 20,
             height: 20,
           ),
