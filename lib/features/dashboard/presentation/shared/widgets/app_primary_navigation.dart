@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
-enum AppPrimaryTab { dashboard, cards, deposits, loans }
+import '../dashboard_tab.dart';
+export '../dashboard_tab.dart';
 
 /// Shared dashboard/cards navigation with the Figma physical RTL order.
 class AppPrimaryNavigation extends StatelessWidget {

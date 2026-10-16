@@ -1,29 +1,19 @@
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../cubit/loans_cubit.dart';
+import '../cubit/home_cubit.dart';
 
 import 'dart:math' as math;
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:pishkhan_mobile/features/dashboard/domain/entities/bank_loan.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 /// Loan fetching, persistence, details and service execution are caller-owned.
 import 'dashboard_loan_tile.dart';
 
 class DashboardLoansCarousel extends StatefulWidget {
-  const DashboardLoansCarousel({
-    super.key,
-    this.onCopyNumber,
-    this.onDetailsRequested,
-    this.onSelectedLoanChanged,
-  });
-  final ValueChanged<String>? onCopyNumber;
-  final ValueChanged<BankLoan>? onDetailsRequested;
-  final ValueChanged<BankLoan>? onSelectedLoanChanged;
-
+  const DashboardLoansCarousel({super.key});
   @override
   State<DashboardLoansCarousel> createState() => _DashboardLoansCarouselState();
 }
@@ -42,28 +32,28 @@ class _DashboardLoansCarouselState extends State<DashboardLoansCarousel> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<LoansCubit, LoansState>(
+    return BlocConsumer<HomeCubit, HomeState>(
       listenWhen: (previous, current) =>
-          previous.status != current.status ||
-          previous.selectedIndex != current.selectedIndex ||
-          previous.items != current.items,
+          previous.loansStatus != current.loansStatus ||
+          previous.selectedLoanIndex != current.selectedLoanIndex ||
+          previous.loans != current.loans,
       listener: (context, state) {
-        if (state.status == RequestStatus.loading) _controllerItems = null;
-        if (state.status == RequestStatus.success && state.items != null) {
+        if (state.loansStatus == RequestStatus.loading) _controllerItems = null;
+        if (state.loansStatus == RequestStatus.success && state.loans != null) {
           if (_pages?.hasClients == true &&
               !_pages!.position.isScrollingNotifier.value &&
-              ((_pages!.page ?? 0) - state.selectedIndex).abs() > .01) {
-            _pages!.jumpToPage(state.selectedIndex);
+              ((_pages!.page ?? 0) - state.selectedLoanIndex).abs() > .01) {
+            _pages!.jumpToPage(state.selectedLoanIndex);
           }
         }
       },
       buildWhen: (previous, current) =>
-          previous.visibleItems != current.visibleItems ||
-          previous.selectedIndex != current.selectedIndex,
+          previous.visibleLoans != current.visibleLoans ||
+          previous.selectedLoanIndex != current.selectedLoanIndex,
       builder: (context, state) {
         return LayoutBuilder(
           builder: (context, constraints) {
-            final single = state.visibleItems.length == 1;
+            final single = state.visibleLoans.length == 1;
             final nativeWidth = single ? 335.0 : 316.0;
             const nativeHeight = 236.0;
             final width = math.min(
@@ -77,24 +67,24 @@ class _DashboardLoansCarouselState extends State<DashboardLoansCarousel> {
                 (_pages == null ||
                     _viewport != fraction ||
                     _controllerItems !=
-                        state.visibleItems.map((item) => item.id).join("|"))) {
+                        state.visibleLoans.map((item) => item.id).join("|"))) {
               _pages?.dispose();
               _pages = PageController(
-                initialPage: state.selectedIndex,
+                initialPage: state.selectedLoanIndex,
                 keepPage: false,
                 viewportFraction: fraction,
               );
               // Reposition the attached scroll view explicitly when its controller changes.
               _syncingPages = true;
               final controller = _pages!;
-              final selectedIndex = state.selectedIndex;
+              final selectedIndex = state.selectedLoanIndex;
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (!mounted || !identical(_pages, controller)) return;
                 if (controller.hasClients) controller.jumpToPage(selectedIndex);
                 _syncingPages = false;
               });
               _viewport = fraction;
-              _controllerItems = state.visibleItems
+              _controllerItems = state.visibleLoans
                   .map((item) => item.id)
                   .join("|");
             }
@@ -120,32 +110,40 @@ class _DashboardLoansCarouselState extends State<DashboardLoansCarousel> {
                     child: single
                         ? Center(
                             child: DashboardLoanTile(
-                              loan: state.visibleItems[0],
+                              loan: state.visibleLoans[0],
                               width: width,
-                              isSingle: state.visibleItems.length == 1,
+                              isSingle: state.visibleLoans.length == 1,
                               height: height,
-                              onCopyNumber: widget.onCopyNumber,
-                              onDetailsRequested: widget.onDetailsRequested,
+                              onCopyNumber: (_) => context
+                                  .read<HomeCubit>()
+                                  .copyLoanNumber(state.visibleLoans[0].id),
+                              onDetailsRequested: (_) => context
+                                  .read<HomeCubit>()
+                                  .requestLoanDetails(state.visibleLoans[0].id),
                             ),
                           )
                         : PageView.builder(
                             controller: _pages,
-                            itemCount: state.visibleItems.length,
+                            itemCount: state.visibleLoans.length,
                             onPageChanged: (index) {
                               if (_syncingPages) return;
-                              context.read<LoansCubit>().select(index);
-                              widget.onSelectedLoanChanged?.call(
-                                context.read<LoansCubit>().state.selectedLoan!,
-                              );
+                              context.read<HomeCubit>().selectLoan(index);
                             },
                             itemBuilder: (context, index) => Center(
                               child: DashboardLoanTile(
-                                loan: state.visibleItems[index],
+                                loan: state.visibleLoans[index],
                                 width: width,
-                                isSingle: state.visibleItems.length == 1,
+                                isSingle: state.visibleLoans.length == 1,
                                 height: height,
-                                onCopyNumber: widget.onCopyNumber,
-                                onDetailsRequested: widget.onDetailsRequested,
+                                onCopyNumber: (_) =>
+                                    context.read<HomeCubit>().copyLoanNumber(
+                                      state.visibleLoans[index].id,
+                                    ),
+                                onDetailsRequested: (_) => context
+                                    .read<HomeCubit>()
+                                    .requestLoanDetails(
+                                      state.visibleLoans[index].id,
+                                    ),
                               ),
                             ),
                           ),
@@ -160,14 +158,14 @@ class _DashboardLoansCarouselState extends State<DashboardLoansCarousel> {
                         children: [
                           for (
                             var index = 0;
-                            index < state.visibleItems.length;
+                            index < state.visibleLoans.length;
                             index++
                           ) ...[
                             if (index > 0) const SizedBox(width: 6),
                             Semantics(
                               button: true,
-                              selected: index == state.selectedIndex,
-                              label: state.visibleItems[index].number,
+                              selected: index == state.selectedLoanIndex,
+                              label: state.visibleLoans[index].number,
                               child: InkWell(
                                 onTap: () => _pages!.animateToPage(
                                   index,
@@ -175,10 +173,12 @@ class _DashboardLoansCarouselState extends State<DashboardLoansCarousel> {
                                   curve: Curves.easeOut,
                                 ),
                                 child: Container(
-                                  width: index == state.selectedIndex ? 14 : 6,
+                                  width: index == state.selectedLoanIndex
+                                      ? 14
+                                      : 6,
                                   height: 6,
                                   decoration: BoxDecoration(
-                                    color: index == state.selectedIndex
+                                    color: index == state.selectedLoanIndex
                                         ? AppDashboardColors.navActive
                                         : context.colors.border,
                                     borderRadius: AppRadius.borderFull,

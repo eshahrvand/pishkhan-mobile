@@ -31,7 +31,6 @@ class _DashboardResoBannerPanelState extends State<DashboardResoBannerPanel>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   // Both periods divide this duration, so controller repeats stay seamless.
   static const _motionCycle = Duration(seconds: 45);
-  final _controller = TextEditingController();
   final _ownedFocus = FocusNode();
   late final AnimationController _glow;
   FocusNode get _focus => widget.focusNode ?? _ownedFocus;
@@ -44,7 +43,6 @@ class _DashboardResoBannerPanelState extends State<DashboardResoBannerPanel>
     super.initState();
     _glow = AnimationController(vsync: this, duration: _motionCycle);
     _focus.addListener(_inputChanged);
-    _controller.addListener(_inputChanged);
     WidgetsBinding.instance.addObserver(this);
   }
 
@@ -102,7 +100,6 @@ class _DashboardResoBannerPanelState extends State<DashboardResoBannerPanel>
     context.read<DashboardResoCubit>().updateMotion(
       enabled: enabled,
       hasFocus: _focus.hasFocus,
-      hasInput: _controller.text.isNotEmpty,
     );
   }
 
@@ -110,9 +107,9 @@ class _DashboardResoBannerPanelState extends State<DashboardResoBannerPanel>
     _syncMotion();
   }
 
-  void _submit(String value) {
-    final text = value.trim();
-    if (text.isNotEmpty) widget.onPromptSubmitted?.call(text);
+  void _submit() {
+    final prompt = context.read<DashboardResoCubit>().submitPrompt();
+    if (prompt != null) widget.onPromptSubmitted?.call(prompt);
   }
 
   @override
@@ -124,7 +121,6 @@ class _DashboardResoBannerPanelState extends State<DashboardResoBannerPanel>
     _textureStream?.removeListener(_textureListener!);
     _texture.value?.dispose();
     _texture.dispose();
-    _controller.dispose();
     super.dispose();
   }
 
@@ -158,7 +154,9 @@ class _DashboardResoBannerPanelState extends State<DashboardResoBannerPanel>
           previous.typedHint != current.typedHint ||
           previous.isMotionEnabled != current.isMotionEnabled ||
           previous.hasFocus != current.hasFocus ||
-          previous.hasInput != current.hasInput,
+          previous.hasInput != current.hasInput ||
+          previous.prompt != current.prompt ||
+          previous.canSubmitPrompt != current.canSubmitPrompt,
       builder: (context, state) {
         return DecoratedBox(
           decoration: BoxDecoration(
@@ -234,12 +232,17 @@ class _DashboardResoBannerPanelState extends State<DashboardResoBannerPanel>
                           right: 16,
                           top: 126 + extra,
                           child: AppTextField(
-                            controller: _controller,
+                            value: state.prompt,
+                            onChanged: (value) {
+                              context.read<DashboardResoCubit>().updatePrompt(
+                                value,
+                              );
+                            },
                             textStyle: AppTypography.bodyMedium.copyWith(
                               height: 20 / 14,
                               letterSpacing: 0,
                             ),
-                            onSubmitted: _submit,
+                            onSubmitted: (_) => _submit(),
                             focusNode: _focus,
                             hintText:
                                 state.isMotionEnabled &&
@@ -251,7 +254,7 @@ class _DashboardResoBannerPanelState extends State<DashboardResoBannerPanel>
                             textDirection: TextDirection.rtl,
                             textInputAction: TextInputAction.send,
                             suffixIcon: InkWell(
-                              onTap: () => _submit(_controller.text),
+                              onTap: state.canSubmitPrompt ? _submit : null,
                               child: Semantics(
                                 button: true,
                                 label: S.current.dashboardSendPrompt,

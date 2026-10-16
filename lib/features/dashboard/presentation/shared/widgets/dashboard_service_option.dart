@@ -8,10 +8,12 @@ class DashboardServiceOption extends StatelessWidget {
     super.key,
     required this.service,
     required this.enabled,
+    required this.onSelected,
     this.plain = false,
   });
   final DashboardService service;
   final bool enabled;
+  final ValueChanged<DashboardService> onSelected;
   final bool plain;
   @override
   Widget build(BuildContext context) {
@@ -25,7 +27,7 @@ class DashboardServiceOption extends StatelessWidget {
           color: plain ? Colors.transparent : AppDashboardColors.tileSurface,
           borderRadius: AppRadius.borderMd,
           child: InkWell(
-            onTap: enabled ? () => Navigator.of(context).pop(service) : null,
+            onTap: enabled ? () => onSelected(service) : null,
             borderRadius: AppRadius.borderMd,
             child: Container(
               constraints: BoxConstraints(minHeight: plain ? 20 : 40),

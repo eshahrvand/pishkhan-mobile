@@ -1,75 +1,30 @@
+import 'package:avp_ui/avp_ui.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pishkhan_mobile/core/enums/request_status.dart';
+import 'package:pishkhan_mobile/generated/l10n.dart';
+import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
+import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
+
+import '../../shared/widgets/app_primary_navigation.dart';
+import '../../shared/widgets/dashboard_async_view.dart';
+import '../cubit/home_cubit.dart';
 import '../widgets/dashboard_deposits_carousel.dart';
 import '../widgets/dashboard_deposits_service_group.dart';
 
-import 'package:pishkhan_mobile/core/enums/request_status.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pishkhan_mobile/features/dashboard/domain/repositories/dashboard_repositories.dart';
-import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_async_view.dart';
-
-import '../cubit/deposits_cubit.dart';
-
-import 'package:avp_ui/avp_ui.dart';
-import 'package:flutter/material.dart';
-import 'package:pishkhan_mobile/features/dashboard/domain/entities/bank_deposit.dart';
-import 'package:pishkhan_mobile/features/dashboard/presentation/shared/deposit_actions.dart';
-import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
-import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/app_primary_navigation.dart';
-import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
-
-/// Deposit fetching, persistence and service execution are caller-owned.
-class DepositsTab extends StatefulWidget {
-  const DepositsTab({
-    super.key,
-    required this.repository,
-    this.onActionRequested,
-    this.onSelectedDepositChanged,
-    this.onCopyNumber,
-    this.onCopyIban,
-    this.onTabSelected,
-    this.onMenuPressed,
-    this.onAssistantPressed,
-  });
-  final DashboardDepositsRepository repository;
-  final ValueChanged<DepositActionRequest>? onActionRequested;
-  final ValueChanged<BankDeposit>? onSelectedDepositChanged;
-  final ValueChanged<String>? onCopyNumber, onCopyIban;
-  final ValueChanged<AppPrimaryTab>? onTabSelected;
-  final VoidCallback? onMenuPressed, onAssistantPressed;
-  @override
-  State<DepositsTab> createState() => _DepositsTabState();
-}
-
-class _DepositsTabState extends State<DepositsTab> {
-  // Only used by the existing runtime repository update API.
-  // Provider owns the instance; UI actions and rendering read the scope directly.
-  DepositsCubit? _repositoryScope;
-  @override
-  void didUpdateWidget(covariant DepositsTab oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.repository != oldWidget.repository) {
-      _repositoryScope?.changeRepository(widget.repository);
-    }
-  }
-
-  void _request(BuildContext context, DepositAction action) =>
-      widget.onActionRequested?.call(
-        DepositActionRequest(
-          action: action,
-          deposit: context.read<DepositsCubit>().state.selectedDeposit!,
-        ),
-      );
-
+class DepositsTab extends StatelessWidget {
+  const DepositsTab({super.key});
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) {
-        final cubit = DepositsCubit(repository: widget.repository);
-        _repositoryScope = cubit;
-        return cubit..load();
-      },
-      child: BlocBuilder<DepositsCubit, DepositsState>(
-        builder: (context, state) => Directionality(
+    return BlocBuilder<HomeCubit, HomeState>(
+      buildWhen: (previous, current) =>
+          previous.depositsStatus != current.depositsStatus ||
+          previous.visibleDeposits != current.visibleDeposits ||
+          previous.depositActions != current.depositActions ||
+          previous.depositQuickActions != current.depositQuickActions ||
+          previous.depositChequeActions != current.depositChequeActions,
+      builder: (context, state) {
+        return Directionality(
           textDirection: TextDirection.rtl,
           child: Scaffold(
             backgroundColor: context.colors.surfaceSubtle,
@@ -79,14 +34,14 @@ class _DepositsTabState extends State<DepositsTab> {
                   AppTopBar(
                     title: S.current.depositsMyTitle,
                     showLeadingActions: false,
-                    onMenuPressed: widget.onMenuPressed,
+                    onMenuPressed: () {
+                      context.read<HomeCubit>().requestMenu(
+                        AppPrimaryTab.deposits,
+                      );
+                    },
                   ),
-                  if (state.visibleItems.isNotEmpty)
-                    DashboardDepositsCarousel(
-                      onCopyNumber: widget.onCopyNumber,
-                      onCopyIban: widget.onCopyIban,
-                      onSelectedDepositChanged: widget.onSelectedDepositChanged,
-                    ),
+                  if (state.visibleDeposits.isNotEmpty)
+                    const DashboardDepositsCarousel(),
                   Expanded(
                     child: Stack(
                       children: [
@@ -95,14 +50,18 @@ class _DepositsTabState extends State<DepositsTab> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              if (state.status == RequestStatus.initial ||
-                                  state.status == RequestStatus.loading)
+                              if (state.depositsStatus ==
+                                      RequestStatus.initial ||
+                                  state.depositsStatus == RequestStatus.loading)
                                 const DashboardAsyncView(loading: true)
-                              else if (state.status == RequestStatus.failure)
+                              else if (state.depositsStatus ==
+                                  RequestStatus.failure)
                                 DashboardAsyncView(
-                                  onRetry: context.read<DepositsCubit>().load,
+                                  onRetry: () {
+                                    context.read<HomeCubit>().loadDeposits();
+                                  },
                                 )
-                              else if (state.visibleItems.isEmpty)
+                              else if (state.visibleDeposits.isEmpty)
                                 Padding(
                                   padding: const EdgeInsets.all(24),
                                   child: Text(
@@ -111,30 +70,37 @@ class _DepositsTabState extends State<DepositsTab> {
                                     style: AppTypography.bodyMedium,
                                   ),
                                 ),
-                              if (state.visibleItems.isNotEmpty) ...[
+                              if (state.visibleDeposits.isNotEmpty) ...[
                                 DashboardDepositsServiceGroup(
                                   title: S.current.depositsOperations,
-                                  actions: DepositAction.operations,
-                                  onActionRequested: (action) =>
-                                      _request(context, action),
+                                  actions: state.depositActions,
+                                  onActionRequested: (action) {
+                                    context
+                                        .read<HomeCubit>()
+                                        .requestDepositAction(action);
+                                  },
                                 ),
                                 const SizedBox(height: 16),
-                                if (state
-                                    .selectedDeposit!
-                                    .hasChequeOperations) ...[
+                                if (state.depositChequeActions.isNotEmpty) ...[
                                   DashboardDepositsServiceGroup(
                                     title: S.current.depositsChequeOperations,
-                                    actions: DepositAction.cheques,
-                                    onActionRequested: (action) =>
-                                        _request(context, action),
+                                    actions: state.depositChequeActions,
+                                    onActionRequested: (action) {
+                                      context
+                                          .read<HomeCubit>()
+                                          .requestDepositAction(action);
+                                    },
                                   ),
                                   const SizedBox(height: 16),
                                 ],
                                 DashboardDepositsServiceGroup(
                                   title: S.current.cardsQuickAccess,
-                                  actions: DepositAction.quick,
-                                  onActionRequested: (action) =>
-                                      _request(context, action),
+                                  actions: state.depositQuickActions,
+                                  onActionRequested: (action) {
+                                    context
+                                        .read<HomeCubit>()
+                                        .requestDepositAction(action);
+                                  },
                                   quick: true,
                                 ),
                               ],
@@ -145,7 +111,9 @@ class _DepositsTabState extends State<DepositsTab> {
                           left: 16,
                           bottom: 84,
                           child: AppAssistantButton(
-                            onPressed: widget.onAssistantPressed ?? () {},
+                            onPressed: () {
+                              context.read<HomeCubit>().requestAssistant();
+                            },
                           ),
                         ),
                         Positioned(
@@ -154,8 +122,9 @@ class _DepositsTabState extends State<DepositsTab> {
                           bottom: 16,
                           child: AppPrimaryNavigation(
                             selectedTab: AppPrimaryTab.deposits,
-                            onSelected: (tab) =>
-                                widget.onTabSelected?.call(tab),
+                            onSelected: (tab) {
+                              context.read<HomeCubit>().selectTab(tab);
+                            },
                           ),
                         ),
                       ],
@@ -165,8 +134,8 @@ class _DepositsTabState extends State<DepositsTab> {
               ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

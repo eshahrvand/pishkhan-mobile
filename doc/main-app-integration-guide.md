@@ -485,3 +485,14 @@ and surrounding layout remain at their original consumption points. Direct
 widget displaying an image. Test pre-caching and test inspection of internal
 Flutter/SVG widgets also remain valid. Existing avp_ui component internals need
 not be globally rewritten to consume their own new wrapper.
+
+## Unified dashboard/Home scope (2026-10-16)
+
+Supply adapters through `DashboardScreen(repositories: bundle)`. The screen owns
+one `HomeCubit` and one plain `HomeState` for all four retained tabs.
+`CardsTab()`, `DepositsTab()` and `LoansTab()` use that existing Provider;
+they no longer accept repositories or callbacks. Home owns independent request
+statuses, catalog generations, selected banking records, favorite editing and
+operation eligibility. The parent listener executes typed `HomeEffect` outputs
+for navigation, copy and host integration. Replacing the bundle reloads only
+the changed adapters. Do not create a Cubit per tab.

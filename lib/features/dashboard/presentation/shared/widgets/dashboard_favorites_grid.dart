@@ -4,7 +4,7 @@ import 'dashboard_dashed_border.dart';
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:pishkhan_mobile/features/dashboard/presentation/home/cubit/dashboard_cubit.dart';
+import 'package:pishkhan_mobile/features/dashboard/presentation/home/cubit/home_cubit.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/dashboard_services.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_service_tile.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
@@ -25,7 +25,7 @@ class DashboardFavoritesGrid extends StatelessWidget {
   final ValueChanged<DashboardService> onService;
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<DashboardCubit, DashboardState>(
+    return BlocBuilder<HomeCubit, HomeState>(
       buildWhen: (previous, current) =>
           previous.favoriteServices != current.favoriteServices ||
           previous.canAddFavorite != current.canAddFavorite,

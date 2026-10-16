@@ -1,3 +1,4 @@
+import '../../../../support/home_tab_test_scope.dart';
 import '../../../../support/dashboard_ui_finders.dart';
 
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -16,11 +17,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pishkhan_mobile/features/dashboard/presentation/home/cubit/home_cubit.dart';
 import 'package:pishkhan_mobile/features/dashboard/domain/entities/bank_card.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/home/screens/dashboard_screen.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_resalat_card.dart';
 
 const _preview = Key('cards_preview');
+
 void main() {
   setUpAll(() async {
     final loader = FontLoader(AppTypography.defaultFontFamily);
@@ -74,6 +78,61 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  testWidgets(
+    'parameterless card tab delivers repeated effects through dashboard',
+    (tester) async {
+      final actions = <CardActionRequest>[];
+      BankCard? more;
+      var menus = 0;
+      await mount(
+        tester,
+        subject(
+          DashboardScreen(
+            repositories: dashboardTestRepositories(),
+            enableAnimations: false,
+            onCardActionRequested: actions.add,
+            onCardMorePressed: (card) => more = card,
+            onMenuPressed: () => menus++,
+          ),
+        ),
+      );
+      await tap(
+        tester,
+        find
+            .descendant(
+              of: find.byType(AppPrimaryNavigation),
+              matching: find.text(S.current.dashboardCardsTab),
+            )
+            .first,
+      );
+      await tap(
+        tester,
+        find.byKey(const Key('app_service_grid_icon_card-block')),
+      );
+      await tap(
+        tester,
+        find.byKey(const Key('app_service_grid_icon_card-block')),
+      );
+      expect(actions, hasLength(2));
+      expect(actions.last.card.id, DashboardMockData.cards.first.id);
+      await tap(
+        tester,
+        find.descendant(
+          of: dashboardCard(DashboardMockData.cards.first.id),
+          matching: find.byKey(const Key('app_resalat_card_more')),
+        ),
+      );
+      expect(more?.id, DashboardMockData.cards.first.id);
+      final cubit = tester.element(find.byType(CardsTab)).read<HomeCubit>();
+      cubit.requestMenu();
+      await tester.pump();
+      expect(menus, 1);
+      cubit.selectTab(AppPrimaryTab.dashboard);
+      await tester.pumpAndSettle();
+      expect(find.byType(CardsTab), findsNothing);
+    },
+  );
+
   for (final single in [true, false]) {
     testWidgets(
       '${single ? 'single' : 'multi'} card frame renders the supplied design',
@@ -84,7 +143,7 @@ void main() {
           await mount(
             tester,
             subject(
-              CardsTab(
+              cardsScope(
                 repository: MockDashboardCardsRepository(
                   cards: single
                       ? const [DashboardMockData.singleCard]
@@ -188,7 +247,7 @@ void main() {
       await mount(
         tester,
         subject(
-          CardsTab(
+          cardsScope(
             repository: MockDashboardCardsRepository(cards: const [card]),
             onCopyNumber: (v) => copiedNumber = v,
             onCopyIban: (v) => copiedIban = v,
@@ -224,7 +283,7 @@ void main() {
       await mount(
         tester,
         subject(
-          CardsTab(
+          cardsScope(
             repository: MockDashboardCardsRepository(cards: cards),
             onSelectedCardChanged: (v) => selected = v,
             onActionRequested: (v) => request = v,
@@ -309,7 +368,7 @@ void main() {
     await mount(
       tester,
       subject(
-        const CardsTab(repository: MockDashboardCardsRepository()),
+        cardsScope(repository: const MockDashboardCardsRepository()),
         scale: 1.5,
       ),
       size: const Size(320, 640),
@@ -326,7 +385,7 @@ void main() {
     await mount(
       tester,
       subject(
-        const CardsTab(repository: MockDashboardCardsRepository(cards: [])),
+        cardsScope(repository: const MockDashboardCardsRepository(cards: [])),
       ),
     );
     expect(find.text('هنوز کارتی ندارید'), findsOneWidget);

@@ -8,6 +8,9 @@
 
 ## فهرست گزارش‌ها
 
+- [یکپارچه‌سازی چهار تب در HomeCubit/HomeState — ۲۰۲۶/۱۰/۱۶](2026-10-16-unified-home-cubit.md)
+- [حذف ورودی‌های CardsTab — ۲۰۲۶/۱۰/۱۶](2026-10-16-cards-tab-scope.md)
+- [انتقال منطق Home به Cubit — ۲۰۲۶/۱۰/۱۶](2026-10-16-home-cubit-ownership.md)
 - [پیاده‌سازی router مرکزی و کلاس AppRoutes — ۲۰۲۶/۱۰/۱۵](2026-10-15-centralized-router-implementation.md)
 - [بررسی متمرکزکردن تعریف مسیرهای GoRouter — ۲۰۲۶/۱۰/۱۵](2026-10-15-centralized-router-review.md)
 - [انتقال سرویس رمز کارت از auth به cards — ۲۰۲۶/۱۰/۱۵](2026-10-15-card-password-services-migration.md)

@@ -1,13 +1,12 @@
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../cubit/cards_cubit.dart';
+import '../cubit/home_cubit.dart';
 
 import 'dart:math' as math;
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:pishkhan_mobile/features/dashboard/domain/entities/bank_card.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 export '../../shared/card_actions.dart';
@@ -16,17 +15,7 @@ export '../../shared/card_actions.dart';
 import 'dashboard_card_tile.dart';
 
 class DashboardCardsCarousel extends StatefulWidget {
-  const DashboardCardsCarousel({
-    super.key,
-    this.onCopyNumber,
-    this.onCopyIban,
-    this.onMorePressed,
-    this.onSelectedCardChanged,
-  });
-  final ValueChanged<String>? onCopyNumber;
-  final ValueChanged<String>? onCopyIban;
-  final ValueChanged<BankCard>? onMorePressed;
-  final ValueChanged<BankCard>? onSelectedCardChanged;
+  const DashboardCardsCarousel({super.key});
 
   @override
   State<DashboardCardsCarousel> createState() => _DashboardCardsCarouselState();
@@ -46,29 +35,29 @@ class _DashboardCardsCarouselState extends State<DashboardCardsCarousel> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<CardsCubit, CardsState>(
+    return BlocConsumer<HomeCubit, HomeState>(
       listenWhen: (previous, current) =>
-          previous.status != current.status ||
-          previous.selectedIndex != current.selectedIndex ||
-          previous.items != current.items,
+          previous.cardsStatus != current.cardsStatus ||
+          previous.selectedCardIndex != current.selectedCardIndex ||
+          previous.cards != current.cards,
       listener: (context, state) {
-        if (state.status == RequestStatus.loading) _controllerItems = null;
-        if (state.status == RequestStatus.success && state.items != null) {
+        if (state.cardsStatus == RequestStatus.loading) _controllerItems = null;
+        if (state.cardsStatus == RequestStatus.success && state.cards != null) {
           if (_pages?.hasClients == true &&
               !_pages!.position.isScrollingNotifier.value &&
-              ((_pages!.page ?? 0) - state.selectedIndex).abs() > .01) {
-            _pages!.jumpToPage(state.selectedIndex);
+              ((_pages!.page ?? 0) - state.selectedCardIndex).abs() > .01) {
+            _pages!.jumpToPage(state.selectedCardIndex);
           }
         }
       },
       buildWhen: (previous, current) =>
-          previous.visibleItems != current.visibleItems ||
-          previous.selectedIndex != current.selectedIndex ||
-          previous.visibility != current.visibility,
+          previous.visibleCards != current.visibleCards ||
+          previous.selectedCardIndex != current.selectedCardIndex ||
+          previous.cardVisibility != current.cardVisibility,
       builder: (context, state) {
         return LayoutBuilder(
           builder: (context, constraints) {
-            final single = state.visibleItems.length == 1;
+            final single = state.visibleCards.length == 1;
             final width = math.min(
               single ? 335.0 : 316.0,
               constraints.maxWidth - (single ? 40 : 59),
@@ -82,24 +71,24 @@ class _DashboardCardsCarouselState extends State<DashboardCardsCarousel> {
                 (_pages == null ||
                     _viewport != fraction ||
                     _controllerItems !=
-                        state.visibleItems.map((item) => item.id).join("|"))) {
+                        state.visibleCards.map((item) => item.id).join("|"))) {
               _pages?.dispose();
               _pages = PageController(
-                initialPage: state.selectedIndex,
+                initialPage: state.selectedCardIndex,
                 keepPage: false,
                 viewportFraction: fraction,
               );
               // Reposition the attached scroll view explicitly when its controller changes.
               _syncingPages = true;
               final controller = _pages!;
-              final selectedIndex = state.selectedIndex;
+              final selectedIndex = state.selectedCardIndex;
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (!mounted || !identical(_pages, controller)) return;
                 if (controller.hasClients) controller.jumpToPage(selectedIndex);
                 _syncingPages = false;
               });
               _viewport = fraction;
-              _controllerItems = state.visibleItems
+              _controllerItems = state.visibleCards
                   .map((item) => item.id)
                   .join("|");
             }
@@ -125,18 +114,26 @@ class _DashboardCardsCarouselState extends State<DashboardCardsCarousel> {
                     child: single
                         ? Center(
                             child: DashboardCardTile(
-                              card: state.visibleItems[0],
+                              card: state.visibleCards[0],
                               width: width,
-                              isSingle: state.visibleItems.length == 1,
-                              onCopyNumber: widget.onCopyNumber,
-                              onCopyIban: widget.onCopyIban,
-                              onMorePressed: widget.onMorePressed,
+                              isSingle: state.visibleCards.length == 1,
+                              onCopyNumber: (_) => context
+                                  .read<HomeCubit>()
+                                  .copyCardNumber(state.visibleCards[0].id),
+                              onCopyIban: (_) => context
+                                  .read<HomeCubit>()
+                                  .copyCardIban(state.visibleCards[0].id),
+                              onMorePressed: (_) => context
+                                  .read<HomeCubit>()
+                                  .requestCardMore(state.visibleCards[0].id),
                               isVisible:
-                                  state.visibility[state.visibleItems[0].id] ??
-                                  state.visibleItems.length == 1,
+                                  state.cardVisibility[state
+                                      .visibleCards[0]
+                                      .id] ??
+                                  state.visibleCards.length == 1,
                               onVisibilityChanged: (value) =>
-                                  context.read<CardsCubit>().setVisibility(
-                                    state.visibleItems[0].id,
+                                  context.read<HomeCubit>().setCardVisibility(
+                                    state.visibleCards[0].id,
                                     value,
                                   ),
                             ),
@@ -144,30 +141,35 @@ class _DashboardCardsCarouselState extends State<DashboardCardsCarousel> {
                         : PageView.builder(
                             clipBehavior: Clip.none,
                             controller: _pages,
-                            itemCount: state.visibleItems.length,
+                            itemCount: state.visibleCards.length,
                             onPageChanged: (index) {
                               if (_syncingPages) return;
-                              context.read<CardsCubit>().select(index);
-                              widget.onSelectedCardChanged?.call(
-                                context.read<CardsCubit>().state.selectedCard!,
-                              );
+                              context.read<HomeCubit>().selectCard(index);
                             },
                             itemBuilder: (context, index) => Center(
                               child: DashboardCardTile(
-                                card: state.visibleItems[index],
+                                card: state.visibleCards[index],
                                 width: width,
-                                isSingle: state.visibleItems.length == 1,
-                                onCopyNumber: widget.onCopyNumber,
-                                onCopyIban: widget.onCopyIban,
-                                onMorePressed: widget.onMorePressed,
+                                isSingle: state.visibleCards.length == 1,
+                                onCopyNumber: (_) =>
+                                    context.read<HomeCubit>().copyCardNumber(
+                                      state.visibleCards[index].id,
+                                    ),
+                                onCopyIban: (_) => context
+                                    .read<HomeCubit>()
+                                    .copyCardIban(state.visibleCards[index].id),
+                                onMorePressed: (_) =>
+                                    context.read<HomeCubit>().requestCardMore(
+                                      state.visibleCards[index].id,
+                                    ),
                                 isVisible:
-                                    state.visibility[state
-                                        .visibleItems[index]
+                                    state.cardVisibility[state
+                                        .visibleCards[index]
                                         .id] ??
-                                    state.visibleItems.length == 1,
+                                    state.visibleCards.length == 1,
                                 onVisibilityChanged: (value) =>
-                                    context.read<CardsCubit>().setVisibility(
-                                      state.visibleItems[index].id,
+                                    context.read<HomeCubit>().setCardVisibility(
+                                      state.visibleCards[index].id,
                                       value,
                                     ),
                               ),
@@ -184,14 +186,14 @@ class _DashboardCardsCarouselState extends State<DashboardCardsCarousel> {
                         children: [
                           for (
                             var index = 0;
-                            index < state.visibleItems.length;
+                            index < state.visibleCards.length;
                             index++
                           ) ...[
                             if (index > 0) const SizedBox(width: 6),
                             Semantics(
                               button: true,
-                              selected: index == state.selectedIndex,
-                              label: state.visibleItems[index].id,
+                              selected: index == state.selectedCardIndex,
+                              label: state.visibleCards[index].id,
                               child: InkWell(
                                 onTap: () => _pages!.animateToPage(
                                   index,
@@ -199,10 +201,12 @@ class _DashboardCardsCarouselState extends State<DashboardCardsCarousel> {
                                   curve: Curves.easeOut,
                                 ),
                                 child: Container(
-                                  width: index == state.selectedIndex ? 14 : 6,
+                                  width: index == state.selectedCardIndex
+                                      ? 14
+                                      : 6,
                                   height: 6,
                                   decoration: BoxDecoration(
-                                    color: index == state.selectedIndex
+                                    color: index == state.selectedCardIndex
                                         ? AppDashboardColors.navActive
                                         : context.colors.border,
                                     borderRadius: AppRadius.borderFull,

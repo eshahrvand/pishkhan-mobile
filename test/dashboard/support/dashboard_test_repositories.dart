@@ -57,18 +57,23 @@ class TestRepositories
   Result<List<BankLoan>> loans = const Success(DashboardMockData.loans);
   Result<DashboardHomeData?> home = const Success(null);
   final loanQueue = <Completer<Result<List<BankLoan>>>>[];
+  final cardQueue = <Completer<Result<List<BankCard>>>>[];
+  final depositQueue = <Completer<Result<List<BankDeposit>>>>[];
+  final homeQueue = <Completer<Result<DashboardHomeData?>>>[];
   bool throwOnCards = false;
   @override
   Future<Result<List<BankCard>>> getCards() async {
     if (throwOnCards) throw StateError('transport implementation failed');
-    return cards;
+    return cardQueue.isEmpty ? cards : await cardQueue.removeAt(0).future;
   }
 
   @override
-  Future<Result<List<BankDeposit>>> getDeposits() async => deposits;
+  Future<Result<List<BankDeposit>>> getDeposits() async =>
+      depositQueue.isEmpty ? deposits : await depositQueue.removeAt(0).future;
   @override
   Future<Result<List<BankLoan>>> getLoans() async =>
       loanQueue.isEmpty ? loans : await loanQueue.removeAt(0).future;
   @override
-  Future<Result<DashboardHomeData?>> getHome() async => home;
+  Future<Result<DashboardHomeData?>> getHome() async =>
+      homeQueue.isEmpty ? home : await homeQueue.removeAt(0).future;
 }

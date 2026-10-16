@@ -1,76 +1,29 @@
+import 'package:avp_ui/avp_ui.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pishkhan_mobile/core/enums/request_status.dart';
+import 'package:pishkhan_mobile/generated/l10n.dart';
+import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
+import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
+
+import '../../shared/widgets/app_primary_navigation.dart';
+import '../../shared/widgets/dashboard_async_view.dart';
+import '../cubit/home_cubit.dart';
 import '../widgets/dashboard_loans_carousel.dart';
 import '../widgets/dashboard_loans_service_group.dart';
 
-import 'package:pishkhan_mobile/core/enums/request_status.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pishkhan_mobile/features/dashboard/domain/repositories/dashboard_repositories.dart';
-import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_async_view.dart';
-
-import '../cubit/loans_cubit.dart';
-
-import 'package:avp_ui/avp_ui.dart';
-import 'package:flutter/material.dart';
-import 'package:pishkhan_mobile/features/dashboard/domain/entities/bank_loan.dart';
-import 'package:pishkhan_mobile/features/dashboard/presentation/shared/loan_actions.dart';
-import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
-import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/app_primary_navigation.dart';
-import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
-
-/// Loan fetching, persistence, details and service execution are caller-owned.
-class LoansTab extends StatefulWidget {
-  const LoansTab({
-    super.key,
-    required this.repository,
-    this.onActionRequested,
-    this.onSelectedLoanChanged,
-    this.onCopyNumber,
-    this.onDetailsRequested,
-    this.onTabSelected,
-    this.onMenuPressed,
-    this.onAssistantPressed,
-  });
-  final DashboardLoansRepository repository;
-  final ValueChanged<LoanActionRequest>? onActionRequested;
-  final ValueChanged<BankLoan>? onSelectedLoanChanged;
-  final ValueChanged<String>? onCopyNumber;
-  final ValueChanged<BankLoan>? onDetailsRequested;
-  final ValueChanged<AppPrimaryTab>? onTabSelected;
-  final VoidCallback? onMenuPressed, onAssistantPressed;
-  @override
-  State<LoansTab> createState() => _LoansTabState();
-}
-
-class _LoansTabState extends State<LoansTab> {
-  // Only used by the existing runtime repository update API.
-  // Provider owns the instance; UI actions and rendering read the scope directly.
-  LoansCubit? _repositoryScope;
-  @override
-  void didUpdateWidget(covariant LoansTab oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.repository != oldWidget.repository) {
-      _repositoryScope?.changeRepository(widget.repository);
-    }
-  }
-
-  void _request(BuildContext context, LoanAction action) =>
-      widget.onActionRequested?.call(
-        LoanActionRequest(
-          action: action,
-          loan: context.read<LoansCubit>().state.selectedLoan!,
-        ),
-      );
-
+class LoansTab extends StatelessWidget {
+  const LoansTab({super.key});
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) {
-        final cubit = LoansCubit(repository: widget.repository);
-        _repositoryScope = cubit;
-        return cubit..load();
-      },
-      child: BlocBuilder<LoansCubit, LoansState>(
-        builder: (context, state) => Directionality(
+    return BlocBuilder<HomeCubit, HomeState>(
+      buildWhen: (previous, current) =>
+          previous.loansStatus != current.loansStatus ||
+          previous.visibleLoans != current.visibleLoans ||
+          previous.loanActions != current.loanActions ||
+          previous.loanQuickActions != current.loanQuickActions,
+      builder: (context, state) {
+        return Directionality(
           textDirection: TextDirection.rtl,
           child: Scaffold(
             backgroundColor: context.colors.surfaceSubtle,
@@ -80,14 +33,14 @@ class _LoansTabState extends State<LoansTab> {
                   AppTopBar(
                     title: S.current.dashboardMyLoans,
                     showLeadingActions: false,
-                    onMenuPressed: widget.onMenuPressed,
+                    onMenuPressed: () {
+                      context.read<HomeCubit>().requestMenu(
+                        AppPrimaryTab.loans,
+                      );
+                    },
                   ),
-                  if (state.visibleItems.isNotEmpty)
-                    DashboardLoansCarousel(
-                      onCopyNumber: widget.onCopyNumber,
-                      onDetailsRequested: widget.onDetailsRequested,
-                      onSelectedLoanChanged: widget.onSelectedLoanChanged,
-                    ),
+                  if (state.visibleLoans.isNotEmpty)
+                    const DashboardLoansCarousel(),
                   Expanded(
                     child: Stack(
                       children: [
@@ -96,14 +49,17 @@ class _LoansTabState extends State<LoansTab> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              if (state.status == RequestStatus.initial ||
-                                  state.status == RequestStatus.loading)
+                              if (state.loansStatus == RequestStatus.initial ||
+                                  state.loansStatus == RequestStatus.loading)
                                 const DashboardAsyncView(loading: true)
-                              else if (state.status == RequestStatus.failure)
+                              else if (state.loansStatus ==
+                                  RequestStatus.failure)
                                 DashboardAsyncView(
-                                  onRetry: context.read<LoansCubit>().load,
+                                  onRetry: () {
+                                    context.read<HomeCubit>().loadLoans();
+                                  },
                                 )
-                              else if (state.visibleItems.isEmpty)
+                              else if (state.visibleLoans.isEmpty)
                                 Padding(
                                   padding: const EdgeInsets.all(24),
                                   child: Text(
@@ -112,19 +68,25 @@ class _LoansTabState extends State<LoansTab> {
                                     style: AppTypography.bodyMedium,
                                   ),
                                 ),
-                              if (state.visibleItems.isNotEmpty) ...[
+                              if (state.visibleLoans.isNotEmpty) ...[
                                 DashboardLoansServiceGroup(
                                   title: S.current.loansOperations,
-                                  actions: LoanAction.operations,
-                                  onActionRequested: (action) =>
-                                      _request(context, action),
+                                  actions: state.loanActions,
+                                  onActionRequested: (action) {
+                                    context.read<HomeCubit>().requestLoanAction(
+                                      action,
+                                    );
+                                  },
                                 ),
                                 const SizedBox(height: 12),
                                 DashboardLoansServiceGroup(
                                   title: S.current.cardsQuickAccess,
-                                  actions: LoanAction.quick,
-                                  onActionRequested: (action) =>
-                                      _request(context, action),
+                                  actions: state.loanQuickActions,
+                                  onActionRequested: (action) {
+                                    context.read<HomeCubit>().requestLoanAction(
+                                      action,
+                                    );
+                                  },
                                   quick: true,
                                 ),
                               ],
@@ -135,7 +97,9 @@ class _LoansTabState extends State<LoansTab> {
                           left: 16,
                           bottom: 84,
                           child: AppAssistantButton(
-                            onPressed: widget.onAssistantPressed ?? () {},
+                            onPressed: () {
+                              context.read<HomeCubit>().requestAssistant();
+                            },
                           ),
                         ),
                         Positioned(
@@ -144,8 +108,9 @@ class _LoansTabState extends State<LoansTab> {
                           bottom: 16,
                           child: AppPrimaryNavigation(
                             selectedTab: AppPrimaryTab.loans,
-                            onSelected: (tab) =>
-                                widget.onTabSelected?.call(tab),
+                            onSelected: (tab) {
+                              context.read<HomeCubit>().selectTab(tab);
+                            },
                           ),
                         ),
                       ],
@@ -155,8 +120,8 @@ class _LoansTabState extends State<LoansTab> {
               ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

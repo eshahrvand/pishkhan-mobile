@@ -1,3 +1,4 @@
+import '../../../../support/home_tab_test_scope.dart';
 import '../../../../support/dashboard_ui_finders.dart';
 
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -53,9 +54,9 @@ void main() {
           ..deposits = const Err(DataFailure('offline'))
           ..loans = const Err(DataFailure('offline'));
         final Widget tab = switch (kind) {
-          'cards' => CardsTab(repository: repository),
-          'deposits' => DepositsTab(repository: repository),
-          _ => LoansTab(repository: repository),
+          'cards' => cardsScope(repository: repository),
+          'deposits' => depositScope(repository: repository),
+          _ => loanScope(repository: repository),
         };
         await tester.pumpWidget(subject(tab));
         await tester.pumpAndSettle();
@@ -78,7 +79,7 @@ void main() {
     (tester) async {
       final request = Completer<Result<List<BankLoan>>>();
       final repository = TestRepositories()..loanQueue.add(request);
-      await tester.pumpWidget(subject(LoansTab(repository: repository)));
+      await tester.pumpWidget(subject(loanScope(repository: repository)));
       await tester.pump();
       expect(
         find.byWidgetPredicate(
@@ -95,7 +96,7 @@ void main() {
       expect(dashboardLoan('loan-single'), findsOneWidget);
       final pending = Completer<Result<List<BankLoan>>>();
       final replacement = TestRepositories()..loanQueue.add(pending);
-      await tester.pumpWidget(subject(LoansTab(repository: replacement)));
+      await tester.pumpWidget(subject(loanScope(repository: replacement)));
       await tester.pump();
       expect(
         find.byWidgetPredicate(

@@ -4,7 +4,7 @@ import 'dashboard_favorites_grid.dart';
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:pishkhan_mobile/features/dashboard/presentation/home/cubit/dashboard_cubit.dart';
+import 'package:pishkhan_mobile/features/dashboard/presentation/home/cubit/home_cubit.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/dashboard_services.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
@@ -29,10 +29,10 @@ class DashboardFavoritesCard extends StatelessWidget {
   final ValueChanged<DashboardService> onService;
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<DashboardCubit, DashboardState>(
+    return BlocBuilder<HomeCubit, HomeState>(
       buildWhen: (previous, current) =>
           previous.draft != current.draft ||
-          previous.data != current.data ||
+          previous.homeData != current.homeData ||
           previous.isFavoritesLimitReached != current.isFavoritesLimitReached,
       builder: (context, state) {
         return Container(
@@ -61,7 +61,8 @@ class DashboardFavoritesCard extends StatelessWidget {
                     ),
                   ),
                   if (state.draft != null &&
-                      (state.data?.favorites ?? const <String>[]).isNotEmpty)
+                      (state.homeData?.favorites ?? const <String>[])
+                          .isNotEmpty)
                     SizedBox(
                       width: 20,
                       height: 20,

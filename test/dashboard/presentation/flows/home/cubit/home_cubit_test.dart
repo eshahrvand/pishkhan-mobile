@@ -1,3 +1,5 @@
+import '../../../../support/home_tab_test_scope.dart';
+
 import 'dart:async';
 
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
@@ -8,7 +10,7 @@ import 'package:pishkhan_mobile/features/dashboard/domain/repositories/dashboard
 
 import 'package:pishkhan_mobile/features/dashboard/data/repositories/mock_dashboard_repositories.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:pishkhan_mobile/features/dashboard/presentation/home/cubit/dashboard_cubit.dart';
+import 'package:pishkhan_mobile/features/dashboard/presentation/home/cubit/home_cubit.dart';
 
 class ControlledHomeRepository implements DashboardHomeRepository {
   final requests = <Completer<Result<DashboardHomeData?>>>[];
@@ -22,110 +24,116 @@ void main() {
     'reload clears data, draft and failure and emits the new state shape',
     () async {
       final repository = ControlledHomeRepository();
-      final cubit = DashboardCubit(repository: repository);
-      final states = <DashboardState>[];
+      final cubit = HomeCubit(repositories: homeRepositories(home: repository));
+      final states = <HomeState>[];
       final subscription = cubit.stream.listen(states.add);
       addTearDown(() async {
         await subscription.cancel();
         await cubit.close();
       });
-      expect(cubit.state, const DashboardState.initial());
+      expect(cubit.state, const HomeState.initial());
       final first = Completer<Result<DashboardHomeData?>>();
       repository.requests.add(first);
-      final load = cubit.load();
+      final load = cubit.loadHome();
       first.complete(
         Success(DashboardHomeData(walletBalance: '123', favorites: ['one'])),
       );
       await load;
-      final data = cubit.state.data!;
-      cubit.edit();
-      cubit.add('two');
+      final data = cubit.state.homeData!;
+      cubit.editFavorites();
+      cubit.addFavorite('two');
 
       final failed = Completer<Result<DashboardHomeData?>>();
       repository.requests.add(failed);
-      final reload = cubit.load();
+      final reload = cubit.loadHome();
       expect(
         cubit.state,
-        const DashboardState.initial(status: RequestStatus.loading),
+        const HomeState.initial(homeStatus: RequestStatus.loading),
       );
       failed.complete(const Err(DataFailure('offline')));
       await reload;
       expect(
         cubit.state,
-        const DashboardState.initial(
-          status: RequestStatus.failure,
-          failure: DataFailure('offline'),
+        const HomeState.initial(
+          homeStatus: RequestStatus.failure,
+          homeFailure: DataFailure('offline'),
         ),
       );
 
       final empty = Completer<Result<DashboardHomeData?>>();
       repository.requests.add(empty);
-      final retry = cubit.load();
+      final retry = cubit.loadHome();
       expect(
         cubit.state,
-        const DashboardState.initial(status: RequestStatus.loading),
+        const HomeState.initial(homeStatus: RequestStatus.loading),
       );
       empty.complete(const Success(null));
       await retry;
       await Future<void>.delayed(Duration.zero);
       expect(states, [
-        const DashboardState.initial(status: RequestStatus.loading),
-        DashboardState.initial(status: RequestStatus.success, data: data, activeFavorites: ['one']),
-        DashboardState.initial(
-          status: RequestStatus.success,
-          data: data,
+        const HomeState.initial(homeStatus: RequestStatus.loading),
+        HomeState.initial(
+          homeStatus: RequestStatus.success,
+          homeData: data,
+          activeFavorites: ['one'],
+        ),
+        HomeState.initial(
+          homeStatus: RequestStatus.success,
+          homeData: data,
           draft: ['one'],
           activeFavorites: ['one'],
         ),
-        DashboardState.initial(
-          status: RequestStatus.success,
-          data: data,
+        HomeState.initial(
+          homeStatus: RequestStatus.success,
+          homeData: data,
           draft: ['one', 'two'],
           activeFavorites: ['one', 'two'],
         ),
-        const DashboardState.initial(status: RequestStatus.loading),
-        const DashboardState.initial(
-          status: RequestStatus.failure,
-          failure: DataFailure('offline'),
+        const HomeState.initial(homeStatus: RequestStatus.loading),
+        const HomeState.initial(
+          homeStatus: RequestStatus.failure,
+          homeFailure: DataFailure('offline'),
         ),
-        const DashboardState.initial(status: RequestStatus.loading),
-        const DashboardState.initial(status: RequestStatus.success),
+        const HomeState.initial(homeStatus: RequestStatus.loading),
+        const HomeState.initial(homeStatus: RequestStatus.success),
       ]);
     },
   );
 
   test('Home ignores stale loads and completions after close', () async {
     final repository = ControlledHomeRepository();
-    final cubit = DashboardCubit(repository: repository);
+    final cubit = HomeCubit(repositories: homeRepositories(home: repository));
     final stale = Completer<Result<DashboardHomeData?>>();
     final latest = Completer<Result<DashboardHomeData?>>();
     repository.requests.addAll([stale, latest]);
-    final firstLoad = cubit.load();
-    final secondLoad = cubit.load();
+    final firstLoad = cubit.loadHome();
+    final secondLoad = cubit.loadHome();
     latest.complete(Success(DashboardHomeData(walletBalance: 'latest')));
     await secondLoad;
     stale.complete(const Err(DataFailure('stale')));
     await firstLoad;
-    expect(cubit.state.status, RequestStatus.success);
-    expect(cubit.state.data!.walletBalance, 'latest');
-    expect(cubit.state.failure, isNull);
+    expect(cubit.state.homeStatus, RequestStatus.success);
+    expect(cubit.state.homeData!.walletBalance, 'latest');
+    expect(cubit.state.homeFailure, isNull);
 
     final pending = Completer<Result<DashboardHomeData?>>();
     repository.requests.add(pending);
-    final pendingLoad = cubit.load();
+    final pendingLoad = cubit.loadHome();
     await cubit.close();
     pending.complete(const Success(null));
     await pendingLoad;
-    expect(cubit.state.status, RequestStatus.loading);
+    expect(cubit.state.homeStatus, RequestStatus.loading);
   });
 
   test('draft edits are unique, limited to eight, and transactional', () async {
-    final cubit = DashboardCubit(
-      repository: const MockDashboardHomeRepository(favorites: ['one']),
+    final cubit = HomeCubit(
+      repositories: homeRepositories(
+        home: const MockDashboardHomeRepository(favorites: ['one']),
+      ),
     );
-    await cubit.load();
-    cubit.add('ignored');
-    cubit.edit();
+    await cubit.loadHome();
+    cubit.addFavorite('ignored');
+    cubit.editFavorites();
     for (final id in [
       'one',
       'two',
@@ -137,7 +145,7 @@ void main() {
       'eight',
       'nine',
     ]) {
-      cubit.add(id);
+      cubit.addFavorite(id);
     }
     expect(cubit.state.draft, [
       'one',
@@ -149,11 +157,11 @@ void main() {
       'seven',
       'eight',
     ]);
-    expect(cubit.state.data!.favorites, ['one']);
-    cubit.remove('two');
-    cubit.add('nine');
-    cubit.confirm();
-    expect(cubit.state.data!.favorites, [
+    expect(cubit.state.homeData!.favorites, ['one']);
+    cubit.removeFavorite('two');
+    cubit.addFavorite('nine');
+    cubit.confirmFavorites();
+    expect(cubit.state.homeData!.favorites, [
       'one',
       'three',
       'four',
@@ -163,29 +171,37 @@ void main() {
       'eight',
       'nine',
     ]);
-    cubit.edit();
-    cubit.remove('one');
-    cubit.cancel();
-    expect(cubit.state.data!.favorites.length, 8);
-    cubit.reset();
-    expect(cubit.state.data!.favorites, isEmpty);
+    cubit.editFavorites();
+    cubit.removeFavorite('one');
+    cubit.cancelFavorites();
+    expect(cubit.state.homeData!.favorites.length, 8);
+    cubit.resetFavorites();
+    expect(cubit.state.homeData!.favorites, isEmpty);
     expect(cubit.state.draft, isNull);
     await cubit.close();
   });
   test('suggestions remain uncommitted until confirmation', () async {
-    final cubit = DashboardCubit(
-      repository: const MockDashboardHomeRepository(),
+    final cubit = HomeCubit(
+      repositories: homeRepositories(home: const MockDashboardHomeRepository()),
     );
-    await cubit.load();
-    cubit.edit(suggestions: ['a', 'b', 'c']);
-    expect(cubit.state.data!.favorites, isEmpty);
-    expect(cubit.state.draft, ['a', 'b', 'c']);
-    cubit.cancel();
-    expect(cubit.state.data!.favorites, isEmpty);
-    cubit.edit(suggestions: ['a']);
-    cubit.confirm();
-    cubit.edit(suggestions: ['b']);
-    expect(cubit.state.draft, ['a']);
+    await cubit.loadHome();
+    cubit.editFavorites();
+    expect(cubit.state.homeData!.favorites, isEmpty);
+    expect(cubit.state.draft, [
+      'card-issue',
+      'loan-consolidate',
+      'card-deposit',
+    ]);
+    cubit.cancelFavorites();
+    expect(cubit.state.homeData!.favorites, isEmpty);
+    cubit.editFavorites();
+    cubit.confirmFavorites();
+    cubit.editFavorites();
+    expect(cubit.state.draft, [
+      'card-issue',
+      'loan-consolidate',
+      'card-deposit',
+    ]);
     await cubit.close();
   });
 }

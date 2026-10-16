@@ -3,6 +3,8 @@ part of 'dashboard_reso_cubit.dart';
 @freezed
 abstract class DashboardResoState with _$DashboardResoState {
   const factory DashboardResoState.initial({
+    @Default('') String prompt,
+    @Default(false) bool canSubmitPrompt,
     @Default('') String typedHint,
     @Default(false) bool isMotionEnabled,
     @Default(false) bool hasFocus,

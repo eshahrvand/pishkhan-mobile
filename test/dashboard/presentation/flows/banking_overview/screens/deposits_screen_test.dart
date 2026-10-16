@@ -1,3 +1,4 @@
+import '../../../../support/home_tab_test_scope.dart';
 import '../../../../support/dashboard_ui_finders.dart';
 
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -102,7 +103,7 @@ void main() {
           await mount(
             tester,
             subject(
-              DepositsTab(
+              depositScope(
                 repository: MockDashboardDepositsRepository(
                   deposits: single
                       ? const [DashboardMockData.singleDeposit]
@@ -177,7 +178,7 @@ void main() {
       await mount(
         tester,
         subject(
-          DepositsTab(
+          depositScope(
             repository: MockDashboardDepositsRepository(deposits: mixed),
             onActionRequested: (value) => request = value,
             onSelectedDepositChanged: (value) => selected = value,
@@ -210,7 +211,7 @@ void main() {
     await mount(
       tester,
       subject(
-        DepositsTab(
+        depositScope(
           repository: MockDashboardDepositsRepository(deposits: [mixed[1]]),
           onCopyNumber: (value) => copiedNumber = value,
           onCopyIban: (value) => copiedIban = value,
@@ -239,7 +240,7 @@ void main() {
     );
     await tester.pumpWidget(
       subject(
-        DepositsTab(
+        depositScope(
           repository: MockDashboardDepositsRepository(deposits: [mixed[1]]),
         ),
       ),
@@ -255,7 +256,7 @@ void main() {
       await mount(
         tester,
         subject(
-          const DepositsTab(
+          depositScope(
             repository: MockDashboardDepositsRepository(deposits: mixed),
           ),
         ),
@@ -263,7 +264,7 @@ void main() {
       await tap(tester, dashboardIndicator(DashboardDepositsCarousel, 1));
       await tester.pumpWidget(
         subject(
-          DepositsTab(
+          depositScope(
             repository: MockDashboardDepositsRepository(
               deposits: [mixed[1], mixed[0]],
             ),
@@ -277,7 +278,7 @@ void main() {
       );
       await tester.pumpWidget(
         subject(
-          DepositsTab(
+          depositScope(
             repository: MockDashboardDepositsRepository(deposits: [mixed[0]]),
           ),
         ),
@@ -286,7 +287,7 @@ void main() {
       expect(dashboardGroup(S.current.depositsChequeOperations), findsNothing);
       await tester.pumpWidget(
         subject(
-          const DepositsTab(
+          depositScope(
             repository: MockDashboardDepositsRepository(deposits: []),
           ),
         ),
@@ -305,7 +306,7 @@ void main() {
     await mount(
       tester,
       subject(
-        DepositsTab(
+        depositScope(
           repository: MockDashboardDepositsRepository(deposits: mixed),
           onSelectedDepositChanged: (value) => selected = value,
         ),
@@ -422,7 +423,7 @@ void main() {
       await mount(
         tester,
         subject(
-          DepositsTab(
+          depositScope(
             repository: MockDashboardDepositsRepository(
               deposits: const [DashboardMockData.singleDeposit],
             ),
@@ -440,7 +441,7 @@ void main() {
       expect(tester.takeException(), isNull);
       await tester.pumpWidget(
         subject(
-          const DepositsTab(
+          depositScope(
             repository: MockDashboardDepositsRepository(deposits: []),
           ),
           scale: 1.4,

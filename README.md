@@ -50,3 +50,7 @@ Visual captures are not stored in `doc`; optional test captures use ignored
 
 General architecture and design-system guidance remain in the top-level `doc`
 files. Existing Persian documents are retained unchanged.
+
+All four dashboard tabs share one `HomeCubit` and plain `HomeState` under
+`lib/features/dashboard/presentation/home/cubit/`. See
+[current Home state ownership](doc/dashboard/development.md#12-state-management-with-cubit).

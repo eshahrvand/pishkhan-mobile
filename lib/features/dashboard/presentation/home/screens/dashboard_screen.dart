@@ -1,9 +1,10 @@
+import '../cubit/home_cubit.dart';
+import '../cubit/home_effect.dart';
 import '../widgets/dashboard_home_panel.dart';
 
 import 'package:pishkhan_mobile/core/router/card_features_navigation.dart';
 import 'package:pishkhan_mobile/features/dashboard/domain/repositories/dashboard_repositories.dart';
 import 'package:pishkhan_mobile/core/router/dashboard_notifications_navigation.dart';
-import 'package:pishkhan_mobile/features/dashboard/presentation/home/cubit/dashboard_navigation_cubit.dart';
 import 'package:pishkhan_mobile/features/dashboard/domain/entities/bank_loan.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/home/screens/loans_tab.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/loan_actions.dart';
@@ -14,11 +15,11 @@ import 'package:pishkhan_mobile/features/dashboard/domain/entities/bank_card.dar
 import 'package:pishkhan_mobile/features/dashboard/presentation/home/screens/cards_tab.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/app_primary_navigation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pishkhan_mobile/features/dashboard/presentation/home/cubit/dashboard_cubit.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/dashboard_services.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_services_sheet.dart';
-
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({
@@ -58,7 +59,7 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   // Retained only for the existing injected-repository update lifecycle.
-  DashboardCubit? _repositoryScope;
+  HomeCubit? _repositoryScope;
   final _promptFocus = FocusNode();
   late DashboardRepositories _repositories;
   final _notifications = DashboardNotificationsNavigation();
@@ -76,12 +77,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void didUpdateWidget(covariant DashboardScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.repositories != oldWidget.repositories) {
-      final previousHome = _repositories.home;
       _repositories =
           widget.repositories ?? context.read<DashboardRepositories>();
-      if (previousHome != _repositories.home) {
-        _repositoryScope?.changeRepository(_repositories.home);
-      }
+      _repositoryScope?.changeRepositories(_repositories);
     }
   }
 
@@ -130,13 +128,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
     final selected = await showDashboardServicesSheet(
       context,
       excluded: adding
-          ? context.read<DashboardCubit>().state.activeFavorites.toSet()
-          : const {},
+          ? context.read<HomeCubit>().state.activeFavorites
+          : const [],
       category: category,
     );
     if (!context.mounted || selected == null) return;
     if (adding) {
-      context.read<DashboardCubit>().add(selected.id);
+      context.read<HomeCubit>().addFavorite(selected.id);
     } else {
       _openService(context, selected);
     }
@@ -146,130 +144,132 @@ class _DashboardScreenState extends State<DashboardScreen> {
     if (await showDashboardResetSheet(context) != true || !context.mounted) {
       return;
     }
-    context.read<DashboardCubit>().reset();
+    context.read<HomeCubit>().resetFavorites();
     widget.onFavoritesChanged?.call(
-      context.read<DashboardCubit>().state.data?.favorites ?? const <String>[],
+      context.read<HomeCubit>().state.homeData?.favorites ?? const <String>[],
     );
   }
 
   void _selectTab(BuildContext context, AppPrimaryTab tab) {
     _promptFocus.unfocus();
-    context.read<DashboardNavigationCubit>().select(tab);
+    context.read<HomeCubit>().selectTab(tab);
+  }
+
+  void _handleHomeEffect(BuildContext context, HomeState state) {
+    switch (state.effect) {
+      case HomeCardActionRequested(:final request):
+        if (widget.onCardActionRequested != null) {
+          widget.onCardActionRequested!(request);
+        } else {
+          _serviceId(
+            context,
+            request.action.id,
+            cardNumber: request.card.number,
+          );
+        }
+      case HomeDepositActionRequested(:final request):
+        if (widget.onDepositActionRequested != null) {
+          widget.onDepositActionRequested!(request);
+        } else {
+          _serviceId(
+            context,
+            request.action.id,
+            depositNumber: request.deposit.number,
+          );
+        }
+      case HomeLoanActionRequested(:final request):
+        if (widget.onLoanActionRequested != null) {
+          widget.onLoanActionRequested!(request);
+        } else {
+          _serviceId(context, request.action.id);
+        }
+      case HomeCardMoreRequested(:final card):
+        widget.onCardMorePressed?.call(card);
+      case HomeDepositSelectionChanged(:final deposit):
+        widget.onSelectedDepositChanged?.call(deposit);
+      case HomeLoanSelectionChanged(:final loan):
+        widget.onSelectedLoanChanged?.call(loan);
+      case HomeLoanDetailsRequested(:final loan):
+        widget.onLoanDetailsRequested?.call(loan);
+      case HomeCardNumberCopyRequested(:final number):
+        Clipboard.setData(ClipboardData(text: number));
+      case HomeCardIbanCopyRequested(:final iban):
+        Clipboard.setData(ClipboardData(text: iban));
+      case HomeDepositNumberCopyRequested(:final number):
+        Clipboard.setData(ClipboardData(text: number));
+      case HomeDepositIbanCopyRequested(:final iban):
+        Clipboard.setData(ClipboardData(text: iban));
+      case HomeLoanNumberCopyRequested(:final number):
+        Clipboard.setData(ClipboardData(text: number));
+      case HomeTabRequested():
+        _promptFocus.unfocus();
+      case HomeMenuRequested(:final category):
+        if (widget.onMenuPressed != null) {
+          widget.onMenuPressed!();
+        } else {
+          _catalog(context, category: category);
+        }
+      case HomeAssistantRequested():
+        _openService(context, DashboardService.assistant);
+      case HomeCardSelectionChanged():
+      case null:
+        break;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider<DashboardCubit>(
-          create: (context) {
-            final cubit = DashboardCubit(repository: _repositories.home);
-            _repositoryScope = cubit;
-            return cubit..load();
+    return BlocProvider<HomeCubit>(
+      create: (_) {
+        final cubit = HomeCubit(repositories: _repositories);
+        _repositoryScope = cubit;
+        return cubit..load();
+      },
+      child: BlocListener<HomeCubit, HomeState>(
+        listenWhen: (previous, current) =>
+            previous.effectId != current.effectId,
+        listener: _handleHomeEffect,
+        child: BlocBuilder<HomeCubit, HomeState>(
+          buildWhen: (previous, current) =>
+              previous.selectedTab != current.selectedTab,
+          builder: (context, state) {
+            return IndexedStack(
+              index: state.selectedTab.index,
+              children: [
+                TickerMode(
+                  enabled: state.selectedTab == AppPrimaryTab.dashboard,
+                  child: DashboardHomePanel(
+                    promptFocus: _promptFocus,
+                    selectedTab: state.selectedTab,
+                    enableAnimations: widget.enableAnimations,
+                    onNotificationsPressed: _openNotifications,
+                    onProfilePressed: widget.onProfilePressed,
+                    onMenuPressed:
+                        widget.onMenuPressed ?? () => _catalog(context),
+                    onPromptSubmitted: widget.onPromptSubmitted,
+                    onFavoritesChanged: widget.onFavoritesChanged,
+                    onAddService: () => _catalog(context, adding: true),
+                    onResetFavorites: () => _reset(context),
+                    onServiceRequested: (service) =>
+                        _openService(context, service),
+                    onTabSelected: (tab) => _selectTab(context, tab),
+                  ),
+                ),
+                TickerMode(
+                  enabled: state.selectedTab == AppPrimaryTab.cards,
+                  child: const CardsTab(),
+                ),
+                TickerMode(
+                  enabled: state.selectedTab == AppPrimaryTab.deposits,
+                  child: const DepositsTab(),
+                ),
+                TickerMode(
+                  enabled: state.selectedTab == AppPrimaryTab.loans,
+                  child: const LoansTab(),
+                ),
+              ],
+            );
           },
-        ),
-        BlocProvider<DashboardNavigationCubit>(
-          create: (context) => DashboardNavigationCubit(),
-        ),
-      ],
-      child: BlocBuilder<DashboardNavigationCubit, DashboardNavigationState>(
-        buildWhen: (previous, current) =>
-            previous.selectedTab != current.selectedTab,
-        builder: (context, state) => IndexedStack(
-          index: state.selectedTab.index,
-          children: [
-            TickerMode(
-              enabled: state.selectedTab == AppPrimaryTab.dashboard,
-              child: DashboardHomePanel(
-                promptFocus: _promptFocus,
-                selectedTab: state.selectedTab,
-                enableAnimations: widget.enableAnimations,
-                onNotificationsPressed: _openNotifications,
-                onProfilePressed: widget.onProfilePressed,
-                onMenuPressed: widget.onMenuPressed ?? () => _catalog(context),
-                onPromptSubmitted: widget.onPromptSubmitted,
-                onFavoritesChanged: widget.onFavoritesChanged,
-                onAddService: () => _catalog(context, adding: true),
-                onResetFavorites: () => _reset(context),
-                onServiceRequested: (service) => _openService(context, service),
-                onTabSelected: (tab) => _selectTab(context, tab),
-              ),
-            ),
-            TickerMode(
-              enabled: state.selectedTab == AppPrimaryTab.cards,
-              child: CardsTab(
-                repository: _repositories.cards,
-                onTabSelected: (tab) => _selectTab(context, tab),
-                onMenuPressed: widget.onMenuPressed ?? () => _catalog(context),
-                onAssistantPressed: () {
-                  _selectTab(context, AppPrimaryTab.dashboard);
-                  _openService(context, DashboardService.assistant);
-                },
-                onMorePressed: widget.onCardMorePressed,
-                onActionRequested: (request) {
-                  if (widget.onCardActionRequested != null) {
-                    widget.onCardActionRequested!(request);
-                  } else {
-                    _serviceId(
-                      context,
-                      request.action.id,
-                      cardNumber: request.card.number,
-                    );
-                  }
-                },
-              ),
-            ),
-            TickerMode(
-              enabled: state.selectedTab == AppPrimaryTab.deposits,
-              child: DepositsTab(
-                repository: _repositories.deposits,
-                onTabSelected: (tab) => _selectTab(context, tab),
-                onMenuPressed:
-                    widget.onMenuPressed ??
-                    () =>
-                        _catalog(context, category: DashboardService.deposits),
-                onAssistantPressed: () {
-                  _selectTab(context, AppPrimaryTab.dashboard);
-                  _openService(context, DashboardService.assistant);
-                },
-                onSelectedDepositChanged: widget.onSelectedDepositChanged,
-                onActionRequested: (request) {
-                  if (widget.onDepositActionRequested != null) {
-                    widget.onDepositActionRequested!(request);
-                  } else {
-                    _serviceId(
-                      context,
-                      request.action.id,
-                      depositNumber: request.deposit.number,
-                    );
-                  }
-                },
-              ),
-            ),
-            TickerMode(
-              enabled: state.selectedTab == AppPrimaryTab.loans,
-              child: LoansTab(
-                repository: _repositories.loans,
-                onTabSelected: (tab) => _selectTab(context, tab),
-                onMenuPressed:
-                    widget.onMenuPressed ??
-                    () => _catalog(context, category: DashboardService.loans),
-                onAssistantPressed: () {
-                  _selectTab(context, AppPrimaryTab.dashboard);
-                  _openService(context, DashboardService.assistant);
-                },
-                onSelectedLoanChanged: widget.onSelectedLoanChanged,
-                onDetailsRequested: widget.onLoanDetailsRequested,
-                onActionRequested: (request) {
-                  if (widget.onLoanActionRequested != null) {
-                    widget.onLoanActionRequested!(request);
-                  } else {
-                    _serviceId(context, request.action.id);
-                  }
-                },
-              ),
-            ),
-          ],
         ),
       ),
     );

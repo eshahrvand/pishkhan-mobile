@@ -677,69 +677,66 @@ Views localize a generic loading/failure/empty message and offer retry for Error
 
 ## 12. State Management with Cubit
 
-### 12.1 Home and favorites
+### 12.1 One owner for all four tabs
 
-DashboardState in `presentation/cubit/dashboard_state.dart` is sealed: DashboardInitial, DashboardLoading, DashboardLoaded(data, draft), DashboardEmpty and DashboardError(failure). DashboardLoaded exposes committed favorites, nullable draft and visibleFavorites. Lists are immutable and state equality includes their values. DashboardCubit loads through LoadDashboardHome, deduplicates IDs and limits saved favorites to eight.
+The dashboard/Home, Cards, Deposits and Loans tabs share one `HomeCubit` and
+one plain Freezed `HomeState.initial` under
+`lib/features/dashboard/presentation/home/cubit/`. The former Dashboard,
+Cards, Deposits, Loans and DashboardNavigation Cubit/State pairs are removed.
+This section supersedes earlier state-family and directory snapshots elsewhere
+in this document. There are no nested tab State objects or compatibility Cubits.
 
-```text
-Initial -> load -> Loading -> Loaded | Empty | Error
-Error -> retry -> Loading -> new repository result
-Loaded -> edit -> Loaded(draft)
-draft -> add/remove (unique/max8) -> updated draft
-draft -> confirm -> Loaded(committed) -> host onFavoritesChanged
-draft -> cancel/system back -> Loaded(original saved IDs)
-reset -> confirmation sheet -> Loaded(empty saved IDs) -> host callback
-```
+`DashboardScreen` owns one `BlocProvider<HomeCubit>`. Its composition boundary
+injects `DashboardRepositories`; the Cubit invokes the loading use cases and
+manages data. CardsTab, DepositsTab and LoansTab have only `super.key` and resolve
+the shared scope. They accept no Repository or host callback parameters.
 
-Empty favorites are not an empty Home response. Suggested and fixed service ID order comes from DashboardHomeData. Mock recommendations remain card-issue, loan-consolidate, card-deposit. Service labels/icons/routes still resolve locally against DashboardService. Unknown favorites are omitted safely from visual mapping; they do not trigger firstWhere exceptions. The mock composition filters initial caller IDs; a future data mapper should validate unsupported server IDs explicitly.
+### 12.2 Flat State and independent request lifecycles
 
-A load cancels an unsaved draft and replaces Home data; pending-load tokens prevent an old response overwriting a newer one. Favorites confirmation remains local plus a host callback, not a repository write/synchronized save. A production save/conflict policy is still required.
+| Concern | State and behavior |
+| --- | --- |
+| Tab selection | `selectedTab`; IndexedStack retains all tab widgets |
+| Home | `homeStatus`, `homeData`, `homeFailure`; draft/committed favorites, fixed and favorite service lists |
+| Cards | `cardsStatus`, `cardsFailure`, cards/visibleCards, selected ID/index/entity, per-card visibility and prepared operation lists |
+| Deposits | `depositsStatus`, `depositsFailure`, deposits/visibleDeposits, selected ID/index/entity and prepared operations including cheque eligibility |
+| Loans | `loansStatus`, `loansFailure`, loans/visibleLoans, selected ID/index/entity and prepared operation lists |
 
-### 12.2 Typed tab states and selection
+`load()` starts all four reads concurrently. `loadHome`, `loadCards`,
+`loadDeposits` and `loadLoans` each update only their fields, use an independent
+generation counter and reject obsolete/disposed completions. Actions emit
+`state.copyWith(...)` directly, preserving the current data of other tabs.
+Failure in one surface does not block another. Reloads reconcile selection by
+stable ID, falling back to the first remaining record. Empty catalogs clear
+selection and actions. State collections remain immutable.
 
-CardsState, DepositsState and LoansState are typed aliases over the sealed DashboardTabState<T> family. Their factories produce CardsLoaded, DepositsLoaded and LoansLoaded. The shared transitions are:
+`changeRepositories` reloads only changed adapters. Replacing a card adapter
+does not reset Home favorite edits, the active tab or deposit/loan selection.
 
-```text
-Initial -> load -> Loading(previous?) -> Loaded | Empty | Error(previous?)
-Loaded:
-  immutable items, selectedId, selectedIndex, selected entity
-  layout = single if length==1, otherwise multiple
-CardsLoaded additionally: immutable visibility map keyed by card ID
-swipe/indicator -> select(index) -> new Loaded -> contextual callback
-reload/repository replacement -> retain selectedId if still present
-selected removed -> first remaining item
-success([]) -> Empty (no selected entity/actions)
-Error -> retry -> same repository -> new load result
-```
+### 12.3 Explicit actions and UI subscriptions
 
-Tab load factories receive detached item snapshots. Card number parts and visibility maps cannot be mutated through State fields. Card visibility defaults to revealed for single-card layouts and hidden for multiple-card layouts; explicit per-ID choices survive selection/reload when the ID remains.
+Favorite actions (`editFavorites`, `addFavorite`, `removeFavorite`,
+`confirmFavorites`, `cancelFavorites` and `resetFavorites`) operate on loaded
+Home data. Suggestions are read inside the Cubit. Selection, eligibility and
+request construction use specific card/deposit/loan actions. Cheque availability
+depends on the selected deposit capability, independently of catalog length.
 
-Cubit `select` ignores out-of-range indices and nonloaded states. A monotonically increasing request token makes the newest load win; completion after Cubit.close does not emit. Close invalidates pending responses; this guards emission, not transport cancellation.
+Builders and carousel listeners compare only the fields they consume. An update
+to a card visibility flag does not subscribe deposit or loan content to that
+change. PageController, focus, scroll, layout measurement and animations remain
+owned by UI lifecycle objects; they are not State fields.
 
-### 12.3 View resources, lifecycle and dashboard
+### 12.4 Effects and integration
 
-Each tab constructs its Cubit from its required repository, calls load, observes BlocConsumer, reloads when repository identity changes and closes it at disposal. Retry delegates to Cubit.load. PageController is not canonical state: selected ID/index comes from Loaded. Controllers are recreated when item order/IDs or viewport fraction changes; keepPage is false and a guarded post-frame jump synchronizes the attached scroll view to the selected index without a manually assigned widget Key. Page-change callbacks are ignored during this controller synchronization. Bloc listeners synchronize valid programmatic selection when the controller is idle.
+`HomeEffect` values describe typed operation requests, selection notifications,
+copy, details, menu, assistant and tab changes. `effectId` identifies repeated
+identical interactions. The dashboard's single listener executes navigation,
+clipboard and host callbacks. Cubit holds no BuildContext, controllers or UI
+callback fields. Existing host overrides keep precedence over service routing.
 
-DashboardNavigationCubit owns selected AppPrimaryTab. IndexedStack preserves all four tab instances; each loads once on mount, including offstage tabs. TickerMode pauses hidden animations. Back returns to Home or cancels a Home favorite draft. The dashboard reuses unchanged default mock repository objects on seed changes, so replacing loans does not reset Home favorites.
-
-Selection callbacks remain page-change notifications, not initial-load/list-refresh events. Action requests carry the state-selected entity. The notification cache remains in a core navigation adapter, separate from Dashboard data/state.
-
-### 12.4 Data and deposit-dependent flow
-
-```text
-mock repository / future live repository -> Result<List<BankDeposit>>
-  -> LoadDashboardItems -> DepositsCubit -> DepositsLoaded.selected
-     -> AppDepositCard fields
-     -> hasChequeOperations -> cheque group visible/absent
-     -> tap -> DepositActionRequest(action, selected deposit) -> host
-loan counts -> BankLoan.progress + installmentsPaid
-  -> LoansLoaded -> AppLoanCard -> existing AppProgressIndicator
-  -> tap -> LoanActionRequest(action, selected loan) -> host
-Home repository -> DashboardHomeData -> DashboardCubit -> wallet/fixed/favorite UI
-ARBs + local enum/AppAssets mapping -> titles/icons/action widgets
-```
-
-Cheque availability is per selected deposit, independent of count. A server mapper can supply hasChequeOperations from account capabilities. Loan operations remain the same four plus two quick actions in both supplied frames; no unsupported eligibility policy is inferred. Existing physical-left loan progress and paid/total guard behavior remain intact.
+The reusable service picker and animated prompt retain their own component
+lifetimes under `presentation/shared`; they do not own any of the four tab
+catalogs, repository reads or selected banking records. Dedicated standalone
+Cards/Deposits banking service features are outside this dashboard scope.
 
 ## 13. Design System Package (`avp_ui`)
 

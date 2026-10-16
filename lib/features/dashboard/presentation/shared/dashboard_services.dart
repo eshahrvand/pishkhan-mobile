@@ -1,6 +1,14 @@
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
+// Localization stays in Presentation; Cubits receive searchable text as data.
+Map<DashboardService, String> getDashboardServiceSearchLabels() {
+  return {
+    for (final service in DashboardService.values)
+      service: service.catalogLabel(),
+  };
+}
+
 enum DashboardService {
   assistant('assistant'),
   statement('deposit-statement'),

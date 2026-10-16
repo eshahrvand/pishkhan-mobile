@@ -326,6 +326,8 @@ void main() {
       ),
       '  سوال من  ',
     );
+    // Render the Cubit-driven enabled state before tapping the send action.
+    await tester.pump();
     await tap(tester, dashboardSemantic(S.current.dashboardSendPrompt));
     expect(prompt, 'سوال من');
   });

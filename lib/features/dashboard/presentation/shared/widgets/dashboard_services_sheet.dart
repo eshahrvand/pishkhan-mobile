@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../cubit/dashboard_services_sheet_cubit.dart';
-import 'dashboard_service_option.dart';
+import 'dashboard_service_group_section.dart';
 
 import 'dart:ui' as ui;
 import 'dart:math' as math;
@@ -9,14 +9,13 @@ import 'dart:math' as math;
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/dashboard_services.dart';
-import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_category_heading.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_bottom_sheet_header.dart';
 
 Future<DashboardService?> showDashboardServicesSheet(
   BuildContext context, {
-  Set<String> excluded = const {},
+  Iterable<String> excluded = const [],
   List<DashboardService>? category,
 }) => showModalBottomSheet<DashboardService>(
   context: context,
@@ -33,11 +32,11 @@ Future<DashboardService?> showDashboardServicesSheet(
 class DashboardServicesSheet extends StatefulWidget {
   const DashboardServicesSheet({
     super.key,
-    this.excluded = const {},
+    this.excluded = const [],
     this.category,
     this.initialQuery = '',
   });
-  final Set<String> excluded;
+  final Iterable<String> excluded;
   final List<DashboardService>? category;
   final String initialQuery;
   @override
@@ -61,192 +60,143 @@ class _DashboardServicesSheetState extends State<DashboardServicesSheet> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) =>
-          DashboardServicesSheetCubit(initialQuery: widget.initialQuery),
-      child: BlocBuilder<DashboardServicesSheetCubit, DashboardServicesSheetState>(
-        buildWhen: (previous, current) =>
-            previous.query != current.query ||
-            previous.collapsedCategories != current.collapsedCategories,
-        builder: (context, state) {
-          final groups = {
-            for (final category in DashboardCategory.values)
-              category: context
-                  .read<DashboardServicesSheetCubit>()
-                  .searchServices(category, widget.category),
-          }..removeWhere((category, services) => services.isEmpty);
-          final insets = MediaQuery.viewInsetsOf(context).bottom;
-          return LayoutBuilder(
-            builder: (context, constraints) {
-              final available =
-                  constraints.maxHeight -
-                  insets -
-                  MediaQuery.paddingOf(context).bottom;
-              return Directionality(
-                textDirection: TextDirection.rtl,
-                child: Padding(
-                  padding: EdgeInsets.only(bottom: insets),
-                  child: SafeArea(
-                    top: false,
-                    child: SizedBox(
-                      height: math.min(728, math.max(180, available - 20)),
-                      child: Material(
-                        color: context.colors.surfaceSubtle,
-                        borderRadius: const BorderRadius.vertical(
-                          top: AppRadius.xl,
-                        ),
-                        clipBehavior: Clip.antiAlias,
-                        child: Column(
-                          children: [
-                            AppBottomSheetHeader(
-                              title: S.current.servicesList,
-                              showRightIcon: false,
-                              leftIcon: AvpImage(
-                                image: AppAssets.iconClose24Gray700,
-                              ),
-                              onLeftAction: () => Navigator.of(context).pop(),
+      create: (context) => DashboardServicesSheetCubit(
+        initialState: DashboardServicesSheetState.initial(
+          query: widget.initialQuery,
+        ),
+        excluded: widget.excluded,
+        category: widget.category,
+      )..loadServices(getDashboardServiceSearchLabels()),
+      child:
+          BlocBuilder<DashboardServicesSheetCubit, DashboardServicesSheetState>(
+            buildWhen: (previous, current) =>
+                previous.groups != current.groups ||
+                previous.isSearching != current.isSearching,
+            builder: (context, state) {
+              final insets = MediaQuery.viewInsetsOf(context).bottom;
+              return LayoutBuilder(
+                builder: (context, constraints) {
+                  final available =
+                      constraints.maxHeight -
+                      insets -
+                      MediaQuery.paddingOf(context).bottom;
+                  return Directionality(
+                    textDirection: TextDirection.rtl,
+                    child: Padding(
+                      padding: EdgeInsets.only(bottom: insets),
+                      child: SafeArea(
+                        top: false,
+                        child: SizedBox(
+                          height: math.min(728, math.max(180, available - 20)),
+                          child: Material(
+                            color: context.colors.surfaceSubtle,
+                            borderRadius: const BorderRadius.vertical(
+                              top: AppRadius.xl,
                             ),
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
-                              child: AppSearchField(
-                                controller: _controller,
-                                clearIcon: AvpImage(
-                                  image: AppAssets.dashboardSearchClear,
+                            clipBehavior: Clip.antiAlias,
+                            child: Column(
+                              children: [
+                                AppBottomSheetHeader(
+                                  title: S.current.servicesList,
+                                  showRightIcon: false,
+                                  leftIcon: AvpImage(
+                                    image: AppAssets.iconClose24Gray700,
+                                  ),
+                                  onLeftAction: () =>
+                                      Navigator.of(context).pop(),
                                 ),
-                                hintText: S.current.dashboardSearchHint,
-                                textStyle: AppTypography.bodyMedium.copyWith(
-                                  height: 20 / 14,
-                                  letterSpacing: 0,
-                                ),
-                                searchIcon: SizedBox(
-                                  width: 48,
-                                  height: 44,
-                                  child: Center(
-                                    child: AvpImage(
-                                      image: AppAssets.dashboardCatalogSearch,
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                    20,
+                                    20,
+                                    20,
+                                    0,
+                                  ),
+                                  child: AppSearchField(
+                                    controller: _controller,
+                                    clearIcon: AvpImage(
+                                      image: AppAssets.dashboardSearchClear,
                                     ),
+                                    hintText: S.current.dashboardSearchHint,
+                                    textStyle: AppTypography.bodyMedium
+                                        .copyWith(
+                                          height: 20 / 14,
+                                          letterSpacing: 0,
+                                        ),
+                                    searchIcon: SizedBox(
+                                      width: 48,
+                                      height: 44,
+                                      child: Center(
+                                        child: AvpImage(
+                                          image:
+                                              AppAssets.dashboardCatalogSearch,
+                                        ),
+                                      ),
+                                    ),
+                                    focusRing: AppTextFieldFocusRing.subtle,
+                                    onChanged: (value) => context
+                                        .read<DashboardServicesSheetCubit>()
+                                        .updateQuery(value),
                                   ),
                                 ),
-                                focusRing: AppTextFieldFocusRing.subtle,
-                                onChanged: (value) => context
-                                    .read<DashboardServicesSheetCubit>()
-                                    .updateQuery(value),
-                              ),
-                            ),
-                            Expanded(
-                              child: SingleChildScrollView(
-                                padding: const EdgeInsets.fromLTRB(
-                                  20,
-                                  24,
-                                  20,
-                                  32,
-                                ),
-                                child: Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.stretch,
-                                  children: [
-                                    if (groups.isEmpty)
-                                      Text(
-                                        S.current.dashboardNoServices,
-                                        style: AppTypography.bodyMedium,
-                                      ),
-                                    for (final group in groups.entries) ...[
-                                      if (group.key != groups.keys.first)
-                                        SizedBox(
-                                          height:
-                                              group.key ==
-                                                  DashboardCategory.transfers
-                                              ? 32
-                                              : 16,
-                                        ),
-                                      DashboardCategoryHeading(
-                                        category: group.key,
-                                        compact: true,
-                                        collapsed: state.collapsedCategories
-                                            .contains(group.key),
-                                        active:
-                                            state.query.isEmpty &&
-                                            group.key ==
-                                                DashboardCategory.cards,
-                                        search: state.query.isNotEmpty,
-                                        onTap:
-                                            state.query.isNotEmpty ||
-                                                group.key !=
-                                                    DashboardCategory.cards
-                                            ? null
-                                            : () => context
+                                Expanded(
+                                  child: SingleChildScrollView(
+                                    padding: const EdgeInsets.fromLTRB(
+                                      20,
+                                      24,
+                                      20,
+                                      32,
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.stretch,
+                                      children: [
+                                        if (state.groups.isEmpty)
+                                          Text(
+                                            S.current.dashboardNoServices,
+                                            style: AppTypography.bodyMedium,
+                                          ),
+                                        for (final group in state.groups) ...[
+                                          if (group != state.groups.first)
+                                            SizedBox(
+                                              height:
+                                                  group.category ==
+                                                      DashboardCategory
+                                                          .transfers
+                                                  ? 32
+                                                  : 16,
+                                            ),
+                                          DashboardServiceGroupSection(
+                                            group: group,
+                                            isSearching: state.isSearching,
+                                            onSelected: (service) {
+                                              final selected = context
                                                   .read<
                                                     DashboardServicesSheetCubit
                                                   >()
-                                                  .toggleCategory(group.key),
-                                      ),
-                                      if (state.query.isNotEmpty) ...[
-                                        const SizedBox(height: 16),
-                                        for (final service in group.value) ...[
-                                          DashboardServiceOption(
-                                            service: service,
-                                            enabled: !widget.excluded.contains(
-                                              service.id,
-                                            ),
-                                            plain: true,
+                                                  .selectService(service);
+                                              if (selected != null) {
+                                                Navigator.of(context)
+                                                    .pop(selected);
+                                              }
+                                            },
                                           ),
-                                          if (service != group.value.last)
-                                            const SizedBox(height: 16),
                                         ],
-                                      ] else if (!state.collapsedCategories
-                                          .contains(group.key)) ...[
-                                        const SizedBox(height: 16),
-                                        LayoutBuilder(
-                                          builder: (context, constraints) => Wrap(
-                                            spacing: 8,
-                                            runSpacing: 8,
-                                            children: [
-                                              for (final service in group.value)
-                                                SizedBox(
-                                                  width:
-                                                      service ==
-                                                              DashboardService
-                                                                  .cardDeposit ||
-                                                          service ==
-                                                              DashboardService
-                                                                  .expiredGift ||
-                                                          (group
-                                                                  .value
-                                                                  .length
-                                                                  .isOdd &&
-                                                              service ==
-                                                                  group
-                                                                      .value
-                                                                      .last)
-                                                      ? constraints.maxWidth
-                                                      : (constraints.maxWidth -
-                                                                8) /
-                                                            2,
-                                                  child: DashboardServiceOption(
-                                                    service: service,
-                                                    enabled: !widget.excluded
-                                                        .contains(service.id),
-                                                  ),
-                                                ),
-                                            ],
-                                          ),
-                                        ),
                                       ],
-                                    ],
-                                  ],
+                                    ),
+                                  ),
                                 ),
-                              ),
+                              ],
                             ),
-                          ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ),
+                  );
+                },
               );
             },
-          );
-        },
-      ),
+          ),
     );
   }
 }

@@ -8,12 +8,31 @@ part 'dashboard_reso_state.dart';
 part 'dashboard_reso_cubit.freezed.dart';
 
 class DashboardResoCubit extends Cubit<DashboardResoState> {
-  DashboardResoCubit() : super(const DashboardResoState.initial());
+  DashboardResoCubit({
+    DashboardResoState initialState = const DashboardResoState.initial(),
+  }) : super(initialState);
 
   Timer? _typingTimer;
   List<String> _phrases = const [];
   int _phraseIndex = 0, _position = 0, _holdTicks = 0;
   bool _erasing = false;
+
+  void updatePrompt(String value) {
+    emit(
+      state.copyWith(
+        prompt: value,
+        hasInput: value.isNotEmpty,
+        canSubmitPrompt: value.trim().isNotEmpty,
+      ),
+    );
+    _syncTypingTimer();
+  }
+
+  String? submitPrompt() {
+    final prompt = state.prompt.trim();
+    if (prompt.isEmpty) return null;
+    return prompt;
+  }
 
   void configurePhrases(List<String> phrases) {
     _phrases = phrases;
@@ -23,19 +42,17 @@ class DashboardResoCubit extends Cubit<DashboardResoState> {
     emit(state.copyWith(isForeground: value));
   }
 
-  void updateMotion({
-    required bool enabled,
-    required bool hasFocus,
-    required bool hasInput,
-  }) {
-    emit(
-      state.copyWith(
-        isMotionEnabled: enabled,
-        hasFocus: hasFocus,
-        hasInput: hasInput,
-      ),
-    );
-    if (enabled && !hasFocus && !hasInput && _phrases.isNotEmpty) {
+  void updateMotion({required bool enabled, required bool hasFocus}) {
+    emit(state.copyWith(isMotionEnabled: enabled, hasFocus: hasFocus));
+    _syncTypingTimer();
+  }
+
+  // Resource management only; State updates remain explicit in each action.
+  void _syncTypingTimer() {
+    if (state.isMotionEnabled &&
+        !state.hasFocus &&
+        !state.hasInput &&
+        _phrases.isNotEmpty) {
       _typingTimer ??= Timer.periodic(
         const Duration(milliseconds: 90),
         (_) => typeNext(),

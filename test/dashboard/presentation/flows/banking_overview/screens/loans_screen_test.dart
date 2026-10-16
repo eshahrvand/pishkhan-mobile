@@ -1,3 +1,4 @@
+import '../../../../support/home_tab_test_scope.dart';
 import '../../../../support/dashboard_ui_finders.dart';
 
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -110,7 +111,7 @@ void main() {
           await mount(
             tester,
             subject(
-              LoansTab(
+              loanScope(
                 repository: MockDashboardLoansRepository(
                   loans: single
                       ? const [DashboardMockData.singleLoan]
@@ -208,7 +209,7 @@ void main() {
       await mount(
         tester,
         subject(
-          LoansTab(
+          loanScope(
             repository: MockDashboardLoansRepository(loans: sample),
             onActionRequested: (value) => request = value,
             onSelectedLoanChanged: (value) => selected = value,
@@ -244,7 +245,7 @@ void main() {
     await mount(
       tester,
       subject(
-        LoansTab(
+        loanScope(
           repository: MockDashboardLoansRepository(loans: sample),
           onSelectedLoanChanged: (value) => selected = value,
         ),
@@ -265,7 +266,7 @@ void main() {
       await mount(
         tester,
         subject(
-          LoansTab(
+          loanScope(
             repository: MockDashboardLoansRepository(loans: const [first]),
             onCopyNumber: (value) => copied = value,
           ),
@@ -290,9 +291,7 @@ void main() {
       );
       await tester.pumpWidget(
         subject(
-          const LoansTab(
-            repository: MockDashboardLoansRepository(loans: [second]),
-          ),
+          loanScope(repository: MockDashboardLoansRepository(loans: [second])),
         ),
       );
       await tester.pumpAndSettle();
@@ -307,15 +306,13 @@ void main() {
       await mount(
         tester,
         subject(
-          const LoansTab(
-            repository: MockDashboardLoansRepository(loans: sample),
-          ),
+          loanScope(repository: MockDashboardLoansRepository(loans: sample)),
         ),
       );
       await tap(tester, dashboardIndicator(DashboardLoansCarousel, 1));
       await tester.pumpWidget(
         subject(
-          const LoansTab(
+          loanScope(
             repository: MockDashboardLoansRepository(loans: [second, first]),
           ),
         ),
@@ -327,9 +324,7 @@ void main() {
       expect(controller.page, 0);
       await tester.pumpWidget(
         subject(
-          const LoansTab(
-            repository: MockDashboardLoansRepository(loans: [first]),
-          ),
+          loanScope(repository: MockDashboardLoansRepository(loans: [first])),
         ),
       );
       await tester.pumpAndSettle();
@@ -338,9 +333,7 @@ void main() {
         '001-123',
       );
       await tester.pumpWidget(
-        subject(
-          const LoansTab(repository: MockDashboardLoansRepository(loans: [])),
-        ),
+        subject(loanScope(repository: MockDashboardLoansRepository(loans: []))),
       );
       await tester.pumpAndSettle();
       expect(find.byType(AppLoanCard), findsNothing);
@@ -478,7 +471,7 @@ void main() {
       await mount(
         tester,
         subject(
-          LoansTab(
+          loanScope(
             repository: MockDashboardLoansRepository(loans: const [first]),
             onActionRequested: (value) => request = value,
           ),
@@ -533,7 +526,7 @@ void main() {
       await mount(
         tester,
         subject(
-          const LoansTab(
+          loanScope(
             repository: MockDashboardLoansRepository(
               loans: [DashboardMockData.singleLoan],
             ),
@@ -543,7 +536,7 @@ void main() {
       verify(DashboardMockData.singleLoan);
       await tester.pumpWidget(
         subject(
-          const LoansTab(
+          loanScope(
             repository: MockDashboardLoansRepository(
               loans: DashboardMockData.loans,
             ),

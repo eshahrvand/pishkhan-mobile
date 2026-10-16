@@ -8,7 +8,7 @@ import 'package:avp_ui/avp_ui.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pishkhan_mobile/features/dashboard/presentation/home/cubit/dashboard_cubit.dart';
+import 'package:pishkhan_mobile/features/dashboard/presentation/home/cubit/home_cubit.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/dashboard_services.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_bank_services.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
@@ -51,7 +51,12 @@ class DashboardHomePanel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Directionality(
       textDirection: TextDirection.rtl,
-      child: BlocBuilder<DashboardCubit, DashboardState>(
+      child: BlocBuilder<HomeCubit, HomeState>(
+        buildWhen: (previous, current) {
+          return previous.homeStatus != current.homeStatus ||
+              previous.homeData != current.homeData ||
+              previous.draft != current.draft;
+        },
         builder: (context, state) => PopScope(
           canPop: state.draft == null && selectedTab == AppPrimaryTab.dashboard,
           onPopInvokedWithResult: (didPop, _) {
@@ -59,11 +64,13 @@ class DashboardHomePanel extends StatelessWidget {
               if (selectedTab != AppPrimaryTab.dashboard) {
                 onTabSelected(AppPrimaryTab.dashboard);
               } else {
-                context.read<DashboardCubit>().cancel();
+                context.read<HomeCubit>().cancelFavorites();
               }
             }
           },
-          child: state.status != RequestStatus.success || state.data == null
+          child:
+              state.homeStatus != RequestStatus.success ||
+                  state.homeData == null
               ? Scaffold(
                   backgroundColor: context.colors.surfaceSubtle,
                   body: SafeArea(
@@ -79,15 +86,16 @@ class DashboardHomePanel extends StatelessWidget {
                             children: [
                               DashboardAsyncView(
                                 loading:
-                                    state.status == RequestStatus.initial ||
-                                    state.status == RequestStatus.loading,
+                                    state.homeStatus == RequestStatus.initial ||
+                                    state.homeStatus == RequestStatus.loading,
                                 emptyMessage:
-                                    state.status == RequestStatus.success &&
-                                        state.data == null
+                                    state.homeStatus == RequestStatus.success &&
+                                        state.homeData == null
                                     ? S.current.dashboardEmpty
                                     : null,
-                                onRetry: state.status == RequestStatus.failure
-                                    ? context.read<DashboardCubit>().load
+                                onRetry:
+                                    state.homeStatus == RequestStatus.failure
+                                    ? context.read<HomeCubit>().loadHome
                                     : null,
                               ),
                               Positioned(
@@ -157,7 +165,8 @@ class DashboardHomePanel extends StatelessWidget {
                                         children: [
                                           AppWalletCard(
                                             title: S.current.walletBalanceTitle,
-                                            balance: state.data!.walletBalance,
+                                            balance:
+                                                state.homeData!.walletBalance,
                                             currencyLabel:
                                                 S.current.rialCurrency,
                                           ),
@@ -171,12 +180,8 @@ class DashboardHomePanel extends StatelessWidget {
                                           const SizedBox(height: 16),
                                           DashboardBankServices(
                                             onEdit: () => context
-                                                .read<DashboardCubit>()
-                                                .edit(
-                                                  suggestions: state
-                                                      .data!
-                                                      .suggestedServiceIds,
-                                                ),
+                                                .read<HomeCubit>()
+                                                .editFavorites(),
                                             onAllServices: () =>
                                                 context.push<void>(
                                                   AppRoutes.allServices,
@@ -188,24 +193,24 @@ class DashboardHomePanel extends StatelessWidget {
                                             onReset: onResetFavorites,
                                             onAdd: onAddService,
                                             onRemove: context
-                                                .read<DashboardCubit>()
-                                                .remove,
+                                                .read<HomeCubit>()
+                                                .removeFavorite,
                                             onConfirm: () {
                                               context
-                                                  .read<DashboardCubit>()
-                                                  .confirm();
+                                                  .read<HomeCubit>()
+                                                  .confirmFavorites();
                                               onFavoritesChanged?.call(
                                                 context
-                                                        .read<DashboardCubit>()
+                                                        .read<HomeCubit>()
                                                         .state
-                                                        .data
+                                                        .homeData
                                                         ?.favorites ??
                                                     const <String>[],
                                               );
                                             },
                                             onCancel: context
-                                                .read<DashboardCubit>()
-                                                .cancel,
+                                                .read<HomeCubit>()
+                                                .cancelFavorites,
                                             onService: onServiceRequested,
                                           ),
                                         ],
