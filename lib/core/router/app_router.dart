@@ -3,6 +3,9 @@ import 'package:go_router/go_router.dart';
 import 'package:pishkhan_mobile/core/router/app_routes.dart';
 import 'package:pishkhan_mobile/features/launch/presentation/splash/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
+import 'package:pishkhan_mobile/features/dashboard/presentation/home/cubit/home_cubit.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/home/screens/dashboard_screen.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/dashboard_services.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/home/screens/dashboard_all_services_screen.dart';
@@ -51,8 +54,13 @@ GoRouter createAppRouter({
       // Dashboard
       GoRoute(
         path: AppRoutes.home,
-        builder: (context, state) =>
-            homeBuilder?.call(context) ?? const DashboardScreen(),
+        builder: (context, state) => BlocProvider<HomeCubit>(
+          create: (_) => getIt<HomeCubit>()..load(),
+          child: Builder(
+            builder: (context) =>
+                homeBuilder?.call(context) ?? const DashboardScreen(),
+          ),
+        ),
       ),
       GoRoute(
         path: AppRoutes.allServices,

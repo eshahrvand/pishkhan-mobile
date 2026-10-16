@@ -1,3 +1,4 @@
+import '../../../../support/home_tab_test_scope.dart';
 import '../../../../support/dashboard_ui_finders.dart';
 
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -86,9 +87,8 @@ void main() {
       debugDisableShadows = false;
       await tester.pumpWidget(
         app(
-          DashboardScreen(
+          dashboardScope(
             repositories: dashboardTestRepositories(favorites: favorites),
-            enableAnimations: false,
           ),
         ),
       );

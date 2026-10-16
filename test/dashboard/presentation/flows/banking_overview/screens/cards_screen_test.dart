@@ -20,7 +20,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/home/cubit/home_cubit.dart';
 import 'package:pishkhan_mobile/features/dashboard/domain/entities/bank_card.dart';
-import 'package:pishkhan_mobile/features/dashboard/presentation/home/screens/dashboard_screen.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_resalat_card.dart';
 
 const _preview = Key('cards_preview');
@@ -87,9 +86,8 @@ void main() {
       await mount(
         tester,
         subject(
-          DashboardScreen(
+          dashboardScope(
             repositories: dashboardTestRepositories(),
-            enableAnimations: false,
             onCardActionRequested: actions.add,
             onCardMorePressed: (card) => more = card,
             onMenuPressed: () => menus++,
@@ -125,8 +123,10 @@ void main() {
       expect(more?.id, DashboardMockData.cards.first.id);
       final cubit = tester.element(find.byType(CardsTab)).read<HomeCubit>();
       cubit.requestMenu();
-      await tester.pump();
+      await tester.pumpAndSettle();
       expect(menus, 1);
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
       cubit.selectTab(AppPrimaryTab.dashboard);
       await tester.pumpAndSettle();
       expect(find.byType(CardsTab), findsNothing);
@@ -322,9 +322,8 @@ void main() {
       await mount(
         tester,
         subject(
-          DashboardScreen(
+          dashboardScope(
             repositories: dashboardTestRepositories(favorites: ['card-issue']),
-            enableAnimations: false,
           ),
         ),
       );

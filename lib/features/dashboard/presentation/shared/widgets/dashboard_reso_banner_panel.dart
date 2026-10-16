@@ -1,3 +1,5 @@
+import '../../home/cubit/home_cubit.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../cubit/dashboard_reso_cubit.dart';
@@ -14,11 +16,9 @@ import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 class DashboardResoBannerPanel extends StatefulWidget {
   const DashboardResoBannerPanel({
     super.key,
-    this.onPromptSubmitted,
     this.focusNode,
     this.enableAnimations = true,
   });
-  final ValueChanged<String>? onPromptSubmitted;
   final FocusNode? focusNode;
   final bool enableAnimations;
 
@@ -109,7 +109,7 @@ class _DashboardResoBannerPanelState extends State<DashboardResoBannerPanel>
 
   void _submit() {
     final prompt = context.read<DashboardResoCubit>().submitPrompt();
-    if (prompt != null) widget.onPromptSubmitted?.call(prompt);
+    if (prompt != null) context.read<HomeCubit>().submitPrompt(prompt);
   }
 
   @override

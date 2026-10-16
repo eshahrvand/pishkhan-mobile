@@ -17,7 +17,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:pishkhan_mobile/features/dashboard/presentation/home/screens/dashboard_screen.dart';
 import 'package:pishkhan_mobile/features/dashboard/domain/entities/bank_loan.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/loan_actions.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_loan_card.dart';
@@ -351,9 +350,8 @@ void main() {
       await mount(
         tester,
         subject(
-          DashboardScreen(
+          dashboardScope(
             repositories: dashboardTestRepositories(loans: sample),
-            enableAnimations: false,
             onLoanActionRequested: (value) => request = value,
             onLoanDetailsRequested: (value) => details = value,
           ),
@@ -410,9 +408,8 @@ void main() {
       await mount(
         tester,
         subject(
-          DashboardScreen(
+          dashboardScope(
             repositories: defaultDashboardTestRepositories,
-            enableAnimations: false,
             onServiceRequested: ids.add,
           ),
         ),
@@ -440,14 +437,13 @@ void main() {
     },
   );
 
-  testWidgets('supplied menu callback is used', (tester) async {
+  testWidgets('Home menu effect opens the loan catalog', (tester) async {
     var menus = 0;
     await mount(
       tester,
       subject(
-        DashboardScreen(
+        dashboardScope(
           repositories: defaultDashboardTestRepositories,
-          enableAnimations: false,
           onMenuPressed: () => menus++,
         ),
       ),
@@ -461,7 +457,7 @@ void main() {
     );
     await tap(tester, find.byKey(Key('dashboard_menu_button')));
     expect(menus, 1);
-    expect(find.byType(DashboardServicesSheet), findsNothing);
+    expect(find.byType(DashboardServicesSheet), findsOneWidget);
   });
 
   testWidgets(

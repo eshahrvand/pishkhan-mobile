@@ -11,6 +11,9 @@ import 'package:pishkhan_mobile/features/dashboard/domain/repositories/dashboard
 import 'package:pishkhan_mobile/features/dashboard/data/repositories/mock_dashboard_repositories.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/home/cubit/home_cubit.dart';
+import 'package:pishkhan_mobile/features/dashboard/presentation/home/cubit/home_effect.dart';
+import 'package:pishkhan_mobile/features/dashboard/presentation/shared/dashboard_services.dart';
+import 'package:pishkhan_mobile/features/dashboard/presentation/shared/dashboard_tab.dart';
 
 class ControlledHomeRepository implements DashboardHomeRepository {
   final requests = <Completer<Result<DashboardHomeData?>>>[];
@@ -20,6 +23,56 @@ class ControlledHomeRepository implements DashboardHomeRepository {
 }
 
 void main() {
+  test(
+    'blank prompts are ignored and repeated submissions remain observable',
+    () async {
+      final cubit = HomeCubit(repositories: homeRepositories());
+      addTearDown(cubit.close);
+      cubit.submitPrompt('   ');
+      expect(cubit.state.effectId, 0);
+      cubit.submitPrompt('  سوال من  ');
+      expect(cubit.state.submittedPrompt, 'سوال من');
+      expect(cubit.state.effect, const HomePromptSubmitted('سوال من'));
+      final firstId = cubit.state.effectId;
+      cubit.submitPrompt('سوال من');
+      expect(cubit.state.effectId, firstId + 1);
+    },
+  );
+
+  test(
+    'assistant service returns from a banking tab through Home state',
+    () async {
+      final cubit = HomeCubit(repositories: homeRepositories());
+      addTearDown(cubit.close);
+      cubit.selectTab(AppPrimaryTab.deposits);
+      cubit.requestService(DashboardService.assistant);
+      expect(cubit.state.selectedTab, AppPrimaryTab.dashboard);
+      expect(cubit.state.effect, const HomeAssistantRequested());
+    },
+  );
+
+  test(
+    'favorite picker and reset require an active edit transaction',
+    () async {
+      final cubit = HomeCubit(repositories: homeRepositories());
+      addTearDown(cubit.close);
+      cubit.requestFavoritePicker();
+      cubit.requestFavoritesReset();
+      expect(cubit.state.effectId, 0);
+      await cubit.loadHome();
+      cubit.editFavorites();
+      cubit.requestFavoritePicker();
+      expect(cubit.state.effect, const HomeFavoritePickerRequested());
+      cubit.requestFavoritesReset();
+      expect(cubit.state.effect, const HomeFavoritesResetRequested());
+      cubit.cancelFavorites();
+      final lastId = cubit.state.effectId;
+      cubit.requestFavoritePicker();
+      cubit.requestFavoritesReset();
+      expect(cubit.state.effectId, lastId);
+    },
+  );
+
   test(
     'reload clears data, draft and failure and emits the new state shape',
     () async {

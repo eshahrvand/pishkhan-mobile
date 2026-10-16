@@ -17,7 +17,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:pishkhan_mobile/features/dashboard/presentation/home/screens/dashboard_screen.dart';
 import 'package:pishkhan_mobile/features/dashboard/domain/entities/bank_deposit.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/deposit_actions.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_deposit_card.dart';
@@ -328,9 +327,8 @@ void main() {
       await mount(
         tester,
         subject(
-          DashboardScreen(
+          dashboardScope(
             repositories: dashboardTestRepositories(deposits: mixed),
-            enableAnimations: false,
             onDepositActionRequested: (value) => request = value,
           ),
         ),
@@ -368,6 +366,8 @@ void main() {
       expect(request?.deposit.id, 'with');
       await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
       expect(find.byType(DashboardBankServices), findsOneWidget);
       expect(tester.takeException(), isNull);
     },
@@ -381,9 +381,8 @@ void main() {
     await mount(
       tester,
       subject(
-        DashboardScreen(
+        dashboardScope(
           repositories: defaultDashboardTestRepositories,
-          enableAnimations: false,
           onServiceRequested: ids.add,
           onMenuPressed: () => menu++,
         ),
@@ -401,8 +400,12 @@ void main() {
       find.byKey(Key('app_service_grid_icon_deposits-deposit-statement')),
     );
     expect(ids.last, 'deposit-statement');
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
     await tap(tester, find.byKey(Key('dashboard_menu_button')));
     expect(menu, 1);
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
     await tap(tester, find.byType(AppAssistantButton));
     expect(ids.last, 'assistant');
     expect(find.byType(DashboardBankServices), findsOneWidget);

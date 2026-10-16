@@ -106,6 +106,73 @@ class HomeCubit extends Cubit<HomeState> {
     );
   }
 
+  void requestService(DashboardService service) {
+    if (isClosed) return;
+    if (service == DashboardService.assistant) {
+      requestAssistant();
+      return;
+    }
+    emit(
+      state.copyWith(
+        effect: HomeServiceRequested(service.id),
+        effectId: state.effectId + 1,
+      ),
+    );
+  }
+
+  void submitPrompt(String value) {
+    if (isClosed) return;
+    final prompt = value.trim();
+    if (prompt.isEmpty) return;
+    emit(
+      state.copyWith(
+        submittedPrompt: prompt,
+        effect: HomePromptSubmitted(prompt),
+        effectId: state.effectId + 1,
+      ),
+    );
+  }
+
+  void requestProfile() {
+    if (isClosed) return;
+    emit(
+      state.copyWith(
+        effect: const HomeProfileRequested(),
+        effectId: state.effectId + 1,
+      ),
+    );
+  }
+
+  void requestNotifications() {
+    if (isClosed) return;
+    emit(
+      state.copyWith(
+        effect: const HomeNotificationsRequested(),
+        effectId: state.effectId + 1,
+      ),
+    );
+  }
+
+  void requestFavoritePicker() {
+    if (isClosed || state.draft == null || !state.canAddFavorite) return;
+    emit(
+      state.copyWith(
+        effect: const HomeFavoritePickerRequested(),
+        effectId: state.effectId + 1,
+      ),
+    );
+  }
+
+  void requestFavoritesReset() {
+    if (isClosed || state.draft == null || state.homeData == null) return;
+    emit(
+      state.copyWith(
+        effect: const HomeFavoritesResetRequested(),
+        effectId: state.effectId + 1,
+      ),
+    );
+  }
+
   static const maxFavorites = 8;
   LoadDashboardHome _loadHome;
   int _homeRequest = 0;

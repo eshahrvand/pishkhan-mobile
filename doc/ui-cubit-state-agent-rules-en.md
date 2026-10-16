@@ -86,7 +86,7 @@ The Axino example is a style reference; it does not define this project's networ
 
 | Reference pattern | Decision for this project |
 |---|---|
-| `locator.get` inside Cubit | Inject dependencies through the constructor; do not introduce a new service locator |
+| `locator.get` inside Cubit | Inject dependencies through the constructor; resolve registrations in the composition root, not inside Cubits |
 | `S.current` | Approved direct localization access; implementation belongs to a separate task |
 | A shared enum containing `otpSubmitting` and `authLoading` | Independent operations use independent statuses with the existing `RequestStatus` |
 | Two emits for an input and button eligibility | Prefer one emit for a complete, consistent snapshot |
@@ -99,6 +99,13 @@ The Axino example is a style reference; it does not define this project's networ
 | OTP examples using lengths 4, 6 and a `> 4` check | Determine the permitted length from the service contract and use it consistently |
 
 These differences do not change the team's preferred style; they prevent lifecycle and behavioral defects from spreading.
+
+**Owner update, 2026-10-16:** GetIt is explicitly authorized for dependency registration.
+`core/di/injection_container.dart` registers the Home repository interfaces and bundle
+as lazy singletons and HomeCubit as a factory. Startup calls `configureDependencies`
+before `runApp`; the Home route resolves the Cubit and BlocProvider closes it.
+Cubit constructors retain explicit dependencies, and feature widgets read their
+Cubit through Bloc rather than resolving repositories from GetIt.
 
 ## 3. Responsibilities of UI, Cubit and State
 

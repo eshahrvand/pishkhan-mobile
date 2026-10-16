@@ -1,7 +1,8 @@
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import '../../support/auth_ui_finders.dart';
-import '../../dashboard/support/dashboard_test_repositories.dart';
+
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
 
 import 'package:pishkhan_mobile/core/router/app_routes.dart';
 import 'package:avp_ui/avp_ui.dart';
@@ -19,24 +20,29 @@ import 'package:pishkhan_mobile/features/launch/presentation/shared/widgets/rout
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/features/launch/presentation/splash/screens/splash_screen.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/home/screens/dashboard_screen.dart';
+import 'package:pishkhan_mobile/features/dashboard/presentation/home/cubit/home_cubit.dart';
+import 'package:pishkhan_mobile/features/dashboard/presentation/shared/dashboard_tab.dart';
 
-Widget app(GoRouter router) => RepositoryProvider.value(
-  value: defaultDashboardTestRepositories,
-  child: MaterialApp.router(
-    routerConfig: router,
-    theme: AppTheme.light(),
-    locale: const Locale('fa'),
-    supportedLocales: S.delegate.supportedLocales,
-    localizationsDelegates: const [
-      S.delegate,
-      GlobalMaterialLocalizations.delegate,
-      GlobalCupertinoLocalizations.delegate,
-      GlobalWidgetsLocalizations.delegate,
-    ],
+Widget app(GoRouter router) => MaterialApp.router(
+  routerConfig: router,
+  builder: (context, child) => MediaQuery(
+    data: MediaQuery.of(context).copyWith(disableAnimations: true),
+    child: child!,
   ),
+  theme: AppTheme.light(),
+  locale: const Locale('fa'),
+  supportedLocales: S.delegate.supportedLocales,
+  localizationsDelegates: const [
+    S.delegate,
+    GlobalMaterialLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+  ],
 );
 
 void main() {
+  setUp(configureDependencies);
+  tearDown(() => getIt.reset());
   setUpAll(() async {
     final loader = FontLoader(AppTypography.defaultFontFamily);
     loader.addFont(
@@ -126,7 +132,7 @@ void main() {
         final session = RouterSession(authenticated);
         final router = createAppRouter(
           session: session,
-          homeBuilder: (_) => const DashboardScreen(enableAnimations: false),
+          homeBuilder: (_) => const DashboardScreen(),
         );
         addTearDown(() {
           router.dispose();
@@ -235,4 +241,39 @@ void main() {
     expect(router.canPop(), isFalse);
     await tester.pumpWidget(const SizedBox.shrink());
   });
+
+  testWidgets(
+    'Home route disposes its GetIt Cubit and creates fresh state on reentry',
+    (tester) async {
+      final session = RouterSession(true);
+      final router = createAppRouter(
+        session: session,
+        initialLocation: AppRoutes.home,
+      );
+      addTearDown(() {
+        router.dispose();
+        session.dispose();
+      });
+      await tester.pumpWidget(app(router));
+      await tester.pumpAndSettle();
+      final first = tester
+          .element(find.byType(DashboardScreen))
+          .read<HomeCubit>();
+      first.selectTab(AppPrimaryTab.cards);
+      await tester.pumpAndSettle();
+      session.signOut();
+      await tester.pumpAndSettle();
+      expect(first.isClosed, isTrue);
+      session.signIn();
+      router.go(AppRoutes.home);
+      await tester.pumpAndSettle();
+      final second = tester
+          .element(find.byType(DashboardScreen))
+          .read<HomeCubit>();
+      expect(identical(first, second), isFalse);
+      expect(second.state.selectedTab, AppPrimaryTab.dashboard);
+      await tester.pumpWidget(const SizedBox.shrink());
+      expect(second.isClosed, isTrue);
+    },
+  );
 }

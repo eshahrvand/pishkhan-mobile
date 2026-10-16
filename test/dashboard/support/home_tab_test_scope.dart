@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/features/dashboard/presentation/home/screens/dashboard_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -33,6 +34,9 @@ class HomeTabTestScope extends StatefulWidget {
     super.key,
     required this.repositories,
     required this.child,
+    this.onServiceRequested,
+    this.onPromptSubmitted,
+    this.onFavoritesChanged,
     this.onCardAction,
     this.onDepositAction,
     this.onLoanAction,
@@ -47,6 +51,8 @@ class HomeTabTestScope extends StatefulWidget {
     this.onMenuPressed,
     this.onAssistantPressed,
   });
+  final ValueChanged<String>? onServiceRequested, onPromptSubmitted;
+  final ValueChanged<List<String>>? onFavoritesChanged;
   final DashboardRepositories repositories;
   final Widget child;
   final ValueChanged<CardActionRequest>? onCardAction;
@@ -68,7 +74,10 @@ class _HomeTabTestScopeState extends State<HomeTabTestScope> {
   @override
   void initState() {
     super.initState();
-    _cubit = HomeCubit(repositories: widget.repositories)..load();
+    _cubit = HomeCubit(
+      repositories: widget.repositories,
+      initialState: const HomeState.initial(enableAnimations: false),
+    )..load();
   }
 
   @override
@@ -94,10 +103,19 @@ class _HomeTabTestScopeState extends State<HomeTabTestScope> {
           switch (state.effect) {
             case HomeCardActionRequested(:final request):
               widget.onCardAction?.call(request);
+              if (widget.onCardAction == null) {
+                widget.onServiceRequested?.call(request.action.id);
+              }
             case HomeDepositActionRequested(:final request):
               widget.onDepositAction?.call(request);
+              if (widget.onDepositAction == null) {
+                widget.onServiceRequested?.call(request.action.id);
+              }
             case HomeLoanActionRequested(:final request):
               widget.onLoanAction?.call(request);
+              if (widget.onLoanAction == null) {
+                widget.onServiceRequested?.call(request.action.id);
+              }
             case HomeCardMoreRequested(:final card):
               widget.onMore?.call(card);
             case HomeCardSelectionChanged(:final card):
@@ -124,11 +142,28 @@ class _HomeTabTestScopeState extends State<HomeTabTestScope> {
               widget.onMenuPressed?.call();
             case HomeAssistantRequested():
               widget.onAssistantPressed?.call();
+              widget.onServiceRequested?.call('assistant');
+            case HomeServiceRequested(:final serviceId):
+              widget.onServiceRequested?.call(serviceId);
+            case HomePromptSubmitted(:final prompt):
+              widget.onPromptSubmitted?.call(prompt);
+            case HomeProfileRequested():
+            case HomeNotificationsRequested():
+            case HomeFavoritePickerRequested():
+            case HomeFavoritesResetRequested():
             case null:
               break;
           }
         },
-        child: widget.child,
+        child: BlocListener<HomeCubit, HomeState>(
+          listenWhen: (previous, current) =>
+              previous.homeData != null &&
+              current.homeData != null &&
+              previous.homeData!.favorites != current.homeData!.favorites,
+          listener: (context, state) =>
+              widget.onFavoritesChanged?.call(state.homeData!.favorites),
+          child: widget.child,
+        ),
       ),
     );
   }
@@ -207,4 +242,35 @@ Widget loanScope({
   onMenuPressed: onMenuPressed,
   onAssistantPressed: onAssistantPressed,
   child: const LoansTab(),
+);
+
+Widget dashboardScope({
+  DashboardRepositories repositories = defaultDashboardTestRepositories,
+  ValueChanged<String>? onServiceRequested,
+  ValueChanged<String>? onPromptSubmitted,
+  ValueChanged<List<String>>? onFavoritesChanged,
+  ValueChanged<CardActionRequest>? onCardActionRequested,
+  ValueChanged<BankCard>? onCardMorePressed,
+  ValueChanged<DepositActionRequest>? onDepositActionRequested,
+  ValueChanged<BankDeposit>? onSelectedDepositChanged,
+  ValueChanged<LoanActionRequest>? onLoanActionRequested,
+  ValueChanged<BankLoan>? onSelectedLoanChanged,
+  ValueChanged<BankLoan>? onLoanDetailsRequested,
+  VoidCallback? onMenuPressed,
+}) => HomeTabTestScope(
+  repositories: repositories,
+  onServiceRequested: onServiceRequested,
+  onPromptSubmitted: onPromptSubmitted,
+  onFavoritesChanged: onFavoritesChanged,
+  onCardAction: onCardActionRequested,
+  onMore: onCardMorePressed,
+  onDepositAction: onDepositActionRequested,
+  onDepositSelected: onSelectedDepositChanged,
+  onLoanAction: onLoanActionRequested,
+  onLoanSelected: onSelectedLoanChanged,
+  onDetails: onLoanDetailsRequested,
+  onMenuPressed: onMenuPressed,
+  onCopyNumber: (_) {},
+  onCopyIban: (_) {},
+  child: const DashboardScreen(),
 );

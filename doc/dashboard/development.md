@@ -241,25 +241,16 @@ Recommended new adapter paths are `lib/features/dashboard/data/datasources/`, `d
 
 ### 8.1 Current flow contract
 
-DashboardScreen exposes:
-- `initialFavorites` and `onFavoritesChanged(List<String>)`.
-- `onServiceRequested(String)` and `onPromptSubmitted(String)`.
-- `onMenuPressed`, `onProfilePressed`.
-- `cards`, `onCardActionRequested(CardActionRequest)`, `onCardMorePressed(BankCard)`.
-- `deposits`, `onDepositActionRequested(DepositActionRequest)`, `onSelectedDepositChanged(BankDeposit)`.
-- `loans`, `onLoanActionRequested(LoanActionRequest)`, `onSelectedLoanChanged(BankLoan)` and `onLoanDetailsRequested(BankLoan)`.
-- `enableAnimations`, default true.
-- Optional `repositories: DashboardRepositories`; when supplied this bundle replaces default mock construction and seed arguments.
-
-CardsTab, DepositsTab and LoansTab each require a typed domain repository; they no longer accept raw item-list arguments. Mock repository constructors accept those lists for previews/tests.
-
-DepositsTab additionally exposes `onCopyNumber`, `onCopyIban`, `onTabSelected`, `onMenuPressed` and `onAssistantPressed`. The dashboard leaves copy callbacks unset so the existing platform clipboard fallback runs.
-
-LoansTab additionally exposes onCopyNumber, onDetailsRequested, onTabSelected, onMenuPressed and onAssistantPressed. Every LoanActionRequest contains action and selected BankLoan. The dashboard invokes onLoanActionRequested when provided; otherwise onServiceRequested(action.id), which loses loan context. The summary arrow invokes onDetailsRequested for the card containing that arrow, wired to onLoanDetailsRequested in the dashboard. No unspecified detail screen is invented.
-
-For a deposit action the dedicated callback receives both action and selected deposit. If it is absent, the dashboard falls back to `onServiceRequested(request.action.id)`, which loses deposit context. Production integration should provide the dedicated callback for deposit-scoped operations.
-
-A null callback produces no bank execution. Selection events are fired on PageView page changes, not on initial construction or programmatic data replacement. Clients can derive initial selection from the first supplied item.
+DashboardScreen, DashboardHomePanel, CardsTab, DepositsTab and LoansTab expose only `super.key`.
+The Home route resolves HomeCubit from the GetIt factory registered at startup.
+The factory injects the registered DashboardRepositories bundle through the constructor.
+All four tabs render HomeState and send interactions to HomeCubit actions.
+Services, prompt submissions, profile/notifications, menu, favorite dialogs, copy and
+typed banking operations are represented by HomeEffect values. UI listeners execute
+navigation, sheets, focus and clipboard; no host callback is passed through the dashboard.
+Favorite changes and selected banking records live in HomeState. There is no live favorite
+persistence, assistant backend, profile destination or loan-detail destination yet.
+Animation preference is a HomeState field; platform reduced-motion is also respected.
 
 ### 8.2 Deposit-dependent features
 
@@ -653,7 +644,7 @@ Titles, descriptions (once supported), known icon choices or approved remote art
 
 The migration already supplies an asynchronous interface per surface in `domain/repositories/dashboard_repositories.dart`: getHome returns Result<DashboardHomeData?>; getCards/getDeposits/getLoans return Result<List<BankCard/BankDeposit/BankLoan>>. Mock constructors can seed one item, many or an empty list. A bank request failure must return Err, not Success([]).
 
-Implement the corresponding interfaces under `data/repositories/`, backed by a transport datasource and validated DTO mapper under Dashboard data. Supply those four objects through `DashboardScreen(repositories: DashboardRepositories(...))`. Supplied repositories take precedence over cards/deposits/loans/initialFavorites seed arguments; those seeds remain convenience inputs for demo/default mock composition. Tab constructors require their own typed repository. Cubit constructors and view builds do not change when the implementation changes.
+Implement the corresponding interfaces under `data/repositories/`, backed by a transport datasource and validated DTO mapper under Dashboard data. Replace their registrations in `core/di/injection_container.dart`. GetIt creates the repository bundle and injects it through the HomeCubit factory. All dashboard tab constructors are parameterless except for super.key. View builds do not change when the implementation changes.
 
 | Service integration task | Changes required | Changes not required |
 | --- | --- | --- |
@@ -686,10 +677,17 @@ Cards, Deposits, Loans and DashboardNavigation Cubit/State pairs are removed.
 This section supersedes earlier state-family and directory snapshots elsewhere
 in this document. There are no nested tab State objects or compatibility Cubits.
 
-`DashboardScreen` owns one `BlocProvider<HomeCubit>`. Its composition boundary
-injects `DashboardRepositories`; the Cubit invokes the loading use cases and
-manages data. CardsTab, DepositsTab and LoansTab have only `super.key` and resolve
-the shared scope. They accept no Repository or host callback parameters.
+`AppRoutes.home` owns one `BlocProvider<HomeCubit>` and resolves `getIt<HomeCubit>()`.
+The factory injects the registered `DashboardRepositories`; the Cubit invokes the loading use cases and manages data.
+DashboardScreen, DashboardHomePanel and all three banking tabs have only `super.key`
+and resolve the shared scope. They accept no repository or host callback parameters.
+
+`main()` calls `configureDependencies()` before `runApp`. The four Home repository
+interfaces and their bundle are lazy singletons. HomeCubit is a factory registration:
+each Home route lifetime receives independent State and BlocProvider owns disposal.
+GetIt calls stay in dependency composition and routing, outside Cubit actions and
+feature widget builds. Other feature dependency wiring is unchanged by this Home task.
+Tests can configure an isolated `GetIt.asNewInstance()` and reset it after use.
 
 ### 12.2 Flat State and independent request lifecycles
 
@@ -730,8 +728,10 @@ owned by UI lifecycle objects; they are not State fields.
 `HomeEffect` values describe typed operation requests, selection notifications,
 copy, details, menu, assistant and tab changes. `effectId` identifies repeated
 identical interactions. The dashboard's single listener executes navigation,
-clipboard and host callbacks. Cubit holds no BuildContext, controllers or UI
-callback fields. Existing host overrides keep precedence over service routing.
+clipboard and sheets. HomePanel listens for focus effects. Cubit holds no
+BuildContext, controllers or UI callback fields. Services use the existing registry
+and retain the selected card/deposit context. Unsupported destinations retain their
+previous behavior; prompt text is stored in State without inventing an assistant backend.
 
 The reusable service picker and animated prompt retain their own component
 lifetimes under `presentation/shared`; they do not own any of the four tab

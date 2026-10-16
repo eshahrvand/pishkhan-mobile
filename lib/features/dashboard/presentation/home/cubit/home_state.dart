@@ -4,6 +4,8 @@ part of 'home_cubit.dart';
 abstract class HomeState with _$HomeState {
   const factory HomeState.initial({
     @Default(AppPrimaryTab.dashboard) AppPrimaryTab selectedTab,
+    @Default(true) bool enableAnimations,
+    String? submittedPrompt,
     @Default(<String>[]) List<String> activeFavorites,
     @Default(<DashboardService>[]) List<DashboardService> favoriteServices,
     @Default(<DashboardService>[]) List<DashboardService> fixedServices,

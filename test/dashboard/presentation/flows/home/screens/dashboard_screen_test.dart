@@ -1,3 +1,4 @@
+import '../../../../support/home_tab_test_scope.dart';
 import '../../../../support/dashboard_ui_finders.dart';
 
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -9,7 +10,6 @@ import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:pishkhan_mobile/features/dashboard/presentation/home/screens/dashboard_screen.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_wallet_card.dart';
 
 void main() {
@@ -45,9 +45,8 @@ void main() {
           .copyWith(textScaler: TextScaler.linear(textScale)),
       child: child!,
     ),
-    home: DashboardScreen(
+    home: dashboardScope(
       repositories: dashboardTestRepositories(favorites: favorites),
-      enableAnimations: false,
       onFavoritesChanged: onChanged,
       onServiceRequested: onService,
       onPromptSubmitted: onPrompt,
@@ -305,7 +304,7 @@ void main() {
     },
   );
 
-  testWidgets('fixed services and the assistant prompt deliver callbacks', (
+  testWidgets('fixed services and the assistant prompt emit Home effects', (
     tester,
   ) async {
     String? service;
@@ -319,6 +318,8 @@ void main() {
     );
     await tap(tester, find.byKey(Key('app_service_grid_icon_card-password')));
     expect(service, 'card-password');
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
     await tester.enterText(
       find.descendant(
         of: find.byType(AppTextField),

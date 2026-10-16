@@ -7,11 +7,9 @@ import 'dashboard_reso_banner_panel.dart';
 class DashboardResoBanner extends StatelessWidget {
   const DashboardResoBanner({
     super.key,
-    this.onPromptSubmitted,
     this.focusNode,
     this.enableAnimations = true,
   });
-  final ValueChanged<String>? onPromptSubmitted;
   final FocusNode? focusNode;
   final bool enableAnimations;
   @override
@@ -19,7 +17,6 @@ class DashboardResoBanner extends StatelessWidget {
     return BlocProvider(
       create: (context) => DashboardResoCubit(),
       child: DashboardResoBannerPanel(
-        onPromptSubmitted: onPromptSubmitted,
         focusNode: focusNode,
         enableAnimations: enableAnimations,
       ),

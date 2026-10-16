@@ -1,3 +1,4 @@
+import '../../../../../dashboard/support/home_tab_test_scope.dart';
 import '../../../../../dashboard/support/dashboard_ui_finders.dart';
 
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -22,7 +23,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pishkhan_mobile/features/cards/cards.dart';
 import 'package:pishkhan_mobile/features/cards/data/repositories/mock_cards_repository.dart';
-import 'package:pishkhan_mobile/features/dashboard/presentation/home/screens/dashboard_screen.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_cards_list.dart';
 
 const boundary = Key('cards_flow_preview');
@@ -249,12 +249,7 @@ void main() {
     (tester) async {
       await mount(
         tester,
-        subject(
-          const DashboardScreen(
-            repositories: defaultDashboardTestRepositories,
-            enableAnimations: false,
-          ),
-        ),
+        subject(dashboardScope(repositories: defaultDashboardTestRepositories)),
       );
       await tap(tester, find.byKey(const Key('dashboard_menu_button')).first);
       await tap(tester, find.text('لیست کارت‌ها').last);

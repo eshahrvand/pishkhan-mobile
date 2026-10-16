@@ -8,6 +8,8 @@
 
 ## فهرست گزارش‌ها
 
+- [ثبت وابستگی‌های Home در GetIt — ۲۰۲۶/۱۰/۱۶](2026-10-16-get-it-home-registration.md)
+- [حذف ورودی‌های DashboardScreen — ۲۰۲۶/۱۰/۱۶](2026-10-16-dashboard-screen-scope.md)
 - [یکپارچه‌سازی چهار تب در HomeCubit/HomeState — ۲۰۲۶/۱۰/۱۶](2026-10-16-unified-home-cubit.md)
 - [حذف ورودی‌های CardsTab — ۲۰۲۶/۱۰/۱۶](2026-10-16-cards-tab-scope.md)
 - [انتقال منطق Home به Cubit — ۲۰۲۶/۱۰/۱۶](2026-10-16-home-cubit-ownership.md)

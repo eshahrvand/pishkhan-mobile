@@ -16,7 +16,6 @@ import 'package:pishkhan_mobile/core/result/result.dart';
 import 'package:pishkhan_mobile/features/dashboard/domain/entities/bank_loan.dart';
 import 'package:pishkhan_mobile/features/dashboard/domain/entities/dashboard_home_data.dart';
 import 'package:pishkhan_mobile/features/dashboard/domain/repositories/dashboard_repositories.dart';
-import 'package:pishkhan_mobile/features/dashboard/presentation/home/screens/dashboard_screen.dart';
 import 'package:pishkhan_mobile/features/dashboard/data/datasources/dashboard_mock_data.dart';
 
 import '../../../../support/dashboard_test_repositories.dart';
@@ -123,8 +122,7 @@ void main() {
       ..home = const Err(DataFailure('offline'));
     await tester.pumpWidget(
       subject(
-        DashboardScreen(
-          enableAnimations: false,
+        dashboardScope(
           repositories: DashboardRepositories(
             home: repository,
             cards: repository,

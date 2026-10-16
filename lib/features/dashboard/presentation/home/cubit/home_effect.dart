@@ -130,3 +130,33 @@ final class HomeLoanNumberCopyRequested extends HomeEffect {
   @override
   List<Object?> get props => [number];
 }
+
+final class HomeServiceRequested extends HomeEffect {
+  const HomeServiceRequested(this.serviceId);
+  final String serviceId;
+  @override
+  List<Object?> get props => [serviceId];
+}
+
+final class HomePromptSubmitted extends HomeEffect {
+  const HomePromptSubmitted(this.prompt);
+  final String prompt;
+  @override
+  List<Object?> get props => [prompt];
+}
+
+final class HomeProfileRequested extends HomeEffect {
+  const HomeProfileRequested();
+}
+
+final class HomeNotificationsRequested extends HomeEffect {
+  const HomeNotificationsRequested();
+}
+
+final class HomeFavoritePickerRequested extends HomeEffect {
+  const HomeFavoritePickerRequested();
+}
+
+final class HomeFavoritesResetRequested extends HomeEffect {
+  const HomeFavoritesResetRequested();
+}
