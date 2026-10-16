@@ -11,8 +11,6 @@ import 'package:pishkhan_mobile/features/dashboard/presentation/shared/dashboard
 import 'package:pishkhan_mobile/features/dashboard/presentation/home/screens/dashboard_all_services_screen.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/login/screens/auth_screen.dart';
 import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
-import 'package:pishkhan_mobile/features/cards/domain/repositories/password_services_repository.dart';
-import 'package:pishkhan_mobile/features/cards/data/repositories/mock_password_repository.dart';
 import 'package:pishkhan_mobile/features/cards/presentation/password_services/screens/second_password_screen.dart';
 import 'package:pishkhan_mobile/features/cards/domain/entities/listed_card.dart';
 import 'package:pishkhan_mobile/features/cards/presentation/card_features/screens/card_features_screen.dart';
@@ -38,8 +36,6 @@ GoRouter createAppRouter({
   WidgetBuilder? homeBuilder,
   String initialLocation = AppRoutes.splash,
 }) {
-  // Retain mock receipts for this router's lifetime, never PINs or identity serials.
-  final passwordRepository = MockPasswordServicesRepository();
   return GoRouter(
     initialLocation: initialLocation,
     refreshListenable: session,
@@ -97,7 +93,6 @@ GoRouter createAppRouter({
               ? state.extra as PasswordRouteArguments
               : null;
           return SecondPasswordScreen(
-            repository: args?.repository ?? passwordRepository,
             initialCardNumber: args?.initialCardNumber,
             selectOperation: args?.selectOperation ?? false,
           );
@@ -232,11 +227,9 @@ class PasswordRouteArguments {
   const PasswordRouteArguments({
     this.initialCardNumber,
     this.selectOperation = false,
-    this.repository,
   });
   final String? initialCardNumber;
   final bool selectOperation;
-  final PasswordServicesRepository? repository;
 }
 
 class CardRouteArguments {

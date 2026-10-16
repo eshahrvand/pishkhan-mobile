@@ -2,6 +2,7 @@ import '../widgets/issuance_footer.dart';
 import '../widgets/issuance_content.dart';
 
 import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
@@ -12,22 +13,18 @@ import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_delete_address_sheet.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
 
-import '../../../data/repositories/mock_card_issuance_repository.dart';
 import '../../../domain/entities/issuance_data.dart';
-import '../../../domain/repositories/card_issuance_repository.dart';
 import '../cubit/card_issuance_cubit.dart';
 import '../widgets/issuance_sections.dart';
 
 class CardIssuanceScreen extends StatefulWidget {
   const CardIssuanceScreen({
     super.key,
-    this.repository,
     this.initialDepositNumber,
     this.onAssistantPressed,
     this.onTermsRequested,
     this.onCompleted,
   });
-  final CardIssuanceRepository? repository;
   final String? initialDepositNumber;
   final VoidCallback? onAssistantPressed, onTermsRequested;
   final ValueChanged<IssuanceReceipt>? onCompleted;
@@ -36,33 +33,9 @@ class CardIssuanceScreen extends StatefulWidget {
 }
 
 class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
-  // This State owns the Cubit; input changes restart the flow without widget keys.
-  late CardIssuanceCubit _cubit;
-  CardIssuanceCubit _createCubit() => CardIssuanceCubit(
-    repository: widget.repository ?? MockCardIssuanceRepository(),
-    initialDepositNumber: widget.initialDepositNumber,
-  )..load();
-
-  @override
-  void didUpdateWidget(covariant CardIssuanceScreen oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.repository != widget.repository ||
-        oldWidget.initialDepositNumber != widget.initialDepositNumber) {
-      _cubit.close();
-      _cubit = _createCubit();
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _cubit = _createCubit();
-  }
-
   final scroll = ScrollController();
   @override
   void dispose() {
-    _cubit.close();
     scroll.dispose();
     super.dispose();
   }
@@ -113,8 +86,9 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<CardIssuanceCubit>.value(
-      value: _cubit,
+    return BlocProvider<CardIssuanceCubit>(
+      create: (_) =>
+          getIt<CardIssuanceCubit>(param1: widget.initialDepositNumber)..load(),
       child: Directionality(
         textDirection: TextDirection.rtl,
         child: BlocConsumer<CardIssuanceCubit, CardIssuanceState>(

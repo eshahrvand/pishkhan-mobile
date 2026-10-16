@@ -23,8 +23,13 @@ import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_invoice.dart';
 
 import '../cubit/virtual_card_cubit_test.dart' show TestVirtualRepository;
+import '../../../../support/card_dependency_overrides.dart';
+
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
 
 void main() {
+  setUp(configureDependencies);
+  tearDown(() => getIt.reset());
   setUpAll(() async {
     final loader = FontLoader(AppTypography.defaultFontFamily);
     for (final face in ['Regular', 'Medium', 'DemiBold', 'Bold']) {
@@ -68,19 +73,14 @@ void main() {
     Locale locale = const Locale('fa'),
     double scale = 1,
   }) async {
+    await useVirtualCardRepository(repository ?? TestVirtualRepository());
     t.view.physicalSize = size;
     t.view.devicePixelRatio = 1;
     t.view.padding = const FakeViewPadding(top: 24, bottom: 40);
     t.view.viewPadding = const FakeViewPadding(top: 24, bottom: 40);
     addTearDown(t.view.reset);
     await t.pumpWidget(
-      subject(
-        VirtualCardRequestScreen(
-          repository: repository ?? TestVirtualRepository(),
-        ),
-        locale: locale,
-        scale: scale,
-      ),
+      subject(const VirtualCardRequestScreen(), locale: locale, scale: scale),
     );
     await t.pumpAndSettle();
   }
@@ -258,22 +258,23 @@ void main() {
     },
   );
   testWidgets(
-    'virtual request replaces its scope and clears the count without keys',
+    'virtual request resets its scope on entry change and clears the count without keys',
     (t) async {
       final repository = TestVirtualRepository();
       await mount(t, repository: repository);
       final first = cubit(t);
       await fill(t);
-      await t.pumpWidget(
-        subject(VirtualCardRequestScreen(repository: repository)),
-      );
+      await t.pumpWidget(subject(const VirtualCardRequestScreen()));
       await t.pumpAndSettle();
       expect(identical(cubit(t), first), isTrue);
+      await t.pumpWidget(subject(const SizedBox.shrink()));
+      expect(first.isClosed, isTrue);
       await t.pumpWidget(
-        subject(VirtualCardRequestScreen(repository: TestVirtualRepository())),
+        subject(
+          const VirtualCardRequestScreen(initialDepositNumber: '10.1234567.1'),
+        ),
       );
       await t.pumpAndSettle();
-      expect(first.isClosed, isTrue);
       final second = cubit(t);
       expect(second.state.countText, isEmpty);
       expect(

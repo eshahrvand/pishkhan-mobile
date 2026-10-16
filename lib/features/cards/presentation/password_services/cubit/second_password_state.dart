@@ -28,6 +28,7 @@ abstract class SecondPasswordState with _$SecondPasswordState {
     @Default(RequestStatus.initial) RequestStatus submissionStatus,
     @Default(SecondPasswordStep.selection) SecondPasswordStep step,
     PasswordCatalog? catalog,
+    @Default(<PasswordCard>[]) List<PasswordCard> cardsForSelectedKind,
     @Default(PasswordOperation.setSecondPassword) PasswordOperation? operation,
     PasswordCardKind? kind,
     String? cardId,

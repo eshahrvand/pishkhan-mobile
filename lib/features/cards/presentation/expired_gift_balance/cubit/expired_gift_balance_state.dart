@@ -18,6 +18,8 @@ abstract class ExpiredGiftBalanceState with _$ExpiredGiftBalanceState {
     @Default(0) int totalRial,
     @Default(false) bool allVisibleSelected,
     CardServiceDeposit? destination,
+    @Default(<String, CardServiceDeposit>{})
+    Map<String, CardServiceDeposit> depositsByGiftId,
     @Default(false) bool canContinue,
     @Default(false) bool canSubmit,
     @Default(<String>{}) Set<String> selectedIds,

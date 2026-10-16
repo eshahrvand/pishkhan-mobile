@@ -13,9 +13,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
-import 'package:pishkhan_mobile/features/cards/data/repositories/mock_password_repository.dart';
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
 import 'package:pishkhan_mobile/features/cards/domain/entities/password_data.dart';
-import 'package:pishkhan_mobile/features/cards/domain/repositories/password_services_repository.dart';
 import 'package:pishkhan_mobile/features/cards/presentation/password_services/cubit/second_password_cubit.dart';
 import 'package:pishkhan_mobile/features/cards/presentation/password_services/password_service_constants.dart';
 import 'package:pishkhan_mobile/features/cards/presentation/password_services/widgets/password_sheets.dart';
@@ -23,7 +22,6 @@ import 'package:pishkhan_mobile/features/cards/presentation/password_services/wi
 class SecondPasswordScreen extends StatefulWidget {
   const SecondPasswordScreen({
     super.key,
-    this.repository,
     this.initialCardNumber,
     this.selectOperation = false,
     this.instructionVideoUrl = demoVideoUrl,
@@ -32,7 +30,6 @@ class SecondPasswordScreen extends StatefulWidget {
     this.videoController,
   });
   static const demoVideoUrl = demoInstructionVideoUrl;
-  final PasswordServicesRepository? repository;
   final bool selectOperation;
   final String? initialCardNumber, instructionVideoUrl;
   final VideoPlayerController? videoController;
@@ -43,20 +40,11 @@ class SecondPasswordScreen extends StatefulWidget {
 }
 
 class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
-  // This State owns the Cubit; input changes restart the flow without widget keys.
-  late SecondPasswordCubit _cubit;
-  SecondPasswordCubit _createCubit() => SecondPasswordCubit(
-    repository: widget.repository ?? MockPasswordServicesRepository(),
-    initialCardNumber: widget.initialCardNumber,
-    selectOperation: widget.selectOperation,
-  )..load();
-
   VideoPlayerController? video;
   bool _sheetOpen = false;
   @override
   void initState() {
     super.initState();
-    _cubit = _createCubit();
     _createVideo();
   }
 
@@ -70,13 +58,6 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
   @override
   void didUpdateWidget(SecondPasswordScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.repository != widget.repository ||
-        oldWidget.initialCardNumber != widget.initialCardNumber ||
-        oldWidget.selectOperation != widget.selectOperation) {
-      _cubit.close();
-      _cubit = _createCubit();
-    }
-
     if (oldWidget.instructionVideoUrl != widget.instructionVideoUrl ||
         oldWidget.videoController != widget.videoController) {
       if (oldWidget.videoController == null) video?.dispose();
@@ -86,7 +67,6 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
 
   @override
   void dispose() {
-    _cubit.close();
     if (widget.videoController == null) video?.dispose();
     super.dispose();
   }
@@ -140,8 +120,10 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<SecondPasswordCubit>.value(
-      value: _cubit,
+    return BlocProvider<SecondPasswordCubit>(
+      create: (_) => getIt<SecondPasswordCubit>(
+        param1: (widget.initialCardNumber, widget.selectOperation),
+      )..load(),
       child: Directionality(
         textDirection: TextDirection.rtl,
         child: BlocListener<SecondPasswordCubit, SecondPasswordState>(

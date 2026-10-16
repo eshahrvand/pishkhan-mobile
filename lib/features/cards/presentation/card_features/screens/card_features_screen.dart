@@ -1,6 +1,7 @@
 import '../widgets/card_features_content.dart';
 
 import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
 import 'package:pishkhan_mobile/core/router/card_features_navigation.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
@@ -10,9 +11,7 @@ import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
 
-import '../../../data/repositories/mock_cards_repository.dart';
 import '../../../domain/entities/listed_card.dart';
-import '../../../domain/repositories/cards_repository.dart';
 import '../widgets/card_feature_actions.dart';
 import '../widgets/card_features_ui.dart';
 import '../cubit/card_features_cubit.dart';
@@ -21,12 +20,10 @@ import '../widgets/card_feature_sheets.dart';
 class CardFeaturesScreen extends StatefulWidget {
   const CardFeaturesScreen({
     super.key,
-    this.repository,
     this.initialCategory = CardCategory.resalat,
     this.onActionRequested,
     this.onAssistantPressed,
   });
-  final CardsRepository? repository;
   final CardCategory initialCategory;
   final ValueChanged<CardFeatureRequest>? onActionRequested;
   final VoidCallback? onAssistantPressed;
@@ -35,19 +32,27 @@ class CardFeaturesScreen extends StatefulWidget {
 }
 
 class _CardFeaturesScreenState extends State<CardFeaturesScreen> {
-  // Retained only to synchronize this screen's existing runtime repository API.
-  // BlocProvider owns and closes the instance; rendering/actions use context.read.
-  CardFeaturesCubit? _repositoryScope;
   final _search = TextEditingController();
   final _chips = ScrollController();
+  bool _initialCategoryRevealScheduled = false;
+
   @override
-  void didUpdateWidget(covariant CardFeaturesScreen oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.repository != widget.repository) {
-      _repositoryScope?.changeRepository(
-        widget.repository ?? MockCardsRepository(),
-      );
-    }
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_initialCategoryRevealScheduled) return;
+    _initialCategoryRevealScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _revealInitialCategory();
+    });
+  }
+
+  Future<void> _revealInitialCategory() async {
+    if (!_chips.hasClients) return;
+    await _chips.animateTo(
+      widget.initialCategory.index >= 3 ? _chips.position.maxScrollExtent : 0,
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeOut,
+    );
   }
 
   @override
@@ -129,18 +134,9 @@ class _CardFeaturesScreenState extends State<CardFeaturesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (providerContext) {
-        final cubit = CardFeaturesCubit(
-          repository: widget.repository ?? MockCardsRepository(),
-          initialCategory: widget.initialCategory,
-        );
-        _repositoryScope = cubit;
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) _revealCategory(cubit);
-        });
-        return cubit..load();
-      },
+    return BlocProvider<CardFeaturesCubit>(
+      create: (_) =>
+          getIt<CardFeaturesCubit>(param1: widget.initialCategory)..load(),
       child: Directionality(
         textDirection: TextDirection.rtl,
         child: BlocBuilder<CardFeaturesCubit, CardFeaturesState>(

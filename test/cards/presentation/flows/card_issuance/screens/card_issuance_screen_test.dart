@@ -23,12 +23,17 @@ import 'package:pishkhan_mobile/shared/widgets/app_address_card.dart';
 
 import '../cubit/card_issuance_cubit_test.dart'
     show ControlledIssuanceRepository;
+import '../../../../support/card_dependency_overrides.dart';
+
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
 
 import 'package:pishkhan_mobile/core/result/result.dart';
 import 'package:pishkhan_mobile/core/result/failure.dart';
 
 const preview = Key('issuance_preview');
 void main() {
+  setUp(configureDependencies);
+  tearDown(() => getIt.reset());
   setUpAll(() async {
     await rootBundle.load('packages/avp_ui/assets/icons/stepper-track.svg');
     await rootBundle.load('packages/avp_ui/assets/icons/stepper-progress.svg');
@@ -70,10 +75,12 @@ void main() {
   Future<void> mount(
     WidgetTester tester,
     Widget screen, {
+    CardIssuanceRepository? repository,
     Size size = const Size(375, 812),
     double scale = 1,
     Locale locale = const Locale('fa'),
   }) async {
+    if (repository != null) await useCardIssuanceRepository(repository);
     tester.view.physicalSize = size;
     tester.view.devicePixelRatio = 1;
     tester.view.padding = const FakeViewPadding(top: 24, bottom: 40);
@@ -95,24 +102,18 @@ void main() {
     'issuance retains its scope on rebuild and resets when entry changes without keys',
     (tester) async {
       final repository = ControlledIssuanceRepository();
-      await mount(tester, CardIssuanceScreen(repository: repository));
+      await mount(tester, const CardIssuanceScreen(), repository: repository);
       final first = controller(tester);
       selection(first);
-      await tester.pumpWidget(
-        subject(CardIssuanceScreen(repository: repository)),
-      );
+      await tester.pumpWidget(subject(const CardIssuanceScreen()));
       await tester.pumpAndSettle();
       expect(identical(controller(tester), first), isTrue);
+      await tester.pumpWidget(subject(const SizedBox.shrink()));
+      expect(first.isClosed, isTrue);
       await tester.pumpWidget(
-        subject(
-          CardIssuanceScreen(
-            repository: repository,
-            initialDepositNumber: '10.1234567.1',
-          ),
-        ),
+        subject(CardIssuanceScreen(initialDepositNumber: '10.1234567.1')),
       );
       await tester.pumpAndSettle();
-      expect(first.isClosed, isTrue);
       final second = controller(tester);
       expect(identical(first, second), isFalse);
       expect(second.state.deposit?.id, 'deposit-1');
@@ -374,7 +375,7 @@ void main() {
   testWidgets('empty and load error states offer retry', (tester) async {
     final repository = ControlledIssuanceRepository()
       ..catalogResult = const Err(DataFailure('offline'));
-    await mount(tester, CardIssuanceScreen(repository: repository));
+    await mount(tester, const CardIssuanceScreen(), repository: repository);
     expect(cardControl(tester, 'issuance_retry'), findsOneWidget);
     repository.catalogResult = Success(
       IssuanceCatalog(

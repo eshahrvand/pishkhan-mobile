@@ -21,10 +21,15 @@ import 'package:pishkhan_mobile/generated/l10n.dart';
 
 import '../../support/router_test_app.dart';
 import 'card_service_cubits_test.dart';
+import '../support/card_dependency_overrides.dart';
+
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
 
 const previewKey = Key('card_service_preview');
 
 void main() {
+  setUp(configureDependencies);
+  tearDown(() => getIt.reset());
   setUpAll(() async {
     final loader = FontLoader(AppTypography.defaultFontFamily);
     for (final face in ['Regular']) {
@@ -39,10 +44,12 @@ void main() {
   Future<void> mount(
     WidgetTester t,
     Widget screen, {
+    CardServicesRepository? repository,
     Size size = const Size(375, 812),
     Locale locale = const Locale('fa'),
     double scale = 1,
   }) async {
+    if (repository != null) await useCardServicesRepository(repository);
     t.view.physicalSize = size;
     t.view.devicePixelRatio = 1;
     t.view.padding = const FakeViewPadding(top: 24, bottom: 40);
@@ -121,7 +128,7 @@ void main() {
     'change deposit follows empty, card selected, and complete forms',
     (t) async {
       final repo = TestCardServicesRepository();
-      await mount(t, ChangeCardDepositScreen(repository: repo));
+      await mount(t, const ChangeCardDepositScreen(), repository: repo);
       expect(find.byType(AppSelect<String>), findsOneWidget);
       expect(
         t.widget<AppButton>(button('تایید و ثبت درخواست')).onPressed,
@@ -168,7 +175,8 @@ void main() {
       final repo = TestCardServicesRepository(catalog: singleAccountCatalog());
       await mount(
         t,
-        ExpiredGiftBalanceScreen(repository: repo),
+        const ExpiredGiftBalanceScreen(),
+        repository: repo,
         size: const Size(375, 956),
       );
       expect(
@@ -267,7 +275,7 @@ void main() {
     t,
   ) async {
     final repo = TestCardServicesRepository()..throwLoad = true;
-    await mount(t, ChangeCardDepositScreen(repository: repo));
+    await mount(t, const ChangeCardDepositScreen(), repository: repo);
     expect(changeCubit(t).state.status, RequestStatus.failure);
     repo.throwLoad = false;
     await t.tap(button('تلاش دوباره'));
@@ -371,19 +379,17 @@ void main() {
     });
   }
   testWidgets(
-    'replacing the injected repository resets the flow and handles empty catalogs',
+    'a fresh route uses its repository binding and handles empty catalogs',
     (t) async {
       final first = TestCardServicesRepository();
-      await mount(t, ChangeCardDepositScreen(repository: first));
+      await mount(t, const ChangeCardDepositScreen(), repository: first);
       final previous = changeCubit(t);
       previous.selectCard('card-1');
+      await mount(t, const SizedBox.shrink());
       await mount(
         t,
-        ChangeCardDepositScreen(
-          repository: TestCardServicesRepository(
-            catalog: singleAccountCatalog(),
-          ),
-        ),
+        const ChangeCardDepositScreen(),
+        repository: TestCardServicesRepository(catalog: singleAccountCatalog()),
       );
       expect(previous.isClosed, isTrue);
       expect(changeCubit(t).state.cardId, isNull);
@@ -428,13 +434,10 @@ void main() {
     'change provider initializes once, retains selection on rebuild, and closes on removal',
     (t) async {
       final repo = TestCardServicesRepository();
-      await mount(t, ChangeCardDepositScreen(repository: repo));
+      await mount(t, const ChangeCardDepositScreen(), repository: repo);
       final cubit = changeCubit(t);
       cubit.selectCard('card-1');
-      await mount(
-        t,
-        ChangeCardDepositScreen(repository: repo, onTermsRequested: () {}),
-      );
+      await mount(t, ChangeCardDepositScreen(onTermsRequested: () {}));
       expect(changeCubit(t), same(cubit));
       expect(repo.loadCalls, 1);
       expect(cubit.state.cardId, 'card-1');
@@ -447,13 +450,10 @@ void main() {
     'gift provider initializes once, retains selection on rebuild, and closes on removal',
     (t) async {
       final repo = TestCardServicesRepository();
-      await mount(t, ExpiredGiftBalanceScreen(repository: repo));
+      await mount(t, const ExpiredGiftBalanceScreen(), repository: repo);
       final cubit = giftCubit(t);
       cubit.toggleCard('gift-0');
-      await mount(
-        t,
-        ExpiredGiftBalanceScreen(repository: repo, onTermsRequested: () {}),
-      );
+      await mount(t, ExpiredGiftBalanceScreen(onTermsRequested: () {}));
       expect(giftCubit(t), same(cubit));
       expect(repo.loadCalls, 1);
       expect(cubit.state.selectedIds, {'gift-0'});

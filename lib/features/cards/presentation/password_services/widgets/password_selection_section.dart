@@ -52,9 +52,7 @@ class PasswordSelectionSection extends StatelessWidget {
           hint: S.current.passwordCardNumberHint,
           value: state.cardId,
           options: [
-            for (final card in state.catalog!.cards.where(
-              (c) => c.kind == (state.kind ?? PasswordCardKind.resalat),
-            ))
+            for (final card in state.cardsForSelectedKind)
               AppSelectOption(value: card.id, label: card.number),
           ],
           change: cubit.selectCard,

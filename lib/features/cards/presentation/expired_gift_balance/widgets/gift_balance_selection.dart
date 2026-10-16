@@ -144,9 +144,7 @@ class GiftBalanceSelection extends StatelessWidget {
                           child: GiftBalanceCardDetails(
                             card: card,
                             deposit: state.hasFilter
-                                ? state.catalog!.deposits
-                                      .where((d) => d.id == card.depositId)
-                                      .first
+                                ? state.depositsByGiftId[card.id]
                                 : null,
                           ),
                         ),

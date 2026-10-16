@@ -276,6 +276,7 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
             SecondPasswordState.initial(
               status: RequestStatus.success,
               catalog: data,
+              cardsForSelectedKind: cardsForKind(data, selected?.kind),
               operation: (selectOperation
                   ? null
                   : PasswordOperation.setSecondPassword),
@@ -342,6 +343,7 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
         SecondPasswordState.initial(
           status: RequestStatus.success,
           catalog: state.catalog,
+          cardsForSelectedKind: cardsForKind(state.catalog, kind),
           operation: (selectOperation
               ? null
               : PasswordOperation.setSecondPassword),
@@ -1197,6 +1199,15 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
     return catalog?.cards
         .where((c) => c.id == cardId && c.kind == kind)
         .firstOrNull;
+  }
+
+  List<PasswordCard> cardsForKind(
+    PasswordCatalog? catalog,
+    PasswordCardKind? kind,
+  ) {
+    final selectedKind = kind ?? PasswordCardKind.resalat;
+    return catalog?.cards.where((card) => card.kind == selectedKind).toList() ??
+        <PasswordCard>[];
   }
 
   bool checkEditable(

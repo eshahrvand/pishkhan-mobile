@@ -26,8 +26,13 @@ import 'package:pishkhan_mobile/shared/widgets/app_invoice.dart';
 
 import '../cubit/second_password_cubit_test.dart'
     show ControlledPasswordRepository, select, readyToSubmit;
+import '../../../../support/card_dependency_overrides.dart';
+
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
 
 void main() {
+  setUp(configureDependencies);
+  tearDown(() => getIt.reset());
   setUpAll(() async {
     final loader = FontLoader(AppTypography.defaultFontFamily);
     for (final face in ['Regular', 'Medium', 'DemiBold', 'Bold']) {
@@ -76,6 +81,7 @@ void main() {
     double scale = 1,
     Locale locale = const Locale('fa'),
   }) async {
+    if (repository != null) await usePasswordRepository(repository);
     t.view.physicalSize = size;
     t.view.devicePixelRatio = 1;
     t.view.padding = const FakeViewPadding(top: 24, bottom: 40);
@@ -83,10 +89,7 @@ void main() {
     addTearDown(t.view.reset);
     await t.pumpWidget(
       subject(
-        SecondPasswordScreen(
-          repository: repository,
-          selectOperation: selectOperation,
-        ),
+        SecondPasswordScreen(selectOperation: selectOperation),
         scale: scale,
         locale: locale,
       ),
@@ -115,16 +118,15 @@ void main() {
       await mount(t, repository: repository);
       final first = c(t);
       select(first);
-      await t.pumpWidget(subject(SecondPasswordScreen(repository: repository)));
+      await t.pumpWidget(subject(const SecondPasswordScreen()));
       await t.pumpAndSettle();
       expect(identical(c(t), first), isTrue);
+      await t.pumpWidget(subject(const SizedBox.shrink()));
+      expect(first.isClosed, isTrue);
       await t.pumpWidget(
-        subject(
-          SecondPasswordScreen(repository: repository, selectOperation: true),
-        ),
+        subject(const SecondPasswordScreen(selectOperation: true)),
       );
       await t.pumpAndSettle();
-      expect(first.isClosed, isTrue);
       final second = c(t);
       expect(identical(first, second), isFalse);
       expect(second.isClosed, isFalse);
@@ -542,10 +544,7 @@ void main() {
               label: 'Check',
               onPressed: () => context.push<void>(
                 AppRoutes.cardPasswords,
-                extra: PasswordRouteArguments(
-                  repository: r,
-                  selectOperation: true,
-                ),
+                extra: PasswordRouteArguments(selectOperation: true),
               ),
             ),
           ),

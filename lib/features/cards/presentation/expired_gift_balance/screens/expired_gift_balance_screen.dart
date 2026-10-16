@@ -3,13 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
 
-import '../../../data/repositories/mock_card_services_repository.dart';
 import '../../../domain/entities/card_service_data.dart';
-import '../../../domain/repositories/card_services_repository.dart';
 import '../../shared/card_service_widgets.dart';
 import '../cubit/expired_gift_balance_cubit.dart';
 import '../widgets/gift_balance_selection.dart';
@@ -19,12 +18,10 @@ import '../widgets/gift_balance_sheets.dart';
 class ExpiredGiftBalanceScreen extends StatefulWidget {
   const ExpiredGiftBalanceScreen({
     super.key,
-    this.repository,
     this.onTermsRequested,
     this.onCompleted,
   });
 
-  final CardServicesRepository? repository;
   final VoidCallback? onTermsRequested;
   final ValueChanged<CardServiceReceipt>? onCompleted;
 
@@ -34,38 +31,10 @@ class ExpiredGiftBalanceScreen extends StatefulWidget {
 }
 
 class _ExpiredGiftBalanceScreenState extends State<ExpiredGiftBalanceScreen> {
-  // This State owns the Cubit; input changes restart the flow without widget keys.
-  late ExpiredGiftBalanceCubit _cubit;
-  ExpiredGiftBalanceCubit _createCubit() => ExpiredGiftBalanceCubit(
-    initialState: const ExpiredGiftBalanceState.initial(),
-    repository: widget.repository ?? MockCardServicesRepository(),
-  )..load();
-
-  @override
-  void dispose() {
-    _cubit.close();
-    super.dispose();
-  }
-
-  @override
-  void didUpdateWidget(covariant ExpiredGiftBalanceScreen oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.repository != widget.repository) {
-      _cubit.close();
-      _cubit = _createCubit();
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _cubit = _createCubit();
-  }
-
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<ExpiredGiftBalanceCubit>.value(
-      value: _cubit,
+    return BlocProvider<ExpiredGiftBalanceCubit>(
+      create: (_) => getIt<ExpiredGiftBalanceCubit>()..load(),
       child: Directionality(
         textDirection: TextDirection.rtl,
         child: BlocConsumer<ExpiredGiftBalanceCubit, ExpiredGiftBalanceState>(

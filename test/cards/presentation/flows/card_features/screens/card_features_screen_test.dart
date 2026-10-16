@@ -13,6 +13,9 @@ import 'package:pishkhan_mobile/core/result/result.dart';
 import 'package:pishkhan_mobile/core/result/failure.dart';
 
 import '../support/test_cards_repository.dart';
+import '../../../../support/card_dependency_overrides.dart';
+
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
 
 import 'dart:io';
 import 'dart:ui' as ui;
@@ -54,8 +57,10 @@ Widget subject(Widget home, {double scale = 1}) => RepaintBoundary(
 Future<void> mount(
   WidgetTester tester,
   Widget home, {
+  CardsRepository? repository,
   double height = 812,
 }) async {
+  if (repository != null) await useCardsRepository(repository);
   tester.view.physicalSize = Size(375, height);
   tester.view.devicePixelRatio = 1;
   tester.view.viewPadding = const FakeViewPadding(top: 24, bottom: 40);
@@ -90,6 +95,8 @@ Future<void> preview(WidgetTester tester, String name) async {
 }
 
 void main() {
+  setUp(configureDependencies);
+  tearDown(() => getIt.reset());
   setUpAll(() async {
     final loader = FontLoader(AppTypography.defaultFontFamily);
     for (final weight in ['Regular', 'Medium', 'DemiBold', 'Bold']) {
@@ -261,9 +268,8 @@ void main() {
   ) async {
     await mount(
       tester,
-      subject(
-        CardFeaturesScreen(repository: MockCardsRepository(cards: const [])),
-      ),
+      subject(const CardFeaturesScreen()),
+      repository: MockCardsRepository(cards: const []),
     );
     expect(find.byType(AppCardsList), findsNothing);
     expect(find.text('هنوز کارتی ندارید'), findsOneWidget);
@@ -290,12 +296,13 @@ void main() {
     expect(tester.takeException(), isNull);
   });
   testWidgets(
-    'loading/error/retry and repository replacement have usable states',
+    'loading/error/retry and a fresh repository scope have usable states',
     (tester) async {
       final repo = FakeCardsRepository();
       final pending = Completer<Result<List<ListedCard>>>();
       repo.queue.add(pending);
-      await tester.pumpWidget(subject(CardFeaturesScreen(repository: repo)));
+      await useCardsRepository(repo);
+      await tester.pumpWidget(subject(const CardFeaturesScreen()));
       await tester.pump();
       expect(
         tester.widget<AppButton>(find.byType(AppButton).last).isLoading,
@@ -306,11 +313,9 @@ void main() {
       expect(cardControl(tester, 'card_features_retry'), findsOneWidget);
       await tap(tester, cardControl(tester, 'card_features_retry'));
       expect(find.byType(AppCardsList), findsNWidgets(4));
-      await tester.pumpWidget(
-        subject(
-          CardFeaturesScreen(repository: MockCardsRepository(cards: const [])),
-        ),
-      );
+      await useCardsRepository(MockCardsRepository(cards: const []));
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pumpWidget(subject(const CardFeaturesScreen()));
       await tester.pumpAndSettle();
       expect(find.byType(AppCardsList), findsNothing);
       expect(find.text('هنوز کارتی ندارید'), findsOneWidget);

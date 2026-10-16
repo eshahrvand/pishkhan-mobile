@@ -146,6 +146,7 @@ class ExpiredGiftBalanceCubit extends Cubit<ExpiredGiftBalanceState> {
             ExpiredGiftBalanceState.initial(
               status: RequestStatus.success,
               catalog: data,
+              depositsByGiftId: depositsByGift(data),
               isEmpty:
                   (data).gifts.isEmpty == true ||
                   (data).deposits.isEmpty == true,
@@ -594,6 +595,16 @@ class ExpiredGiftBalanceCubit extends Cubit<ExpiredGiftBalanceState> {
   ) {
     return catalog?.gifts.where((c) => selectedIds.contains(c.id)).toList() ??
         <ExpiredGiftCard>[];
+  }
+
+  Map<String, CardServiceDeposit> depositsByGift(
+    CardServiceCatalog catalog,
+  ) {
+    final depositsById = {for (final deposit in catalog.deposits) deposit.id: deposit};
+    return {
+      for (final gift in catalog.gifts)
+        gift.id: ?depositsById[gift.depositId],
+    };
   }
 
   CardServiceDeposit? getDestination(
