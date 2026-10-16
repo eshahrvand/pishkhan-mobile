@@ -8,6 +8,7 @@
 
 ## فهرست گزارش‌ها
 
+- [بررسی و ساده‌سازی Stackهای فیچرهای کارت — ۲۰۲۶/۱۰/۱۶](2026-10-16-cards-stack-layout-review.md)
 - [حذف keyهای دستی از فیچرهای کارت — ۲۰۲۶/۱۰/۱۶](2026-10-16-cards-without-manual-keys.md)
 - [ثبت وابستگی‌های Home در GetIt — ۲۰۲۶/۱۰/۱۶](2026-10-16-get-it-home-registration.md)
 - [حذف ورودی‌های DashboardScreen — ۲۰۲۶/۱۰/۱۶](2026-10-16-dashboard-screen-scope.md)

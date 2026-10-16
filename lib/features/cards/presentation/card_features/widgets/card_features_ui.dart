@@ -57,16 +57,9 @@ Widget cardCategoryIcon(CardCategory category) {
   if (category == CardCategory.virtual) {
     return SizedBox.square(
       dimension: 20,
-      child: Stack(
-        children: [
-          Positioned(
-            left: 1.667,
-            top: 3.334,
-            width: 16.284,
-            height: 12.95,
-            child: AvpImage(image: asset),
-          ),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(1.667, 3.334, 2.049, 3.716),
+        child: AvpImage(image: asset),
       ),
     );
   }

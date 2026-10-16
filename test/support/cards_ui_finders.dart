@@ -181,17 +181,10 @@ Finder cardControl(WidgetTester tester, String name) {
     ),
     'virtual_terms' => find.byType(AppCheckbox),
     'virtual_submit' => button(S.current.virtualRequestSubmit),
-    'virtual_card_fee_art' =>
-      find
-          .ancestor(
-            of: find.byWidgetPredicate(
-              (widget) =>
-                  widget is AvpImage &&
-                  widget.image == AppAssets.virtualRequestCard,
-            ),
-            matching: find.byType(Positioned),
-          )
-          .first,
+    'virtual_card_fee_art' => find.byWidgetPredicate(
+      (widget) =>
+          widget is AvpImage && widget.image == AppAssets.virtualRequestCard,
+    ),
     // These controls belong to shared components, outside the Cards feature.
     'app_delete_address_cancel' => find.widgetWithText(
       AppDeleteAddressButton,

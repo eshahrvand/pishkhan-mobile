@@ -160,64 +160,43 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
                   if (!didPop) _back(context);
                 },
                 child: Scaffold(
-                  backgroundColor: Colors.transparent,
-                  body: Stack(
-                    children: [
-                      Positioned.fill(
-                        child:
-                            BlocBuilder<
-                              SecondPasswordCubit,
-                              SecondPasswordState
-                            >(
-                              buildWhen: (previous, current) =>
-                                  previous.isChange != current.isChange ||
-                                  previous.step != current.step,
-                              builder: (context, state) => ColoredBox(
-                                color:
-                                    (state.isChange ||
-                                        (widget.selectOperation &&
-                                            state.step ==
-                                                SecondPasswordStep.selection) ||
-                                        state.step.index >=
-                                            SecondPasswordStep
-                                                .instruction
-                                                .index)
-                                    ? context.colors.surface
-                                    : context.colors.surfaceSubtle,
-                              ),
+                  backgroundColor:
+                      (state.isChange ||
+                          (widget.selectOperation &&
+                              state.step == SecondPasswordStep.selection) ||
+                          state.step.index >=
+                              SecondPasswordStep.instruction.index)
+                      ? context.colors.surface
+                      : context.colors.surfaceSubtle,
+                  body: SafeArea(
+                    child: Column(
+                      children: [
+                        AppTopBar(
+                          title: S.current.passwordTitle,
+                          showLeadingActions: false,
+                          trailingIcon: SizedBox.square(
+                            dimension: 24,
+                            child: AvpImage(
+                              image: AppAssets.cardFeaturesBack,
+                              fit: BoxFit.contain,
                             ),
-                      ),
-                      SafeArea(
-                        child: Column(
-                          children: [
-                            AppTopBar(
-                              title: S.current.passwordTitle,
-                              showLeadingActions: false,
-                              trailingIcon: SizedBox.square(
-                                dimension: 24,
-                                child: AvpImage(
-                                  image: AppAssets.cardFeaturesBack,
-                                  fit: BoxFit.contain,
-                                ),
-                              ),
-                              trailingTooltip: S.current.backLabel,
-                              onTrailingPressed: () => _back(context),
-                            ),
-                            Expanded(
-                              child: PasswordFlowContent(
-                                selectOperation: widget.selectOperation,
-                                video: video,
-                                instructionVideoUrl: widget.instructionVideoUrl,
-                              ),
-                            ),
-                            PasswordFlowFooter(
-                              onTermsRequested: widget.onTermsRequested,
-                              onBack: () => _back(context),
-                            ),
-                          ],
+                          ),
+                          trailingTooltip: S.current.backLabel,
+                          onTrailingPressed: () => _back(context),
                         ),
-                      ),
-                    ],
+                        Expanded(
+                          child: PasswordFlowContent(
+                            selectOperation: widget.selectOperation,
+                            video: video,
+                            instructionVideoUrl: widget.instructionVideoUrl,
+                          ),
+                        ),
+                        PasswordFlowFooter(
+                          onTermsRequested: widget.onTermsRequested,
+                          onBack: () => _back(context),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               );

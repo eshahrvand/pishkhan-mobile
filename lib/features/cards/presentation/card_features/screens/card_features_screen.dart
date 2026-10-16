@@ -166,6 +166,8 @@ class _CardFeaturesScreenState extends State<CardFeaturesScreen> {
                       onTrailingPressed: () => NavigationActions.back(context),
                     ),
                     Expanded(
+                      // The assistant and footer overlay the scroll viewport; a Column
+                      // would change its height and the scroll/empty-state geometry.
                       child: Stack(
                         children: [
                           Column(

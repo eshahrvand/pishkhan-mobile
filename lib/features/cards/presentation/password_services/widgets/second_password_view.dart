@@ -25,58 +25,48 @@ class SecondPasswordView extends StatelessWidget {
   final VoidCallback? onTermsRequested;
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: BlocBuilder<SecondPasswordCubit, SecondPasswordState>(
-              buildWhen: (previous, current) =>
-                  previous.isChange != current.isChange ||
-                  previous.step != current.step,
-              builder: (context, state) => ColoredBox(
-                color:
-                    (state.isChange ||
-                        (selectOperation &&
-                            state.step == SecondPasswordStep.selection) ||
-                        state.step.index >=
-                            SecondPasswordStep.instruction.index)
-                    ? context.colors.surface
-                    : context.colors.surfaceSubtle,
+    return BlocBuilder<SecondPasswordCubit, SecondPasswordState>(
+      buildWhen: (previous, current) =>
+          previous.isChange != current.isChange ||
+          previous.step != current.step,
+      builder: (context, state) => Scaffold(
+        backgroundColor:
+            (state.isChange ||
+                (selectOperation &&
+                    state.step == SecondPasswordStep.selection) ||
+                state.step.index >= SecondPasswordStep.instruction.index)
+            ? context.colors.surface
+            : context.colors.surfaceSubtle,
+        body: SafeArea(
+          child: Column(
+            children: [
+              AppTopBar(
+                title: S.current.passwordTitle,
+                showLeadingActions: false,
+                trailingIcon: SizedBox.square(
+                  dimension: 24,
+                  child: AvpImage(
+                    image: AppAssets.cardFeaturesBack,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+                trailingTooltip: S.current.backLabel,
+                onTrailingPressed: onBack,
               ),
-            ),
+              Expanded(
+                child: PasswordFlowContent(
+                  selectOperation: selectOperation,
+                  video: video,
+                  instructionVideoUrl: instructionVideoUrl,
+                ),
+              ),
+              PasswordFlowFooter(
+                onTermsRequested: onTermsRequested,
+                onBack: onBack,
+              ),
+            ],
           ),
-          SafeArea(
-            child: Column(
-              children: [
-                AppTopBar(
-                  title: S.current.passwordTitle,
-                  showLeadingActions: false,
-                  trailingIcon: SizedBox.square(
-                    dimension: 24,
-                    child: AvpImage(
-                      image: AppAssets.cardFeaturesBack,
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                  trailingTooltip: S.current.backLabel,
-                  onTrailingPressed: onBack,
-                ),
-                Expanded(
-                  child: PasswordFlowContent(
-                    selectOperation: selectOperation,
-                    video: video,
-                    instructionVideoUrl: instructionVideoUrl,
-                  ),
-                ),
-                PasswordFlowFooter(
-                  onTermsRequested: onTermsRequested,
-                  onBack: onBack,
-                ),
-              ],
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

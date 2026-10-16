@@ -150,19 +150,14 @@ class VirtualCardContent extends StatelessWidget {
                     ),
                     icon: SizedBox.square(
                       dimension: 20,
-                      child: Stack(
-                        children: [
-                          Positioned(
-                            left: 20 * .0833,
-                            top: 20 * .1667,
-
-                            width: 16.2878,
-                            height: 12.9544,
-                            child: AvpImage(
-                              image: AppAssets.virtualRequestCard,
-                            ),
-                          ),
-                        ],
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(
+                          1.666,
+                          3.334,
+                          2.0462,
+                          3.7116,
+                        ),
+                        child: AvpImage(image: AppAssets.virtualRequestCard),
                       ),
                     ),
                   ),
