@@ -84,7 +84,7 @@ Dashboard entities/actions/Cubits stay under features/dashboard. ListedCard is a
 
 **State:** CardFeaturesCubit invokes LoadCards. CardFeaturesState and CardFilter use value equality and immutable card lists. Controls derive content from the state rather than widget-local business variables.
 
-**UI:** Screen/sheets compose public AppButton, AppChips, AppSearchField, AppSelect, AppCardsList, AppTopBar, AppBottomSheetHeader and AppAssistantButton. TextEditingController, ScrollController, GlobalKeys and modal resources remain in the view.
+**UI:** Screen/sheets compose public AppButton, AppChips, AppSearchField, AppSelect, AppCardsList, AppTopBar, AppBottomSheetHeader and AppAssistantButton. TextEditingController, ScrollController and modal resources remain in the view. No manual widget keys are created in Cards presentation. Category visibility uses a local Builder context with Scrollable.ensureVisible. Screens whose entry changes restart the flow own and close their Cubit explicitly and expose it through BlocProvider.value, rather than forcing recreation with ValueKey. Password steps reset scrolling through a focused listener. Tests locate controls by public widget properties, content and structure.
 
 ```text
 MockCardsRepository / future live adapter

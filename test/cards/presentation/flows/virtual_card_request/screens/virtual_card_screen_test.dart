@@ -1,3 +1,5 @@
+import '../../../../../support/cards_ui_finders.dart';
+
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pishkhan_mobile/core/router/app_routes.dart';
@@ -87,20 +89,20 @@ void main() {
       .element(find.byType(BlocConsumer<VirtualCardCubit, VirtualCardState>))
       .read<VirtualCardCubit>();
   Future<void> fill(WidgetTester t) async {
-    await t.tap(find.byKey(const Key('virtual_deposit')));
+    await t.tap(cardControl(t, 'virtual_deposit'));
     await t.pumpAndSettle();
     await t.tap(find.text('10.1234567.1'));
     await t.pumpAndSettle();
     await t.enterText(
       find.descendant(
-        of: find.byKey(const Key('virtual_count')),
+        of: cardControl(t, 'virtual_count'),
         matching: find.byType(TextField),
       ),
       '۴',
     );
     FocusManager.instance.primaryFocus?.unfocus();
     await t.pumpAndSettle();
-    await t.tap(find.byKey(const Key('virtual_terms')));
+    await t.tap(cardControl(t, 'virtual_terms'));
     await t.pumpAndSettle();
   }
 
@@ -129,10 +131,10 @@ void main() {
     t,
   ) async {
     await mount(t, size: const Size(375, 814));
-    expect(t.getTopLeft(find.byKey(const Key('virtual_notice'))).dy, 164);
-    expect(t.getSize(find.byKey(const Key('virtual_notice'))).height, 74);
-    expect(t.getTopLeft(find.byKey(const Key('virtual_deposit'))).dy, 258);
-    expect(t.getTopLeft(find.byKey(const Key('virtual_count'))).dy, 374);
+    expect(t.getTopLeft(cardControl(t, 'virtual_notice')).dy, 164);
+    expect(t.getSize(cardControl(t, 'virtual_notice')).height, 74);
+    expect(t.getTopLeft(cardControl(t, 'virtual_deposit')).dy, 258);
+    expect(t.getTopLeft(cardControl(t, 'virtual_count')).dy, 374);
     expect(cubit(t).state.canSubmit, false);
     expect(find.byType(AppInvoice), findsNothing);
     await capture(t, 'empty');
@@ -145,18 +147,18 @@ void main() {
       await fill(t);
       expect(cubit(t).state.count, 4);
       expect(cubit(t).state.canSubmit, true);
-      expect(t.getTopLeft(find.byKey(const Key('virtual_invoice'))).dy, 458);
+      expect(t.getTopLeft(cardControl(t, 'virtual_invoice')).dy, 458);
       expect(t.getSize(find.byType(AppInvoice)).height, 174);
       expect(
-        t.getSize(find.byKey(const Key('virtual_card_fee_art'))),
+        t.getSize(cardControl(t, 'virtual_card_fee_art')),
         const Size(16.2878, 12.9544),
       );
       await capture(t, 'filled');
-      await t.tap(find.byKey(const Key('virtual_invoice')));
+      await t.tap(cardControl(t, 'virtual_invoice'));
       await t.pumpAndSettle();
       expect(cubit(t).state.expanded, false);
       expect(t.getSize(find.byType(AppInvoice)).height, 130);
-      await t.tap(find.byKey(const Key('virtual_submit')));
+      await t.tap(cardControl(t, 'virtual_submit'));
       await t.pumpAndSettle();
       expect(r.requests.single.quote.count, 4);
       expect(r.requests.single.quote.depositId, 'virtual-deposit-1');
@@ -172,7 +174,7 @@ void main() {
     expect(cubit(t).state.canSubmit, false);
     await t.enterText(
       find.descendant(
-        of: find.byKey(const Key('virtual_count')),
+        of: cardControl(t, 'virtual_count'),
         matching: find.byType(TextField),
       ),
       '٠',
@@ -193,10 +195,10 @@ void main() {
         scale: 1.3,
       );
       await fill(t);
-      await t.ensureVisible(find.byKey(const Key('virtual_invoice')));
+      await t.ensureVisible(cardControl(t, 'virtual_invoice'));
       await t.pumpAndSettle();
       expect(t.takeException(), isNull);
-      expect(find.byKey(const Key('virtual_submit')), findsOneWidget);
+      expect(cardControl(t, 'virtual_submit'), findsOneWidget);
     });
   }
   testWidgets(
@@ -247,12 +249,42 @@ void main() {
       await t.pumpAndSettle();
       expect(find.byType(VirtualCardRequestScreen), findsOneWidget);
       await fill(t);
-      await t.tap(find.byKey(const Key('virtual_submit')));
+      await t.tap(cardControl(t, 'virtual_submit'));
       await t.pumpAndSettle();
       expect(find.byType(AlertDialog), findsNothing);
       expect(find.byType(VirtualCardRequestScreen), findsNothing);
       expect(find.byType(CardFeaturesScreen), findsNothing);
       expect(find.text('Main page'), findsOneWidget);
+    },
+  );
+  testWidgets(
+    'virtual request replaces its scope and clears the count without keys',
+    (t) async {
+      final repository = TestVirtualRepository();
+      await mount(t, repository: repository);
+      final first = cubit(t);
+      await fill(t);
+      await t.pumpWidget(
+        subject(VirtualCardRequestScreen(repository: repository)),
+      );
+      await t.pumpAndSettle();
+      expect(identical(cubit(t), first), isTrue);
+      await t.pumpWidget(
+        subject(VirtualCardRequestScreen(repository: TestVirtualRepository())),
+      );
+      await t.pumpAndSettle();
+      expect(first.isClosed, isTrue);
+      final second = cubit(t);
+      expect(second.state.countText, isEmpty);
+      expect(
+        t
+            .widget<AppTextField>(cardControl(t, 'virtual_count'))
+            .controller!
+            .text,
+        isEmpty,
+      );
+      await t.pumpWidget(const SizedBox.shrink());
+      expect(second.isClosed, isTrue);
     },
   );
 }

@@ -39,7 +39,6 @@ class VirtualCardFooter extends StatelessWidget {
                 child: Row(
                   children: [
                     AppCheckbox(
-                      key: const Key('virtual_terms'),
                       value: state.terms,
                       size: AppCheckboxSize.md,
                       onChanged:
@@ -87,7 +86,6 @@ class VirtualCardFooter extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               AppButton(
-                key: const Key('virtual_submit'),
                 onPressed: state.canSubmit
                     ? () {
                         FocusManager.instance.primaryFocus?.unfocus();

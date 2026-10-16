@@ -107,6 +107,31 @@ void main() {
 
   SecondPasswordCubit c(WidgetTester t) =>
       t.element(find.byType(AppTopBar)).read<SecondPasswordCubit>();
+
+  testWidgets(
+    'password scope survives rebuild and closes when entry changes without keys',
+    (t) async {
+      final repository = ControlledPasswordRepository();
+      await mount(t, repository: repository);
+      final first = c(t);
+      select(first);
+      await t.pumpWidget(subject(SecondPasswordScreen(repository: repository)));
+      await t.pumpAndSettle();
+      expect(identical(c(t), first), isTrue);
+      await t.pumpWidget(
+        subject(
+          SecondPasswordScreen(repository: repository, selectOperation: true),
+        ),
+      );
+      await t.pumpAndSettle();
+      expect(first.isClosed, isTrue);
+      final second = c(t);
+      expect(identical(first, second), isFalse);
+      expect(second.isClosed, isFalse);
+      await t.pumpWidget(const SizedBox.shrink());
+      expect(second.isClosed, isTrue);
+    },
+  );
   Future<void> tap(WidgetTester t, String key) async {
     await t.tap(authControl(t, key));
     await t.pumpAndSettle();

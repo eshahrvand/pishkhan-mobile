@@ -16,7 +16,7 @@ import '../widgets/gift_balance_selection.dart';
 import '../widgets/gift_balance_destination.dart';
 import '../widgets/gift_balance_sheets.dart';
 
-class ExpiredGiftBalanceScreen extends StatelessWidget {
+class ExpiredGiftBalanceScreen extends StatefulWidget {
   const ExpiredGiftBalanceScreen({
     super.key,
     this.repository,
@@ -29,15 +29,43 @@ class ExpiredGiftBalanceScreen extends StatelessWidget {
   final ValueChanged<CardServiceReceipt>? onCompleted;
 
   @override
+  State<ExpiredGiftBalanceScreen> createState() =>
+      _ExpiredGiftBalanceScreenState();
+}
+
+class _ExpiredGiftBalanceScreenState extends State<ExpiredGiftBalanceScreen> {
+  // This State owns the Cubit; input changes restart the flow without widget keys.
+  late ExpiredGiftBalanceCubit _cubit;
+  ExpiredGiftBalanceCubit _createCubit() => ExpiredGiftBalanceCubit(
+    initialState: const ExpiredGiftBalanceState.initial(),
+    repository: widget.repository ?? MockCardServicesRepository(),
+  )..load();
+
+  @override
+  void dispose() {
+    _cubit.close();
+    super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(covariant ExpiredGiftBalanceScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.repository != widget.repository) {
+      _cubit.close();
+      _cubit = _createCubit();
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _cubit = _createCubit();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocProvider<ExpiredGiftBalanceCubit>(
-      // A changed adapter starts a new flow; ordinary rebuilds retain it.
-      key: ValueKey(repository),
-      lazy: false,
-      create: (_) => ExpiredGiftBalanceCubit(
-        initialState: const ExpiredGiftBalanceState.initial(),
-        repository: repository ?? MockCardServicesRepository(),
-      )..load(),
+    return BlocProvider<ExpiredGiftBalanceCubit>.value(
+      value: _cubit,
       child: Directionality(
         textDirection: TextDirection.rtl,
         child: BlocConsumer<ExpiredGiftBalanceCubit, ExpiredGiftBalanceState>(
@@ -45,7 +73,7 @@ class ExpiredGiftBalanceScreen extends StatelessWidget {
               old.step != next.step ||
               old.submissionStatus != next.submissionStatus,
           listener: (context, state) {
-            if (state.receipt != null) onCompleted?.call(state.receipt!);
+            if (state.receipt != null) widget.onCompleted?.call(state.receipt!);
           },
           builder: (context, state) {
             return PopScope(
@@ -193,7 +221,7 @@ class ExpiredGiftBalanceScreen extends StatelessWidget {
                                     .read<ExpiredGiftBalanceCubit>()
                                     .acceptTerms
                               : null,
-                          onTermsRequested: onTermsRequested,
+                          onTermsRequested: widget.onTermsRequested,
                         ),
                     ],
                   ),

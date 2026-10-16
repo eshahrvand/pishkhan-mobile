@@ -2,18 +2,15 @@ import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
-
 import 'virtual_card_styles.dart';
 import 'virtual_card_icon.dart';
 
 class VirtualCardNotice extends StatelessWidget {
-  const VirtualCardNotice({super.key, this.contentKey, required this.text});
-  final Key? contentKey;
+  const VirtualCardNotice({super.key, required this.text});
   final String text;
   @override
   Widget build(BuildContext context) {
     return Container(
-      key: contentKey,
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
         color: AppPalette.blueGray100,

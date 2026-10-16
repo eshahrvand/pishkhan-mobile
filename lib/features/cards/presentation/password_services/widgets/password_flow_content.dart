@@ -12,7 +12,7 @@ import 'package:pishkhan_mobile/features/cards/presentation/password_services/wi
 import 'package:pishkhan_mobile/features/cards/presentation/password_services/widgets/second_password_form.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 
-class PasswordFlowContent extends StatelessWidget {
+class PasswordFlowContent extends StatefulWidget {
   const PasswordFlowContent({
     super.key,
     required this.selectOperation,
@@ -23,8 +23,25 @@ class PasswordFlowContent extends StatelessWidget {
   final VideoPlayerController? video;
   final String? instructionVideoUrl;
   @override
+  State<PasswordFlowContent> createState() => _PasswordFlowContentState();
+}
+
+class _PasswordFlowContentState extends State<PasswordFlowContent> {
+  final _scroll = ScrollController();
+
+  @override
+  void dispose() {
+    _scroll.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SecondPasswordCubit, SecondPasswordState>(
+    return BlocConsumer<SecondPasswordCubit, SecondPasswordState>(
+      listenWhen: (previous, current) => previous.step != current.step,
+      listener: (context, state) {
+        if (_scroll.hasClients) _scroll.jumpTo(0);
+      },
       buildWhen: (previous, state) =>
           previous.step != state.step ||
           previous.status != state.status ||
@@ -46,8 +63,7 @@ class PasswordFlowContent extends StatelessWidget {
           : state.record != null
           ? const SizedBox.shrink()
           : SingleChildScrollView(
-              // Recreate controllers and reset scrolling when the flow step changes.
-              key: ValueKey(state.step),
+              controller: _scroll,
 
               padding: EdgeInsetsDirectional.fromSTEB(
                 16,
@@ -61,9 +77,9 @@ class PasswordFlowContent extends StatelessWidget {
               ),
               child: PasswordFlowBody(
                 state: state,
-                selectOperation: selectOperation,
-                video: video,
-                instructionVideoUrl: instructionVideoUrl,
+                selectOperation: widget.selectOperation,
+                video: widget.video,
+                instructionVideoUrl: widget.instructionVideoUrl,
               ),
             ),
     );

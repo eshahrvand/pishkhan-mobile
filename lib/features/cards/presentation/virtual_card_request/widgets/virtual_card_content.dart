@@ -69,15 +69,11 @@ class VirtualCardContent extends StatelessWidget {
                   .copyWith(fontWeight: FontWeight.w500),
             ),
             const SizedBox(height: 20),
-            VirtualCardNotice(
-              text: S.current.virtualRequestNotice,
-              contentKey: const Key('virtual_notice'),
-            ),
+            VirtualCardNotice(text: S.current.virtualRequestNotice),
             const SizedBox(height: 20),
             IgnorePointer(
               ignoring: !state.editable,
               child: AppSelect<String>(
-                key: const Key('virtual_deposit'),
                 label: S.current.virtualRequestDepositLabel,
                 hintText: S.current.virtualRequestDepositHint,
                 value: state.depositId,
@@ -107,7 +103,6 @@ class VirtualCardContent extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             AppTextField(
-              key: const Key('virtual_count'),
               controller: count,
               enabled: state.editable,
               hintText: S.current.virtualRequestCountHint,
@@ -142,7 +137,6 @@ class VirtualCardContent extends StatelessWidget {
             const SizedBox(height: 20),
             if (state.quote != null)
               AppInvoice(
-                key: const Key('virtual_invoice'),
                 totalAmount: CurrencyFormatter.format(state.quote!.totalRial),
                 walletBalance: CurrencyFormatter.format(
                   state.quote!.walletBalanceRial,
@@ -161,7 +155,7 @@ class VirtualCardContent extends StatelessWidget {
                           Positioned(
                             left: 20 * .0833,
                             top: 20 * .1667,
-                            key: const Key('virtual_card_fee_art'),
+
                             width: 16.2878,
                             height: 12.9544,
                             child: AvpImage(

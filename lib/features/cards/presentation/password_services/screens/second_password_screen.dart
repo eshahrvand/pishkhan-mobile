@@ -43,11 +43,20 @@ class SecondPasswordScreen extends StatefulWidget {
 }
 
 class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
+  // This State owns the Cubit; input changes restart the flow without widget keys.
+  late SecondPasswordCubit _cubit;
+  SecondPasswordCubit _createCubit() => SecondPasswordCubit(
+    repository: widget.repository ?? MockPasswordServicesRepository(),
+    initialCardNumber: widget.initialCardNumber,
+    selectOperation: widget.selectOperation,
+  )..load();
+
   VideoPlayerController? video;
   bool _sheetOpen = false;
   @override
   void initState() {
     super.initState();
+    _cubit = _createCubit();
     _createVideo();
   }
 
@@ -61,6 +70,12 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
   @override
   void didUpdateWidget(SecondPasswordScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (oldWidget.repository != widget.repository ||
+        oldWidget.initialCardNumber != widget.initialCardNumber ||
+        oldWidget.selectOperation != widget.selectOperation) {
+      _cubit.close();
+      _cubit = _createCubit();
+    }
 
     if (oldWidget.instructionVideoUrl != widget.instructionVideoUrl ||
         oldWidget.videoController != widget.videoController) {
@@ -71,6 +86,7 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
 
   @override
   void dispose() {
+    _cubit.close();
     if (widget.videoController == null) video?.dispose();
     super.dispose();
   }
@@ -124,18 +140,8 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      // These existing entry parameters intentionally restart the flow when changed.
-      key: ValueKey((
-        widget.repository,
-        widget.initialCardNumber,
-        widget.selectOperation,
-      )),
-      create: (context) => SecondPasswordCubit(
-        repository: widget.repository ?? MockPasswordServicesRepository(),
-        initialCardNumber: widget.initialCardNumber,
-        selectOperation: widget.selectOperation,
-      )..load(),
+    return BlocProvider<SecondPasswordCubit>.value(
+      value: _cubit,
       child: Directionality(
         textDirection: TextDirection.rtl,
         child: BlocListener<SecondPasswordCubit, SecondPasswordState>(

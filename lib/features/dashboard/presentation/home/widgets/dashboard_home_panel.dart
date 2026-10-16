@@ -20,12 +20,14 @@ import '../cubit/home_effect.dart';
 
 class DashboardHomePanel extends StatefulWidget {
   const DashboardHomePanel({super.key});
+
   @override
   State<DashboardHomePanel> createState() => _DashboardHomePanelState();
 }
 
 class _DashboardHomePanelState extends State<DashboardHomePanel> {
   final _promptFocus = FocusNode();
+
   @override
   void dispose() {
     _promptFocus.dispose();

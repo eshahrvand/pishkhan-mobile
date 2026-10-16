@@ -40,7 +40,6 @@ class _CardFeaturesScreenState extends State<CardFeaturesScreen> {
   CardFeaturesCubit? _repositoryScope;
   final _search = TextEditingController();
   final _chips = ScrollController();
-  final _chipKeys = {for (final c in CardCategory.values) c: GlobalKey()};
   @override
   void didUpdateWidget(covariant CardFeaturesScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -58,7 +57,10 @@ class _CardFeaturesScreenState extends State<CardFeaturesScreen> {
     super.dispose();
   }
 
-  Future<void> _revealCategory(CardFeaturesCubit cubit) async {
+  Future<void> _revealCategory(
+    CardFeaturesCubit cubit, {
+    BuildContext? target,
+  }) async {
     if (!mounted || !_chips.hasClients) return;
     final category = cubit.state.category;
     await _chips.animateTo(
@@ -69,7 +71,6 @@ class _CardFeaturesScreenState extends State<CardFeaturesScreen> {
     if (!mounted || cubit.state.category != category) {
       return;
     }
-    final target = _chipKeys[category]?.currentContext;
     if (target != null && target.mounted && category.index < 3) {
       await Scrollable.ensureVisible(
         target,
@@ -172,7 +173,6 @@ class _CardFeaturesScreenState extends State<CardFeaturesScreen> {
                               Padding(
                                 padding: const EdgeInsets.only(top: 12),
                                 child: SingleChildScrollView(
-                                  key: const Key('card_features_categories'),
                                   controller: _chips,
                                   scrollDirection: Axis.horizontal,
                                   padding: const EdgeInsetsDirectional.only(
@@ -187,12 +187,8 @@ class _CardFeaturesScreenState extends State<CardFeaturesScreen> {
                                           in CardCategory.values) ...[
                                         if (category != CardCategory.resalat)
                                           const SizedBox(width: 12),
-                                        KeyedSubtree(
-                                          key: _chipKeys[category],
-                                          child: AppChips(
-                                            key: Key(
-                                              'card_category_${category.name}',
-                                            ),
+                                        Builder(
+                                          builder: (chipContext) => AppChips(
                                             label: categoryLabel(
                                               context,
                                               category,
@@ -214,6 +210,7 @@ class _CardFeaturesScreenState extends State<CardFeaturesScreen> {
                                               _revealCategory(
                                                 context
                                                     .read<CardFeaturesCubit>(),
+                                                target: chipContext,
                                               );
                                             },
                                           ),
@@ -232,7 +229,6 @@ class _CardFeaturesScreenState extends State<CardFeaturesScreen> {
                                   children: [
                                     Expanded(
                                       child: AppSearchField(
-                                        key: const Key('card_features_search'),
                                         controller: _search,
                                         hintText: S.current.dashboardSearchHint,
                                         hintColor:
@@ -256,9 +252,6 @@ class _CardFeaturesScreenState extends State<CardFeaturesScreen> {
                                     ),
                                     const SizedBox(width: 8),
                                     AppButton(
-                                      key: const Key(
-                                        'card_features_filter_button',
-                                      ),
                                       onPressed: () => showCardFilter(
                                         context,
                                         context.read<CardFeaturesCubit>(),
@@ -299,7 +292,6 @@ class _CardFeaturesScreenState extends State<CardFeaturesScreen> {
                             left: 16,
                             bottom: footerAction == null ? 16 : 76,
                             child: AppAssistantButton(
-                              key: const Key('card_features_assistant'),
                               onPressed:
                                   widget.onAssistantPressed ??
                                   () => NavigationActions.back(context),
@@ -320,7 +312,6 @@ class _CardFeaturesScreenState extends State<CardFeaturesScreen> {
                                     16,
                                   ),
                                   child: AppButton(
-                                    key: const Key('card_features_footer'),
                                     size: AppButtonSize.lg,
                                     label: actionLabel(context, footerAction),
                                     labelStyle: AppTypography.titleMedium

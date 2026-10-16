@@ -56,19 +56,16 @@ class _IssuanceAddressFormState extends State<IssuanceAddressForm> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         AppTextField(
-                          key: const Key('issuance_new_address_title'),
                           controller: title,
                           label: S.current.issuanceAddressTitle,
                         ),
                         const SizedBox(height: 12),
                         AppTextArea(
-                          key: const Key('issuance_new_address_detail'),
                           controller: detail,
                           label: S.current.issuanceAddressDetail,
                         ),
                         const SizedBox(height: 12),
                         AppTextField(
-                          key: const Key('issuance_new_address_postal'),
                           controller: postal,
                           label: S.current.issuancePostalCode,
                           keyboardType: TextInputType.number,
@@ -85,7 +82,6 @@ class _IssuanceAddressFormState extends State<IssuanceAddressForm> {
                         ],
                         const SizedBox(height: 20),
                         AppButton(
-                          key: const Key('issuance_save_address'),
                           label: S.current.issuanceSaveAddress,
                           size: AppButtonSize.lg,
                           onPressed: () {

@@ -1,3 +1,5 @@
+import '../../../../../support/cards_ui_finders.dart';
+
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import '../../../../../support/router_test_app.dart';
@@ -89,8 +91,38 @@ void main() {
     c.selectType(IssuanceType.newNumber);
   }
 
+  testWidgets(
+    'issuance retains its scope on rebuild and resets when entry changes without keys',
+    (tester) async {
+      final repository = ControlledIssuanceRepository();
+      await mount(tester, CardIssuanceScreen(repository: repository));
+      final first = controller(tester);
+      selection(first);
+      await tester.pumpWidget(
+        subject(CardIssuanceScreen(repository: repository)),
+      );
+      await tester.pumpAndSettle();
+      expect(identical(controller(tester), first), isTrue);
+      await tester.pumpWidget(
+        subject(
+          CardIssuanceScreen(
+            repository: repository,
+            initialDepositNumber: '10.1234567.1',
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(first.isClosed, isTrue);
+      final second = controller(tester);
+      expect(identical(first, second), isFalse);
+      expect(second.state.deposit?.id, 'deposit-1');
+      await tester.pumpWidget(const SizedBox.shrink());
+      expect(second.isClosed, isTrue);
+    },
+  );
+
   Future<void> tap(WidgetTester tester, String key) async {
-    await tester.tap(find.byKey(Key(key)));
+    await tester.tap(cardControl(tester, key));
     await tester.pumpAndSettle();
   }
 
@@ -215,19 +247,19 @@ void main() {
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull);
         expect(
-          tester.getTopLeft(find.byKey(const Key('issuance_stepper'))).dy,
+          tester.getTopLeft(cardControl(tester, 'issuance_stepper')).dy,
           104,
         );
         expect(
-          tester.getSize(find.byKey(const Key('issuance_stepper'))).height,
+          tester.getSize(cardControl(tester, 'issuance_stepper')).height,
           42,
         );
         expect(
-          tester.getTopLeft(find.byKey(const Key('issuance_continue'))).dy,
+          tester.getTopLeft(cardControl(tester, 'issuance_continue')).dy,
           712,
         );
         expect(
-          tester.getSize(find.byKey(const Key('issuance_continue'))).height,
+          tester.getSize(cardControl(tester, 'issuance_continue')).height,
           44,
         );
         if (frame.startsWith('confirmation')) {
@@ -236,7 +268,7 @@ void main() {
           expect(invoice.backgroundColor, AppColors.light.surface);
           expect(invoice.totalAmount, '۱,۶۰۰,۰۰۰');
           expect(
-            tester.getTopLeft(find.byKey(const Key('issuance_summary'))).dy,
+            tester.getTopLeft(cardControl(tester, 'issuance_summary')).dy,
             172,
           );
         } else if (frame.startsWith('address')) {
@@ -250,13 +282,11 @@ void main() {
             );
           }
         } else {
-          expect(find.byKey(const Key('issuance_deposit')), findsOneWidget);
-          expect(find.byKey(const Key('issuance_type')), findsOneWidget);
+          expect(cardControl(tester, 'issuance_deposit'), findsOneWidget);
+          expect(cardControl(tester, 'issuance_type'), findsOneWidget);
           expect(
             tester
-                    .widget<AppButton>(
-                      find.byKey(const Key('issuance_continue')),
-                    )
+                    .widget<AppButton>(cardControl(tester, 'issuance_continue'))
                     .onPressed ==
                 null,
             frame != 'selection-filled',
@@ -280,7 +310,7 @@ void main() {
       await tap(tester, 'issuance_no_physical');
       expect(
         tester
-            .widget<AppButton>(find.byKey(const Key('issuance_continue')))
+            .widget<AppButton>(cardControl(tester, 'issuance_continue'))
             .onPressed,
         isNull,
       );
@@ -292,10 +322,10 @@ void main() {
       await tester.pumpAndSettle();
       await tap(tester, 'issuance_continue');
       expect(find.byType(AppInvoice), findsOneWidget);
-      expect(find.byKey(const Key('issuance_address')), findsNothing);
+      expect(cardControl(tester, 'issuance_address'), findsNothing);
       expect(
         tester
-            .widget<AppButton>(find.byKey(const Key('issuance_continue')))
+            .widget<AppButton>(cardControl(tester, 'issuance_continue'))
             .onPressed,
         isNull,
       );
@@ -318,21 +348,21 @@ void main() {
     expect(find.textContaining('کد پستی ۱۰ رقمی'), findsOneWidget);
     await tester.enterText(
       find.descendant(
-        of: find.byKey(const Key('issuance_new_address_title')),
+        of: cardControl(tester, 'issuance_new_address_title'),
         matching: find.byType(EditableText),
       ),
       'محل کار',
     );
     await tester.enterText(
       find.descendant(
-        of: find.byKey(const Key('issuance_new_address_detail')),
+        of: cardControl(tester, 'issuance_new_address_detail'),
         matching: find.byType(EditableText),
       ),
       'تهران، نشانی آزمایشی',
     );
     await tester.enterText(
       find.descendant(
-        of: find.byKey(const Key('issuance_new_address_postal')),
+        of: cardControl(tester, 'issuance_new_address_postal'),
         matching: find.byType(EditableText),
       ),
       '۱۲۳۴۵۶۷۸۹۰',
@@ -345,7 +375,7 @@ void main() {
     final repository = ControlledIssuanceRepository()
       ..catalogResult = const Err(DataFailure('offline'));
     await mount(tester, CardIssuanceScreen(repository: repository));
-    expect(find.byKey(const Key('issuance_retry')), findsOneWidget);
+    expect(cardControl(tester, 'issuance_retry'), findsOneWidget);
     repository.catalogResult = Success(
       IssuanceCatalog(
         deposits: [],
@@ -380,7 +410,7 @@ void main() {
         c.next();
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull);
-        expect(find.byKey(const Key('issuance_continue')), findsOneWidget);
+        expect(cardControl(tester, 'issuance_continue'), findsOneWidget);
       },
     );
   }
@@ -424,7 +454,7 @@ void main() {
       expect(c.state.step, IssuanceStep.delivery);
       expect(c.state.address!.id, 'home');
       final delete = find.descendant(
-        of: find.byKey(const Key('issuance_address_card')),
+        of: cardControl(tester, 'issuance_address_card'),
         matching: find.byType(InkWell),
       );
       await tester.tap(delete);
@@ -436,7 +466,7 @@ void main() {
       await tap(tester, 'app_delete_address_confirm');
       expect(c.state.address, isNull);
       expect(c.state.canContinue, false);
-      expect(find.byKey(const Key('issuance_add_address')), findsOneWidget);
+      expect(cardControl(tester, 'issuance_add_address'), findsOneWidget);
     },
   );
   testWidgets(
@@ -460,7 +490,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(
         find.descendant(
-          of: find.byKey(const Key('listed_card_resalat-0')),
+          of: cardControl(tester, 'listed_card_resalat-0'),
           matching: find.byType(InkWell),
         ),
       );

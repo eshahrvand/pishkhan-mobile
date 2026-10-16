@@ -27,7 +27,6 @@ class IssuanceSelection extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             IssuanceSelect<String>(
-              key: const Key('issuance_deposit'),
               options: [
                 for (final d in state.catalog!.deposits)
                   AppSelectOption(value: d.id, label: d.number),
@@ -44,7 +43,6 @@ class IssuanceSelection extends StatelessWidget {
             if (state.deposit != null) ...[
               const SizedBox(height: 12),
               Container(
-                key: const Key('issuance_current_card'),
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: context.colors.surface,
@@ -84,7 +82,6 @@ class IssuanceSelection extends StatelessWidget {
             const IssuanceDivider(),
             const SizedBox(height: 20),
             IssuanceSelect<IssuanceType>(
-              key: const Key('issuance_type'),
               options: [
                 for (final type in state.catalog!.types)
                   AppSelectOption(
@@ -103,7 +100,6 @@ class IssuanceSelection extends StatelessWidget {
             const IssuanceDivider(),
             const SizedBox(height: 20),
             IssuanceToggleRow(
-              key: const Key('issuance_no_physical'),
               label: S.current.issuanceNoPhysical,
               value: state.draft.noPhysicalCard,
               onChanged: context.read<CardIssuanceCubit>().setNoPhysicalCard,

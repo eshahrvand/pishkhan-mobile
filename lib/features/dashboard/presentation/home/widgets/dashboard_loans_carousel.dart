@@ -14,6 +14,7 @@ import 'dashboard_loan_tile.dart';
 
 class DashboardLoansCarousel extends StatefulWidget {
   const DashboardLoansCarousel({super.key});
+
   @override
   State<DashboardLoansCarousel> createState() => _DashboardLoansCarouselState();
 }

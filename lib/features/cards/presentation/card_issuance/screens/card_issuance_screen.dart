@@ -36,9 +36,33 @@ class CardIssuanceScreen extends StatefulWidget {
 }
 
 class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
+  // This State owns the Cubit; input changes restart the flow without widget keys.
+  late CardIssuanceCubit _cubit;
+  CardIssuanceCubit _createCubit() => CardIssuanceCubit(
+    repository: widget.repository ?? MockCardIssuanceRepository(),
+    initialDepositNumber: widget.initialDepositNumber,
+  )..load();
+
+  @override
+  void didUpdateWidget(covariant CardIssuanceScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.repository != widget.repository ||
+        oldWidget.initialDepositNumber != widget.initialDepositNumber) {
+      _cubit.close();
+      _cubit = _createCubit();
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _cubit = _createCubit();
+  }
+
   final scroll = ScrollController();
   @override
   void dispose() {
+    _cubit.close();
     scroll.dispose();
     super.dispose();
   }
@@ -89,13 +113,8 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      // Repository replacement intentionally starts the same fresh catalog load.
-      key: ValueKey(widget.repository),
-      create: (context) => CardIssuanceCubit(
-        repository: widget.repository ?? MockCardIssuanceRepository(),
-        initialDepositNumber: widget.initialDepositNumber,
-      )..load(),
+    return BlocProvider<CardIssuanceCubit>.value(
+      value: _cubit,
       child: Directionality(
         textDirection: TextDirection.rtl,
         child: BlocConsumer<CardIssuanceCubit, CardIssuanceState>(
@@ -164,7 +183,6 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
                                     26,
                                   ),
                                   child: AppStepper(
-                                    key: const Key('issuance_stepper'),
                                     currentStep: stepNumber,
                                     totalSteps: 3,
                                     progress: switch (state.step) {
@@ -203,7 +221,6 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
                                     ? 136
                                     : 76,
                                 child: AppAssistantButton(
-                                  key: const Key('issuance_assistant'),
                                   onPressed:
                                       widget.onAssistantPressed ??
                                       () => _back(context),

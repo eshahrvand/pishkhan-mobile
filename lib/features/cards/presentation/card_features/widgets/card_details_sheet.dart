@@ -14,7 +14,6 @@ class CardDetailsSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      key: const Key('card_features_details_sheet'),
       mainAxisSize: MainAxisSize.min,
       children: [
         const AppBottomSheetHeader(type: AppBottomSheetHeaderType.handleOnly),
@@ -63,7 +62,6 @@ class CardDetailsSheet extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
           child: AppButton(
-            key: const Key('card_features_details_back'),
             onPressed: () => Navigator.of(context).pop(),
             label: S.current.backLabel,
             size: AppButtonSize.lg,

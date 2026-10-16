@@ -36,7 +36,6 @@ class IssuanceConfirmation extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Container(
-              key: const Key('issuance_summary'),
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: AppCardIssuanceColors.summarySurface,
@@ -49,7 +48,6 @@ class IssuanceConfirmation extends StatelessWidget {
                     button: true,
                     expanded: state.summaryExpanded,
                     child: InkWell(
-                      key: const Key('issuance_summary_toggle'),
                       onTap: state.editable
                           ? () => context
                                 .read<CardIssuanceCubit>()
@@ -97,7 +95,6 @@ class IssuanceConfirmation extends StatelessWidget {
             const IssuanceDivider(),
             const SizedBox(height: 20),
             AppInvoice(
-              key: const Key('issuance_invoice'),
               title: S.current.issuancePayable,
               walletLabel: S.current.issuanceWallet,
               backgroundColor: context.colors.surface,

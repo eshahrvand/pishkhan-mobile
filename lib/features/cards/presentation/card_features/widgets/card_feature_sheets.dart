@@ -80,7 +80,6 @@ Future<CardFeatureAction?> showCardActions(
 ) => _sheet<CardFeatureAction>(
   context,
   (context) => Column(
-    key: const Key('card_features_actions_sheet'),
     mainAxisSize: MainAxisSize.min,
     children: [
       const AppBottomSheetHeader(type: AppBottomSheetHeaderType.handleOnly),
@@ -98,7 +97,6 @@ Future<CardFeatureAction?> showCardActions(
               if (action != CardFeatureAction.details)
                 const CardFeatureDivider(),
               InkWell(
-                key: Key('card_feature_action_${action.name}'),
                 onTap: () => Navigator.of(context).pop(action),
                 child: SizedBox(
                   height: 56,
@@ -146,7 +144,6 @@ Future<void> showCardFilter(
       builder: (context, state) {
         final draft = state.draftFilter ?? state.filter;
         return Column(
-          key: const Key('card_features_filter_sheet'),
           mainAxisSize: MainAxisSize.min,
           children: [
             AppBottomSheetHeader(
@@ -164,7 +161,6 @@ Future<void> showCardFilter(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   AppSelect<String>(
-                    key: const Key('card_features_status_select'),
                     value: draft.status?.name ?? 'all',
                     label: S.current.cardFeatureCardStatus,
                     labelSpacing: 8,
@@ -195,7 +191,6 @@ Future<void> showCardFilter(
                   const CardFeatureDivider(),
                   const SizedBox(height: 16),
                   AppSelect<String>(
-                    key: const Key('card_features_deposit_select'),
                     value: draft.deposit ?? 'all',
                     label: S.current.cardFeatureDeposit,
                     labelSpacing: 8,
@@ -223,7 +218,6 @@ Future<void> showCardFilter(
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
               child: AppButton(
-                key: const Key('card_features_apply_filter'),
                 size: AppButtonSize.lg,
                 label: S.current.cardFeatureApplyFilter,
                 onPressed: () {

@@ -27,7 +27,6 @@ class IssuanceFooter extends StatelessWidget {
             children: [
               if (state.step == IssuanceStep.confirmation) ...[
                 Container(
-                  key: const Key('issuance_terms_row'),
                   constraints: const BoxConstraints(minHeight: 44),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 14,
@@ -42,7 +41,6 @@ class IssuanceFooter extends StatelessWidget {
                       Semantics(
                         label: S.current.issuanceTerms,
                         child: AppCheckbox(
-                          key: const Key('issuance_terms_checkbox'),
                           value: state.draft.termsAccepted,
                           size: AppCheckboxSize.md,
                           onChanged: state.editable
@@ -56,7 +54,6 @@ class IssuanceFooter extends StatelessWidget {
                           spacing: 2,
                           children: [
                             InkWell(
-                              key: const Key('issuance_terms_link'),
                               onTap: onTermsRequested,
                               child: Text(
                                 S.current.issuanceTerms,
@@ -86,7 +83,6 @@ class IssuanceFooter extends StatelessWidget {
                 const SizedBox(height: 16),
               ],
               AppButton(
-                key: const Key('issuance_continue'),
                 size: AppButtonSize.lg,
                 label: (state.step == IssuanceStep.confirmation)
                     ? S.current.issuanceSubmit

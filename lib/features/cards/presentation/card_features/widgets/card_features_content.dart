@@ -43,7 +43,6 @@ class CardFeaturesContent extends StatelessWidget {
               children: [
                 Text(S.current.dashboardLoadError),
                 AppButton(
-                  key: const Key('card_features_retry'),
                   onPressed: context.read<CardFeaturesCubit>().load,
                   label: S.current.dashboardRetry,
                 ),
@@ -61,13 +60,11 @@ class CardFeaturesContent extends StatelessWidget {
           );
         }
         return ListView.separated(
-          key: const Key('card_features_list'),
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           padding: EdgeInsets.fromLTRB(16, 0, 16, hasFooter ? 120 : 70),
           itemCount: state.visibleCards.length,
           separatorBuilder: (_, index) => const SizedBox(height: 10),
           itemBuilder: (context, index) => AppCardsList(
-            key: ValueKey('listed_card_${state.visibleCards[index].id}'),
             type: listType(state.category),
             coloredHeader: true,
             cardIcon: cardCategoryIcon(state.category),

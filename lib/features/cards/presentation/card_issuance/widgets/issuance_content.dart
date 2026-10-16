@@ -56,7 +56,6 @@ class IssuanceContent extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   AppButton(
-                    key: const Key('issuance_retry'),
                     onPressed: context.read<CardIssuanceCubit>().load,
                     label: S.current.dashboardRetry,
                   ),
@@ -82,7 +81,6 @@ class IssuanceContent extends StatelessWidget {
                   Text(state.receipt!.reference),
                   const SizedBox(height: 24),
                   AppButton(
-                    key: const Key('issuance_done'),
                     onPressed: () => NavigationActions.returnHome(context),
                     label: S.current.issuanceDone,
                   ),
@@ -92,7 +90,6 @@ class IssuanceContent extends StatelessWidget {
           );
         }
         return SingleChildScrollView(
-          key: const Key('issuance_scroll'),
           controller: scroll,
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           padding: EdgeInsets.fromLTRB(

@@ -84,7 +84,6 @@ class _IssuanceDeliveryState extends State<IssuanceDelivery> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             IssuanceSelect<String>(
-              key: const Key('issuance_address'),
               hintColor: context.colors.textDisabled,
               options: [
                 for (final a in state.catalog!.addresses)
@@ -104,7 +103,6 @@ class _IssuanceDeliveryState extends State<IssuanceDelivery> {
             const SizedBox(height: 12),
             if (state.address != null)
               AppAddressCard(
-                key: const Key('issuance_address_card'),
                 variant: AppAddressCardVariant.delivery,
                 deleteLabel: S.current.issuanceDeleteAddress,
                 address: state.address!.detail,
@@ -117,7 +115,6 @@ class _IssuanceDeliveryState extends State<IssuanceDelivery> {
                   width: 139,
                   height: 20,
                   child: AppButton(
-                    key: const Key('issuance_add_address'),
                     size: AppButtonSize.sm,
                     variant: AppButtonVariant.text,
                     horizontalPadding: 0,
@@ -139,7 +136,6 @@ class _IssuanceDeliveryState extends State<IssuanceDelivery> {
             const IssuanceDivider(),
             const SizedBox(height: 20),
             IssuanceToggleRow(
-              key: const Key('issuance_other_recipient'),
               label: S.current.issuanceOtherRecipient,
               value: state.draft.otherRecipient,
               onChanged: context.read<CardIssuanceCubit>().setOtherRecipient,
@@ -147,14 +143,12 @@ class _IssuanceDeliveryState extends State<IssuanceDelivery> {
             if (state.draft.otherRecipient) ...[
               const SizedBox(height: 16),
               AppTextField(
-                key: const Key('issuance_recipient_name'),
                 controller: name,
                 label: S.current.issuanceRecipientName,
                 onChanged: _recipient,
               ),
               const SizedBox(height: 12),
               AppTextField(
-                key: const Key('issuance_recipient_national'),
                 controller: national,
                 label: S.current.issuanceNationalId,
                 keyboardType: TextInputType.number,
@@ -163,7 +157,6 @@ class _IssuanceDeliveryState extends State<IssuanceDelivery> {
               ),
               const SizedBox(height: 12),
               AppTextField(
-                key: const Key('issuance_recipient_mobile'),
                 controller: mobile,
                 label: S.current.issuanceRecipientMobile,
                 keyboardType: TextInputType.phone,
@@ -175,7 +168,6 @@ class _IssuanceDeliveryState extends State<IssuanceDelivery> {
             const IssuanceDivider(),
             const SizedBox(height: 20),
             IssuanceToggleRow(
-              key: const Key('issuance_agent'),
               label: S.current.issuanceIncludeAgent,
               value: state.draft.includeAgent,
               onChanged: context.read<CardIssuanceCubit>().setIncludeAgent,
@@ -183,14 +175,12 @@ class _IssuanceDeliveryState extends State<IssuanceDelivery> {
             if (state.draft.includeAgent) ...[
               const SizedBox(height: 16),
               AppTextField(
-                key: const Key('issuance_agent_name'),
                 controller: agentName,
                 label: S.current.issuanceAgentName,
                 onChanged: _agent,
               ),
               const SizedBox(height: 12),
               AppTextField(
-                key: const Key('issuance_agent_code'),
                 controller: agentCode,
                 label: S.current.issuanceAgentCode,
                 normalizeDigits: true,

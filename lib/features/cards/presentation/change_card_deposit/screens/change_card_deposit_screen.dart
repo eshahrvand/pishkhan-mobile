@@ -14,7 +14,7 @@ import '../cubit/change_card_deposit_cubit.dart';
 import '../widgets/change_card_deposit_form.dart';
 import '../../shared/card_service_widgets.dart';
 
-class ChangeCardDepositScreen extends StatelessWidget {
+class ChangeCardDepositScreen extends StatefulWidget {
   const ChangeCardDepositScreen({
     super.key,
     this.repository,
@@ -29,23 +29,52 @@ class ChangeCardDepositScreen extends StatelessWidget {
   final ValueChanged<CardServiceReceipt>? onCompleted;
 
   @override
+  State<ChangeCardDepositScreen> createState() =>
+      _ChangeCardDepositScreenState();
+}
+
+class _ChangeCardDepositScreenState extends State<ChangeCardDepositScreen> {
+  // This State owns the Cubit; input changes restart the flow without widget keys.
+  late ChangeCardDepositCubit _cubit;
+  ChangeCardDepositCubit _createCubit() => ChangeCardDepositCubit(
+    initialState: const ChangeCardDepositState.initial(),
+    repository: widget.repository ?? MockCardServicesRepository(),
+    initialCardNumber: widget.initialCardNumber,
+  )..load();
+
+  @override
+  void dispose() {
+    _cubit.close();
+    super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(covariant ChangeCardDepositScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.repository != widget.repository ||
+        oldWidget.initialCardNumber != widget.initialCardNumber) {
+      _cubit.close();
+      _cubit = _createCubit();
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _cubit = _createCubit();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocProvider<ChangeCardDepositCubit>(
-      // A changed adapter/seed starts a new flow; ordinary rebuilds retain it.
-      key: ValueKey((repository, initialCardNumber)),
-      lazy: false,
-      create: (_) => ChangeCardDepositCubit(
-        initialState: const ChangeCardDepositState.initial(),
-        repository: repository ?? MockCardServicesRepository(),
-        initialCardNumber: initialCardNumber,
-      )..load(),
+    return BlocProvider<ChangeCardDepositCubit>.value(
+      value: _cubit,
       child: Directionality(
         textDirection: TextDirection.rtl,
         child: BlocConsumer<ChangeCardDepositCubit, ChangeCardDepositState>(
           listenWhen: (old, next) =>
               old.submissionStatus != next.submissionStatus,
           listener: (context, state) {
-            if (state.receipt != null) onCompleted?.call(state.receipt!);
+            if (state.receipt != null) widget.onCompleted?.call(state.receipt!);
           },
           builder: (context, state) {
             return PopScope(
@@ -103,7 +132,7 @@ class ChangeCardDepositScreen extends StatelessWidget {
                                     .read<ChangeCardDepositCubit>()
                                     .acceptTerms
                               : null,
-                          onTermsRequested: onTermsRequested,
+                          onTermsRequested: widget.onTermsRequested,
                         ),
                     ],
                   ),

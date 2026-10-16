@@ -33,10 +33,18 @@ class VirtualCardRequestScreen extends StatefulWidget {
 }
 
 class _VirtualCardRequestScreenState extends State<VirtualCardRequestScreen> {
+  // This State owns the Cubit; input changes restart the flow without widget keys.
+  late VirtualCardCubit _cubit;
+  VirtualCardCubit _createCubit() => VirtualCardCubit(
+    repository: widget.repository ?? MockVirtualCardRepository(),
+    initialDepositNumber: widget.initialDepositNumber,
+  )..load();
+
   final count = TextEditingController();
   @override
   void initState() {
     super.initState();
+    _cubit = _createCubit();
   }
 
   @override
@@ -44,12 +52,15 @@ class _VirtualCardRequestScreenState extends State<VirtualCardRequestScreen> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.repository != widget.repository ||
         oldWidget.initialDepositNumber != widget.initialDepositNumber) {
+      _cubit.close();
+      _cubit = _createCubit();
       count.clear();
     }
   }
 
   @override
   void dispose() {
+    _cubit.close();
     count.dispose();
     super.dispose();
   }
@@ -69,13 +80,8 @@ class _VirtualCardRequestScreenState extends State<VirtualCardRequestScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      // Existing repository/account entry changes intentionally restart this flow.
-      key: ValueKey((widget.repository, widget.initialDepositNumber)),
-      create: (context) => VirtualCardCubit(
-        repository: widget.repository ?? MockVirtualCardRepository(),
-        initialDepositNumber: widget.initialDepositNumber,
-      )..load(),
+    return BlocProvider<VirtualCardCubit>.value(
+      value: _cubit,
       child: Directionality(
         textDirection: TextDirection.rtl,
         child: BlocConsumer<VirtualCardCubit, VirtualCardState>(
