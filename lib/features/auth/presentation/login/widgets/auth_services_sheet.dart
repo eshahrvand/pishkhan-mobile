@@ -77,9 +77,29 @@ class AuthServicesSheet extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  AuthServicesSectionTitle(
-                    title: S.current.guestServices,
-                    dividerAsset: AuthAssets.sectionDivider1,
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          S.current.guestServices,
+                          style: Theme.of(context).textTheme.titleSmall!
+                              .copyWith(
+                                color: AppLoginColors.sectionLabel,
+                                fontWeight: FontWeight.w600,
+                                height: 20 / 14,
+                                letterSpacing: 0,
+                              ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: AvpImage(
+                          image: AuthAssets.sectionDivider1,
+                          height: 1,
+                          fit: BoxFit.fill,
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 16),
                   AuthServicesRow(
@@ -108,9 +128,29 @@ class AuthServicesSheet extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 24),
-                  AuthServicesSectionTitle(
-                    title: S.current.relatedLinks,
-                    dividerAsset: AuthAssets.sectionDivider2,
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          S.current.relatedLinks,
+                          style: Theme.of(context).textTheme.titleSmall!
+                              .copyWith(
+                                color: AppLoginColors.sectionLabel,
+                                fontWeight: FontWeight.w600,
+                                height: 20 / 14,
+                                letterSpacing: 0,
+                              ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: AvpImage(
+                          image: AuthAssets.sectionDivider2,
+                          height: 1,
+                          fit: BoxFit.fill,
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 16),
                   AuthServicesRow(

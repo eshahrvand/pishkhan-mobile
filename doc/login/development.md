@@ -3,21 +3,24 @@
 ## UI structure after the auth refactor
 
 `AuthScreen` lives in
-`lib/features/auth/presentation/login/screens/auth_screen.dart`. Bloc-driven login sections,
-direct package input bindings, reusable field icons, and the guest services sheet
-live under `lib/features/auth/presentation/login/widgets/`. The identity form
-keeps its field subscriptions and CAPTCHA together. The OTP form keeps its
-countdown widget in the same file, and `auth_form_shared.dart` groups the reused
-heading and field-icon helpers.
-When UI code grows beyond about 200 lines, review its responsibilities and
-prefer extracting a coherent Bloc subscription with its UI into a widget file.
-The threshold is a guide: keep tiny one-use fragments inline and related grid
-helpers together. Keep a stateful widget and its State class together.
-Typography derives from the installed theme. Tests find controls by public
-labels, hints, and widget types; only documented flow-transition keys remain
-to reset controllers. Existing layouts, validation, and demo callbacks are
-preserved. The applicable conventions are in
-[the Flutter widget UI style skill](../../.agents/skills/flutter-widget-ui-style/SKILL.md).
+`lib/features/auth/presentation/login/screens/auth_screen.dart`. Its `widgets/`
+folder contains six files:
+
+- `auth_header.dart`: bank header and menu action.
+- `auth_identity_form.dart`: explicit identity inputs, change-phone notice,
+  CAPTCHA and request-code button.
+- `auth_otp_form.dart`: OTP input, independently subscribed countdown/resend
+  control and submission button.
+- `auth_form_shared.dart`: the heading reused by identity and OTP forms.
+- `auth_services_sheet.dart`: guest-service sheet composition and section titles.
+- `auth_services_grid.dart`: responsive service rows and their tile composition.
+
+Small field icons, CAPTCHA rows, countdown controls and service labels/tiles
+remain inline in their owning section. The identity form is intentionally larger
+than the usual 200-line review point so the complete fixed form is readable in
+one file. Existing focused subscriptions, validation callbacks, geometry and
+flow-transition keys are preserved. The authoritative style rules are the
+[UI/Cubit/State contract](../ui-cubit-state-agent-rules-en.md).
 
 The login section is implemented from the Mobile Figma file
 `nYQNyZdSs98lwymCpt5Sag`. Screens share the bank header and background artwork;

@@ -1,5 +1,3 @@
-export 'auth_field_icon.dart';
-
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 
