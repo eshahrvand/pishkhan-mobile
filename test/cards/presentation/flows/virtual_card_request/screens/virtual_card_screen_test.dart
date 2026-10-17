@@ -253,7 +253,7 @@ void main() {
       await t.pumpAndSettle();
       expect(find.byType(AlertDialog), findsNothing);
       expect(find.byType(VirtualCardRequestScreen), findsNothing);
-      expect(find.byType(CardFeaturesScreen), findsNothing);
+      expect(find.byType(CardListScreen), findsNothing);
       expect(find.text('Main page'), findsOneWidget);
     },
   );

@@ -17,8 +17,8 @@ import '../widgets/card_features_ui.dart';
 import '../cubit/card_features_cubit.dart';
 import '../widgets/card_feature_sheets.dart';
 
-class CardFeaturesScreen extends StatefulWidget {
-  const CardFeaturesScreen({
+class CardListScreen extends StatefulWidget {
+  const CardListScreen({
     super.key,
     this.initialCategory = CardCategory.resalat,
     this.onActionRequested,
@@ -28,124 +28,99 @@ class CardFeaturesScreen extends StatefulWidget {
   final ValueChanged<CardFeatureRequest>? onActionRequested;
   final VoidCallback? onAssistantPressed;
   @override
-  State<CardFeaturesScreen> createState() => _CardFeaturesScreenState();
+  State<CardListScreen> createState() => _CardListScreenState();
 }
 
-class _CardFeaturesScreenState extends State<CardFeaturesScreen> {
+class _CardListScreenState extends State<CardListScreen> {
   final _search = TextEditingController();
   final _chips = ScrollController();
-  bool _initialCategoryRevealScheduled = false;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (_initialCategoryRevealScheduled) return;
-    _initialCategoryRevealScheduled = true;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _revealInitialCategory();
-    });
-  }
-
-  Future<void> _revealInitialCategory() async {
-    if (!_chips.hasClients) return;
-    await _chips.animateTo(
-      widget.initialCategory.index >= 3 ? _chips.position.maxScrollExtent : 0,
-      duration: const Duration(milliseconds: 200),
-      curve: Curves.easeOut,
-    );
-  }
+  // Chip contexts are layout resources; they never enter Cubit or State.
+  final _categoryContexts = <CardCategory, BuildContext>{};
 
   @override
   void dispose() {
     _search.dispose();
     _chips.dispose();
+    _categoryContexts.clear();
     super.dispose();
-  }
-
-  Future<void> _revealCategory(
-    CardFeaturesCubit cubit, {
-    BuildContext? target,
-  }) async {
-    if (!mounted || !_chips.hasClients) return;
-    final category = cubit.state.category;
-    await _chips.animateTo(
-      category.index >= 3 ? _chips.position.maxScrollExtent : 0,
-      duration: const Duration(milliseconds: 200),
-      curve: Curves.easeOut,
-    );
-    if (!mounted || cubit.state.category != category) {
-      return;
-    }
-    if (target != null && target.mounted && category.index < 3) {
-      await Scrollable.ensureVisible(
-        target,
-        alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
-        duration: const Duration(milliseconds: 200),
-      );
-    }
-  }
-
-  void _request(
-    BuildContext context,
-    CardFeatureAction action, {
-    ListedCard? card,
-  }) {
-    final request = CardFeatureRequest(
-      action: action,
-      card: card,
-      category: context.read<CardFeaturesCubit>().state.category,
-    );
-    if (widget.onActionRequested != null) {
-      widget.onActionRequested!(request);
-    } else if (action == CardFeatureAction.requestVirtual) {
-      openCardFeaturesService(context, 'card-virtual-request');
-    } else if (action == CardFeatureAction.changeDeposit) {
-      openCardFeaturesService(
-        context,
-        'card-deposit',
-        initialCardNumber: card?.number,
-      );
-    } else if (action == CardFeatureAction.expiredGiftBalance) {
-      openCardFeaturesService(context, 'card-expired-gift');
-    } else if (action == CardFeatureAction.reissue) {
-      openCardFeaturesService(
-        context,
-        'card-reissue',
-        initialDepositNumber: card?.linkedDeposit,
-        onAssistantPressed: widget.onAssistantPressed,
-      );
-    } else {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(S.current.cardFeatureUnavailable)));
-    }
-  }
-
-  Future<void> _more(BuildContext context, ListedCard card) async {
-    context.read<CardFeaturesCubit>().selectCard(card.id);
-    final action = await showCardActions(context, card);
-    if (!context.mounted || action == null) return;
-    if (action == CardFeatureAction.details) {
-      await showCardDetails(context, card);
-    } else {
-      _request(context, action, card: card);
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<CardFeaturesCubit>(
-      create: (_) =>
-          getIt<CardFeaturesCubit>(param1: widget.initialCategory)..load(),
+      create: (_) {
+        final cubit = getIt<CardFeaturesCubit>(param1: widget.initialCategory)
+          ..load();
+        // Initial reveal needs the chip layout and a subscribed listener.
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!cubit.isClosed) cubit.revealCategory();
+        });
+        return cubit;
+      },
       child: Directionality(
         textDirection: TextDirection.rtl,
-        child: BlocBuilder<CardFeaturesCubit, CardFeaturesState>(
+        child: BlocConsumer<CardFeaturesCubit, CardFeaturesState>(
+          listenWhen: (previous, current) =>
+              previous.effectId != current.effectId,
+          listener: (context, state) async {
+            switch (state.effect) {
+              case CardCategoryRevealRequested(
+                :final category,
+                :final scrollToEnd,
+              ):
+                if (!_chips.hasClients) return;
+                await _chips.animateTo(
+                  scrollToEnd ? _chips.position.maxScrollExtent : 0,
+                  duration: const Duration(milliseconds: 200),
+                  curve: Curves.easeOut,
+                );
+                if (!context.mounted ||
+                    context.read<CardFeaturesCubit>().state.category !=
+                        category) {
+                  return;
+                }
+                final target = _categoryContexts[category];
+                if (target != null && target.mounted && !scrollToEnd) {
+                  await Scrollable.ensureVisible(
+                    target,
+                    alignmentPolicy:
+                        ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
+                    duration: const Duration(milliseconds: 200),
+                  );
+                }
+              case CardActionsRequested(:final card):
+                final action = await showCardActions(context, card);
+                if (!context.mounted || action == null) return;
+                context.read<CardFeaturesCubit>().requestAction(
+                  action,
+                  card: card,
+                );
+              case CardDetailsRequested(:final card):
+                await showCardDetails(context, card);
+              case CardServiceRequested(:final request, :final serviceId):
+                if (widget.onActionRequested != null) {
+                  widget.onActionRequested!(request);
+                } else if (serviceId != null) {
+                  openCardFeaturesService(
+                    context,
+                    serviceId,
+                    initialCardNumber: request.card?.number,
+                    initialDepositNumber: request.card?.linkedDeposit,
+                    onAssistantPressed: widget.onAssistantPressed,
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(S.current.cardFeatureUnavailable)),
+                  );
+                }
+              case null:
+                break;
+            }
+          },
+          buildWhen: (previous, current) =>
+              previous.category != current.category ||
+              previous.footerAction != current.footerAction,
           builder: (context, state) {
-            final footerAction = switch (state.category) {
-              CardCategory.gift => CardFeatureAction.expiredGiftBalance,
-              CardCategory.virtual => CardFeatureAction.requestVirtual,
-              _ => null,
-            };
             return Scaffold(
               backgroundColor: context.colors.surfaceSubtle,
               body: SafeArea(
@@ -186,32 +161,29 @@ class _CardFeaturesScreenState extends State<CardFeaturesScreen> {
                                         if (category != CardCategory.resalat)
                                           const SizedBox(width: 12),
                                         Builder(
-                                          builder: (chipContext) => AppChips(
-                                            label: categoryLabel(
-                                              context,
-                                              category,
-                                            ),
-                                            labelStyle: category.index >= 3
-                                                ? AppTypography.labelLarge
-                                                      .copyWith(
-                                                        color: context
-                                                            .colors
-                                                            .textSecondary,
-                                                      )
-                                                : null,
-                                            selected:
-                                                state.category == category,
-                                            onPressed: () {
-                                              context
+                                          builder: (chipContext) {
+                                            _categoryContexts[category] =
+                                                chipContext;
+                                            return AppChips(
+                                              label: categoryLabel(
+                                                context,
+                                                category,
+                                              ),
+                                              labelStyle: category.index >= 3
+                                                  ? AppTypography.labelLarge
+                                                        .copyWith(
+                                                          color: context
+                                                              .colors
+                                                              .textSecondary,
+                                                        )
+                                                  : null,
+                                              selected:
+                                                  state.category == category,
+                                              onPressed: () => context
                                                   .read<CardFeaturesCubit>()
-                                                  .selectCategory(category);
-                                              _revealCategory(
-                                                context
-                                                    .read<CardFeaturesCubit>(),
-                                                target: chipContext,
-                                              );
-                                            },
-                                          ),
+                                                  .selectCategory(category),
+                                            );
+                                          },
                                         ),
                                       ],
                                     ],
@@ -280,22 +252,24 @@ class _CardFeaturesScreenState extends State<CardFeaturesScreen> {
                               const SizedBox(height: 15),
                               Expanded(
                                 child: CardFeaturesContent(
-                                  hasFooter: footerAction != null,
-                                  onMore: (card) => _more(context, card),
+                                  hasFooter: state.footerAction != null,
+                                  onMore: (card) => context
+                                      .read<CardFeaturesCubit>()
+                                      .requestMore(card.id),
                                 ),
                               ),
                             ],
                           ),
                           Positioned(
                             left: 16,
-                            bottom: footerAction == null ? 16 : 76,
+                            bottom: state.footerAction == null ? 16 : 76,
                             child: AppAssistantButton(
                               onPressed:
                                   widget.onAssistantPressed ??
                                   () => NavigationActions.back(context),
                             ),
                           ),
-                          if (footerAction != null)
+                          if (state.footerAction != null)
                             Positioned(
                               left: 0,
                               right: 0,
@@ -311,7 +285,10 @@ class _CardFeaturesScreenState extends State<CardFeaturesScreen> {
                                   ),
                                   child: AppButton(
                                     size: AppButtonSize.lg,
-                                    label: actionLabel(context, footerAction),
+                                    label: actionLabel(
+                                      context,
+                                      state.footerAction!,
+                                    ),
                                     labelStyle: AppTypography.titleMedium
                                         .copyWith(
                                           height: 24 / 16,
@@ -320,10 +297,11 @@ class _CardFeaturesScreenState extends State<CardFeaturesScreen> {
                                     contentGap: 10,
                                     constrainLabel: true,
                                     leadingIcon: cardFeatureIcon(
-                                      actionAsset(footerAction),
+                                      actionAsset(state.footerAction!),
                                     ),
-                                    onPressed: () =>
-                                        _request(context, footerAction),
+                                    onPressed: context
+                                        .read<CardFeaturesCubit>()
+                                        .requestFooterAction,
                                   ),
                                 ),
                               ),

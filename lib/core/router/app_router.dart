@@ -13,7 +13,7 @@ import 'package:pishkhan_mobile/features/auth/presentation/login/screens/auth_sc
 import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
 import 'package:pishkhan_mobile/features/cards/presentation/password_services/screens/second_password_screen.dart';
 import 'package:pishkhan_mobile/features/cards/domain/entities/listed_card.dart';
-import 'package:pishkhan_mobile/features/cards/presentation/card_features/screens/card_features_screen.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/card_features/screens/card_list_screen.dart';
 import 'package:pishkhan_mobile/features/cards/presentation/card_issuance/screens/card_issuance_screen.dart';
 import 'package:pishkhan_mobile/features/cards/presentation/virtual_card_request/screens/virtual_card_request_screen.dart';
 import 'package:pishkhan_mobile/features/cards/presentation/change_card_deposit/screens/change_card_deposit_screen.dart';
@@ -122,7 +122,7 @@ GoRouter createAppRouter({
           final args = state.extra is CardRouteArguments
               ? state.extra as CardRouteArguments
               : null;
-          return CardFeaturesScreen(
+          return CardListScreen(
             initialCategory: category,
             onAssistantPressed: () {
               NavigationActions.back(context);

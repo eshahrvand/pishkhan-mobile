@@ -275,7 +275,7 @@ their presentation, domain and mock data layers. Use `AppRoutes.cardPasswords`
 this route. Login and login OTP remain in `features/auth`. See
 [Password services](cards/password-services.md) for paths and flow contracts.
 
-See [Cards architecture](cards/card-services.md). Import features/cards/cards.dart for CardFeaturesScreen, CardsRepository, ListedCard and typed CardFeatureRequest. Dashboard card summaries remain a separate feature. Compatible new package APIs are documented in avp_ui/docs/main-app-integration-guide.md; deploy the sibling package changes together with this app.
+See [Cards architecture](cards/card-services.md). Import features/cards/cards.dart for CardListScreen, CardsRepository, ListedCard and typed CardFeatureRequest. Dashboard card summaries remain a separate feature. Compatible new package APIs are documented in avp_ui/docs/main-app-integration-guide.md; deploy the sibling package changes together with this app.
 
 ## Stepper and card issuance instances
 

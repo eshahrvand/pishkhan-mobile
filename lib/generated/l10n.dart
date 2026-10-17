@@ -1,7 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-
 import 'intl/messages_all.dart';
 
 // **************************************************************************
@@ -19,10 +18,8 @@ class S {
   static S? _current;
 
   static S get current {
-    assert(
-      _current != null,
-      'No instance of S was loaded. Try to initialize the S delegate before accessing S.current.',
-    );
+    assert(_current != null,
+        'No instance of S was loaded. Try to initialize the S delegate before accessing S.current.');
     return _current!;
   }
 
@@ -44,10 +41,8 @@ class S {
 
   static S of(BuildContext context) {
     final instance = S.maybeOf(context);
-    assert(
-      instance != null,
-      'No instance of S present in the widget tree. Did you add S.delegate in localizationsDelegates?',
-    );
+    assert(instance != null,
+        'No instance of S present in the widget tree. Did you add S.delegate in localizationsDelegates?');
     return instance!;
   }
 
@@ -77,12 +72,22 @@ class S {
 
   /// `بازگشت`
   String get backLabel {
-    return Intl.message('بازگشت', name: 'backLabel', desc: '', args: []);
+    return Intl.message(
+      'بازگشت',
+      name: 'backLabel',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `بستن`
   String get closeLabel {
-    return Intl.message('بستن', name: 'closeLabel', desc: '', args: []);
+    return Intl.message(
+      'بستن',
+      name: 'closeLabel',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `فهرست خدمات`
@@ -217,7 +222,12 @@ class S {
 
   /// `وارد کردن رمز`
   String get otpHint {
-    return Intl.message('وارد کردن رمز', name: 'otpHint', desc: '', args: []);
+    return Intl.message(
+      'وارد کردن رمز',
+      name: 'otpHint',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `ثبت درخواست`
@@ -242,12 +252,22 @@ class S {
 
   /// `ارسال مجدد`
   String get resendOtp {
-    return Intl.message('ارسال مجدد', name: 'resendOtp', desc: '', args: []);
+    return Intl.message(
+      'ارسال مجدد',
+      name: 'resendOtp',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `لیست خدمات`
   String get servicesList {
-    return Intl.message('لیست خدمات', name: 'servicesList', desc: '', args: []);
+    return Intl.message(
+      'لیست خدمات',
+      name: 'servicesList',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `خدمات بدون نیاز به لاگین`
@@ -262,7 +282,12 @@ class S {
 
   /// `گزارش تمکن`
   String get assetReport {
-    return Intl.message('گزارش تمکن', name: 'assetReport', desc: '', args: []);
+    return Intl.message(
+      'گزارش تمکن',
+      name: 'assetReport',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `تغییر تلفن همراه`
@@ -307,7 +332,12 @@ class S {
 
   /// `همراه بانک`
   String get mobileBank {
-    return Intl.message('همراه بانک', name: 'mobileBank', desc: '', args: []);
+    return Intl.message(
+      'همراه بانک',
+      name: 'mobileBank',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `اینترنت بانک`
@@ -332,7 +362,12 @@ class S {
 
   /// `ام رسالت`
   String get resalatApp {
-    return Intl.message('ام رسالت', name: 'resalatApp', desc: '', args: []);
+    return Intl.message(
+      'ام رسالت',
+      name: 'resalatApp',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `نکات امنیتی`
@@ -387,7 +422,12 @@ class S {
 
   /// `ریال`
   String get rialCurrency {
-    return Intl.message('ریال', name: 'rialCurrency', desc: '', args: []);
+    return Intl.message(
+      'ریال',
+      name: 'rialCurrency',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `۱٬۲۰۰٬۰۰۰`
@@ -452,12 +492,22 @@ class S {
 
   /// `خدمات کارت`
   String get cardServices {
-    return Intl.message('خدمات کارت', name: 'cardServices', desc: '', args: []);
+    return Intl.message(
+      'خدمات کارت',
+      name: 'cardServices',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `مسدودی کارت`
   String get blockCard {
-    return Intl.message('مسدودی کارت', name: 'blockCard', desc: '', args: []);
+    return Intl.message(
+      'مسدودی کارت',
+      name: 'blockCard',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `تغییر سپرده متصل به کارت`
@@ -492,7 +542,12 @@ class S {
 
   /// `خدمات وام`
   String get loanServices {
-    return Intl.message('خدمات وام', name: 'loanServices', desc: '', args: []);
+    return Intl.message(
+      'خدمات وام',
+      name: 'loanServices',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `تغییر سپرده جهت کسر اقساط`
@@ -517,12 +572,22 @@ class S {
 
   /// `معرفی وام`
   String get introduceLoan {
-    return Intl.message('معرفی وام', name: 'introduceLoan', desc: '', args: []);
+    return Intl.message(
+      'معرفی وام',
+      name: 'introduceLoan',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `برآورد وام`
   String get loanEstimate {
-    return Intl.message('برآورد وام', name: 'loanEstimate', desc: '', args: []);
+    return Intl.message(
+      'برآورد وام',
+      name: 'loanEstimate',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `خدمات منتخب`
@@ -637,7 +702,12 @@ class S {
 
   /// `پروفایل`
   String get profileLabel {
-    return Intl.message('پروفایل', name: 'profileLabel', desc: '', args: []);
+    return Intl.message(
+      'پروفایل',
+      name: 'profileLabel',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `اعلان‌ها`
@@ -762,12 +832,22 @@ class S {
 
   /// `تایید`
   String get dashboardConfirm {
-    return Intl.message('تایید', name: 'dashboardConfirm', desc: '', args: []);
+    return Intl.message(
+      'تایید',
+      name: 'dashboardConfirm',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `انصراف`
   String get dashboardCancel {
-    return Intl.message('انصراف', name: 'dashboardCancel', desc: '', args: []);
+    return Intl.message(
+      'انصراف',
+      name: 'dashboardCancel',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `بازنشانی تنظیمات`
@@ -822,12 +902,22 @@ class S {
 
   /// `داشبورد`
   String get dashboardTab {
-    return Intl.message('داشبورد', name: 'dashboardTab', desc: '', args: []);
+    return Intl.message(
+      'داشبورد',
+      name: 'dashboardTab',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `کارت`
   String get dashboardCardsTab {
-    return Intl.message('کارت', name: 'dashboardCardsTab', desc: '', args: []);
+    return Intl.message(
+      'کارت',
+      name: 'dashboardCardsTab',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `سپرده`
@@ -842,7 +932,12 @@ class S {
 
   /// `وام`
   String get dashboardLoansTab {
-    return Intl.message('وام', name: 'dashboardLoansTab', desc: '', args: []);
+    return Intl.message(
+      'وام',
+      name: 'dashboardLoansTab',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `اعلانات`
@@ -907,7 +1002,12 @@ class S {
 
   /// `امروز`
   String get notificationToday {
-    return Intl.message('امروز', name: 'notificationToday', desc: '', args: []);
+    return Intl.message(
+      'امروز',
+      name: 'notificationToday',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `دیروز`
@@ -1212,7 +1312,12 @@ class S {
 
   /// `ویرایش`
   String get dashboardEdit {
-    return Intl.message('ویرایش', name: 'dashboardEdit', desc: '', args: []);
+    return Intl.message(
+      'ویرایش',
+      name: 'dashboardEdit',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `افزودن خدمات منتخب`
@@ -1667,7 +1772,12 @@ class S {
 
   /// `کارت مجازی`
   String get cardsVirtual {
-    return Intl.message('کارت مجازی', name: 'cardsVirtual', desc: '', args: []);
+    return Intl.message(
+      'کارت مجازی',
+      name: 'cardsVirtual',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `رسالت کارت (جاری)`
@@ -1692,7 +1802,12 @@ class S {
 
   /// `: انقضا`
   String get cardsExpiry {
-    return Intl.message(': انقضا', name: 'cardsExpiry', desc: '', args: []);
+    return Intl.message(
+      ': انقضا',
+      name: 'cardsExpiry',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `کپی شماره کارت`
@@ -2057,12 +2172,22 @@ class S {
 
   /// `وضعیت`
   String get cardFeatureStatus {
-    return Intl.message('وضعیت', name: 'cardFeatureStatus', desc: '', args: []);
+    return Intl.message(
+      'وضعیت',
+      name: 'cardFeatureStatus',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `فعال`
   String get cardFeatureActive {
-    return Intl.message('فعال', name: 'cardFeatureActive', desc: '', args: []);
+    return Intl.message(
+      'فعال',
+      name: 'cardFeatureActive',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `مسدود`
@@ -2097,7 +2222,12 @@ class S {
 
   /// `فیلتر`
   String get cardFeatureFilter {
-    return Intl.message('فیلتر', name: 'cardFeatureFilter', desc: '', args: []);
+    return Intl.message(
+      'فیلتر',
+      name: 'cardFeatureFilter',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `حذف فیلتر`
@@ -2122,7 +2252,12 @@ class S {
 
   /// `همه`
   String get cardFeatureAll {
-    return Intl.message('همه', name: 'cardFeatureAll', desc: '', args: []);
+    return Intl.message(
+      'همه',
+      name: 'cardFeatureAll',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `کارتی با این مشخصات پیدا نشد`
@@ -2237,7 +2372,12 @@ class S {
 
   /// `پایان`
   String get issuanceEnd {
-    return Intl.message('پایان', name: 'issuanceEnd', desc: '', args: []);
+    return Intl.message(
+      'پایان',
+      name: 'issuanceEnd',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `انتخاب سپرده`
@@ -2332,12 +2472,22 @@ class S {
 
   /// `مرحله بعد`
   String get issuanceNext {
-    return Intl.message('مرحله بعد', name: 'issuanceNext', desc: '', args: []);
+    return Intl.message(
+      'مرحله بعد',
+      name: 'issuanceNext',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `آدرس`
   String get issuanceAddress {
-    return Intl.message('آدرس', name: 'issuanceAddress', desc: '', args: []);
+    return Intl.message(
+      'آدرس',
+      name: 'issuanceAddress',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `انتخاب آدرس`
@@ -2662,7 +2812,12 @@ class S {
 
   /// `بازگشت`
   String get issuanceDone {
-    return Intl.message('بازگشت', name: 'issuanceDone', desc: '', args: []);
+    return Intl.message(
+      'بازگشت',
+      name: 'issuanceDone',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `موجودی کیف پول کافی است`
@@ -2757,7 +2912,12 @@ class S {
 
   /// `نوع رمز`
   String get passwordType {
-    return Intl.message('نوع رمز', name: 'passwordType', desc: '', args: []);
+    return Intl.message(
+      'نوع رمز',
+      name: 'passwordType',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `نوع رمز را انتخاب کنید`
@@ -2772,12 +2932,22 @@ class S {
 
   /// `رمز اول`
   String get passwordFirst {
-    return Intl.message('رمز اول', name: 'passwordFirst', desc: '', args: []);
+    return Intl.message(
+      'رمز اول',
+      name: 'passwordFirst',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `رمز دوم`
   String get passwordSecond {
-    return Intl.message('رمز دوم', name: 'passwordSecond', desc: '', args: []);
+    return Intl.message(
+      'رمز دوم',
+      name: 'passwordSecond',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `این رمز برای انجام تراکنش‌های حضوری مانند برداشت وجه از خودپرداز و خرید از فروشگاه‌ها با دستگاه پوز استفاده می‌شود.`
@@ -3152,7 +3322,12 @@ class S {
 
   /// `نمایش رمز`
   String get passwordShow {
-    return Intl.message('نمایش رمز', name: 'passwordShow', desc: '', args: []);
+    return Intl.message(
+      'نمایش رمز',
+      name: 'passwordShow',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `پنهان کردن رمز`
@@ -3387,7 +3562,12 @@ class S {
 
   /// `پخش ویدئو`
   String get passwordPlay {
-    return Intl.message('پخش ویدئو', name: 'passwordPlay', desc: '', args: []);
+    return Intl.message(
+      'پخش ویدئو',
+      name: 'passwordPlay',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `توقف ویدئو`
@@ -3402,7 +3582,12 @@ class S {
 
   /// `موقعیت پخش`
   String get passwordSeek {
-    return Intl.message('موقعیت پخش', name: 'passwordSeek', desc: '', args: []);
+    return Intl.message(
+      'موقعیت پخش',
+      name: 'passwordSeek',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `ویدئو در دسترس نیست`
@@ -3447,7 +3632,12 @@ class S {
 
   /// `خروج`
   String get passwordExit {
-    return Intl.message('خروج', name: 'passwordExit', desc: '', args: []);
+    return Intl.message(
+      'خروج',
+      name: 'passwordExit',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `ادامه عملیات`
@@ -3482,7 +3672,12 @@ class S {
 
   /// `کارت`
   String get cardServiceCard {
-    return Intl.message('کارت', name: 'cardServiceCard', desc: '', args: []);
+    return Intl.message(
+      'کارت',
+      name: 'cardServiceCard',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `کارت مورد نظر خود را انتخاب کنید`
@@ -3737,7 +3932,12 @@ class S {
 
   /// `پایان`
   String get giftBalanceEnd {
-    return Intl.message('پایان', name: 'giftBalanceEnd', desc: '', args: []);
+    return Intl.message(
+      'پایان',
+      name: 'giftBalanceEnd',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `لیست کارت‌های انتخاب شده ({count})`
@@ -3802,7 +4002,12 @@ class S {
 
   /// `بسته`
   String get depositListClosed {
-    return Intl.message('بسته', name: 'depositListClosed', desc: '', args: []);
+    return Intl.message(
+      'بسته',
+      name: 'depositListClosed',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `جاری حقیقی`
@@ -3877,7 +4082,12 @@ class S {
 
   /// `باز`
   String get depositListOpen {
-    return Intl.message('باز', name: 'depositListOpen', desc: '', args: []);
+    return Intl.message(
+      'باز',
+      name: 'depositListOpen',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `صاحب سپرده`
@@ -3982,7 +4192,12 @@ class S {
 
   /// `وضعیت`
   String get depositListStatus {
-    return Intl.message('وضعیت', name: 'depositListStatus', desc: '', args: []);
+    return Intl.message(
+      'وضعیت',
+      name: 'depositListStatus',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `آدرس ارسال گواهی را انتخاب کنید`
@@ -4307,7 +4522,12 @@ class S {
 
   /// `مرجع`
   String get financialAuthority {
-    return Intl.message('مرجع', name: 'financialAuthority', desc: '', args: []);
+    return Intl.message(
+      'مرجع',
+      name: 'financialAuthority',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `نام دقیق مرجع را بنویسید`
@@ -4372,7 +4592,12 @@ class S {
 
   /// `سفارت`
   String get financialEmbassy {
-    return Intl.message('سفارت', name: 'financialEmbassy', desc: '', args: []);
+    return Intl.message(
+      'سفارت',
+      name: 'financialEmbassy',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `سفارت مورد نظر را انتخاب کنید`
@@ -4387,7 +4612,12 @@ class S {
 
   /// `یورو`
   String get financialEur {
-    return Intl.message('یورو', name: 'financialEur', desc: '', args: []);
+    return Intl.message(
+      'یورو',
+      name: 'financialEur',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `درج نرخ برابری روز`
@@ -4432,7 +4662,12 @@ class S {
 
   /// `ریال ایران`
   String get financialIrr {
-    return Intl.message('ریال ایران', name: 'financialIrr', desc: '', args: []);
+    return Intl.message(
+      'ریال ایران',
+      name: 'financialIrr',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `Address`
@@ -4487,7 +4722,12 @@ class S {
 
   /// `Name`
   String get financialLatinName {
-    return Intl.message('Name', name: 'financialLatinName', desc: '', args: []);
+    return Intl.message(
+      'Name',
+      name: 'financialLatinName',
+      desc: '',
+      args: [],
+    );
   }
 
   /// `Passport No`

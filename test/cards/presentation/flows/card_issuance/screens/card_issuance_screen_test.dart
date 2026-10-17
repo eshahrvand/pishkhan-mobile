@@ -501,7 +501,7 @@ void main() {
       await tap(tester, 'issuance_assistant');
       expect(assistant, 1);
       expect(find.byType(CardIssuanceScreen), findsNothing);
-      expect(find.byType(CardFeaturesScreen), findsNothing);
+      expect(find.byType(CardListScreen), findsNothing);
       expect(find.text('cards'), findsOneWidget);
     },
   );

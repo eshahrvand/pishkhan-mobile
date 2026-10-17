@@ -13,6 +13,76 @@ import '../support/test_cards_repository.dart';
 
 void main() {
   test(
+    'interaction effects retain card context and repeat identical requests',
+    () async {
+      final cubit = CardFeaturesCubit(repository: MockCardsRepository());
+      addTearDown(cubit.close);
+      await cubit.load();
+      cubit.requestMore('unknown');
+      expect(cubit.state.effect, isNull);
+      cubit.requestMore('resalat-0');
+      final card = (cubit.state.effect as CardActionsRequested).card;
+      expect(cubit.state.selectedCard, card);
+      final previousId = cubit.state.effectId;
+      cubit.requestMore(card.id);
+      expect(cubit.state.effectId, previousId + 1);
+      cubit.requestAction(CardFeatureAction.details, card: card);
+      expect((cubit.state.effect as CardDetailsRequested).card, card);
+      for (final entry in {
+        CardFeatureAction.reissue: 'card-reissue',
+        CardFeatureAction.changeDeposit: 'card-deposit',
+        CardFeatureAction.block: null,
+      }.entries) {
+        cubit.requestAction(entry.key, card: card);
+        final effect = cubit.state.effect as CardServiceRequested;
+        expect(effect.serviceId, entry.value);
+        expect(effect.request.card, card);
+        expect(effect.request.category, card.category);
+      }
+    },
+  );
+
+  test(
+    'category selection owns footer and reveal effects without clearing search',
+    () async {
+      final cubit = CardFeaturesCubit(
+        repository: MockCardsRepository(),
+        initialCategory: CardCategory.family,
+      );
+      await cubit.load();
+      cubit.revealCategory();
+      expect(
+        (cubit.state.effect as CardCategoryRevealRequested).scrollToEnd,
+        isTrue,
+      );
+      expect(cubit.state.footerAction, isNull);
+      cubit.search('123');
+      for (final entry in {
+        CardCategory.gift: CardFeatureAction.expiredGiftBalance,
+        CardCategory.virtual: CardFeatureAction.requestVirtual,
+      }.entries) {
+        cubit.selectCategory(entry.key);
+        expect(cubit.state.query, '123');
+        expect(cubit.state.footerAction, entry.value);
+        expect(
+          (cubit.state.effect as CardCategoryRevealRequested).category,
+          entry.key,
+        );
+        cubit.requestFooterAction();
+        final effect = cubit.state.effect as CardServiceRequested;
+        expect(effect.request.action, entry.value);
+        expect(effect.request.category, entry.key);
+        expect(effect.request.card, isNull);
+      }
+      await cubit.close();
+      cubit.revealCategory();
+      cubit.requestMore('resalat-0');
+      cubit.requestAction(CardFeatureAction.block);
+      cubit.requestFooterAction();
+    },
+  );
+
+  test(
     'caller initial State retains its category and initializes display data',
     () async {
       final cubit = CardFeaturesCubit(

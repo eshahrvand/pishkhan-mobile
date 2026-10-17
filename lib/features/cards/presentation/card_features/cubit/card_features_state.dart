@@ -14,5 +14,8 @@ abstract class CardFeaturesState with _$CardFeaturesState {
     CardFilter? draftFilter,
     String? selectedId,
     Failure? failure,
+    CardFeatureAction? footerAction,
+    CardFeaturesEffect? effect,
+    @Default(0) int effectId,
   }) = _CardFeaturesState;
 }

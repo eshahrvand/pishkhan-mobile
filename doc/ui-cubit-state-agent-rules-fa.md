@@ -2450,7 +2450,7 @@ Text(S.current.otpSentMessage(state.maskedPhone));
 
 **نکتهٔ فنی:** ساخت فعلی معتبر است و rebuild معمولی Provider را حتماً reset نمی‌کند. لازم نیست برای اصلاح سبک، lifecycle درست موجود را از بین ببریم.
 
-### ۲۲.۲ CardFeaturesScreen با Cubit دستی
+### ۲۲.۲ CardListScreen با Cubit دستی
 
 **مسئلهٔ خوانایی:** صفحه هم `_cubit` می‌سازد و close می‌کند، هم `bloc:` صریح می‌دهد و هم UI بزرگ و متدهای برگشت‌دهندهٔ Widget دارد.
 

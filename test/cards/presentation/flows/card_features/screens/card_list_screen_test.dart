@@ -117,7 +117,7 @@ void main() {
         try {
           await mount(
             tester,
-            subject(CardFeaturesScreen(initialCategory: category)),
+            subject(CardListScreen(initialCategory: category)),
             height:
                 category == CardCategory.gift ||
                     category == CardCategory.virtual
@@ -154,7 +154,7 @@ void main() {
       await mount(
         tester,
         subject(
-          CardFeaturesScreen(onActionRequested: (value) => request = value),
+          CardListScreen(onActionRequested: (value) => request = value),
         ),
       );
       final more = find
@@ -195,7 +195,7 @@ void main() {
   testWidgets(
     'filter edits commit only on Apply; remove filter and system back work',
     (tester) async {
-      await mount(tester, subject(const CardFeaturesScreen()));
+      await mount(tester, subject(const CardListScreen()));
       await tap(tester, cardControl(tester, 'card_features_filter_button'));
       expect(
         tester.getRect(cardControl(tester, 'card_features_filter_sheet')).top,
@@ -227,7 +227,7 @@ void main() {
       await mount(
         tester,
         subject(
-          CardFeaturesScreen(onActionRequested: (value) => request = value),
+          CardListScreen(onActionRequested: (value) => request = value),
         ),
       );
       await tester.enterText(find.byType(TextField), '۱۰.۱۲۳۴۵۶۷.۲');
@@ -257,7 +257,7 @@ void main() {
       );
       await tap(tester, find.byKey(const Key('dashboard_menu_button')).first);
       await tap(tester, find.text('لیست کارت‌ها').last);
-      expect(find.byType(CardFeaturesScreen), findsOneWidget);
+      expect(find.byType(CardListScreen), findsOneWidget);
       await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
       expect(find.byType(DashboardBankServices), findsOneWidget);
@@ -268,7 +268,7 @@ void main() {
   ) async {
     await mount(
       tester,
-      subject(const CardFeaturesScreen()),
+      subject(const CardListScreen()),
       repository: MockCardsRepository(cards: const []),
     );
     expect(find.byType(AppCardsList), findsNothing);
@@ -281,7 +281,7 @@ void main() {
     await mount(
       tester,
       subject(
-        const CardFeaturesScreen(initialCategory: CardCategory.gift),
+        const CardListScreen(initialCategory: CardCategory.gift),
         scale: 1.4,
       ),
     );
@@ -302,7 +302,7 @@ void main() {
       final pending = Completer<Result<List<ListedCard>>>();
       repo.queue.add(pending);
       await useCardsRepository(repo);
-      await tester.pumpWidget(subject(const CardFeaturesScreen()));
+      await tester.pumpWidget(subject(const CardListScreen()));
       await tester.pump();
       expect(
         tester.widget<AppButton>(find.byType(AppButton).last).isLoading,
@@ -315,7 +315,7 @@ void main() {
       expect(find.byType(AppCardsList), findsNWidgets(4));
       await useCardsRepository(MockCardsRepository(cards: const []));
       await tester.pumpWidget(const SizedBox.shrink());
-      await tester.pumpWidget(subject(const CardFeaturesScreen()));
+      await tester.pumpWidget(subject(const CardListScreen()));
       await tester.pumpAndSettle();
       expect(find.byType(AppCardsList), findsNothing);
       expect(find.text('هنوز کارتی ندارید'), findsOneWidget);

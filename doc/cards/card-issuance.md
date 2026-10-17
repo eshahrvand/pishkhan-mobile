@@ -69,7 +69,7 @@ lib/features/card_issuance/
     widgets/issuance_address_sheet.dart              local address form with existing controls
 lib/core/router/card_features_navigation.dart        allowlisted entry bridge
 lib/features/dashboard/presentation/dashboard_screen.dart  selected-deposit context forwarding
-lib/features/cards/presentation/card_features_screen.dart    default reissue route
+lib/features/cards/presentation/card_list_screen.dart    default reissue route
 lib/shared/widgets/app_invoice.dart                  compatible invoice appearance/copy properties
 lib/shared/widgets/app_address_card.dart             full/default and delivery/compact variants
 lib/shared/widgets/app_delete_address_sheet.dart     reused deletion confirmation

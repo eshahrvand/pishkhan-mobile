@@ -55,7 +55,7 @@ lib/features/cards/
     usecases/load_cards.dart                      Result boundary + ID validation
   data/mock/mock_cards_repository.dart             mock summaries and async adapter
   presentation/
-    card_features_screen.dart                     route composition, view resources
+    card_list_screen.dart                     route composition, view resources
     card_feature_actions.dart                     typed action enum/request contract
     card_features_ui.dart                         labels, assets, category/type mapping
     cubit/card_features_state.dart                immutable data, filter/query/selection
@@ -69,7 +69,7 @@ lib/shared/assets/app_assets.dart                  original Figma artwork regist
 lib/l10n/app_{fa,en,ar}.arb                         feature copy
 lib/l10n/generated/                                generated output
 test/cards/card_features_cubit_test.dart           four state/repository unit cases
-test/cards/card_features_screen_test.dart          twelve flow/render/accessibility cases
+test/cards/card_list_screen_test.dart          twelve flow/render/accessibility cases
 test/cards/support/test_cards_repository.dart      controllable service fake
 doc/cards/card-services.md             this document
 ```
@@ -92,14 +92,14 @@ MockCardsRepository / future live adapter
   -> LoadCards
   -> CardFeaturesCubit
   -> immutable CardFeaturesState
-  -> CardFeaturesScreen + sheet composition
+  -> CardListScreen + sheet composition
   -> shared widgets + avp_ui
 ```
 
 ## 8. Service Flow Pattern and Suspended Requests
 
 ```text
-Dashboard catalog -> card-list -> CardFeaturesScreen(Resalat)
+Dashboard catalog -> card-list -> CardListScreen(Resalat)
                     card-virtual -> VirtualCardRequestScreen
                     card-virtual-list -> same screen(Virtual)
                     card-expired-gift -> same screen(Gift)
@@ -129,7 +129,7 @@ No bank transaction, blocking operation or transfer is performed. Showing/enabli
 
 ## 10. Network and Authentication Layer
 
-The real service replaces MockCardsRepository by implementing CardsRepository and passing it to CardFeaturesScreen.repository. The UI/Cubit loading API does not change.
+The real service replaces MockCardsRepository by implementing CardsRepository and passing it to CardListScreen.repository. The UI/Cubit loading API does not change.
 
 Recommended adapter locations: data/datasources/, data/dto/, data/mappers/, data/repositories/. They are not created with fictitious endpoints. A mapper should preserve string numbers/IBANs and leading zeros, validate unique IDs, decode category/status keys, format dates/amounts consistently, and return Err for a request failure. Success([]) is genuinely empty data.
 
@@ -223,7 +223,7 @@ The package provides IRANYekanX/FaNum faces. UI remains RTL in all locales; card
 
 ## 15. Routing and Guards
 
-Core card_features_navigation.dart allowlists card-list, card-virtual and card-expired-gift. It pushes one CardFeaturesScreen with the corresponding initial category. Dashboard's supplied onServiceRequested callback still takes precedence; existing host integrations are not overridden. Other IDs retain existing handling.
+Core card_features_navigation.dart allowlists card-list, card-virtual and card-expired-gift. It pushes one CardListScreen with the corresponding initial category. Dashboard's supplied onServiceRequested callback still takes precedence; existing host integrations are not overridden. Other IDs retain existing handling.
 
 Back pops the standalone route and preserves Dashboard state. Assistant returns to Home/prompt through the core bridge. Real authentication/service guards and subsequent operation routes are not implied by these UI callbacks.
 
@@ -275,3 +275,18 @@ Without a supplied onActionRequested callback, the reissue sheet action opens Ca
 ## Cubit/State coding convention
 
 Follow [architecture Section 12](../architecture-smart-virtual-counter-v2-en.md#12-state-management-with-cubit) for new work and refactors. State is a plain Freezed data class with defaults and independent request statuses. Cubits accept an initial State, compute UI data and eligibility, and emit immutable snapshots through `copyWith`. UI reads those fields directly; no custom State/Cubit getters or UI-facing rules facade is used. Dependencies remain injectable and lifecycle/duplicate-request safeguards stay in place.
+
+## Card list interaction ownership (2026-10-17)
+
+`CardListScreen` delegates card selection, menu/detail requests, service request
+construction, destination service IDs, footer selection and category reveal
+requests to `CardFeaturesCubit`. Plain State carries `footerAction`, a typed
+`CardFeaturesEffect` and an incrementing `effectId` so repeated interactions
+are delivered. A filtered `BlocConsumer` listener executes navigation, host
+callbacks, sheets, messages and scrolling; sheet selections return to Cubit.
+
+There is no `didChangeDependencies` hook or initial-reveal flag. The provider
+schedules a single post-layout Cubit reveal action, guarded against disposal.
+Search/scroll controllers and chip contexts remain UI-owned layout resources
+and are released with the screen. The initial and subsequent category reveals
+use the same effect path. The builder reads the footer action directly from State.

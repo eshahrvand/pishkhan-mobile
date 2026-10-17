@@ -1,3 +1,7 @@
+import '../widgets/card_feature_actions.dart';
+import 'card_features_effect.dart';
+export 'card_features_effect.dart';
+
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:pishkhan_mobile/core/result/failure.dart';
 
@@ -13,6 +17,7 @@ import '../../../domain/repositories/cards_repository.dart';
 import '../../../domain/usecases/card_features.dart';
 
 part 'card_features_state.dart';
+
 part 'card_features_cubit.freezed.dart';
 
 class CardFeaturesCubit extends Cubit<CardFeaturesState> {
@@ -29,6 +34,11 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
     emit(
       state.copyWith(
         category: category,
+        footerAction: switch (category) {
+          CardCategory.gift => CardFeatureAction.expiredGiftBalance,
+          CardCategory.virtual => CardFeatureAction.requestVirtual,
+          _ => null,
+        },
         selectedCard: cards
             .where((card) => card.id == initialState.selectedId)
             .firstOrNull,
@@ -91,9 +101,20 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
   }
 
   void selectCategory(CardCategory value) {
+    if (isClosed) return;
     emit(
       state.copyWith(
         category: value,
+        footerAction: switch (value) {
+          CardCategory.gift => CardFeatureAction.expiredGiftBalance,
+          CardCategory.virtual => CardFeatureAction.requestVirtual,
+          _ => null,
+        },
+        effect: CardCategoryRevealRequested(
+          value,
+          scrollToEnd: value.index >= 3,
+        ),
+        effectId: state.effectId + 1,
         selectedId: null,
         selectedCard: null,
         visibleCards: filterCards(
@@ -104,6 +125,74 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
         ),
       ),
     );
+  }
+
+  void revealCategory() {
+    if (isClosed) return;
+    emit(
+      state.copyWith(
+        effect: CardCategoryRevealRequested(
+          state.category,
+          scrollToEnd: state.category.index >= 3,
+        ),
+        effectId: state.effectId + 1,
+      ),
+    );
+  }
+
+  void requestMore(String cardId) {
+    if (isClosed) return;
+    final card = state.visibleCards
+        .where((card) => card.id == cardId)
+        .firstOrNull;
+    if (card == null) return;
+    emit(
+      state.copyWith(
+        selectedId: card.id,
+        selectedCard: card,
+        effect: CardActionsRequested(card),
+        effectId: state.effectId + 1,
+      ),
+    );
+  }
+
+  void requestAction(CardFeatureAction action, {ListedCard? card}) {
+    if (isClosed) return;
+    if (card != null && !(state.cards?.contains(card) ?? false)) return;
+    if (action == CardFeatureAction.details) {
+      if (card == null) return;
+      emit(
+        state.copyWith(
+          effect: CardDetailsRequested(card),
+          effectId: state.effectId + 1,
+        ),
+      );
+      return;
+    }
+    emit(
+      state.copyWith(
+        effect: CardServiceRequested(
+          CardFeatureRequest(
+            action: action,
+            card: card,
+            category: card?.category ?? state.category,
+          ),
+          serviceId: switch (action) {
+            CardFeatureAction.requestVirtual => 'card-virtual-request',
+            CardFeatureAction.changeDeposit => 'card-deposit',
+            CardFeatureAction.expiredGiftBalance => 'card-expired-gift',
+            CardFeatureAction.reissue => 'card-reissue',
+            _ => null,
+          },
+        ),
+        effectId: state.effectId + 1,
+      ),
+    );
+  }
+
+  void requestFooterAction() {
+    if (isClosed || state.footerAction == null) return;
+    requestAction(state.footerAction!);
   }
 
   void search(String value) {
