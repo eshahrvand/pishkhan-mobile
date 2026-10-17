@@ -1,25 +1,21 @@
-import 'package:pishkhan_mobile/core/di/injection_container.dart';
-
-import '../card_feature_action.dart';
-import 'card_features_effect.dart';
-export 'card_features_effect.dart';
-
-import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:pishkhan_mobile/core/result/failure.dart';
-
-import '../../../domain/entities/card_filter.dart';
-export '../../../domain/entities/card_filter.dart';
-
-import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
+import 'package:pishkhan_mobile/core/enums/request_status.dart';
+import 'package:pishkhan_mobile/core/result/failure.dart';
 import 'package:pishkhan_mobile/core/result/result.dart';
 
+import '../../../domain/entities/card_filter.dart';
 import '../../../domain/entities/listed_card.dart';
 import '../../../domain/repositories/cards_repository.dart';
 import '../../../domain/usecases/card_features.dart';
+import '../card_feature_action.dart';
+import 'card_features_effect.dart';
+
+export '../../../domain/entities/card_filter.dart';
+export 'card_features_effect.dart';
 
 part 'card_features_state.dart';
-
 part 'card_features_cubit.freezed.dart';
 
 class CardFeaturesCubit extends Cubit<CardFeaturesState> {
@@ -32,74 +28,60 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
   bool _entryInitialized = false;
 
   final _repository = getIt<CardsRepository>();
-  late LoadCards _loader = LoadCards(_repository);
-  int _request = 0;
+  late final _loadCards = LoadCards(_repository);
+  int _cardsRequestId = 0;
 
-  Future<void> load() async {
-    if (isClosed) return;
+  Future<void> fetchCards() {
     final category = _entryInitialized
         ? state.category
         : initialCategory ?? state.category;
     _entryInitialized = true;
-    final request = ++_request;
+    final requestId = ++_cardsRequestId;
+
     emit(
       state.copyWith(
         status: RequestStatus.loading,
         category: category,
-        footerAction: switch (category) {
-          CardCategory.gift => CardFeatureAction.expiredGiftBalance,
-          CardCategory.virtual => CardFeatureAction.requestVirtual,
-          _ => null,
-        },
+        footerAction: _getCategoryFooterAction(category),
         failure: null,
         draftFilter: null,
       ),
     );
-    final result = await _loader();
-    if (isClosed || request != _request) return;
-    switch (result) {
-      case Err(:final failure):
-        emit(state.copyWith(status: RequestStatus.failure, failure: failure));
-      case Success(:final data):
-        final id = data.any((card) => card.id == state.selectedId)
-            ? state.selectedId
-            : null;
-        final deposits = data.map((card) => card.linkedDeposit).toSet().toList()
-          ..sort();
-        emit(
-          state.copyWith(
-            status: RequestStatus.success,
-            cards: data,
-            failure: null,
-            selectedId: id,
-            selectedCard: data.where((card) => card.id == id).firstOrNull,
-            visibleCards: filterCards(
-              data,
-              state.category,
-              state.filter,
-              state.query,
-            ),
-            deposits: deposits,
-          ),
-        );
-    }
-  }
 
-  Future<void> changeRepository(CardsRepository repository) {
-    _loader = LoadCards(repository);
-    return load();
+    return _loadCards().then((result) {
+      if (isClosed || requestId != _cardsRequestId) return;
+
+      switch (result) {
+        case Err(:final failure):
+          emit(state.copyWith(status: RequestStatus.failure, failure: failure));
+        case Success(:final data):
+          final selectedCard = _findCardById(data, state.selectedId);
+
+          emit(
+            state.copyWith(
+              status: RequestStatus.success,
+              cards: data,
+              failure: null,
+              selectedId: selectedCard?.id,
+              selectedCard: selectedCard,
+              visibleCards: _filterCards(
+                data,
+                state.category,
+                state.filter,
+                state.query,
+              ),
+              deposits: _getDepositNumbers(data),
+            ),
+          );
+      }
+    });
   }
 
   void selectCategory(CardCategory value) {
-    if (isClosed) return;
     emit(
       state.copyWith(
         category: value,
-        footerAction: switch (value) {
-          CardCategory.gift => CardFeatureAction.expiredGiftBalance,
-          CardCategory.virtual => CardFeatureAction.requestVirtual,
-          _ => null,
-        },
+        footerAction: _getCategoryFooterAction(value),
         effect: CardCategoryRevealRequested(
           value,
           scrollToEnd: value.index >= 3,
@@ -107,7 +89,7 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
         effectId: state.effectId + 1,
         selectedId: null,
         selectedCard: null,
-        visibleCards: filterCards(
+        visibleCards: _filterCards(
           state.cards ?? const [],
           value,
           state.filter,
@@ -117,8 +99,7 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
     );
   }
 
-  void revealCategory() {
-    if (isClosed) return;
+  void requestSelectedCategoryReveal() {
     emit(
       state.copyWith(
         effect: CardCategoryRevealRequested(
@@ -130,11 +111,8 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
     );
   }
 
-  void requestMore(String cardId) {
-    if (isClosed) return;
-    final card = state.visibleCards
-        .where((card) => card.id == cardId)
-        .firstOrNull;
+  void requestCardActions(String cardId) {
+    final card = _findCardById(state.visibleCards, cardId);
     if (card == null) return;
     emit(
       state.copyWith(
@@ -146,19 +124,35 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
     );
   }
 
-  void requestAction(CardFeatureAction? action, {ListedCard? card}) {
-    if (isClosed || action == null) return;
-    if (card != null && !(state.cards?.contains(card) ?? false)) return;
+  void handleCardActionSelection(
+    CardFeatureAction? action, {
+    ListedCard? card,
+  }) {
+    if (action == null) return;
+
     if (action == CardFeatureAction.details) {
-      if (card == null) return;
-      emit(
-        state.copyWith(
-          effect: CardDetailsRequested(card),
-          effectId: state.effectId + 1,
-        ),
-      );
+      if (card != null) requestCardDetails(card);
       return;
     }
+
+    requestCardService(action, card: card);
+  }
+
+  void requestCardDetails(ListedCard card) {
+    if (!(state.cards?.contains(card) ?? false)) return;
+
+    emit(
+      state.copyWith(
+        effect: CardDetailsRequested(card),
+        effectId: state.effectId + 1,
+      ),
+    );
+  }
+
+  void requestCardService(CardFeatureAction action, {ListedCard? card}) {
+    if (action == CardFeatureAction.details) return;
+    if (card != null && !(state.cards?.contains(card) ?? false)) return;
+
     emit(
       state.copyWith(
         effect: CardServiceRequested(
@@ -167,13 +161,7 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
             card: card,
             category: card?.category ?? state.category,
           ),
-          serviceId: switch (action) {
-            CardFeatureAction.requestVirtual => 'card-virtual-request',
-            CardFeatureAction.changeDeposit => 'card-deposit',
-            CardFeatureAction.expiredGiftBalance => 'card-expired-gift',
-            CardFeatureAction.reissue => 'card-reissue',
-            _ => null,
-          },
+          serviceId: _getCardServiceId(action),
         ),
         effectId: state.effectId + 1,
       ),
@@ -181,15 +169,17 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
   }
 
   void requestFooterAction() {
-    if (isClosed || state.footerAction == null) return;
-    requestAction(state.footerAction!);
+    final action = state.footerAction;
+    if (action == null) return;
+
+    requestCardService(action);
   }
 
-  void search(String value) {
+  void updateSearchQuery(String value) {
     emit(
       state.copyWith(
         query: value,
-        visibleCards: filterCards(
+        visibleCards: _filterCards(
           state.cards ?? const [],
           state.category,
           state.filter,
@@ -197,17 +187,6 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
         ),
       ),
     );
-  }
-
-  void selectCard(String id) {
-    if (state.visibleCards.any((card) => card.id == id)) {
-      emit(
-        state.copyWith(
-          selectedId: id,
-          selectedCard: state.cards?.where((card) => card.id == id).firstOrNull,
-        ),
-      );
-    }
   }
 
   void requestFilter() {
@@ -221,7 +200,7 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
     );
   }
 
-  void updateDraftStatus(String value) {
+  void updateDraftCardStatus(String value) {
     if (state.draftFilter == null) return;
     emit(
       state.copyWith(
@@ -233,7 +212,7 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
     );
   }
 
-  void updateDraftDeposit(String value) {
+  void updateDraftDepositNumber(String value) {
     if (state.draftFilter == null) return;
     emit(
       state.copyWith(
@@ -245,21 +224,13 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
     );
   }
 
-  void filterPresentationClosed(bool? applied) {
-    if (isClosed || state.draftFilter == null) return;
+  void handleFilterSheetResult(bool? applied) {
+    if (state.draftFilter == null) return;
     if (applied == true) {
       applyFilter();
     } else {
       cancelFilter();
     }
-  }
-
-  void beginFilter() {
-    emit(state.copyWith(draftFilter: state.filter));
-  }
-
-  void setDraft(CardFilter value) {
-    if (state.draftFilter != null) emit(state.copyWith(draftFilter: value));
   }
 
   void applyFilter() {
@@ -270,7 +241,7 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
         draftFilter: null,
         selectedId: null,
         selectedCard: null,
-        visibleCards: filterCards(
+        visibleCards: _filterCards(
           state.cards ?? const [],
           state.category,
           state.draftFilter!,
@@ -280,8 +251,10 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
     );
   }
 
-  void clearDraftFilter() {
-    setDraft(const CardFilter());
+  void resetDraftFilter() {
+    if (state.draftFilter == null) return;
+
+    emit(state.copyWith(draftFilter: const CardFilter()));
   }
 
   void cancelFilter() {
@@ -289,7 +262,34 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
     emit(state.copyWith(draftFilter: null));
   }
 
-  List<ListedCard> filterCards(
+  ListedCard? _findCardById(List<ListedCard> cards, String? cardId) {
+    if (cardId == null) return null;
+    return cards.where((card) => card.id == cardId).firstOrNull;
+  }
+
+  List<String> _getDepositNumbers(List<ListedCard> cards) {
+    return cards.map((card) => card.linkedDeposit).toSet().toList()..sort();
+  }
+
+  CardFeatureAction? _getCategoryFooterAction(CardCategory category) {
+    return switch (category) {
+      CardCategory.gift => CardFeatureAction.expiredGiftBalance,
+      CardCategory.virtual => CardFeatureAction.requestVirtual,
+      _ => null,
+    };
+  }
+
+  String? _getCardServiceId(CardFeatureAction action) {
+    return switch (action) {
+      CardFeatureAction.requestVirtual => 'card-virtual-request',
+      CardFeatureAction.changeDeposit => 'card-deposit',
+      CardFeatureAction.expiredGiftBalance => 'card-expired-gift',
+      CardFeatureAction.reissue => 'card-reissue',
+      _ => null,
+    };
+  }
+
+  List<ListedCard> _filterCards(
     List<ListedCard> cards,
     CardCategory category,
     CardFilter filter,
@@ -309,7 +309,7 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
 
   @override
   Future<void> close() {
-    _request++;
+    _cardsRequestId++;
     return super.close();
   }
 

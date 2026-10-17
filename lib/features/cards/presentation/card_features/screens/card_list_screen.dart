@@ -74,12 +74,15 @@ class _CardListScreenState extends State<CardListScreen> {
           context.read<CardFeaturesCubit>(),
         );
         if (context.mounted) {
-          context.read<CardFeaturesCubit>().filterPresentationClosed(applied);
+          context.read<CardFeaturesCubit>().handleFilterSheetResult(applied);
         }
       case CardActionsRequested(:final card):
         final action = await showCardActions(context, card);
         if (!context.mounted) return;
-        context.read<CardFeaturesCubit>().requestAction(action, card: card);
+        context.read<CardFeaturesCubit>().handleCardActionSelection(
+          action,
+          card: card,
+        );
       case CardDetailsRequested(:final card):
         await showCardDetails(context, card);
       case CardServiceRequested(:final request, :final serviceId):
@@ -108,10 +111,10 @@ class _CardListScreenState extends State<CardListScreen> {
     return BlocProvider<CardFeaturesCubit>(
       create: (_) {
         final cubit = CardFeaturesCubit(initialCategory: widget.initialCategory)
-          ..load();
+          ..fetchCards();
         // Initial reveal needs the chip layout and a subscribed listener.
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (!cubit.isClosed) cubit.revealCategory();
+          if (!cubit.isClosed) cubit.requestSelectedCategoryReveal();
         });
         return cubit;
       },
@@ -218,7 +221,7 @@ class _CardListScreenState extends State<CardListScreen> {
                                         ),
                                         onChanged: context
                                             .read<CardFeaturesCubit>()
-                                            .search,
+                                            .updateSearchQuery,
                                       ),
                                     ),
                                     const SizedBox(width: 8),
@@ -255,7 +258,7 @@ class _CardListScreenState extends State<CardListScreen> {
                                   hasFooter: state.footerAction != null,
                                   onMore: (card) => context
                                       .read<CardFeaturesCubit>()
-                                      .requestMore(card.id),
+                                      .requestCardActions(card.id),
                                 ),
                               ),
                             ],

@@ -43,7 +43,7 @@ class CardFeaturesContent extends StatelessWidget {
               children: [
                 Text(S.current.dashboardLoadError),
                 AppButton(
-                  onPressed: context.read<CardFeaturesCubit>().load,
+                  onPressed: context.read<CardFeaturesCubit>().fetchCards,
                   label: S.current.dashboardRetry,
                 ),
               ],

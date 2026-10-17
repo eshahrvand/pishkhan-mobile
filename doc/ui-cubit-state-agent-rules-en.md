@@ -1,7 +1,7 @@
 # UI, Cubit and State Coding Contract for the Team and Agents
 
 **Project:** Smart Virtual Counter — `pishkhan_mobile`  
-**Version:** 1.7 — mandatory consolidated architecture and UI style contract (async `.then` style and `isClosed` rule added in Section 8)<br>
+**Version:** 1.7 — mandatory consolidated architecture and UI style contract (Section 6 includes approved readability rules and before/after examples; Section 8 defines async style)<br>
 **Date:** 2026-10-17<br>
 **Scope:** Presentation coding style, State management and readability rules  
 **Status:** This revision changes documentation only. Earlier reviews and code examples may describe historical implementations; they do not override the mandatory ownership rules below.
@@ -794,6 +794,190 @@ The validator's name differs between the reference and the current project; do n
 **Owner clarification: live validation starts with the first entered digit in the login national-ID and mobile-number fields, including the shared change-phone input.** Every `onChanged` event calls its field-specific Cubit action, which checks the shared validator and emits both the fresh value and its error flag together. Any nonempty invalid value, including incomplete input, immediately shows the existing red error text. Do not wait for the full length, focus loss, a debounce or submit. A valid value immediately clears the error. An untouched empty field has no typing error; required-field errors on focus loss or submit remain supported. UI reads the error flag directly through its existing BlocBuilder, and no error is stored with `setState`. This explicit clarification takes precedence over the older reference snippet that delayed national-ID errors until ten digits.
 
 String field identifiers in server error contracts are a separate concern. Do not infer automatic changes to server fieldErrors contracts from the prohibition on String-based dispatch in fixed forms.
+
+### 6.6 Action Names, Method Focus and Internal Helpers
+
+**Owner clarification, 2026-10-17:** Cubit code must make the operation clear
+from its name and keep its responsibilities easy to follow. Apply these rules
+alongside Sections 6.4 and 8; shorter methods never justify hidden State updates
+or removal of required async safeguards.
+
+**Documentation boundary:** [architecture Sections 12.2–12.7](architecture-smart-virtual-counter-v2-en.md#12-state-management-with-cubit)
+define ownership, stable dependencies, production APIs and operation lifetime;
+[architecture Section 16.3](architecture-smart-virtual-counter-v2-en.md#163-cubit-testing)
+defines behavioral testing boundaries. This section specifies how to express
+those decisions in code. The approved before/after examples are in Section 6.7.
+
+- Name an action with a verb and its subject: `fetchCards`, `updateSearchQuery`,
+  `requestCardActions`, `handleCardActionSelection` or `resetDraftFilter`.
+  Avoid a bare `load`, `process`, `handle`, `setDraft` or `requestMore` when the
+  reader must open the body to discover the data or interaction involved.
+  Earlier snippets using `load()` illustrate initialization placement, not a
+  requirement to use that name. This clarification does not authorize a global rename.
+- Distinguish fetching data, updating input, requesting a Flutter effect and
+  handling a returned modal result. Names should describe those differences.
+  A result-handler name should identify the sheet/action whose result it accepts.
+- Each action represents one coherent event or operation. Loading, success and
+  failure publication belong to the same fetch operation; do not split them
+  into `emitLoading`, `handleSuccess`, `publishCards` or similar State-publication
+  helpers just to shorten the method.
+- Review a long method for repeated calculations, nested decisions, repeated
+  searches and unrelated behaviors. There is no fixed line-count limit for a
+  Cubit action. An explicit `copyWith` with several dependent fields can be
+  clearer than several small methods that hide those fields.
+- Extract repeated or substantial calculations into private, specifically named
+  pure helpers. A helper returns a value such as a selected card, sorted deposit
+  numbers, filtered cards, an action or a service ID. It must not return a State,
+  emit, mutate Cubit fields or become a second rules facade (Section 6.4).
+  Different real actions may call each other when that expresses the flow;
+  generic publication helpers remain prohibited.
+- Keep implementation helpers private unless a real external consumer needs
+  them. Apply architecture Section 12.7 when deciding whether a public setter or
+  dependency-replacement action represents actual product behavior; tests alone
+  do not establish that requirement.
+- Name internal dependencies and request generations by purpose, for example
+  `_loadCards` and `_cardsRequestId`, rather than `_loader` and `_request`.
+  Immutable dependency references use `final`; `late` does not justify mutability.
+- Lifecycle checks follow Section 8.3 exactly: no `isClosed` in synchronous
+  actions or before starting a Future, and one combined disposal/stale-response
+  guard at the top of the returned `.then` callback. Keep business guards such
+  as missing selection, cancelled modal, no draft or duplicate submission.
+  Do not replace these checks with `safeEmit`, an overridden `emit` or a BaseCubit.
+- Apply architecture Section 16.3 when changing tests: synchronous calls after
+  `close()` do not justify prohibited guards. Pending-request disposal and
+  out-of-order-response tests remain required for those actual behaviors.
+
+### 6.7 Approved Before/After Coding Examples
+
+These comparisons establish implementation style, not a report that application
+Dart has already been changed. **Before** shows the reviewed pattern; **after**
+shows the approved form. Keep the current plain State and typed effects.
+The complete [CardFeaturesCubit comparison](../reports/2026-10-17-card-features-cubit-style-review.md)
+also covers `fetchCards`, its returned `.then` chain, service-action separation
+and call-site updates. The report supplies worked examples; this contract and
+the architecture document contain the rules. Future work does not need to
+depend on the historical report to understand the standard.
+
+#### 6.7.1 Name the Interaction and Remove Synchronous Lifecycle Noise
+
+Before:
+
+```dart
+void requestMore(String cardId) {
+  if (isClosed) return;
+  final card = state.visibleCards
+      .where((card) => card.id == cardId)
+      .firstOrNull;
+  if (card == null) return;
+  emit(
+    state.copyWith(
+      selectedId: card.id,
+      selectedCard: card,
+      effect: CardActionsRequested(card),
+      effectId: state.effectId + 1,
+    ),
+  );
+}
+```
+
+After:
+
+```dart
+void requestCardActions(String cardId) {
+  final card = _findCardById(state.visibleCards, cardId);
+  if (card == null) return;
+
+  emit(
+    state.copyWith(
+      selectedId: card.id,
+      selectedCard: card,
+      effect: CardActionsRequested(card),
+      effectId: state.effectId + 1,
+    ),
+  );
+}
+
+ListedCard? _findCardById(List<ListedCard> cards, String? cardId) {
+  if (cardId == null) return null;
+  return cards.where((card) => card.id == cardId).firstOrNull;
+}
+```
+
+The name describes the requested effect. The card-existence business guard
+remains. The private lookup is justified by actual reuse in selection/reload;
+do not extract every short expression mechanically. No synchronous `isClosed`
+check is added. Delayed UI delivery follows architecture Section 12.4.
+
+#### 6.7.2 Keep a Specific State Change Visible in Its Action
+
+Before:
+
+```dart
+void setDraft(CardFilter value) {
+  if (state.draftFilter != null) emit(state.copyWith(draftFilter: value));
+}
+
+void clearDraftFilter() {
+  setDraft(const CardFilter());
+}
+```
+
+After:
+
+```dart
+void resetDraftFilter() {
+  if (state.draftFilter == null) return;
+
+  emit(
+    state.copyWith(
+      draftFilter: const CardFilter(),
+    ),
+  );
+}
+```
+
+The specific action shows its entire update and preserves the open-draft guard.
+It does not change the committed filter or visible cards before Apply. Existing
+consumers of the generic setter must be reviewed and updated before deleting it.
+
+#### 6.7.3 Extract a Reused Calculation, Not a State Snapshot
+
+Before: the following calculation is repeated inside the `copyWith` arguments
+of both the fetch and category-selection actions:
+
+```dart
+footerAction: switch (category) {
+  CardCategory.gift => CardFeatureAction.expiredGiftBalance,
+  CardCategory.virtual => CardFeatureAction.requestVirtual,
+  _ => null,
+},
+```
+
+After: both actions read the result directly in their own `copyWith`:
+
+```dart
+footerAction: _getCategoryFooterAction(category),
+```
+
+The private pure helper is:
+
+```dart
+CardFeatureAction? _getCategoryFooterAction(CardCategory category) {
+  return switch (category) {
+    CardCategory.gift => CardFeatureAction.expiredGiftBalance,
+    CardCategory.virtual => CardFeatureAction.requestVirtual,
+    _ => null,
+  };
+}
+```
+
+The helper returns one decision. It never returns `CardFeaturesState`, updates
+fields or emits. Loading/result/failure remain in the named fetch operation;
+Section 8.1 supplies the canonical returned-Future pattern with one async guard.
+
+These examples introduce no fixed method-length limit. Renaming `load` to
+`fetchCards` must also update Provider initialization, retry and tests; it must
+not move initialization into the constructor or add a construction wrapper.
 
 ## 7. Calculations and Dependent Fields
 
@@ -3030,7 +3214,9 @@ This text is a compact summary of the mandatory contract, not an alternative to 
 ### 24.3 While Writing Cubit
 
 - [ ] Cubit resolves its dependencies from GetIt fields; there are no Repository/service/UseCase constructor arguments or UI/router lookups.
-- [ ] Every action has a clear behavioral name.
+- [ ] Every action names its verb and subject; names distinguish input updates, fetching, effect requests and returned results (Section 6.6).
+- [ ] Method boundaries follow real operations; repeated calculations are private pure helpers, without generic State-publication methods (Sections 6.4–6.7).
+- [ ] Public APIs and mutable dependencies have real product consumers; test setup follows architecture Section 12.7.
 - [ ] Requests, footer/action choices, destination intents and modal-result interpretation are owned here, not duplicated in UI.
 - [ ] Necessary effects carry prepared data and support repeated delivery without Flutter resources.
 - [ ] Input emits update dependent results in the same snapshot.

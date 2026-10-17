@@ -973,13 +973,20 @@ State management uses `Cubit`. For the `assistant` feature, which is event-drive
 
 ### 12.2 Cubit and State Coding Convention
 
-This is the required convention for new features and refactors. The reference supplied by the project owner is from another application; its Cubit/State structure is adopted with this project's models, dependency injection and `RequestStatus` names.
+This section defines architectural ownership, dependency boundaries and operation
+lifetime. The authoritative [UI/Cubit/State coding contract](ui-cubit-state-agent-rules-en.md)
+defines the implementation style: Section 6.6 covers action names and method
+responsibilities, Section 6.7 gives before/after examples, and Section 8 covers
+async callbacks and guards. Apply both documents; older examples here do not
+override that contract. These are requirements for authorized new work and
+refactors, not a claim that every existing Cubit already complies.
 
-* Each Cubit owns one plain Freezed State, declared with `const factory`, `@Default` values and `part '<name>_state.freezed.dart'`.
+* Each Cubit owns one plain Freezed State with a single `const factory State.initial(...)` and useful `@Default` values. Preserve the current organization: the State file is `part of` the Cubit library, and the Cubit declares `part '<name>_state.dart'` and `part '<name>_cubit.freezed.dart'`.
 * State contains data only. Do not add handwritten getters, calculation methods or a private constructor solely to support them. Generated Freezed accessors, equality and `copyWith` are framework infrastructure, not custom business getters.
 * Give each independent async operation its own status field. Use `RequestStatus { initial, loading, success, failure }` from `core/enums/`. A single-operation Cubit may use `status`; multiple operations use meaningful names such as `checkStatus`, `quoteStatus` and `submissionStatus`.
 * UI reads State fields directly. Check `state.submissionStatus == RequestStatus.loading` directly in widget arguments; do not introduce getter aliases or local `loading`, `empty` or `form` variables in builders.
-* Calculations, filtering, selection resolution, totals and validation belong in Cubit action methods. Store results needed by UI in State fields and update them together with their inputs using `emit(state.copyWith(...))`. A feature-specific private helper may coordinate related updates; do not override `emit` to calculate business data or create a separate rules facade for UI to call.
+* Cubit owns flow decisions, input validation coordination, filtering, selection resolution and request construction; reusable business rules belong in Domain. UI sends events, renders State, executes prepared Flutter effects and returns raw modal results to Cubit. State contains data, not behavior.
+* Store derived results needed by UI in State and update them together with their inputs using explicit `emit(state.copyWith(...))` in the action. Pure helpers return values; they never construct or publish State. No State-preparation/publication intermediary, overridden `emit` or separate rules facade may hide these transitions.
 * Cubit constructors accept an initial State and real entry parameters only. A Cubit resolves its registered Repository, service and UseCase dependencies from GetIt in its own fields; dependencies are not passed through Cubit constructors, screen constructors, route arguments or child widgets. Cubit/Bloc are never registered in GetIt. Do not copy the other application's models or imports. See the UI/Cubit/State contract, Section 2.2.
 * Keep defaults non-null for known values (`bool`, counters, lists and statuses). Use nullable fields when absence is meaningful. Do not copy nullable defaults mechanically from the reference.
 * Keep controllers, focus nodes and `BuildContext` in UI lifecycle owners. No global mutable feature caches. Preserve disposal, stale-response guards and duplicate-request protection.
@@ -989,7 +996,7 @@ This is the required convention for new features and refactors. The reference su
 ```dart
 @freezed
 abstract class ChangeCardDepositState with _$ChangeCardDepositState {
-  const factory ChangeCardDepositState({
+  const factory ChangeCardDepositState.initial({
     @Default(RequestStatus.initial) RequestStatus status,
     @Default(RequestStatus.initial) RequestStatus submissionStatus,
     @Default(<CardServiceDeposit>[]) List<CardServiceDeposit> destinations,
@@ -1004,7 +1011,7 @@ abstract class ChangeCardDepositState with _$ChangeCardDepositState {
 
 class ChangeCardDepositCubit extends Cubit<ChangeCardDepositState> {
   ChangeCardDepositCubit({
-    ChangeCardDepositState initialState = const ChangeCardDepositState(),
+    ChangeCardDepositState initialState = const ChangeCardDepositState.initial(),
   }) : super(initialState);
 
   final repository = getIt<CardServicesRepository>();
@@ -1019,12 +1026,6 @@ class ChangeCardDepositCubit extends Cubit<ChangeCardDepositState> {
   }
 }
 
-// Flow entry: create once, initialize explicitly, close on scope removal.
-BlocProvider(
-  create: (_) => ChangeCardDepositCubit()..load(),
-  child: const ChangeCardDepositView(),
-);
-
 // UI reads existing fields and statuses directly.
 AppButton(
   isLoading: state.submissionStatus == RequestStatus.loading,
@@ -1034,6 +1035,12 @@ AppButton(
 ```
 
 Data remains in the same State across request transitions unless an action explicitly clears or resets it. A business outcome is a State field, not a new value in the shared request-status enum. Shared enums live in `core/enums/`; flow-specific step/outcome enums stay with their feature.
+
+The snippet illustrates State and action ownership. The State definition belongs
+in its `part of` file. Provider construction and its explicit initial action
+belong directly in the owning screen/feature-flow widget (Section 12.6), without
+an extra Screen/View wrapper. Complete coding examples belong to the coding
+contract rather than introducing another screen template here.
 
 ### 12.3 Code Generation Policy
 
@@ -1051,10 +1058,20 @@ In `build.yaml`, each generator's scope is narrowed: `json_serializable` only un
 
 ### 12.4 Cubit Actions and Request Lifecycle
 
-Use concrete Cubit methods and explicit `emit(state.copyWith(...))` transitions. Cubit actions use dependencies resolved in Cubit-owned fields (Section 12.2) and operation-specific status guards; a custom BaseCubit is not required by this coding convention.
+One action represents a coherent operation or user event. Fetching a card list
+includes publishing loading, success or failure; these transitions remain
+visible in that action. Different user operations, such as requesting card
+details and requesting a banking service, have distinct actions. Repeated
+calculations may be private pure helpers; dividing an operation into generic
+State-publication helpers is prohibited. Action naming and worked examples are
+specified in coding-contract Sections 6.6–6.7.
+
+Actions resolve dependencies in Cubit-owned fields (Section 12.2), return their
+async work, and retain operation-specific business guards. A BaseCubit or
+`safeEmit` wrapper must not hide State transitions or disposal checks.
 
 ```dart
-Future<void> load() {
+Future<void> fetchCardServiceCatalog() {
   final generation = ++_generation;
   emit(state.copyWith(status: RequestStatus.loading, failure: null));
 
@@ -1071,11 +1088,12 @@ Future<void> load() {
 }
 ```
 
-* Every submission checks its operation's loading/success status before starting and sets loading before awaiting. This prevents double taps and edits during a pending request. Server idempotency remains mandatory for bank execution.
+* Every submission checks its operation's loading/success status before starting and publishes loading before starting the Future. Relevant edit actions also enforce the pending-operation lock; disabling the button alone is insufficient. Server idempotency remains mandatory for bank execution.
 * Every asynchronous completion checks `isClosed` once, at the top of its `.then` (or Timer) callback. Synchronous Cubit methods and the start of async methods do not check it, because the Cubit closes together with the screen that calls them. Where requests can overlap or inputs/adapters change, a generation/request ID rejects obsolete responses in the same guard.
 * Dispose timers and owned resources when the owning scope closes. Keep per-flow caches private and in memory only when their lifetime matches the flow; never use global mutable caches.
-* Related derived fields must be updated in one snapshot whenever their inputs change. A private Cubit helper may calculate a snapshot with `copyWith` and emit it; State and UI must not perform those calculations. Do not override `emit` to introduce implicit business behavior.
-* `BlocProvider(create: ...)` owns creation/disposal at the flow composition root. Existing controller-owning screens may expose an already-owned Cubit with `BlocProvider.value`; in that case the creator explicitly closes it. Never treat `BlocProvider.value` as the owner of an instance it did not create.
+* Related derived fields must be updated in one snapshot whenever their inputs change. Calculations may return pure values, but `copyWith` and `emit` stay explicit in the action. Do not add helpers that prepare, return or publish State, even privately.
+* A delayed UI callback must check its actual Flutter lifecycle/resource boundary before calling a synchronous action. Examples include a post-frame reveal or a modal result after `await`. UI checks `mounted` or the scheduled scope's lifetime as applicable; do not add blanket synchronous Cubit guards to compensate for a stale UI callback. UI still returns raw results without interpreting flow decisions.
+* `BlocProvider(create: ...)` owns creation/disposal at the screen/feature-flow boundary. `BlocProvider.value` only shares that existing instance across a real boundary such as a sheet; it never creates a replacement or transfers closing responsibility.
 
 ### 12.5 Form Pattern
 
@@ -1084,7 +1102,7 @@ Future<void> load() {
 ```dart
 @freezed
 abstract class LoanRequestFormState with _$LoanRequestFormState {
-  const factory LoanRequestFormState({
+  const factory LoanRequestFormState.initial({
     @Default('') String amount,
     @Default(null) LoanPurpose? purpose,
     @Default('') String nationalCode,
@@ -1103,9 +1121,27 @@ abstract class LoanRequestFormState with _$LoanRequestFormState {
 
 ### 12.6 Flow Cubit Lifecycle
 
-* Provide each flow Cubit through `BlocProvider(create: ...)` at its route entry or `ShellRoute` scope (Section 15.4). A single-screen, internally stepped flow may own a provider at its screen boundary. Child views resolve it through `context.read` and builders/listeners; they do not manually own or close a second instance. The provider calls the initial action and owns disposal; ordinary widget rebuilds must retain the same flow state.
+* The screen or feature-owned flow widget constructs its Cubit directly in `BlocProvider(create: ...)` and calls the explicit initial action there. A shared multi-screen flow places this Provider at its actual common feature boundary; child screens reuse it. GoRouter only selects the destination widget and typed inputs, never creates a screen Cubit or wires its data dependencies. The Provider owns disposal; ordinary rebuilds retain the same instance.
 * Constructed directly in `BlocProvider(create: ...)` so each flow entry gets a fresh instance. Cubit/Bloc are never registered in GetIt, with `@injectable`, `@singleton` or any other lifetime.
 * Screens, child widgets and the router must not call `getIt` for data dependencies; the Cubit resolves them in its own fields (Section 12.2).
+
+### 12.7 Production API and Dependency Stability
+
+* Public actions model real screen/flow events and operations. Pure calculations
+  used only inside Cubit stay private. Tests exercise the production interaction
+  path rather than requiring parallel generic setters or extra initialization APIs.
+* Resolve registered dependencies into final Cubit fields. A UseCase constructed
+  from a dependency may be `late final` when needed for initialization order.
+  Runtime dependency replacement needs an actual authorized product requirement;
+  tests alone do not justify `changeRepository`, mutable loaders or Repository
+  parameters on screens/Cubit constructors.
+* Tests install controlled GetIt registrations before construction and reset them
+  afterward. Replacing a registration does not replace a dependency already held
+  by an existing Cubit. Create a fresh scope when testing a different dependency.
+* A style refactor preserves the current plain State structure, initial snapshot,
+  request identity, stale-response protection, typed effect delivery and business
+  guards. Removing an unused API requires updating its consumers and behavior
+  tests; it does not authorize deleting operational State fields automatically.
 
 ---
 
@@ -1557,6 +1593,14 @@ On seeing the `resume` parameter, the flow fetches state from the server instead
 
 Using `bloc_test` to assert states are emitted in the correct order. For forms, tests cover field-level validation and operation-status guards against repeated invocation.
 
+Exercise actual actions while their Provider-owned scope is alive. Do not make
+silent no-ops for arbitrary synchronous calls after `close()` a test requirement;
+that would enforce guards prohibited by the coding contract. Test the real async
+boundaries: pending completion after close, out-of-order responses, preserved
+selection/search during a fetch, repeated effects, filter Apply/cancel and
+duplicate-submission protection. UI tests cover safe delivery of delayed modal
+or post-frame callbacks. Data-dependency overrides follow Section 12.7.
+
 ### 16.4 End-to-End Testing
 
 Five to eight critical scenarios using `integration_test` or `patrol`:
@@ -1806,6 +1850,14 @@ The complete list is provided in the separate document "Bank Requirements and De
 ---
 
 ## 21. Change Log
+
+**2026-10-17 approved Cubit readability review:** Section 12 separates architectural
+ownership/lifetime from coding-contract Sections 6.6–6.7. State examples preserve
+`.initial` and the current `part of` organization; the older permission for
+State-preparation/publication helpers is removed. Sections 12.6–12.7 specify
+screen/feature-owned Providers, real production action APIs and stable dependency
+fields. Section 16.3 distinguishes async disposal tests from artificial synchronous
+post-close calls. Application Dart code is unchanged by this documentation update.
 
 **2026-10-17 alignment with the UI/Cubit/State contract (v1.7):** Sections 3, 6.3, 12.2, 12.4, 12.5, 12.6 and 15.3 now match the contract. Cubit/Bloc are never registered in GetIt and Cubits resolve Repository/service/UseCase dependencies from their own fields; DI registration is manual `get_it` in `core/di` (the `injectable` auto-registration entry is removed); the router neither creates nor injects data dependencies; Cubit async actions use a returned `.then` chain with one `isClosed` guard per async completion and none in synchronous methods; the login national-ID and mobile fields validate from the first digit. Section 10.3 (Idempotency-Key lifetime) is unchanged by this update.
 

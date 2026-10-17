@@ -31,7 +31,7 @@ class CardFilterSheet extends StatelessWidget {
               showTextAction: true,
               textActionLabel: S.current.cardFeatureRemoveFilter,
               textActionColor: AppCardFeatureColors.destructiveAction,
-              onLeftAction: context.read<CardFeaturesCubit>().clearDraftFilter,
+              onLeftAction: context.read<CardFeaturesCubit>().resetDraftFilter,
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
@@ -57,7 +57,7 @@ class CardFilterSheet extends StatelessWidget {
                         ),
                     ],
                     onChanged: (value) {
-                      context.read<CardFeaturesCubit>().updateDraftStatus(
+                      context.read<CardFeaturesCubit>().updateDraftCardStatus(
                         value,
                       );
                     },
@@ -81,9 +81,9 @@ class CardFilterSheet extends StatelessWidget {
                         AppSelectOption(value: deposit, label: deposit),
                     ],
                     onChanged: (value) {
-                      context.read<CardFeaturesCubit>().updateDraftDeposit(
-                        value,
-                      );
+                      context
+                          .read<CardFeaturesCubit>()
+                          .updateDraftDepositNumber(value);
                     },
                   ),
                 ],

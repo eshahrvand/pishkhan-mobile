@@ -132,7 +132,7 @@ void main() {
       expect(issuance.state, issuanceSeed);
       expect(password.state, passwordSeed);
       expect(virtual.state, virtualSeed);
-      await cards.load();
+      await cards.fetchCards();
       expect(cards.state.category, CardCategory.gift);
       expect(cards.state.footerAction, isNotNull);
       await cards.close();
