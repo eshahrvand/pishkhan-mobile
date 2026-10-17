@@ -17,18 +17,6 @@ class PasswordFlowFooter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<SecondPasswordCubit, SecondPasswordState>(
-      buildWhen: (previous, current) =>
-          previous.canContinue != current.canContinue ||
-          previous.status != current.status ||
-          previous.checkStatus != current.checkStatus ||
-          previous.submissionStatus != current.submissionStatus ||
-          previous.step != current.step ||
-          previous.terms != current.terms ||
-          previous.record != current.record ||
-          previous.catalog != current.catalog ||
-          previous.showFullStatus != current.showFullStatus ||
-          previous.isChange != current.isChange ||
-          previous.formComplete != current.formComplete,
       builder: (context, state) {
         if (state.showFullStatus) {
           return Padding(

@@ -36,22 +36,6 @@ class _PasswordFlowContentState extends State<PasswordFlowContent> {
       listener: (context, state) {
         if (_scroll.hasClients) _scroll.jumpTo(0);
       },
-      buildWhen: (previous, current) =>
-          previous.step != current.step ||
-          previous.status != current.status ||
-          previous.catalog != current.catalog ||
-          previous.operation != current.operation ||
-          previous.kind != current.kind ||
-          previous.cardId != current.cardId ||
-          previous.secondPasswordSelected != current.secondPasswordSelected ||
-          previous.record != current.record ||
-          previous.showFullStatus != current.showFullStatus ||
-          previous.failure != current.failure ||
-          previous.isChange != current.isChange ||
-          previous.card != current.card ||
-          previous.cardsForSelectedKind != current.cardsForSelectedKind ||
-          previous.selectionComplete != current.selectionComplete ||
-          previous.walletSufficient != current.walletSufficient,
       builder: (context, state) => state.showFullStatus
           ? SingleChildScrollView(
               padding: const EdgeInsetsDirectional.fromSTEB(16, 36, 16, 20),

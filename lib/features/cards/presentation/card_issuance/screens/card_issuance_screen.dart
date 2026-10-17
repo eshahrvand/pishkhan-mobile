@@ -144,29 +144,6 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
                   previous.status != current.status ||
                   previous.submissionStatus != current.submissionStatus,
               listener: _handleProgress,
-              buildWhen: (previous, current) =>
-                  previous.addressSavedId != current.addressSavedId ||
-                  previous.navigation != current.navigation ||
-                  previous.isAddressFormError != current.isAddressFormError ||
-                  previous.deposit != current.deposit ||
-                  previous.address != current.address ||
-                  previous.selectionComplete != current.selectionComplete ||
-                  previous.deliveryComplete != current.deliveryComplete ||
-                  previous.fees != current.fees ||
-                  previous.totalRial != current.totalRial ||
-                  previous.walletSufficient != current.walletSufficient ||
-                  previous.editable != current.editable ||
-                  previous.canContinue != current.canContinue ||
-                  previous.request != current.request ||
-                  previous.status != current.status ||
-                  previous.submissionStatus != current.submissionStatus ||
-                  previous.catalog != current.catalog ||
-                  previous.draft != current.draft ||
-                  previous.step != current.step ||
-                  previous.invoiceExpanded != current.invoiceExpanded ||
-                  previous.summaryExpanded != current.summaryExpanded ||
-                  previous.failure != current.failure ||
-                  previous.receipt != current.receipt,
               builder: (context, state) {
                 return PopScope<void>(
                   canPop: state.navigation == FlowNavigation.back,

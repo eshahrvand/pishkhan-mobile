@@ -117,10 +117,6 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
               previous.effectId != current.effectId,
           listener: _handleEffect,
           child: BlocBuilder<SecondPasswordCubit, SecondPasswordState>(
-            buildWhen: (previous, current) =>
-                previous.effect != current.effect ||
-                previous.isChange != current.isChange ||
-                previous.step != current.step,
             builder: (context, state) {
               return PopScope<void>(
                 canPop: state.effect is PasswordExitRequested,
