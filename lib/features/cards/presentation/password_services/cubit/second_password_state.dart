@@ -5,6 +5,11 @@ enum SecondPasswordStep { selection, password, serial, instruction, recording }
 @Freezed(toStringOverride: false)
 abstract class SecondPasswordState with _$SecondPasswordState {
   const factory SecondPasswordState.initial({
+    PasswordEffect? effect,
+    @Default(0) int effectId,
+    @Default(false) bool showFullStatus,
+    @Default(false) bool recordSheetOpen,
+    @Default(false) bool exitConfirmationOpen,
     @Default(false) bool showPassword,
     @Default(false) bool showConfirmation,
     @Default(false) bool showCurrentPassword,

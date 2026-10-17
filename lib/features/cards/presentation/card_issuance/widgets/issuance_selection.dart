@@ -84,10 +84,7 @@ class IssuanceSelection extends StatelessWidget {
             IssuanceSelect<IssuanceType>(
               options: [
                 for (final type in state.catalog!.types)
-                  AppSelectOption(
-                    value: type,
-                    label: issuanceTypeLabel(context, type),
-                  ),
+                  AppSelectOption(value: type, label: issuanceTypeLabel(type)),
               ],
               value: state.draft.type,
               label: S.current.issuanceType,

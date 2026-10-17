@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
+
 import '../../../../support/home_tab_test_scope.dart';
 import '../../../../support/dashboard_ui_finders.dart';
 
@@ -80,6 +82,8 @@ Future<void> tap(WidgetTester tester, Finder finder) async {
 }
 
 void main() {
+  setUp(configureDependencies);
+  tearDown(() => getIt.reset());
   setUpAll(() async {
     final loader = FontLoader(AppTypography.defaultFontFamily);
     for (final weight in ['Regular', 'Medium', 'DemiBold', 'Bold']) {

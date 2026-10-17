@@ -47,9 +47,12 @@ void main() {
       cubit.selectService(DashboardService.statement),
       DashboardService.statement,
     );
+    expect(cubit.state.selectedService, DashboardService.statement);
+    final selectionId = cubit.state.selectionId;
     cubit.updateQuery('کارت');
     expect(cubit.selectService(DashboardService.statement), isNull);
     expect(cubit.selectService(DashboardService.issue), isNull);
+    expect(cubit.state.selectionId, selectionId);
   });
 
   test('search expands groups temporarily and preserves collapse on clear', () {

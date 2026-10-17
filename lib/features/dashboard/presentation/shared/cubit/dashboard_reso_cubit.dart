@@ -30,7 +30,13 @@ class DashboardResoCubit extends Cubit<DashboardResoState> {
 
   String? submitPrompt() {
     final prompt = state.prompt.trim();
-    if (prompt.isEmpty) return null;
+    if (isClosed || prompt.isEmpty) return null;
+    emit(
+      state.copyWith(
+        submittedPrompt: prompt,
+        submissionId: state.submissionId + 1,
+      ),
+    );
     return prompt;
   }
 
@@ -43,7 +49,12 @@ class DashboardResoCubit extends Cubit<DashboardResoState> {
   }
 
   void updateMotion({required bool enabled, required bool hasFocus}) {
-    emit(state.copyWith(isMotionEnabled: enabled, hasFocus: hasFocus));
+    emit(
+      state.copyWith(
+        isMotionEnabled: enabled && state.isForeground,
+        hasFocus: hasFocus,
+      ),
+    );
     _syncTypingTimer();
   }
 

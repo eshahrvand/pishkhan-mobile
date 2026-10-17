@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pishkhan_mobile/features/cards/domain/entities/listed_card.dart';
 import 'package:pishkhan_mobile/features/cards/presentation/card_features/cubit/card_features_cubit.dart';
-import 'package:pishkhan_mobile/features/cards/presentation/card_features/widgets/card_feature_actions.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/card_features/card_feature_action.dart';
 import 'package:pishkhan_mobile/features/cards/presentation/card_features/widgets/card_features_content.dart';
 import 'package:pishkhan_mobile/features/cards/presentation/card_features/widgets/card_features_ui.dart';
 import 'package:pishkhan_mobile/features/cards/presentation/card_issuance/widgets/issuance_select.dart';
@@ -43,10 +43,7 @@ Finder cardControl(WidgetTester tester, String name) {
     final category = CardCategory.values.byName(
       name.substring('card_category_'.length),
     );
-    final label = categoryLabel(
-      tester.element(find.byType(CardFeaturesContent)),
-      category,
-    );
+    final label = categoryLabel(category);
     return find.byWidgetPredicate(
       (widget) => widget is AppChips && widget.label == label,
     );
@@ -55,10 +52,7 @@ Finder cardControl(WidgetTester tester, String name) {
     final action = CardFeatureAction.values.byName(
       name.substring('card_feature_action_'.length),
     );
-    final label = actionLabel(
-      tester.element(find.byType(CardFeaturesContent)),
-      action,
-    );
+    final label = actionLabel(action);
     return find
         .ancestor(of: find.text(label), matching: find.byType(InkWell))
         .first;

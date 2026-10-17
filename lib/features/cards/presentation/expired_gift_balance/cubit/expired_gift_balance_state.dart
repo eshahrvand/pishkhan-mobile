@@ -1,10 +1,17 @@
 part of 'expired_gift_balance_cubit.dart';
 
+enum GiftBalanceEffect { filter, review }
+
 enum GiftBalanceStep { selection, destination }
 
 @freezed
 abstract class ExpiredGiftBalanceState with _$ExpiredGiftBalanceState {
   const factory ExpiredGiftBalanceState.initial({
+    GiftBalanceEffect? effect,
+    @Default(0) int effectId,
+    @Default(false) bool advanceAfterReview,
+    FlowNavigation? navigation,
+    @Default(0) int navigationId,
     @Default(RequestStatus.initial) RequestStatus status,
     @Default(RequestStatus.initial) RequestStatus submissionStatus,
     @Default(GiftBalanceStep.selection) GiftBalanceStep step,

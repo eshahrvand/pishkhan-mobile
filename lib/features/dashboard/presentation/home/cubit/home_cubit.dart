@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
+import 'package:pishkhan_mobile/features/profile/domain/entities/notification_message.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
@@ -22,19 +24,19 @@ part 'home_state.dart';
 part 'home_cubit.freezed.dart';
 
 class HomeCubit extends Cubit<HomeState> {
-  HomeCubit({
-    required DashboardRepositories repositories,
-    HomeState initialState = const HomeState.initial(),
-  }) : _repositories = repositories,
-       _loadHome = LoadDashboardHome(repositories.home),
-       _loadCards = LoadDashboardItems(repositories.cards.getCards),
-       _loadDeposits = LoadDashboardItems(repositories.deposits.getDeposits),
-       _loadLoans = LoadDashboardItems(repositories.loans.getLoans),
-       super(initialState);
-  DashboardRepositories _repositories;
-  LoadDashboardItems<BankCard> _loadCards;
-  LoadDashboardItems<BankDeposit> _loadDeposits;
-  LoadDashboardItems<BankLoan> _loadLoans;
+  HomeCubit({HomeState initialState = const HomeState.initial()})
+    : super(initialState);
+  DashboardRepositories _repositories = getIt<DashboardRepositories>();
+  late LoadDashboardHome _loadHome = LoadDashboardHome(_repositories.home);
+  late LoadDashboardItems<BankCard> _loadCards = LoadDashboardItems(
+    _repositories.cards.getCards,
+  );
+  late LoadDashboardItems<BankDeposit> _loadDeposits = LoadDashboardItems(
+    _repositories.deposits.getDeposits,
+  );
+  late LoadDashboardItems<BankLoan> _loadLoans = LoadDashboardItems(
+    _repositories.loans.getLoans,
+  );
   // Loading one tab must not invalidate another tab's pending response.
   int _cardsRequest = 0;
   int _depositsRequest = 0;
@@ -83,6 +85,7 @@ class HomeCubit extends Cubit<HomeState> {
     if (isClosed) return;
     emit(
       state.copyWith(
+        isAddingFavorite: false,
         effect: HomeMenuRequested(
           category: switch (tab) {
             AppPrimaryTab.deposits => DashboardService.deposits,
@@ -147,17 +150,24 @@ class HomeCubit extends Cubit<HomeState> {
     if (isClosed) return;
     emit(
       state.copyWith(
+        messages: state.messages ?? NotificationMessage.examples(),
         effect: const HomeNotificationsRequested(),
         effectId: state.effectId + 1,
       ),
     );
   }
 
+  void notificationsChanged(List<NotificationMessage> messages) {
+    if (isClosed) return;
+    emit(state.copyWith(messages: List.unmodifiable(messages)));
+  }
+
   void requestFavoritePicker() {
     if (isClosed || state.draft == null || !state.canAddFavorite) return;
     emit(
       state.copyWith(
-        effect: const HomeFavoritePickerRequested(),
+        isAddingFavorite: true,
+        effect: HomeFavoritePickerRequested(excluded: state.activeFavorites),
         effectId: state.effectId + 1,
       ),
     );
@@ -173,8 +183,21 @@ class HomeCubit extends Cubit<HomeState> {
     );
   }
 
+  void catalogResult(DashboardService? service) {
+    if (isClosed || service == null) return;
+    if (state.isAddingFavorite) {
+      addFavorite(service.id);
+    } else {
+      requestService(service);
+    }
+  }
+
+  void resetConfirmationResult(bool? confirmed) {
+    if (isClosed || confirmed != true) return;
+    resetFavorites();
+  }
+
   static const maxFavorites = 8;
-  LoadDashboardHome _loadHome;
   int _homeRequest = 0;
 
   Future<void> loadHome() async {
@@ -301,6 +324,14 @@ class HomeCubit extends Cubit<HomeState> {
         isFavoritesLimitReached: favorites.length == maxFavorites,
       ),
     );
+  }
+
+  void requestBack() {
+    if (state.selectedTab != AppPrimaryTab.dashboard) {
+      selectTab(AppPrimaryTab.dashboard);
+    } else {
+      cancelFavorites();
+    }
   }
 
   void cancelFavorites() {

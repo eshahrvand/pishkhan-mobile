@@ -3,6 +3,8 @@ part of 'virtual_card_cubit.dart';
 @freezed
 abstract class VirtualCardState with _$VirtualCardState {
   const factory VirtualCardState.initial({
+    FlowNavigation? navigation,
+    @Default(0) int navigationId,
     int? count,
     @Default(false) bool validCount,
     @Default(false) bool editable,

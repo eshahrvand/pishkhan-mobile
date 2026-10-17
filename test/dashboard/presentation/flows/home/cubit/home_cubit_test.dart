@@ -1,3 +1,4 @@
+import '../../../../../support/registered_dependency.dart';
 import '../../../../support/home_tab_test_scope.dart';
 
 import 'dart:async';
@@ -26,7 +27,10 @@ void main() {
   test(
     'blank prompts are ignored and repeated submissions remain observable',
     () async {
-      final cubit = HomeCubit(repositories: homeRepositories());
+      final cubit = withRegisteredDependency<DashboardRepositories, HomeCubit>(
+        homeRepositories(),
+        () => HomeCubit(),
+      );
       addTearDown(cubit.close);
       cubit.submitPrompt('   ');
       expect(cubit.state.effectId, 0);
@@ -42,7 +46,10 @@ void main() {
   test(
     'assistant service returns from a banking tab through Home state',
     () async {
-      final cubit = HomeCubit(repositories: homeRepositories());
+      final cubit = withRegisteredDependency<DashboardRepositories, HomeCubit>(
+        homeRepositories(),
+        () => HomeCubit(),
+      );
       addTearDown(cubit.close);
       cubit.selectTab(AppPrimaryTab.deposits);
       cubit.requestService(DashboardService.assistant);
@@ -54,7 +61,10 @@ void main() {
   test(
     'favorite picker and reset require an active edit transaction',
     () async {
-      final cubit = HomeCubit(repositories: homeRepositories());
+      final cubit = withRegisteredDependency<DashboardRepositories, HomeCubit>(
+        homeRepositories(),
+        () => HomeCubit(),
+      );
       addTearDown(cubit.close);
       cubit.requestFavoritePicker();
       cubit.requestFavoritesReset();
@@ -62,7 +72,10 @@ void main() {
       await cubit.loadHome();
       cubit.editFavorites();
       cubit.requestFavoritePicker();
-      expect(cubit.state.effect, const HomeFavoritePickerRequested());
+      expect(
+        cubit.state.effect,
+        HomeFavoritePickerRequested(excluded: cubit.state.activeFavorites),
+      );
       cubit.requestFavoritesReset();
       expect(cubit.state.effect, const HomeFavoritesResetRequested());
       cubit.cancelFavorites();
@@ -77,7 +90,10 @@ void main() {
     'reload clears data, draft and failure and emits the new state shape',
     () async {
       final repository = ControlledHomeRepository();
-      final cubit = HomeCubit(repositories: homeRepositories(home: repository));
+      final cubit = withRegisteredDependency<DashboardRepositories, HomeCubit>(
+        homeRepositories(home: repository),
+        () => HomeCubit(),
+      );
       final states = <HomeState>[];
       final subscription = cubit.stream.listen(states.add);
       addTearDown(() async {
@@ -155,7 +171,10 @@ void main() {
 
   test('Home ignores stale loads and completions after close', () async {
     final repository = ControlledHomeRepository();
-    final cubit = HomeCubit(repositories: homeRepositories(home: repository));
+    final cubit = withRegisteredDependency<DashboardRepositories, HomeCubit>(
+      homeRepositories(home: repository),
+      () => HomeCubit(),
+    );
     final stale = Completer<Result<DashboardHomeData?>>();
     final latest = Completer<Result<DashboardHomeData?>>();
     repository.requests.addAll([stale, latest]);
@@ -179,10 +198,11 @@ void main() {
   });
 
   test('draft edits are unique, limited to eight, and transactional', () async {
-    final cubit = HomeCubit(
-      repositories: homeRepositories(
+    final cubit = withRegisteredDependency<DashboardRepositories, HomeCubit>(
+      homeRepositories(
         home: const MockDashboardHomeRepository(favorites: ['one']),
       ),
+      () => HomeCubit(),
     );
     await cubit.loadHome();
     cubit.addFavorite('ignored');
@@ -234,8 +254,9 @@ void main() {
     await cubit.close();
   });
   test('suggestions remain uncommitted until confirmation', () async {
-    final cubit = HomeCubit(
-      repositories: homeRepositories(home: const MockDashboardHomeRepository()),
+    final cubit = withRegisteredDependency<DashboardRepositories, HomeCubit>(
+      homeRepositories(home: const MockDashboardHomeRepository()),
+      () => HomeCubit(),
     );
     await cubit.loadHome();
     cubit.editFavorites();

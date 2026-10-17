@@ -1,3 +1,6 @@
+import 'auth_effect.dart';
+export 'auth_effect.dart';
+
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,6 +18,47 @@ class AuthCubit extends Cubit<AuthState> {
     : super(initialState);
 
   Timer? _timer;
+
+  void requestServices() {
+    if (isClosed) return;
+    emit(
+      state.copyWith(
+        effect: const AuthServicesRequested(),
+        effectId: state.effectId + 1,
+      ),
+    );
+  }
+
+  void selectGuestService(String? id) {
+    if (isClosed || id == null) return;
+    if (id == 'identity.changePhone') {
+      openChangePhone();
+      return;
+    }
+    emit(
+      state.copyWith(
+        effect: AuthGuestServiceRequested(id),
+        effectId: state.effectId + 1,
+      ),
+    );
+  }
+
+  void submitOtp() {
+    if (isClosed ||
+        !state.isOtp ||
+        !checkOtpValid(state.otp, state.secondsRemaining) ||
+        state.status == RequestStatus.success) {
+      return;
+    }
+    _timer?.cancel();
+    emit(
+      state.copyWith(
+        status: RequestStatus.success,
+        effect: const AuthCompleted(),
+        effectId: state.effectId + 1,
+      ),
+    );
+  }
 
   void updateNationalId(String value) {
     emit(
@@ -100,6 +144,8 @@ class AuthCubit extends Cubit<AuthState> {
     final changePhone = state.step == AuthStep.changePhone;
     emit(
       state.copyWith(
+        effect: const AuthOtpRequested(),
+        effectId: state.effectId + 1,
         step: changePhone ? AuthStep.changePhoneOtp : AuthStep.loginOtp,
         isLoginForm: false,
         isOtp: true,

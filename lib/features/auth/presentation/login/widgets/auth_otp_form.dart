@@ -1,3 +1,5 @@
+import 'auth_otp_timer.dart';
+
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -9,9 +11,7 @@ import 'package:pishkhan_mobile/features/auth/presentation/shared/auth_assets.da
 import 'package:pishkhan_mobile/generated/l10n.dart';
 
 class AuthOtpForm extends StatelessWidget {
-  const AuthOtpForm({this.onAuthenticated, super.key});
-
-  final VoidCallback? onAuthenticated;
+  const AuthOtpForm({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +50,7 @@ class AuthOtpForm extends StatelessWidget {
                   keyboardType: TextInputType.number,
                   textInputAction: TextInputAction.done,
                   onChanged: context.read<AuthCubit>().updateOtp,
-                  onSubmitted: (_) => _submit(context),
+                  onSubmitted: (_) => context.read<AuthCubit>().submitOtp(),
                 ),
               ),
             ),
@@ -63,7 +63,9 @@ class AuthOtpForm extends StatelessWidget {
           buildWhen: (previous, current) =>
               previous.otpValid != current.otpValid,
           builder: (context, state) => AppButton(
-            onPressed: state.otpValid ? () => _submit(context) : null,
+            onPressed: state.otpValid
+                ? context.read<AuthCubit>().submitOtp
+                : null,
             label: S.current.enterDashboard,
             size: AppButtonSize.lg,
           ),
@@ -71,46 +73,4 @@ class AuthOtpForm extends StatelessWidget {
       ],
     );
   }
-
-  void _submit(BuildContext context) {
-    if (!context.read<AuthCubit>().state.otpValid) return;
-    FocusManager.instance.primaryFocus?.unfocus();
-    onAuthenticated?.call();
-  }
-}
-
-class AuthOtpTimer extends StatelessWidget {
-  const AuthOtpTimer({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<AuthCubit, AuthState>(
-      buildWhen: (previous, current) =>
-          previous.secondsRemaining != current.secondsRemaining,
-      builder: (context, state) => SizedBox(
-        height: 44,
-        child: AppButton(
-          onPressed: state.secondsRemaining == 0
-              ? context.read<AuthCubit>().resendOtp
-              : () {},
-          label: state.secondsRemaining == 0
-              ? S.current.resendOtp
-              : getOtpRemainingTime(state.secondsRemaining),
-          trailingIcon: AvpImage(
-            image: AuthAssets.clock,
-            width: 20,
-            height: 20,
-          ),
-          variant: AppButtonVariant.text,
-          size: AppButtonSize.lg,
-          horizontalPadding: 4,
-        ),
-      ),
-    );
-  }
-}
-
-String getOtpRemainingTime(int secondsRemaining) {
-  return '${(secondsRemaining ~/ 60).toString().padLeft(2, '0')}:'
-      '${(secondsRemaining % 60).toString().padLeft(2, '0')}';
 }

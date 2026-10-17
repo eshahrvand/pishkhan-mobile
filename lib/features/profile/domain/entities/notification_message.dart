@@ -1,5 +1,10 @@
-import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
+enum NotificationExample {
+  loan,
+  investment,
+  securityFiveDays,
+  securitySevenDays,
+  securitySampleDate,
+}
 
 /// Presentation data; a repository can supply messages without changing the UI.
 class NotificationMessage {
@@ -9,6 +14,7 @@ class NotificationMessage {
     required this.subtitle,
     required this.dateLabel,
     this.isRead = false,
+    this.example,
     this.intro,
     this.advice,
     this.bullets = const [],
@@ -18,6 +24,7 @@ class NotificationMessage {
 
   final String id, title, subtitle, dateLabel;
   final bool isRead;
+  final NotificationExample? example;
   final String? intro, advice, closing, imageAsset;
   final List<String> bullets;
 
@@ -27,6 +34,7 @@ class NotificationMessage {
     subtitle: subtitle,
     dateLabel: dateLabel,
     isRead: true,
+    example: example,
     intro: intro,
     advice: advice,
     bullets: bullets,
@@ -34,40 +42,45 @@ class NotificationMessage {
     imageAsset: imageAsset,
   );
 
-  /// The supplied Figma examples until a notification repository is connected.
-  static List<NotificationMessage> examples() => [
+  /// Stable sample identities and semantic content; UI owns their translations.
+  static List<NotificationMessage> examples() => const [
     NotificationMessage(
       id: 'secured-loan',
-      title: S.current.notificationLoanTitle,
-      subtitle: S.current.notificationLoanSubtitle,
-      dateLabel: S.current.notificationToday,
+      title: '',
+      subtitle: '',
+      dateLabel: '',
+      example: NotificationExample.loan,
     ),
     NotificationMessage(
       id: 'gold-investment',
-      title: S.current.notificationInvestmentTitle,
-      subtitle: S.current.notificationInvestmentSubtitle,
-      dateLabel: S.current.notificationYesterday,
+      title: '',
+      subtitle: '',
+      dateLabel: '',
+      example: NotificationExample.investment,
     ),
-    for (final date in [
-      S.current.notificationFiveDays,
-      S.current.notificationSevenDays,
-      S.current.notificationSampleDate,
-    ])
-      NotificationMessage(
-        id: 'security-$date',
-        title: S.current.notificationSecurityTitle,
-        subtitle: S.current.notificationSecuritySubtitle,
-        dateLabel: date,
-        isRead: true,
-        intro: S.current.notificationSecurityIntro,
-        advice: S.current.notificationSecurityAdvice,
-        bullets: [
-          S.current.notificationSecurityCode,
-          S.current.notificationSecurityLinks,
-          S.current.notificationSecurityOfficial,
-        ],
-        closing: S.current.notificationSecurityClosing,
-        imageAsset: AppAssets.notificationSecurity,
-      ),
+    NotificationMessage(
+      id: 'security-five-days',
+      title: '',
+      subtitle: '',
+      dateLabel: '',
+      isRead: true,
+      example: NotificationExample.securityFiveDays,
+    ),
+    NotificationMessage(
+      id: 'security-seven-days',
+      title: '',
+      subtitle: '',
+      dateLabel: '',
+      isRead: true,
+      example: NotificationExample.securitySevenDays,
+    ),
+    NotificationMessage(
+      id: 'security-sample-date',
+      title: '',
+      subtitle: '',
+      dateLabel: '',
+      isRead: true,
+      example: NotificationExample.securitySampleDate,
+    ),
   ];
 }

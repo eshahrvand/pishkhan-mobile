@@ -501,5 +501,6 @@
   "financialSurnameHint": "اسم العائلة بالإنجليزية كما في جواز السفر",
   "financialUsd": "دولار أمريكي",
   "financialWithdrawalRules": "شروط السحب من الودائع المشتركة / المؤسسية",
-  "financialDeliveryStep": "معلومات استلام الشهادة"
+  "financialDeliveryStep": "معلومات استلام الشهادة",
+  "flowExitTitle": "الخروج من العملية؟"
 }

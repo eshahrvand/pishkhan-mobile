@@ -60,15 +60,22 @@ class _DashboardServicesSheetState extends State<DashboardServicesSheet> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => DashboardServicesSheetCubit(
+      create: (_) => DashboardServicesSheetCubit(
+        excluded: widget.excluded,
+        category: widget.category,
         initialState: DashboardServicesSheetState.initial(
           query: widget.initialQuery,
         ),
-        excluded: widget.excluded,
-        category: widget.category,
       )..loadServices(getDashboardServiceSearchLabels()),
       child:
-          BlocBuilder<DashboardServicesSheetCubit, DashboardServicesSheetState>(
+          BlocConsumer<
+            DashboardServicesSheetCubit,
+            DashboardServicesSheetState
+          >(
+            listenWhen: (previous, current) =>
+                previous.selectionId != current.selectionId,
+            listener: (context, state) =>
+                Navigator.of(context).pop(state.selectedService),
             buildWhen: (previous, current) =>
                 previous.groups != current.groups ||
                 previous.isSearching != current.isSearching,
@@ -169,17 +176,11 @@ class _DashboardServicesSheetState extends State<DashboardServicesSheet> {
                                           DashboardServiceGroupSection(
                                             group: group,
                                             isSearching: state.isSearching,
-                                            onSelected: (service) {
-                                              final selected = context
-                                                  .read<
-                                                    DashboardServicesSheetCubit
-                                                  >()
-                                                  .selectService(service);
-                                              if (selected != null) {
-                                                Navigator.of(context)
-                                                    .pop(selected);
-                                              }
-                                            },
+                                            onSelected: (service) => context
+                                                .read<
+                                                  DashboardServicesSheetCubit
+                                                >()
+                                                .selectService(service),
                                           ),
                                         ],
                                       ],

@@ -24,7 +24,6 @@ class NotificationHeader extends StatelessWidget {
           SizedBox.square(
             dimension: 24,
             child: IconButton(
-              key: const Key('notification_back'),
               padding: EdgeInsets.zero,
               tooltip: MaterialLocalizations.of(context).backButtonTooltip,
               onPressed: () => NavigationActions.back(context),

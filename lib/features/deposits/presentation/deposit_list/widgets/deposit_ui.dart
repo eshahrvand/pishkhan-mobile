@@ -5,17 +5,15 @@ import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 import '../../../domain/entities/listed_deposit.dart';
 
-String depositKindLabel(BuildContext context, DepositKind kind) =>
-    switch (kind) {
-      DepositKind.savings => S.current.depositListSavings,
-      DepositKind.current => S.current.depositListCurrent,
-    };
-String depositStatusLabel(BuildContext context, DepositStatus status) =>
-    switch (status) {
-      DepositStatus.open => S.current.depositListOpen,
-      DepositStatus.closed => S.current.depositListClosed,
-      DepositStatus.blocked => S.current.depositListBlocked,
-    };
+String depositKindLabel(DepositKind kind) => switch (kind) {
+  DepositKind.savings => S.current.depositListSavings,
+  DepositKind.current => S.current.depositListCurrent,
+};
+String depositStatusLabel(DepositStatus status) => switch (status) {
+  DepositStatus.open => S.current.depositListOpen,
+  DepositStatus.closed => S.current.depositListClosed,
+  DepositStatus.blocked => S.current.depositListBlocked,
+};
 
 Widget depositIcon(String asset, {double size = 24}) => SizedBox.square(
   dimension: size,

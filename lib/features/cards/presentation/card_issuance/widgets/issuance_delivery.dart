@@ -62,16 +62,6 @@ class _IssuanceDeliveryState extends State<IssuanceDelivery> {
     super.dispose();
   }
 
-  void _recipient(String _) => context.read<CardIssuanceCubit>().setRecipient(
-    DeliveryPerson(
-      name: name.text,
-      nationalId: national.text,
-      mobile: mobile.text,
-    ),
-  );
-  void _agent(String _) => context.read<CardIssuanceCubit>().setAgent(
-    BankAgent(name: agentName.text, code: agentCode.text),
-  );
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<CardIssuanceCubit, CardIssuanceState>(
@@ -145,7 +135,9 @@ class _IssuanceDeliveryState extends State<IssuanceDelivery> {
               AppTextField(
                 controller: name,
                 label: S.current.issuanceRecipientName,
-                onChanged: _recipient,
+                onChanged: context
+                    .read<CardIssuanceCubit>()
+                    .updateRecipientName,
               ),
               const SizedBox(height: 12),
               AppTextField(
@@ -153,7 +145,9 @@ class _IssuanceDeliveryState extends State<IssuanceDelivery> {
                 label: S.current.issuanceNationalId,
                 keyboardType: TextInputType.number,
                 normalizeDigits: true,
-                onChanged: _recipient,
+                onChanged: context
+                    .read<CardIssuanceCubit>()
+                    .updateRecipientNationalId,
               ),
               const SizedBox(height: 12),
               AppTextField(
@@ -161,7 +155,9 @@ class _IssuanceDeliveryState extends State<IssuanceDelivery> {
                 label: S.current.issuanceRecipientMobile,
                 keyboardType: TextInputType.phone,
                 normalizeDigits: true,
-                onChanged: _recipient,
+                onChanged: context
+                    .read<CardIssuanceCubit>()
+                    .updateRecipientMobile,
               ),
             ],
             const SizedBox(height: 20),
@@ -177,14 +173,14 @@ class _IssuanceDeliveryState extends State<IssuanceDelivery> {
               AppTextField(
                 controller: agentName,
                 label: S.current.issuanceAgentName,
-                onChanged: _agent,
+                onChanged: context.read<CardIssuanceCubit>().updateAgentName,
               ),
               const SizedBox(height: 12),
               AppTextField(
                 controller: agentCode,
                 label: S.current.issuanceAgentCode,
                 normalizeDigits: true,
-                onChanged: _agent,
+                onChanged: context.read<CardIssuanceCubit>().updateAgentCode,
               ),
             ],
           ],

@@ -89,18 +89,17 @@ class _DashboardResoBannerPanelState extends State<DashboardResoBannerPanel>
     final enabled =
         widget.enableAnimations &&
         !MediaQuery.disableAnimationsOf(context) &&
-        TickerMode.valuesOf(context).enabled &&
-        context.read<DashboardResoCubit>().state.isForeground;
-    if (enabled) {
+        TickerMode.valuesOf(context).enabled;
+    context.read<DashboardResoCubit>().updateMotion(
+      enabled: enabled,
+      hasFocus: _focus.hasFocus,
+    );
+    if (context.read<DashboardResoCubit>().state.isMotionEnabled) {
       if (!_glow.isAnimating) _glow.repeat();
     } else {
       _glow.stop();
       _glow.value = 0;
     }
-    context.read<DashboardResoCubit>().updateMotion(
-      enabled: enabled,
-      hasFocus: _focus.hasFocus,
-    );
   }
 
   void _inputChanged() {
@@ -108,8 +107,7 @@ class _DashboardResoBannerPanelState extends State<DashboardResoBannerPanel>
   }
 
   void _submit() {
-    final prompt = context.read<DashboardResoCubit>().submitPrompt();
-    if (prompt != null) context.read<HomeCubit>().submitPrompt(prompt);
+    context.read<DashboardResoCubit>().submitPrompt();
   }
 
   @override
@@ -149,7 +147,11 @@ class _DashboardResoBannerPanelState extends State<DashboardResoBannerPanel>
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<DashboardResoCubit, DashboardResoState>(
+    return BlocConsumer<DashboardResoCubit, DashboardResoState>(
+      listenWhen: (previous, current) =>
+          previous.submissionId != current.submissionId,
+      listener: (context, state) =>
+          context.read<HomeCubit>().submitPrompt(state.submittedPrompt),
       buildWhen: (previous, current) =>
           previous.typedHint != current.typedHint ||
           previous.isMotionEnabled != current.isMotionEnabled ||

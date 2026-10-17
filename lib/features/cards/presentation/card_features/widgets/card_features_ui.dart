@@ -5,32 +5,30 @@ import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_cards_list.dart';
 
 import '../../../domain/entities/listed_card.dart';
-import 'card_feature_actions.dart';
+import '../card_feature_action.dart';
 
-String categoryLabel(BuildContext context, CardCategory category) =>
-    switch (category) {
-      CardCategory.resalat => S.current.cardFeatureResalat,
-      CardCategory.gift => S.current.cardFeatureGift,
-      CardCategory.virtual => S.current.cardsVirtual,
-      CardCategory.coupon => S.current.cardFeatureCoupon,
-      CardCategory.family => S.current.cardFeatureFamily,
-    };
-String statusLabel(BuildContext context, CardStatus status) => switch (status) {
+String categoryLabel(CardCategory category) => switch (category) {
+  CardCategory.resalat => S.current.cardFeatureResalat,
+  CardCategory.gift => S.current.cardFeatureGift,
+  CardCategory.virtual => S.current.cardsVirtual,
+  CardCategory.coupon => S.current.cardFeatureCoupon,
+  CardCategory.family => S.current.cardFeatureFamily,
+};
+String statusLabel(CardStatus status) => switch (status) {
   CardStatus.active => S.current.cardFeatureActive,
   CardStatus.blocked => S.current.cardFeatureBlocked,
   CardStatus.expired => S.current.cardFeatureExpired,
 };
 AppCardsListType listType(CardCategory category) =>
     AppCardsListType.values[category.index];
-String actionLabel(BuildContext context, CardFeatureAction action) =>
-    switch (action) {
-      CardFeatureAction.details => S.current.cardFeatureDetails,
-      CardFeatureAction.reissue => S.current.cardsReissue,
-      CardFeatureAction.changeDeposit => S.current.changeCardDeposit,
-      CardFeatureAction.block => S.current.blockCard,
-      CardFeatureAction.expiredGiftBalance => S.current.cardFeatureGiftTransfer,
-      CardFeatureAction.requestVirtual => S.current.cardFeatureVirtualRequest,
-    };
+String actionLabel(CardFeatureAction action) => switch (action) {
+  CardFeatureAction.details => S.current.cardFeatureDetails,
+  CardFeatureAction.reissue => S.current.cardsReissue,
+  CardFeatureAction.changeDeposit => S.current.changeCardDeposit,
+  CardFeatureAction.block => S.current.blockCard,
+  CardFeatureAction.expiredGiftBalance => S.current.cardFeatureGiftTransfer,
+  CardFeatureAction.requestVirtual => S.current.cardFeatureVirtualRequest,
+};
 String actionAsset(CardFeatureAction action) => switch (action) {
   CardFeatureAction.details => AppAssets.cardFeaturesInfo,
   CardFeatureAction.reissue => AppAssets.cardFeaturesReissue,

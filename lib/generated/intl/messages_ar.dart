@@ -509,6 +509,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "financialUsd": MessageLookupByLibrary.simpleMessage("دولار أمريكي"),
         "financialWithdrawalRules": MessageLookupByLibrary.simpleMessage(
             "شروط السحب من الودائع المشتركة / المؤسسية"),
+        "flowExitTitle":
+            MessageLookupByLibrary.simpleMessage("الخروج من العملية؟"),
         "giftBalanceCount":
             MessageLookupByLibrary.simpleMessage("عدد بطاقات الهدايا المنتهية"),
         "giftBalanceDepositHint":

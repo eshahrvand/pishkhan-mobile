@@ -1,3 +1,5 @@
+import '../../../../../support/registered_dependency.dart';
+
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 
 import 'dart:async';
@@ -34,9 +36,11 @@ class ControlledIssuanceRepository implements CardIssuanceRepository {
 
 void main() {
   Future<CardIssuanceCubit> ready({CardIssuanceRepository? repository}) async {
-    final cubit = CardIssuanceCubit(
-      repository: repository ?? MockCardIssuanceRepository(),
-    );
+    final cubit =
+        withRegisteredDependency<CardIssuanceRepository, CardIssuanceCubit>(
+          repository ?? MockCardIssuanceRepository(),
+          () => CardIssuanceCubit(),
+        );
     addTearDown(cubit.close);
     await cubit.load();
     return cubit;
@@ -240,7 +244,11 @@ void main() {
   });
   test('repository replacement ignores stale loads', () async {
     final old = ControlledIssuanceRepository()..loading = Completer();
-    final c = CardIssuanceCubit(repository: old);
+    final c =
+        withRegisteredDependency<CardIssuanceRepository, CardIssuanceCubit>(
+          old,
+          () => CardIssuanceCubit(),
+        );
     addTearDown(c.close);
     final loading = c.load();
     await c.changeRepository(MockCardIssuanceRepository());
@@ -249,10 +257,11 @@ void main() {
     expect(c.state.status, RequestStatus.success);
   });
   test('initial account matches normalized display number', () async {
-    final c = CardIssuanceCubit(
-      repository: MockCardIssuanceRepository(),
-      initialDepositNumber: '10.1234567.1',
-    );
+    final c =
+        withRegisteredDependency<CardIssuanceRepository, CardIssuanceCubit>(
+          MockCardIssuanceRepository(),
+          () => CardIssuanceCubit(initialDepositNumber: '10.1234567.1'),
+        );
     addTearDown(c.close);
     await c.load();
     expect(c.state.deposit!.id, 'deposit-1');

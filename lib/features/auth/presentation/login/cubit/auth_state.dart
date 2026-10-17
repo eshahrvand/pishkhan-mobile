@@ -5,6 +5,8 @@ enum AuthStep { login, loginOtp, changePhone, changePhoneOtp }
 @Freezed(toStringOverride: false)
 abstract class AuthState with _$AuthState {
   const factory AuthState.initial({
+    AuthEffect? effect,
+    @Default(0) int effectId,
     @Default(true) bool isLoginForm,
     @Default(false) bool isOtp,
     @Default(false) bool isChangePhone,

@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../cubit/notifications_cubit.dart';
-import '../widgets/notification_group.dart';
+import '../widgets/notifications_list.dart';
 
 import 'package:go_router/go_router.dart';
 import 'package:pishkhan_mobile/core/router/app_routes.dart';
@@ -22,94 +22,61 @@ class NotificationsScreen extends StatelessWidget {
   final List<NotificationMessage> messages;
   final ValueChanged<List<NotificationMessage>>? onChanged;
 
-  void openMessage(BuildContext context, NotificationMessage message) {
-    if (!message.isRead) {
-      context.read<NotificationsCubit>().markRead(message.id);
-    }
+  void _handleDetail(BuildContext context, NotificationsState state) {
     context.push<void>(
-      AppRoutes.messageDetailLocation(message.id),
-      extra: message.markRead(),
+      AppRoutes.messageDetailLocation(state.detailMessage!.id),
+      extra: state.detailMessage,
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      // New input messages replace the externally supplied inbox, as before.
-      key: ValueKey(messages),
-      create: (context) => NotificationsCubit(messages),
-      child: BlocConsumer<NotificationsCubit, NotificationsState>(
+      create: (context) => NotificationsCubit(messages)..load(),
+      child: BlocListener<NotificationsCubit, NotificationsState>(
         listenWhen: (previous, current) =>
-            previous.messages != current.messages,
-        listener: (context, state) =>
-            onChanged?.call(List.unmodifiable(state.messages)),
-        buildWhen: (previous, current) => previous.messages != current.messages,
-        builder: (context, state) {
-          return Directionality(
-            textDirection: TextDirection.rtl,
-            child: Scaffold(
-              key: const Key('notifications_screen'),
-              backgroundColor: context.colors.surfaceSubtle,
-              body: SafeArea(
-                child: Column(
-                  children: [
-                    NotificationHeader(
-                      title: S.current.notificationTitle,
-                      action: AppButton(
-                        key: const Key('notification_read_all'),
-                        label: S.current.notificationReadAll,
-                        variant: AppButtonVariant.text,
-                        size: AppButtonSize.md,
-                        horizontalPadding: 2,
-                        leadingIcon: AvpImage(
-                          image: AppAssets.notificationReadAll,
+            previous.detailRequestId != current.detailRequestId,
+        listener: _handleDetail,
+        child: BlocConsumer<NotificationsCubit, NotificationsState>(
+          listenWhen: (previous, current) =>
+              previous.messages != current.messages,
+          listener: (context, state) =>
+              onChanged?.call(List.unmodifiable(state.messages)),
+          buildWhen: (previous, current) =>
+              previous.unreadMessages.isEmpty != current.unreadMessages.isEmpty,
+          builder: (context, state) {
+            return Directionality(
+              textDirection: TextDirection.rtl,
+              child: Scaffold(
+                backgroundColor: context.colors.surfaceSubtle,
+                body: SafeArea(
+                  child: Column(
+                    children: [
+                      NotificationHeader(
+                        title: S.current.notificationTitle,
+                        action: AppButton(
+                          label: S.current.notificationReadAll,
+                          variant: AppButtonVariant.text,
+                          size: AppButtonSize.md,
+                          horizontalPadding: 2,
+                          leadingIcon: AvpImage(
+                            image: AppAssets.notificationReadAll,
+                          ),
+                          onPressed: state.unreadMessages.isEmpty
+                              ? null
+                              : () => context
+                                    .read<NotificationsCubit>()
+                                    .markAllRead(),
                         ),
-                        onPressed: state.unreadMessages.isEmpty
-                            ? null
-                            : () => context
-                                  .read<NotificationsCubit>()
-                                  .markAllRead(),
                       ),
-                    ),
-                    Expanded(
-                      child: state.messages.isEmpty
-                          ? Center(
-                              child: Text(
-                                S.current.notificationEmpty,
-                                style: AppTypography.bodySmall.copyWith(
-                                  color: context.colors.textTertiary,
-                                ),
-                              ),
-                            )
-                          : ListView(
-                              padding: const EdgeInsets.all(16),
-                              children: [
-                                if (state.unreadMessages.isNotEmpty)
-                                  NotificationGroup(
-                                    title: S.current.notificationNew,
-                                    messages: state.unreadMessages,
-                                    onOpen: (message) =>
-                                        openMessage(context, message),
-                                  ),
-                                if (state.unreadMessages.isNotEmpty &&
-                                    state.readMessages.isNotEmpty)
-                                  const SizedBox(height: 24),
-                                if (state.readMessages.isNotEmpty)
-                                  NotificationGroup(
-                                    title: S.current.notificationRead,
-                                    messages: state.readMessages,
-                                    onOpen: (message) =>
-                                        openMessage(context, message),
-                                  ),
-                              ],
-                            ),
-                    ),
-                  ],
+                      Expanded(child: NotificationsList(messages: messages)),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }

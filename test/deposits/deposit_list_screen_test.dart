@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'dart:io';
@@ -65,6 +66,8 @@ Future<void> _capture(WidgetTester tester, String name) async {
 }
 
 void main() {
+  setUp(configureDependencies);
+  tearDown(() => getIt.reset());
   setUpAll(() async {
     final loader = FontLoader(AppTypography.defaultFontFamily);
     for (final weight in ['Regular', 'Medium', 'DemiBold', 'Bold']) {

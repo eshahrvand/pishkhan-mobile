@@ -13,28 +13,18 @@ import 'gift_balance_selection.dart';
 Future<void> showGiftBalanceFilter(
   BuildContext context,
   ExpiredGiftBalanceCubit cubit,
-) async {
-  cubit.beginFilter();
-  if (!cubit.state.filterOpen) return;
-  await showCardServiceSheet<void>(
-    context,
-    (_) => GiftBalanceFilterSheet(cubit: cubit),
-  );
-  if (!cubit.isClosed) cubit.cancelFilter();
-}
+) => showCardServiceSheet<void>(
+  context,
+  (_) => GiftBalanceFilterSheet(cubit: cubit),
+);
 
-Future<void> showGiftBalanceReview(
+Future<bool?> showGiftBalanceReview(
   BuildContext context,
-  ExpiredGiftBalanceCubit cubit, {
-  bool advance = false,
-}) async {
-  if (!cubit.beginReview()) return;
-  final proceed = await showCardServiceSheet<bool>(
-    context,
-    (_) => GiftBalanceReviewSheet(cubit: cubit),
-  );
-  if (!cubit.isClosed) cubit.finishReview(advance: advance && proceed == true);
-}
+  ExpiredGiftBalanceCubit cubit,
+) => showCardServiceSheet<bool>(
+  context,
+  (_) => GiftBalanceReviewSheet(cubit: cubit),
+);
 
 class GiftBalanceFilterSheet extends StatelessWidget {
   const GiftBalanceFilterSheet({super.key, required this.cubit});
@@ -43,8 +33,8 @@ class GiftBalanceFilterSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<ExpiredGiftBalanceCubit, ExpiredGiftBalanceState>(
       bloc: cubit,
-      buildWhen: (old, next) =>
-          old.draftFilterDepositId != next.draftFilterDepositId,
+      buildWhen: (previous, current) =>
+          previous.draftFilterDepositId != current.draftFilterDepositId,
       builder: (context, state) => SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -104,7 +94,8 @@ class GiftBalanceReviewSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<ExpiredGiftBalanceCubit, ExpiredGiftBalanceState>(
       bloc: cubit,
-      buildWhen: (old, next) => old.selectedIds != next.selectedIds,
+      buildWhen: (previous, current) =>
+          previous.selectedIds != current.selectedIds,
       builder: (context, state) => Column(
         mainAxisSize: MainAxisSize.min,
         children: [

@@ -1,3 +1,6 @@
+import 'package:pishkhan_mobile/generated/l10n.dart';
+import 'package:pishkhan_mobile/shared/widgets/flow_exit_dialog.dart';
+
 import 'dart:ui' as ui;
 
 import 'package:avp_ui/avp_ui.dart';
@@ -6,7 +9,6 @@ import 'package:go_router/go_router.dart';
 import 'package:pishkhan_mobile/features/cards/domain/entities/password_data.dart';
 import 'package:pishkhan_mobile/features/cards/presentation/password_services/widgets/password_options_sheet.dart';
 import 'package:pishkhan_mobile/features/cards/presentation/password_services/widgets/password_request_status.dart';
-import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 Future<void> showPasswordRecord(
@@ -27,10 +29,8 @@ Future<void> showPasswordRecord(
       : null,
 );
 
-Future<bool?> showPasswordExitDialog(BuildContext context) => showDialog<bool>(
-  context: context,
-  builder: (context) => const PasswordExitDialog(),
-);
+Future<bool?> showPasswordExitDialog(BuildContext context) =>
+    showFlowExitDialog(context, title: S.current.passwordExitTitle);
 
 Future<T?> passwordSheet<T>(
   BuildContext context,
@@ -137,31 +137,6 @@ class PasswordSheetLayout extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-class PasswordExitDialog extends StatelessWidget {
-  const PasswordExitDialog({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text(S.current.passwordExitTitle),
-      content: Text(S.current.passwordExitBody),
-      actions: [
-        AppButton(
-          onPressed: () => context.pop(false),
-          label: S.current.passwordStay,
-          variant: AppButtonVariant.text,
-          constrainLabel: true,
-        ),
-        AppButton(
-          onPressed: () => context.pop(true),
-          label: S.current.passwordExit,
-          isDestructive: true,
-        ),
-      ],
     );
   }
 }

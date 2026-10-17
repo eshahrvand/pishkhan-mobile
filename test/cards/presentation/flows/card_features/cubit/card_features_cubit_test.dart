@@ -1,3 +1,5 @@
+import '../../../../../support/registered_dependency.dart';
+
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 
 import 'dart:async';
@@ -15,7 +17,11 @@ void main() {
   test(
     'interaction effects retain card context and repeat identical requests',
     () async {
-      final cubit = CardFeaturesCubit(repository: MockCardsRepository());
+      final cubit =
+          withRegisteredDependency<CardsRepository, CardFeaturesCubit>(
+            MockCardsRepository(),
+            () => CardFeaturesCubit(),
+          );
       addTearDown(cubit.close);
       await cubit.load();
       cubit.requestMore('unknown');
@@ -45,10 +51,11 @@ void main() {
   test(
     'category selection owns footer and reveal effects without clearing search',
     () async {
-      final cubit = CardFeaturesCubit(
-        repository: MockCardsRepository(),
-        initialCategory: CardCategory.family,
-      );
+      final cubit =
+          withRegisteredDependency<CardsRepository, CardFeaturesCubit>(
+            MockCardsRepository(),
+            () => CardFeaturesCubit(initialCategory: CardCategory.family),
+          );
       await cubit.load();
       cubit.revealCategory();
       expect(
@@ -85,12 +92,15 @@ void main() {
   test(
     'caller initial State retains its category and initializes display data',
     () async {
-      final cubit = CardFeaturesCubit(
-        repository: MockCardsRepository(),
-        initialState: const CardFeaturesState.initial(
-          category: CardCategory.gift,
-        ),
-      );
+      final cubit =
+          withRegisteredDependency<CardsRepository, CardFeaturesCubit>(
+            MockCardsRepository(),
+            () => CardFeaturesCubit(
+              initialState: const CardFeaturesState.initial(
+                category: CardCategory.gift,
+              ),
+            ),
+          );
       addTearDown(cubit.close);
       await cubit.load();
       expect(cubit.state.category, CardCategory.gift);
@@ -104,7 +114,11 @@ void main() {
   test(
     'loads immutable data and keeps independent category/query/selected state',
     () async {
-      final cubit = CardFeaturesCubit(repository: MockCardsRepository());
+      final cubit =
+          withRegisteredDependency<CardsRepository, CardFeaturesCubit>(
+            MockCardsRepository(),
+            () => CardFeaturesCubit(),
+          );
       expect(cubit.state.status, RequestStatus.initial);
       final pending = cubit.load();
       expect(cubit.state.status, RequestStatus.loading);
@@ -128,7 +142,11 @@ void main() {
   test(
     'filters are transactional, combine with search, and can be reset',
     () async {
-      final cubit = CardFeaturesCubit(repository: MockCardsRepository());
+      final cubit =
+          withRegisteredDependency<CardsRepository, CardFeaturesCubit>(
+            MockCardsRepository(),
+            () => CardFeaturesCubit(),
+          );
       await cubit.load();
       cubit.beginFilter();
       cubit.setDraft(const CardFilter(status: CardStatus.blocked));
@@ -154,7 +172,10 @@ void main() {
   test('empty/error/retry and invalid contract IDs are distinct', () async {
     final repo = FakeCardsRepository()
       ..result = const Err(DataFailure('offline'));
-    final cubit = CardFeaturesCubit(repository: repo);
+    final cubit = withRegisteredDependency<CardsRepository, CardFeaturesCubit>(
+      repo,
+      () => CardFeaturesCubit(),
+    );
     await cubit.load();
     expect(cubit.state.status, RequestStatus.failure);
     expect(cubit.state.failure!.code, 'offline');
@@ -183,7 +204,11 @@ void main() {
       final first = Completer<Result<List<ListedCard>>>(),
           second = Completer<Result<List<ListedCard>>>();
       repo.queue.addAll([first, second]);
-      final cubit = CardFeaturesCubit(repository: repo);
+      final cubit =
+          withRegisteredDependency<CardsRepository, CardFeaturesCubit>(
+            repo,
+            () => CardFeaturesCubit(),
+          );
       final a = cubit.load(), b = cubit.load();
       second.complete(Success([MockCardsRepository.examples[1]]));
       await b;

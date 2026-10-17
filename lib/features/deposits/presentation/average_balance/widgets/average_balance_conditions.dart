@@ -17,12 +17,13 @@ class AverageBalanceConditions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<AverageBalanceCubit, AverageBalanceState>(
-      buildWhen: (a, b) =>
-          a.deposit != b.deposit ||
-          a.language != b.language ||
-          a.turnover != b.turnover ||
-          a.fromDate != b.fromDate ||
-          a.toDate != b.toDate,
+      buildWhen: (previous, current) =>
+          previous.catalog != current.catalog ||
+          previous.deposit != current.deposit ||
+          previous.language != current.language ||
+          previous.turnover != current.turnover ||
+          previous.fromDate != current.fromDate ||
+          previous.toDate != current.toDate,
       builder: (context, state) {
         final cubit = context.read<AverageBalanceCubit>();
         return Column(
@@ -66,7 +67,10 @@ class AverageBalanceConditions extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               if (state.turnover == null) ...[
-                const AverageBalanceTurnoverField(),
+                AverageBalanceTurnoverField(
+                  value: state.turnover,
+                  onChanged: context.read<AverageBalanceCubit>().selectTurnover,
+                ),
                 const SizedBox(height: 20),
               ],
               AverageBalanceDateField(
@@ -82,7 +86,10 @@ class AverageBalanceConditions extends StatelessWidget {
               ),
               if (state.turnover != null) ...[
                 const SizedBox(height: 20),
-                const AverageBalanceTurnoverField(),
+                AverageBalanceTurnoverField(
+                  value: state.turnover,
+                  onChanged: context.read<AverageBalanceCubit>().selectTurnover,
+                ),
                 const SizedBox(height: 12),
                 Row(
                   children: [

@@ -9,5 +9,7 @@ abstract class DepositListState with _$DepositListState {
     DepositKind? kind,
     @Default(DepositStatus.open) DepositStatus? depositStatus,
     Failure? failure,
+    DepositListEffect? effect,
+    @Default(0) int effectId,
   }) = _DepositListState;
 }

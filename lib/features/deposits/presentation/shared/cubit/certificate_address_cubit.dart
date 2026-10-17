@@ -9,7 +9,10 @@ part 'certificate_address_state.dart';
 part 'certificate_address_cubit.freezed.dart';
 
 class CertificateAddressCubit extends Cubit<CertificateAddressState> {
-  CertificateAddressCubit() : super(const CertificateAddressState.initial());
+  CertificateAddressCubit({
+    CertificateAddressState initialState =
+        const CertificateAddressState.initial(),
+  }) : super(initialState);
 
   void updateTitle(String value) {
     emit(state.copyWith(title: value));
@@ -31,11 +34,13 @@ class CertificateAddressCubit extends Cubit<CertificateAddressState> {
       emit(state.copyWith(isInvalid: true));
       return null;
     }
-    return CertificateAddress(
+    final address = CertificateAddress(
       id: 'local',
       title: state.title.trim(),
       detail: state.detail.trim(),
       postalCode: postalCode,
     );
+    emit(state.copyWith(savedAddress: address, saveId: state.saveId + 1));
+    return address;
   }
 }

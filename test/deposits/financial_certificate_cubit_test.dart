@@ -1,3 +1,5 @@
+import '../support/registered_dependency.dart';
+
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -58,9 +60,11 @@ void main() {
   test(
     'conditions gate next; changing deposit clears selected conditions',
     () async {
-      final cubit = FinancialCertificateCubit(
-        repository: FinancialTestRepository(),
-      );
+      final cubit =
+          withRegisteredDependency<
+            FinancialCertificateRepository,
+            FinancialCertificateCubit
+          >(FinancialTestRepository(), () => FinancialCertificateCubit());
       await cubit.load();
       cubit.selectDeposit('certificate-deposit-1');
       cubit.next();
@@ -80,7 +84,11 @@ void main() {
     'recipient branches require their own fields and discard hidden values',
     () async {
       final repo = FinancialTestRepository();
-      final cubit = FinancialCertificateCubit(repository: repo);
+      final cubit =
+          withRegisteredDependency<
+            FinancialCertificateRepository,
+            FinancialCertificateCubit
+          >(repo, () => FinancialCertificateCubit());
       await readyFinancial(cubit);
       cubit.back();
       cubit.back();
@@ -123,9 +131,11 @@ void main() {
   test(
     'Latin edits disable progression until all required values are valid',
     () async {
-      final cubit = FinancialCertificateCubit(
-        repository: FinancialTestRepository(),
-      );
+      final cubit =
+          withRegisteredDependency<
+            FinancialCertificateRepository,
+            FinancialCertificateCubit
+          >(FinancialTestRepository(), () => FinancialCertificateCubit());
       await readyFinancial(cubit);
       cubit.back();
       cubit.back();
@@ -140,7 +150,11 @@ void main() {
   );
   test('wallet and alternate delivery recipient gate submit; optional agent is omitted', () async {
     final repo = FinancialTestRepository();
-    final cubit = FinancialCertificateCubit(repository: repo);
+    final cubit =
+        withRegisteredDependency<
+          FinancialCertificateRepository,
+          FinancialCertificateCubit
+        >(repo, () => FinancialCertificateCubit());
     await readyFinancial(cubit);
     cubit.back();
     cubit.setOtherRecipient(true);
@@ -153,15 +167,20 @@ void main() {
     expect(repo.requests.single.deliveryRecipientNationalId, '0081234567');
     expect(repo.requests.single.agentIdentifier, isNull);
     await cubit.close();
-    final poor = FinancialCertificateCubit(
-      repository: FinancialTestRepository(
-        catalog: CertificateCatalog(
-          deposits: repo.catalog.deposits,
-          addresses: repo.catalog.addresses,
-          walletBalanceRial: 0,
-        ),
-      ),
-    );
+    final poor =
+        withRegisteredDependency<
+          FinancialCertificateRepository,
+          FinancialCertificateCubit
+        >(
+          FinancialTestRepository(
+            catalog: CertificateCatalog(
+              deposits: repo.catalog.deposits,
+              addresses: repo.catalog.addresses,
+              walletBalanceRial: 0,
+            ),
+          ),
+          () => FinancialCertificateCubit(),
+        );
     await readyFinancial(poor);
     expect(poor.state.canContinue, isFalse);
     await poor.submit();
@@ -172,7 +191,11 @@ void main() {
     final repo = FinancialTestRepository();
     final pending = Completer<Result<CertificateReceipt>>();
     repo.submit = (_) => pending.future;
-    final cubit = FinancialCertificateCubit(repository: repo);
+    final cubit =
+        withRegisteredDependency<
+          FinancialCertificateRepository,
+          FinancialCertificateCubit
+        >(repo, () => FinancialCertificateCubit());
     await readyFinancial(cubit);
     final first = cubit.submit();
     await cubit.submit();
@@ -197,7 +220,11 @@ void main() {
     final repo = FinancialTestRepository();
     final old = Completer<Result<CertificateCatalog>>();
     repo.loader = () => old.future;
-    final cubit = FinancialCertificateCubit(repository: repo);
+    final cubit =
+        withRegisteredDependency<
+          FinancialCertificateRepository,
+          FinancialCertificateCubit
+        >(repo, () => FinancialCertificateCubit());
     final first = cubit.load();
     repo.loader = () async => Success(repo.catalog);
     await cubit.load();

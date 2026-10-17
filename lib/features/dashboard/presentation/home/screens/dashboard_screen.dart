@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/core/router/card_features_navigation.dart';
@@ -7,21 +8,14 @@ import 'package:pishkhan_mobile/core/router/dashboard_notifications_navigation.d
 import '../cubit/home_cubit.dart';
 import '../cubit/home_effect.dart';
 import '../widgets/dashboard_home_panel.dart';
-import '../../shared/dashboard_services.dart';
 import '../../shared/dashboard_tab.dart';
 import '../../shared/widgets/dashboard_services_sheet.dart';
 import 'cards_tab.dart';
 import 'deposits_tab.dart';
 import 'loans_tab.dart';
 
-class DashboardScreen extends StatefulWidget {
+class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
-  @override
-  State<DashboardScreen> createState() => _DashboardScreenState();
-}
-
-class _DashboardScreenState extends State<DashboardScreen> {
-  final _notifications = DashboardNotificationsNavigation();
 
   void _openService(
     BuildContext context,
@@ -41,33 +35,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Future<void> _catalog(
-    BuildContext context, {
-    bool adding = false,
-    List<DashboardService>? category,
-  }) async {
-    final selected = await showDashboardServicesSheet(
-      context,
-      excluded: adding
-          ? context.read<HomeCubit>().state.activeFavorites
-          : const [],
-      category: category,
-    );
-    if (!context.mounted || selected == null) return;
-    if (adding) {
-      context.read<HomeCubit>().addFavorite(selected.id);
-    } else {
-      context.read<HomeCubit>().requestService(selected);
-    }
-  }
-
-  Future<void> _reset(BuildContext context) async {
-    final confirmed = await showDashboardResetSheet(context);
-    if (!context.mounted || confirmed != true) return;
-    context.read<HomeCubit>().resetFavorites();
-  }
-
-  void _handleHomeEffect(BuildContext context, HomeState state) {
+  Future<void> _handleHomeEffect(BuildContext context, HomeState state) async {
     switch (state.effect) {
       case HomeServiceRequested(:final serviceId):
         _openService(context, serviceId);
@@ -96,17 +64,35 @@ class _DashboardScreenState extends State<DashboardScreen> {
       case HomeLoanNumberCopyRequested(:final number):
         Clipboard.setData(ClipboardData(text: number));
       case HomeMenuRequested(:final category):
-        _catalog(context, category: category);
-      case HomeFavoritePickerRequested():
-        _catalog(context, adding: true);
+        final service = await showDashboardServicesSheet(
+          context,
+          category: category,
+        );
+        if (context.mounted) context.read<HomeCubit>().catalogResult(service);
+      case HomeFavoritePickerRequested(:final excluded):
+        final service = await showDashboardServicesSheet(
+          context,
+          excluded: excluded,
+        );
+        if (context.mounted) context.read<HomeCubit>().catalogResult(service);
       case HomeFavoritesResetRequested():
-        _reset(context);
+        final confirmed = await showDashboardResetSheet(context);
+        if (context.mounted) {
+          context.read<HomeCubit>().resetConfirmationResult(confirmed);
+        }
       case HomeNotificationsRequested():
-        _notifications.open(context);
+        DashboardNotificationsNavigation().open(
+          context,
+          messages: state.messages!,
+          onChanged: context.read<HomeCubit>().notificationsChanged,
+        );
       case HomeProfileRequested():
       case HomePromptSubmitted():
       case HomeCardMoreRequested():
       case HomeLoanDetailsRequested():
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(S.current.cardFeatureUnavailable)),
+        );
       case HomeCardSelectionChanged():
       case HomeDepositSelectionChanged():
       case HomeLoanSelectionChanged():
@@ -119,41 +105,44 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<HomeCubit, HomeState>(
-      listenWhen: (previous, current) =>
-          previous.effectId != current.effectId &&
-          current.effect is! HomeCardSelectionChanged &&
-          current.effect is! HomeDepositSelectionChanged &&
-          current.effect is! HomeLoanSelectionChanged &&
-          current.effect is! HomeTabRequested &&
-          current.effect is! HomeAssistantRequested,
-      listener: _handleHomeEffect,
-      child: BlocBuilder<HomeCubit, HomeState>(
-        buildWhen: (previous, current) =>
-            previous.selectedTab != current.selectedTab,
-        builder: (context, state) {
-          return IndexedStack(
-            index: state.selectedTab.index,
-            children: [
-              TickerMode(
-                enabled: state.selectedTab == AppPrimaryTab.dashboard,
-                child: const DashboardHomePanel(),
-              ),
-              TickerMode(
-                enabled: state.selectedTab == AppPrimaryTab.cards,
-                child: const CardsTab(),
-              ),
-              TickerMode(
-                enabled: state.selectedTab == AppPrimaryTab.deposits,
-                child: const DepositsTab(),
-              ),
-              TickerMode(
-                enabled: state.selectedTab == AppPrimaryTab.loans,
-                child: const LoansTab(),
-              ),
-            ],
-          );
-        },
+    return BlocProvider<HomeCubit>(
+      create: (_) => HomeCubit()..load(),
+      child: BlocListener<HomeCubit, HomeState>(
+        listenWhen: (previous, current) =>
+            previous.effectId != current.effectId &&
+            current.effect is! HomeCardSelectionChanged &&
+            current.effect is! HomeDepositSelectionChanged &&
+            current.effect is! HomeLoanSelectionChanged &&
+            current.effect is! HomeTabRequested &&
+            current.effect is! HomeAssistantRequested,
+        listener: _handleHomeEffect,
+        child: BlocBuilder<HomeCubit, HomeState>(
+          buildWhen: (previous, current) =>
+              previous.selectedTab != current.selectedTab,
+          builder: (context, state) {
+            return IndexedStack(
+              index: state.selectedTab.index,
+              children: [
+                TickerMode(
+                  enabled: state.selectedTab == AppPrimaryTab.dashboard,
+                  child: const DashboardHomePanel(),
+                ),
+                TickerMode(
+                  enabled: state.selectedTab == AppPrimaryTab.cards,
+                  child: const CardsTab(),
+                ),
+                TickerMode(
+                  enabled: state.selectedTab == AppPrimaryTab.deposits,
+                  child: const DepositsTab(),
+                ),
+                TickerMode(
+                  enabled: state.selectedTab == AppPrimaryTab.loans,
+                  child: const LoansTab(),
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }

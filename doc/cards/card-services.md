@@ -290,3 +290,20 @@ schedules a single post-layout Cubit reveal action, guarded against disposal.
 Search/scroll controllers and chip contexts remain UI-owned layout resources
 and are released with the screen. The initial and subsequent category reveals
 use the same effect path. The builder reads the footer action directly from State.
+
+## UI/Cubit contract adoption (2026-10-17)
+
+CardFeaturesCubit preserves its supplied initial State during construction.
+Its explicit load action resolves the initial category and footer. Plain card
+interaction types are in presentation/card_features/card_feature_action.dart,
+independent of widgets. Flow Back decisions, gift review/filter continuation and
+password receipt/exit decisions are Cubit-owned; UI listeners execute their
+intents. See the adoption report for the complete scope and validation.
+
+### Dependency and listener clarification (2026-10-17)
+
+The screen/feature-flow widget owns BlocProvider.create, including Home in
+DashboardScreen; GoRouter only selects the destination. Cubits resolve existing
+Repository/service/UseCase registrations through GetIt fields, without dependency
+constructor arguments from UI. Multi-case and substantial async listeners use
+named widget/State methods with the existing listenWhen filter.

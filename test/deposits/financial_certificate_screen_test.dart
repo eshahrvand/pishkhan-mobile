@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/generated/l10n.dart';
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_address_card.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +13,8 @@ import 'package:pishkhan_mobile/shared/widgets/app_invoice.dart';
 import 'certificate_test_support.dart';
 
 void main() {
+  setUp(configureDependencies);
+  tearDown(() => getIt.reset());
   setUpAll(loadCertificateFonts);
   final catalog = MockDepositCertificatesRepository.examples;
   final conditions = FinancialCertificateState.initial(
@@ -89,7 +93,13 @@ void main() {
         );
       }
       if (entry.value.step == FinancialCertificateStep.latinIdentity) {
-        expect(find.byType(AppTextField), findsNWidgets(5));
+        expect(find.byType(AppTextField), findsNWidgets(6));
+        final address = find.byWidgetPredicate(
+          (widget) =>
+              widget is AppTextField &&
+              widget.hintText == S.current.financialLatinAddressHint,
+        );
+        expect(tester.getSize(address).height, 90);
         expect(find.byType(TextField), findsNWidgets(6));
         expect(tester.getTopLeft(find.byType(AppTextField).first).dy, 238);
         expect(

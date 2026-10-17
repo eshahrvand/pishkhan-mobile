@@ -1,3 +1,5 @@
+import 'financial_condition_option.dart';
+
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,20 +16,11 @@ class FinancialConditions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<FinancialCertificateCubit, FinancialCertificateState>(
-      buildWhen: (a, b) =>
-          a.deposit != b.deposit || a.conditions != b.conditions,
+      buildWhen: (previous, current) =>
+          previous.deposit != current.deposit ||
+          previous.conditions != current.conditions,
       builder: (context, state) {
         final cubit = context.read<FinancialCertificateCubit>();
-        final labels = [
-          S.current.financialWithdrawalRules,
-          S.current.financialHomeAddress,
-          S.current.financialOpenedAt,
-          S.current.financialPassportNumberCondition,
-          S.current.financialAverageBalanceCondition,
-          S.current.financialMaturityDate,
-          S.current.financialDebitCredit,
-          S.current.financialExchangeRate,
-        ];
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -51,43 +44,46 @@ class FinancialConditions extends StatelessWidget {
                     .copyWith(fontWeight: FontWeight.w500),
               ),
               const SizedBox(height: 20),
-              for (var i = 0; i < labels.length; i++)
-                ConstrainedBox(
-                  constraints: const BoxConstraints(minHeight: 56),
-                  child: Row(
-                    children: [
-                      AppCheckbox(
-                        value: state.conditions.contains(
-                          FinancialCertificateCondition.values[i],
-                        ),
-                        size: AppCheckboxSize.md,
-                        onChanged: (value) => cubit.toggleCondition(
-                          FinancialCertificateCondition.values[i],
-                          value,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onTap: () => cubit.toggleCondition(
-                            FinancialCertificateCondition.values[i],
-                            !state.conditions.contains(
-                              FinancialCertificateCondition.values[i],
-                            ),
-                          ),
-                          child: Text(
-                            labels[i],
-                            style: certificateValueStyle(context).copyWith(
-                              fontWeight: FontWeight.w500,
-                              color: context.colors.textSecondary,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+              FinancialConditionOption(
+                condition: FinancialCertificateCondition.withdrawalRules,
+                label: S.current.financialWithdrawalRules,
+                state: state,
+              ),
+              FinancialConditionOption(
+                condition: FinancialCertificateCondition.homeAddress,
+                label: S.current.financialHomeAddress,
+                state: state,
+              ),
+              FinancialConditionOption(
+                condition: FinancialCertificateCondition.openedAt,
+                label: S.current.financialOpenedAt,
+                state: state,
+              ),
+              FinancialConditionOption(
+                condition: FinancialCertificateCondition.passportNumber,
+                label: S.current.financialPassportNumberCondition,
+                state: state,
+              ),
+              FinancialConditionOption(
+                condition: FinancialCertificateCondition.averageBalance,
+                label: S.current.financialAverageBalanceCondition,
+                state: state,
+              ),
+              FinancialConditionOption(
+                condition: FinancialCertificateCondition.maturityDate,
+                label: S.current.financialMaturityDate,
+                state: state,
+              ),
+              FinancialConditionOption(
+                condition: FinancialCertificateCondition.debitCredit,
+                label: S.current.financialDebitCredit,
+                state: state,
+              ),
+              FinancialConditionOption(
+                condition: FinancialCertificateCondition.exchangeRate,
+                label: S.current.financialExchangeRate,
+                state: state,
+              ),
             ],
           ],
         );

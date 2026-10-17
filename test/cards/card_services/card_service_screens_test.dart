@@ -307,8 +307,7 @@ void main() {
       expect(t.takeException(), isNull);
       giftCubit(t).selectAllVisible(true);
       await t.pumpAndSettle();
-      final context = t.element(find.byType(ExpiredGiftBalanceScreen));
-      showGiftBalanceReview(context, giftCubit(t));
+      giftCubit(t).requestReview();
       await t.pumpAndSettle();
       expect(t.takeException(), isNull);
     });

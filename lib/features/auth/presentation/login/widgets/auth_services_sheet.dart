@@ -2,23 +2,17 @@ import 'dart:ui';
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/login/cubit/auth_cubit.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/login/widgets/auth_services_grid.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/shared/auth_assets.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_bottom_sheet_header.dart';
 
-Future<void> showAuthServicesSheet(
-  BuildContext context, {
-  ValueChanged<String>? onServiceRequested,
-}) async {
-  final cubit = context.read<AuthCubit>();
+Future<String?> showAuthServicesSheet(BuildContext context) async {
   final colors = context.colors;
   final viewport = MediaQuery.of(context);
   FocusManager.instance.primaryFocus?.unfocus();
-  await showModalBottomSheet<void>(
+  return showModalBottomSheet<String>(
     context: context,
     isScrollControlled: true,
     useSafeArea: true,
@@ -35,14 +29,7 @@ Future<void> showAuthServicesSheet(
           ),
           child: AuthServicesSheet(
             onClose: () => sheetContext.pop(),
-            onServiceRequested: (id) {
-              sheetContext.pop();
-              if (id == 'identity.changePhone') {
-                cubit.openChangePhone();
-              } else {
-                onServiceRequested?.call(id);
-              }
-            },
+            onServiceRequested: (id) => sheetContext.pop(id),
           ),
         ),
       ),

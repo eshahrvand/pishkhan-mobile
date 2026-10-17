@@ -95,13 +95,7 @@ class IssuanceFooter extends StatelessWidget {
                 constrainLabel: true,
                 isLoading: state.submissionStatus == RequestStatus.loading,
                 onPressed: state.canContinue
-                    ? () {
-                        if (state.step == IssuanceStep.confirmation) {
-                          context.read<CardIssuanceCubit>().submit();
-                        } else {
-                          context.read<CardIssuanceCubit>().next();
-                        }
-                      }
+                    ? context.read<CardIssuanceCubit>().continueFlow
                     : null,
               ),
             ],

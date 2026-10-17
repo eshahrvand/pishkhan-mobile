@@ -1,15 +1,12 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_address_card.dart';
-import 'package:pishkhan_mobile/shared/widgets/app_delete_address_sheet.dart';
 
 import '../../domain/entities/certificate_data.dart';
 import '../deposit_list/widgets/deposit_ui.dart';
 import 'certificate_fields.dart';
-import 'certificate_address_sheet.dart';
 
 /// Delivery composition; request state, validation and execution stay in the flow.
 class CertificateDeliveryForm extends StatelessWidget {
@@ -26,19 +23,23 @@ class CertificateDeliveryForm extends StatelessWidget {
     required this.onAddAddress,
     required this.onDeleteAddress,
     required this.onOtherRecipient,
-    required this.onRecipient,
+    required this.onRecipientName,
+    required this.onRecipientNationalId,
+    required this.onAgentLookup,
+    required this.canCheckAgent,
     required this.onIncludeAgent,
     required this.onAgent,
   });
   final List<CertificateAddress> addresses;
   final CertificateAddress? address;
-  final bool otherRecipient, includeAgent;
+  final bool otherRecipient, includeAgent, canCheckAgent;
   final String recipientName, recipientNationalId, agentIdentifier;
   final ValueChanged<String> onAddress, onAgent;
-  final bool Function(CertificateAddress) onAddAddress;
+  final VoidCallback onAddAddress;
   final VoidCallback onDeleteAddress;
   final ValueChanged<bool> onOtherRecipient, onIncludeAgent;
-  final void Function(String, String) onRecipient;
+  final ValueChanged<String> onRecipientName, onRecipientNationalId;
+  final VoidCallback onAgentLookup;
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -71,10 +72,7 @@ class CertificateDeliveryForm extends StatelessWidget {
                   horizontalPadding: 0,
                   labelStyle: certificateValueStyle(context)
                       .copyWith(fontWeight: FontWeight.w500),
-                  onPressed: () async {
-                    final result = await showCertificateAddressSheet(context);
-                    if (context.mounted && result != null) onAddAddress(result);
-                  },
+                  onPressed: onAddAddress,
                 ),
               ),
             ),
@@ -86,24 +84,7 @@ class CertificateDeliveryForm extends StatelessWidget {
             postalCode: address!.postalCode,
             deleteIcon: depositIcon(AppAssets.issuanceTrash, size: 20),
             deleteLabel: S.current.issuanceDeleteAddress,
-            onDeleteTap: () async {
-              final confirmed = await showModalBottomSheet<bool>(
-                context: context,
-                isScrollControlled: true,
-                useSafeArea: true,
-                builder: (sheetContext) => AppDeleteAddressSheet(
-                  address: address!.detail,
-                  postalCode: address!.postalCode,
-                  title: S.current.issuanceDeleteAddress,
-                  prompt: S.current.certificateDeleteAddressPrompt,
-                  confirmLabel: S.current.issuanceDeleteAddress,
-                  cancelLabel: S.current.backLabel,
-                  onConfirm: () => sheetContext.pop(true),
-                  onCancel: () => sheetContext.pop(false),
-                ),
-              );
-              if (context.mounted && confirmed == true) onDeleteAddress();
-            },
+            onDeleteTap: onDeleteAddress,
           ),
         const SizedBox(height: 20),
         const DepositDivider(asset: AppAssets.certificateDivider),
@@ -137,7 +118,7 @@ class CertificateDeliveryForm extends StatelessWidget {
             label: S.current.certificateRecipientName,
             hint: S.current.certificateRecipientNameHint,
             value: recipientName,
-            onChanged: (value) => onRecipient(value, recipientNationalId),
+            onChanged: onRecipientName,
           ),
           const SizedBox(height: 20),
           CertificateInput(
@@ -146,7 +127,7 @@ class CertificateDeliveryForm extends StatelessWidget {
             value: recipientNationalId,
             numeric: true,
             maxLength: 10,
-            onChanged: (value) => onRecipient(recipientName, value),
+            onChanged: onRecipientNationalId,
           ),
         ],
         const SizedBox(height: 20),
@@ -190,13 +171,7 @@ class CertificateDeliveryForm extends StatelessWidget {
                 variant: AppButtonVariant.text,
                 size: AppButtonSize.sm,
                 horizontalPadding: 4,
-                onPressed: agentIdentifier.trim().isEmpty
-                    ? null
-                    : () => ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(S.current.certificateAgentUnavailable),
-                        ),
-                      ),
+                onPressed: canCheckAgent ? onAgentLookup : null,
               ),
             ),
           ),

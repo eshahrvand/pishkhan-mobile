@@ -15,7 +15,7 @@ class DashboardResoBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => DashboardResoCubit(),
+      create: (_) => DashboardResoCubit(),
       child: DashboardResoBannerPanel(
         focusNode: focusNode,
         enableAnimations: enableAnimations,

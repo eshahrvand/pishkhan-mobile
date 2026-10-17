@@ -1,3 +1,5 @@
+import '../support/registered_dependency.dart';
+
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -18,20 +20,26 @@ void main() {
   test(
     'type and status filters combine; clear preserves the other filter',
     () async {
-      final cubit = DepositListCubit(
-        repository: MockDepositsRepository(
-          deposits: [
-            ListedDeposit(id: 's', number: '001'),
-            ListedDeposit(id: 'c', number: '002', kind: DepositKind.current),
-            ListedDeposit(
-              id: 'closed',
-              number: '003',
-              kind: DepositKind.current,
-              status: DepositStatus.closed,
+      final cubit =
+          withRegisteredDependency<DepositsRepository, DepositListCubit>(
+            MockDepositsRepository(
+              deposits: [
+                ListedDeposit(id: 's', number: '001'),
+                ListedDeposit(
+                  id: 'c',
+                  number: '002',
+                  kind: DepositKind.current,
+                ),
+                ListedDeposit(
+                  id: 'closed',
+                  number: '003',
+                  kind: DepositKind.current,
+                  status: DepositStatus.closed,
+                ),
+              ],
             ),
-          ],
-        ),
-      );
+            () => DepositListCubit(),
+          );
       await cubit.load();
       expect(cubit.state.visibleDeposits.map((d) => d.id), ['s', 'c']);
       cubit.filterKind(DepositKind.current);
@@ -49,17 +57,19 @@ void main() {
     'empty, failed and invalid responses remain distinct and retryable',
     () async {
       var calls = 0;
-      final cubit = DepositListCubit(
-        repository: _Repository(() async {
-          calls++;
-          if (calls == 1) throw StateError('transport failed');
-          if (calls == 2) return const Success([]);
-          return Success([
-            ListedDeposit(id: 'duplicate', number: '1'),
-            ListedDeposit(id: 'duplicate', number: '2'),
-          ]);
-        }),
-      );
+      final cubit =
+          withRegisteredDependency<DepositsRepository, DepositListCubit>(
+            _Repository(() async {
+              calls++;
+              if (calls == 1) throw StateError('transport failed');
+              if (calls == 2) return const Success([]);
+              return Success([
+                ListedDeposit(id: 'duplicate', number: '1'),
+                ListedDeposit(id: 'duplicate', number: '2'),
+              ]);
+            }),
+            () => DepositListCubit(),
+          );
       await cubit.load();
       expect(cubit.state.status, RequestStatus.failure);
       expect(cubit.state.failure, isA<UnexpectedFailure>());
@@ -78,13 +88,15 @@ void main() {
     'newest response wins and disposed Cubit ignores pending work',
     () async {
       final responses = <Completer<Result<List<ListedDeposit>>>>[];
-      final cubit = DepositListCubit(
-        repository: _Repository(() {
-          final pending = Completer<Result<List<ListedDeposit>>>();
-          responses.add(pending);
-          return pending.future;
-        }),
-      );
+      final cubit =
+          withRegisteredDependency<DepositsRepository, DepositListCubit>(
+            _Repository(() {
+              final pending = Completer<Result<List<ListedDeposit>>>();
+              responses.add(pending);
+              return pending.future;
+            }),
+            () => DepositListCubit(),
+          );
       final first = cubit.load(), second = cubit.load();
       responses[1].complete(Success([ListedDeposit(id: 'new', number: '2')]));
       await second;

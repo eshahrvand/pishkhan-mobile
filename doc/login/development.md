@@ -100,3 +100,18 @@ insets. Golden tests are not introduced.
 ## Cubit/State coding convention
 
 Follow [architecture Section 12](../architecture-smart-virtual-counter-v2-en.md#12-state-management-with-cubit) for new work and refactors. State is a plain Freezed data class with defaults and independent request statuses. Cubits accept an initial State, compute UI data and eligibility, and emit immutable snapshots through `copyWith`. UI reads those fields directly; no custom State/Cubit getters or UI-facing rules facade is used. Dependencies remain injectable and lifecycle/duplicate-request safeguards stay in place.
+
+## UI/Cubit contract adoption (2026-10-17)
+
+AuthCubit is constructed directly in BlocProvider.create and disposed with its scope. GetIt contains data dependencies only; it never registers Cubits.
+OTP completion, OTP focus intent and guest-service selection are Cubit actions;
+a filtered listener executes typed AuthEffect values. The guest sheet returns a
+raw service ID; it no longer chooses the change-phone flow. No bank API is added.
+
+### Dependency and listener clarification (2026-10-17)
+
+The screen/feature-flow widget owns BlocProvider.create, including Home in
+DashboardScreen; GoRouter only selects the destination. Cubits resolve existing
+Repository/service/UseCase registrations through GetIt fields, without dependency
+constructor arguments from UI. Multi-case and substantial async listeners use
+named widget/State methods with the existing listenWhen filter.

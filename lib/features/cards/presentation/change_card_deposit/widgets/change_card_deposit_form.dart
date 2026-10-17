@@ -85,7 +85,7 @@ class ChangeCardDepositForm extends StatelessWidget {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      cardDepositLabel(context, state.source!),
+                      cardDepositLabel(state.source!),
                       style: cardServiceSmall(context),
                     ),
                   ),
@@ -118,7 +118,7 @@ class ChangeCardDepositForm extends StatelessWidget {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        cardDepositLabel(context, state.destination!),
+                        cardDepositLabel(state.destination!),
                         style: cardServiceSmall(context),
                       ),
                     ),

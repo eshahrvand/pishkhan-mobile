@@ -58,9 +58,8 @@ class DashboardFavoritesGrid extends StatelessWidget {
                             ),
                             onTap: editable ? null : () => onService(service),
                           ),
-                          labelStyle: AppTypography.labelSmall.copyWith(
+                          labelStyle: AppTypography.caption.copyWith(
                             color: AppDashboardColors.serviceText,
-                            fontSize: 10,
                             fontWeight: FontWeight.w400,
                             height: 16 / 10,
                             letterSpacing: 0,
@@ -141,7 +140,6 @@ class DashboardFavoritesGrid extends StatelessWidget {
                                 textAlign: TextAlign.center,
                                 style: AppTypography.bodySmall.copyWith(
                                   color: AppDashboardColors.addText,
-                                  fontSize: 12,
                                   fontWeight: FontWeight.w500,
                                   height: 18 / 12,
                                   letterSpacing: 0,

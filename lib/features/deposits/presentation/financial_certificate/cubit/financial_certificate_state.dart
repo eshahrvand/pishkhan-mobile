@@ -11,6 +11,10 @@ enum FinancialCertificateStep {
 @Freezed(toStringOverride: false)
 abstract class FinancialCertificateState with _$FinancialCertificateState {
   const factory FinancialCertificateState.initial({
+    FlowNavigation? navigation,
+    @Default(false) bool canCheckAgent,
+    CertificateEffect? effect,
+    @Default(0) int effectId,
     @Default(RequestStatus.initial) RequestStatus status,
     @Default(RequestStatus.initial) RequestStatus submissionStatus,
     @Default(FinancialCertificateStep.conditions) FinancialCertificateStep step,

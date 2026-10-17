@@ -1,3 +1,5 @@
+import '../../../../../support/registered_dependency.dart';
+
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 
 import 'dart:async';
@@ -70,7 +72,11 @@ void main() {
     'quote, positive bounded count, wallet and consent gate submission',
     () async {
       final r = TestVirtualRepository();
-      final c = VirtualCardCubit(repository: r);
+      final c =
+          withRegisteredDependency<VirtualCardRepository, VirtualCardCubit>(
+            r,
+            () => VirtualCardCubit(),
+          );
       await c.load();
       await c.selectDeposit('virtual-deposit-1');
       for (final value in ['', '0', '1000', '4.5', '-1', 'abc']) {
@@ -97,7 +103,10 @@ void main() {
   );
   test('late quotes cannot replace current selection; invalid quote bindings are rejected', () async {
     final r = TestVirtualRepository()..holdQuotes = true;
-    final c = VirtualCardCubit(repository: r);
+    final c = withRegisteredDependency<VirtualCardRepository, VirtualCardCubit>(
+      r,
+      () => VirtualCardCubit(),
+    );
     await c.load();
     await c.selectDeposit('virtual-deposit-1');
     final old = c.countChanged('3');
@@ -122,7 +131,11 @@ void main() {
     () async {
       final r = TestVirtualRepository()
         ..submitFailure = const DataFailure('network');
-      final c = VirtualCardCubit(repository: r);
+      final c =
+          withRegisteredDependency<VirtualCardRepository, VirtualCardCubit>(
+            r,
+            () => VirtualCardCubit(),
+          );
       await c.load();
       await fillVirtual(c);
       await c.submit();
@@ -155,7 +168,10 @@ void main() {
   test('empty/invalid catalogs, transport failures and quote retry are recoverable', () async {
     final r = TestVirtualRepository()
       ..catalog = VirtualCardCatalog(deposits: [], indicativePerCardFeeRial: 0);
-    final c = VirtualCardCubit(repository: r);
+    final c = withRegisteredDependency<VirtualCardRepository, VirtualCardCubit>(
+      r,
+      () => VirtualCardCubit(),
+    );
     await c.load();
     expect(c.state.status, RequestStatus.success);
     expect(c.state.catalog!.deposits, isEmpty);
@@ -188,10 +204,11 @@ void main() {
     'initial deposit normalization, disposal and latest load guard',
     () async {
       final r = TestVirtualRepository();
-      final c = VirtualCardCubit(
-        repository: r,
-        initialDepositNumber: '۱۰.۱۲۳۴۵۶۷.۱',
-      );
+      final c =
+          withRegisteredDependency<VirtualCardRepository, VirtualCardCubit>(
+            r,
+            () => VirtualCardCubit(initialDepositNumber: '۱۰.۱۲۳۴۵۶۷.۱'),
+          );
       await c.load();
       expect(c.state.depositId, 'virtual-deposit-1');
       r.loading = Completer();

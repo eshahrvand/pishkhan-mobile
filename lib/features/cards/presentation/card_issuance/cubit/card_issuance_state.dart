@@ -5,6 +5,11 @@ enum IssuanceStep { selection, delivery, confirmation }
 @freezed
 abstract class CardIssuanceState with _$CardIssuanceState {
   const factory CardIssuanceState.initial({
+    @Default(0) int addressSavedId,
+    IssuanceEffect? effect,
+    @Default(0) int effectId,
+    FlowNavigation? navigation,
+    @Default(0) int navigationId,
     @Default(false) bool isAddressFormError,
     IssuanceDeposit? deposit,
     IssuanceAddress? address,

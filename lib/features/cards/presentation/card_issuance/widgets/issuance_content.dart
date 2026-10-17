@@ -8,7 +8,6 @@ import 'package:pishkhan_mobile/generated/l10n.dart';
 import '../../../domain/entities/issuance_data.dart';
 import '../cubit/card_issuance_cubit.dart';
 import '../widgets/issuance_sections.dart';
-import '../widgets/issuance_address_sheet.dart';
 
 class IssuanceContent extends StatelessWidget {
   const IssuanceContent({
@@ -103,10 +102,9 @@ class IssuanceContent extends StatelessWidget {
             child: switch (state.step) {
               IssuanceStep.selection => IssuanceSelection(),
               IssuanceStep.delivery => IssuanceDelivery(
-                onAddAddress: () => showIssuanceAddressSheet(
-                  context,
-                  context.read<CardIssuanceCubit>(),
-                ),
+                onAddAddress: context
+                    .read<CardIssuanceCubit>()
+                    .requestAddAddress,
                 onDeleteAddress: onDeleteAddress,
               ),
               IssuanceStep.confirmation => IssuanceConfirmation(),

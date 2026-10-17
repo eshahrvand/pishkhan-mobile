@@ -1,3 +1,5 @@
+import '../../../../../support/registered_dependency.dart';
+
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
 
@@ -525,7 +527,12 @@ void main() {
     t,
   ) async {
     final r = MockPasswordServicesRepository();
-    final setup = SecondPasswordCubit(repository: r, selectOperation: true);
+    await usePasswordRepository(r);
+    final setup =
+        withRegisteredDependency<
+          PasswordServicesRepository,
+          SecondPasswordCubit
+        >(r, () => SecondPasswordCubit(selectOperation: true));
     await setup.load();
     select(setup);
     setup.chooseOperation(PasswordOperation.changePassword);

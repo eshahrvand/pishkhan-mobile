@@ -5,6 +5,10 @@ enum AverageBalanceStep { conditions, delivery, confirmation }
 @Freezed(toStringOverride: false)
 abstract class AverageBalanceState with _$AverageBalanceState {
   const factory AverageBalanceState.initial({
+    FlowNavigation? navigation,
+    @Default(false) bool canCheckAgent,
+    CertificateEffect? effect,
+    @Default(0) int effectId,
     @Default(RequestStatus.initial) RequestStatus status,
     @Default(RequestStatus.initial) RequestStatus submissionStatus,
     @Default(AverageBalanceStep.conditions) AverageBalanceStep step,

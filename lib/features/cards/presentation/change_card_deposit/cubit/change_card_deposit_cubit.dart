@@ -1,3 +1,6 @@
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
+import 'package:pishkhan_mobile/core/flow/flow_navigation.dart';
+export 'package:pishkhan_mobile/core/flow/flow_navigation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:pishkhan_mobile/core/result/failure.dart';
 
@@ -19,13 +22,62 @@ class ChangeCardDepositCubit extends Cubit<ChangeCardDepositState> {
   ChangeCardDepositCubit({
     ChangeCardDepositState initialState =
         const ChangeCardDepositState.initial(),
-    required this.repository,
     this.initialCardNumber,
   }) : super(initialState);
-  final CardServicesRepository repository;
+  final repository = getIt<CardServicesRepository>();
   final String? initialCardNumber;
   int _generation = 0;
   String? _key;
+
+  // Loaded entry snapshot, retained only to detect discardable user edits.
+  ChangeCardDepositState? _entryState;
+
+  void requestBack() {
+    if (isClosed || state.submissionStatus == RequestStatus.loading) return;
+    if (state.navigation == FlowNavigation.confirmExit ||
+        state.navigation == FlowNavigation.back) {
+      return;
+    }
+    final needsConfirmation =
+        state.submissionStatus != RequestStatus.success &&
+        state.status == RequestStatus.success &&
+        (state.cardId != _entryState?.cardId ||
+            state.destinationId != _entryState?.destinationId ||
+            state.termsAccepted);
+    emit(
+      state.copyWith(
+        navigation: needsConfirmation
+            ? FlowNavigation.confirmExit
+            : FlowNavigation.back,
+        navigationId: state.navigationId + 1,
+      ),
+    );
+  }
+
+  void exitConfirmationResult(bool? confirmed) {
+    if (isClosed ||
+        state.navigation != FlowNavigation.confirmExit ||
+        state.submissionStatus == RequestStatus.loading) {
+      return;
+    }
+    emit(
+      state.copyWith(
+        navigation: confirmed == true ? FlowNavigation.back : null,
+
+        navigationId: state.navigationId + 1,
+      ),
+    );
+  }
+
+  void requestHome() {
+    if (isClosed || state.submissionStatus == RequestStatus.loading) return;
+    emit(
+      state.copyWith(
+        navigation: FlowNavigation.home,
+        navigationId: state.navigationId + 1,
+      ),
+    );
+  }
 
   Future<void> load() async {
     if (state.submissionStatus == RequestStatus.loading) return;
@@ -147,6 +199,7 @@ class ChangeCardDepositCubit extends Cubit<ChangeCardDepositState> {
           );
         }
     }
+    if (!isClosed && state.status == RequestStatus.success) _entryState = state;
   }
 
   String _number(String value) =>

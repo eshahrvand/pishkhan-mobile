@@ -44,3 +44,18 @@ Optional captures use `CAPTURE_CERTIFICATE_PREVIEWS=1` and write PNGs into
 ignored `build/previews/certificates/`. Static assets are locally bundled and
 registered in `AppAssets`; exact duplicate artwork is reused. The design's
 OS status/navigation bars are reserved as viewport insets, not drawn by the app.
+
+## UI/Cubit contract adoption (2026-10-17)
+
+Repository wiring belongs to GetIt rather than screen constructors. The Cubit
+owns Back/primary-action decisions and address/agent interaction intents. The
+shared delivery form sends individual recipient-field events without resending
+State-owned sibling values. Receipt/dialog results return to Cubit.
+
+### Dependency and listener clarification (2026-10-17)
+
+The screen/feature-flow widget owns BlocProvider.create, including Home in
+DashboardScreen; GoRouter only selects the destination. Cubits resolve existing
+Repository/service/UseCase registrations through GetIt fields, without dependency
+constructor arguments from UI. Multi-case and substantial async listeners use
+named widget/State methods with the existing listenWhen filter.

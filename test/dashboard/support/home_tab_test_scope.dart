@@ -1,3 +1,7 @@
+import 'dart:async';
+
+import '../../support/registered_dependency.dart';
+
 import 'package:pishkhan_mobile/features/dashboard/presentation/home/screens/dashboard_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -70,13 +74,50 @@ class HomeTabTestScope extends StatefulWidget {
 }
 
 class _HomeTabTestScopeState extends State<HomeTabTestScope> {
-  late final HomeCubit _cubit;
+  late HomeCubit _cubit;
+  BlocObserver? _previousObserver;
+  final _subscriptions = <StreamSubscription<HomeState>>[];
+
+  void _observe(HomeCubit cubit) {
+    _cubit = cubit;
+    var effectId = cubit.state.effectId;
+    _subscriptions.add(
+      cubit.stream.listen((state) {
+        if (effectId == state.effectId) return;
+        effectId = state.effectId;
+        _handleEffect(context, state);
+      }),
+    );
+    HomeState previous = cubit.state;
+    _subscriptions.add(
+      cubit.stream.listen((state) {
+        if (previous.homeData != null &&
+            state.homeData != null &&
+            previous.homeData!.favorites != state.homeData!.favorites) {
+          widget.onFavoritesChanged?.call(state.homeData!.favorites);
+        }
+        previous = state;
+      }),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
-    _cubit = HomeCubit(
-      repositories: widget.repositories,
-      initialState: const HomeState.initial(enableAnimations: false),
+    if (widget.child is DashboardScreen) {
+      withRegisteredDependency<DashboardRepositories, void>(
+        widget.repositories,
+        () {},
+      );
+      _previousObserver = Bloc.observer;
+      Bloc.observer = DashboardTestObserver(_previousObserver!, _observe);
+      return;
+    }
+    _cubit = withRegisteredDependency<DashboardRepositories, HomeCubit>(
+      widget.repositories,
+      () => HomeCubit(
+        initialState: const HomeState.initial(enableAnimations: false),
+      ),
     )..load();
   }
 
@@ -88,73 +129,31 @@ class _HomeTabTestScopeState extends State<HomeTabTestScope> {
 
   @override
   void dispose() {
-    _cubit.close();
+    for (final subscription in _subscriptions) {
+      subscription.cancel();
+    }
+    if (_previousObserver != null) {
+      Bloc.observer = _previousObserver!;
+    } else {
+      _cubit.close();
+    }
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (widget.child is DashboardScreen) {
+      return MediaQuery(
+        data: MediaQuery.of(context).copyWith(disableAnimations: true),
+        child: widget.child,
+      );
+    }
     return BlocProvider.value(
       value: _cubit,
       child: BlocListener<HomeCubit, HomeState>(
         listenWhen: (previous, current) =>
             previous.effectId != current.effectId,
-        listener: (context, state) {
-          switch (state.effect) {
-            case HomeCardActionRequested(:final request):
-              widget.onCardAction?.call(request);
-              if (widget.onCardAction == null) {
-                widget.onServiceRequested?.call(request.action.id);
-              }
-            case HomeDepositActionRequested(:final request):
-              widget.onDepositAction?.call(request);
-              if (widget.onDepositAction == null) {
-                widget.onServiceRequested?.call(request.action.id);
-              }
-            case HomeLoanActionRequested(:final request):
-              widget.onLoanAction?.call(request);
-              if (widget.onLoanAction == null) {
-                widget.onServiceRequested?.call(request.action.id);
-              }
-            case HomeCardMoreRequested(:final card):
-              widget.onMore?.call(card);
-            case HomeCardSelectionChanged(:final card):
-              widget.onCardSelected?.call(card);
-            case HomeDepositSelectionChanged(:final deposit):
-              widget.onDepositSelected?.call(deposit);
-            case HomeLoanSelectionChanged(:final loan):
-              widget.onLoanSelected?.call(loan);
-            case HomeLoanDetailsRequested(:final loan):
-              widget.onDetails?.call(loan);
-            case HomeCardNumberCopyRequested(:final number):
-              _copyNumber(number);
-            case HomeDepositNumberCopyRequested(:final number):
-              _copyNumber(number);
-            case HomeLoanNumberCopyRequested(:final number):
-              _copyNumber(number);
-            case HomeCardIbanCopyRequested(:final iban):
-              _copyIban(iban);
-            case HomeDepositIbanCopyRequested(:final iban):
-              _copyIban(iban);
-            case HomeTabRequested(:final tab):
-              widget.onTabSelected?.call(tab);
-            case HomeMenuRequested():
-              widget.onMenuPressed?.call();
-            case HomeAssistantRequested():
-              widget.onAssistantPressed?.call();
-              widget.onServiceRequested?.call('assistant');
-            case HomeServiceRequested(:final serviceId):
-              widget.onServiceRequested?.call(serviceId);
-            case HomePromptSubmitted(:final prompt):
-              widget.onPromptSubmitted?.call(prompt);
-            case HomeProfileRequested():
-            case HomeNotificationsRequested():
-            case HomeFavoritePickerRequested():
-            case HomeFavoritesResetRequested():
-            case null:
-              break;
-          }
-        },
+        listener: _handleEffect,
         child: BlocListener<HomeCubit, HomeState>(
           listenWhen: (previous, current) =>
               previous.homeData != null &&
@@ -166,6 +165,63 @@ class _HomeTabTestScopeState extends State<HomeTabTestScope> {
         ),
       ),
     );
+  }
+
+  void _handleEffect(BuildContext context, HomeState state) {
+    switch (state.effect) {
+      case HomeCardActionRequested(:final request):
+        widget.onCardAction?.call(request);
+        if (widget.onCardAction == null) {
+          widget.onServiceRequested?.call(request.action.id);
+        }
+      case HomeDepositActionRequested(:final request):
+        widget.onDepositAction?.call(request);
+        if (widget.onDepositAction == null) {
+          widget.onServiceRequested?.call(request.action.id);
+        }
+      case HomeLoanActionRequested(:final request):
+        widget.onLoanAction?.call(request);
+        if (widget.onLoanAction == null) {
+          widget.onServiceRequested?.call(request.action.id);
+        }
+      case HomeCardMoreRequested(:final card):
+        widget.onMore?.call(card);
+      case HomeCardSelectionChanged(:final card):
+        widget.onCardSelected?.call(card);
+      case HomeDepositSelectionChanged(:final deposit):
+        widget.onDepositSelected?.call(deposit);
+      case HomeLoanSelectionChanged(:final loan):
+        widget.onLoanSelected?.call(loan);
+      case HomeLoanDetailsRequested(:final loan):
+        widget.onDetails?.call(loan);
+      case HomeCardNumberCopyRequested(:final number):
+        _copyNumber(number);
+      case HomeDepositNumberCopyRequested(:final number):
+        _copyNumber(number);
+      case HomeLoanNumberCopyRequested(:final number):
+        _copyNumber(number);
+      case HomeCardIbanCopyRequested(:final iban):
+        _copyIban(iban);
+      case HomeDepositIbanCopyRequested(:final iban):
+        _copyIban(iban);
+      case HomeTabRequested(:final tab):
+        widget.onTabSelected?.call(tab);
+      case HomeMenuRequested():
+        widget.onMenuPressed?.call();
+      case HomeAssistantRequested():
+        widget.onAssistantPressed?.call();
+        widget.onServiceRequested?.call('assistant');
+      case HomeServiceRequested(:final serviceId):
+        widget.onServiceRequested?.call(serviceId);
+      case HomePromptSubmitted(:final prompt):
+        widget.onPromptSubmitted?.call(prompt);
+      case HomeProfileRequested():
+      case HomeNotificationsRequested():
+      case HomeFavoritePickerRequested():
+      case HomeFavoritesResetRequested():
+      case null:
+        break;
+    }
   }
 
   void _copyNumber(String value) {
@@ -274,3 +330,15 @@ Widget dashboardScope({
   onCopyIban: (_) {},
   child: const DashboardScreen(),
 );
+
+class DashboardTestObserver extends BlocObserver {
+  DashboardTestObserver(this.previous, this.onHomeCreated);
+  final BlocObserver previous;
+  final void Function(HomeCubit) onHomeCreated;
+  @override
+  void onCreate(BlocBase<dynamic> bloc) {
+    super.onCreate(bloc);
+    previous.onCreate(bloc);
+    if (bloc is HomeCubit) onHomeCreated(bloc);
+  }
+}

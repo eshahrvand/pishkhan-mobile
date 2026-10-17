@@ -1491,11 +1491,10 @@ When a future service needs URL-addressable steps, declare its step paths in
 This loan flow is a design example, not a set of currently registered routes.
 
 ```dart
+// LoanRequestFlow owns BlocProvider(create: (_) => LoanRequestCubit()).
+// LoanRequestCubit resolves its registered data dependencies internally.
 ShellRoute(
-  builder: (_, __, child) => BlocProvider(
-    create: (_) => getIt<LoanRequestCubit>(),
-    child: child,
-  ),
+  builder: (_, __, child) => LoanRequestFlow(child: child),
   routes: [
     GoRoute(path: AppRoutes.loanRequestAmount,    builder: ...),
     GoRoute(path: AppRoutes.loanRequestDocuments, builder: ...),

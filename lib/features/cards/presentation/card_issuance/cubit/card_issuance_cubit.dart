@@ -1,3 +1,10 @@
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
+
+import 'issuance_effect.dart';
+export 'issuance_effect.dart';
+
+import 'package:pishkhan_mobile/core/flow/flow_navigation.dart';
+export 'package:pishkhan_mobile/core/flow/flow_navigation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../domain/entities/issuance_draft.dart';
@@ -20,78 +27,118 @@ part 'card_issuance_cubit.freezed.dart';
 class CardIssuanceCubit extends Cubit<CardIssuanceState> {
   CardIssuanceCubit({
     CardIssuanceState initialState = const CardIssuanceState.initial(),
-    required CardIssuanceRepository repository,
     this.initialDepositNumber,
-  }) : _loader = LoadIssuanceCatalog(repository),
-       _submitter = SubmitCardIssuance(repository),
-       super(initialState) {
-    {
-      final nextDraft = state.draft;
-      final nextDeposit = getDeposit(state.catalog, nextDraft);
-      final nextAddress = getAddress(state.catalog, nextDraft);
-      final nextSelection = checkSelection(
-        state.catalog,
-        nextDraft,
-        nextDeposit,
-      );
-      final nextDelivery = checkDelivery(nextDraft, nextAddress);
-      final nextFees = getFees(state.catalog, nextDraft);
-      final nextTotal = nextFees.fold<int>(
-        0,
-        (sum, fee) => sum + fee.amountRial,
-      );
-      final nextWallet =
-          state.catalog != null &&
-          state.catalog!.walletBalanceRial >= nextTotal;
-      final nextEditable = checkEditable(
-        state.status,
-        state.submissionStatus,
-        state.catalog,
-      );
-      emit(
-        state.copyWith(
-          deposit: nextDeposit,
-          address: nextAddress,
-          selectionComplete: nextSelection,
-          deliveryComplete: nextDelivery,
-          fees: nextFees,
-          totalRial: nextTotal,
-          walletSufficient: nextWallet,
-          editable: nextEditable,
-          canContinue:
-              nextEditable &&
-              switch (state.step) {
-                IssuanceStep.selection => nextSelection,
-                IssuanceStep.delivery => nextSelection && nextDelivery,
-                IssuanceStep.confirmation =>
-                  nextSelection &&
-                      nextDelivery &&
-                      nextDraft.termsAccepted &&
-                      nextWallet,
-              },
-          request: nextSelection && nextDelivery
-              ? IssuanceRequest(
-                  depositId: nextDeposit!.id,
-                  type: nextDraft.type!,
-                  noPhysicalCard: nextDraft.noPhysicalCard,
-                  address: nextDraft.noPhysicalCard ? null : nextAddress,
-                  recipient:
-                      !nextDraft.noPhysicalCard && nextDraft.otherRecipient
-                      ? nextDraft.recipient
-                      : null,
-                  agent: !nextDraft.noPhysicalCard && nextDraft.includeAgent
-                      ? nextDraft.agent
-                      : null,
-                )
-              : null,
-        ),
-      );
-    }
-  }
-  LoadIssuanceCatalog _loader;
-  SubmitCardIssuance _submitter;
+  }) : super(initialState);
+  final _repository = getIt<CardIssuanceRepository>();
+  late LoadIssuanceCatalog _loader = LoadIssuanceCatalog(_repository);
+  late SubmitCardIssuance _submitter = SubmitCardIssuance(_repository);
   final String? initialDepositNumber;
   int _generation = 0, _addressCounter = 0;
+  void requestTerms() {
+    if (isClosed) return;
+    emit(
+      state.copyWith(
+        effect: const IssuanceTermsRequested(),
+        effectId: state.effectId + 1,
+      ),
+    );
+  }
+
+  void requestAddAddress() {
+    if (isClosed || !state.editable) return;
+    emit(
+      state.copyWith(
+        isAddressFormError: false,
+        effect: const IssuanceAddressRequested(),
+        effectId: state.effectId + 1,
+      ),
+    );
+  }
+
+  void requestDeleteAddress(IssuanceAddress address) {
+    if (isClosed || !state.editable || state.address?.id != address.id) return;
+    emit(
+      state.copyWith(
+        effect: IssuanceAddressRemovalRequested(address),
+        effectId: state.effectId + 1,
+      ),
+    );
+  }
+
+  void addressRemovalResult(String id, bool? confirmed) {
+    if (isClosed || confirmed != true || state.address?.id != id) return;
+    removeAddress(id);
+  }
+
+  Future<void> continueFlow() async {
+    if (isClosed || !state.canContinue) return;
+    if (state.step == IssuanceStep.confirmation) {
+      await submit();
+    } else {
+      next();
+    }
+  }
+
+  void updateRecipientName(String value) =>
+      setRecipient(state.draft.recipient.copyWith(name: value));
+  void updateRecipientNationalId(String value) =>
+      setRecipient(state.draft.recipient.copyWith(nationalId: value));
+  void updateRecipientMobile(String value) =>
+      setRecipient(state.draft.recipient.copyWith(mobile: value));
+  void updateAgentName(String value) =>
+      setAgent(BankAgent(name: value, code: state.draft.agent.code));
+  void updateAgentCode(String value) =>
+      setAgent(BankAgent(name: state.draft.agent.name, code: value));
+
+  // Loaded entry snapshot, retained only to detect discardable user edits.
+  CardIssuanceState? _entryState;
+
+  void requestBack() {
+    if (isClosed || state.submissionStatus == RequestStatus.loading) return;
+    if (back()) return;
+    if (state.navigation == FlowNavigation.confirmExit ||
+        state.navigation == FlowNavigation.back) {
+      return;
+    }
+    final needsConfirmation =
+        state.submissionStatus != RequestStatus.success &&
+        state.status == RequestStatus.success &&
+        (state.draft != _entryState?.draft);
+    emit(
+      state.copyWith(
+        navigation: needsConfirmation
+            ? FlowNavigation.confirmExit
+            : FlowNavigation.back,
+        navigationId: state.navigationId + 1,
+      ),
+    );
+  }
+
+  void exitConfirmationResult(bool? confirmed) {
+    if (isClosed ||
+        state.navigation != FlowNavigation.confirmExit ||
+        state.submissionStatus == RequestStatus.loading) {
+      return;
+    }
+    emit(
+      state.copyWith(
+        navigation: confirmed == true ? FlowNavigation.back : null,
+
+        navigationId: state.navigationId + 1,
+      ),
+    );
+  }
+
+  void requestHome() {
+    if (isClosed || state.submissionStatus == RequestStatus.loading) return;
+    emit(
+      state.copyWith(
+        navigation: FlowNavigation.home,
+        navigationId: state.navigationId + 1,
+      ),
+    );
+  }
+
   Future<void> load() async {
     final generation = ++_generation;
     {
@@ -271,6 +318,7 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
           );
         }
     }
+    if (!isClosed && state.status == RequestStatus.success) _entryState = state;
   }
 
   Future<void> changeRepository(CardIssuanceRepository repository) {
@@ -279,7 +327,145 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
     return load();
   }
 
-  void _edit(IssuanceDraft draft) {
+  void selectDeposit(String id) {
+    if (state.catalog?.deposits.any((d) => d.id == id) ?? false) {
+      {
+        final draft = state.draft.copyWith(depositId: id);
+
+        if (!state.editable) return;
+        {
+          final nextDraft = (draft.copyWith(termsAccepted: false));
+          final nextDeposit = getDeposit(state.catalog, nextDraft);
+          final nextAddress = getAddress(state.catalog, nextDraft);
+          final nextSelection = checkSelection(
+            state.catalog,
+            nextDraft,
+            nextDeposit,
+          );
+          final nextDelivery = checkDelivery(nextDraft, nextAddress);
+          final nextFees = getFees(state.catalog, nextDraft);
+          final nextTotal = nextFees.fold<int>(
+            0,
+            (sum, fee) => sum + fee.amountRial,
+          );
+          final nextWallet =
+              state.catalog != null &&
+              state.catalog!.walletBalanceRial >= nextTotal;
+          emit(
+            state.copyWith(
+              draft: draft.copyWith(termsAccepted: false),
+              failure: null,
+              deposit: nextDeposit,
+              address: nextAddress,
+              selectionComplete: nextSelection,
+              deliveryComplete: nextDelivery,
+              fees: nextFees,
+              totalRial: nextTotal,
+              walletSufficient: nextWallet,
+              canContinue:
+                  state.editable &&
+                  switch (state.step) {
+                    IssuanceStep.selection => nextSelection,
+                    IssuanceStep.delivery => nextSelection && nextDelivery,
+                    IssuanceStep.confirmation =>
+                      nextSelection &&
+                          nextDelivery &&
+                          nextDraft.termsAccepted &&
+                          nextWallet,
+                  },
+              request: nextSelection && nextDelivery
+                  ? IssuanceRequest(
+                      depositId: nextDeposit!.id,
+                      type: nextDraft.type!,
+                      noPhysicalCard: nextDraft.noPhysicalCard,
+                      address: nextDraft.noPhysicalCard ? null : nextAddress,
+                      recipient:
+                          !nextDraft.noPhysicalCard && nextDraft.otherRecipient
+                          ? nextDraft.recipient
+                          : null,
+                      agent: !nextDraft.noPhysicalCard && nextDraft.includeAgent
+                          ? nextDraft.agent
+                          : null,
+                    )
+                  : null,
+            ),
+          );
+        }
+      }
+    }
+  }
+
+  void selectType(IssuanceType type) {
+    if (state.catalog?.types.contains(type) ?? false) {
+      {
+        final draft = state.draft.copyWith(type: type);
+
+        if (!state.editable) return;
+        {
+          final nextDraft = (draft.copyWith(termsAccepted: false));
+          final nextDeposit = getDeposit(state.catalog, nextDraft);
+          final nextAddress = getAddress(state.catalog, nextDraft);
+          final nextSelection = checkSelection(
+            state.catalog,
+            nextDraft,
+            nextDeposit,
+          );
+          final nextDelivery = checkDelivery(nextDraft, nextAddress);
+          final nextFees = getFees(state.catalog, nextDraft);
+          final nextTotal = nextFees.fold<int>(
+            0,
+            (sum, fee) => sum + fee.amountRial,
+          );
+          final nextWallet =
+              state.catalog != null &&
+              state.catalog!.walletBalanceRial >= nextTotal;
+          emit(
+            state.copyWith(
+              draft: draft.copyWith(termsAccepted: false),
+              failure: null,
+              deposit: nextDeposit,
+              address: nextAddress,
+              selectionComplete: nextSelection,
+              deliveryComplete: nextDelivery,
+              fees: nextFees,
+              totalRial: nextTotal,
+              walletSufficient: nextWallet,
+              canContinue:
+                  state.editable &&
+                  switch (state.step) {
+                    IssuanceStep.selection => nextSelection,
+                    IssuanceStep.delivery => nextSelection && nextDelivery,
+                    IssuanceStep.confirmation =>
+                      nextSelection &&
+                          nextDelivery &&
+                          nextDraft.termsAccepted &&
+                          nextWallet,
+                  },
+              request: nextSelection && nextDelivery
+                  ? IssuanceRequest(
+                      depositId: nextDeposit!.id,
+                      type: nextDraft.type!,
+                      noPhysicalCard: nextDraft.noPhysicalCard,
+                      address: nextDraft.noPhysicalCard ? null : nextAddress,
+                      recipient:
+                          !nextDraft.noPhysicalCard && nextDraft.otherRecipient
+                          ? nextDraft.recipient
+                          : null,
+                      agent: !nextDraft.noPhysicalCard && nextDraft.includeAgent
+                          ? nextDraft.agent
+                          : null,
+                    )
+                  : null,
+            ),
+          );
+        }
+      }
+    }
+  }
+
+  void setNoPhysicalCard(bool value) {
+    final draft = state.draft.copyWith(noPhysicalCard: value);
+
     if (!state.editable) return;
     {
       final nextDraft = (draft.copyWith(termsAccepted: false));
@@ -341,23 +527,71 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
     }
   }
 
-  void selectDeposit(String id) {
-    if (state.catalog?.deposits.any((d) => d.id == id) ?? false) {
-      _edit(state.draft.copyWith(depositId: id));
-    }
-  }
-
-  void selectType(IssuanceType type) {
-    if (state.catalog?.types.contains(type) ?? false) {
-      _edit(state.draft.copyWith(type: type));
-    }
-  }
-
-  void setNoPhysicalCard(bool value) =>
-      _edit(state.draft.copyWith(noPhysicalCard: value));
   void selectAddress(String id) {
     if (state.catalog?.addresses.any((a) => a.id == id) ?? false) {
-      _edit(state.draft.copyWith(addressId: id));
+      {
+        final draft = state.draft.copyWith(addressId: id);
+
+        if (!state.editable) return;
+        {
+          final nextDraft = (draft.copyWith(termsAccepted: false));
+          final nextDeposit = getDeposit(state.catalog, nextDraft);
+          final nextAddress = getAddress(state.catalog, nextDraft);
+          final nextSelection = checkSelection(
+            state.catalog,
+            nextDraft,
+            nextDeposit,
+          );
+          final nextDelivery = checkDelivery(nextDraft, nextAddress);
+          final nextFees = getFees(state.catalog, nextDraft);
+          final nextTotal = nextFees.fold<int>(
+            0,
+            (sum, fee) => sum + fee.amountRial,
+          );
+          final nextWallet =
+              state.catalog != null &&
+              state.catalog!.walletBalanceRial >= nextTotal;
+          emit(
+            state.copyWith(
+              draft: draft.copyWith(termsAccepted: false),
+              failure: null,
+              deposit: nextDeposit,
+              address: nextAddress,
+              selectionComplete: nextSelection,
+              deliveryComplete: nextDelivery,
+              fees: nextFees,
+              totalRial: nextTotal,
+              walletSufficient: nextWallet,
+              canContinue:
+                  state.editable &&
+                  switch (state.step) {
+                    IssuanceStep.selection => nextSelection,
+                    IssuanceStep.delivery => nextSelection && nextDelivery,
+                    IssuanceStep.confirmation =>
+                      nextSelection &&
+                          nextDelivery &&
+                          nextDraft.termsAccepted &&
+                          nextWallet,
+                  },
+              request: nextSelection && nextDelivery
+                  ? IssuanceRequest(
+                      depositId: nextDeposit!.id,
+                      type: nextDraft.type!,
+                      noPhysicalCard: nextDraft.noPhysicalCard,
+                      address: nextDraft.noPhysicalCard ? null : nextAddress,
+                      recipient:
+                          !nextDraft.noPhysicalCard && nextDraft.otherRecipient
+                          ? nextDraft.recipient
+                          : null,
+                      agent: !nextDraft.noPhysicalCard && nextDraft.includeAgent
+                          ? nextDraft.agent
+                          : null,
+                    )
+                  : null,
+            ),
+          );
+        }
+      }
     }
   }
 
@@ -422,6 +656,7 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
       );
       emit(
         state.copyWith(
+          addressSavedId: state.addressSavedId + 1,
           catalog: state.catalog!.withAddresses([
             ...state.catalog!.addresses,
             address,
@@ -569,23 +804,269 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
     }
   }
 
-  void setOtherRecipient(bool value) =>
-      _edit(state.draft.copyWith(otherRecipient: value));
-  void setIncludeAgent(bool value) =>
-      _edit(state.draft.copyWith(includeAgent: value));
-  void setRecipient(DeliveryPerson value) => _edit(
-    state.draft.copyWith(
+  void setOtherRecipient(bool value) {
+    final draft = state.draft.copyWith(otherRecipient: value);
+
+    if (!state.editable) return;
+    {
+      final nextDraft = (draft.copyWith(termsAccepted: false));
+      final nextDeposit = getDeposit(state.catalog, nextDraft);
+      final nextAddress = getAddress(state.catalog, nextDraft);
+      final nextSelection = checkSelection(
+        state.catalog,
+        nextDraft,
+        nextDeposit,
+      );
+      final nextDelivery = checkDelivery(nextDraft, nextAddress);
+      final nextFees = getFees(state.catalog, nextDraft);
+      final nextTotal = nextFees.fold<int>(
+        0,
+        (sum, fee) => sum + fee.amountRial,
+      );
+      final nextWallet =
+          state.catalog != null &&
+          state.catalog!.walletBalanceRial >= nextTotal;
+      emit(
+        state.copyWith(
+          draft: draft.copyWith(termsAccepted: false),
+          failure: null,
+          deposit: nextDeposit,
+          address: nextAddress,
+          selectionComplete: nextSelection,
+          deliveryComplete: nextDelivery,
+          fees: nextFees,
+          totalRial: nextTotal,
+          walletSufficient: nextWallet,
+          canContinue:
+              state.editable &&
+              switch (state.step) {
+                IssuanceStep.selection => nextSelection,
+                IssuanceStep.delivery => nextSelection && nextDelivery,
+                IssuanceStep.confirmation =>
+                  nextSelection &&
+                      nextDelivery &&
+                      nextDraft.termsAccepted &&
+                      nextWallet,
+              },
+          request: nextSelection && nextDelivery
+              ? IssuanceRequest(
+                  depositId: nextDeposit!.id,
+                  type: nextDraft.type!,
+                  noPhysicalCard: nextDraft.noPhysicalCard,
+                  address: nextDraft.noPhysicalCard ? null : nextAddress,
+                  recipient:
+                      !nextDraft.noPhysicalCard && nextDraft.otherRecipient
+                      ? nextDraft.recipient
+                      : null,
+                  agent: !nextDraft.noPhysicalCard && nextDraft.includeAgent
+                      ? nextDraft.agent
+                      : null,
+                )
+              : null,
+        ),
+      );
+    }
+  }
+
+  void setIncludeAgent(bool value) {
+    final draft = state.draft.copyWith(includeAgent: value);
+
+    if (!state.editable) return;
+    {
+      final nextDraft = (draft.copyWith(termsAccepted: false));
+      final nextDeposit = getDeposit(state.catalog, nextDraft);
+      final nextAddress = getAddress(state.catalog, nextDraft);
+      final nextSelection = checkSelection(
+        state.catalog,
+        nextDraft,
+        nextDeposit,
+      );
+      final nextDelivery = checkDelivery(nextDraft, nextAddress);
+      final nextFees = getFees(state.catalog, nextDraft);
+      final nextTotal = nextFees.fold<int>(
+        0,
+        (sum, fee) => sum + fee.amountRial,
+      );
+      final nextWallet =
+          state.catalog != null &&
+          state.catalog!.walletBalanceRial >= nextTotal;
+      emit(
+        state.copyWith(
+          draft: draft.copyWith(termsAccepted: false),
+          failure: null,
+          deposit: nextDeposit,
+          address: nextAddress,
+          selectionComplete: nextSelection,
+          deliveryComplete: nextDelivery,
+          fees: nextFees,
+          totalRial: nextTotal,
+          walletSufficient: nextWallet,
+          canContinue:
+              state.editable &&
+              switch (state.step) {
+                IssuanceStep.selection => nextSelection,
+                IssuanceStep.delivery => nextSelection && nextDelivery,
+                IssuanceStep.confirmation =>
+                  nextSelection &&
+                      nextDelivery &&
+                      nextDraft.termsAccepted &&
+                      nextWallet,
+              },
+          request: nextSelection && nextDelivery
+              ? IssuanceRequest(
+                  depositId: nextDeposit!.id,
+                  type: nextDraft.type!,
+                  noPhysicalCard: nextDraft.noPhysicalCard,
+                  address: nextDraft.noPhysicalCard ? null : nextAddress,
+                  recipient:
+                      !nextDraft.noPhysicalCard && nextDraft.otherRecipient
+                      ? nextDraft.recipient
+                      : null,
+                  agent: !nextDraft.noPhysicalCard && nextDraft.includeAgent
+                      ? nextDraft.agent
+                      : null,
+                )
+              : null,
+        ),
+      );
+    }
+  }
+
+  void setRecipient(DeliveryPerson value) {
+    final draft = state.draft.copyWith(
       recipient: value.copyWith(
         nationalId: DigitNormalizer.normalize(value.nationalId),
         mobile: DigitNormalizer.normalize(value.mobile),
       ),
-    ),
-  );
-  void setAgent(BankAgent value) => _edit(
-    state.draft.copyWith(
+    );
+
+    if (!state.editable) return;
+    {
+      final nextDraft = (draft.copyWith(termsAccepted: false));
+      final nextDeposit = getDeposit(state.catalog, nextDraft);
+      final nextAddress = getAddress(state.catalog, nextDraft);
+      final nextSelection = checkSelection(
+        state.catalog,
+        nextDraft,
+        nextDeposit,
+      );
+      final nextDelivery = checkDelivery(nextDraft, nextAddress);
+      final nextFees = getFees(state.catalog, nextDraft);
+      final nextTotal = nextFees.fold<int>(
+        0,
+        (sum, fee) => sum + fee.amountRial,
+      );
+      final nextWallet =
+          state.catalog != null &&
+          state.catalog!.walletBalanceRial >= nextTotal;
+      emit(
+        state.copyWith(
+          draft: draft.copyWith(termsAccepted: false),
+          failure: null,
+          deposit: nextDeposit,
+          address: nextAddress,
+          selectionComplete: nextSelection,
+          deliveryComplete: nextDelivery,
+          fees: nextFees,
+          totalRial: nextTotal,
+          walletSufficient: nextWallet,
+          canContinue:
+              state.editable &&
+              switch (state.step) {
+                IssuanceStep.selection => nextSelection,
+                IssuanceStep.delivery => nextSelection && nextDelivery,
+                IssuanceStep.confirmation =>
+                  nextSelection &&
+                      nextDelivery &&
+                      nextDraft.termsAccepted &&
+                      nextWallet,
+              },
+          request: nextSelection && nextDelivery
+              ? IssuanceRequest(
+                  depositId: nextDeposit!.id,
+                  type: nextDraft.type!,
+                  noPhysicalCard: nextDraft.noPhysicalCard,
+                  address: nextDraft.noPhysicalCard ? null : nextAddress,
+                  recipient:
+                      !nextDraft.noPhysicalCard && nextDraft.otherRecipient
+                      ? nextDraft.recipient
+                      : null,
+                  agent: !nextDraft.noPhysicalCard && nextDraft.includeAgent
+                      ? nextDraft.agent
+                      : null,
+                )
+              : null,
+        ),
+      );
+    }
+  }
+
+  void setAgent(BankAgent value) {
+    final draft = state.draft.copyWith(
       agent: value.copyWith(code: DigitNormalizer.normalize(value.code)),
-    ),
-  );
+    );
+
+    if (!state.editable) return;
+    {
+      final nextDraft = (draft.copyWith(termsAccepted: false));
+      final nextDeposit = getDeposit(state.catalog, nextDraft);
+      final nextAddress = getAddress(state.catalog, nextDraft);
+      final nextSelection = checkSelection(
+        state.catalog,
+        nextDraft,
+        nextDeposit,
+      );
+      final nextDelivery = checkDelivery(nextDraft, nextAddress);
+      final nextFees = getFees(state.catalog, nextDraft);
+      final nextTotal = nextFees.fold<int>(
+        0,
+        (sum, fee) => sum + fee.amountRial,
+      );
+      final nextWallet =
+          state.catalog != null &&
+          state.catalog!.walletBalanceRial >= nextTotal;
+      emit(
+        state.copyWith(
+          draft: draft.copyWith(termsAccepted: false),
+          failure: null,
+          deposit: nextDeposit,
+          address: nextAddress,
+          selectionComplete: nextSelection,
+          deliveryComplete: nextDelivery,
+          fees: nextFees,
+          totalRial: nextTotal,
+          walletSufficient: nextWallet,
+          canContinue:
+              state.editable &&
+              switch (state.step) {
+                IssuanceStep.selection => nextSelection,
+                IssuanceStep.delivery => nextSelection && nextDelivery,
+                IssuanceStep.confirmation =>
+                  nextSelection &&
+                      nextDelivery &&
+                      nextDraft.termsAccepted &&
+                      nextWallet,
+              },
+          request: nextSelection && nextDelivery
+              ? IssuanceRequest(
+                  depositId: nextDeposit!.id,
+                  type: nextDraft.type!,
+                  noPhysicalCard: nextDraft.noPhysicalCard,
+                  address: nextDraft.noPhysicalCard ? null : nextAddress,
+                  recipient:
+                      !nextDraft.noPhysicalCard && nextDraft.otherRecipient
+                      ? nextDraft.recipient
+                      : null,
+                  agent: !nextDraft.noPhysicalCard && nextDraft.includeAgent
+                      ? nextDraft.agent
+                      : null,
+                )
+              : null,
+        ),
+      );
+    }
+  }
+
   void acceptTerms(bool value) {
     if (state.editable) {
       {

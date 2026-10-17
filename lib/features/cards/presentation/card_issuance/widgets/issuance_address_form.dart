@@ -17,12 +17,6 @@ class _IssuanceAddressFormState extends State<IssuanceAddressForm> {
       detail = TextEditingController(),
       postal = TextEditingController();
   @override
-  void initState() {
-    super.initState();
-    context.read<CardIssuanceCubit>().resetAddressFormValidation();
-  }
-
-  @override
   void dispose() {
     title.dispose();
     detail.dispose();
@@ -32,7 +26,10 @@ class _IssuanceAddressFormState extends State<IssuanceAddressForm> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<CardIssuanceCubit, CardIssuanceState>(
+    return BlocConsumer<CardIssuanceCubit, CardIssuanceState>(
+      listenWhen: (previous, current) =>
+          previous.addressSavedId != current.addressSavedId,
+      listener: (context, state) => Navigator.of(context).pop(),
       buildWhen: (previous, current) =>
           previous.isAddressFormError != current.isAddressFormError,
       builder: (context, state) {
@@ -85,13 +82,11 @@ class _IssuanceAddressFormState extends State<IssuanceAddressForm> {
                           label: S.current.issuanceSaveAddress,
                           size: AppButtonSize.lg,
                           onPressed: () {
-                            if (context.read<CardIssuanceCubit>().addAddress(
+                            context.read<CardIssuanceCubit>().addAddress(
                               title: title.text,
                               detail: detail.text,
                               postalCode: postal.text,
-                            )) {
-                              Navigator.of(context).pop();
-                            }
+                            );
                           },
                         ),
                       ],

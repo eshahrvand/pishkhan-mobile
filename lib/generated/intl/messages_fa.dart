@@ -493,6 +493,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "financialUsd": MessageLookupByLibrary.simpleMessage("دلار آمریکا"),
         "financialWithdrawalRules": MessageLookupByLibrary.simpleMessage(
             "شرایط برداشت از سپرده‌های مشترک / حقوقی"),
+        "flowExitTitle":
+            MessageLookupByLibrary.simpleMessage("خروج از عملیات؟"),
         "giftBalanceCount":
             MessageLookupByLibrary.simpleMessage("تعداد کارت هدیه منقضی"),
         "giftBalanceDepositHint": MessageLookupByLibrary.simpleMessage(

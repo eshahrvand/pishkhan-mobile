@@ -1,3 +1,6 @@
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
+import 'package:pishkhan_mobile/core/flow/flow_navigation.dart';
+export 'package:pishkhan_mobile/core/flow/flow_navigation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:pishkhan_mobile/core/result/failure.dart';
 import 'package:pishkhan_mobile/features/cards/domain/repositories/virtual_card_repository.dart';
@@ -19,35 +22,72 @@ part 'virtual_card_cubit.freezed.dart';
 class VirtualCardCubit extends Cubit<VirtualCardState> {
   VirtualCardCubit({
     VirtualCardState initialState = const VirtualCardState.initial(),
-    required this.repository,
     this.initialDepositNumber,
-  }) : super(initialState) {
-    emit(
-      initialState.copyWith(
-        count: int.tryParse(state.countText),
-        validCount: checkCountValid(state.countText, state.catalog),
-        editable: checkEditable(
-          state.status,
-          state.submissionStatus,
-          state.catalog,
-        ),
-        canSubmit: checkCanSubmit(
-          state.status,
-          state.submissionStatus,
-          state.catalog,
-          state.quoteStatus,
-          state.terms,
-          state.countText,
-          state.quote,
-          state.depositId,
-        ),
-      ),
-    );
-  }
-  final VirtualCardRepository repository;
+  }) : super(initialState);
+  final repository = getIt<VirtualCardRepository>();
   final String? initialDepositNumber;
   int _generation = 0;
   String? _key;
+  // Loaded entry snapshot, retained only to detect discardable user edits.
+  VirtualCardState? _entryState;
+
+  void requestBack() {
+    if (isClosed || state.submissionStatus == RequestStatus.loading) return;
+    if (state.navigation == FlowNavigation.confirmExit ||
+        state.navigation == FlowNavigation.back) {
+      return;
+    }
+    final needsConfirmation =
+        state.submissionStatus != RequestStatus.success &&
+        state.status == RequestStatus.success &&
+        (state.depositId != _entryState?.depositId ||
+            state.countText.isNotEmpty ||
+            state.terms);
+    emit(
+      state.copyWith(
+        navigation: needsConfirmation
+            ? FlowNavigation.confirmExit
+            : FlowNavigation.back,
+        navigationId: state.navigationId + 1,
+      ),
+    );
+  }
+
+  void exitConfirmationResult(bool? confirmed) {
+    if (isClosed ||
+        state.navigation != FlowNavigation.confirmExit ||
+        state.submissionStatus == RequestStatus.loading) {
+      return;
+    }
+    emit(
+      state.copyWith(
+        navigation: confirmed == true ? FlowNavigation.back : null,
+
+        navigationId: state.navigationId + 1,
+      ),
+    );
+  }
+
+  void receiptPresentationClosed() {
+    if (isClosed ||
+        state.receipt == null ||
+        state.submissionStatus != RequestStatus.success ||
+        state.navigation == FlowNavigation.home) {
+      return;
+    }
+    requestHome();
+  }
+
+  void requestHome() {
+    if (isClosed || state.submissionStatus == RequestStatus.loading) return;
+    emit(
+      state.copyWith(
+        navigation: FlowNavigation.home,
+        navigationId: state.navigationId + 1,
+      ),
+    );
+  }
+
   Future<void> load() async {
     final generation = ++_generation;
     _key = null;
@@ -144,6 +184,7 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
           ),
         );
     }
+    if (!isClosed && state.status == RequestStatus.success) _entryState = state;
   }
 
   Future<void> selectDeposit(String id) async {

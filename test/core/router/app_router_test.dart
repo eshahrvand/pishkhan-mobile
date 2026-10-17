@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/features/dashboard/presentation/home/widgets/dashboard_home_panel.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import '../../support/auth_ui_finders.dart';
@@ -243,7 +244,7 @@ void main() {
   });
 
   testWidgets(
-    'Home route disposes its GetIt Cubit and creates fresh state on reentry',
+    'Home route disposes its Provider-owned Cubit and creates fresh state on reentry',
     (tester) async {
       final session = RouterSession(true);
       final router = createAppRouter(
@@ -257,7 +258,7 @@ void main() {
       await tester.pumpWidget(app(router));
       await tester.pumpAndSettle();
       final first = tester
-          .element(find.byType(DashboardScreen))
+          .element(find.byType(DashboardHomePanel))
           .read<HomeCubit>();
       first.selectTab(AppPrimaryTab.cards);
       await tester.pumpAndSettle();
@@ -268,7 +269,7 @@ void main() {
       router.go(AppRoutes.home);
       await tester.pumpAndSettle();
       final second = tester
-          .element(find.byType(DashboardScreen))
+          .element(find.byType(DashboardHomePanel))
           .read<HomeCubit>();
       expect(identical(first, second), isFalse);
       expect(second.state.selectedTab, AppPrimaryTab.dashboard);

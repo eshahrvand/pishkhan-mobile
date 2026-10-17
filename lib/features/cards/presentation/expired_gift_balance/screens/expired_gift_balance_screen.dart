@@ -1,9 +1,9 @@
+import 'package:pishkhan_mobile/shared/widgets/flow_exit_dialog.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
-import 'package:pishkhan_mobile/core/di/injection_container.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
@@ -31,173 +31,278 @@ class ExpiredGiftBalanceScreen extends StatefulWidget {
 }
 
 class _ExpiredGiftBalanceScreenState extends State<ExpiredGiftBalanceScreen> {
+  Future<void> _handleNavigation(
+    BuildContext context,
+    ExpiredGiftBalanceState state,
+  ) async {
+    switch (state.navigation) {
+      case FlowNavigation.confirmExit:
+        final confirmed = await showFlowExitDialog(context);
+        if (context.mounted) {
+          context.read<ExpiredGiftBalanceCubit>().exitConfirmationResult(
+            confirmed,
+          );
+        }
+      case FlowNavigation.back:
+        // Wait for PopScope to rebuild with the authorized exit intent.
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (context.mounted) NavigationActions.back(context);
+        });
+      case FlowNavigation.home:
+        NavigationActions.returnHome(context);
+      case null:
+        break;
+    }
+  }
+
+  Future<void> _handleEffect(
+    BuildContext context,
+    ExpiredGiftBalanceState state,
+  ) async {
+    switch (state.effect) {
+      case GiftBalanceEffect.filter:
+        await showGiftBalanceFilter(
+          context,
+          context.read<ExpiredGiftBalanceCubit>(),
+        );
+        if (context.mounted) {
+          context.read<ExpiredGiftBalanceCubit>().cancelFilter();
+        }
+      case GiftBalanceEffect.review:
+        final result = await showGiftBalanceReview(
+          context,
+          context.read<ExpiredGiftBalanceCubit>(),
+        );
+        if (context.mounted) {
+          context.read<ExpiredGiftBalanceCubit>().reviewResult(result);
+        }
+      case null:
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider<ExpiredGiftBalanceCubit>(
-      create: (_) => getIt<ExpiredGiftBalanceCubit>()..load(),
-      child: Directionality(
-        textDirection: TextDirection.rtl,
-        child: BlocConsumer<ExpiredGiftBalanceCubit, ExpiredGiftBalanceState>(
-          listenWhen: (old, next) =>
-              old.step != next.step ||
-              old.submissionStatus != next.submissionStatus,
-          listener: (context, state) {
-            if (state.receipt != null) widget.onCompleted?.call(state.receipt!);
-          },
-          builder: (context, state) {
-            return PopScope(
-              canPop:
-                  state.submissionStatus != RequestStatus.loading &&
-                  (state.step == GiftBalanceStep.selection ||
-                      state.receipt != null),
-              onPopInvokedWithResult: (didPop, _) {
-                if (!didPop) context.read<ExpiredGiftBalanceCubit>().back();
-              },
-              child: Scaffold(
-                backgroundColor: context.colors.surfaceSubtle,
-                body: SafeArea(
-                  child: Column(
-                    children: [
-                      AppTopBar(
-                        title: S.current.giftBalanceTitle,
-                        showLeadingActions: false,
-                        leadingAction: SizedBox.square(
-                          dimension: 40,
-                          child: AppButton(
-                            variant: AppButtonVariant.text,
-                            tooltip: S.current.giftBalanceSelectedList(
-                              state.selectedCards.length,
-                            ),
-                            onPressed: state.canContinue
-                                ? () => showGiftBalanceReview(
-                                    context,
-                                    context.read<ExpiredGiftBalanceCubit>(),
-                                  )
-                                : null,
-                            icon: Stack(
-                              clipBehavior: Clip.none,
-                              children: [
-                                cardServiceIcon(
-                                  AppAssets.giftBalanceList,
-                                  size: 24,
-                                ),
-                                if (state.selectedCards.isNotEmpty)
-                                  Positioned(
-                                    left: 14,
-                                    bottom: 0,
-                                    child: Container(
-                                      width: 6,
-                                      height: 6,
-                                      decoration: BoxDecoration(
-                                        color: context.colors.success,
-                                        shape: BoxShape.circle,
-                                      ),
+      create: (_) => ExpiredGiftBalanceCubit()..load(),
+      child: BlocListener<ExpiredGiftBalanceCubit, ExpiredGiftBalanceState>(
+        listenWhen: (previous, current) =>
+            previous.navigationId != current.navigationId,
+        listener: _handleNavigation,
+        child: BlocListener<ExpiredGiftBalanceCubit, ExpiredGiftBalanceState>(
+          listenWhen: (previous, current) =>
+              previous.effectId != current.effectId,
+          listener: _handleEffect,
+          child: Directionality(
+            textDirection: TextDirection.rtl,
+            child:
+                BlocConsumer<ExpiredGiftBalanceCubit, ExpiredGiftBalanceState>(
+                  listenWhen: (previous, current) =>
+                      previous.step != current.step ||
+                      previous.submissionStatus != current.submissionStatus,
+                  listener: (context, state) {
+                    if (state.receipt != null) {
+                      widget.onCompleted?.call(state.receipt!);
+                    }
+                  },
+                  buildWhen: (previous, current) =>
+                      previous.advanceAfterReview !=
+                          current.advanceAfterReview ||
+                      previous.navigation != current.navigation ||
+                      previous.status != current.status ||
+                      previous.submissionStatus != current.submissionStatus ||
+                      previous.step != current.step ||
+                      previous.catalog != current.catalog ||
+                      previous.isEmpty != current.isEmpty ||
+                      previous.editable != current.editable ||
+                      previous.selectionEditable != current.selectionEditable ||
+                      previous.hasFilter != current.hasFilter ||
+                      previous.visibleCards != current.visibleCards ||
+                      previous.selectedCards != current.selectedCards ||
+                      previous.totalRial != current.totalRial ||
+                      previous.allVisibleSelected !=
+                          current.allVisibleSelected ||
+                      previous.destination != current.destination ||
+                      previous.depositsByGiftId != current.depositsByGiftId ||
+                      previous.canContinue != current.canContinue ||
+                      previous.canSubmit != current.canSubmit ||
+                      previous.selectedIds != current.selectedIds ||
+                      previous.query != current.query ||
+                      previous.filterDepositId != current.filterDepositId ||
+                      previous.draftFilterDepositId !=
+                          current.draftFilterDepositId ||
+                      previous.filterOpen != current.filterOpen ||
+                      previous.reviewOpen != current.reviewOpen ||
+                      previous.destinationId != current.destinationId ||
+                      previous.termsAccepted != current.termsAccepted ||
+                      previous.failure != current.failure ||
+                      previous.receipt != current.receipt,
+                  builder: (context, state) {
+                    return PopScope(
+                      canPop: state.navigation == FlowNavigation.back,
+                      onPopInvokedWithResult: (didPop, _) {
+                        if (!didPop) {
+                          context.read<ExpiredGiftBalanceCubit>().requestBack();
+                        }
+                      },
+                      child: Scaffold(
+                        backgroundColor: context.colors.surfaceSubtle,
+                        body: SafeArea(
+                          child: Column(
+                            children: [
+                              AppTopBar(
+                                title: S.current.giftBalanceTitle,
+                                showLeadingActions: false,
+                                leadingAction: SizedBox.square(
+                                  dimension: 40,
+                                  child: AppButton(
+                                    variant: AppButtonVariant.text,
+                                    tooltip: S.current.giftBalanceSelectedList(
+                                      state.selectedCards.length,
+                                    ),
+                                    onPressed: state.canContinue
+                                        ? () => context
+                                              .read<ExpiredGiftBalanceCubit>()
+                                              .requestReview()
+                                        : null,
+                                    icon: Stack(
+                                      clipBehavior: Clip.none,
+                                      children: [
+                                        cardServiceIcon(
+                                          AppAssets.giftBalanceList,
+                                          size: 24,
+                                        ),
+                                        if (state.selectedCards.isNotEmpty)
+                                          Positioned(
+                                            left: 14,
+                                            bottom: 0,
+                                            child: Container(
+                                              width: 6,
+                                              height: 6,
+                                              decoration: BoxDecoration(
+                                                color: context.colors.success,
+                                                shape: BoxShape.circle,
+                                              ),
+                                            ),
+                                          ),
+                                      ],
                                     ),
                                   ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        trailingIcon: cardServiceIcon(
-                          AppAssets.cardFeaturesBack,
-                          size: 24,
-                        ),
-                        trailingTooltip: S.current.backLabel,
-                        onTrailingPressed: () {
-                          if (!context.read<ExpiredGiftBalanceCubit>().back()) {
-                            NavigationActions.back(context);
-                          }
-                        },
-                      ),
-                      if ((state.status == RequestStatus.success &&
-                          !state.isEmpty &&
-                          state.receipt == null))
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
-                          child: AppStepper(
-                            currentStep: state.step.index + 1,
-                            totalSteps: 2,
-                            title: state.step == GiftBalanceStep.selection
-                                ? S.current.giftBalanceSelection
-                                : S.current.giftBalanceDestination,
-                            supportingText:
-                                state.step == GiftBalanceStep.selection
-                                ? S.current.giftBalanceNextDestination
-                                : S.current.giftBalanceEnd,
-                            semanticLabel: S.current.issuanceStepSemantic(
-                              state.step.index + 1,
-                              2,
-                              state.step == GiftBalanceStep.selection
-                                  ? S.current.giftBalanceSelection
-                                  : S.current.giftBalanceDestination,
-                            ),
-                          ),
-                        ),
-                      Expanded(
-                        child:
-                            (state.status == RequestStatus.success &&
-                                !state.isEmpty &&
-                                state.receipt == null)
-                            ? state.step == GiftBalanceStep.selection
-                                  ? GiftBalanceSelection(
-                                      cubit: context
-                                          .read<ExpiredGiftBalanceCubit>(),
-                                      state: state,
-                                      onFilter: () => showGiftBalanceFilter(
-                                        context,
-                                        context.read<ExpiredGiftBalanceCubit>(),
-                                      ),
-                                    )
-                                  : GiftBalanceDestination(
-                                      cubit: context
-                                          .read<ExpiredGiftBalanceCubit>(),
-                                      state: state,
-                                    )
-                            : CardServiceStatus(
-                                status: state.status,
-                                empty: state.isEmpty,
-                                receipt: state.receipt,
-                                onRetry: context
+                                ),
+                                trailingIcon: cardServiceIcon(
+                                  AppAssets.cardFeaturesBack,
+                                  size: 24,
+                                ),
+                                trailingTooltip: S.current.backLabel,
+                                onTrailingPressed: context
                                     .read<ExpiredGiftBalanceCubit>()
-                                    .load,
+                                    .requestBack,
                               ),
-                      ),
-                      if ((state.status == RequestStatus.success &&
-                          !state.isEmpty &&
-                          state.receipt == null))
-                        CardServiceFooter(
-                          label: state.step == GiftBalanceStep.selection
-                              ? S.current.giftBalanceNext
-                              : S.current.giftBalanceSubmit,
-                          loading:
-                              state.submissionStatus == RequestStatus.loading,
-                          onSubmit: state.step == GiftBalanceStep.selection
-                              ? state.canContinue
-                                    ? () => showGiftBalanceReview(
-                                        context,
-                                        context.read<ExpiredGiftBalanceCubit>(),
-                                        advance: true,
-                                      )
-                                    : null
-                              : state.canSubmit
-                              ? context.read<ExpiredGiftBalanceCubit>().submit
-                              : null,
-                          termsAccepted: state.step == GiftBalanceStep.selection
-                              ? null
-                              : state.termsAccepted,
-                          onTermsChanged: state.editable
-                              ? context
-                                    .read<ExpiredGiftBalanceCubit>()
-                                    .acceptTerms
-                              : null,
-                          onTermsRequested: widget.onTermsRequested,
+                              if ((state.status == RequestStatus.success &&
+                                  !state.isEmpty &&
+                                  state.receipt == null))
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                    16,
+                                    16,
+                                    16,
+                                    10,
+                                  ),
+                                  child: AppStepper(
+                                    currentStep: state.step.index + 1,
+                                    totalSteps: 2,
+                                    title:
+                                        state.step == GiftBalanceStep.selection
+                                        ? S.current.giftBalanceSelection
+                                        : S.current.giftBalanceDestination,
+                                    supportingText:
+                                        state.step == GiftBalanceStep.selection
+                                        ? S.current.giftBalanceNextDestination
+                                        : S.current.giftBalanceEnd,
+                                    semanticLabel: S.current
+                                        .issuanceStepSemantic(
+                                          state.step.index + 1,
+                                          2,
+                                          state.step ==
+                                                  GiftBalanceStep.selection
+                                              ? S.current.giftBalanceSelection
+                                              : S
+                                                    .current
+                                                    .giftBalanceDestination,
+                                        ),
+                                  ),
+                                ),
+                              Expanded(
+                                child:
+                                    (state.status == RequestStatus.success &&
+                                        !state.isEmpty &&
+                                        state.receipt == null)
+                                    ? state.step == GiftBalanceStep.selection
+                                          ? GiftBalanceSelection(
+                                              cubit: context
+                                                  .read<
+                                                    ExpiredGiftBalanceCubit
+                                                  >(),
+                                              state: state,
+                                              onFilter: context
+                                                  .read<
+                                                    ExpiredGiftBalanceCubit
+                                                  >()
+                                                  .requestFilter,
+                                            )
+                                          : GiftBalanceDestination(
+                                              cubit: context
+                                                  .read<
+                                                    ExpiredGiftBalanceCubit
+                                                  >(),
+                                              state: state,
+                                            )
+                                    : CardServiceStatus(
+                                        status: state.status,
+                                        empty: state.isEmpty,
+                                        receipt: state.receipt,
+                                        onRetry: context
+                                            .read<ExpiredGiftBalanceCubit>()
+                                            .load,
+                                      ),
+                              ),
+                              if ((state.status == RequestStatus.success &&
+                                  !state.isEmpty &&
+                                  state.receipt == null))
+                                CardServiceFooter(
+                                  label: state.step == GiftBalanceStep.selection
+                                      ? S.current.giftBalanceNext
+                                      : S.current.giftBalanceSubmit,
+                                  loading:
+                                      state.submissionStatus ==
+                                      RequestStatus.loading,
+                                  onSubmit:
+                                      (state.step == GiftBalanceStep.selection
+                                          ? state.canContinue
+                                          : state.canSubmit)
+                                      ? context
+                                            .read<ExpiredGiftBalanceCubit>()
+                                            .continueFlow
+                                      : null,
+                                  termsAccepted:
+                                      state.step == GiftBalanceStep.selection
+                                      ? null
+                                      : state.termsAccepted,
+                                  onTermsChanged: state.editable
+                                      ? context
+                                            .read<ExpiredGiftBalanceCubit>()
+                                            .acceptTerms
+                                      : null,
+                                  onTermsRequested: widget.onTermsRequested,
+                                ),
+                            ],
+                          ),
                         ),
-                    ],
-                  ),
+                      ),
+                    );
+                  },
                 ),
-              ),
-            );
-          },
+          ),
         ),
       ),
     );

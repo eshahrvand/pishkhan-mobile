@@ -1,6 +1,8 @@
-import 'package:avp_ui/avp_ui.dart';
+export 'auth_services_section_title.dart';
+export 'auth_service_tile.dart';
+import 'auth_service_tile.dart';
+
 import 'package:flutter/material.dart';
-import 'package:pishkhan_mobile/shared/widgets/app_service_grid_card.dart';
 
 class AuthServicesRow extends StatelessWidget {
   const AuthServicesRow({
@@ -39,68 +41,6 @@ class AuthServicesRow extends StatelessWidget {
           ),
         );
       },
-    );
-  }
-}
-
-class AuthServicesSectionTitle extends StatelessWidget {
-  const AuthServicesSectionTitle({
-    required this.title,
-    required this.dividerAsset,
-    super.key,
-  });
-
-  final String title;
-  final String dividerAsset;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Flexible(
-          child: Text(
-            title,
-            style: Theme.of(context).textTheme.titleSmall!.copyWith(
-              color: AppLoginColors.sectionLabel,
-              fontWeight: FontWeight.w600,
-              height: 20 / 14,
-              letterSpacing: 0,
-            ),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: AvpImage(image: dividerAsset, height: 1, fit: BoxFit.fill),
-        ),
-      ],
-    );
-  }
-}
-
-class AuthServiceTile extends StatelessWidget {
-  const AuthServiceTile({super.key, required this.item});
-
-  final AuthServiceItemData item;
-
-  @override
-  Widget build(BuildContext context) {
-    return AppServiceGridItemView(
-      item: AppServiceGridItem(
-        id: item.asset,
-        label: item.label,
-        icon: AvpImage(image: item.asset, width: 32, height: 32),
-        onTap: item.onTap,
-      ),
-      tileColor: context.colors.surface,
-      labelStyle: Theme.of(context).textTheme.labelSmall!.copyWith(
-        color: item.mutedLabel
-            ? AppLoginColors.serviceLabelMuted
-            : AppLoginColors.serviceLabel,
-        fontSize: 10,
-        fontWeight: FontWeight.w600,
-        height: 16 / 10,
-        letterSpacing: 0,
-      ),
     );
   }
 }

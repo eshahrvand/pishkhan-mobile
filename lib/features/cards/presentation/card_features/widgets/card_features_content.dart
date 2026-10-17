@@ -68,7 +68,7 @@ class CardFeaturesContent extends StatelessWidget {
             type: listType(state.category),
             coloredHeader: true,
             cardIcon: cardCategoryIcon(state.category),
-            title: categoryLabel(context, state.category),
+            title: categoryLabel(state.category),
             cardNumber: state.visibleCards[index].number,
             linkedDeposit: state.visibleCards[index].linkedDeposit,
             cardNumberLabel: S.current.cardFeatureNumber,

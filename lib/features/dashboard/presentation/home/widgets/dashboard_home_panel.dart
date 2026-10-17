@@ -62,13 +62,7 @@ class _DashboardHomePanelState extends State<DashboardHomePanel> {
               state.draft == null &&
               state.selectedTab == AppPrimaryTab.dashboard,
           onPopInvokedWithResult: (didPop, _) {
-            if (!didPop) {
-              if (state.selectedTab != AppPrimaryTab.dashboard) {
-                context.read<HomeCubit>().selectTab(AppPrimaryTab.dashboard);
-              } else {
-                context.read<HomeCubit>().cancelFavorites();
-              }
-            }
+            if (!didPop) context.read<HomeCubit>().requestBack();
           },
           child:
               state.homeStatus != RequestStatus.success ||

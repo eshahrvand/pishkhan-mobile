@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,6 +11,8 @@ import 'package:pishkhan_mobile/shared/widgets/app_invoice.dart';
 import 'certificate_test_support.dart';
 
 void main() {
+  setUp(configureDependencies);
+  tearDown(() => getIt.reset());
   setUpAll(loadCertificateFonts);
   final catalog = MockDepositCertificatesRepository.examples;
   final conditions = AverageBalanceState.initial(

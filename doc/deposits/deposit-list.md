@@ -102,3 +102,19 @@ flutter test test/deposits/deposit_list_screen_test.dart
 ```
 
 PNG previews go to ignored `build/previews/deposits/`, never `doc/`.
+
+## UI/Cubit contract adoption (2026-10-17)
+
+The production screen no longer accepts a Repository or creates a Mock adapter.
+GetIt registers only the repository dependency. BlocProvider.create directly
+constructs DepositListCubit with no repository argument and owns disposal. The Cubit resolves its repository internally. Cubit owns
+filter-menu requests, action/detail requests and prepared service destinations.
+The listener returns raw sheet selections; host callbacks retain precedence.
+
+### Dependency and listener clarification (2026-10-17)
+
+The screen/feature-flow widget owns BlocProvider.create, including Home in
+DashboardScreen; GoRouter only selects the destination. Cubits resolve existing
+Repository/service/UseCase registrations through GetIt fields, without dependency
+constructor arguments from UI. Multi-case and substantial async listeners use
+named widget/State methods with the existing listenWhen filter.

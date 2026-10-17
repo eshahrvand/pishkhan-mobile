@@ -1,3 +1,11 @@
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
+
+import '../../shared/certificate_effect.dart';
+export '../../shared/certificate_effect.dart';
+
+import 'package:pishkhan_mobile/core/validators/code_validator.dart';
+import 'package:pishkhan_mobile/core/flow/flow_navigation.dart';
+export 'package:pishkhan_mobile/core/flow/flow_navigation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:pishkhan_mobile/core/result/failure.dart';
 
@@ -22,15 +30,164 @@ part 'financial_certificate_cubit.freezed.dart';
 
 class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
   FinancialCertificateCubit({
-    required this.repository,
     this.initialDepositNumber,
     FinancialCertificateState initialState =
         const FinancialCertificateState.initial(),
   }) : super(initialState);
-  final FinancialCertificateRepository repository;
+  final repository = getIt<FinancialCertificateRepository>();
   final String? initialDepositNumber;
   int _generation = 0, _localAddress = 0;
   String? _key;
+
+  void requestAddAddress() {
+    if (isClosed || state.submissionStatus == RequestStatus.loading) return;
+    emit(
+      state.copyWith(
+        navigation: null,
+        effect: const CertificateAddressRequested(),
+        effectId: state.effectId + 1,
+      ),
+    );
+  }
+
+  void addressResult(CertificateAddress? address) {
+    if (isClosed || address == null) return;
+    addAddress(address);
+  }
+
+  void requestDeleteAddress() {
+    if (isClosed ||
+        state.address == null ||
+        state.submissionStatus == RequestStatus.loading) {
+      return;
+    }
+    emit(
+      state.copyWith(
+        navigation: null,
+        effect: CertificateAddressRemovalRequested(state.address!),
+        effectId: state.effectId + 1,
+      ),
+    );
+  }
+
+  void addressRemovalResult(String id, bool? confirmed) {
+    if (isClosed || confirmed != true || state.address?.id != id) return;
+    removeAddress();
+  }
+
+  void requestAgentLookup() {
+    if (isClosed ||
+        state.agentIdentifier.trim().isEmpty ||
+        state.submissionStatus == RequestStatus.loading) {
+      return;
+    }
+    emit(
+      state.copyWith(
+        navigation: null,
+        effect: const CertificateAgentUnavailable(),
+        effectId: state.effectId + 1,
+      ),
+    );
+  }
+
+  // Loaded entry snapshot, retained only to detect discardable user edits.
+  FinancialCertificateState? _entryState;
+
+  void requestBack() {
+    if (isClosed || state.submissionStatus == RequestStatus.loading) return;
+    if (back()) return;
+    if (state.navigation == FlowNavigation.confirmExit ||
+        state.navigation == FlowNavigation.back) {
+      return;
+    }
+    final needsConfirmation =
+        state.submissionStatus != RequestStatus.success &&
+        state.status == RequestStatus.success &&
+        (state.deposit != _entryState?.deposit ||
+            (state.conditions.length != (_entryState?.conditions.length ?? 0) ||
+                !state.conditions.containsAll(
+                  _entryState?.conditions ?? const {},
+                )) ||
+            state.recipient != _entryState?.recipient ||
+            state.embassyId != _entryState?.embassyId ||
+            state.authorityName != (_entryState?.authorityName ?? '') ||
+            state.currency != _entryState?.currency ||
+            state.name != (_entryState?.name ?? '') ||
+            state.surname != (_entryState?.surname ?? '') ||
+            state.fatherName != (_entryState?.fatherName ?? '') ||
+            state.passportNumber != (_entryState?.passportNumber ?? '') ||
+            state.passportExpiryText !=
+                (_entryState?.passportExpiryText ?? '') ||
+            state.latinAddress != (_entryState?.latinAddress ?? '') ||
+            state.address != _entryState?.address ||
+            state.deliveryRecipientName !=
+                (_entryState?.deliveryRecipientName ?? '') ||
+            state.deliveryRecipientNationalId !=
+                (_entryState?.deliveryRecipientNationalId ?? '') ||
+            state.includeAgent != (_entryState?.includeAgent ?? false) ||
+            state.otherRecipient != (_entryState?.otherRecipient ?? false) ||
+            state.agentIdentifier != (_entryState?.agentIdentifier ?? ''));
+    emit(
+      state.copyWith(
+        navigation: needsConfirmation
+            ? FlowNavigation.confirmExit
+            : FlowNavigation.back,
+        effect: null,
+        effectId: state.effectId + 1,
+      ),
+    );
+  }
+
+  void exitConfirmationResult(bool? confirmed) {
+    if (isClosed ||
+        state.navigation != FlowNavigation.confirmExit ||
+        state.submissionStatus == RequestStatus.loading) {
+      return;
+    }
+    emit(
+      state.copyWith(
+        navigation: confirmed == true ? FlowNavigation.back : null,
+        effect: null,
+        effectId: state.effectId + 1,
+      ),
+    );
+  }
+
+  void receiptPresentationClosed() {
+    if (isClosed ||
+        state.receipt == null ||
+        state.submissionStatus != RequestStatus.success ||
+        state.navigation == FlowNavigation.home) {
+      return;
+    }
+    requestHome();
+  }
+
+  void requestHome() {
+    if (isClosed || state.submissionStatus == RequestStatus.loading) return;
+    emit(
+      state.copyWith(
+        navigation: FlowNavigation.home,
+        effect: null,
+        effectId: state.effectId + 1,
+      ),
+    );
+  }
+
+  Future<void> continueFlow() async {
+    if (isClosed ||
+        !state.canContinue ||
+        state.status != RequestStatus.success ||
+        state.submissionStatus == RequestStatus.loading ||
+        state.submissionStatus == RequestStatus.success) {
+      return;
+    }
+    if (state.step == FinancialCertificateStep.confirmation) {
+      await submit();
+    } else {
+      next();
+    }
+  }
 
   Future<void> load() async {
     if (isClosed || state.submissionStatus == RequestStatus.loading) return;
@@ -79,13 +236,16 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
             state.address != null &&
             (!state.otherRecipient ||
                 (state.deliveryRecipientName.trim().isNotEmpty &&
-                    RegExp(r'^[0-9]{10}$')
-                        .hasMatch(state.deliveryRecipientNationalId)));
+                    CodeValidator.isValid(
+                      state.deliveryRecipientNationalId,
+                      length: 10,
+                    )));
         final total = data.printFeeRial + data.deliveryFeeRial;
         emit(
           state.copyWith(
             status: RequestStatus.success,
             catalog: data,
+            canCheckAgent: state.agentIdentifier.trim().isNotEmpty,
             deposit: deposit,
             addresses: data.addresses,
             totalRial: total,
@@ -112,6 +272,7 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
           ),
         );
     }
+    if (!isClosed && state.status == RequestStatus.success) _entryState = state;
   }
 
   void selectDeposit(String id) {
@@ -132,6 +293,10 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
         failure: null,
       ),
     );
+  }
+
+  void toggleConditionSelection(FinancialCertificateCondition condition) {
+    toggleCondition(condition, !state.conditions.contains(condition));
   }
 
   void toggleCondition(FinancialCertificateCondition condition, bool selected) {
@@ -229,6 +394,14 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
     );
   }
 
+  void updateLatinName(String value) => latinChanged(name: value);
+  void updateLatinSurname(String value) => latinChanged(surname: value);
+  void updateLatinFatherName(String value) => latinChanged(fatherName: value);
+  void updatePassportNumber(String value) =>
+      latinChanged(passportNumber: value);
+  void updatePassportExpiry(String value) => latinChanged(expiry: value);
+  void updateLatinAddress(String value) => latinChanged(address: value);
+
   void latinChanged({
     String? name,
     String? surname,
@@ -284,8 +457,10 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
         canContinue:
             !state.otherRecipient ||
             (state.deliveryRecipientName.trim().isNotEmpty &&
-                RegExp(r'^[0-9]{10}$')
-                    .hasMatch(state.deliveryRecipientNationalId)),
+                CodeValidator.isValid(
+                  state.deliveryRecipientNationalId,
+                  length: 10,
+                )),
         failure: null,
       ),
     );
@@ -312,8 +487,10 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
         canContinue:
             !state.otherRecipient ||
             (state.deliveryRecipientName.trim().isNotEmpty &&
-                RegExp(r'^[0-9]{10}$')
-                    .hasMatch(state.deliveryRecipientNationalId)),
+                CodeValidator.isValid(
+                  state.deliveryRecipientNationalId,
+                  length: 10,
+                )),
       ),
     );
     return true;
@@ -346,11 +523,18 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
             state.address != null &&
             (!value ||
                 (state.deliveryRecipientName.trim().isNotEmpty &&
-                    RegExp(r'^[0-9]{10}$')
-                        .hasMatch(state.deliveryRecipientNationalId))),
+                    CodeValidator.isValid(
+                      state.deliveryRecipientNationalId,
+                      length: 10,
+                    ))),
       ),
     );
   }
+
+  void updateRecipientName(String value) =>
+      deliveryRecipientChanged(value, state.deliveryRecipientNationalId);
+  void updateRecipientNationalId(String value) =>
+      deliveryRecipientChanged(state.deliveryRecipientName, value);
 
   void deliveryRecipientChanged(String name, String nationalId) {
     if (state.submissionStatus == RequestStatus.loading) return;
@@ -364,7 +548,7 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
             state.address != null &&
             (!state.otherRecipient ||
                 (name.trim().isNotEmpty &&
-                    RegExp(r'^[0-9]{10}$').hasMatch(normalized))),
+                    CodeValidator.isValid(normalized, length: 10))),
       ),
     );
   }
@@ -378,7 +562,12 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
   void agentChanged(String value) {
     if (state.submissionStatus == RequestStatus.loading) return;
     _key = null;
-    emit(state.copyWith(agentIdentifier: DigitNormalizer.normalize(value)));
+    emit(
+      state.copyWith(
+        agentIdentifier: DigitNormalizer.normalize(value),
+        canCheckAgent: value.trim().isNotEmpty,
+      ),
+    );
   }
 
   void expandSummary(bool value) =>
@@ -404,8 +593,10 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
             state.address != null &&
                 (!state.otherRecipient ||
                     (state.deliveryRecipientName.trim().isNotEmpty &&
-                        RegExp(r'^[0-9]{10}$')
-                            .hasMatch(state.deliveryRecipientNationalId))),
+                        CodeValidator.isValid(
+                          state.deliveryRecipientNationalId,
+                          length: 10,
+                        ))),
           FinancialCertificateStep.confirmation => state.walletSufficient,
         },
       ),

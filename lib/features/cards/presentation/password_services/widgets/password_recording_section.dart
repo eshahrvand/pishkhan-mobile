@@ -77,13 +77,7 @@ class PasswordRecordingSection extends StatelessWidget {
           builder: (context, state) => AppCheckbox(
             value: state.recordingConfirmed,
             label: S.current.passwordConfirmMock,
-            onChanged: (v) {
-              if (v == true) {
-                cubit.confirmMockRecording();
-              } else {
-                cubit.recordAgain();
-              }
-            },
+            onChanged: cubit.updateRecordingConfirmed,
           ),
         ),
       ],

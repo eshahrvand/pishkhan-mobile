@@ -1,16 +1,38 @@
 # قرارداد کدنویسی UI، Cubit و State برای تیم و Agent
 
 **پروژه:** پیشخوان مجازی هوشمند — `pishkhan_mobile`  
-**نسخه:** ۱.۱ — قواعد تأییدشدهٔ صاحب پروژه، با موارد بازِ مشخص  
-**تاریخ:** ۲۰۲۶/۱۰/۱۴  
+**نسخه:** ۱.۶ — قرارداد الزام‌آور یکپارچهٔ معماری و استایل UI<br>
+**تاریخ:** ۲۰۲۶/۱۰/۱۷<br>
 **دامنه:** سبک نوشتن Presentation، مدیریت State و قواعد خوانایی  
 **وضعیت:** در این مرحله فقط سند تهیه شده؛ هیچ refactor یا تغییر رفتار برنامه انجام نشده است.
 
 این سند خواسته‌های صاحب پروژه و نمونه‌های ارائه‌شده را به قواعد مشخص تبدیل می‌کند. هدف این است که یک عضو تیم با باز کردن صفحه، مسیر ساخت UI، خواندن State و فراخوانی Cubit را مستقیم ببیند و برای فهم یک فرم ساده بین چندین wrapper و فایل جابه‌جا نشود.
 
-«الزامی» و «ممنوع» در متن، دستورهای سبکی تأییدشدهٔ صاحب پروژه‌اند. بخش‌هایی که صریحاً «توصیه» یا «در انتظار بررسی» نامیده شده‌اند، الزام جدید نیستند. این سند به Agent مجوز تغییر خودکار کد نمی‌دهد و فایل [معماری](architecture-smart-virtual-counter-v2-en.md) یا [Skill فعلی UI](../.agents/skills/flutter-widget-ui-style/SKILL.md) را خودکار بازنویسی نمی‌کند. در اختلاف سبکی، دستور صریح صاحب پروژه که در این سند ثبت شده بر نمونه‌های قدیمی مقدم است؛ مرزها و موارد باز در بخش ۲۵ آمده‌اند.
+«الزامی» و «ممنوع» در متن، دستورهای سبکی تأییدشدهٔ صاحب پروژه‌اند. فقط مواردی که صریحاً «توصیه» یا «در انتظار بررسی» نامیده شده‌اند باز هستند؛ این عنوان‌ها هیچ قاعدهٔ الزام‌آوری را تضعیف نمی‌کنند. اصول یکپارچهٔ بخش ۲.۳ الزامی‌اند، نه پیشنهاد. این سند به Agent مجوز تغییر خودکار کد نمی‌دهد و فایل [معماری](architecture-smart-virtual-counter-v2-en.md) یا [Skill فعلی UI](../.agents/skills/flutter-widget-ui-style/SKILL.md) را خودکار بازنویسی نمی‌کند. در اختلاف سبکی، دستور صریح صاحب پروژه که در این سند ثبت شده بر نمونه‌های قدیمی مقدم است؛ مرزها و موارد باز در بخش ۲۵ آمده‌اند.
 
 **قاعدهٔ تفسیر:** Agent نباید از «خوانایی»، «تمیزتر»، «قابل‌توسعه» یا احتمال آینده، مجوز ساخت abstraction تازه، wrapper تازه، State موازی یا استثنا بر ممنوعیت‌ها نتیجه بگیرد. «ممنوع» را با تغییر اسم همان الگو دور نزن. «مجاز» را نیز به «اجباری برای همهٔ صفحات» تبدیل نکن. اگر رفتار موردنیاز واقعاً با قرارداد قابل‌پیاده‌سازی نیست، مورد مشخص را گزارش کن؛ قانون جایگزین اختراع نکن.
+
+این سند همتای فارسی [قرارداد انگلیسی نسخهٔ ۱.۶](ui-cubit-state-agent-rules-en.md) است. قواعد مصوب در هر دو نسخه یکسان‌اند؛ متن قدیمی، مثال تاریخی یا سند جانبی مجوز برداشت مخالف نیست.
+
+## اجرای الزامی برای تمام Agentها
+
+این قرارداد مرجع واحد سبک پروژه برای UI، Cubit، State، ساخت Provider و مرز وابستگی‌هاست. پیش از برنامه‌ریزی، نوشتن یا بازبینی کد مرتبط، تمام سند خوانده شود. [AGENTS.md ریشهٔ پروژه](../AGENTS.md) این کار را برای Agent الزامی کرده است؛ خواندن Skill یا دیدن کد قدیمی جای آن را نمی‌گیرد.
+
+«باید» و «ممنوع» الزام‌اند. عبارت‌های «ترجیح»، «پیش‌فرض» یا «معمولاً» در مثال‌های قدیمی نمی‌توانند ممنوعیت صریح را دور بزنند. مواردی که صریحاً مجازند، دامنهٔ قانون را مشخص می‌کنند و مجوز ساخت استثنای تازه نیستند. فقط دستور صریح صاحب پروژه که همان قاعده را تغییر دهد، آن را اصلاح می‌کند؛ درخواست عادی پیاده‌سازی به معنی معافیت نیست.
+
+Agent حق ندارد:
+
+- سلیقهٔ معماری خودش را جایگزین قرارداد کند؛
+- به کد قدیمیِ ناسازگار، عرف فریم‌ورک، نمونهٔ Skill، راحتی تست، سرعت، خط کمتر یا توسعهٔ احتمالی آینده استناد کند تا قانون را رعایت نکند؛
+- الگوی ممنوع را با تغییر اسم، wrapper یا جابه‌جایی ظاهری مجاز جلوه دهد؛
+- تصمیم جریان را در callback، lifecycle، متد UI، listener، notifier، mapper یا adapter مسیریابی پنهان کند؛
+- با تخلف شناخته‌شده در کدی که ایجاد یا تغییر داده، کار را کامل یا کاملاً منطبق اعلام کند.
+
+پیش از کدنویسی، مالک هر رفتار مشخص شود: Cubit/Domain یا عملیات مشخصِ وابسته به Flutter. پس از پیاده‌سازی، تمام constructorها، Providerها، callbackها، listenerها، فیلدهای State و ویجت‌های استخراج‌شدهٔ تغییرکرده بررسی و تخلف‌ها اصلاح شوند. موفقیت تست و تحلیل استاتیک به معنی معافیت از قواعد سبک نیست.
+
+اگر نیاز مشخصی واقعاً در چارچوب قرارداد قابل‌اجرا نیست، تعارض دقیق گزارش شود و همان تغییر وابسته پیاده‌سازی نشود؛ کارهای مستقلِ مجاز ادامه پیدا کنند. راهکار ممنوع اجرا نشود، قانون بی‌صدا ضعیف نشود و برای کار معمول، مجوز دورزدن قانون درخواست نشود.
+
+این الزام‌ها در محدودهٔ کار مجاز کاربر اعمال می‌شوند؛ مجوز بازنویسی بی‌درخواستِ کل پروژه نیستند و به معنی انطباق تمام کدهای قدیمیِ دست‌نخورده نیستند.
 
 ## فهرست
 
@@ -44,17 +66,18 @@
 
 | موضوع | قاعدهٔ مصوب |
 |---|---|
-| ساخت Cubit صفحه | `BlocProvider(create: ...)` داخل `build` صفحه؛ بدون Screen/View اضافی |
+| ساخت Cubit صفحه | ساخت مستقیم در BlocProvider.create خود صفحه/فلو؛ بدون ثبت Cubit در GetIt، helper ساخت، Screen/View اضافه یا Provider صفحه در Router |
+| دریافت وابستگی | ثبت Repository/Service/API/UseCase واقعی در GetIt؛ دریافت در فیلد Cubit، بدون پارامتر وابستگی در سازندهٔ صفحه یا Cubit |
 | پیدا کردن Cubit | `context.read<MyCubit>()` در context زیر Provider |
 | State | یک data class سادهٔ Freezed، بدون getter و منطق دست‌نویس |
 | مقدار اولیه | constructor خوانای `State.initial(...)`؛ فقط یک factory |
 | نمایش | خواندن مستقیم `state.field` داخل آرگومان ویجت |
 | loading | مقایسهٔ مستقیم `state.submissionStatus == RequestStatus.loading` |
-| تصمیم تجاری | محاسبه در action یا تابع مشخص Cubit و ذخیرهٔ نتیجه در State |
+| منطق قابل‌انتقال | هر تصمیم و محاسبهٔ مستقل از منابع Flutter در Cubit/Domain؛ شامل ساخت درخواست و هماهنگی تعامل |
 | تغییر وضعیت نمایشی | حتی نمایش رمز و باز/بسته‌شدن بخش، در Cubit/State؛ استفادهٔ معمول از `setState` ممنوع |
 | فرم ثابت | فیلدهای صریح شبیه نمونهٔ صاحب پروژه؛ آرایه‌های موازی و dispatch با index ممنوع |
 | متن وابسته به چند مرحله | تابع نام‌دار در UI که `String` برگرداند |
-| side effect | Listener یا callback UI؛ خارج از builder و Cubit |
+| side effect | تصمیم و دادهٔ آماده در Cubit؛ اجرای Flutter در Listener و برگرداندن نتیجهٔ خام به Cubit |
 | بازسازی UI | `BlocBuilder` دور بخش معنادارِ متغیر؛ نه builder اجباری برای تک‌تک ویجت‌ها |
 | side effect تکرارشونده | `BlocListener` با `listenWhen` دقیق |
 | شکستن UI | معمولاً پس از حدود ۱۵۰–۲۰۰ خط یا وقتی یک بخش واقعاً دوباره استفاده می‌شود |
@@ -86,7 +109,7 @@
 
 | مورد در نمونه | تصمیم برای این پروژه |
 |---|---|
-| `locator.get` داخل Cubit | dependency از constructor تزریق شود؛ service locator جدید نساز |
+| دریافت وابستگی | Repository/Service/UseCase ثبت‌شده در فیلد Cubit از GetIt دریافت شود؛ lookup در UI یا Router ممنوع |
 | `S.current` | الگوی مصوب دسترسی مستقیم به ترجمه؛ پیاده‌سازی در task جدا |
 | enum مشترک با `otpSubmitting` و `authLoading` | برای عملیات مستقل، status مستقل با `RequestStatus` موجود |
 | دو emit برای ورودی و وضعیت دکمه | ترجیح: یک emit برای snapshot کامل و سازگار |
@@ -99,6 +122,32 @@
 | نمونهٔ OTP با طول‌های ۴، ۶ و شرط `> 4` | طول مجاز از قرارداد همان سرویس تعیین و در همهٔ مسیرها یکسان شود |
 
 این تفاوت‌ها سبک موردنظر تیم را تغییر نمی‌دهند؛ جلوی تکثیر اشکال‌های lifecycle و رفتار را می‌گیرند.
+
+### ۲.۳ اصول یکپارچه و الزام‌آورِ تأییدشده
+
+صاحب پروژه منطق بخش‌های **۲، ۳، ۴، ۶، ۷ و ۸** بررسی Caltivita را تأیید کرده است. معنای الزام‌آور آن‌ها در همین سند آمده؛ دو سند موقت فارسی و انگلیسی آن بررسی حذف شده‌اند. Agent نباید برای اجرای قواعد به آن پیش‌نویس‌ها وابسته باشد یا استثناهای پیاده‌سازی مرجع را قانون پروژه تلقی کند.
+
+| حوزه | الزام | برداشت ممنوع |
+| --- | --- | --- |
+| معماری | Provider متعلق به صفحه/فلوی واقعی است؛ مراحل مشترک همان Cubit را می‌خوانند؛ UI State را نمایش می‌دهد و اکشن مشخص می‌فرستد | Cubit اضافی برای هر child، هماهنگ‌کنندهٔ تجاری در UI یا لایهٔ غیرضروری |
+| GetIt | فقط وابستگی واقعی ثبت شود؛ Cubit وابستگی را در فیلد دریافت کند؛ مرجع تغییرناپذیر final باشد مگر تعویض وابستگی رفتار واقعاً مجاز باشد | ثبت/دریافت Cubit از GetIt، پاس‌دادن Repository/Service/UseCase به سازندهٔ Cubit یا UI و lookup داده در Router/UI |
+| ساخت | constructor مستقیم و اکشن اولیهٔ صریح در BlocProvider.create خود صفحه/فلو؛ State اولیه دست‌نخورده بماند | Provider صفحه در GoRouter، _createCubit، wrapper مخفی‌کنندهٔ ساخت و emit/load/timer/محاسبهٔ State در constructor |
+| عمر نمونه | create مالک close است؛ value فقط نمونهٔ موجود را در مرز واقعی مثل modal عرضه می‌کند | Cubit تازه در value، بستن Cubit قرض‌گرفته‌شده یا ساخت تکراری در rebuild عادی |
+| اکشن | تصمیم، اعتبارسنجی، محاسبه، ساخت درخواست و نتیجهٔ modal در Cubit/Domain؛ emit(copyWith) در خود اکشن | dispatch با نام رشته‌ای یا index فیلد، واسطهٔ انتشار State، getter محاسباتی State یا ساخت request در UI |
+| async | عملیات قابل‌انتظار Future<void>؛ loading/result/failure صریح و محافظ‌های لازم lifecycle، پاسخ قدیمی، ارسال تکراری و idempotency بانکی | کپی زنجیره‌های void تودرتو یا حذف محافظ‌ها برای شباهت ظاهری به نمونه |
+| نمایش | Builder بخش منسجم متغیر را بسازد؛ child دریافت‌کنندهٔ State والد اشتراک تکراری همان داده نسازد؛ build درخواست شروع نکند | load/submit/analytics در build، builder تشریفاتی برای هر Text/Icon یا تصمیم تجاری در buildWhen |
+| اثر نمایشی | Listener مجری اثر آماده؛ Consumer وقتی همان بخش نمایش و اثر را با هم نیاز دارد؛ MultiBlocListener برای اثرهای مستقل | تصمیم جریان در listener، Consumer اجباری در همه‌جا یا چارچوب effect عمومی بدون نیاز مشخص |
+| متد listener | switch چندحالتهٔ effect و بدنهٔ async مفصل، متد نام‌دار widget/State باشد؛ listenWhen دقیق کنار ارجاع بماند | callback چندحالتهٔ inline یا انتقال تصمیم درخواست/اعتبار/مقصد به متد UI |
+| نوشتن UI | چیدمان صریح و build با بدنهٔ block؛ label/value/error/action هر فیلد ثابت کنار هم | متد برگردانندهٔ درخت Widget، wrapper خصوصی Screen/View یا renderer فرم ثابت با array/map/record/schema |
+| مرز ویجت | مسئولیت بزرگ یا استفادهٔ مجدد واقعی در widget عمومی و فایل خودش با حفظ subscription/resource استخراج شود | فایل برای تک‌تک فاصله‌ها و آیکون‌ها، خردکردن بی‌دلیل یا حد خط دقیق برگرفته از اندازهٔ فایل مرجع |
+| استایل | کلاس PascalCase، فایل snake_case، متد camelCase، super.key، const مناسب، callback نوع‌دار، S.current و طراحی پروژه | Function?/dynamic برای نوع معلوم، کپی API/رنگ/فونت/asset پروژهٔ مرجع یا اختراع کامپوننت ناموجود |
+| modal و منابع | launcher فقط Flutter API با ورودی آماده و widget عمومی را اجرا کند؛ SafeArea و فضای کیبورد متناسب رعایت شود؛ controller/focus/scroll در مالک UI dispose شوند | منطق جریان در launcher، منابع Flutter در State/Cubit یا انتخاب موازی با setState/notifier |
+
+**ساختار State فعلی باید حفظ شود:** یک Freezed ساده با `.initial`، سازمان‌دهی `part of` موجود، `RequestStatus` فعلی، nullability معنی‌دار و پیش‌فرض‌های مناسب. برای تقلید نمونه، نام‌گذاری و سازمان‌دهی State تغییر نکند؛ dynamic buffer، status nullable غیرضروری یا انتخاب محلی موازی وارد نشود. status مستقل فقط برای عملیات مستقل واقعی باشد، نه فیلد تشریفاتی. حفظ ساختار، تضمین صحت تمام به‌روزرسانی‌های تاریخی نیست.
+
+**تست وابستگی:** نمونهٔ کنترل‌شده قبل از ساخت Cubit در GetIt ثبت شود؛ سپس Cubit متعلق به تست بسته و locator تست reset شود. تعویض ثبت، نمونهٔ ذخیره‌شده در فیلد Cubit موجود را خودکار عوض نمی‌کند. برای راحتی تست، constructor override وابستگی، ثبت Cubit یا factory تولیدی تازه نساز. این بند الزام تست برای هر تغییر جزئی یا API تعویض وابستگی در همهٔ جریان‌ها نیست.
+
+سایر موضوع‌های بررسی مرجع، توضیحی یا تأییدنشده‌اند و الزام یا مجوز مهاجرت تازه ایجاد نمی‌کنند. منطق سلامت، اشتراک، شبکه یا جزئیات پیاده‌سازی مرجع بر این قرارداد مقدم نیست.
 
 ## ۳. مسئولیت UI، Cubit و State
 
@@ -128,7 +177,11 @@ Cubit مسئول است برای:
 - فیلتر داده، حل انتخاب و محاسبهٔ جمع مبلغ؛
 - فراخوانی use case/repository؛
 - جلوگیری از درخواست تکراری و پاسخ قدیمی؛
-- مدیریت timer متعلق به جریان.
+- مدیریت timer متعلق به جریان؛
+- ساخت درخواست خدمت و نگه‌داشتن زمینهٔ رکورد انتخاب‌شده؛
+- تصمیم عملیات مجاز، footer، مقصد و رفتار back/exit؛
+- تصمیم نمایش action sheet، جزئیات، تأیید یا reveal دسته؛
+- تفسیر نتیجهٔ sheet/dialog و تعیین اکشن بعدی.
 
 منطق تجاری قابل‌استفاده در چند مصرف‌کننده، در Domain می‌ماند؛ «منطق را به Cubit ببر» به معنی انتقال همهٔ قوانین بانک از UseCase به Cubit نیست. Cubit هماهنگ‌کنندهٔ رفتار فرم است.
 
@@ -138,9 +191,9 @@ UI مسئول است برای:
 
 - ساخت درخت ویجت؛
 - انتخاب متن ترجمه‌شده و رنگ و فاصله؛
-- کنترل focus، scroll و controller؛
-- نمایش dialog، sheet و snackbar؛
-- navigation و callbackهای میزبان؛
+- مالکیت و dispose منابع focus، scroll و controller؛
+- اجرای dialog، sheet، snackbar، navigation یا callback آماده‌شده توسط Cubit؛
+- برگرداندن نتیجهٔ خام تعامل به Cubit بدون تصمیم ادامهٔ جریان؛
 - فراخوانی actionهای Cubit در پاسخ به کاربر.
 
 «UI مسئول نمایش است» به معنی مجاز بودن نگه‌داشتن booleanهای نمایشی در State کلاس Flutter و تغییرشان با `setState` نیست. مقدار این وضعیت‌ها در Freezed State است و action مربوط به آن‌ها در Cubit قرار دارد. controller، focus و scroll، منابع Flutter با مالک UI و lifecycle مشخص‌اند؛ این منابع را به State داده‌ای منتقل نکن.
@@ -155,12 +208,24 @@ UI مسئول است برای:
 | کدام مرحله بعدی است؟ | Cubit |
 | عنوان فارسی مرحلهٔ فعلی چیست؟ | تابع نمایشی UI |
 | رنگ متن خطا چیست؟ | UI و token طراحی |
-| اسکرول به بالای صفحه بعد از تغییر مرحله | Listener UI |
-| بستن sheet | UI |
+| اسکرول به بالای صفحه بعد از تغییر مرحله | تصمیم reveal در Cubit؛ اجرای scroll در Listener UI |
+| بستن sheet | تصمیم جریان در Cubit؛ اجرای Flutter API در UI |
 | رمز دیده شود یا پنهان باشد؟ | field در State و action در Cubit؛ UI مقدار را نمایش می‌دهد |
 | خطای عدم تطابق رمز نمایش داده شود؟ | اعتبارسنجی و field خطا در Cubit/State؛ focus-loss event از UI |
 | ذخیره و بازیابی token | زیرساخت احراز هویت؛ خارج از widget |
 | دنبال کردن صفحه یا کلیک | محل side effect مشخص؛ هرگز build تکرارشونده |
+
+### ۳.۵ دروازهٔ اجباری مالکیت: منطق قابل‌انتقال در UI ممنوع است
+
+هر تابع، callback، listener، builder و lifecycle باید این بررسی را بگذراند: اگر رفتار بدون BuildContext، Widget، controller یا اطلاعات واقعی layout قابل‌اجراست، مالک آن Cubit/Domain است. کوتاه‌بودن، privateبودن، درگیری navigation یا نام «هماهنگی UI» استثنا نیست.
+
+UI نباید request بسازد؛ action/category را به خدمت تبدیل کند؛ footer یا eligibility را تعیین کند؛ دربارهٔ نتیجهٔ modal، حذف آدرس، ادامهٔ مرحله، تأیید خروج یا back تصمیم بگیرد. این موارد در Cubit انجام و دادهٔ آمادهٔ اثر منتشر شوند. UI فقط Flutter API را اجرا و نتیجهٔ خام—حتی null هنگام انصراف—را به اکشن مربوط برگرداند.
+
+نام متدهایی مانند `_request`، `_more`، `_back` یا `_handleEffect` مالکیت را تغییر نمی‌دهد. helper، extension، adapter، callback، notifier یا mapper راه فرار نیست. Cubit نباید برای اجرای این وظایف BuildContext یا controller دریافت کند.
+
+کارهایی که واقعاً در UI می‌مانند: ساخت widget، ترجمه و قالب‌بندی مقدار محاسبه‌شده، theme/layout/viewport، اتصال و dispose منابع، همگام‌سازی controller از State، guardهای mounted/hasClients و اجرای focus/scroll/navigation/modal. عنوان و asset نمایشی می‌توانند helper مقدار داشته باشند؛ آن helper حق تعیین عملیات یا محاسبهٔ مبلغ ندارد.
+
+اثر باید دادهٔ لازم و زمینهٔ کارت/سپرده را از Cubit بگیرد. نتیجهٔ تعامل در Cubit بررسی شود؛ پاسخ قدیمی، انصراف و قفل عملیات نیز همان‌جا مدیریت شوند. adapter کوتاهی که فقط Flutter API را اجرا کند مجاز است؛ حتی یک خط تصمیم قابل‌انتقال در آن مجاز نیست.
 
 ## ۴. ساختار فایل‌ها و نام‌گذاری
 
@@ -267,6 +332,8 @@ abstract class AuthState with _$AuthState {
 
 مثال‌ها الگوی پیشنهادی هستند، نه فایل آمادهٔ جایگزینی در پروژه. importهای Domain، UseCase و کلیدهای ترجمه باید با سرویس واقعی تطبیق یابند. نام‌های `AuthState` و `AuthCubit` در این مثال‌ها تعریف‌های آموزشی‌اند و اکنون به برنامه افزوده نشده‌اند.
 
+**تصمیم پس از مقایسهٔ مرجع:** ساختار فعلی State پیشخوان حفظ می‌شود. factory بی‌نام و فایل State مستقل در Caltivita دلیل مهاجرت این پروژه نیست؛ status nullable و dynamic edit buffer نمونه کپی نشوند.
+
 ### ۵.۲ ممنوع: getter و منطق دست‌نویس در State
 
 ```dart
@@ -344,18 +411,16 @@ final request = state.confirmedRequest;
 
 ## ۶. قرارداد Cubit و متدهای تغییر فیلد
 
-### ۶.۱ constructor خوانا و dependency تزریق‌شده
+### ۶.۱ constructor خوانا و دریافت وابستگی داخل Cubit
 
 ```dart
 class AuthCubit extends Cubit<AuthState> {
   AuthCubit({
-    required this.requestOtpUseCase,
-    required this.submitLoginUseCase,
     AuthState initialState = const AuthState.initial(),
   }) : super(initialState);
 
-  final RequestOtpUseCase requestOtpUseCase;
-  final SubmitLoginUseCase submitLoginUseCase;
+  final requestOtpUseCase = getIt<RequestOtpUseCase>();
+  final submitLoginUseCase = getIt<SubmitLoginUseCase>();
 
   Timer? _timer;
 }
@@ -363,7 +428,21 @@ class AuthCubit extends Cubit<AuthState> {
 
 پارامتر `initialState` برای سازگاری با قرارداد پروژه و تست باقی می‌ماند؛ UI عادی لازم نیست هر بار State پیش‌فرض را پاس بدهد. پارامتر ورودی واقعی مانند `initialDepositNumber` با snapshot کامل State یکی نیست.
 
-ساختار plain State و متدهای صریح را از نمونه می‌گیریم؛ نام use case و محل دریافت dependency از پروژهٔ دیگر کپی نمی‌شود.
+ساختار State ساده، اکشن صریح و دریافت وابستگی ثبت‌شده در فیلد Cubit، الگوی مصوب است؛ وابستگی و API ساختگی از پروژهٔ دیگر اضافه نشود.
+
+### ۶.۱.۱ constructor باید State اولیه را حفظ کند
+
+constructor فقط State ورودی را به `super(initialState)` می‌دهد و ورودی واقعی شروع را نگه می‌دارد. فیلد وابستگی، نمونهٔ ثبت‌شده را از GetIt می‌گیرد. constructor نباید emit، load، اکشن initialization، timer، فیلتر، محاسبهٔ دادهٔ مشتق یا ساخت درخواست اجرا کند؛ همین کارها پشت initializer/helper یا State جایگزین در super هم ممنوع‌اند.
+
+Provider اکشن اولیه را صریح اجرا می‌کند:
+
+```dart
+create: (_) => CardFeaturesCubit(
+  initialCategory: initialCategory,
+)..load(),
+```
+
+ساختن Cubit به‌تنهایی باید دقیقاً snapshot اولیه را حفظ کند. حل پارامتر شروع و محاسبات وابسته در اکشن اولیه انجام می‌شوند.
 
 ### ۶.۲ action کوچک و مشخص
 
@@ -733,12 +812,10 @@ if (state.catalogStatus == RequestStatus.failure)
 class AverageBalanceScreen extends StatefulWidget {
   const AverageBalanceScreen({
     super.key,
-    required this.repository,
     this.initialDepositNumber,
     this.onCompleted,
   });
 
-  final DepositCertificatesRepository repository;
   final String? initialDepositNumber;
   final ValueChanged<CertificateReceipt>? onCompleted;
 
@@ -753,7 +830,6 @@ class _AverageBalanceScreenState extends State<AverageBalanceScreen> {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => AverageBalanceCubit(
-        repository: widget.repository,
         initialDepositNumber: widget.initialDepositNumber,
       )..load(),
       child: BlocListener<AverageBalanceCubit, AverageBalanceState>(
@@ -808,6 +884,8 @@ class _AverageBalanceScreenState extends State<AverageBalanceScreen> {
 
 این یک نمونهٔ **ساختار صفحه** است؛ `continueFlow` و تابع عنوان، پیشنهاد این سندند. `AverageBalanceConditions` بخش مستقل فرم است و State موردنیاز خودش را با builder می‌خواند. این نمونه پیاده‌سازی کامل صفحهٔ چندمرحله‌ای نیست.
 
+Repository موردنیاز در GetIt تنظیم می‌شود و Cubit آن را در فیلد خودش می‌گیرد. صفحه هیچ فیلد، پارامتر یا lookup وابستگی ندارد. ورودی واقعی مثل initialDepositNumber مستقیماً به Cubit می‌رود؛ dependency-free بودن Cubit هم ساخت آن را عوض نمی‌کند. برای تنظیم mock، وابستگی محیط تست/نمونه تغییر می‌کند، نه API صفحه.
+
 اگر صفحه controller یا lifecycle ندارد، همین ساختار در `StatelessWidget` هم صحیح است. StatefulWidget بودن، شرط فنی استفاده از Provider نیست. Agent فقط برای شبیه کردن ظاهر کد، State خالی نسازد.
 
 ### ۹.۲ ساختار نامطلوب برای این تیم
@@ -831,18 +909,22 @@ class _AverageBalanceView extends StatelessWidget { ... }
 
 قواعد پروژه:
 
-- برای صفحهٔ جدید، Cubit را با `create` بساز.
-- همان Cubit را دوباره در `initState` نساز.
-- `close` دستی برای Cubit متعلق به `create` ننویس.
-- `bloc: _cubit` را وقتی Provider درست در ancestor است اضافه نکن.
-- `BlocProvider.value` فقط برای instance واقعاً موجود، مانند ادامهٔ همان فلو در sheet، استفاده شود.
-- ساخت `Cubit()` داخل آرگومان `value` ممنوع است.
+- Cubit جدید مستقیماً داخل BlocProvider.create خود صفحه/فلوی واقعی ساخته شود؛ constructor و اکشن اولیه در همان callback دیده شوند.
+- GetIt فقط Repository، Service/API، DAO یا UseCase واقعی را ثبت کند؛ ثبت یا دریافت Cubit/Bloc با هیچ lifetime مجاز نیست.
+- وابستگی در فیلد Cubit دریافت شود؛ نه در UI/Router و نه از پارامتر سازندهٔ Cubit، صفحه یا route.
+- GoRouter فقط مقصد را انتخاب کند؛ Provider مخصوص صفحه در خود صفحه باشد.
+- `_create`، `_createCubit`، `_buildCubit` یا factory تولیدی مخفی‌کنندهٔ ساخت ممنوع‌اند. بلوک inline برای زمان‌بندی واقعی layout مجاز است، ولی ساخت مستقیم همان‌جا می‌ماند.
+- مراحل مشترک فلو همان یک نمونه را بخوانند. Cubit دوباره در initState، builder یا listener ساخته نشود.
+- Provider.create مالک close است؛ Cubit قرض‌گرفته‌شده با value دستی بسته نشود.
+- value فقط برای instance موجود است؛ `value: Cubit()` ممنوع است.
+- context.read از context زیر Provider باشد؛ `bloc: _cubit` وقتی Provider صحیح وجود دارد اضافه نشود.
+- تست، ثبت وابستگی را پیش از ساخت یا mount کنترل و پس از اجرا reset کند؛ API تولیدی برای تزریق Repository در تست گسترش پیدا نکند.
 
 ### ۹.۴ rebuild عادی با ورود تازه به flow فرق دارد
 
 بازسازی ویجت با همان type و جایگاه و identityِ عنصر Provider، به‌خودی‌خود Cubit را دوباره نمی‌سازد. تغییر Key یا حذف subtree می‌تواند instance قبلی را از بین ببرد؛ reset را با آن پنهان نکن.
 
-برای ورود جدید به سرویس، route جدید و scope تازه کافی است. تغییر runtimeِ repository فقط وقتی پشتیبانی شود که نیاز واقعی API صفحه باشد؛ `didUpdateWidget` عمومی و `changeRepository` برای همهٔ صفحات به‌صورت پیش‌فرض ساخته نشوند. اگر ورود جدید یا تغییر account در همان scope باید داده را reset کند، رفتار باید صریح، قابل‌تست و با action مشخص باشد.
+برای ورود جدید به سرویس، route جدید و scope تازه کافی است. تعویض runtime وابستگی فقط در نیاز واقعیِ جداگانهٔ مجاز و در مرز DI/فلو بررسی شود؛ ورودی Repository به صفحه اضافه نشود؛ `didUpdateWidget` عمومی و `changeRepository` برای همهٔ صفحات به‌صورت پیش‌فرض ساخته نشوند. اگر ورود جدید یا تغییر account در همان scope باید داده را reset کند، رفتار باید صریح، قابل‌تست و با action مشخص باشد.
 
 ### ۹.۵ context زیر Provider
 
@@ -1074,6 +1156,17 @@ builder: (context, state) {
 
 اگر `buildWhen` به ۱۵–۲۰ فیلد نیاز دارد، اول مرز subtree را بررسی کن. برای کوتاه کردن آن، State را به record یا object دیگری تبدیل نکن. اگر همان بخش بزرگ واقعاً همهٔ State را لازم دارد، یک builder معمولی با توضیح نیاز همهٔ تغییرها بهتر از predicate ناقص است.
 
+### ۱۱.۶ انتخاب Builder، Listener و Consumer بر اساس مسئولیت
+
+- فقط نمایش State: BlocBuilder.
+- فقط اجرای اثر Flutter: BlocListener.
+- نمایش و اثر در همان بخش، مثل دکمهٔ loading همراه با بستن شیت پس از موفقیت: BlocConsumer.
+- چند اثر مستقل: MultiBlocListener؛ این widget Cubit جدید نمی‌سازد و قالب اجباری همهٔ صفحه‌ها نیست.
+
+switch چندحالتهٔ effect و listener async مفصل باید متد نام‌دار widget/State باشند و با `listener: _handleEffect` ارجاع داده شوند. listenWhen دقیق کنار ارجاع بماند. متد فقط اثر ازپیش‌تعیین‌شدهٔ Flutter را اجرا و نتیجهٔ خام را به Cubit برمی‌گرداند؛ eligibility، request و تصمیم جریان در آن ممنوع‌اند.
+
+نبود buildWhen یا listener inline در نمونهٔ مرجع، قواعد فعلی را لغو نمی‌کند. status می‌تواند نتیجهٔ عملیات را مشخص کند؛ اثرهای تکراری با status یکسان در صورت نیاز شناسهٔ قابل‌اعتماد می‌خواهند. سازوکار درست موجود حذف و چارچوب effect عمومی صرفاً برای تقلید نمونه ساخته نشود.
+
 ## ۱۲. مرز subscription و انتقال State به فرزند
 
 دو مدل روشن مجاز است؛ ترکیب بی‌دلیل آن‌ها ممنوع است.
@@ -1246,6 +1339,14 @@ BlocBuilder<AuthCubit, AuthState>(
 این مثال خلاف قرارداد نیست، حتی اگر تغییر phone باعث بازسازی هر دو input شود. دو فیلد مسئولیت یک فرم منسجم دارند. برای نمونهٔ کامل، focus-loss validation و وضعیت enabled نیز متناسب با همان flow به فیلدها و buildWhen اضافه می‌شوند.
 
 ## ۱۳. سبک نوشتن درخت UI
+
+### ۱۳.۰ اصول الزام‌آور استایل UI
+
+کلاس و widget با PascalCase، فایل Dart با snake_case و متد با camelCase نام‌گذاری شود. constructor از super.key و در صورت امکان const استفاده کند. callback با نوع معلوم، VoidCallback، ValueChanged<T> یا نوع تابع صریح داشته باشد؛ Function?/dynamic راه فرار از اعلام نوع نیست. nullability باید معنی واقعی داشته باشد.
+
+از typography، رنگ معنایی، asset و API عمومی avp_ui خود پروژه استفاده شود؛ کپی نام کامپوننت، palette، فونت یا ظاهر پروژهٔ مرجع ممنوع است. ترجمه با S.current انجام شود. چیدمان صریح Row/Column/Padding/SizedBox و شرط‌های کوچک نمایشی خوانا بمانند؛ ابزار خاص باید نیاز واقعی layout/lifecycle را حل کند.
+
+widget استخراج‌شدهٔ بزرگ یا واقعاً قابل‌استفادهٔ مجدد، عمومی و در فایل خودش باشد و مرز subscription/resource را حفظ کند. عنوان، فاصله یا آیکون یک‌بارمصرف به فایل جدا شکسته نشوند. تعداد خطِ نمونه حد دقیق تازه ایجاد نمی‌کند؛ مسئولیت و استفادهٔ واقعی تعیین‌کننده‌اند. build نباید load، submit، analytics یا تصمیم جریان اجرا کند.
 
 ### ۱۳.۱ block body برای build
 
@@ -1684,7 +1785,7 @@ if (state.footerAction != null)
   ),
 ```
 
-مسیر concreteِ navigation در UI/router می‌ماند. Cubit نباید `context.push` یا `ScaffoldMessenger` صدا بزند. adapter با نام روشن مثل `openCardAction` مجاز است؛ زنجیرهٔ helperهای عمومی برای پنهان کردن یک action ساده ساخته نشود.
+مسیر concreteِ navigation در UI/router می‌ماند. Cubit نباید `context.push` یا `ScaffoldMessenger` صدا بزند. adapter فقط طبق بخش ۳.۵ و برای اجرای Flutter با مقصد ازپیش‌تعیین‌شده مجاز است؛ تصمیم action/category یا ساخت درخواست در آن ممنوع است.
 
 ### ۱۶.۵ راهکار پیشنهادی انتخابگر نوع‌دار — توصیه، نه الزام مهاجرت
 
@@ -1920,7 +2021,7 @@ Future<void> showCardFilterSheet(BuildContext context) async {
 
 در `CardFilterSheet`، دکمهٔ Apply ابتدا `applyFilter` را صدا می‌زند و سپس modal را می‌بندد. `cancelFilter` باید در صورت `draftFilter == null` بدون اثر اضافی برگردد؛ بعد از Apply، finally نباید filter ثبت‌شده را پاک کند.
 
-این کاربرد `.value` استثنای روشنِ استفاده از instance موجود است؛ sheet نباید Cubit صفحه را close کند.
+این کاربرد `.value` حالت صریحاً مجازِ اشتراک instance موجود است؛ sheet نباید Cubit صفحه را close کند.
 
 ### ۱۷.۴ dialog حذف: UI تأیید می‌گیرد، Cubit حذف می‌کند
 
@@ -2215,7 +2316,7 @@ BlocBuilder<AuthCubit, AuthState>(
 
 ### ۱۹.۷ ممنوعیت setState، شامل وضعیت صرفاً نمایشی
 
-**دستور صریح صاحب پروژه:** `setState` به‌صورت معمول استفاده نشود؛ حتی نمایش/پنهان‌کردن رمز، باز/بسته‌شدن summary یا یک انتخاب ظاهری باید field در Freezed State و action در Cubit داشته باشد. «این فقط UI state است» استثنا نیست.
+**دستور صریح صاحب پروژه:** استفاده از `setState` برای وضعیت جریان یا نمایش ممنوع است؛ حتی نمایش/پنهان‌کردن رمز، باز/بسته‌شدن summary یا یک انتخاب ظاهری باید field در Freezed State و action در Cubit داشته باشد. «این فقط UI state است» استثنا نیست.
 
 ```dart
 // State
@@ -2289,7 +2390,13 @@ setState(() => showPassword = !showPassword);
 setState(() => mismatch = password.text != confirmation.text);
 ```
 
-اگر هیچ راه قابل‌اجرا با قرارداد flow و APIهای موجود نیست، استثنای موردی ممکن است بررسی شود. Agent باید قبل از ایجاد استثنا، محدودیت فنی مشخص و راه‌های بررسی‌شده را گزارش کند و تعیین تکلیف همان مورد را از صاحب پروژه بگیرد. کوتاه‌تر بودن کد، عادت Flutter یا «صرفاً نمایشی بودن» دلیل استثنا نیست. به‌جای `setState` هم State موازی با ValueNotifier یا notifier تازه برای دور زدن این قاعده نساز؛ استفادهٔ معمول از animation/controller موجود برای lifecycle و رفتار Flutter موضوع جداگانه‌ای است.
+اگر اجرای نیاز با قرارداد و APIهای موجود واقعاً ممکن نیست، تعارض دقیق گزارش و تغییر وابسته پیاده‌سازی نشود. Agent اختیار ساخت استثنا ندارد؛ فقط اصلاح صریح همان قانون توسط صاحب پروژه آن را تغییر می‌دهد. کوتاه‌تر بودن کد، عادت Flutter و «صرفاً نمایشی بودن» معافیت نیستند. State موازی با ValueNotifier یا notifier تازه هم راه دورزدن ممنوعیت نیست. استفادهٔ معمول از controller/animation برای منبع و lifecycle واقعی Flutter موضوع جداگانه‌ای است.
+
+### ۱۹.۸ lifecycle محل هماهنگی منطق فلو نیست
+
+initState، didChangeDependencies، didUpdateWidget، پرچم محلی scheduled و post-frame نباید تصمیم قابل‌انتقال را پنهان کنند. didChangeDependencies فقط برای وابستگی inherited واقعی است؛ انتخاب دسته و شروع جریان به‌صورت پیش‌فرض آنجا انجام نمی‌شود.
+
+post-frame فقط برای نیاز واقعی attachment/layout مانند scroll extent یا اتصال listener استفاده شود. Cubit قصد reveal و هدف منطقی را تعیین می‌کند؛ UI زمان‌بندی و mounted/hasClients و اندازهٔ واقعی را مدیریت می‌کند. پرچم تکراری و lifecycle تشریفاتی ممنوع است.
 
 ## ۲۰. جریان چندمرحله‌ای و Back
 
@@ -2357,6 +2464,10 @@ Future<void> handleFlowBack(BuildContext context) async {
 این مثال مسیر back برای فرمِ پیش از موفقیت است؛ صفحهٔ رسید مسیر خروج خودش را دارد. وقتی `PopScope.canPop` خروج را مسدود کرده، اجرای خروج تأییدشده باید یک مسیر صریح برای آزاد کردن pop یا `go` داشته باشد؛ `pop` دوباره به scope مسدودشده فرستاده نشود. این رفتار در تغییر واقعی باید با Back سیستم تست شود.
 
 متد UI بالا side effect هماهنگ می‌کند؛ برخلاف `_body` درخت Widget تولید نمی‌کند و محاسبهٔ مرحله انجام نمی‌دهد.
+
+**الزام back:** دکمهٔ داخل صفحه اکشن Cubit مثل requestBack را صدا بزند. Cubit قفل ارسال، عقب‌رفتن مرحله یا درخواست تأیید/خروج را تعیین کند. UI اثر را اجرا، پس از await context.mounted را بررسی و نتیجهٔ تأیید را به Cubit برگرداند. زنجیرهٔ back → تأیید → خروج با خواندن status در helper/listener UI ممنوع است.
+
+وقتی PopScope خروج را بسته، اثر خروج باید مسیر اجرایی واقعی برای رفع محدودیت یا مقصد go مصوب داشته باشد؛ pop دوباره به scope مسدود ارسال نشود. Back سیستم و دکمهٔ صفحه هر دو بررسی شوند.
 
 ### ۲۰.۳ پارامتر شروع و reset
 
@@ -2460,15 +2571,11 @@ Text(S.current.otpSentMessage(state.maskedPhone));
 
 ### ۲۲.۳ _revealCategory و chip keys
 
-**مسئله:** indexهای ۳ و شرط‌های پراکنده، نیاز اسکرول را به جایگاه enum وابسته کرده‌اند؛ GlobalKey برای همهٔ chipها هزینهٔ ذهنی دارد.
-
-**قاعده:** اسکرول، منطق UI است و نمی‌تواند به Cubit منتقل شود. ابتدا ساده‌ترین رفتار کاربر را با scroll API موجود پیاده کن. اگر ensureVisible به key نیاز دارد، دلیل مشخص و رفتار لازم را حفظ کن؛ key صرفاً برای تست یا هر chip ساخته نشود. index magic جای اسم رفتار را نگیرد.
+**قاعده:** Cubit قصد reveal و هدف دسته را منتشر می‌کند؛ UI فقط scroll API و layout واقعی و guard منابع را اجرا می‌کند. controller و BuildContext وارد Cubit/State نمی‌شوند. GlobalKey صرفاً برای هر chip یا تست ساخته نشود؛ نیاز رفتاری واقعی لازم است. شرط magic index جای مفهوم رفتار را نگیرد.
 
 ### ۲۲.۴ _request و _more
 
-این متدها ذاتاً نامعتبر نیستند؛ نمایش sheet و navigation کار UI است. مسئله زمانی است که یک متد، eligibility، payload، routing، پیام و محاسبهٔ انتخاب را مخلوط می‌کند.
-
-**قاعده:** انتخاب و availability در Cubit؛ نمایش action sheet در UI؛ dispatch مسیر در قرارداد router موجود. متد UI کوتاه و با نامی مثل `openCardActions` یا `handleCardAction` مجاز است. صرف private بودن متد side effect، دلیل انتقال آن به Cubit نیست.
+**قاعدهٔ الزام‌آور:** ساخت request، انتخاب action/service و تفسیر نتیجهٔ شیت در Cubit است. UI فقط اثر آماده را اجرا و نتیجهٔ خام را به اکشن برمی‌گرداند. `_request` یا `_more` یا `handleCardAction` با تصمیم قابل‌انتقال، حتی کوتاه، ممنوع است. لانچر فقط در نقش adapter محدود Flutter طبق بخش ۳.۵ مجاز است؛ تغییر نام درخت تصمیم آن را مجاز نمی‌کند.
 
 ### ۲۲.۵ footerAction در builder
 
@@ -2529,7 +2636,9 @@ Text(S.current.otpSentMessage(state.maskedPhone));
 | خاموش بودن دکمه به‌عنوان guard اصلی | guard صریح در action |
 | navigator در Cubit | Listener/callback UI |
 | validation code در widget | validator/UseCase و هماهنگی Cubit |
-| mock داخل هر screen به‌صورت پیش‌فرض | dependency صریح؛ mock در composition محیط نمونه |
+| mock داخل هر screen به‌صورت پیش‌فرض | mock در ثبت DI محیط؛ دریافت وابستگی در Cubit |
+| Repository/UseCase از پارامتر صفحه یا سازندهٔ Cubit | دریافت از GetIt در فیلد Cubit |
+| _createCubit یا ثبت Cubit در GetIt | ساخت مستقیم در BlocProvider.create خود صفحه/فلو |
 | success جعلی برای action پیاده‌نشده | پیام عدم دسترسی یا callback صریح میزبان |
 | event analytics داخل build | lifecycle/observer یا callback مناسب |
 | setState برای چشم رمز، summary یا خطای فرم | field در State و action صریح Cubit |
@@ -2539,18 +2648,22 @@ Text(S.current.otpSentMessage(state.maskedPhone));
 | حذف field فقط چون UI فعلی آن را نمی‌خواند | بررسی مسئولیت عملیاتی یا قرارداد سرویس آینده |
 | builder اجباری برای هر Text و Icon | builder دور بخش معنادارِ متغیر؛ سطح بالاتر برای جلوگیری از پراکندگی |
 
-برای وابستگی mock، می‌توان flow نمونه را در route composition به MockRepository متصل کرد و screen را با interface واقعی نگه داشت. این پیشنهاد مجوز تعویض adapterهای فعلی بدون task نیست.
+برای mock، ثبت وابستگی در DI محیط مربوط تنظیم شود. Provider مستقیم Cubit را می‌سازد و خود Cubit وابستگی را در فیلد دریافت می‌کند. Repository از UI عبور نمی‌کند. این قاعده مجوز تعویض adapterهای فعلی خارج از محدودهٔ task نیست.
 
 ## ۲۴. دستور عملی Agent و چک‌لیست بازبینی
 
 ### ۲۴.۱ متن کوتاه قابل‌استفاده به‌عنوان دستور Agent
 
 ```text
-برای Presentation این پروژه، قرارداد UI/Cubit/State مصوب را رعایت کن.
+برای Presentation این پروژه، تمام قرارداد UI/Cubit/State را پیش از کار بخوان.
+بخش اجرای الزامی و ۲.۳ الزام‌اند؛ استثنای خودسرانه، تغییر نام الگوی ممنوع یا
+استناد به Skill/مثال قدیمی مجاز نیست. ساختار State فعلی حفظ شود. با تخلف
+شناخته‌شده در کد ایجادشده/تغییرکرده، کار را کامل اعلام نکن.
 
 1. UI را با سبک آشنای تیم و build دارای block body بنویس.
 2. BlocProvider(create) در صفحه/ورودی واقعی flow باشد؛ Screen/View خصوصی
-   اضافه، Cubit دستی و bloc: صریح بدون نیاز نساز.
+   اضافه، Cubit دستی و bloc: صریح بدون نیاز نساز. constructor مستقیم و اکشن
+   اولیه در create باشند؛ ثبت Cubit در GetIt و helper ساخت ممنوع است.
 3. در callbackها از context زیر Provider استفاده کن.
 4. State یک data class سادهٔ Freezed است؛ getter و منطق دست‌نویس ندارد.
 5. UI مستقیم state.field را می‌خواند؛ alias، record projection یا ViewModel
@@ -2574,7 +2687,7 @@ Text(S.current.otpSentMessage(state.maskedPhone));
 17. بدون درخواست، refactor سراسری، تغییر package و dependency جدید انجام نده.
 18. setState حتی برای وضعیت نمایشیِ رمز و summary استفاده نکن. مقدار در State
     و action در Cubit باشد. notifier موازی برای دور زدن این قاعده نساز.
-    اگر محدودیت فنی اجتناب‌ناپذیر است، آن مورد را قبل از استثنا گزارش کن.
+    تعارض واقعی را بدون اجرای راهکار ممنوع گزارش کن؛ Agent اختیار استثنا ندارد.
 19. فرم ثابت را مثل مرجع مالک صریح بنویس؛ آرایهٔ labels/values/callbacks، schema
     و switch(index) برای تعریف فیلدهای آن ممنوع‌اند. لیست دادهٔ واقعی مجاز است.
 20. هر فیلد فرم action مشخص داشته باشد و validator مرکزی را صدا بزند؛ dispatch
@@ -2585,23 +2698,35 @@ Text(S.current.otpSentMessage(state.maskedPhone));
 23. پیشنهاد انتخابگر نوع‌دار (بخش 16.5) مجوز مهاجرت نیست. مورد تطبیق دو enum با
     index هنوز باز است. callback خالی دکمه فعلاً موضوع اصلاح نیست.
 24. فقط از S.current.<key> برای ترجمهٔ UI استفاده کن؛ نه alias و نه context.l10n.
+25. تمام رفتار قابل‌انتقال بدون منابع Flutter در Cubit/Domain باشد؛ ساخت درخواست،
+    انتخاب عملیات/footer/مقصد و تفسیر نتیجهٔ modal هم شامل این الزام هستند.
+26. UI اکشن می‌فرستد؛ Cubit State و اثر نوع‌دار آماده را منتشر می‌کند؛ UI Flutter
+    API را اجرا و نتیجهٔ خام را برمی‌گرداند. اثر تکراری باید قابل‌اعتماد تحویل شود.
+27. lifecycle و post-frame فقط attachment/layout واقعی و guard منابع باشند؛
+    didChangeDependencies تشریفاتی یا پرچم محلی جریان ساخته نشود.
+28. وابستگی داده از UI عبور نکند و پارامتر constructor Cubit هم نباشد؛ فیلد Cubit
+    آن را از GetIt بگیرد. Provider خود صفحه/فلو مستقیماً Cubit را بسازد؛ GoRouter
+    فقط مقصد را انتخاب کند. listener چندحالته متد نام‌دار UI داشته باشد.
 ```
 
-این متن قواعد تأییدشده و مرزهای تصمیم‌های باز را ثبت می‌کند و می‌تواند در task مستنداتی جدا در AGENTS/Skill قرار بگیرد. اکنون آن فایل‌ها تغییر نکرده‌اند.
+این متن خلاصهٔ قواعد الزام‌آور است، نه جایگزین سند کامل. AGENTS.md ریشه خواندن و اجرای تمام قرارداد را لازم می‌کند؛ موضوع باز هیچ قاعدهٔ مصوبی را ضعیف نمی‌کند.
 
 ### ۲۴.۲ قبل از نوشتن UI
 
 - [ ] نیاز واقعی صفحه، ورودی route و callback خروج مشخص است.
 - [ ] component موجود در `avp_ui` و app shared بررسی شده است.
 - [ ] نوع State و statusهای عملیات مشخص‌اند.
+- [ ] هر helper/callback پیشنهادی از دروازهٔ مالکیت بخش ۳.۵ عبور کرده است.
 - [ ] روشن است چه تصمیمی در Cubit و چه نمایشی در UI است.
 - [ ] برای صفحهٔ ساده، abstraction جدید طراحی نشده است.
 - [ ] هیچ تغییر خارج از محدودهٔ task لازم فرض نشده است.
 
 ### ۲۴.۳ هنگام نوشتن Cubit
 
-- [ ] constructor dependencyهای لازم را تزریق می‌کند.
+- [ ] وابستگی واقعی در فیلد Cubit از GetIt دریافت می‌شود؛ سازندهٔ Cubit/UI پارامتر Repository/Service/UseCase ندارد.
 - [ ] هر action نام رفتاری روشن دارد.
+- [ ] ساخت درخواست، تصمیم عملیات/footer/مقصد و نتیجهٔ modal متعلق به Cubit است.
+- [ ] اثر آماده، داده و زمینهٔ لازم را بدون منبع Flutter دارد و تکرار آن قابل‌تحویل است.
 - [ ] emitهای ورودی، خروجی‌های وابسته را هم‌زمان به‌روز می‌کنند.
 - [ ] helperها نام محاسبه را بیان می‌کنند و UI از آن‌ها قانون دریافت نمی‌کند.
 - [ ] helper هیچ State جدیدی نمی‌سازد و emit نمی‌کند؛ تغییرهای State در خود action دیده می‌شوند.
@@ -2629,10 +2754,18 @@ Text(S.current.otpSentMessage(state.maskedPhone));
 
 ### ۲۴.۵ هنگام نوشتن UI
 
-- [ ] Provider در محل روشن و با مالکیت create است.
+- [ ] Provider خود صفحه/فلوی واقعی مالک create است؛ GoRouter Cubit صفحه نمی‌سازد.
+- [ ] constructor و اکشن اولیه در create مستقیم دیده می‌شوند؛ helper ساخت یا دریافت Cubit از GetIt نداریم.
+- [ ] Repository/Service/UseCase از UI یا سازندهٔ Cubit پاس داده نمی‌شود؛ lookup در فیلد Cubit است.
+- [ ] GetIt فقط وابستگی‌ها را ثبت می‌کند؛ تست API تولیدی را برای تزریق وابستگی گسترش نمی‌دهد.
 - [ ] private View wrapper و Key پیش‌فرض ندارد.
 - [ ] callbackها context صحیحِ زیر Provider دارند.
 - [ ] state مستقیم در آرگومان‌ها خوانده می‌شود.
+- [ ] هیچ تصمیم قابل‌انتقالی در helper، callback، listener، build یا lifecycle UI نمانده است.
+- [ ] listener اثر آماده را اجرا و نتیجهٔ خام modal را به Cubit می‌دهد؛ مرحلهٔ بعد را انتخاب نمی‌کند.
+- [ ] listener چندحالته/async مفصل متد نام‌دار دارد و listenWhen دقیق کنار ارجاع آن است.
+- [ ] هر helper باقی‌ماندهٔ UI به Flutter یا نمایش مشخص نیاز دارد؛ کوتاهی و privateبودن دلیل نیست.
+- [ ] اثر اولیه بعد از اتصال/layout واقعی تحویل می‌شود؛ hook یا پرچم تکراری وجود ندارد.
 - [ ] منطق هزینه، فیلتر و eligibility در builder نیست.
 - [ ] عنوان‌های طولانی تابع نمایشی نام‌دار دارند.
 - [ ] side effect در builder انجام نمی‌شود.
@@ -2665,16 +2798,18 @@ Text(S.current.otpSentMessage(state.maskedPhone));
 
 برای تأیید نوشتن یک متغیر یا محل Padding، تستی که implementation را تکرار می‌کند ننویس. برای تغییر رفتاری، تست مرتبط را اجرا کن و نتیجه را دقیق گزارش بده. در این task صرفاً سند تهیه شده و تست اجرایی برنامه اجرا نشده است.
 
-### ۲۴.۷ چطور استثنا نوشته شود؟
+### ۲۴.۷ دروازهٔ اتمام: استثنای خودسرانه ممنوع
 
-استثنا فقط برای نیاز واقعی، با توضیح نزدیک کد:
+قبل از اعلام اتمام، تمام قواعد الزام‌آور مرتبط با کد ایجادشده یا تغییرکرده بررسی و تخلف‌ها اصلاح شوند. در صورت مانع، نیاز اجرا‌نشده و تعارض دقیق گزارش شوند؛ انطباق کامل ادعا نشود. تست موفق، کد قدیمی، Skill، زمان محدود یا سلیقهٔ معماری قانون را لغو نمی‌کنند.
+
+برای حالت صریحاً مجاز، مثل حفظ هویت editor یک ردیف هنگام reorder، نیاز رفتاری نزدیک کد نوشته شود:
 
 ```dart
-// این ردیف editor داخلی دارد؛ هنگام reorder، مقدار editor باید با ID کارت بماند.
+// Reordering must preserve the editor associated with this card ID.
 key: ValueKey(card.id),
 ```
 
-توضیح «برای clean code» یا «برای test» به‌تنهایی کافی نیست. اگر استثنا سبک اصلی تیم را تغییر می‌دهد، Agent باید دلیل را گزارش کند؛ خودش آن را به الگوی عمومی پروژه تبدیل نکند.
+این توضیحِ یک حالت مجاز است، نه ساخت استثنای تازه. Agent نمی‌تواند اجازهٔ تازه اختراع کند؛ کار نامرتبط هم از محدودهٔ مجاز بیرون می‌ماند.
 
 ## ۲۵. اختلاف با مستندات فعلی و مسیر پذیرش
 
@@ -2694,7 +2829,7 @@ key: ValueKey(card.id),
 | localization | کد فعلی gen-l10n و context.l10n دارد | الگوی مصوب S.current؛ مهاجرت کد هنوز انجام نشده |
 | analytics در build | در Skill مثال دارد | side effect تکرارشونده در build ممنوع |
 | Key | Skill استثناهای عمومی دارد | استثنا با نیاز رفتاری روشن؛ reset خودکار Provider پیش‌فرض نیست |
-| setState | در بعضی فرم‌های فعلی وضعیت نمایشی/خطا محلی است | دستور مالک: وضعیت نمایشی و خطا در State؛ setState فقط با تعیین تکلیف محدودیت اجتناب‌ناپذیر |
+| setState | در بعضی فرم‌های فعلی وضعیت نمایشی/خطا محلی است | دستور مالک: وضعیت نمایشی و خطا در State؛ Agent اختیار معافیت ندارد؛ مانع واقعی گزارش شود |
 | فرم ثابت | بعضی فرم‌ها آرایه‌های موازی دارند | فیلدهای صریح شبیه نمونه‌های مالک، بدون renderer یا dispatch با index |
 | سطح builder | ممکن است «پایین‌ترین subtree» مطلق برداشت شود | بخش معنادارِ متغیر؛ جمع‌کردن builderها در سطح بالاتر برای خوانایی مجاز |
 
@@ -2704,7 +2839,7 @@ key: ValueKey(card.id),
 
 | مورد بررسی | تصمیم صاحب پروژه | اثر دقیق برای Agent |
 |---|---|---|
-| ۱: setState | ممنوع، حتی برای نمایش/پنهان‌کردن رمز | field نمایشی در State؛ action در Cubit؛ فقط محدودیت اجتناب‌ناپذیر جداگانه تعیین تکلیف شود |
+| ۱: setState | ممنوع، حتی برای نمایش/پنهان‌کردن رمز | field نمایشی در State؛ action در Cubit؛ استثنای خودسرانه ممنوع؛ مانع واقعی گزارش شود |
 | ۲: فرم آرایه‌ای | نمونه‌های صریح مالک مبنا هستند | فرم ثابت با input صریح؛ loop دادهٔ واقعی و options انتخابگر مجاز |
 | ۳: محل BlocBuilder | پایین‌تر تا جایی که خوانا و معنادار است | فقط بخش متغیر subscribe شود؛ builder اجباری برای هر ویجت نساز؛ برای تعداد زیاد، سطح بالاتر مجاز |
 | ۴: اعتبارسنجی رشته‌ای | سبک متدهای مشخص نمونهٔ مالک | update/validate مشخص و validator مرکزی؛ dispatch با String برای فرم ثابت ممنوع |
@@ -2718,19 +2853,15 @@ key: ValueKey(card.id),
 
 بازبودن مورد ۷، مجوز آرایه‌کردن فرم ثابت یا وابسته‌کردن action فیلد به index نیست؛ آن‌ها در مورد ۲ صریحاً ممنوع شده‌اند. پذیرفته‌بودن callback خالیِ دکمه در مورد ۱۰ نیز مجوز ساخت Listener خالی یا API ساختگی نیست. این‌ها موضوع‌های متفاوت‌اند.
 
-### ۲۵.۲ آنچه الآن انجام شده
+### ۲۵.۲ وضعیت یکپارچه‌سازی
 
-در این ویرایش فقط همین فایل Markdown به‌روز شده است. فایل‌های Dart، رفتار برنامه، dependencyها، Skill و README تغییر نکرده‌اند. اصلاح مستنداتیِ `S.current` در معماری مربوط به درخواست قبلی بود؛ در این ویرایش فایل معماری دوباره تغییر داده نشده است. تغییر موجود در `pubspec.yaml` نیز مربوط به وضعیت قبلی workspace است و در این task دست‌کاری نشده است.
+نسخهٔ ۱.۶ اصول تأییدشدهٔ بخش‌های ۲، ۳، ۴، ۶، ۷ و ۸ مرجع را در همین قرارداد یکپارچه و ساختار State فعلی را حفظ می‌کند. AGENTS.md ریشه، خواندن سند و دروازهٔ بررسی انطباق را الزامی کرده است. دو سند موقت Caltivita حذف شده‌اند؛ نسخهٔ فارسی و انگلیسی قرارداد اصلی باقی‌اند. این ویرایش مستندات، کد Dart را تغییر نمی‌دهد و انطباق تمام برنامهٔ موجود را تأیید نمی‌کند.
 
-### ۲۵.۳ پذیرش قرارداد، اجرای خودکار refactor نیست
+### ۲۵.۳ پذیرش قرارداد، مجوز refactor خودکار نیست
 
-برای همگام‌کردن سایر منابع با قواعد تأییدشده، سه کار مستنداتی می‌تواند در یک task مشخص انجام شود:
+AGENTS.md از قبل به این قرارداد الزام می‌دهد. نمونه‌های قدیمی معماری یا Skill آن را ضعیف نمی‌کنند. همگام‌کردن متن آن منابع یا افزودن لینک README باید در task مستنداتی مجاز باشد؛ انجام آن‌ها پیش‌شرط رعایت قواعد این سند نیست.
 
-1. همگام کردن بخش ۱۲ و مثال Provider با همین قرارداد؛
-2. اصلاح Skill برای حذف اسم‌ها و APIهای برنامهٔ دیگر و رفع تناقض‌ها؛
-3. لینک کردن قرارداد مصوب در README و دستور ورودی Agent.
-
-سپس یک flow نمونه، مثلاً Login یا Average Balance، می‌تواند در task جدا با همین قواعد بازنویسی و بررسی شود. تغییر همهٔ flowها باید محدوده و بررسی رفتار داشته باشد؛ پذیرش سبک به‌تنهایی مجوز refactor سراسری نیست.
+بازنویسی هر جریان به task با محدوده و بررسی رفتار نیاز دارد. پذیرش سبک به‌تنهایی مجوز تغییر تمام flowها، پکیج‌ها یا شبکه نیست.
 
 ### ۲۵.۴ مراجع
 

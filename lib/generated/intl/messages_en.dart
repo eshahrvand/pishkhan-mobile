@@ -508,6 +508,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "financialUsd": MessageLookupByLibrary.simpleMessage("US dollar"),
         "financialWithdrawalRules": MessageLookupByLibrary.simpleMessage(
             "Withdrawal conditions for joint / corporate deposits"),
+        "flowExitTitle":
+            MessageLookupByLibrary.simpleMessage("Leave this operation?"),
         "giftBalanceCount":
             MessageLookupByLibrary.simpleMessage("Expired gift card count"),
         "giftBalanceDepositHint":

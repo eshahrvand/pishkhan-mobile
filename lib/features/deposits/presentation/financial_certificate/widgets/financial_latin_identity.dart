@@ -15,13 +15,13 @@ class FinancialLatinIdentityForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<FinancialCertificateCubit, FinancialCertificateState>(
-      buildWhen: (a, b) =>
-          a.name != b.name ||
-          a.surname != b.surname ||
-          a.fatherName != b.fatherName ||
-          a.passportNumber != b.passportNumber ||
-          a.passportExpiryText != b.passportExpiryText ||
-          a.latinAddress != b.latinAddress,
+      buildWhen: (previous, current) =>
+          previous.name != current.name ||
+          previous.surname != current.surname ||
+          previous.fatherName != current.fatherName ||
+          previous.passportNumber != current.passportNumber ||
+          previous.passportExpiryText != current.passportExpiryText ||
+          previous.latinAddress != current.latinAddress,
       builder: (context, state) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -56,11 +56,10 @@ class FinancialLatinIdentityForm extends StatelessWidget {
                       fontFamily: state.name.isEmpty
                           ? AppTypography.defaultFontFamily
                           : 'CertificateLatin',
-                      fontSize: 14,
                     ),
                     onChanged: (value) {
-                      context.read<FinancialCertificateCubit>().latinChanged(
-                        name: value,
+                      context.read<FinancialCertificateCubit>().updateLatinName(
+                        value,
                       );
                     },
                   ),
@@ -92,12 +91,11 @@ class FinancialLatinIdentityForm extends StatelessWidget {
                       fontFamily: state.surname.isEmpty
                           ? AppTypography.defaultFontFamily
                           : 'CertificateLatin',
-                      fontSize: 14,
                     ),
                     onChanged: (value) {
-                      context.read<FinancialCertificateCubit>().latinChanged(
-                        surname: value,
-                      );
+                      context
+                          .read<FinancialCertificateCubit>()
+                          .updateLatinSurname(value);
                     },
                   ),
                 ],
@@ -128,12 +126,11 @@ class FinancialLatinIdentityForm extends StatelessWidget {
                       fontFamily: state.fatherName.isEmpty
                           ? AppTypography.defaultFontFamily
                           : 'CertificateLatin',
-                      fontSize: 14,
                     ),
                     onChanged: (value) {
-                      context.read<FinancialCertificateCubit>().latinChanged(
-                        fatherName: value,
-                      );
+                      context
+                          .read<FinancialCertificateCubit>()
+                          .updateLatinFatherName(value);
                     },
                   ),
                 ],
@@ -160,16 +157,19 @@ class FinancialLatinIdentityForm extends StatelessWidget {
                     autocorrect: false,
                     enableSuggestions: false,
                     enableIMEPersonalizedLearning: false,
-                    textStyle: certificateValueStyle(context).copyWith(
-                      fontFamily: state.passportNumber.isEmpty
-                          ? AppTypography.defaultFontFamily
-                          : 'CertificateLatin',
-                      fontSize: state.passportNumber.isNotEmpty ? 16 : 14,
-                    ),
+                    textStyle:
+                        (state.passportNumber.isNotEmpty
+                                ? Theme.of(context).textTheme.bodyLarge!
+                                : Theme.of(context).textTheme.bodyMedium!)
+                            .copyWith(
+                              fontFamily: state.passportNumber.isEmpty
+                                  ? AppTypography.defaultFontFamily
+                                  : 'CertificateLatin',
+                            ),
                     onChanged: (value) {
-                      context.read<FinancialCertificateCubit>().latinChanged(
-                        passportNumber: value,
-                      );
+                      context
+                          .read<FinancialCertificateCubit>()
+                          .updatePassportNumber(value);
                     },
                   ),
                 ],
@@ -203,9 +203,9 @@ class FinancialLatinIdentityForm extends StatelessWidget {
                       fontSize: state.passportExpiryText.isNotEmpty ? 16 : 14,
                     ),
                     onChanged: (value) {
-                      context.read<FinancialCertificateCubit>().latinChanged(
-                        expiry: value,
-                      );
+                      context
+                          .read<FinancialCertificateCubit>()
+                          .updatePassportExpiry(value);
                     },
                   ),
                 ],
@@ -234,7 +234,7 @@ class FinancialLatinIdentityForm extends StatelessWidget {
                     value: state.latinAddress,
                     onChanged: (value) => context
                         .read<FinancialCertificateCubit>()
-                        .latinChanged(address: value),
+                        .updateLatinAddress(value),
                   ),
                 ],
               ),

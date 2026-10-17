@@ -7,14 +7,49 @@ part 'notifications_state.dart';
 part 'notifications_cubit.freezed.dart';
 
 class NotificationsCubit extends Cubit<NotificationsState> {
-  NotificationsCubit(List<NotificationMessage> messages)
-    : super(
-        NotificationsState.initial(
-          messages: List.of(messages),
-          unreadMessages: messages.where((message) => !message.isRead).toList(),
-          readMessages: messages.where((message) => message.isRead).toList(),
-        ),
-      );
+  NotificationsCubit(
+    this.initialMessages, {
+    NotificationsState initialState = const NotificationsState.initial(),
+  }) : super(initialState);
+  final List<NotificationMessage> initialMessages;
+
+  void load() {
+    replaceInbox(initialMessages);
+  }
+
+  void replaceInbox(List<NotificationMessage> inbox) {
+    if (isClosed) return;
+    emit(
+      state.copyWith(
+        messages: List.unmodifiable(inbox),
+        unreadMessages: inbox.where((message) => !message.isRead).toList(),
+        readMessages: inbox.where((message) => message.isRead).toList(),
+        detailMessage: null,
+      ),
+    );
+  }
+
+  void openMessage(String id) {
+    if (isClosed) return;
+    final selected = state.messages
+        .where((message) => message.id == id)
+        .firstOrNull;
+    if (selected == null) return;
+    final readMessage = selected.markRead();
+    final messages = [
+      for (final message in state.messages)
+        message.id == id ? readMessage : message,
+    ];
+    emit(
+      state.copyWith(
+        messages: messages,
+        unreadMessages: messages.where((message) => !message.isRead).toList(),
+        readMessages: messages.where((message) => message.isRead).toList(),
+        detailMessage: readMessage,
+        detailRequestId: state.detailRequestId + 1,
+      ),
+    );
+  }
 
   void markRead(String id) {
     final messages = [

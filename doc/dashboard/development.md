@@ -242,8 +242,8 @@ Recommended new adapter paths are `lib/features/dashboard/data/datasources/`, `d
 ### 8.1 Current flow contract
 
 DashboardScreen, DashboardHomePanel, CardsTab, DepositsTab and LoansTab expose only `super.key`.
-The Home route resolves HomeCubit from the GetIt factory registered at startup.
-The factory injects the registered DashboardRepositories bundle through the constructor.
+DashboardScreen constructs HomeCubit directly in its BlocProvider.create.
+HomeCubit resolves DashboardRepositories internally from GetIt; the router only selects the screen.
 All four tabs render HomeState and send interactions to HomeCubit actions.
 Services, prompt submissions, profile/notifications, menu, favorite dialogs, copy and
 typed banking operations are represented by HomeEffect values. UI listeners execute
@@ -644,7 +644,7 @@ Titles, descriptions (once supported), known icon choices or approved remote art
 
 The migration already supplies an asynchronous interface per surface in `domain/repositories/dashboard_repositories.dart`: getHome returns Result<DashboardHomeData?>; getCards/getDeposits/getLoans return Result<List<BankCard/BankDeposit/BankLoan>>. Mock constructors can seed one item, many or an empty list. A bank request failure must return Err, not Success([]).
 
-Implement the corresponding interfaces under `data/repositories/`, backed by a transport datasource and validated DTO mapper under Dashboard data. Replace their registrations in `core/di/injection_container.dart`. GetIt creates the repository bundle and injects it through the HomeCubit factory. All dashboard tab constructors are parameterless except for super.key. View builds do not change when the implementation changes.
+Implement the corresponding interfaces under `data/repositories/`, backed by a transport datasource and validated DTO mapper under Dashboard data. Replace their registrations in `core/di/injection_container.dart`. HomeCubit resolves its repository bundle internally from GetIt and is constructed in DashboardScreen’s BlocProvider.create. All dashboard tab constructors are parameterless except for super.key. View builds do not change when the implementation changes.
 
 | Service integration task | Changes required | Changes not required |
 | --- | --- | --- |
@@ -677,16 +677,16 @@ Cards, Deposits, Loans and DashboardNavigation Cubit/State pairs are removed.
 This section supersedes earlier state-family and directory snapshots elsewhere
 in this document. There are no nested tab State objects or compatibility Cubits.
 
-`AppRoutes.home` owns one `BlocProvider<HomeCubit>` and resolves `getIt<HomeCubit>()`.
-The factory injects the registered `DashboardRepositories`; the Cubit invokes the loading use cases and manages data.
+`DashboardScreen` owns one `BlocProvider<HomeCubit>` and directly constructs
+`HomeCubit()..load()` in create. HomeCubit resolves DashboardRepositories in its own field.
+The Cubit invokes the loading use cases and manages data.
 DashboardScreen, DashboardHomePanel and all three banking tabs have only `super.key`
 and resolve the shared scope. They accept no repository or host callback parameters.
 
 `main()` calls `configureDependencies()` before `runApp`. The four Home repository
-interfaces and their bundle are lazy singletons. HomeCubit is a factory registration:
-each Home route lifetime receives independent State and BlocProvider owns disposal.
-GetIt calls stay in dependency composition and routing, outside Cubit actions and
-feature widget builds. Other feature dependency wiring is unchanged by this Home task.
+interfaces and their bundle are lazy singletons. Cubits are never registered in GetIt.
+Each DashboardScreen lifetime constructs independent State and BlocProvider owns disposal.
+GetIt registrations stay in dependency composition; dependency lookups stay in Cubit fields. UI and routing never resolve data dependencies. Other feature dependency wiring is unchanged by this Home task.
 Tests can configure an isolated `GetIt.asNewInstance()` and reset it after use.
 
 ### 12.2 Flat State and independent request lifecycles
@@ -1058,3 +1058,23 @@ The search frame repeats the card-deposit text under Wallet, while the all-servi
 ## Cubit/State coding convention
 
 Follow [architecture Section 12](../architecture-smart-virtual-counter-v2-en.md#12-state-management-with-cubit) for new work and refactors. State is a plain Freezed data class with defaults and independent request statuses. Cubits accept an initial State, compute UI data and eligibility, and emit immutable snapshots through `copyWith`. UI reads those fields directly; no custom State/Cubit getters or UI-facing rules facade is used. Dependencies remain injectable and lifecycle/duplicate-request safeguards stay in place.
+
+## UI/Cubit contract adoption (2026-10-17)
+
+HomeCubit interprets catalog selections and reset confirmations. Favorite picker
+effects carry excluded IDs. The Reso Cubit publishes submitted prompt data with
+a submission ID; a listener forwards it to Home. Home, Reso and the services-sheet
+Cubit are constructed directly inside BlocProvider.create. Each Cubit resolves its registered dependencies internally; the UI never forwards them.
+
+The services sheet publishes an accepted selection and selectionId in State;
+a filtered listener returns that value through Navigator. Notification message
+read status is retained in HomeState for the dashboard flow lifetime, while the
+router adapter only forwards data and the change callback.
+
+### Dependency and listener clarification (2026-10-17)
+
+The screen/feature-flow widget owns BlocProvider.create, including Home in
+DashboardScreen; GoRouter only selects the destination. Cubits resolve existing
+Repository/service/UseCase registrations through GetIt fields, without dependency
+constructor arguments from UI. Multi-case and substantial async listeners use
+named widget/State methods with the existing listenWhen filter.

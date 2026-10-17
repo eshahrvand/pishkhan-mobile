@@ -3,6 +3,8 @@ part of 'change_card_deposit_cubit.dart';
 @freezed
 abstract class ChangeCardDepositState with _$ChangeCardDepositState {
   const factory ChangeCardDepositState.initial({
+    FlowNavigation? navigation,
+    @Default(0) int navigationId,
     @Default(RequestStatus.initial) RequestStatus status,
     @Default(RequestStatus.initial) RequestStatus submissionStatus,
     CardServiceCatalog? catalog,

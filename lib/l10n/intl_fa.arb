@@ -521,5 +521,6 @@
   "financialSurnameHint": "نام خانوادگی به انگلیسی مطابق گذرنامه",
   "financialUsd": "دلار آمریکا",
   "financialWithdrawalRules": "شرایط برداشت از سپرده‌های مشترک / حقوقی",
-  "financialDeliveryStep": "اطلاعات دریافت گواهی"
+  "financialDeliveryStep": "اطلاعات دریافت گواهی",
+  "flowExitTitle": "خروج از عملیات؟"
 }

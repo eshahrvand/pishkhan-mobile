@@ -6,14 +6,10 @@ import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
 import '../widgets/password_flow_content.dart';
 import '../widgets/password_flow_footer.dart';
 
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
-import 'package:pishkhan_mobile/core/di/injection_container.dart';
 import 'package:pishkhan_mobile/features/cards/domain/entities/password_data.dart';
 import 'package:pishkhan_mobile/features/cards/presentation/password_services/cubit/second_password_cubit.dart';
 import 'package:pishkhan_mobile/features/cards/presentation/password_services/password_service_constants.dart';
@@ -41,7 +37,6 @@ class SecondPasswordScreen extends StatefulWidget {
 
 class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
   VideoPlayerController? video;
-  bool _sheetOpen = false;
   @override
   void initState() {
     super.initState();
@@ -71,75 +66,68 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
     super.dispose();
   }
 
-  Future<void> _back(BuildContext context) async {
-    if (context.read<SecondPasswordCubit>().state.checkStatus ==
-            RequestStatus.loading ||
-        context.read<SecondPasswordCubit>().state.submissionStatus ==
-            RequestStatus.loading) {
-      return;
-    }
-    if (_fullStatus(context.read<SecondPasswordCubit>().state)) {
-      NavigationActions.back(context);
-      return;
-    }
-    if (context.read<SecondPasswordCubit>().back()) return;
-    if (context.read<SecondPasswordCubit>().state.submissionStatus !=
-            RequestStatus.success &&
-        context.read<SecondPasswordCubit>().state.selectionComplete) {
-      final leave = await showPasswordExitDialog(context);
-      if (leave != true || !context.mounted) return;
-    }
-    if (context.mounted) NavigationActions.back(context);
-  }
-
-  bool _fullStatus(SecondPasswordState state) =>
-      state.isChange &&
-      state.record != null &&
-      state.submissionStatus != RequestStatus.success;
-
-  Future<void> _record(BuildContext context, SecondPasswordState state) async {
-    if (_fullStatus(state)) return;
-    if (_sheetOpen || state.record == null || !context.mounted) return;
-    _sheetOpen = true;
-    final submitted = state.submissionStatus == RequestStatus.success;
-    if (submitted) widget.onSubmitted?.call(state.record!);
-    await showPasswordRecord(
-      context,
-      state.record!,
-      newlySubmitted: submitted,
-      operation: state.operation!,
-    );
-    _sheetOpen = false;
-    if (!context.mounted) return;
-    if (submitted) {
-      NavigationActions.returnHome(context);
-    } else {
-      context.read<SecondPasswordCubit>().dismissRecord();
+  Future<void> _handleEffect(
+    BuildContext context,
+    SecondPasswordState state,
+  ) async {
+    switch (state.effect) {
+      case PasswordExitRequested():
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (context.mounted) NavigationActions.back(context);
+        });
+      case PasswordHomeRequested():
+        NavigationActions.returnHome(context);
+      case PasswordExitConfirmationRequested():
+        final confirmed = await showPasswordExitDialog(context);
+        if (context.mounted) {
+          context.read<SecondPasswordCubit>().exitConfirmationResult(confirmed);
+        }
+      case PasswordRecordRequested(
+        :final record,
+        :final operation,
+        :final newlySubmitted,
+      ):
+        if (newlySubmitted) widget.onSubmitted?.call(record);
+        if (!context.mounted) return;
+        await showPasswordRecord(
+          context,
+          record,
+          newlySubmitted: newlySubmitted,
+          operation: operation,
+        );
+        if (context.mounted) {
+          context.read<SecondPasswordCubit>().recordPresentationClosed();
+        }
+      case null:
+        break;
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider<SecondPasswordCubit>(
-      create: (_) => getIt<SecondPasswordCubit>(
-        param1: (widget.initialCardNumber, widget.selectOperation),
+      create: (_) => SecondPasswordCubit(
+        initialCardNumber: widget.initialCardNumber,
+        selectOperation: widget.selectOperation,
       )..load(),
       child: Directionality(
         textDirection: TextDirection.rtl,
         child: BlocListener<SecondPasswordCubit, SecondPasswordState>(
-          listenWhen: (previous, state) =>
-              previous.record != state.record ||
-              previous.submissionStatus != state.submissionStatus,
-          listener: (context, state) => _record(context, state),
+          listenWhen: (previous, current) =>
+              previous.effectId != current.effectId,
+          listener: _handleEffect,
           child: BlocBuilder<SecondPasswordCubit, SecondPasswordState>(
             buildWhen: (previous, current) =>
+                previous.effect != current.effect ||
                 previous.isChange != current.isChange ||
                 previous.step != current.step,
             builder: (context, state) {
               return PopScope<void>(
-                canPop: false,
+                canPop: state.effect is PasswordExitRequested,
                 onPopInvokedWithResult: (didPop, _) {
-                  if (!didPop) _back(context);
+                  if (!didPop) {
+                    context.read<SecondPasswordCubit>().requestBack();
+                  }
                 },
                 child: Scaffold(
                   backgroundColor:
@@ -164,7 +152,8 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
                             ),
                           ),
                           trailingTooltip: S.current.backLabel,
-                          onTrailingPressed: () => _back(context),
+                          onTrailingPressed: () =>
+                              context.read<SecondPasswordCubit>().requestBack(),
                         ),
                         Expanded(
                           child: PasswordFlowContent(
@@ -175,7 +164,8 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
                         ),
                         PasswordFlowFooter(
                           onTermsRequested: widget.onTermsRequested,
-                          onBack: () => _back(context),
+                          onBack: () =>
+                              context.read<SecondPasswordCubit>().requestBack(),
                         ),
                       ],
                     ),

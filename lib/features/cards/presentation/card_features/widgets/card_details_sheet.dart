@@ -54,7 +54,7 @@ class CardDetailsSheet extends StatelessWidget {
               const CardFeatureDivider(),
               CardDetailsRow(
                 label: S.current.cardFeatureStatus,
-                value: statusLabel(context, card.status),
+                value: statusLabel(card.status),
               ),
             ],
           ),

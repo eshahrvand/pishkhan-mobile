@@ -7,5 +7,7 @@ abstract class DashboardServicesSheetState with _$DashboardServicesSheetState {
     @Default(<DashboardCategory>{}) Set<DashboardCategory> collapsedCategories,
     @Default(<DashboardServiceGroup>[]) List<DashboardServiceGroup> groups,
     @Default(false) bool isSearching,
+    DashboardService? selectedService,
+    @Default(0) int selectionId,
   }) = _DashboardServicesSheetState;
 }

@@ -4,6 +4,8 @@ part of 'dashboard_reso_cubit.dart';
 abstract class DashboardResoState with _$DashboardResoState {
   const factory DashboardResoState.initial({
     @Default('') String prompt,
+    @Default('') String submittedPrompt,
+    @Default(0) int submissionId,
     @Default(false) bool canSubmitPrompt,
     @Default('') String typedHint,
     @Default(false) bool isMotionEnabled,

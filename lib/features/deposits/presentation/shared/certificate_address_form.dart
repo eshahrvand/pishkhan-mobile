@@ -28,9 +28,11 @@ class _CertificateAddressFormState extends State<CertificateAddressForm> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => CertificateAddressCubit(),
-      child: BlocBuilder<CertificateAddressCubit, CertificateAddressState>(
+    return BlocProvider<CertificateAddressCubit>(
+      create: (_) => CertificateAddressCubit(),
+      child: BlocConsumer<CertificateAddressCubit, CertificateAddressState>(
+        listenWhen: (previous, current) => previous.saveId != current.saveId,
+        listener: (context, state) => context.pop(state.savedAddress),
         buildWhen: (previous, current) =>
             previous.isInvalid != current.isInvalid,
         builder: (context, state) {
@@ -86,12 +88,9 @@ class _CertificateAddressFormState extends State<CertificateAddressForm> {
                           AppButton(
                             label: S.current.issuanceSaveAddress,
                             size: AppButtonSize.lg,
-                            onPressed: () {
-                              final address = context
-                                  .read<CertificateAddressCubit>()
-                                  .submit();
-                              if (address != null) context.pop(address);
-                            },
+                            onPressed: context
+                                .read<CertificateAddressCubit>()
+                                .submit,
                           ),
                         ],
                       ),

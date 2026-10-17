@@ -57,3 +57,19 @@ to ignored `build/previews/certificates/`.
 The [statement/average-balance feature](average-balance.md) was implemented and
 its focused tests passed before work on this second phase began. Its calendar
 dates remain optional as requested.
+
+## UI/Cubit contract adoption (2026-10-17)
+
+Repository wiring belongs to GetIt rather than screen constructors. Conditions
+are explicitly authored controls rather than parallel label/index arrays. Cubit
+owns field-update actions, Back/primary-action decisions and address/agent
+interaction intents. The existing Latin multiline rendering is retained; its
+package-component limitation is documented in the adoption report.
+
+### Dependency and listener clarification (2026-10-17)
+
+The screen/feature-flow widget owns BlocProvider.create, including Home in
+DashboardScreen; GoRouter only selects the destination. Cubits resolve existing
+Repository/service/UseCase registrations through GetIt fields, without dependency
+constructor arguments from UI. Multi-case and substantial async listeners use
+named widget/State methods with the existing listenWhen filter.

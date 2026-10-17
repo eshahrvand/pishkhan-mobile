@@ -1,3 +1,5 @@
+import '../../support/registered_dependency.dart';
+
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -72,7 +74,11 @@ CardServiceCatalog singleAccountCatalog() {
 void main() {
   test('change deposit starts empty, requires a new deposit and terms, resets on card change', () async {
     final repo = TestCardServicesRepository();
-    final cubit = ChangeCardDepositCubit(repository: repo);
+    final cubit =
+        withRegisteredDependency<
+          CardServicesRepository,
+          ChangeCardDepositCubit
+        >(repo, () => ChangeCardDepositCubit());
     addTearDown(cubit.close);
     await cubit.load();
     expect(cubit.state.card, isNull);
@@ -93,27 +99,37 @@ void main() {
     expect(cubit.state.cardId, 'card-3');
   });
   test('selected card seed normalizes Persian digits and grouping', () async {
-    final c = ChangeCardDepositCubit(
-      repository: TestCardServicesRepository(),
-      initialCardNumber: '۵۰۴۱ ۷۲۱۲ ۲۳۴۵ ۶۷۸۷',
-    );
+    final c =
+        withRegisteredDependency<
+          CardServicesRepository,
+          ChangeCardDepositCubit
+        >(
+          TestCardServicesRepository(),
+          () =>
+              ChangeCardDepositCubit(initialCardNumber: '۵۰۴۱ ۷۲۱۲ ۲۳۴۵ ۶۷۸۷'),
+        );
     addTearDown(c.close);
     await c.load();
     expect(c.state.cardId, 'card-1');
   });
   test('insufficient wallet prevents submission', () async {
     final sample = MockCardServicesRepository.examples;
-    final c = ChangeCardDepositCubit(
-      repository: TestCardServicesRepository(
-        catalog: CardServiceCatalog(
-          deposits: sample.deposits,
-          cards: sample.cards,
-          gifts: sample.gifts,
-          changeDepositFeeRial: 10,
-          walletBalanceRial: 9,
-        ),
-      ),
-    );
+    final c =
+        withRegisteredDependency<
+          CardServicesRepository,
+          ChangeCardDepositCubit
+        >(
+          TestCardServicesRepository(
+            catalog: CardServiceCatalog(
+              deposits: sample.deposits,
+              cards: sample.cards,
+              gifts: sample.gifts,
+              changeDepositFeeRial: 10,
+              walletBalanceRial: 9,
+            ),
+          ),
+          () => ChangeCardDepositCubit(),
+        );
     addTearDown(c.close);
     await c.load();
     c.selectCard('card-1');
@@ -125,7 +141,11 @@ void main() {
     'duplicate submits and edits are blocked, retry reuses request key',
     () async {
       final repo = TestCardServicesRepository()..failSubmit = true;
-      final c = ChangeCardDepositCubit(repository: repo);
+      final c =
+          withRegisteredDependency<
+            CardServicesRepository,
+            ChangeCardDepositCubit
+          >(repo, () => ChangeCardDepositCubit());
       addTearDown(c.close);
       await c.load();
       c.selectCard('card-1');
@@ -154,7 +174,11 @@ void main() {
     },
   );
   test('gifts normalize search and toggle all visible without losing hidden selection', () async {
-    final c = ExpiredGiftBalanceCubit(repository: TestCardServicesRepository());
+    final c =
+        withRegisteredDependency<
+          CardServicesRepository,
+          ExpiredGiftBalanceCubit
+        >(TestCardServicesRepository(), () => ExpiredGiftBalanceCubit());
     addTearDown(c.close);
     await c.load();
     expect(c.state.hasFilter, isTrue);
@@ -168,7 +192,11 @@ void main() {
     expect(c.state.selectedIds, {'gift-1'});
   });
   test('filter is staged and cancellable, selections survive applying and clearing', () async {
-    final c = ExpiredGiftBalanceCubit(repository: TestCardServicesRepository());
+    final c =
+        withRegisteredDependency<
+          CardServicesRepository,
+          ExpiredGiftBalanceCubit
+        >(TestCardServicesRepository(), () => ExpiredGiftBalanceCubit());
     addTearDown(c.close);
     await c.load();
     c.toggleCard('gift-1');
@@ -192,9 +220,14 @@ void main() {
     expect(c.state.visibleCards.length, 5);
   });
   test('one account hides and disables the filter', () async {
-    final c = ExpiredGiftBalanceCubit(
-      repository: TestCardServicesRepository(catalog: singleAccountCatalog()),
-    );
+    final c =
+        withRegisteredDependency<
+          CardServicesRepository,
+          ExpiredGiftBalanceCubit
+        >(
+          TestCardServicesRepository(catalog: singleAccountCatalog()),
+          () => ExpiredGiftBalanceCubit(),
+        );
     addTearDown(c.close);
     await c.load();
     expect(c.state.hasFilter, isFalse);
@@ -202,7 +235,11 @@ void main() {
     expect(c.state.filterOpen, isFalse);
   });
   test('review removes cards, dismiss stays on selection, Back advances and total remains accurate', () async {
-    final c = ExpiredGiftBalanceCubit(repository: TestCardServicesRepository());
+    final c =
+        withRegisteredDependency<
+          CardServicesRepository,
+          ExpiredGiftBalanceCubit
+        >(TestCardServicesRepository(), () => ExpiredGiftBalanceCubit());
     addTearDown(c.close);
     await c.load();
     expect(c.beginReview(), isFalse);
@@ -232,9 +269,11 @@ void main() {
   test(
     'removing the last card from destination review returns to selection',
     () async {
-      final c = ExpiredGiftBalanceCubit(
-        repository: TestCardServicesRepository(),
-      );
+      final c =
+          withRegisteredDependency<
+            CardServicesRepository,
+            ExpiredGiftBalanceCubit
+          >(TestCardServicesRepository(), () => ExpiredGiftBalanceCubit());
       addTearDown(c.close);
       await c.load();
       c.toggleCard('gift-0');
@@ -250,9 +289,11 @@ void main() {
   test(
     'back preserves cards and destination but requires consent again',
     () async {
-      final c = ExpiredGiftBalanceCubit(
-        repository: TestCardServicesRepository(),
-      );
+      final c =
+          withRegisteredDependency<
+            CardServicesRepository,
+            ExpiredGiftBalanceCubit
+          >(TestCardServicesRepository(), () => ExpiredGiftBalanceCubit());
       addTearDown(c.close);
       await c.load();
       c.toggleCard('gift-0');
@@ -270,7 +311,11 @@ void main() {
     'gift submission gates edits and duplicate transfer and retries safely',
     () async {
       final repo = TestCardServicesRepository()..failSubmit = true;
-      final c = ExpiredGiftBalanceCubit(repository: repo);
+      final c =
+          withRegisteredDependency<
+            CardServicesRepository,
+            ExpiredGiftBalanceCubit
+          >(repo, () => ExpiredGiftBalanceCubit());
       addTearDown(c.close);
       await c.load();
       c.toggleCard('gift-0');
@@ -301,7 +346,11 @@ void main() {
   test('latest load wins and a closed cubit ignores delayed results', () async {
     final firstLoad = Completer<Result<CardServiceCatalog>>();
     final repo = TestCardServicesRepository()..pendingLoad = firstLoad;
-    final c = ExpiredGiftBalanceCubit(repository: repo);
+    final c =
+        withRegisteredDependency<
+          CardServicesRepository,
+          ExpiredGiftBalanceCubit
+        >(repo, () => ExpiredGiftBalanceCubit());
     final pending = c.load();
     repo.pendingLoad = null;
     await c.load();
@@ -312,7 +361,11 @@ void main() {
     final closedRepo = TestCardServicesRepository();
     final completer = Completer<Result<CardServiceCatalog>>();
     closedRepo.pendingLoad = completer;
-    final closed = ChangeCardDepositCubit(repository: closedRepo);
+    final closed =
+        withRegisteredDependency<
+          CardServicesRepository,
+          ChangeCardDepositCubit
+        >(closedRepo, () => ChangeCardDepositCubit());
     final load = closed.load();
     await closed.close();
     completer.complete(Success(closedRepo.mock.catalog));
@@ -323,31 +376,40 @@ void main() {
     'repository exception and invalid catalog become recoverable failures',
     () async {
       final repo = TestCardServicesRepository()..throwLoad = true;
-      final c = ChangeCardDepositCubit(repository: repo);
+      final c =
+          withRegisteredDependency<
+            CardServicesRepository,
+            ChangeCardDepositCubit
+          >(repo, () => ChangeCardDepositCubit());
       addTearDown(c.close);
       await c.load();
       expect(c.state.status, RequestStatus.failure);
       repo.throwLoad = false;
       await c.load();
       expect(c.state.status, RequestStatus.success);
-      final invalid = ExpiredGiftBalanceCubit(
-        repository: TestCardServicesRepository(
-          catalog: CardServiceCatalog(
-            deposits: [],
-            cards: [],
-            gifts: [
-              const ExpiredGiftCard(
-                id: 'g',
-                number: '1',
-                depositId: 'missing',
-                balanceRial: 1,
+      final invalid =
+          withRegisteredDependency<
+            CardServicesRepository,
+            ExpiredGiftBalanceCubit
+          >(
+            TestCardServicesRepository(
+              catalog: CardServiceCatalog(
+                deposits: [],
+                cards: [],
+                gifts: [
+                  const ExpiredGiftCard(
+                    id: 'g',
+                    number: '1',
+                    depositId: 'missing',
+                    balanceRial: 1,
+                  ),
+                ],
+                changeDepositFeeRial: 0,
+                walletBalanceRial: 0,
               ),
-            ],
-            changeDepositFeeRial: 0,
-            walletBalanceRial: 0,
-          ),
-        ),
-      );
+            ),
+            () => ExpiredGiftBalanceCubit(),
+          );
       addTearDown(invalid.close);
       await invalid.load();
       expect(invalid.state.status, RequestStatus.failure);

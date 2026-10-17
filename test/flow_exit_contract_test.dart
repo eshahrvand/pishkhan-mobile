@@ -1,0 +1,125 @@
+import 'package:flutter_test/flutter_test.dart';
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/card_issuance/cubit/card_issuance_cubit.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/change_card_deposit/cubit/change_card_deposit_cubit.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/expired_gift_balance/cubit/expired_gift_balance_cubit.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/virtual_card_request/cubit/virtual_card_cubit.dart';
+import 'package:pishkhan_mobile/features/deposits/presentation/average_balance/cubit/average_balance_cubit.dart';
+import 'package:pishkhan_mobile/features/deposits/presentation/financial_certificate/cubit/financial_certificate_cubit.dart';
+import 'package:pishkhan_mobile/features/deposits/domain/entities/certificate_data.dart';
+
+void main() {
+  setUp(configureDependencies);
+  tearDown(() => getIt.reset());
+
+  test(
+    'issuance clean entry exits; edited selection survives cancelled exit',
+    () async {
+      final clean = CardIssuanceCubit();
+      await clean.load();
+      clean.requestBack();
+      expect(clean.state.navigation, FlowNavigation.back);
+      await clean.close();
+      final cubit = CardIssuanceCubit();
+      await cubit.load();
+      cubit.selectDeposit(cubit.state.catalog!.deposits.first.id);
+      cubit.requestBack();
+      expect(cubit.state.navigation, FlowNavigation.confirmExit);
+      final request = cubit.state.navigationId;
+      cubit.requestBack();
+      expect(cubit.state.navigationId, request);
+      cubit.exitConfirmationResult(null);
+      expect(cubit.state.navigation, isNull);
+      expect(cubit.state.draft.depositId, isNotNull);
+      cubit.requestBack();
+      cubit.exitConfirmationResult(true);
+      expect(cubit.state.navigation, FlowNavigation.back);
+      await cubit.close();
+    },
+  );
+
+  test('deposit change confirms discarded card selection', () async {
+    final cubit = ChangeCardDepositCubit();
+    await cubit.load();
+    cubit.selectCard(cubit.state.catalog!.cards.first.id);
+    cubit.requestBack();
+    expect(cubit.state.navigation, FlowNavigation.confirmExit);
+    cubit.exitConfirmationResult(false);
+    expect(cubit.state.cardId, isNotNull);
+    cubit.requestBack();
+    cubit.exitConfirmationResult(true);
+    expect(cubit.state.navigation, FlowNavigation.back);
+    await cubit.close();
+  });
+
+  test(
+    'gift selection confirms exit and keeps selection on outside dismissal',
+    () async {
+      final cubit = ExpiredGiftBalanceCubit();
+      await cubit.load();
+      cubit.toggleCard(cubit.state.catalog!.gifts.first.id);
+      cubit.requestBack();
+      expect(cubit.state.navigation, FlowNavigation.confirmExit);
+      cubit.exitConfirmationResult(null);
+      expect(cubit.state.selectedIds, hasLength(1));
+      cubit.requestBack();
+      cubit.exitConfirmationResult(true);
+      expect(cubit.state.navigation, FlowNavigation.back);
+      await cubit.close();
+    },
+  );
+
+  test(
+    'virtual count is discardable even before a quote; clean entry exits',
+    () async {
+      final clean = VirtualCardCubit();
+      await clean.load();
+      clean.requestBack();
+      expect(clean.state.navigation, FlowNavigation.back);
+      await clean.close();
+      final cubit = VirtualCardCubit();
+      await cubit.load();
+      await cubit.countChanged('1');
+      cubit.requestBack();
+      expect(cubit.state.navigation, FlowNavigation.confirmExit);
+      cubit.exitConfirmationResult(false);
+      expect(cubit.state.countText, '1');
+      cubit.requestBack();
+      cubit.exitConfirmationResult(true);
+      expect(cubit.state.navigation, FlowNavigation.back);
+      await cubit.close();
+    },
+  );
+
+  test('average balance compares seeded deposit against entry, then confirms edits', () async {
+    final cubit = AverageBalanceCubit();
+    await cubit.load();
+    cubit.selectDeposit(cubit.state.catalog!.deposits.first.id);
+    cubit.selectLanguage(CertificateLanguage.english);
+    cubit.requestBack();
+    expect(cubit.state.navigation, FlowNavigation.confirmExit);
+    cubit.exitConfirmationResult(false);
+    expect(cubit.state.language, CertificateLanguage.english);
+    cubit.requestBack();
+    cubit.exitConfirmationResult(true);
+    expect(cubit.state.navigation, FlowNavigation.back);
+    await cubit.close();
+  });
+
+  test(
+    'financial conditions confirm exit and cannot be dismissed twice',
+    () async {
+      final cubit = FinancialCertificateCubit();
+      await cubit.load();
+      cubit.selectDeposit(cubit.state.catalog!.deposits.first.id);
+      cubit.requestBack();
+      expect(cubit.state.navigation, FlowNavigation.confirmExit);
+      cubit.exitConfirmationResult(true);
+      final request = cubit.state.effectId;
+      cubit.exitConfirmationResult(true);
+      expect(cubit.state.effectId, request);
+      expect(cubit.state.navigation, FlowNavigation.back);
+      await cubit.close();
+    },
+  );
+}

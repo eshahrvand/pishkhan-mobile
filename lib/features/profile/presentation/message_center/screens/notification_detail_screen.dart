@@ -1,3 +1,5 @@
+import '../widgets/notification_labels.dart';
+
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:pishkhan_mobile/features/profile/domain/entities/notification_message.dart';
@@ -16,8 +18,7 @@ class NotificationDetailScreen extends StatelessWidget {
       letterSpacing: 0,
       color: context.colors.textTertiary,
     );
-    final dateStyle = bodyStyle.copyWith(
-      fontSize: 10,
+    final dateStyle = AppTypography.caption.copyWith(
       height: 16 / 10,
       fontWeight: FontWeight.w300,
       color: AppPalette.gray400,
@@ -25,7 +26,6 @@ class NotificationDetailScreen extends StatelessWidget {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        key: const Key('notification_detail_screen'),
         backgroundColor: context.colors.surfaceSubtle,
         body: SafeArea(
           child: Column(
@@ -43,7 +43,7 @@ class NotificationDetailScreen extends StatelessWidget {
                         children: [
                           Expanded(
                             child: Text(
-                              message.title,
+                              getNotificationTitle(message),
                               style: AppTypography.bodyMedium.copyWith(
                                 height: 20 / 14,
                                 letterSpacing: 0,
@@ -52,7 +52,7 @@ class NotificationDetailScreen extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(width: 4),
-                          Text(message.dateLabel, style: dateStyle),
+                          Text(getNotificationDate(message), style: dateStyle),
                         ],
                       ),
                       const SizedBox(height: 12),
@@ -68,14 +68,14 @@ class NotificationDetailScreen extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      if (message.intro != null) ...[
-                        Text(message.intro!, style: bodyStyle),
+                      if (getNotificationIntro(message) != null) ...[
+                        Text(getNotificationIntro(message)!, style: bodyStyle),
                         const SizedBox(height: 8),
                       ],
-                      Text(message.subtitle, style: bodyStyle),
-                      if (message.advice != null)
-                        Text(message.advice!, style: bodyStyle),
-                      for (final bullet in message.bullets)
+                      Text(getNotificationSubtitle(message), style: bodyStyle),
+                      if (getNotificationAdvice(message) != null)
+                        Text(getNotificationAdvice(message)!, style: bodyStyle),
+                      for (final bullet in getNotificationBullets(message))
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -90,15 +90,18 @@ class NotificationDetailScreen extends StatelessWidget {
                             Expanded(child: Text(bullet, style: bodyStyle)),
                           ],
                         ),
-                      if (message.closing != null)
-                        Text(message.closing!, style: bodyStyle),
-                      if (message.imageAsset != null) ...[
+                      if (getNotificationClosing(message) != null)
+                        Text(
+                          getNotificationClosing(message)!,
+                          style: bodyStyle,
+                        ),
+                      if (getNotificationImage(message) != null) ...[
                         const SizedBox(height: 32),
                         Container(
                           height: 136,
                           clipBehavior: Clip.antiAlias,
                           decoration: BoxDecoration(
-                            color: const Color(0xfff6f2ee),
+                            color: AppNotificationColors.illustrationSurface,
                             borderRadius: AppRadius.borderLg,
                           ),
                           child: OverflowBox(
@@ -107,7 +110,7 @@ class NotificationDetailScreen extends StatelessWidget {
                             minHeight: 156,
                             maxHeight: 156,
                             child: AvpImage(
-                              image: message.imageAsset!,
+                              image: getNotificationImage(message)!,
                               width: 234,
                               height: 156,
                               fit: BoxFit.cover,

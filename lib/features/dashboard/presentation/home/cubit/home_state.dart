@@ -26,6 +26,8 @@ abstract class HomeState with _$HomeState {
     @Default(<CardAction>[]) List<CardAction> cardQuickActions,
     @Default({}) Map<String, bool> cardVisibility,
     Failure? cardsFailure,
+    @Default(false) bool isAddingFavorite,
+    List<NotificationMessage>? messages,
     HomeEffect? effect,
     @Default(0) int effectId,
     @Default(RequestStatus.initial) RequestStatus depositsStatus,

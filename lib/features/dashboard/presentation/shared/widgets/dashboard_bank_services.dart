@@ -109,9 +109,8 @@ class DashboardBankServices extends StatelessWidget {
                                           ),
                                     onTap: () => onService(service),
                                   ),
-                                  labelStyle: AppTypography.labelSmall.copyWith(
+                                  labelStyle: AppTypography.caption.copyWith(
                                     color: AppDashboardColors.serviceText,
-                                    fontSize: 10,
                                     fontWeight: FontWeight.w400,
                                     height: 16 / 10,
                                     letterSpacing: 0,

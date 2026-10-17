@@ -1,3 +1,8 @@
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
+
+import 'password_effect.dart';
+export 'password_effect.dart';
+
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:pishkhan_mobile/features/cards/domain/repositories/password_services_repository.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
@@ -20,77 +25,76 @@ part 'second_password_cubit.freezed.dart';
 class SecondPasswordCubit extends Cubit<SecondPasswordState> {
   SecondPasswordCubit({
     SecondPasswordState initialState = const SecondPasswordState.initial(),
-    required this.repository,
     this.initialCardNumber,
     this.selectOperation = false,
-  }) : super(initialState) {
-    {
-      final nextCard = getCard(state.catalog, state.cardId, state.kind);
-      final nextChange = state.operation == PasswordOperation.changePassword;
-      final nextEditable = checkEditable(
-        state.status,
-        state.catalog,
-        state.checkStatus,
-        state.submissionStatus,
-      );
-      final nextHasSelection = checkHasSelection(
-        state.secondPasswordSelected,
-        state.operation,
-        nextCard,
-      );
-      final nextCurrentComplete = checkCurrentComplete(
-        state.currentPassword,
-        nextChange,
-      );
-      final nextLength = SecondPasswordValidator.hasValidLength(state.password);
-      final nextPattern = SecondPasswordValidator.hasSafePattern(
-        state.password,
-      );
-      final nextDate = checkDate(state.password, nextCard);
-      final nextForm = checkForm(
-        state.password,
-        state.confirmation,
-        state.terms,
-        nextCurrentComplete,
-        nextLength,
-        nextPattern,
-        nextDate,
-      );
-      final nextSerial = SecondPasswordValidator.validSerial(state.serial);
+  }) : super(initialState);
+  final repository = getIt<PasswordServicesRepository>();
+  final String? initialCardNumber;
+  final bool selectOperation;
+
+  void requestBack() {
+    if (isClosed ||
+        state.checkStatus == RequestStatus.loading ||
+        state.submissionStatus == RequestStatus.loading ||
+        state.effect is PasswordExitRequested ||
+        state.exitConfirmationOpen ||
+        state.recordSheetOpen) {
+      return;
+    }
+    if (!state.showFullStatus && back()) return;
+    if (!state.showFullStatus &&
+        state.submissionStatus != RequestStatus.success &&
+        state.selectionComplete) {
       emit(
         state.copyWith(
-          card: nextCard,
-          editable: nextEditable,
-          isChange: nextChange,
-          currentPasswordComplete: nextCurrentComplete,
-          hasSelection: nextHasSelection,
-          selectionComplete:
-              nextHasSelection && nextCard!.supports(state.operation!),
-          lengthValid: nextLength,
-          patternValid: nextPattern,
-          dateValid: nextDate,
-          formComplete: nextForm,
-          serialComplete: nextSerial,
-          walletSufficient:
-              state.catalog != null &&
-              state.catalog!.walletBalanceRial >= state.catalog!.feeRial,
-          canContinue:
-              nextEditable &&
-              switch (state.step) {
-                SecondPasswordStep.selection => nextHasSelection,
-                SecondPasswordStep.password => nextForm,
-                SecondPasswordStep.serial => nextSerial,
-                SecondPasswordStep.instruction => true,
-                SecondPasswordStep.recording =>
-                  state.recordingConfirmed && nextForm && nextSerial,
-              },
+          exitConfirmationOpen: true,
+          effect: const PasswordExitConfirmationRequested(),
+          effectId: state.effectId + 1,
+        ),
+      );
+    } else {
+      emit(
+        state.copyWith(
+          effect: const PasswordExitRequested(),
+          effectId: state.effectId + 1,
         ),
       );
     }
   }
-  final PasswordServicesRepository repository;
-  final String? initialCardNumber;
-  final bool selectOperation;
+
+  void exitConfirmationResult(bool? confirmed) {
+    if (isClosed || !state.exitConfirmationOpen) return;
+    emit(
+      state.copyWith(
+        exitConfirmationOpen: false,
+        effect: confirmed == true ? const PasswordExitRequested() : null,
+        effectId: state.effectId + 1,
+      ),
+    );
+  }
+
+  void recordPresentationClosed() {
+    if (isClosed || !state.recordSheetOpen) return;
+    if (state.submissionStatus == RequestStatus.success) {
+      emit(
+        state.copyWith(
+          recordSheetOpen: false,
+          effect: const PasswordHomeRequested(),
+          effectId: state.effectId + 1,
+        ),
+      );
+    } else {
+      emit(state.copyWith(recordSheetOpen: false, record: null));
+    }
+  }
+
+  void updateRecordingConfirmed(bool? confirmed) {
+    if (confirmed == true) {
+      confirmMockRecording();
+    } else {
+      recordAgain();
+    }
+  }
 
   int _generation = 0;
   String? _idempotencyKey;
@@ -915,6 +919,16 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
                 state.copyWith(
                   checkStatus: RequestStatus.success,
                   record: data,
+                  showFullStatus: state.isChange,
+                  recordSheetOpen: !state.isChange,
+                  effect: state.isChange
+                      ? null
+                      : PasswordRecordRequested(
+                          data,
+                          state.operation!,
+                          newlySubmitted: false,
+                        ),
+                  effectId: state.effectId + 1,
                   editable: nextEditable,
                   canContinue:
                       nextEditable &&
@@ -1040,7 +1054,13 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
 
   void dismissRecord() {
     if (state.editable) {
-      emit(state.copyWith(record: null));
+      emit(
+        state.copyWith(
+          record: null,
+          showFullStatus: false,
+          recordSheetOpen: false,
+        ),
+      );
     }
   }
 
@@ -1149,6 +1169,14 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
             state.copyWith(
               submissionStatus: RequestStatus.success,
               record: data,
+              showFullStatus: false,
+              recordSheetOpen: true,
+              effect: PasswordRecordRequested(
+                data,
+                state.operation!,
+                newlySubmitted: true,
+              ),
+              effectId: state.effectId + 1,
               password: '',
               currentPassword: '',
               confirmation: '',

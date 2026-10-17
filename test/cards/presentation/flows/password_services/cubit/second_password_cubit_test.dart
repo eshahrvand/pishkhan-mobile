@@ -1,3 +1,5 @@
+import '../../../../../support/registered_dependency.dart';
+
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 
 import 'dart:async';
@@ -108,7 +110,11 @@ void main() {
               ),
             ],
           );
-        final c = SecondPasswordCubit(repository: r, selectOperation: true);
+        final c =
+            withRegisteredDependency<
+              PasswordServicesRepository,
+              SecondPasswordCubit
+            >(r, () => SecondPasswordCubit(selectOperation: true));
         await c.load();
         select(c);
         expect(c.state.canContinue, false);
@@ -143,7 +149,11 @@ void main() {
     () async {
       final r = ControlledPasswordRepository()
         ..submitFailure = const DataFailure('retry');
-      final c = SecondPasswordCubit(repository: r, selectOperation: true);
+      final c =
+          withRegisteredDependency<
+            PasswordServicesRepository,
+            SecondPasswordCubit
+          >(r, () => SecondPasswordCubit(selectOperation: true));
       await c.load();
       select(c);
       c.chooseOperation(PasswordOperation.forgotPassword);
@@ -191,7 +201,11 @@ void main() {
         ],
         walletBalanceRial: 0,
       );
-    final c = SecondPasswordCubit(repository: r, selectOperation: true);
+    final c =
+        withRegisteredDependency<
+          PasswordServicesRepository,
+          SecondPasswordCubit
+        >(r, () => SecondPasswordCubit(selectOperation: true));
     await c.load();
     select(c);
     c.chooseOperation(PasswordOperation.forgotPassword);
@@ -208,7 +222,11 @@ void main() {
   });
   test('mock recovery receipt survives reentry and remains distinct from setup and change', () async {
     final r = MockPasswordServicesRepository();
-    final c = SecondPasswordCubit(repository: r, selectOperation: true);
+    final c =
+        withRegisteredDependency<
+          PasswordServicesRepository,
+          SecondPasswordCubit
+        >(r, () => SecondPasswordCubit(selectOperation: true));
     await c.load();
     select(c);
     c.chooseOperation(PasswordOperation.forgotPassword);
@@ -232,7 +250,11 @@ void main() {
             : PasswordRequestStatus.none,
       );
     }
-    final next = SecondPasswordCubit(repository: r, selectOperation: true);
+    final next =
+        withRegisteredDependency<
+          PasswordServicesRepository,
+          SecondPasswordCubit
+        >(r, () => SecondPasswordCubit(selectOperation: true));
     await next.load();
     select(next);
     next.chooseOperation(PasswordOperation.forgotPassword);
@@ -246,7 +268,11 @@ void main() {
         cards: MockPasswordServicesRepository.sampleCatalog.cards,
         walletBalanceRial: 0,
       );
-    final c = SecondPasswordCubit(repository: r, selectOperation: true);
+    final c =
+        withRegisteredDependency<
+          PasswordServicesRepository,
+          SecondPasswordCubit
+        >(r, () => SecondPasswordCubit(selectOperation: true));
     await c.load();
     select(c);
     c.chooseOperation(PasswordOperation.changePassword);
@@ -274,7 +300,11 @@ void main() {
   test('change retries with stable identity and locks current password while sending', () async {
     final r = ControlledPasswordRepository()
       ..submitFailure = const DataFailure('retry');
-    final c = SecondPasswordCubit(repository: r, selectOperation: true);
+    final c =
+        withRegisteredDependency<
+          PasswordServicesRepository,
+          SecondPasswordCubit
+        >(r, () => SecondPasswordCubit(selectOperation: true));
     await c.load();
     select(c);
     c.chooseOperation(PasswordOperation.changePassword);
@@ -333,7 +363,11 @@ void main() {
     }
   });
   test('selection, consent, confirmation, normalization and serial gate every step', () async {
-    final c = SecondPasswordCubit(repository: ControlledPasswordRepository());
+    final c =
+        withRegisteredDependency<
+          PasswordServicesRepository,
+          SecondPasswordCubit
+        >(ControlledPasswordRepository(), () => SecondPasswordCubit());
     await c.load();
     c.selectSecondPassword();
     expect(c.state.canContinue, false);
@@ -374,7 +408,11 @@ void main() {
         ],
         walletBalanceRial: 0,
       );
-      final c = SecondPasswordCubit(repository: r);
+      final c =
+          withRegisteredDependency<
+            PasswordServicesRepository,
+            SecondPasswordCubit
+          >(r, () => SecondPasswordCubit());
       await c.load();
       select(c);
       await c.next();
@@ -396,7 +434,11 @@ void main() {
           ),
         ],
       );
-    final c = SecondPasswordCubit(repository: r);
+    final c =
+        withRegisteredDependency<
+          PasswordServicesRepository,
+          SecondPasswordCubit
+        >(r, () => SecondPasswordCubit());
     await c.load();
     select(c);
     await c.next();
@@ -407,7 +449,11 @@ void main() {
       cards: MockPasswordServicesRepository.sampleCatalog.cards,
       walletBalanceRial: 0,
     );
-    final poor = SecondPasswordCubit(repository: r);
+    final poor =
+        withRegisteredDependency<
+          PasswordServicesRepository,
+          SecondPasswordCubit
+        >(r, () => SecondPasswordCubit());
     await poor.load();
     select(poor);
     await poor.next();
@@ -419,7 +465,11 @@ void main() {
     'submission locks editing and duplicate sends; result clears credentials',
     () async {
       final r = ControlledPasswordRepository()..submitting = Completer();
-      final c = SecondPasswordCubit(repository: r);
+      final c =
+          withRegisteredDependency<
+            PasswordServicesRepository,
+            SecondPasswordCubit
+          >(r, () => SecondPasswordCubit());
       await c.load();
       await readyToSubmit(c);
       final task = c.submit();
@@ -450,7 +500,11 @@ void main() {
   test('submission retry keeps the same key and entered data', () async {
     final r = ControlledPasswordRepository()
       ..submitFailure = const DataFailure('network');
-    final c = SecondPasswordCubit(repository: r);
+    final c =
+        withRegisteredDependency<
+          PasswordServicesRepository,
+          SecondPasswordCubit
+        >(r, () => SecondPasswordCubit());
     await c.load();
     await readyToSubmit(c);
     await c.submit();
@@ -466,7 +520,11 @@ void main() {
     'latest load wins; disposal suppresses status and submit completions',
     () async {
       final r = ControlledPasswordRepository()..loading = Completer();
-      final c = SecondPasswordCubit(repository: r);
+      final c =
+          withRegisteredDependency<
+            PasswordServicesRepository,
+            SecondPasswordCubit
+          >(r, () => SecondPasswordCubit());
       final old = c.load();
       final pending = r.loading!;
       r.loading = null;
@@ -490,7 +548,11 @@ void main() {
   test('empty, duplicate IDs and failed reads are distinct', () async {
     final r = ControlledPasswordRepository()
       ..catalog = PasswordCatalog(cards: []);
-    final c = SecondPasswordCubit(repository: r);
+    final c =
+        withRegisteredDependency<
+          PasswordServicesRepository,
+          SecondPasswordCubit
+        >(r, () => SecondPasswordCubit());
     await c.load();
     expect(c.state.status, RequestStatus.success);
     expect(c.state.catalog!.cards, isEmpty);
@@ -514,7 +576,11 @@ void main() {
   test('changed request data gets a new retry identity', () async {
     final r = ControlledPasswordRepository()
       ..submitFailure = const DataFailure('network');
-    final c = SecondPasswordCubit(repository: r);
+    final c =
+        withRegisteredDependency<
+          PasswordServicesRepository,
+          SecondPasswordCubit
+        >(r, () => SecondPasswordCubit());
     await c.load();
     await readyToSubmit(c);
     await c.submit();
@@ -529,7 +595,11 @@ void main() {
   });
   test('disposing during submission ignores a late receipt', () async {
     final r = ControlledPasswordRepository()..submitting = Completer();
-    final c = SecondPasswordCubit(repository: r);
+    final c =
+        withRegisteredDependency<
+          PasswordServicesRepository,
+          SecondPasswordCubit
+        >(r, () => SecondPasswordCubit());
     await c.load();
     await readyToSubmit(c);
     final task = c.submit();
@@ -547,12 +617,20 @@ void main() {
     'mock status persists across routes without retaining credentials',
     () async {
       final r = MockPasswordServicesRepository();
-      final c = SecondPasswordCubit(repository: r);
+      final c =
+          withRegisteredDependency<
+            PasswordServicesRepository,
+            SecondPasswordCubit
+          >(r, () => SecondPasswordCubit());
       await c.load();
       await readyToSubmit(c);
       await c.submit();
       await c.close();
-      final next = SecondPasswordCubit(repository: r);
+      final next =
+          withRegisteredDependency<
+            PasswordServicesRepository,
+            SecondPasswordCubit
+          >(r, () => SecondPasswordCubit());
       await next.load();
       select(next);
       await next.next();

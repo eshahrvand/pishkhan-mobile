@@ -21,11 +21,10 @@ TextStyle cardServiceSmall(
 Widget cardServiceIcon(String asset, {double size = 20}) =>
     AvpImage(image: asset, width: size, height: size);
 
-String cardDepositLabel(BuildContext context, CardServiceDeposit deposit) =>
-    switch (deposit.kind) {
-      CardDepositKind.qarz => S.current.cardServiceQarzDeposit,
-      CardDepositKind.current => S.current.cardServiceCurrentDeposit,
-    };
+String cardDepositLabel(CardServiceDeposit deposit) => switch (deposit.kind) {
+  CardDepositKind.qarz => S.current.cardServiceQarzDeposit,
+  CardDepositKind.current => S.current.cardServiceCurrentDeposit,
+};
 
 /// Shared request footer for the two card-service forms.
 class CardServiceFooter extends StatelessWidget {

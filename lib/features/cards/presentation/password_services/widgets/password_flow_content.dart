@@ -1,16 +1,10 @@
+import 'password_flow_body.dart';
+
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/features/cards/presentation/password_services/cubit/second_password_cubit.dart';
-import 'package:pishkhan_mobile/features/cards/presentation/password_services/widgets/password_instruction_section.dart';
-import 'package:pishkhan_mobile/features/cards/presentation/password_services/widgets/password_recording_section.dart';
-import 'package:pishkhan_mobile/features/cards/presentation/password_services/widgets/password_selection_section.dart';
-import 'package:pishkhan_mobile/features/cards/presentation/password_services/widgets/password_serial_form.dart';
 import 'package:pishkhan_mobile/features/cards/presentation/password_services/widgets/password_request_status.dart';
-import 'package:pishkhan_mobile/features/cards/presentation/password_services/widgets/password_styles.dart';
-import 'package:pishkhan_mobile/features/cards/presentation/password_services/widgets/second_password_form.dart';
-import 'package:pishkhan_mobile/generated/l10n.dart';
 
 class PasswordFlowContent extends StatefulWidget {
   const PasswordFlowContent({
@@ -42,20 +36,23 @@ class _PasswordFlowContentState extends State<PasswordFlowContent> {
       listener: (context, state) {
         if (_scroll.hasClients) _scroll.jumpTo(0);
       },
-      buildWhen: (previous, state) =>
-          previous.step != state.step ||
-          previous.status != state.status ||
-          previous.catalog != state.catalog ||
-          previous.operation != state.operation ||
-          previous.kind != state.kind ||
-          previous.cardId != state.cardId ||
-          previous.secondPasswordSelected != state.secondPasswordSelected ||
-          previous.record != state.record ||
-          previous.failure != state.failure,
-      builder: (context, state) =>
-          state.isChange &&
-              state.record != null &&
-              state.submissionStatus != RequestStatus.success
+      buildWhen: (previous, current) =>
+          previous.step != current.step ||
+          previous.status != current.status ||
+          previous.catalog != current.catalog ||
+          previous.operation != current.operation ||
+          previous.kind != current.kind ||
+          previous.cardId != current.cardId ||
+          previous.secondPasswordSelected != current.secondPasswordSelected ||
+          previous.record != current.record ||
+          previous.showFullStatus != current.showFullStatus ||
+          previous.failure != current.failure ||
+          previous.isChange != current.isChange ||
+          previous.card != current.card ||
+          previous.cardsForSelectedKind != current.cardsForSelectedKind ||
+          previous.selectionComplete != current.selectionComplete ||
+          previous.walletSufficient != current.walletSufficient,
+      builder: (context, state) => state.showFullStatus
           ? SingleChildScrollView(
               padding: const EdgeInsetsDirectional.fromSTEB(16, 36, 16, 20),
               child: PasswordStatusContent(record: state.record!),
@@ -82,74 +79,6 @@ class _PasswordFlowContentState extends State<PasswordFlowContent> {
                 instructionVideoUrl: widget.instructionVideoUrl,
               ),
             ),
-    );
-  }
-}
-
-class PasswordFlowBody extends StatelessWidget {
-  const PasswordFlowBody({
-    super.key,
-    required this.state,
-    required this.selectOperation,
-    required this.video,
-    required this.instructionVideoUrl,
-  });
-  final SecondPasswordState state;
-  final bool selectOperation;
-  final VideoPlayerController? video;
-  final String? instructionVideoUrl;
-  @override
-  Widget build(BuildContext context) {
-    final cubit = context.read<SecondPasswordCubit>();
-
-    if (state.status == RequestStatus.initial ||
-        state.status == RequestStatus.loading) {
-      return Center(
-        child: AppButton(
-          onPressed: null,
-          isLoading: true,
-          label: S.current.dashboardLoading,
-        ),
-      );
-    }
-    if (state.catalog?.cards.isEmpty == true ||
-        state.status == RequestStatus.failure) {
-      return Column(
-        children: [
-          Text(
-            state.catalog?.cards.isEmpty == true
-                ? S.current.cardsEmpty
-                : S.current.dashboardLoadError,
-          ),
-          const SizedBox(height: 16),
-          AppButton(onPressed: cubit.load, label: S.current.dashboardRetry),
-        ],
-      );
-    }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        if (state.failure != null) ...[
-          Text(
-            S.current.dashboardLoadError,
-            style: passwordBody(context).copyWith(color: context.colors.error),
-          ),
-          const SizedBox(height: 12),
-        ],
-        switch (state.step) {
-          SecondPasswordStep.selection => PasswordSelectionSection(
-            state: state,
-            selectOperation: selectOperation,
-          ),
-          SecondPasswordStep.password => const SecondPasswordForm(),
-          SecondPasswordStep.serial => const PasswordSerialForm(),
-          SecondPasswordStep.instruction => PasswordInstructionSection(
-            video: video,
-            instructionVideoUrl: instructionVideoUrl,
-          ),
-          SecondPasswordStep.recording => const PasswordRecordingSection(),
-        },
-      ],
     );
   }
 }

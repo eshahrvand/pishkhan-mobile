@@ -1,3 +1,6 @@
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
+import 'package:pishkhan_mobile/core/flow/flow_navigation.dart';
+export 'package:pishkhan_mobile/core/flow/flow_navigation.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:pishkhan_mobile/core/result/failure.dart';
 
@@ -20,11 +23,99 @@ class ExpiredGiftBalanceCubit extends Cubit<ExpiredGiftBalanceState> {
   ExpiredGiftBalanceCubit({
     ExpiredGiftBalanceState initialState =
         const ExpiredGiftBalanceState.initial(),
-    required this.repository,
   }) : super(initialState);
-  final CardServicesRepository repository;
+  final repository = getIt<CardServicesRepository>();
   int _generation = 0;
   String? _key;
+  void requestFilter() {
+    if (isClosed ||
+        state.filterOpen ||
+        state.submissionStatus == RequestStatus.loading) {
+      return;
+    }
+    beginFilter();
+    if (!state.filterOpen) return;
+    emit(
+      state.copyWith(
+        effect: GiftBalanceEffect.filter,
+        effectId: state.effectId + 1,
+      ),
+    );
+  }
+
+  void requestReview({bool advance = false}) {
+    if (isClosed || state.reviewOpen || !beginReview()) return;
+    emit(
+      state.copyWith(
+        effect: GiftBalanceEffect.review,
+        advanceAfterReview: advance,
+        effectId: state.effectId + 1,
+      ),
+    );
+  }
+
+  void reviewResult(bool? proceed) {
+    if (isClosed) return;
+    finishReview(advance: state.advanceAfterReview && proceed == true);
+  }
+
+  Future<void> continueFlow() async {
+    if (isClosed) return;
+    if (state.step == GiftBalanceStep.selection) {
+      if (state.canContinue) requestReview(advance: true);
+    } else if (state.canSubmit) {
+      await submit();
+    }
+  }
+
+  void requestBack() {
+    if (isClosed || state.submissionStatus == RequestStatus.loading) return;
+    if (back()) return;
+    if (state.navigation == FlowNavigation.confirmExit ||
+        state.navigation == FlowNavigation.back) {
+      return;
+    }
+    final needsConfirmation =
+        state.submissionStatus != RequestStatus.success &&
+        state.status == RequestStatus.success &&
+        (state.selectedIds.isNotEmpty ||
+            state.destinationId != null ||
+            state.termsAccepted);
+    emit(
+      state.copyWith(
+        navigation: needsConfirmation
+            ? FlowNavigation.confirmExit
+            : FlowNavigation.back,
+        navigationId: state.navigationId + 1,
+      ),
+    );
+  }
+
+  void exitConfirmationResult(bool? confirmed) {
+    if (isClosed ||
+        state.navigation != FlowNavigation.confirmExit ||
+        state.submissionStatus == RequestStatus.loading) {
+      return;
+    }
+    emit(
+      state.copyWith(
+        navigation: confirmed == true ? FlowNavigation.back : null,
+
+        navigationId: state.navigationId + 1,
+      ),
+    );
+  }
+
+  void requestHome() {
+    if (isClosed || state.submissionStatus == RequestStatus.loading) return;
+    emit(
+      state.copyWith(
+        navigation: FlowNavigation.home,
+        navigationId: state.navigationId + 1,
+      ),
+    );
+  }
+
   Future<void> load() async {
     if (state.submissionStatus == RequestStatus.loading) return;
     final generation = ++_generation;
@@ -597,13 +688,12 @@ class ExpiredGiftBalanceCubit extends Cubit<ExpiredGiftBalanceState> {
         <ExpiredGiftCard>[];
   }
 
-  Map<String, CardServiceDeposit> depositsByGift(
-    CardServiceCatalog catalog,
-  ) {
-    final depositsById = {for (final deposit in catalog.deposits) deposit.id: deposit};
+  Map<String, CardServiceDeposit> depositsByGift(CardServiceCatalog catalog) {
+    final depositsById = {
+      for (final deposit in catalog.deposits) deposit.id: deposit,
+    };
     return {
-      for (final gift in catalog.gifts)
-        gift.id: ?depositsById[gift.depositId],
+      for (final gift in catalog.gifts) gift.id: ?depositsById[gift.depositId],
     };
   }
 

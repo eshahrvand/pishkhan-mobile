@@ -54,9 +54,15 @@ class DashboardServicesSheetCubit extends Cubit<DashboardServicesSheetState> {
   }
 
   DashboardService? selectService(DashboardService service) {
-    if (_excluded.contains(service.id)) return null;
+    if (isClosed || _excluded.contains(service.id)) return null;
     for (final group in state.groups) {
       if (group.choices.any((choice) => choice.service == service)) {
+        emit(
+          state.copyWith(
+            selectedService: service,
+            selectionId: state.selectionId + 1,
+          ),
+        );
         return service;
       }
     }

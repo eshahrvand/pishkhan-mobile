@@ -18,7 +18,7 @@ class PasswordSelectionSection extends StatelessWidget {
   });
   final SecondPasswordState state;
   final bool selectOperation;
-  String _kind(BuildContext context, PasswordCardKind kind) => switch (kind) {
+  String _kind(PasswordCardKind kind) => switch (kind) {
     PasswordCardKind.resalat => S.current.cardFeatureResalat,
     PasswordCardKind.coupon => S.current.cardFeatureCoupon,
     PasswordCardKind.gift => S.current.cardFeatureGift,
@@ -42,7 +42,7 @@ class PasswordSelectionSection extends StatelessWidget {
           value: state.kind,
           options: [
             for (final kind in PasswordCardKind.values)
-              AppSelectOption(value: kind, label: _kind(context, kind)),
+              AppSelectOption(value: kind, label: _kind(kind)),
           ],
           change: cubit.selectKind,
         ),

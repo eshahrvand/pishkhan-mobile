@@ -17,19 +17,20 @@ class PasswordFlowFooter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<SecondPasswordCubit, SecondPasswordState>(
-      buildWhen: (a, b) =>
-          a.canContinue != b.canContinue ||
-          a.status != b.status ||
-          a.checkStatus != b.checkStatus ||
-          a.submissionStatus != b.submissionStatus ||
-          a.step != b.step ||
-          a.terms != b.terms ||
-          a.record != b.record ||
-          a.catalog != b.catalog,
+      buildWhen: (previous, current) =>
+          previous.canContinue != current.canContinue ||
+          previous.status != current.status ||
+          previous.checkStatus != current.checkStatus ||
+          previous.submissionStatus != current.submissionStatus ||
+          previous.step != current.step ||
+          previous.terms != current.terms ||
+          previous.record != current.record ||
+          previous.catalog != current.catalog ||
+          previous.showFullStatus != current.showFullStatus ||
+          previous.isChange != current.isChange ||
+          previous.formComplete != current.formComplete,
       builder: (context, state) {
-        if (state.isChange &&
-            state.record != null &&
-            state.submissionStatus != RequestStatus.success) {
+        if (state.showFullStatus) {
           return Padding(
             padding: const EdgeInsets.all(16),
             child: AppButton(
@@ -124,16 +125,7 @@ class PasswordFlowFooter extends StatelessWidget {
                         context.read<SecondPasswordCubit>().next();
                       }
                     : null,
-                label:
-                    state.isChange &&
-                        state.step == SecondPasswordStep.password &&
-                        state.formComplete
-                    ? S.current.passwordChangeSubmit
-                    : state.step == SecondPasswordStep.instruction
-                    ? S.current.passwordStartKyc
-                    : state.step == SecondPasswordStep.recording
-                    ? S.current.passwordSubmit
-                    : S.current.issuanceNext,
+                label: getPasswordContinueTitle(state),
                 isLoading:
                     state.checkStatus == RequestStatus.loading ||
                     state.submissionStatus == RequestStatus.loading,
@@ -146,5 +138,21 @@ class PasswordFlowFooter extends StatelessWidget {
         );
       },
     );
+  }
+}
+
+String getPasswordContinueTitle(SecondPasswordState state) {
+  if (state.isChange &&
+      state.step == SecondPasswordStep.password &&
+      state.formComplete) {
+    return S.current.passwordChangeSubmit;
+  }
+  switch (state.step) {
+    case SecondPasswordStep.instruction:
+      return S.current.passwordStartKyc;
+    case SecondPasswordStep.recording:
+      return S.current.passwordSubmit;
+    default:
+      return S.current.issuanceNext;
   }
 }

@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
+
 import '../../../../support/home_tab_test_scope.dart';
 import '../../../../support/dashboard_ui_finders.dart';
 
@@ -13,6 +15,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_wallet_card.dart';
 
 void main() {
+  setUp(configureDependencies);
+  tearDown(() => getIt.reset());
   setUpAll(() async {
     final loader = FontLoader(AppTypography.defaultFontFamily);
     for (final weight in ['Regular']) {

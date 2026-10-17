@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import '../../../../../support/auth_ui_finders.dart';
@@ -21,6 +22,8 @@ import 'package:pishkhan_mobile/features/auth/presentation/shared/auth_assets.da
 const previewKey = Key('auth_preview');
 
 void main() {
+  setUp(configureDependencies);
+  tearDown(() => getIt.reset());
   setUpAll(() async {
     final fonts = FontLoader(AppTypography.defaultFontFamily);
     for (final weight in ['Regular', 'Medium', 'DemiBold', 'Bold']) {

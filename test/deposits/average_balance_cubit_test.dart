@@ -1,3 +1,5 @@
+import '../support/registered_dependency.dart';
+
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -37,7 +39,11 @@ Future<void> readyAverage(AverageBalanceCubit cubit) async {
 
 void main() {
   test('dates are optional; selection resets dependent conditions; back retains fields', () async {
-    final cubit = AverageBalanceCubit(repository: CertificateTestRepository());
+    final cubit =
+        withRegisteredDependency<
+          DepositCertificatesRepository,
+          AverageBalanceCubit
+        >(CertificateTestRepository(), () => AverageBalanceCubit());
     await readyAverage(cubit);
     expect(cubit.state.fromDate, isNull);
     expect(cubit.state.toDate, isNull);
@@ -60,7 +66,11 @@ void main() {
     'recipient is conditional; optional agent and hidden fields are omitted',
     () async {
       final repository = CertificateTestRepository();
-      final cubit = AverageBalanceCubit(repository: repository);
+      final cubit =
+          withRegisteredDependency<
+            DepositCertificatesRepository,
+            AverageBalanceCubit
+          >(repository, () => AverageBalanceCubit());
       await readyAverage(cubit);
       cubit.next();
       cubit.selectAddress('home');
@@ -86,7 +96,11 @@ void main() {
       final repository = CertificateTestRepository();
       final pending = Completer<Result<CertificateReceipt>>();
       repository.submit = (_) => pending.future;
-      final cubit = AverageBalanceCubit(repository: repository);
+      final cubit =
+          withRegisteredDependency<
+            DepositCertificatesRepository,
+            AverageBalanceCubit
+          >(repository, () => AverageBalanceCubit());
       await readyAverage(cubit);
       cubit.next();
       cubit.selectAddress('home');
@@ -116,9 +130,14 @@ void main() {
         addresses: MockDepositCertificatesRepository.examples.addresses,
         walletBalanceRial: 0,
       );
-      final cubit = AverageBalanceCubit(
-        repository: CertificateTestRepository(catalog: poor),
-      );
+      final cubit =
+          withRegisteredDependency<
+            DepositCertificatesRepository,
+            AverageBalanceCubit
+          >(
+            CertificateTestRepository(catalog: poor),
+            () => AverageBalanceCubit(),
+          );
       await readyAverage(cubit);
       cubit.next();
       cubit.selectAddress('home');
@@ -129,7 +148,11 @@ void main() {
       final repo = CertificateTestRepository();
       final old = Completer<Result<CertificateCatalog>>();
       repo.loader = () => old.future;
-      final guarded = AverageBalanceCubit(repository: repo);
+      final guarded =
+          withRegisteredDependency<
+            DepositCertificatesRepository,
+            AverageBalanceCubit
+          >(repo, () => AverageBalanceCubit());
       final first = guarded.load();
       repo.loader = () async => Success(repo.catalog);
       await guarded.load();

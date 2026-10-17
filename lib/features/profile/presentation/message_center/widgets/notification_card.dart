@@ -1,3 +1,5 @@
+import 'notification_labels.dart';
+
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:pishkhan_mobile/features/profile/domain/entities/notification_message.dart';
@@ -27,7 +29,6 @@ class NotificationCard extends StatelessWidget {
         ),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
-          key: Key('notification_${message.id}'),
           onTap: onTap,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -58,7 +59,7 @@ class NotificationCard extends StatelessWidget {
                         children: [
                           Expanded(
                             child: Text(
-                              message.title,
+                              getNotificationTitle(message),
                               style: AppTypography.bodyMedium.copyWith(
                                 color: message.isRead
                                     ? context.colors.textSecondary
@@ -70,9 +71,8 @@ class NotificationCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            message.dateLabel,
-                            style: AppTypography.bodySmall.copyWith(
-                              fontSize: 10,
+                            getNotificationDate(message),
+                            style: AppTypography.caption.copyWith(
                               fontWeight: FontWeight.w300,
                               height: 16 / 10,
                               letterSpacing: 0,
@@ -81,16 +81,13 @@ class NotificationCard extends StatelessWidget {
                           ),
                           if (!message.isRead) ...[
                             const SizedBox(width: 8),
-                            AvpImage(
-                              image: AppAssets.notificationUnread,
-                              key: Key('notification_unread_${message.id}'),
-                            ),
+                            AvpImage(image: AppAssets.notificationUnread),
                           ],
                         ],
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        message.subtitle,
+                        getNotificationSubtitle(message),
                         style: AppTypography.bodySmall.copyWith(
                           fontWeight: FontWeight.w300,
                           height: 18 / 12,

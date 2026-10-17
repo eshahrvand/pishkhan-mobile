@@ -1,3 +1,7 @@
+import '../../../../../support/registered_dependency.dart';
+
+import 'package:pishkhan_mobile/features/dashboard/domain/repositories/dashboard_repositories.dart';
+
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -46,14 +50,16 @@ snapshot(HomeState state, String tab) => switch (tab) {
   ),
 };
 
-HomeCubit createHome(TestRepositories repository) => HomeCubit(
-  repositories: homeRepositories(
-    home: repository,
-    cards: repository,
-    deposits: repository,
-    loans: repository,
-  ),
-);
+HomeCubit createHome(TestRepositories repository) =>
+    withRegisteredDependency<DashboardRepositories, HomeCubit>(
+      homeRepositories(
+        home: repository,
+        cards: repository,
+        deposits: repository,
+        loans: repository,
+      ),
+      () => HomeCubit(),
+    );
 
 Future<void> loadTab(HomeCubit cubit, String tab) => switch (tab) {
   'cards' => cubit.loadCards(),

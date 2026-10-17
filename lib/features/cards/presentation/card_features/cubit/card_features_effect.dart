@@ -1,5 +1,5 @@
 import '../../../domain/entities/listed_card.dart';
-import '../widgets/card_feature_actions.dart';
+import '../card_feature_action.dart';
 
 sealed class CardFeaturesEffect {
   const CardFeaturesEffect();
@@ -25,4 +25,8 @@ final class CardServiceRequested extends CardFeaturesEffect {
   const CardServiceRequested(this.request, {this.serviceId});
   final CardFeatureRequest request;
   final String? serviceId;
+}
+
+final class CardFilterRequested extends CardFeaturesEffect {
+  const CardFilterRequested();
 }

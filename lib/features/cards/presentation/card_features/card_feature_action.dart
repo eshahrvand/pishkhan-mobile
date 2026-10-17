@@ -1,4 +1,4 @@
-import '../../../domain/entities/listed_card.dart';
+import '../../domain/entities/listed_card.dart';
 
 enum CardFeatureAction {
   details,

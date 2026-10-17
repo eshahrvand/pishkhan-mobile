@@ -1,4 +1,6 @@
-import '../widgets/card_feature_actions.dart';
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
+
+import '../card_feature_action.dart';
 import 'card_features_effect.dart';
 export 'card_features_effect.dart';
 
@@ -23,44 +25,32 @@ part 'card_features_cubit.freezed.dart';
 class CardFeaturesCubit extends Cubit<CardFeaturesState> {
   CardFeaturesCubit({
     CardFeaturesState initialState = const CardFeaturesState.initial(),
-    required CardsRepository repository,
-    CardCategory? initialCategory,
-  }) : _loader = LoadCards(repository),
-       super(initialState) {
-    final category = initialCategory ?? initialState.category;
-    final cards = initialState.cards ?? const <ListedCard>[];
-    final deposits = cards.map((card) => card.linkedDeposit).toSet().toList()
-      ..sort();
+    this.initialCategory,
+  }) : super(initialState);
+
+  final CardCategory? initialCategory;
+  bool _entryInitialized = false;
+
+  final _repository = getIt<CardsRepository>();
+  late LoadCards _loader = LoadCards(_repository);
+  int _request = 0;
+
+  Future<void> load() async {
+    if (isClosed) return;
+    final category = _entryInitialized
+        ? state.category
+        : initialCategory ?? state.category;
+    _entryInitialized = true;
+    final request = ++_request;
     emit(
       state.copyWith(
+        status: RequestStatus.loading,
         category: category,
         footerAction: switch (category) {
           CardCategory.gift => CardFeatureAction.expiredGiftBalance,
           CardCategory.virtual => CardFeatureAction.requestVirtual,
           _ => null,
         },
-        selectedCard: cards
-            .where((card) => card.id == initialState.selectedId)
-            .firstOrNull,
-        visibleCards: filterCards(
-          cards,
-          category,
-          initialState.filter,
-          initialState.query,
-        ),
-        deposits: deposits,
-      ),
-    );
-  }
-
-  LoadCards _loader;
-  int _request = 0;
-
-  Future<void> load() async {
-    final request = ++_request;
-    emit(
-      state.copyWith(
-        status: RequestStatus.loading,
         failure: null,
         draftFilter: null,
       ),
@@ -156,8 +146,8 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
     );
   }
 
-  void requestAction(CardFeatureAction action, {ListedCard? card}) {
-    if (isClosed) return;
+  void requestAction(CardFeatureAction? action, {ListedCard? card}) {
+    if (isClosed || action == null) return;
     if (card != null && !(state.cards?.contains(card) ?? false)) return;
     if (action == CardFeatureAction.details) {
       if (card == null) return;
@@ -220,6 +210,50 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
     }
   }
 
+  void requestFilter() {
+    if (state.draftFilter != null) return;
+    emit(
+      state.copyWith(
+        draftFilter: state.filter,
+        effect: const CardFilterRequested(),
+        effectId: state.effectId + 1,
+      ),
+    );
+  }
+
+  void updateDraftStatus(String value) {
+    if (state.draftFilter == null) return;
+    emit(
+      state.copyWith(
+        draftFilter: CardFilter(
+          status: value == 'all' ? null : CardStatus.values.byName(value),
+          deposit: state.draftFilter!.deposit,
+        ),
+      ),
+    );
+  }
+
+  void updateDraftDeposit(String value) {
+    if (state.draftFilter == null) return;
+    emit(
+      state.copyWith(
+        draftFilter: CardFilter(
+          status: state.draftFilter!.status,
+          deposit: value == 'all' ? null : value,
+        ),
+      ),
+    );
+  }
+
+  void filterPresentationClosed(bool? applied) {
+    if (isClosed || state.draftFilter == null) return;
+    if (applied == true) {
+      applyFilter();
+    } else {
+      cancelFilter();
+    }
+  }
+
   void beginFilter() {
     emit(state.copyWith(draftFilter: state.filter));
   }
@@ -251,6 +285,7 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
   }
 
   void cancelFilter() {
+    if (state.draftFilter == null) return;
     emit(state.copyWith(draftFilter: null));
   }
 

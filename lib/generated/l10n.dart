@@ -4909,6 +4909,16 @@ class S {
       args: [],
     );
   }
+
+  /// `خروج از عملیات؟`
+  String get flowExitTitle {
+    return Intl.message(
+      'خروج از عملیات؟',
+      name: 'flowExitTitle',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

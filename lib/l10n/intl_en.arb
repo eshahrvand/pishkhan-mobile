@@ -501,5 +501,6 @@
   "financialSurnameHint": "Surname in English as shown on passport",
   "financialUsd": "US dollar",
   "financialWithdrawalRules": "Withdrawal conditions for joint / corporate deposits",
-  "financialDeliveryStep": "Certificate delivery information"
+  "financialDeliveryStep": "Certificate delivery information",
+  "flowExitTitle": "Leave this operation?"
 }

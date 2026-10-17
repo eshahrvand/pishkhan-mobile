@@ -16,8 +16,7 @@ TextStyle issuanceBody(BuildContext context, {bool medium = false}) =>
       height: 20 / 14,
       letterSpacing: 0,
     );
-String issuanceTypeLabel(BuildContext context, IssuanceType value) =>
-    switch (value) {
-      IssuanceType.newNumber => S.current.issuanceNewNumber,
-      IssuanceType.existingNumber => S.current.issuanceExistingNumber,
-    };
+String issuanceTypeLabel(IssuanceType value) => switch (value) {
+  IssuanceType.newNumber => S.current.issuanceNewNumber,
+  IssuanceType.existingNumber => S.current.issuanceExistingNumber,
+};

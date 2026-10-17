@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
+
 import '../../../../support/home_tab_test_scope.dart';
 import '../../../../support/dashboard_ui_finders.dart';
 
@@ -29,6 +31,8 @@ const _six = [
 const _eight = [..._six, 'modern-internet', 'loan-deposit'];
 
 void main() {
+  setUp(configureDependencies);
+  tearDown(() => getIt.reset());
   setUpAll(() async {
     final fonts = FontLoader(AppTypography.defaultFontFamily);
     for (final weight in ['Regular', 'Medium', 'DemiBold', 'Bold']) {
@@ -85,6 +89,9 @@ void main() {
       addTearDown(tester.view.reset);
       final shadows = debugDisableShadows;
       debugDisableShadows = false;
+      addTearDown(() {
+        debugDisableShadows = shadows;
+      });
       await tester.pumpWidget(
         app(
           dashboardScope(
