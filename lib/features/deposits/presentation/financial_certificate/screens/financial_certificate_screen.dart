@@ -130,29 +130,6 @@ class FinancialCertificateScreen extends StatelessWidget {
         child: BlocConsumer<FinancialCertificateCubit, FinancialCertificateState>(
           listenWhen: (previous, current) =>
               previous.submissionStatus != current.submissionStatus,
-          buildWhen: (previous, current) =>
-              previous.navigation != current.navigation ||
-              previous.status != current.status ||
-              previous.submissionStatus != current.submissionStatus ||
-              previous.step != current.step ||
-              previous.canContinue != current.canContinue ||
-              previous.receipt != current.receipt ||
-              previous.failure != current.failure ||
-              previous.catalog != current.catalog ||
-              previous.summaryExpanded != current.summaryExpanded ||
-              previous.invoiceExpanded != current.invoiceExpanded ||
-              previous.addresses != current.addresses ||
-              previous.address != current.address ||
-              previous.otherRecipient != current.otherRecipient ||
-              previous.deliveryRecipientName != current.deliveryRecipientName ||
-              previous.deliveryRecipientNationalId !=
-                  current.deliveryRecipientNationalId ||
-              previous.includeAgent != current.includeAgent ||
-              previous.agentIdentifier != current.agentIdentifier ||
-              previous.canCheckAgent != current.canCheckAgent ||
-              previous.deposit != current.deposit ||
-              previous.totalRial != current.totalRial ||
-              previous.walletSufficient != current.walletSufficient,
           listener: _handleReceipt,
           builder: (context, state) {
             return Directionality(

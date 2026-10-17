@@ -6,7 +6,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/result/failure.dart';
 import 'package:pishkhan_mobile/core/result/result.dart';
-import 'package:pishkhan_mobile/features/deposits/deposits.dart';
+import 'package:pishkhan_mobile/features/deposits/data/repositories/mock_deposits_repository.dart';
+import 'package:pishkhan_mobile/features/deposits/domain/entities/listed_deposit.dart';
+import 'package:pishkhan_mobile/features/deposits/domain/repositories/deposits_repository.dart';
 import 'package:pishkhan_mobile/features/deposits/presentation/deposit_list/cubit/deposit_list_cubit.dart';
 
 class _Repository implements DepositsRepository {

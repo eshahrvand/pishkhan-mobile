@@ -129,32 +129,6 @@ class AverageBalanceScreen extends StatelessWidget {
           listenWhen: (previous, current) =>
               previous.submissionStatus != current.submissionStatus,
           listener: _handleReceipt,
-          buildWhen: (previous, current) =>
-              previous.navigation != current.navigation ||
-              previous.canCheckAgent != current.canCheckAgent ||
-              previous.status != current.status ||
-              previous.submissionStatus != current.submissionStatus ||
-              previous.step != current.step ||
-              previous.catalog != current.catalog ||
-              previous.deposit != current.deposit ||
-              previous.language != current.language ||
-              previous.turnover != current.turnover ||
-              previous.fromDate != current.fromDate ||
-              previous.toDate != current.toDate ||
-              previous.addresses != current.addresses ||
-              previous.address != current.address ||
-              previous.otherRecipient != current.otherRecipient ||
-              previous.recipientName != current.recipientName ||
-              previous.recipientNationalId != current.recipientNationalId ||
-              previous.includeAgent != current.includeAgent ||
-              previous.agentIdentifier != current.agentIdentifier ||
-              previous.canContinue != current.canContinue ||
-              previous.totalRial != current.totalRial ||
-              previous.walletSufficient != current.walletSufficient ||
-              previous.summaryExpanded != current.summaryExpanded ||
-              previous.invoiceExpanded != current.invoiceExpanded ||
-              previous.failure != current.failure ||
-              previous.receipt != current.receipt,
           builder: (context, state) {
             return Directionality(
               textDirection: TextDirection.rtl,
