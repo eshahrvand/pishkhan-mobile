@@ -20,17 +20,6 @@ class VirtualCardContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<VirtualCardCubit, VirtualCardState>(
-      buildWhen: (previous, current) =>
-          previous.status != current.status ||
-          previous.catalog != current.catalog ||
-          previous.editable != current.editable ||
-          previous.depositId != current.depositId ||
-          previous.countText != current.countText ||
-          previous.validCount != current.validCount ||
-          previous.quote != current.quote ||
-          previous.expanded != current.expanded ||
-          previous.quoteStatus != current.quoteStatus ||
-          previous.failure != current.failure,
       builder: (context, state) {
         if (state.status == RequestStatus.loading ||
             state.status == RequestStatus.initial) {

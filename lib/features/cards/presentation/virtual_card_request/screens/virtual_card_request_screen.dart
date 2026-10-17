@@ -89,23 +89,7 @@ class _VirtualCardRequestScreenState extends State<VirtualCardRequestScreen> {
                 _receipt(context, state.receipt!);
               }
             },
-            buildWhen: (previous, current) =>
-                previous.navigation != current.navigation ||
-                previous.count != current.count ||
-                previous.validCount != current.validCount ||
-                previous.editable != current.editable ||
-                previous.canSubmit != current.canSubmit ||
-                previous.status != current.status ||
-                previous.quoteStatus != current.quoteStatus ||
-                previous.submissionStatus != current.submissionStatus ||
-                previous.catalog != current.catalog ||
-                previous.depositId != current.depositId ||
-                previous.countText != current.countText ||
-                previous.quote != current.quote ||
-                previous.terms != current.terms ||
-                previous.expanded != current.expanded ||
-                previous.failure != current.failure ||
-                previous.receipt != current.receipt,
+
             builder: (context, state) => PopScope<void>(
               canPop: state.navigation == FlowNavigation.back,
               onPopInvokedWithResult: (didPop, _) {

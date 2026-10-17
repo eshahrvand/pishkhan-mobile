@@ -28,11 +28,7 @@ class ExpiredGiftBalanceCubit extends Cubit<ExpiredGiftBalanceState> {
   int _generation = 0;
   String? _key;
   void requestFilter() {
-    if (isClosed ||
-        state.filterOpen ||
-        state.submissionStatus == RequestStatus.loading) {
-      return;
-    }
+    if (state.filterOpen) return;
     beginFilter();
     if (!state.filterOpen) return;
     emit(
@@ -44,7 +40,7 @@ class ExpiredGiftBalanceCubit extends Cubit<ExpiredGiftBalanceState> {
   }
 
   void requestReview({bool advance = false}) {
-    if (isClosed || state.reviewOpen || !beginReview()) return;
+    if (state.reviewOpen || !beginReview()) return;
     emit(
       state.copyWith(
         effect: GiftBalanceEffect.review,
@@ -55,21 +51,18 @@ class ExpiredGiftBalanceCubit extends Cubit<ExpiredGiftBalanceState> {
   }
 
   void reviewResult(bool? proceed) {
-    if (isClosed) return;
     finishReview(advance: state.advanceAfterReview && proceed == true);
   }
 
-  Future<void> continueFlow() async {
-    if (isClosed) return;
+  Future<void> continueFlow() {
     if (state.step == GiftBalanceStep.selection) {
       if (state.canContinue) requestReview(advance: true);
-    } else if (state.canSubmit) {
-      await submit();
+      return Future.value();
     }
+    return submit();
   }
 
   void requestBack() {
-    if (isClosed || state.submissionStatus == RequestStatus.loading) return;
     if (back()) return;
     if (state.navigation == FlowNavigation.confirmExit ||
         state.navigation == FlowNavigation.back) {
@@ -92,22 +85,15 @@ class ExpiredGiftBalanceCubit extends Cubit<ExpiredGiftBalanceState> {
   }
 
   void exitConfirmationResult(bool? confirmed) {
-    if (isClosed ||
-        state.navigation != FlowNavigation.confirmExit ||
-        state.submissionStatus == RequestStatus.loading) {
-      return;
-    }
     emit(
       state.copyWith(
         navigation: confirmed == true ? FlowNavigation.back : null,
-
         navigationId: state.navigationId + 1,
       ),
     );
   }
 
   void requestHome() {
-    if (isClosed || state.submissionStatus == RequestStatus.loading) return;
     emit(
       state.copyWith(
         navigation: FlowNavigation.home,
@@ -116,174 +102,46 @@ class ExpiredGiftBalanceCubit extends Cubit<ExpiredGiftBalanceState> {
     );
   }
 
-  Future<void> load() async {
-    if (state.submissionStatus == RequestStatus.loading) return;
+  Future<void> load() {
+    if (state.submissionStatus == RequestStatus.loading) return Future.value();
     final generation = ++_generation;
     _key = null;
-    {
-      final nextEditable = checkEditable(
-        (RequestStatus.loading),
-        (RequestStatus.initial),
-      );
-      final nextSearch = _normalizeNumber((''));
-      final nextVisible = getVisible(
-        (null as CardServiceCatalog?),
-        (null as String?),
-        nextSearch,
-      );
-      final nextSelected = getSelected(
-        (null as CardServiceCatalog?),
-        (<String>{}),
-      );
-      final nextDestination = getDestination(
-        (null as CardServiceCatalog?),
-        (null as String?),
-      );
-      final nextCanContinue = nextEditable && nextSelected.isNotEmpty;
-      emit(
-        ExpiredGiftBalanceState.initial(
+    emit(
+      _derive(
+        const ExpiredGiftBalanceState.initial(
           status: RequestStatus.loading,
-          isEmpty:
-              (null as CardServiceCatalog?)?.gifts.isEmpty == true ||
-              (null as CardServiceCatalog?)?.deposits.isEmpty == true,
-          editable: nextEditable,
-          selectionEditable:
-              nextEditable &&
-              (GiftBalanceStep.selection) == GiftBalanceStep.selection &&
-              true &&
-              true,
-          hasFilter: ((null as CardServiceCatalog?)?.deposits.length ?? 0) >= 2,
-          visibleCards: nextVisible,
-          selectedCards: nextSelected,
-          totalRial: nextSelected.fold<int>(
-            0,
-            (sum, card) => sum + card.balanceRial,
-          ),
-          allVisibleSelected:
-              nextVisible.isNotEmpty &&
-              nextVisible.every((c) => (<String>{}).contains(c.id)),
-          destination: nextDestination,
-          canContinue: nextCanContinue,
-          canSubmit: false,
         ),
-      );
-    }
-    final result = await LoadCardServiceCatalog(repository)();
-    if (isClosed || generation != _generation) return;
-    switch (result) {
-      case Err(:final failure):
-        {
-          final nextEditable = checkEditable(
-            (RequestStatus.failure),
-            (RequestStatus.initial),
-          );
-          final nextSearch = _normalizeNumber((''));
-          final nextVisible = getVisible(
-            (null as CardServiceCatalog?),
-            (null as String?),
-            nextSearch,
-          );
-          final nextSelected = getSelected(
-            (null as CardServiceCatalog?),
-            (<String>{}),
-          );
-          final nextDestination = getDestination(
-            (null as CardServiceCatalog?),
-            (null as String?),
-          );
-          final nextCanContinue = nextEditable && nextSelected.isNotEmpty;
+      ),
+    );
+    return LoadCardServiceCatalog(repository)().then((result) {
+      if (isClosed || generation != _generation) return;
+      switch (result) {
+        case Err(:final failure):
           emit(
-            ExpiredGiftBalanceState.initial(
-              status: RequestStatus.failure,
-              failure: failure,
-              isEmpty:
-                  (null as CardServiceCatalog?)?.gifts.isEmpty == true ||
-                  (null as CardServiceCatalog?)?.deposits.isEmpty == true,
-              editable: nextEditable,
-              selectionEditable:
-                  nextEditable &&
-                  (GiftBalanceStep.selection) == GiftBalanceStep.selection &&
-                  true &&
-                  true,
-              hasFilter:
-                  ((null as CardServiceCatalog?)?.deposits.length ?? 0) >= 2,
-              visibleCards: nextVisible,
-              selectedCards: nextSelected,
-              totalRial: nextSelected.fold<int>(
-                0,
-                (sum, card) => sum + card.balanceRial,
+            _derive(
+              ExpiredGiftBalanceState.initial(
+                status: RequestStatus.failure,
+                failure: failure,
               ),
-              allVisibleSelected:
-                  nextVisible.isNotEmpty &&
-                  nextVisible.every((c) => (<String>{}).contains(c.id)),
-              destination: nextDestination,
-              canContinue: nextCanContinue,
-              canSubmit: false,
             ),
           );
-        }
-      case Success(:final data):
-        {
-          final nextEditable = checkEditable(
-            (RequestStatus.success),
-            (RequestStatus.initial),
-          );
-          final nextSearch = _normalizeNumber((''));
-          final nextVisible = getVisible((data), (null as String?), nextSearch);
-          final nextSelected = getSelected((data), (<String>{}));
-          final nextDestination = getDestination((data), (null as String?));
-          final nextCanContinue = nextEditable && nextSelected.isNotEmpty;
+        case Success(:final data):
           emit(
-            ExpiredGiftBalanceState.initial(
-              status: RequestStatus.success,
-              catalog: data,
-              depositsByGiftId: depositsByGift(data),
-              isEmpty:
-                  (data).gifts.isEmpty == true ||
-                  (data).deposits.isEmpty == true,
-              editable: nextEditable,
-              selectionEditable:
-                  nextEditable &&
-                  (GiftBalanceStep.selection) == GiftBalanceStep.selection &&
-                  true &&
-                  true,
-              hasFilter: (data.deposits.length) >= 2,
-              visibleCards: nextVisible,
-              selectedCards: nextSelected,
-              totalRial: nextSelected.fold<int>(
-                0,
-                (sum, card) => sum + card.balanceRial,
+            _derive(
+              ExpiredGiftBalanceState.initial(
+                status: RequestStatus.success,
+                catalog: data,
+                depositsByGiftId: depositsByGift(data),
               ),
-              allVisibleSelected:
-                  nextVisible.isNotEmpty &&
-                  nextVisible.every((c) => (<String>{}).contains(c.id)),
-              destination: nextDestination,
-              canContinue: nextCanContinue,
-              canSubmit: false,
             ),
           );
-        }
-    }
+      }
+    });
   }
 
   void search(String query) {
-    if (state.selectionEditable) {
-      final nextSearch = _normalizeNumber((query));
-      final nextVisible = getVisible(
-        state.catalog,
-        state.filterDepositId,
-        nextSearch,
-      );
-      emit(
-        state.copyWith(
-          query: query,
-          visibleCards: nextVisible,
-          allVisibleSelected:
-              nextVisible.isNotEmpty &&
-              nextVisible.every((c) => state.selectedIds.contains(c.id)),
-        ),
-      );
-    }
+    if (!state.selectionEditable) return;
+    emit(_derive(state.copyWith(query: query)));
   }
 
   void toggleCard(String id) {
@@ -293,135 +151,94 @@ class ExpiredGiftBalanceCubit extends Cubit<ExpiredGiftBalanceState> {
     }
     final ids = {...state.selectedIds};
     if (!ids.remove(id)) ids.add(id);
-    _updateSelection(ids);
-  }
-
-  void selectAllVisible(bool value) {
-    if (!state.selectionEditable) return;
-    final visible = state.visibleCards.map((c) => c.id).toSet();
-    _updateSelection(
-      value
-          ? {...state.selectedIds, ...visible}
-          : state.selectedIds.difference(visible),
-    );
-  }
-
-  void _updateSelection(Set<String> ids) {
     _key = null;
-    {
-      final nextEditable = checkEditable(state.status, (RequestStatus.initial));
-      final nextSelected = getSelected(state.catalog, (ids));
-      final nextCanContinue = nextEditable && nextSelected.isNotEmpty;
-      emit(
+    emit(
+      _derive(
         state.copyWith(
           selectedIds: ids,
           termsAccepted: false,
           submissionStatus: RequestStatus.initial,
           failure: null,
-          editable: nextEditable,
-          selectionEditable:
-              nextEditable &&
-              state.step == GiftBalanceStep.selection &&
-              !state.reviewOpen &&
-              !state.filterOpen,
-          selectedCards: nextSelected,
-          totalRial: nextSelected.fold<int>(
-            0,
-            (sum, card) => sum + card.balanceRial,
-          ),
-          allVisibleSelected:
-              state.visibleCards.isNotEmpty &&
-              state.visibleCards.every((c) => (ids).contains(c.id)),
-          canContinue: nextCanContinue,
-          canSubmit: false,
         ),
-      );
-    }
+      ),
+    );
+  }
+
+  void selectAllVisible(bool value) {
+    if (!state.selectionEditable) return;
+    final visible = state.visibleCards.map((c) => c.id).toSet();
+    _key = null;
+    emit(
+      _derive(
+        state.copyWith(
+          selectedIds: value
+              ? {...state.selectedIds, ...visible}
+              : state.selectedIds.difference(visible),
+          termsAccepted: false,
+          submissionStatus: RequestStatus.initial,
+          failure: null,
+        ),
+      ),
+    );
   }
 
   void beginFilter() {
     if (!state.selectionEditable || !state.hasFilter) return;
-    {
-      emit(
-        state.copyWith(
-          filterOpen: true,
-          draftFilterDepositId: state.filterDepositId,
-          selectionEditable: false,
-        ),
-      );
-    }
+    emit(
+      state.copyWith(
+        filterOpen: true,
+        draftFilterDepositId: state.filterDepositId,
+        selectionEditable: false,
+      ),
+    );
   }
 
   void selectDraftFilter(String? id) {
     if (!state.editable ||
         !state.filterOpen ||
-        (id != null && !state.catalog!.deposits.any((d) => d.id == id))) {
+        (id != null && state.catalog?.deposits.any((d) => d.id == id) != true)) {
       return;
     }
-    {
-      emit(state.copyWith(draftFilterDepositId: id));
-    }
+    emit(state.copyWith(draftFilterDepositId: id));
   }
 
   void applyFilter() {
     if (!state.editable || !state.filterOpen) return;
-    {
-      final nextSearch = _normalizeNumber(state.query);
-      final nextVisible = getVisible(
-        state.catalog,
-        (state.draftFilterDepositId),
-        nextSearch,
-      );
-      emit(
+    emit(
+      _derive(
         state.copyWith(
           filterDepositId: state.draftFilterDepositId,
           filterOpen: false,
           draftFilterDepositId: null,
-          selectionEditable:
-              state.editable &&
-              state.step == GiftBalanceStep.selection &&
-              !state.reviewOpen &&
-              true,
-          visibleCards: nextVisible,
-          allVisibleSelected:
-              nextVisible.isNotEmpty &&
-              nextVisible.every((c) => state.selectedIds.contains(c.id)),
         ),
-      );
-    }
+      ),
+    );
   }
 
   void cancelFilter() {
-    if (state.filterOpen) {
-      {
-        emit(
-          state.copyWith(
-            filterOpen: false,
-            draftFilterDepositId: null,
-            selectionEditable:
-                state.editable &&
-                state.step == GiftBalanceStep.selection &&
-                !state.reviewOpen &&
-                true,
-          ),
-        );
-      }
-    }
+    if (!state.filterOpen) return;
+    emit(
+      state.copyWith(
+        filterOpen: false,
+        draftFilterDepositId: null,
+        selectionEditable: state.editable &&
+            state.step == GiftBalanceStep.selection &&
+            !state.reviewOpen,
+      ),
+    );
   }
 
   bool beginReview() {
     if (!state.canContinue || state.reviewOpen || state.filterOpen) {
       return false;
     }
-    {
-      emit(
-        state.copyWith(
-          reviewOpen: true,
-          selectionEditable: false,
-          canSubmit: false,
-        ),
-      );
-    }
+    emit(
+      state.copyWith(
+        reviewOpen: true,
+        selectionEditable: false,
+        canSubmit: false,
+      ),
+    );
     return true;
   }
 
@@ -431,45 +248,36 @@ class ExpiredGiftBalanceCubit extends Cubit<ExpiredGiftBalanceState> {
         !state.selectedIds.contains(id)) {
       return;
     }
-    _updateSelection({...state.selectedIds}..remove(id));
+    final ids = {...state.selectedIds}..remove(id);
+    _key = null;
+    emit(
+      _derive(
+        state.copyWith(
+          selectedIds: ids,
+          termsAccepted: false,
+          submissionStatus: RequestStatus.initial,
+          failure: null,
+        ),
+      ),
+    );
   }
 
   /// The sheet's Back action closes the review and advances only on step one.
   void finishReview({bool advance = false}) {
     if (!state.reviewOpen) return;
-    {
-      emit(
+    final nextStep = advance && state.selectedCards.isNotEmpty
+        ? GiftBalanceStep.destination
+        : state.selectedCards.isEmpty
+            ? GiftBalanceStep.selection
+            : state.step;
+    emit(
+      _derive(
         state.copyWith(
           reviewOpen: false,
-          step: advance && state.selectedCards.isNotEmpty
-              ? GiftBalanceStep.destination
-              : state.selectedCards.isEmpty
-              ? GiftBalanceStep.selection
-              : state.step,
-          selectionEditable:
-              state.editable &&
-              (advance && state.selectedCards.isNotEmpty
-                      ? GiftBalanceStep.destination
-                      : state.selectedCards.isEmpty
-                      ? GiftBalanceStep.selection
-                      : state.step) ==
-                  GiftBalanceStep.selection &&
-              true &&
-              !state.filterOpen,
-          canSubmit:
-              state.canContinue &&
-              (advance && state.selectedCards.isNotEmpty
-                      ? GiftBalanceStep.destination
-                      : state.selectedCards.isEmpty
-                      ? GiftBalanceStep.selection
-                      : state.step) ==
-                  GiftBalanceStep.destination &&
-              state.destination != null &&
-              state.termsAccepted &&
-              true,
+          step: nextStep,
         ),
-      );
-    }
+      ),
+    );
   }
 
   void selectDestination(String id) {
@@ -477,79 +285,46 @@ class ExpiredGiftBalanceCubit extends Cubit<ExpiredGiftBalanceState> {
         state.step != GiftBalanceStep.destination ||
         state.reviewOpen ||
         id == state.destinationId ||
-        !state.catalog!.deposits.any((d) => d.id == id)) {
+        state.catalog?.deposits.any((d) => d.id == id) != true) {
       return;
     }
     _key = null;
-    {
-      final nextEditable = checkEditable(state.status, (RequestStatus.initial));
-      final nextDestination = getDestination(state.catalog, (id));
-      final nextCanContinue = nextEditable && state.selectedCards.isNotEmpty;
-      emit(
+    emit(
+      _derive(
         state.copyWith(
           destinationId: id,
           termsAccepted: false,
           submissionStatus: RequestStatus.initial,
           failure: null,
-          editable: nextEditable,
-          selectionEditable:
-              nextEditable &&
-              state.step == GiftBalanceStep.selection &&
-              !state.reviewOpen &&
-              !state.filterOpen,
-          destination: nextDestination,
-          canContinue: nextCanContinue,
-          canSubmit: false,
         ),
-      );
-    }
+      ),
+    );
   }
 
   void acceptTerms(bool value) {
-    if (state.editable &&
-        state.step == GiftBalanceStep.destination &&
-        !state.reviewOpen) {
-      {
-        emit(
-          state.copyWith(
-            termsAccepted: value,
-            canSubmit:
-                state.canContinue &&
-                state.step == GiftBalanceStep.destination &&
-                state.destination != null &&
-                (value) &&
-                !state.reviewOpen,
-          ),
-        );
-      }
+    if (!state.reviewOpen) {
+      emit(_derive(state.copyWith(termsAccepted: value)));
     }
   }
 
   bool back() {
-    if (state.submissionStatus == RequestStatus.loading) return true;
     if (state.step == GiftBalanceStep.destination &&
         state.submissionStatus != RequestStatus.success) {
-      {
-        emit(
+      emit(
+        _derive(
           state.copyWith(
             step: GiftBalanceStep.selection,
             termsAccepted: false,
-            selectionEditable:
-                state.editable &&
-                (GiftBalanceStep.selection) == GiftBalanceStep.selection &&
-                !state.reviewOpen &&
-                !state.filterOpen,
-            canSubmit: false,
           ),
-        );
-      }
+        ),
+      );
       return true;
     }
     return false;
   }
 
-  Future<void> submit() async {
-    if (!state.canSubmit) return;
+  Future<void> submit() {
+    if (!state.canSubmit) return Future.value();
     _key ??= List.generate(
       16,
       (_) => Random.secure().nextInt(256).toRadixString(16).padLeft(2, '0'),
@@ -560,102 +335,89 @@ class ExpiredGiftBalanceCubit extends Cubit<ExpiredGiftBalanceState> {
       idempotencyKey: _key!,
     );
     final generation = ++_generation;
-    {
-      final nextEditable = checkEditable(state.status, (RequestStatus.loading));
-      final nextCanContinue = nextEditable && state.selectedCards.isNotEmpty;
-      emit(
+    emit(
+      _derive(
         state.copyWith(
           submissionStatus: RequestStatus.loading,
           failure: null,
-          editable: nextEditable,
-          selectionEditable:
-              nextEditable &&
-              state.step == GiftBalanceStep.selection &&
-              !state.reviewOpen &&
-              !state.filterOpen,
-          canContinue: nextCanContinue,
-          canSubmit:
-              nextCanContinue &&
-              state.step == GiftBalanceStep.destination &&
-              state.destination != null &&
-              state.termsAccepted &&
-              !state.reviewOpen,
         ),
-      );
-    }
-    final result = await cardServiceBoundary(
-      () => repository.transferGiftBalance(request),
+      ),
     );
-    if (isClosed || generation != _generation) return;
-    switch (result) {
-      case Err(:final failure):
-        {
-          final nextEditable = checkEditable(
-            state.status,
-            (RequestStatus.failure),
-          );
-          final nextCanContinue =
-              nextEditable && state.selectedCards.isNotEmpty;
+    return cardServiceBoundary(
+      () => repository.transferGiftBalance(request),
+    ).then((result) {
+      if (isClosed || generation != _generation) return;
+      switch (result) {
+        case Err(:final failure):
           emit(
-            state.copyWith(
-              submissionStatus: RequestStatus.failure,
-              failure: failure,
-              editable: nextEditable,
-              selectionEditable:
-                  nextEditable &&
-                  state.step == GiftBalanceStep.selection &&
-                  !state.reviewOpen &&
-                  !state.filterOpen,
-              canContinue: nextCanContinue,
-              canSubmit:
-                  nextCanContinue &&
-                  state.step == GiftBalanceStep.destination &&
-                  state.destination != null &&
-                  state.termsAccepted &&
-                  !state.reviewOpen,
+            _derive(
+              state.copyWith(
+                submissionStatus: RequestStatus.failure,
+                failure: failure,
+              ),
             ),
           );
-        }
-      case Success(:final data):
-        {
-          final nextEditable = checkEditable(
-            state.status,
-            (RequestStatus.success),
-          );
-          final nextCanContinue =
-              nextEditable && state.selectedCards.isNotEmpty;
+        case Success(:final data):
           emit(
-            state.copyWith(
-              submissionStatus: RequestStatus.success,
-              receipt: data,
-              editable: nextEditable,
-              selectionEditable:
-                  nextEditable &&
-                  state.step == GiftBalanceStep.selection &&
-                  !state.reviewOpen &&
-                  !state.filterOpen,
-              canContinue: nextCanContinue,
-              canSubmit:
-                  nextCanContinue &&
-                  state.step == GiftBalanceStep.destination &&
-                  state.destination != null &&
-                  state.termsAccepted &&
-                  !state.reviewOpen,
+            _derive(
+              state.copyWith(
+                submissionStatus: RequestStatus.success,
+                receipt: data,
+              ),
             ),
           );
-        }
-    }
+      }
+    });
   }
 
   String _normalizeNumber(String value) =>
       DigitNormalizer.normalize(value).replaceAll(RegExp(r'[\s-]'), '');
 
-  // Search, selection totals and action eligibility belong to the Cubit.
-
   @override
   Future<void> close() {
     _generation++;
     return super.close();
+  }
+
+  ExpiredGiftBalanceState _derive(ExpiredGiftBalanceState s) {
+    final search = _normalizeNumber(s.query);
+    final visibleCards = getVisible(s.catalog, s.filterDepositId, search);
+    final selectedCards = getSelected(s.catalog, s.selectedIds);
+    final totalRial = selectedCards.fold<int>(
+      0,
+      (sum, card) => sum + card.balanceRial,
+    );
+    final allVisibleSelected = visibleCards.isNotEmpty &&
+        visibleCards.every((c) => s.selectedIds.contains(c.id));
+    final destination = getDestination(s.catalog, s.destinationId);
+    final hasFilter = (s.catalog?.deposits.length ?? 0) >= 2;
+    final isEmpty = s.catalog != null &&
+        (s.catalog!.gifts.isEmpty || s.catalog!.deposits.isEmpty);
+    final editable = checkEditable(s.status, s.submissionStatus);
+    final selectionEditable = editable &&
+        s.step == GiftBalanceStep.selection &&
+        !s.reviewOpen &&
+        !s.filterOpen;
+    final canContinue = editable && selectedCards.isNotEmpty;
+    final canSubmit = canContinue &&
+        s.step == GiftBalanceStep.destination &&
+        destination != null &&
+        s.termsAccepted &&
+        !s.reviewOpen;
+
+    return s.copyWith(
+      visibleCards: visibleCards,
+      selectedCards: selectedCards,
+      totalRial: totalRial,
+      allVisibleSelected: allVisibleSelected,
+      destination: destination,
+      hasFilter: hasFilter,
+      isEmpty: isEmpty,
+      editable: editable,
+      selectionEditable: selectionEditable,
+      canContinue: canContinue,
+      canSubmit: canSubmit,
+    );
   }
 
   bool checkEditable(RequestStatus status, RequestStatus submissionStatus) {
@@ -693,7 +455,9 @@ class ExpiredGiftBalanceCubit extends Cubit<ExpiredGiftBalanceState> {
       for (final deposit in catalog.deposits) deposit.id: deposit,
     };
     return {
-      for (final gift in catalog.gifts) gift.id: ?depositsById[gift.depositId],
+      for (final gift in catalog.gifts)
+        if (depositsById[gift.depositId] != null)
+          gift.id: depositsById[gift.depositId]!,
     };
   }
 

@@ -1122,7 +1122,7 @@ abstract class LoanRequestFormState with _$LoanRequestFormState {
 
 **Three mandatory rules:**
 
-1. **`buildWhen` or `BlocSelector` is mandatory.** Without it, typing in one field rebuilds the entire screen; the effect is noticeable on iOS Safari.
+1. **`buildWhen` or `BlocSelector` is mandatory for individual input sections/subtrees.** Without it, typing in one field rebuilds unrelated inputs on iOS Safari. Note: this applies to scoped input builders, NOT top-level screen builders (which must not have exhaustive multi-field buildWhen predicates).
 2. **Validate on focus loss and on submit**, not per keystroke. Errors clear on the first change. **Exception (owner clarification):** the login national-ID and mobile-number fields, including the shared change-phone input, validate from the first entered digit: a nonempty invalid value shows its error immediately and a valid value clears it (UI/Cubit/State contract, Section 6.5).
 3. **Server-side errors populate the same `fieldErrors`** so the UI behaves identically.
 

@@ -32,7 +32,6 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
   VirtualCardState? _entryState;
 
   void requestBack() {
-    if (isClosed || state.submissionStatus == RequestStatus.loading) return;
     if (state.navigation == FlowNavigation.confirmExit ||
         state.navigation == FlowNavigation.back) {
       return;
@@ -54,23 +53,16 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
   }
 
   void exitConfirmationResult(bool? confirmed) {
-    if (isClosed ||
-        state.navigation != FlowNavigation.confirmExit ||
-        state.submissionStatus == RequestStatus.loading) {
-      return;
-    }
     emit(
       state.copyWith(
         navigation: confirmed == true ? FlowNavigation.back : null,
-
         navigationId: state.navigationId + 1,
       ),
     );
   }
 
   void receiptPresentationClosed() {
-    if (isClosed ||
-        state.receipt == null ||
+    if (state.receipt == null ||
         state.submissionStatus != RequestStatus.success ||
         state.navigation == FlowNavigation.home) {
       return;
@@ -79,7 +71,6 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
   }
 
   void requestHome() {
-    if (isClosed || state.submissionStatus == RequestStatus.loading) return;
     emit(
       state.copyWith(
         navigation: FlowNavigation.home,
@@ -88,342 +79,160 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
     );
   }
 
-  Future<void> load() async {
+  Future<void> load() {
     final generation = ++_generation;
     _key = null;
     emit(
-      state.copyWith(
-        status: RequestStatus.loading,
-        quoteStatus: RequestStatus.initial,
-        submissionStatus: RequestStatus.initial,
-        catalog: null,
-        depositId: null,
-        countText: '',
-        quote: null,
-        terms: false,
-        expanded: true,
-        failure: null,
-        receipt: null,
-        count: int.tryParse(('')),
-        validCount: checkCountValid((''), (null)),
-        editable: checkEditable(
-          (RequestStatus.loading),
-          (RequestStatus.initial),
-          (null),
-        ),
-        canSubmit: checkCanSubmit(
-          (RequestStatus.loading),
-          (RequestStatus.initial),
-          (null),
-          (RequestStatus.initial),
-          (false),
-          (''),
-          (null),
-          (null),
+      _derive(
+        state.copyWith(
+          status: RequestStatus.loading,
+          quoteStatus: RequestStatus.initial,
+          submissionStatus: RequestStatus.initial,
+          catalog: null,
+          depositId: null,
+          countText: '',
+          quote: null,
+          terms: false,
+          expanded: true,
+          failure: null,
+          receipt: null,
         ),
       ),
     );
-    final result = await LoadVirtualCardCatalog(repository)();
-    if (isClosed || generation != _generation) return;
-    switch (result) {
-      case Err(:final failure):
-        emit(
-          VirtualCardState.initial(
-            status: RequestStatus.failure,
-            failure: failure,
-            count: int.tryParse(''),
-            validCount: checkCountValid('', null),
-            editable: checkEditable(
-              (RequestStatus.failure),
-              RequestStatus.initial,
-              null,
+    return LoadVirtualCardCatalog(repository)().then((result) {
+      if (isClosed || generation != _generation) return;
+      switch (result) {
+        case Err(:final failure):
+          emit(
+            _derive(
+              VirtualCardState.initial(
+                status: RequestStatus.failure,
+                failure: failure,
+              ),
             ),
-            canSubmit: checkCanSubmit(
-              (RequestStatus.failure),
-              RequestStatus.initial,
-              null,
-              RequestStatus.initial,
-              false,
-              '',
-              null,
-              null,
-            ),
-          ),
-        );
-      case Success(:final data):
-        String? selected;
-        for (final d in data.deposits) {
-          if (initialDepositNumber != null &&
-              DigitNormalizer.normalize(d.number) ==
-                  DigitNormalizer.normalize(initialDepositNumber!).trim()) {
-            selected = d.id;
+          );
+        case Success(:final data):
+          String? selected;
+          for (final d in data.deposits) {
+            if (initialDepositNumber != null &&
+                DigitNormalizer.normalize(d.number) ==
+                    DigitNormalizer.normalize(initialDepositNumber!).trim()) {
+              selected = d.id;
+            }
           }
-        }
-        emit(
-          VirtualCardState.initial(
-            status: RequestStatus.success,
-            catalog: data,
-            depositId: selected,
-            count: int.tryParse(''),
-            validCount: checkCountValid('', (data)),
-            editable: checkEditable(
-              (RequestStatus.success),
-              RequestStatus.initial,
-              (data),
+          emit(
+            _derive(
+              VirtualCardState.initial(
+                status: RequestStatus.success,
+                catalog: data,
+                depositId: selected,
+              ),
             ),
-            canSubmit: checkCanSubmit(
-              (RequestStatus.success),
-              RequestStatus.initial,
-              (data),
-              RequestStatus.initial,
-              false,
-              '',
-              null,
-              (selected),
-            ),
-          ),
-        );
-    }
-    if (!isClosed && state.status == RequestStatus.success) _entryState = state;
+          );
+      }
+      if (!isClosed && state.status == RequestStatus.success) {
+        _entryState = state;
+      }
+    });
   }
 
-  Future<void> selectDeposit(String id) async {
-    if (!state.editable ||
-        id == state.depositId ||
-        !(state.catalog?.deposits.any((d) => d.id == id) ?? false)) {
-      return;
-    }
+  Future<void> selectDeposit(String id) {
+    if (!state.editable || id == state.depositId) return Future.value();
     _key = null;
     emit(
-      state.copyWith(
-        depositId: id,
-        quote: null,
-        terms: false,
-        failure: null,
-        count: int.tryParse(state.countText),
-        validCount: checkCountValid(state.countText, state.catalog),
-        editable: checkEditable(
-          state.status,
-          state.submissionStatus,
-          state.catalog,
-        ),
-        canSubmit: checkCanSubmit(
-          state.status,
-          state.submissionStatus,
-          state.catalog,
-          state.quoteStatus,
-          (false),
-          state.countText,
-          (null),
-          (id),
+      _derive(
+        state.copyWith(
+          depositId: id,
+          quote: null,
+          terms: false,
+          failure: null,
         ),
       ),
     );
-    await refreshQuote();
+    return refreshQuote();
   }
 
-  Future<void> countChanged(String text) async {
-    if (!state.editable) return;
+  Future<void> countChanged(String text) {
+    if (!state.editable) return Future.value();
     final normalized = DigitNormalizer.normalize(text).trim();
-    if (normalized == state.countText) return;
+    if (normalized == state.countText) return Future.value();
     _key = null;
     emit(
-      state.copyWith(
-        countText: normalized,
-        quote: null,
-        terms: false,
-        failure: null,
-        count: int.tryParse((normalized)),
-        validCount: checkCountValid((normalized), state.catalog),
-        editable: checkEditable(
-          state.status,
-          state.submissionStatus,
-          state.catalog,
-        ),
-        canSubmit: checkCanSubmit(
-          state.status,
-          state.submissionStatus,
-          state.catalog,
-          state.quoteStatus,
-          (false),
-          (normalized),
-          (null),
-          state.depositId,
+      _derive(
+        state.copyWith(
+          countText: normalized,
+          quote: null,
+          terms: false,
+          failure: null,
         ),
       ),
     );
-    await refreshQuote();
+    return refreshQuote();
   }
 
-  Future<void> refreshQuote() async {
-    if (!state.editable) return;
+  Future<void> refreshQuote() {
     final generation = ++_generation;
     _key = null;
     if (state.depositId == null || !state.validCount) {
       emit(
-        state.copyWith(
-          quoteStatus: RequestStatus.initial,
-          quote: null,
-          terms: false,
-          count: int.tryParse(state.countText),
-          validCount: checkCountValid(state.countText, state.catalog),
-          editable: checkEditable(
-            state.status,
-            state.submissionStatus,
-            state.catalog,
-          ),
-          canSubmit: checkCanSubmit(
-            state.status,
-            state.submissionStatus,
-            state.catalog,
-            (RequestStatus.initial),
-            (false),
-            state.countText,
-            (null),
-            state.depositId,
+        _derive(
+          state.copyWith(
+            quoteStatus: RequestStatus.initial,
+            quote: null,
+            terms: false,
           ),
         ),
       );
-      return;
+      return Future.value();
     }
     emit(
-      state.copyWith(
-        quoteStatus: RequestStatus.loading,
-        quote: null,
-        terms: false,
-        failure: null,
-        count: int.tryParse(state.countText),
-        validCount: checkCountValid(state.countText, state.catalog),
-        editable: checkEditable(
-          state.status,
-          state.submissionStatus,
-          state.catalog,
-        ),
-        canSubmit: checkCanSubmit(
-          state.status,
-          state.submissionStatus,
-          state.catalog,
-          (RequestStatus.loading),
-          (false),
-          state.countText,
-          (null),
-          state.depositId,
+      _derive(
+        state.copyWith(
+          quoteStatus: RequestStatus.loading,
+          quote: null,
+          terms: false,
+          failure: null,
         ),
       ),
     );
-    final result = await QuoteVirtualCards(repository)(
+    return QuoteVirtualCards(repository)(
       state.depositId!,
       state.count!,
-    );
-    if (isClosed || generation != _generation) return;
-    switch (result) {
-      case Err(:final failure):
-        emit(
-          state.copyWith(
-            quoteStatus: RequestStatus.failure,
-            failure: failure,
-            count: int.tryParse(state.countText),
-            validCount: checkCountValid(state.countText, state.catalog),
-            editable: checkEditable(
-              state.status,
-              state.submissionStatus,
-              state.catalog,
+    ).then((result) {
+      if (isClosed || generation != _generation) return;
+      switch (result) {
+        case Err(:final failure):
+          emit(
+            _derive(
+              state.copyWith(
+                quoteStatus: RequestStatus.failure,
+                failure: failure,
+              ),
             ),
-            canSubmit: checkCanSubmit(
-              state.status,
-              state.submissionStatus,
-              state.catalog,
-              (RequestStatus.failure),
-              state.terms,
-              state.countText,
-              state.quote,
-              state.depositId,
+          );
+        case Success(:final data):
+          emit(
+            _derive(
+              state.copyWith(
+                quoteStatus: RequestStatus.success,
+                quote: data,
+              ),
             ),
-          ),
-        );
-      case Success(:final data):
-        emit(
-          state.copyWith(
-            quoteStatus: RequestStatus.success,
-            quote: data,
-            count: int.tryParse(state.countText),
-            validCount: checkCountValid(state.countText, state.catalog),
-            editable: checkEditable(
-              state.status,
-              state.submissionStatus,
-              state.catalog,
-            ),
-            canSubmit: checkCanSubmit(
-              state.status,
-              state.submissionStatus,
-              state.catalog,
-              (RequestStatus.success),
-              state.terms,
-              state.countText,
-              (data),
-              state.depositId,
-            ),
-          ),
-        );
-    }
+          );
+      }
+    });
   }
 
   void acceptTerms(bool value) {
-    if ((state.editable && state.quoteStatus != RequestStatus.loading)) {
-      emit(
-        state.copyWith(
-          terms: value,
-          count: int.tryParse(state.countText),
-          validCount: checkCountValid(state.countText, state.catalog),
-          editable: checkEditable(
-            state.status,
-            state.submissionStatus,
-            state.catalog,
-          ),
-          canSubmit: checkCanSubmit(
-            state.status,
-            state.submissionStatus,
-            state.catalog,
-            state.quoteStatus,
-            (value),
-            state.countText,
-            state.quote,
-            state.depositId,
-          ),
-        ),
-      );
-    }
+    emit(_derive(state.copyWith(terms: value)));
   }
 
   void setExpanded(bool value) {
-    if (state.editable) {
-      emit(
-        state.copyWith(
-          expanded: value,
-          count: int.tryParse(state.countText),
-          validCount: checkCountValid(state.countText, state.catalog),
-          editable: checkEditable(
-            state.status,
-            state.submissionStatus,
-            state.catalog,
-          ),
-          canSubmit: checkCanSubmit(
-            state.status,
-            state.submissionStatus,
-            state.catalog,
-            state.quoteStatus,
-            state.terms,
-            state.countText,
-            state.quote,
-            state.depositId,
-          ),
-        ),
-      );
-    }
+    emit(_derive(state.copyWith(expanded: value)));
   }
 
-  Future<void> submit() async {
-    if (!state.canSubmit) return;
+  Future<void> submit() {
+    if (!state.canSubmit) return Future.value();
     _key ??= List.generate(
       16,
       (_) => Random.secure().nextInt(256).toRadixString(16).padLeft(2, '0'),
@@ -434,86 +243,64 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
     );
     final generation = ++_generation;
     emit(
-      state.copyWith(
-        submissionStatus: RequestStatus.loading,
-        failure: null,
-        count: int.tryParse(state.countText),
-        validCount: checkCountValid(state.countText, state.catalog),
-        editable: checkEditable(
-          state.status,
-          (RequestStatus.loading),
-          state.catalog,
-        ),
-        canSubmit: checkCanSubmit(
-          state.status,
-          (RequestStatus.loading),
-          state.catalog,
-          state.quoteStatus,
-          state.terms,
-          state.countText,
-          state.quote,
-          state.depositId,
+      _derive(
+        state.copyWith(
+          submissionStatus: RequestStatus.loading,
+          failure: null,
         ),
       ),
     );
-    final result = await virtualCardBoundary(() => repository.submit(request));
-    if (isClosed || generation != _generation) return;
-    switch (result) {
-      case Err(:final failure):
-        emit(
-          state.copyWith(
-            submissionStatus: RequestStatus.failure,
-            failure: failure,
-            count: int.tryParse(state.countText),
-            validCount: checkCountValid(state.countText, state.catalog),
-            editable: checkEditable(
-              state.status,
-              (RequestStatus.failure),
-              state.catalog,
+    return virtualCardBoundary(() => repository.submit(request)).then((result) {
+      if (isClosed || generation != _generation) return;
+      switch (result) {
+        case Err(:final failure):
+          emit(
+            _derive(
+              state.copyWith(
+                submissionStatus: RequestStatus.failure,
+                failure: failure,
+              ),
             ),
-            canSubmit: checkCanSubmit(
-              state.status,
-              (RequestStatus.failure),
-              state.catalog,
-              state.quoteStatus,
-              state.terms,
-              state.countText,
-              state.quote,
-              state.depositId,
+          );
+        case Success(:final data):
+          emit(
+            _derive(
+              state.copyWith(
+                submissionStatus: RequestStatus.success,
+                receipt: data,
+              ),
             ),
-          ),
-        );
-      case Success(:final data):
-        emit(
-          state.copyWith(
-            submissionStatus: RequestStatus.success,
-            receipt: data,
-            count: int.tryParse(state.countText),
-            validCount: checkCountValid(state.countText, state.catalog),
-            editable: checkEditable(
-              state.status,
-              (RequestStatus.success),
-              state.catalog,
-            ),
-            canSubmit: checkCanSubmit(
-              state.status,
-              (RequestStatus.success),
-              state.catalog,
-              state.quoteStatus,
-              state.terms,
-              state.countText,
-              state.quote,
-              state.depositId,
-            ),
-          ),
-        );
-    }
+          );
+      }
+    });
   }
 
   @override
   Future<void> close() {
     _generation++;
     return super.close();
+  }
+
+  VirtualCardState _derive(VirtualCardState s) {
+    final count = int.tryParse(s.countText);
+    final validCount = checkCountValid(s.countText, s.catalog);
+    final editable = checkEditable(s.status, s.submissionStatus, s.catalog);
+    final canSubmit = checkCanSubmit(
+      s.status,
+      s.submissionStatus,
+      s.catalog,
+      s.quoteStatus,
+      s.terms,
+      s.countText,
+      s.quote,
+      s.depositId,
+    );
+    return s.copyWith(
+      count: count,
+      validCount: validCount,
+      editable: editable,
+      canSubmit: canSubmit,
+    );
   }
 
   bool checkCountValid(String text, VirtualCardCatalog? catalog) {

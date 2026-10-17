@@ -105,38 +105,6 @@ class _ExpiredGiftBalanceScreenState extends State<ExpiredGiftBalanceScreen> {
                       widget.onCompleted?.call(state.receipt!);
                     }
                   },
-                  buildWhen: (previous, current) =>
-                      previous.advanceAfterReview !=
-                          current.advanceAfterReview ||
-                      previous.navigation != current.navigation ||
-                      previous.status != current.status ||
-                      previous.submissionStatus != current.submissionStatus ||
-                      previous.step != current.step ||
-                      previous.catalog != current.catalog ||
-                      previous.isEmpty != current.isEmpty ||
-                      previous.editable != current.editable ||
-                      previous.selectionEditable != current.selectionEditable ||
-                      previous.hasFilter != current.hasFilter ||
-                      previous.visibleCards != current.visibleCards ||
-                      previous.selectedCards != current.selectedCards ||
-                      previous.totalRial != current.totalRial ||
-                      previous.allVisibleSelected !=
-                          current.allVisibleSelected ||
-                      previous.destination != current.destination ||
-                      previous.depositsByGiftId != current.depositsByGiftId ||
-                      previous.canContinue != current.canContinue ||
-                      previous.canSubmit != current.canSubmit ||
-                      previous.selectedIds != current.selectedIds ||
-                      previous.query != current.query ||
-                      previous.filterDepositId != current.filterDepositId ||
-                      previous.draftFilterDepositId !=
-                          current.draftFilterDepositId ||
-                      previous.filterOpen != current.filterOpen ||
-                      previous.reviewOpen != current.reviewOpen ||
-                      previous.destinationId != current.destinationId ||
-                      previous.termsAccepted != current.termsAccepted ||
-                      previous.failure != current.failure ||
-                      previous.receipt != current.receipt,
                   builder: (context, state) {
                     return PopScope(
                       canPop: state.navigation == FlowNavigation.back,

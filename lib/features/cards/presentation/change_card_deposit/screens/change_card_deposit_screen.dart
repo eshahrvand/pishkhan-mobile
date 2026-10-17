@@ -75,24 +75,6 @@ class _ChangeCardDepositScreenState extends State<ChangeCardDepositScreen> {
                 widget.onCompleted?.call(state.receipt!);
               }
             },
-            buildWhen: (previous, current) =>
-                previous.navigation != current.navigation ||
-                previous.status != current.status ||
-                previous.submissionStatus != current.submissionStatus ||
-                previous.catalog != current.catalog ||
-                previous.cardId != current.cardId ||
-                previous.card != current.card ||
-                previous.source != current.source ||
-                previous.destinations != current.destinations ||
-                previous.destination != current.destination ||
-                previous.isEmpty != current.isEmpty ||
-                previous.editable != current.editable ||
-                previous.walletSufficient != current.walletSufficient ||
-                previous.canSubmit != current.canSubmit ||
-                previous.destinationId != current.destinationId ||
-                previous.termsAccepted != current.termsAccepted ||
-                previous.failure != current.failure ||
-                previous.receipt != current.receipt,
             builder: (context, state) {
               return PopScope(
                 canPop: state.navigation == FlowNavigation.back,

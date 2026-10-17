@@ -1587,7 +1587,7 @@ builder: (context, state) {
 
 The subtree reads time, but its predicate is not sensitive to time changes. The UI may lag behind. The correct predicate compares `remainingSeconds`.
 
-If `buildWhen` needs 15–20 fields, review the subtree boundary first. Do not convert State into a record or another object just to shorten it. If a large section truly needs all State changes, a regular builder with an explanation of that need is preferable to an incomplete predicate.
+If `buildWhen` needs 15–20 fields, review the subtree boundary first. Do not convert State into a record or another object just to shorten it. Top-level screen `BlocConsumer`/`BlocBuilder` widgets and main cohesive content areas that display the entire state MUST NOT have exhaustive multi-field `buildWhen` predicates that compare every field. BlocBuilder defaults to rebuilding whenever state changes (`previous != current`), which Freezed handles by value equality. Exhaustive `buildWhen` predicates listing 15–30 fields are prohibited bloat. Reserve `buildWhen` for isolated leaf components or sub-widgets that only depend on 1–3 specific fields.
 
 ### 11.6 Choose Builder, Listener or Consumer by Responsibility
 
@@ -2900,14 +2900,14 @@ Cubit determines the next step; UI selects the form for the current step. The fo
 - Cubit decides whether to move back one step.
 - UI executes navigation and shows exit confirmation.
 - Hardware Back and the in-screen button must behave consistently.
-- During submission, leaving and editing are locked according to the flow contract.
+- Back navigation and exit confirmation are always available to the user, even while an asynchronous operation or submission is loading. Cubit navigation actions (such as `requestBack`, `requestHome`, `exitConfirmationResult`) must not block navigation or confirmation based on `loading` status. In-flight network responses are safely discarded via Cubit disposal and generation tracking at the `.then` callback.
 - The first step of a form with discardable input requires exit confirmation.
 - After a successful receipt, leave the flow using `go` to the approved destination; the user must not return to a form that can be submitted again.
 
 **Required:** the in-screen Back event calls a Cubit action such as
 `requestBack()`. Cubit changes a step when appropriate,
 or publishes an exit-confirmation/exit effect. UI executes that effect, checks
-`context.mounted` after awaiting, and sends the confirmation result back to Cubit.
+`context.mounted` after awaiting, and sends the raw confirmation result back to Cubit (e.g., `exitConfirmationResult(confirmed)` which simply emits `navigation: confirmed == true ? FlowNavigation.back : null`).
 Only Cubit decides whether that result permits leaving. UI must not read request
 status and orchestrate `back() -> confirmation -> exit` in a helper or listener.
 These names illustrate the contract; implement only actions/effects needed by
