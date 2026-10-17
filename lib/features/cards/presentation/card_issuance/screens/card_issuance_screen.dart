@@ -171,8 +171,7 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
                 return PopScope<void>(
                   canPop: state.navigation == FlowNavigation.back,
                   onPopInvokedWithResult: (didPop, _) {
-                    if (!didPop &&
-                        state.submissionStatus != RequestStatus.loading) {
+                    if (!didPop) {
                       context.read<CardIssuanceCubit>().requestBack();
                     }
                   },
@@ -189,12 +188,8 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
                               size: 24,
                             ),
                             trailingTooltip: S.current.backLabel,
-                            onTrailingPressed:
-                                state.submissionStatus == RequestStatus.loading
-                                ? null
-                                : () => context
-                                      .read<CardIssuanceCubit>()
-                                      .requestBack(),
+                            onTrailingPressed: () =>
+                                context.read<CardIssuanceCubit>().requestBack(),
                           ),
                           Expanded(
                             // The assistant and footer overlay the scroll viewport; a Column
@@ -256,17 +251,12 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
                                             IssuanceStep.confirmation)
                                         ? 136
                                         : 76,
-                                    child: IgnorePointer(
-                                      ignoring:
-                                          state.submissionStatus ==
-                                          RequestStatus.loading,
-                                      child: AppAssistantButton(
-                                        onPressed:
-                                            widget.onAssistantPressed ??
-                                            () => context
-                                                .read<CardIssuanceCubit>()
-                                                .requestBack(),
-                                      ),
+                                    child: AppAssistantButton(
+                                      onPressed:
+                                          widget.onAssistantPressed ??
+                                          () => context
+                                              .read<CardIssuanceCubit>()
+                                              .requestBack(),
                                     ),
                                   ),
                                   Positioned(

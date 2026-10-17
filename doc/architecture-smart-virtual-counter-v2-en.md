@@ -1095,7 +1095,7 @@ Future<void> fetchCardServiceCatalog() {
 }
 ```
 
-* Submission publishes loading before starting the Future. UI uses that State to disable repeat submission, editing and Back where applicable. Do not repeat loading/success/eligibility checks at the start of the Cubit action. Server authorization and idempotency remain mandatory for bank execution.
+* Submission publishes loading before starting the Future. Interactive controls (such as `AppButton`) use `isLoading` to reflect pending state and prevent repeat taps. Do not repeat loading/success/eligibility checks at the start of the Cubit action or introduce redundant wrapper guards in UI. Server authorization and idempotency remain mandatory for bank execution.
 * Every asynchronous completion checks `isClosed` once, at the top of its `.then` (or Timer) callback. Synchronous Cubit methods and the start of async methods do not check it, because the Cubit closes together with the screen that calls them. Where requests can overlap or inputs/adapters change, a generation/request ID rejects obsolete responses in the same guard.
 * Dispose timers and owned resources when the owning scope closes. Keep per-flow caches private and in memory only when their lifetime matches the flow; never use global mutable caches.
 * Related derived fields must be updated in one snapshot whenever their inputs change. Calculations may return pure values, but `copyWith` and `emit` stay explicit in the action. Do not add helpers that prepare, return or publish State, even privately.

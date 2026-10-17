@@ -2905,7 +2905,7 @@ Cubit determines the next step; UI selects the form for the current step. The fo
 - After a successful receipt, leave the flow using `go` to the approved destination; the user must not return to a form that can be submitted again.
 
 **Required:** the in-screen Back event calls a Cubit action such as
-`requestBack()`. UI blocks Back interaction while loading; Cubit changes a step when appropriate,
+`requestBack()`. Cubit changes a step when appropriate,
 or publishes an exit-confirmation/exit effect. UI executes that effect, checks
 `context.mounted` after awaiting, and sends the confirmation result back to Cubit.
 Only Cubit decides whether that result permits leaving. UI must not read request

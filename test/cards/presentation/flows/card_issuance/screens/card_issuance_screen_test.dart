@@ -329,7 +329,7 @@ void main() {
     expect(cubit.state.editable, isFalse);
     expect(
       tester.widget<AppTopBar>(find.byType(AppTopBar)).onTrailingPressed,
-      isNull,
+      isNotNull,
     );
     await tester.tap(cardControl(tester, 'issuance_continue'));
     await tester.binding.handlePopRoute();
