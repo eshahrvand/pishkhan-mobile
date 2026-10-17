@@ -1,7 +1,7 @@
 # UI, Cubit and State Coding Contract for the Team and Agents
 
 **Project:** Smart Virtual Counter — `pishkhan_mobile`  
-**Version:** 1.6 — mandatory consolidated architecture and UI style contract<br>
+**Version:** 1.7 — mandatory consolidated architecture and UI style contract (async `.then` style and `isClosed` rule added in Section 8)<br>
 **Date:** 2026-10-17<br>
 **Scope:** Presentation coding style, State management and readability rules  
 **Status:** This revision changes documentation only. Earlier reviews and code examples may describe historical implementations; they do not override the mandatory ownership rules below.
@@ -141,8 +141,8 @@ The Axino example is a style reference; it does not define this project's networ
 | `S.current` | Approved direct localization access; implementation belongs to a separate task |
 | A shared enum containing `otpSubmitting` and `authLoading` | Independent operations use independent statuses with the existing `RequestStatus` |
 | Two emits for an input and button eligibility | Prefer one emit for a complete, consistent snapshot |
-| `void ... async` | Awaitable operations use `Future<void>` |
-| No `isClosed` check after await | Preserve disposal guards and stale-response guards where needed |
+| `void ... async` | Awaitable operations use `Future<void>` and the project's returned `.then` style (Section 8.1) |
+| No `isClosed` check after await | One `isClosed` guard at the top of each `.then` callback, plus stale-response guards where needed; none in synchronous methods (Section 8.3) |
 | Controllers in StatelessWidget and static focus nodes | A StatefulWidget owns the lifecycle and disposes resources |
 | Printing OTPs or PINs | Prohibited; sensitive data must not enter logs |
 | Storing raw passwords or a fallback such as `0000` | Do not incorporate this into the project's contract |
@@ -231,7 +231,7 @@ source implementation exceptions as target rules.
 | Construction | Construct Cubit directly in screen/feature-flow BlocProvider.create and invoke the explicit initial action there. Keep its supplied/default initial State unchanged during construction. | Route-owned screen Cubit, _createCubit helpers, hidden construction wrappers, constructor emit/load/timer/derived-State initialization |
 | Lifetime | Provider.create owns closing. Existing flow consumers read the shared instance. Provider.value only exposes an existing instance across a real boundary such as a modal. | New Cubit in value, manually closing a borrowed Cubit or duplicate construction on ordinary rebuilds |
 | Actions | Specific typed actions own transferable calculations, validation, request construction and flow decisions. Write emit(state.copyWith(...)) in the action. Publish dependent values consistently. | Generic string/index field dispatch, State publication intermediaries, UI reconstruction of requests or hidden State getters |
-| Async | Operations that callers can await use Future<void>; maintain explicit loading/result/failure publication and applicable disposal, stale-response, duplicate and banking idempotency guards. | Copying nested void Future chains or removing safeguards merely to resemble the source |
+| Async | Operations that callers can await return Future<void> through a returned `.then` chain (no async/await, no catchError in Cubit); handle Result with a switch inside `.then`; one isClosed/request-id guard at the top of each callback; keep duplicate and banking idempotency guards. | Copying nested void Future chains, isClosed checks in synchronous methods, catchError for expected failures, or removing safeguards merely to resemble the source |
 | Rendering | BlocBuilder renders a cohesive changing section. A child receiving the parent's selected State MUST NOT add a duplicate subscription to the same data. Rendering MUST NOT start requests. | Load/submit/analytics in build, ceremonial builder per Text/Icon, duplicate nested builders or business rules hidden in buildWhen |
 | Effects | BlocListener executes prepared Flutter effects. BlocConsumer is used when the same section needs both rendering and a side effect. MultiBlocListener groups actually independent effects. | Flow decisions in listeners, mandatory Consumer/MultiBlocListener everywhere or a new generic effect framework without a concrete need |
 | Listener methods | Every multi-case effect switch and substantial async listener body MUST be a named widget/State method referenced by listener. Keep its focused listenWhen adjacent. | An inline multi-case listener or moving eligibility/request/navigation-intent decisions into the named UI method |
@@ -428,8 +428,8 @@ class OtpWidget extends StatefulWidget { ... }
 void updatePhoneNumber(String value) { ... }
 void updateNationalId(String value) { ... }
 void updateOtp(String value) { ... }
-Future<void> requestOtp() async { ... }
-Future<void> submitLogin() async { ... }
+Future<void> requestOtp() { ... }
+Future<void> submitLogin() { ... }
 ```
 
 An action name must explain its behavior. Names such as `process`, `handle`, `apply` or `update` without identifying the subject are insufficient.
@@ -862,16 +862,19 @@ isLoading: state.submissionStatus == RequestStatus.loading,
 
 ## 8. Async Operations, Failures and Stale Responses
 
-### 8.1 Readable Loading Pattern
+### 8.1 Readable Loading Pattern: `.then` Without `catchError`
+
+**Owner decision, 2026-10-17:** the project's baseline async style in Cubit is a
+returned `.then(...)` chain. Cubit does **not** use `async/await`, `try/catch` or
+`catchError` for operations that return `Result`. `Err` is a value, not an
+exception, so the failure branch is the `case Err` of the `switch` inside `.then`.
 
 This example uses the actual `CardServicesRepository` and `LoadCardServiceCatalog` contracts. The proposed State contains `catalogStatus`, `catalog` and `catalogFailure`.
 
 ```dart
 int _catalogRequestId = 0;
 
-Future<void> loadCatalog() async {
-  if (isClosed) return;
-
+Future<void> loadCatalog() {
   final requestId = ++_catalogRequestId;
 
   emit(
@@ -881,41 +884,61 @@ Future<void> loadCatalog() async {
     ),
   );
 
-  final result = await LoadCardServiceCatalog(repository)();
+  return LoadCardServiceCatalog(repository)().then((result) {
+    if (isClosed || requestId != _catalogRequestId) return;
 
-  if (isClosed || requestId != _catalogRequestId) return;
-
-  switch (result) {
-    case Success(:final data):
-      emit(
-        state.copyWith(
-          catalogStatus: RequestStatus.success,
-          catalog: data,
-          catalogFailure: null,
-        ),
-      );
-    case Err(:final failure):
-      emit(
-        state.copyWith(
-          catalogStatus: RequestStatus.failure,
-          catalogFailure: failure,
-        ),
-      );
-  }
+    switch (result) {
+      case Success(:final data):
+        emit(
+          state.copyWith(
+            catalogStatus: RequestStatus.success,
+            catalog: data,
+            catalogFailure: null,
+          ),
+        );
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            catalogStatus: RequestStatus.failure,
+            catalogFailure: failure,
+          ),
+        );
+    }
+  });
 }
 ```
 
-Unexpected exceptions must become `Err` at the UseCase/repository boundary. If the dependency does not guarantee this, the action must also use `try/catch` with an explicit failure. Do not assume that every Future always resolves to Result.
+Required shape:
+
+- The method is not marked `async` and contains no `await`.
+- The chain is **returned**. Without `return`, the method completes immediately and callers lose the result.
+- The only guard is the one at the top of the `.then` callback (see Section 8.3).
+- Heavy or branching calculations are moved to pure helpers (Section 6.4) so the callback body is only `emit` calls.
+- When a flow guard must return before any Future exists, return `Future.value()`.
+
+**Boundary guarantee (required):** because Cubit has no `catchError`, the
+Repository/UseCase boundary must convert **every** exception, including
+unexpected ones such as mapper or parse errors, into `Err`. Do not compensate in
+Cubit with `try/catch` or `catchError`. If a dependency cannot yet guarantee
+this, fix it in `data/` (the layer that owns `DioException` handling); if that is
+outside the authorized task, report the concrete gap instead of adding a Cubit
+workaround. Without this guarantee an unexpected exception would leave the
+operation status at `loading` indefinitely.
+
+> **Pending architecture decision:** the failure hierarchy in architecture
+> Section 11.2 has no type for an unexpected exception. Mapping those exceptions
+> needs an approved Failure type (for example an `UnexpectedFailure` with a
+> generic user message and logged code). Agents must not add one on their own;
+> this requires an explicit owner decision and an architecture update.
 
 ### 8.2 Submission: A Guard Independent of Button Appearance
 
 ```dart
-Future<void> submit() async {
-  if (isClosed ||
-      !state.canSubmit ||
+Future<void> submit() {
+  if (!state.canSubmit ||
       state.submissionStatus == RequestStatus.loading ||
       state.submissionStatus == RequestStatus.success) {
-    return;
+    return Future.value();
   }
 
   final request = createSubmissionRequest();
@@ -927,44 +950,55 @@ Future<void> submit() async {
     ),
   );
 
-  final result = await submitUseCase(request);
+  return submitUseCase(request).then((result) {
+    if (isClosed) return;
 
-  if (isClosed) return;
-
-  switch (result) {
-    case Success(:final data):
-      emit(
-        state.copyWith(
-          submissionStatus: RequestStatus.success,
-          receipt: data,
-          canSubmit: false,
-        ),
-      );
-    case Err(:final failure):
-      emit(
-        state.copyWith(
-          submissionStatus: RequestStatus.failure,
-          submissionFailure: failure,
-        ),
-      );
-  }
+    switch (result) {
+      case Success(:final data):
+        emit(
+          state.copyWith(
+            submissionStatus: RequestStatus.success,
+            receipt: data,
+            canSubmit: false,
+          ),
+        );
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            submissionStatus: RequestStatus.failure,
+            submissionFailure: failure,
+          ),
+        );
+    }
+  });
 }
 ```
 
-`createSubmissionRequest` illustrates a specific request-construction function in Cubit, not a UI calculation function. The snippet assumes editing/reset/loading are locked during submission. If adapter replacement or reset can occur concurrently, the operation's request ID must also be checked.
+`createSubmissionRequest` illustrates a specific request-construction function in Cubit, not a UI calculation function. The snippet assumes editing/reset/loading are locked during submission. If adapter replacement or reset can occur concurrently, the operation's request ID must also be checked inside the same guard.
+
+The status guard at the top is a **flow guard** (duplicate-submission protection), not an `isClosed` check, and it stays.
 
 ### 8.3 Mandatory Async Rules
 
 - Awaitable operations return `Future<void>`; do not write `void async`.
-- Set the status to loading before awaiting.
-- Check `isClosed` after awaiting.
-- Overlapping loads or quotes require a generation/request ID.
+- Baseline style is `return useCase(...).then((result) { ... })`. Do not use `async/await` in Cubit actions that return `Result`.
+- Scope: this style applies to Cubit actions. UI-side modal launchers and effect handlers that must await a Flutter API keep `async/await` and the `context.mounted` guard (Section 19.6); they are Flutter-only adapters, not flow logic.
+- Do not add `catchError`, `try/catch` or `onError` in Cubit for expected failures. `Err` is handled by the `switch` inside `.then` (Section 8.1).
+- Set the status to loading before starting the Future.
+- **`isClosed` rule:** a Cubit is closed together with the screen/flow that owns its `BlocProvider`, and everything that calls its synchronous methods (buttons, chips, listeners) leaves the tree at the same moment. Therefore:
+    - **Do not** add `isClosed` checks to synchronous methods (`select...`, `search`, `request...`, `update...`, `apply...`, `cancel...`, `reveal...`, `filter...`).
+    - **Do not** add `isClosed` at the start of an async method such as `load`; it is called immediately after construction.
+    - **Do** check `isClosed` exactly **once** per async operation, at the top of its `.then` callback, because the screen may close while the Future is pending and `emit` on a closed Cubit throws.
+    - A Cubit-owned `Timer` or stream callback is also an async gap, so one `isClosed` check at the top of that callback is correct (Section 19.5).
+    - An operation with a request/generation ID combines both checks in the same single line: `if (isClosed || requestId != _requestId) return;`.
+    - Overriding `emit` to hide this check is prohibited (Section 6.4).
+- Overlapping loads or quotes require a generation/request ID. `close()` may also increment it so pending responses are rejected.
 - A stale response must not overwrite a newer selection.
 - Lock editable fields inside Cubit as well during sensitive operations.
 - Retrying the same banking request preserves the same idempotency key.
 - Changing the payload after failure refreshes request identity according to the service contract.
 - Client idempotency does not replace the server guarantee.
-- `.then` is allowed, but return/await the chain and provide guards and a failure branch. This document's baseline style is `async/await`.
+- Keep the `.then` callback free of anything that can throw (see the boundary guarantee in Section 8.1); calculations belong in pure helpers.
 
 ### 8.4 Errors Are Localized in UI
 
@@ -2662,19 +2696,19 @@ redundant hook must preserve the needed initial reveal/focus behavior.
 Instead of repeating submit/next decisions in several UI callbacks:
 
 ```dart
-Future<void> continueFlow() async {
+Future<void> continueFlow() {
   if (!state.canContinue ||
       state.submissionStatus == RequestStatus.loading ||
       state.submissionStatus == RequestStatus.success) {
-    return;
+    return Future.value();
   }
 
   if (state.step == IssuanceStep.confirmation) {
-    await submit();
-    return;
+    return submit();
   }
 
   nextStep();
+  return Future.value();
 }
 ```
 
@@ -2944,7 +2978,14 @@ introduced/modified code violates an applicable rule.
 13. Keys require behavioral needs and nearby explanations; default decorative/test keys are prohibited.
 14. Check the public avp_ui API first; do not invent nonexistent components.
 15. UI owns controllers/focus/scroll, Cubit owns timers; dispose/close them correctly.
-16. Preserve duplicate-submission, isClosed, stale-response and idempotency safeguards.
+16. Preserve duplicate-submission, stale-response and idempotency safeguards.
+    Async style: Future<void> methods return `useCase(...).then((result) { ... })`;
+    no async/await and no catchError/try-catch in Cubit. Handle Result with a switch
+    inside .then (Err is a value, not an exception). Repository/UseCase must convert
+    all exceptions to Err. Check `isClosed` (or `isClosed || requestId != _id`)
+    exactly once at the top of each .then/Timer callback. Never add `isClosed` to
+    synchronous Cubit methods or at the start of an async method. Do not invent an
+    unexpected-exception Failure type; report it as a pending decision.
 17. No unsolicited global refactoring, package changes or new dependencies.
 18. Do not use setState even for password/summary display state. Keep values in State
     and actions in Cubit. Do not use parallel notifiers to evade this rule.
@@ -2998,8 +3039,10 @@ This text is a compact summary of the mandatory contract, not an alternative to 
 - [ ] Each field is validated through the owner's specific-method style and central validator.
 - [ ] Independent operations have independent statuses.
 - [ ] Submit checks eligibility again inside Cubit.
-- [ ] Loading is recorded before await.
-- [ ] Disposal and stale responses are checked after await.
+- [ ] Loading is recorded before the Future starts.
+- [ ] Async methods return a `.then` chain: no `async`/`await`, no `catchError`/`try-catch`, and the chain is returned.
+- [ ] Exactly one `isClosed` (or `isClosed || requestId != _id`) guard sits at the top of each `.then`/Timer callback; none in synchronous methods or at the start of async methods.
+- [ ] The `.then` callback contains only `emit` calls and pure helper calls that cannot throw.
 - [ ] Retrying the same payload uses an appropriate stable key.
 - [ ] Cubit-owned timers/subscriptions are released in close.
 - [ ] Sensitive information is neither logged nor exposed in generated toString output.
@@ -3105,6 +3148,9 @@ not invent additional allowances. Keep unrelated work outside the authorized tas
 | setState | Some current forms keep display/error state locally | Owner instruction: display state and errors belong in State; agents cannot waive the prohibition; an impossible case is reported as blocked |
 | Fixed forms | Some forms use parallel arrays | Explicit fields like the owner's examples; no renderer or index-based dispatch |
 | Builder level | “Lowest subtree” could be read absolutely | Meaningful changing sections; higher-level grouping is allowed for readability |
+| Async style in Cubit | Section 8 baseline was `async/await`; `.then` was merely allowed | Owner decision 2026-10-17: returned `.then` chain, no `catchError`/`try-catch` in Cubit; Repository/UseCase must convert all exceptions to `Err` |
+| `isClosed` placement | Guard appeared at the start of async methods and in synchronous methods | One guard at the top of each `.then`/Timer callback only; none in synchronous methods |
+| Unexpected-exception Failure | Not defined in architecture Section 11.2 | Pending owner decision; agents must not add a Failure type on their own |
 
 ### 25.1.1 Final Status of Reviewed Items: Do Not Turn Proposals into New Requirements
 
@@ -3154,5 +3200,3 @@ A sample flow, such as Login or Average Balance, may then be rewritten and revie
 - [Official BlocListener API](https://pub.dev/documentation/flutter_bloc/latest/flutter_bloc/BlocListener-class.html)
 
 Style rules in this document come from the owner's requirements. API links explain only widget technical behavior. A pattern being valid in Flutter does not make it desirable for this team's style.
-
-

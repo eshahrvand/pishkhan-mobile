@@ -99,7 +99,7 @@ Users can obtain services through two paths:
 | **Pure Validators** | `app/lib/core/validators` | Pure validation (Luhn, IBAN, national ID) with no Flutter dependency |
 | **Network Client** | `dio` + `retrofit` | Type-safe, advanced interceptors |
 | **Serialization** | `json_serializable` | Generated from the bank's OpenAPI spec |
-| **Dependency Injection** | `get_it` + `injectable` | Automatic registration, avoids Git conflicts on the DI file |
+| **Dependency Injection** | `get_it` | Registry for Repository, service/API and UseCase dependencies, registered in `core/di`. Cubit/Bloc are never registered (Section 12.6) |
 | **Routing & Deep Links** | `go_router` | Tree structure, central guard, web support |
 | **Local Secure Storage** | `flutter_secure_storage` (mobile only) | Keystore / Keychain |
 | **Error Handling** | `sealed class Result<T>` + `Equatable` | Exhaustive pattern matching and value equality in tests |
@@ -263,7 +263,7 @@ Features are implemented as **folders** under `app/lib/features/`, not as standa
 Three safeguards this decision removes, which must be compensated for:
 
 1. **Import boundaries:** enforced by a `custom_lint` rule (Section 17.4).
-2. **Git conflict hotspots:** route paths and definitions are centralized by owner decision (Section 15.3), grouped by feature, and kept free of business logic; automatic DI registration limits manual DI edits.
+2. **Git conflict hotspots:** route paths and definitions are centralized by owner decision (Section 15.3), grouped by feature, and kept free of business logic; the DI file holds only dependency registrations (no per-flow Cubit entries), which limits how often it changes.
 3. **Code generation speed:** addressed by narrowing generator scope and limiting `freezed` usage (Section 12.3).
 
 ### 6.4 Directory Tree
@@ -980,10 +980,10 @@ This is the required convention for new features and refactors. The reference su
 * Give each independent async operation its own status field. Use `RequestStatus { initial, loading, success, failure }` from `core/enums/`. A single-operation Cubit may use `status`; multiple operations use meaningful names such as `checkStatus`, `quoteStatus` and `submissionStatus`.
 * UI reads State fields directly. Check `state.submissionStatus == RequestStatus.loading` directly in widget arguments; do not introduce getter aliases or local `loading`, `empty` or `form` variables in builders.
 * Calculations, filtering, selection resolution, totals and validation belong in Cubit action methods. Store results needed by UI in State fields and update them together with their inputs using `emit(state.copyWith(...))`. A feature-specific private helper may coordinate related updates; do not override `emit` to calculate business data or create a separate rules facade for UI to call.
-* Cubit constructors accept an initial State. The flow's composition root supplies its State and dependencies; preserve injectable repositories/use cases in this application. Do not copy the other application's service locator, models or imports, or add a locator just to imitate its syntax.
+* Cubit constructors accept an initial State and real entry parameters only. A Cubit resolves its registered Repository, service and UseCase dependencies from GetIt in its own fields; dependencies are not passed through Cubit constructors, screen constructors, route arguments or child widgets. Cubit/Bloc are never registered in GetIt. Do not copy the other application's models or imports. See the UI/Cubit/State contract, Section 2.2.
 * Keep defaults non-null for known values (`bool`, counters, lists and statuses). Use nullable fields when absence is meaningful. Do not copy nullable defaults mechanically from the reference.
 * Keep controllers, focus nodes and `BuildContext` in UI lifecycle owners. No global mutable feature caches. Preserve disposal, stale-response guards and duplicate-request protection.
-* Async methods must handle failure explicitly and avoid emitting after disposal. `async`/`await` and `.then` chains are both compatible with this State convention; each asynchronous branch must be awaited or returned.
+* Async Cubit actions return `Future<void>` through a returned `.then` chain; they do not use `async`/`await`, `try/catch` or `catchError`. `Err` is a value handled by a `switch` inside `.then`, and the Repository/UseCase boundary converts every exception to `Err`. Async actions avoid emitting after disposal (Section 12.4). See the UI/Cubit/State contract, Section 8.
 * Do not log credentials, OTPs, PINs or authentication tokens. Sensitive State types retain disabled generated `toString` output.
 
 ```dart
@@ -1004,11 +1004,10 @@ abstract class ChangeCardDepositState with _$ChangeCardDepositState {
 
 class ChangeCardDepositCubit extends Cubit<ChangeCardDepositState> {
   ChangeCardDepositCubit({
-    required this.repository,
     ChangeCardDepositState initialState = const ChangeCardDepositState(),
   }) : super(initialState);
 
-  final CardServicesRepository repository;
+  final repository = getIt<CardServicesRepository>();
 
   void selectDestination(CardServiceDeposit destination) {
     emit(state.copyWith(
@@ -1022,10 +1021,7 @@ class ChangeCardDepositCubit extends Cubit<ChangeCardDepositState> {
 
 // Flow entry: create once, initialize explicitly, close on scope removal.
 BlocProvider(
-  create: (_) => ChangeCardDepositCubit(
-    repository: repository,
-    initialState: const ChangeCardDepositState(),
-  )..load(),
+  create: (_) => ChangeCardDepositCubit()..load(),
   child: const ChangeCardDepositView(),
 );
 
@@ -1055,27 +1051,28 @@ In `build.yaml`, each generator's scope is narrowed: `json_serializable` only un
 
 ### 12.4 Cubit Actions and Request Lifecycle
 
-Use concrete Cubit methods and explicit `emit(state.copyWith(...))` transitions. The current application uses constructor-injected use cases/repositories and operation-specific status guards; a custom BaseCubit is not required by this coding convention.
+Use concrete Cubit methods and explicit `emit(state.copyWith(...))` transitions. Cubit actions use dependencies resolved in Cubit-owned fields (Section 12.2) and operation-specific status guards; a custom BaseCubit is not required by this coding convention.
 
 ```dart
-Future<void> load() async {
+Future<void> load() {
   final generation = ++_generation;
   emit(state.copyWith(status: RequestStatus.loading, failure: null));
 
-  final result = await LoadCardServiceCatalog(repository)();
-  if (isClosed || generation != _generation) return;
+  return LoadCardServiceCatalog(repository)().then((result) {
+    if (isClosed || generation != _generation) return;
 
-  switch (result) {
-    case Err(:final failure):
-      emit(state.copyWith(status: RequestStatus.failure, failure: failure));
-    case Success(:final data):
-      emit(state.copyWith(status: RequestStatus.success, catalog: data));
-  }
+    switch (result) {
+      case Err(:final failure):
+        emit(state.copyWith(status: RequestStatus.failure, failure: failure));
+      case Success(:final data):
+        emit(state.copyWith(status: RequestStatus.success, catalog: data));
+    }
+  });
 }
 ```
 
 * Every submission checks its operation's loading/success status before starting and sets loading before awaiting. This prevents double taps and edits during a pending request. Server idempotency remains mandatory for bank execution.
-* Every asynchronous completion checks `isClosed`. Where requests can overlap or inputs/adapters change, a generation/request ID rejects obsolete responses as well.
+* Every asynchronous completion checks `isClosed` once, at the top of its `.then` (or Timer) callback. Synchronous Cubit methods and the start of async methods do not check it, because the Cubit closes together with the screen that calls them. Where requests can overlap or inputs/adapters change, a generation/request ID rejects obsolete responses in the same guard.
 * Dispose timers and owned resources when the owning scope closes. Keep per-flow caches private and in memory only when their lifetime matches the flow; never use global mutable caches.
 * Related derived fields must be updated in one snapshot whenever their inputs change. A private Cubit helper may calculate a snapshot with `copyWith` and emit it; State and UI must not perform those calculations. Do not override `emit` to introduce implicit business behavior.
 * `BlocProvider(create: ...)` owns creation/disposal at the flow composition root. Existing controller-owning screens may expose an already-owned Cubit with `BlocProvider.value`; in that case the creator explicitly closes it. Never treat `BlocProvider.value` as the owner of an instance it did not create.
@@ -1101,14 +1098,14 @@ abstract class LoanRequestFormState with _$LoanRequestFormState {
 **Three mandatory rules:**
 
 1. **`buildWhen` or `BlocSelector` is mandatory.** Without it, typing in one field rebuilds the entire screen; the effect is noticeable on iOS Safari.
-2. **Validate on focus loss and on submit**, not per keystroke. Errors clear on the first change.
+2. **Validate on focus loss and on submit**, not per keystroke. Errors clear on the first change. **Exception (owner clarification):** the login national-ID and mobile-number fields, including the shared change-phone input, validate from the first entered digit: a nonempty invalid value shows its error immediately and a valid value clears it (UI/Cubit/State contract, Section 6.5).
 3. **Server-side errors populate the same `fieldErrors`** so the UI behaves identically.
 
 ### 12.6 Flow Cubit Lifecycle
 
 * Provide each flow Cubit through `BlocProvider(create: ...)` at its route entry or `ShellRoute` scope (Section 15.4). A single-screen, internally stepped flow may own a provider at its screen boundary. Child views resolve it through `context.read` and builders/listeners; they do not manually own or close a second instance. The provider calls the initial action and owns disposal; ordinary widget rebuilds must retain the same flow state.
-* Registered in DI with `@injectable` (not `@singleton`) so each flow entry gets a fresh instance.
-* Screens must not call `getIt` directly.
+* Constructed directly in `BlocProvider(create: ...)` so each flow entry gets a fresh instance. Cubit/Bloc are never registered in GetIt, with `@injectable`, `@singleton` or any other lifetime.
+* Screens, child widgets and the router must not call `getIt` for data dependencies; the Cubit resolves them in its own fields (Section 12.2).
 
 ---
 
@@ -1471,7 +1468,7 @@ GoRouter createAppRouter({required RouterSession session}) {
 
 `createAppRouter` creates an instance, not a feature route list. The app owns its session and router and disposes both. The implementation retains `homeBuilder` and `initialLocation` injection for tests. Do not replace this lifecycle with a mutable global router/session singleton.
 
-**Route inputs and dependencies:** typed route argument classes live in `app_router.dart`. The router reads path/query parameters and `state.extra`, connects callbacks, and injects dependencies. Create the prototype password repository once per router instance so receipts survive route re-entry; do not instantiate it inside a page builder. URL-only helpers belong to `AppRoutes`, accept simple strings and encode dynamic segments/query values; they must not import feature entities. In-memory `extra` values are not a persistent URL payload and do not survive a browser reload by themselves.
+**Route inputs and dependencies:** typed route argument classes live in `app_router.dart`. The router reads path/query parameters and `state.extra` and connects callbacks; it does not create, resolve or inject Repository/service/UseCase dependencies, which Cubits resolve from GetIt in their own fields. Register the prototype password repository once as a lazy singleton in `core/di` so receipts survive route re-entry; do not instantiate it inside a page builder. URL-only helpers belong to `AppRoutes`, accept simple strings and encode dynamic segments/query values; they must not import feature entities. In-memory `extra` values are not a persistent URL payload and do not survive a browser reload by themselves.
 
 **Navigation boundaries:** `ServiceRegistry` and existing navigation adapters dispatch through the central paths and argument contracts. Widgets still perform `context.push`, `context.go`, `context.pop` and open local dialogs/sheets where appropriate. Screen/Cubit business logic and widget composition are not moved into the router. Guards and the post-login destination validator remain separate, with one global redirect entry (Sections 15.1–15.2).
 
@@ -1809,6 +1806,8 @@ The complete list is provided in the separate document "Bank Requirements and De
 ---
 
 ## 21. Change Log
+
+**2026-10-17 alignment with the UI/Cubit/State contract (v1.7):** Sections 3, 6.3, 12.2, 12.4, 12.5, 12.6 and 15.3 now match the contract. Cubit/Bloc are never registered in GetIt and Cubits resolve Repository/service/UseCase dependencies from their own fields; DI registration is manual `get_it` in `core/di` (the `injectable` auto-registration entry is removed); the router neither creates nor injects data dependencies; Cubit async actions use a returned `.then` chain with one `isClosed` guard per async completion and none in synchronous methods; the login national-ID and mobile fields validate from the first digit. Section 10.3 (Idempotency-Key lifetime) is unchanged by this update.
 
 **2026-10-15 routing convention update:** Section 15.3 now specifies the owner-approved centralized structure: a single `AppRoutes` class and all `GoRoute` definitions directly in `core/router/app_router.dart`. Feature route factories and files are removed from the application. Existing URLs, global redirect, post-login return validation, typed route inputs and router-scoped mock receipts are preserved. Sections 6.3–6.4 and the flow example are aligned with this decision. This supersedes the distributed routing design recorded in the original version history below.
 
