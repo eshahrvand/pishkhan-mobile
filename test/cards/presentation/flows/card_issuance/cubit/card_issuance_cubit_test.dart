@@ -70,7 +70,6 @@ void main() {
     () async {
       final c = await ready();
       c.updatePhysicalCardOmission(true);
-      c.advanceStep();
       expect(c.state.step, IssuanceStep.selection);
       expect(c.state.canContinue, false);
       c.selectDeposit('deposit-1');
@@ -164,15 +163,6 @@ void main() {
     expect(c.state.draft.addressId, isNull);
     expect(c.state.catalog!.addresses.length, 1);
   });
-  test('unknown selections are ignored', () async {
-    final c = await ready();
-    c.selectDeposit('unknown');
-    c.selectAddress('unknown');
-    c.selectIssuanceType(null);
-    expect(c.state.deposit, isNull);
-    expect(c.state.address, isNull);
-    expect(c.state.selectionComplete, false);
-  });
   test(
     'empty and failed catalogs are represented explicitly and can retry',
     () async {
@@ -198,7 +188,7 @@ void main() {
       expect(c.state.status, RequestStatus.success);
     },
   );
-  test('wallet insufficiency prevents submission', () async {
+  test('wallet insufficiency disables the submission action', () async {
     final base = MockCardIssuanceRepository.sampleCatalog;
     final c = await ready(
       repository: MockCardIssuanceRepository(
@@ -212,16 +202,15 @@ void main() {
     );
     confirm(c);
     expect(c.state.canContinue, false);
-    await c.submitCardIssuance();
     expect(c.state.status, RequestStatus.success);
   });
-  test('submission captures selection once, locks editing, and reports mock receipt', () async {
+  test('submission publishes the loading state used to disable UI and reports receipt', () async {
     final repository = ControlledIssuanceRepository()..submitting = Completer();
     final c = await ready(repository: repository);
     confirm(c);
     final pending = c.submitCardIssuance();
-    await c.submitCardIssuance();
-    c.selectDeposit('deposit-2');
+    expect(c.state.canContinue, isFalse);
+    expect(c.state.editable, isFalse);
     expect(repository.calls, 1);
     expect(c.state.submissionStatus, RequestStatus.loading);
     expect(c.state.deposit!.id, 'deposit-1');
@@ -230,6 +219,8 @@ void main() {
     await pending;
     expect(c.state.submissionStatus, RequestStatus.success);
     expect(c.state.receipt!.isMock, true);
+    c.requestBack();
+    expect(c.state.navigation, FlowNavigation.back);
   });
   test('submission error preserves draft and allows retry', () async {
     final repository = ControlledIssuanceRepository()
@@ -270,53 +261,6 @@ void main() {
       await c.submitCardIssuance();
       expect(c.state.submissionStatus, RequestStatus.success);
       expect(c.state.failure, isNull);
-    },
-  );
-  test(
-    'pending and successful submission lock all edits and catalog reset',
-    () async {
-      final repository = ControlledIssuanceRepository()
-        ..submitting = Completer();
-      final c = await ready(repository: repository);
-      confirm(c);
-      final pending = c.submitCardIssuance();
-      final lockedState = c.state;
-
-      c.updateRecipientName('late edit');
-      c.updateRecipientNationalId('1234567891');
-      c.updateRecipientMobile('09121234567');
-      c.updateAgentName('late agent');
-      c.updateAgentCode('9');
-      c.updateOtherRecipient(true);
-      c.updateAgentInclusion(true);
-      c.updatePhysicalCardOmission(true);
-      c.updateTermsAcceptance(false);
-      c.selectIssuanceType(IssuanceType.existingNumber);
-      c.selectDeposit('deposit-2');
-      c.selectAddress('home');
-      c.removeAddress('home');
-      expect(
-        c.addAddress(title: 'new', detail: 'new', postalCode: '1234567890'),
-        isFalse,
-      );
-      c.updateInvoiceExpansion(false);
-      c.updateSummaryExpansion(false);
-      c.advanceStep();
-      c.requestBack();
-      c.requestHome();
-      await c.fetchIssuanceCatalog();
-      await c.continueFlow();
-      expect(c.state, lockedState);
-      expect(repository.calls, 1);
-
-      repository.submitting!.complete(repository.submitResult);
-      await pending;
-      final completedState = c.state;
-      await c.fetchIssuanceCatalog();
-      await c.submitCardIssuance();
-      c.updateRecipientName('after success');
-      expect(c.state, completedState);
-      expect(repository.calls, 1);
     },
   );
   test(

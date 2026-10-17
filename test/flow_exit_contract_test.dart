@@ -25,9 +25,6 @@ void main() {
       cubit.selectDeposit(cubit.state.catalog!.deposits.first.id);
       cubit.requestBack();
       expect(cubit.state.navigation, FlowNavigation.confirmExit);
-      final request = cubit.state.navigationId;
-      cubit.requestBack();
-      expect(cubit.state.navigationId, request);
       cubit.handleExitConfirmationResult(null);
       expect(cubit.state.navigation, isNull);
       expect(cubit.state.draft.depositId, isNotNull);

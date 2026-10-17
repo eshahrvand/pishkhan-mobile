@@ -1,3 +1,7 @@
+import 'dart:async';
+
+import 'package:pishkhan_mobile/core/enums/request_status.dart';
+
 import '../../../../../support/cards_ui_finders.dart';
 
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -20,6 +24,7 @@ import 'package:pishkhan_mobile/features/cards/presentation/card_issuance/card_i
 import 'package:pishkhan_mobile/features/cards/presentation/card_issuance/cubit/card_issuance_cubit.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_invoice.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_address_card.dart';
+import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
 
 import '../cubit/card_issuance_cubit_test.dart'
     show ControlledIssuanceRepository;
@@ -300,6 +305,44 @@ void main() {
       }
     });
   }
+  testWidgets('loading UI disables repeat submission, editing and Back', (
+    tester,
+  ) async {
+    final repository = ControlledIssuanceRepository()..submitting = Completer();
+    await mount(tester, const CardIssuanceScreen(), repository: repository);
+    final cubit = controller(tester);
+    selection(cubit);
+    cubit.advanceStep();
+    cubit.selectAddress('home');
+    cubit.advanceStep();
+    cubit.updateTermsAcceptance(true);
+    await tester.pumpAndSettle();
+
+    await tester.tap(cardControl(tester, 'issuance_continue'));
+    await tester.pump();
+    expect(repository.calls, 1);
+    final button = tester.widget<AppButton>(
+      cardControl(tester, 'issuance_continue'),
+    );
+    expect(button.isLoading, isTrue);
+    expect(button.onPressed, isNull);
+    expect(cubit.state.editable, isFalse);
+    expect(
+      tester.widget<AppTopBar>(find.byType(AppTopBar)).onTrailingPressed,
+      isNull,
+    );
+    await tester.tap(cardControl(tester, 'issuance_continue'));
+    await tester.binding.handlePopRoute();
+    await tester.pump();
+    expect(repository.calls, 1);
+    expect(cubit.state.step, IssuanceStep.confirmation);
+    expect(cubit.state.navigation, isNull);
+
+    repository.submitting!.complete(repository.submitResult);
+    await tester.pumpAndSettle();
+    expect(cubit.state.submissionStatus, RequestStatus.success);
+    expect(find.textContaining('پرداخت یا صدور واقعی'), findsOneWidget);
+  });
   testWidgets(
     'selectors, no-physical switch, terms and submission are connected',
     (tester) async {

@@ -111,9 +111,7 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
     );
   }
 
-  void requestCardActions(String cardId) {
-    final card = _findCardById(state.visibleCards, cardId);
-    if (card == null) return;
+  void requestCardActions(ListedCard card) {
     emit(
       state.copyWith(
         selectedId: card.id,
@@ -126,21 +124,19 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
 
   void handleCardActionSelection(
     CardFeatureAction? action, {
-    ListedCard? card,
+    required ListedCard card,
   }) {
-    if (action == null) return;
-
-    if (action == CardFeatureAction.details) {
-      if (card != null) requestCardDetails(card);
-      return;
+    switch (action) {
+      case null:
+        break;
+      case CardFeatureAction.details:
+        requestCardDetails(card);
+      default:
+        requestCardService(action, card: card);
     }
-
-    requestCardService(action, card: card);
   }
 
   void requestCardDetails(ListedCard card) {
-    if (!(state.cards?.contains(card) ?? false)) return;
-
     emit(
       state.copyWith(
         effect: CardDetailsRequested(card),
@@ -150,9 +146,6 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
   }
 
   void requestCardService(CardFeatureAction action, {ListedCard? card}) {
-    if (action == CardFeatureAction.details) return;
-    if (card != null && !(state.cards?.contains(card) ?? false)) return;
-
     emit(
       state.copyWith(
         effect: CardServiceRequested(
@@ -169,10 +162,7 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
   }
 
   void requestFooterAction() {
-    final action = state.footerAction;
-    if (action == null) return;
-
-    requestCardService(action);
+    requestCardService(state.footerAction!);
   }
 
   void updateSearchQuery(String value) {
@@ -190,7 +180,6 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
   }
 
   void requestFilter() {
-    if (state.draftFilter != null) return;
     emit(
       state.copyWith(
         draftFilter: state.filter,
@@ -201,7 +190,6 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
   }
 
   void updateDraftCardStatus(String value) {
-    if (state.draftFilter == null) return;
     emit(
       state.copyWith(
         draftFilter: CardFilter(
@@ -213,7 +201,6 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
   }
 
   void updateDraftDepositNumber(String value) {
-    if (state.draftFilter == null) return;
     emit(
       state.copyWith(
         draftFilter: CardFilter(
@@ -225,7 +212,6 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
   }
 
   void handleFilterSheetResult(bool? applied) {
-    if (state.draftFilter == null) return;
     if (applied == true) {
       applyFilter();
     } else {
@@ -234,7 +220,6 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
   }
 
   void applyFilter() {
-    if (state.draftFilter == null) return;
     emit(
       state.copyWith(
         filter: state.draftFilter!,
@@ -252,18 +237,14 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
   }
 
   void resetDraftFilter() {
-    if (state.draftFilter == null) return;
-
     emit(state.copyWith(draftFilter: const CardFilter()));
   }
 
   void cancelFilter() {
-    if (state.draftFilter == null) return;
     emit(state.copyWith(draftFilter: null));
   }
 
   ListedCard? _findCardById(List<ListedCard> cards, String? cardId) {
-    if (cardId == null) return null;
     return cards.where((card) => card.id == cardId).firstOrNull;
   }
 

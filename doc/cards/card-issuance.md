@@ -139,9 +139,9 @@ National-ID validation uses the shared checksum validator; it does not verify id
 
 Edits clear terms acceptance and submission failure. Back without edits can retain acceptance. Turning conditional delivery fields off preserves their draft text, but the request omits disabled details. A nonphysical request always omits address, recipient and agent, even if earlier draft values exist.
 
-fetchIssuanceCatalog resets the draft and rejects stale fetch completions using a catalog request ID. Runtime repository replacement has been removed; dependencies are final and tests override GetIt registrations before constructing a fresh Cubit. Catalog fetching is blocked during/after successful submission so it cannot unlock a submitted request.
+fetchIssuanceCatalog resets the draft and rejects stale fetch completions using a catalog request ID. Runtime repository replacement has been removed; dependencies are final and tests override GetIt registrations before constructing a fresh Cubit. Catalog fetching is only exposed by the UI during initial loading/retry; the Cubit does not repeat that UI gate.
 
-submitCardIssuance captures the prepared request once, publishes loading before starting the Future and blocks duplicate submission and edits. Failure preserves the same request instance for retry; success leaves the flow locked with its mock receipt. Both operations return their .then chain and have one disposal/request-ID guard at callback entry. Synchronous actions have no isClosed checks. LoadIssuanceCatalog and SubmitCardIssuance convert unexpected dependency exceptions to the existing UnexpectedFailure at the UseCase boundary.
+submitCardIssuance captures the prepared request once, publishes loading before starting the Future and publishes the availability fields used to disable repeat submission and edits in UI. Failure preserves the same request instance for retry; success leaves the flow locked with its mock receipt. Both operations return their .then chain and have one disposal/request-ID guard at callback entry. Synchronous actions have no isClosed or duplicate UI-precondition guards. Required option values use non-null callbacks; the delete dialog calls removeAddress directly from Confirm, with no nullable confirmation-result action. LoadIssuanceCatalog and SubmitCardIssuance convert unexpected dependency exceptions to the existing UnexpectedFailure at the UseCase boundary.
 
 Recipient/agent fields use specific update actions; the test-only whole-recipient/agent setters are removed. Each edit updates draft, delivery eligibility, request and canContinue together, and clears terms acceptance. Fee recalculation is limited to catalog/physical-card changes. Exit confirmation compares the draft with the initial catalog-derived selection through a pure calculation, without retaining a duplicate State snapshot. Expansion state remains in State.
 
@@ -300,7 +300,7 @@ Within the flow, top/system Back goes confirmation → delivery → selection; f
 
 ## 16. Testing Strategy
 
-Test sources: test/card_issuance/card_issuance_cubit_test.dart and card_issuance_screen_test.dart. Twelve Cubit cases cover required selections, both physical paths, conditional identities, normalization, add/delete validation, unknown IDs, empty/error/retry, balance gate, duplicate submission/edit lock, retry preservation, stale loading and initial account normalization.
+Test sources: test/card_issuance/card_issuance_cubit_test.dart and card_issuance_screen_test.dart. Twelve Cubit cases cover required selections, both physical paths, conditional identities, normalization, add/delete validation, unknown IDs, empty/error/retry, balance gate, UI loading/edit availability, retry preservation, stale loading and initial account normalization.
 
 Eighteen widget cases cover seven flow states, two library Stepper samples, interactive selectors/nonphysical/terms/mock completion, address form validation, empty/error/retry, three locale/large-text cases, allowlisted routing, Back/delete cancel/confirm, and nested Cards reissue/assistant return.
 

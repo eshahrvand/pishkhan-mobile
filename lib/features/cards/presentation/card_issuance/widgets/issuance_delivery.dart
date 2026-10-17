@@ -85,9 +85,7 @@ class _IssuanceDeliveryState extends State<IssuanceDelivery> {
                   : S.current.issuanceSelectAddress,
               hint: S.current.issuanceAddressHint,
               onChanged: (v) {
-                if (v != null) {
-                  context.read<CardIssuanceCubit>().selectAddress(v);
-                }
+                context.read<CardIssuanceCubit>().selectAddress(v);
               },
             ),
             const SizedBox(height: 12),

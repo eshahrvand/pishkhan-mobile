@@ -35,9 +35,7 @@ class IssuanceSelection extends StatelessWidget {
               label: S.current.issuanceDeposit,
               hint: S.current.issuanceDepositHint,
               onChanged: (v) {
-                if (v != null) {
-                  context.read<CardIssuanceCubit>().selectDeposit(v);
-                }
+                context.read<CardIssuanceCubit>().selectDeposit(v);
               },
             ),
             if (state.deposit != null) ...[

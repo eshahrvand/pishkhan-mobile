@@ -287,7 +287,7 @@ service requests have focused actions. Reused lookups, deposit-number extraction
 footer selection, service IDs and filtering are private pure calculations;
 State publication remains explicit in each action. The fetch returns its `.then`
 chain and checks disposal/request identity once at callback entry. Synchronous
-actions have no `isClosed` checks. The unused repository replacement, selection
+actions have no `isClosed` or duplicate UI-precondition guards. Row actions receive the rendered card directly; known card/draft/footer data are not defensively revalidated. The unused repository replacement, selection
 setter and generic filter setup/setter APIs have been removed.
 
 ## Card list interaction ownership (2026-10-17)

@@ -12,9 +12,6 @@ void main() {
       await cubit.fetchCards();
       cubit.requestFilter();
       expect(cubit.state.effect, isA<CardFilterRequested>());
-      final request = cubit.state.effectId;
-      cubit.requestFilter();
-      expect(cubit.state.effectId, request);
       cubit.updateDraftCardStatus('blocked');
       cubit.updateDraftDepositNumber(cubit.state.deposits.first);
       expect(cubit.state.draftFilter!.status!.name, 'blocked');

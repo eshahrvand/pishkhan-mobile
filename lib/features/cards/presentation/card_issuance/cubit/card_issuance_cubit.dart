@@ -37,10 +37,6 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
   int _addressCounter = 0;
 
   Future<void> fetchIssuanceCatalog() {
-    if (state.submissionStatus == RequestStatus.loading ||
-        state.submissionStatus == RequestStatus.success) {
-      return Future.value();
-    }
     final requestId = ++_catalogRequestId;
 
     emit(
@@ -114,7 +110,6 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
   }
 
   void requestAddAddress() {
-    if (!state.editable) return;
     emit(
       state.copyWith(
         isAddressFormError: false,
@@ -125,7 +120,6 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
   }
 
   void requestDeleteAddress(IssuanceAddress address) {
-    if (!state.editable || state.address?.id != address.id) return;
     emit(
       state.copyWith(
         effect: IssuanceAddressRemovalRequested(address),
@@ -134,13 +128,7 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
     );
   }
 
-  void handleAddressRemovalResult(String addressId, bool? confirmed) {
-    if (confirmed != true || state.address?.id != addressId) return;
-    removeAddress(addressId);
-  }
-
   Future<void> continueFlow() {
-    if (!state.canContinue) return Future.value();
     if (state.step == IssuanceStep.confirmation) {
       return submitCardIssuance();
     }
@@ -149,31 +137,34 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
   }
 
   void requestBack() {
-    if (state.submissionStatus == RequestStatus.loading) return;
-    if (_goToPreviousStep()) return;
-    if (state.navigation == FlowNavigation.confirmExit ||
-        state.navigation == FlowNavigation.back) {
-      return;
+    switch ((state.submissionStatus, state.step)) {
+      case (RequestStatus.success, _):
+        emit(
+          state.copyWith(
+            navigation: FlowNavigation.back,
+            navigationId: state.navigationId + 1,
+          ),
+        );
+      case (_, IssuanceStep.selection):
+        final needsConfirmation =
+            state.status == RequestStatus.success &&
+            state.draft !=
+                _createInitialDraft(state.catalog, initialDepositNumber);
+        emit(
+          state.copyWith(
+            navigation: needsConfirmation
+                ? FlowNavigation.confirmExit
+                : FlowNavigation.back,
+            navigationId: state.navigationId + 1,
+          ),
+        );
+      case (_, IssuanceStep.delivery):
+      case (_, IssuanceStep.confirmation):
+        _goToPreviousStep();
     }
-    final needsConfirmation =
-        state.submissionStatus != RequestStatus.success &&
-        state.status == RequestStatus.success &&
-        state.draft != _createInitialDraft(state.catalog, initialDepositNumber);
-    emit(
-      state.copyWith(
-        navigation: needsConfirmation
-            ? FlowNavigation.confirmExit
-            : FlowNavigation.back,
-        navigationId: state.navigationId + 1,
-      ),
-    );
   }
 
   void handleExitConfirmationResult(bool? confirmed) {
-    if (state.navigation != FlowNavigation.confirmExit ||
-        state.submissionStatus == RequestStatus.loading) {
-      return;
-    }
     emit(
       state.copyWith(
         navigation: confirmed == true ? FlowNavigation.back : null,
@@ -183,7 +174,6 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
   }
 
   void requestHome() {
-    if (state.submissionStatus == RequestStatus.loading) return;
     emit(
       state.copyWith(
         navigation: FlowNavigation.home,
@@ -193,9 +183,6 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
   }
 
   void selectDeposit(String depositId) {
-    if (!state.editable || _findDeposit(state.catalog, depositId) == null) {
-      return;
-    }
     final draft = state.draft.copyWith(
       depositId: depositId,
       termsAccepted: false,
@@ -212,12 +199,7 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
     );
   }
 
-  void selectIssuanceType(IssuanceType? type) {
-    if (!state.editable ||
-        type == null ||
-        !(state.catalog?.types.contains(type) ?? false)) {
-      return;
-    }
+  void selectIssuanceType(IssuanceType type) {
     final draft = state.draft.copyWith(type: type, termsAccepted: false);
     emit(
       state.copyWith(
@@ -231,7 +213,6 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
   }
 
   void updatePhysicalCardOmission(bool value) {
-    if (!state.editable) return;
     final draft = state.draft.copyWith(
       noPhysicalCard: value,
       termsAccepted: false,
@@ -253,9 +234,6 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
   }
 
   void selectAddress(String addressId) {
-    if (!state.editable || _findAddress(state.catalog, addressId) == null) {
-      return;
-    }
     final draft = state.draft.copyWith(
       addressId: addressId,
       termsAccepted: false,
@@ -277,7 +255,6 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
     required String detail,
     required String postalCode,
   }) {
-    if (!state.editable) return false;
     final normalizedPostalCode = DigitNormalizer.normalize(postalCode).trim();
     if (title.trim().isEmpty ||
         detail.trim().isEmpty ||
@@ -316,7 +293,6 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
   }
 
   void removeAddress(String addressId) {
-    if (!state.editable || state.catalog == null) return;
     final catalog = state.catalog!.withAddresses(
       state.catalog!.addresses.where((address) => address.id != addressId),
     );
@@ -338,7 +314,6 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
   }
 
   void updateOtherRecipient(bool value) {
-    if (!state.editable) return;
     final draft = state.draft.copyWith(
       otherRecipient: value,
       termsAccepted: false,
@@ -355,7 +330,6 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
   }
 
   void updateAgentInclusion(bool value) {
-    if (!state.editable) return;
     final draft = state.draft.copyWith(
       includeAgent: value,
       termsAccepted: false,
@@ -372,7 +346,6 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
   }
 
   void updateRecipientName(String value) {
-    if (!state.editable) return;
     final draft = state.draft.copyWith(
       recipient: state.draft.recipient.copyWith(name: value),
       termsAccepted: false,
@@ -389,7 +362,6 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
   }
 
   void updateRecipientNationalId(String value) {
-    if (!state.editable) return;
     final draft = state.draft.copyWith(
       recipient: state.draft.recipient.copyWith(
         nationalId: DigitNormalizer.normalize(value),
@@ -408,7 +380,6 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
   }
 
   void updateRecipientMobile(String value) {
-    if (!state.editable) return;
     final draft = state.draft.copyWith(
       recipient: state.draft.recipient.copyWith(
         mobile: DigitNormalizer.normalize(value),
@@ -427,7 +398,6 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
   }
 
   void updateAgentName(String value) {
-    if (!state.editable) return;
     final draft = state.draft.copyWith(
       agent: state.draft.agent.copyWith(name: value),
       termsAccepted: false,
@@ -444,7 +414,6 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
   }
 
   void updateAgentCode(String value) {
-    if (!state.editable) return;
     final draft = state.draft.copyWith(
       agent: state.draft.agent.copyWith(code: DigitNormalizer.normalize(value)),
       termsAccepted: false,
@@ -461,7 +430,6 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
   }
 
   void updateTermsAcceptance(bool value) {
-    if (!state.editable) return;
     final draft = state.draft.copyWith(termsAccepted: value);
     emit(
       state.copyWith(
@@ -473,21 +441,14 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
   }
 
   void updateInvoiceExpansion(bool value) {
-    if (!state.editable) return;
     emit(state.copyWith(invoiceExpanded: value));
   }
 
   void updateSummaryExpansion(bool value) {
-    if (!state.editable) return;
     emit(state.copyWith(summaryExpanded: value));
   }
 
   void advanceStep() {
-    if (!state.editable ||
-        !state.canContinue ||
-        state.step == IssuanceStep.confirmation) {
-      return;
-    }
     final nextStep =
         state.step == IssuanceStep.delivery || state.draft.noPhysicalCard
         ? IssuanceStep.confirmation
@@ -500,8 +461,7 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
     );
   }
 
-  bool _goToPreviousStep() {
-    if (!state.editable || state.step == IssuanceStep.selection) return false;
+  void _goToPreviousStep() {
     final previousStep =
         state.step == IssuanceStep.delivery || state.draft.noPhysicalCard
         ? IssuanceStep.selection
@@ -513,18 +473,9 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
         canContinue: _canContinue(previousStep, state.catalog, state.draft),
       ),
     );
-    return true;
   }
 
   Future<void> submitCardIssuance() {
-    if (state.step != IssuanceStep.confirmation ||
-        !state.canContinue ||
-        !state.editable ||
-        state.request == null ||
-        state.submissionStatus == RequestStatus.loading ||
-        state.submissionStatus == RequestStatus.success) {
-      return Future.value();
-    }
     final request = state.request!;
     final requestId = ++_submissionRequestId;
     emit(

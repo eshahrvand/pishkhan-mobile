@@ -18,7 +18,7 @@ class IssuanceSelect<T> extends StatelessWidget {
   final List<AppSelectOption<T>> options;
   final String label, hint;
   final T? value;
-  final ValueChanged<T?> onChanged;
+  final ValueChanged<T> onChanged;
   final bool enabled;
   final Color? hintColor;
   @override

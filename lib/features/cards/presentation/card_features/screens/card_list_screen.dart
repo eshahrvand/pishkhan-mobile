@@ -258,7 +258,7 @@ class _CardListScreenState extends State<CardListScreen> {
                                   hasFooter: state.footerAction != null,
                                   onMore: (card) => context
                                       .read<CardFeaturesCubit>()
-                                      .requestCardActions(card.id),
+                                      .requestCardActions(card),
                                 ),
                               ),
                             ],

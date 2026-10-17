@@ -88,7 +88,7 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
           context.read<CardIssuanceCubit>(),
         );
       case IssuanceAddressRemovalRequested(:final address):
-        final remove = await showModalBottomSheet<bool>(
+        await showModalBottomSheet<void>(
           context: context,
           isScrollControlled: true,
           backgroundColor: context.colors.surfaceSubtle,
@@ -97,18 +97,15 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
               child: AppDeleteAddressSheet(
                 address: address.detail,
                 postalCode: address.postalCode,
-                onConfirm: () => Navigator.of(sheetContext).pop(true),
-                onCancel: () => Navigator.of(sheetContext).pop(false),
+                onConfirm: () {
+                  context.read<CardIssuanceCubit>().removeAddress(address.id);
+                  Navigator.of(sheetContext).pop();
+                },
+                onCancel: () => Navigator.of(sheetContext).pop(),
               ),
             ),
           ),
         );
-        if (context.mounted) {
-          context.read<CardIssuanceCubit>().handleAddressRemovalResult(
-            address.id,
-            remove,
-          );
-        }
       case null:
         break;
     }
@@ -174,7 +171,8 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
                 return PopScope<void>(
                   canPop: state.navigation == FlowNavigation.back,
                   onPopInvokedWithResult: (didPop, _) {
-                    if (!didPop) {
+                    if (!didPop &&
+                        state.submissionStatus != RequestStatus.loading) {
                       context.read<CardIssuanceCubit>().requestBack();
                     }
                   },
@@ -191,8 +189,12 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
                               size: 24,
                             ),
                             trailingTooltip: S.current.backLabel,
-                            onTrailingPressed: () =>
-                                context.read<CardIssuanceCubit>().requestBack(),
+                            onTrailingPressed:
+                                state.submissionStatus == RequestStatus.loading
+                                ? null
+                                : () => context
+                                      .read<CardIssuanceCubit>()
+                                      .requestBack(),
                           ),
                           Expanded(
                             // The assistant and footer overlay the scroll viewport; a Column
@@ -254,12 +256,17 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
                                             IssuanceStep.confirmation)
                                         ? 136
                                         : 76,
-                                    child: AppAssistantButton(
-                                      onPressed:
-                                          widget.onAssistantPressed ??
-                                          () => context
-                                              .read<CardIssuanceCubit>()
-                                              .requestBack(),
+                                    child: IgnorePointer(
+                                      ignoring:
+                                          state.submissionStatus ==
+                                          RequestStatus.loading,
+                                      child: AppAssistantButton(
+                                        onPressed:
+                                            widget.onAssistantPressed ??
+                                            () => context
+                                                .read<CardIssuanceCubit>()
+                                                .requestBack(),
+                                      ),
                                     ),
                                   ),
                                   Positioned(

@@ -622,7 +622,7 @@ final class RequiresSignature extends ConfirmationPolicy { const RequiresSignatu
 Each use case declares its policy and a shared `RequestSubmitter` applies it. `RequiresSignature` is not implemented today, but the seam remains open.
 
 > [!WARNING]
-> **Consequence of removing OTP:** the interval between the user's action and submission is effectively zero. A double tap or a network retry produces a duplicate request. Two defensive layers are mandatory: per-operation submission guards (Section 12.4) and `Idempotency-Key` in the network layer (Section 10.3).
+> **Consequence of removing OTP:** the interval between the user's action and submission is effectively zero. A double tap or a network retry produces a duplicate request. UI disables repeat interaction while loading (Section 12.4); `Idempotency-Key` in the network layer (Section 10.3) maintains request identity across retries.
 
 **Sensitive services:** the list of services that require additional confirmation despite the rule above (for example local biometric confirmation) is determined by the bank's security team. The architecture enables this through `ConfirmationPolicy` and server configuration.
 
@@ -989,7 +989,7 @@ refactors, not a claim that every existing Cubit already complies.
 * Store derived results needed by UI in State and update them together with their inputs using explicit `emit(state.copyWith(...))` in the action. Pure helpers return values; they never construct or publish State. No State-preparation/publication intermediary, overridden `emit` or separate rules facade may hide these transitions.
 * Cubit constructors accept an initial State and real entry parameters only. A Cubit resolves its registered Repository, service and UseCase dependencies from GetIt in its own fields; dependencies are not passed through Cubit constructors, screen constructors, route arguments or child widgets. Cubit/Bloc are never registered in GetIt. Do not copy the other application's models or imports. See the UI/Cubit/State contract, Section 2.2.
 * Keep defaults non-null for known values (`bool`, counters, lists and statuses). Use nullable fields when absence is meaningful. Do not copy nullable defaults mechanically from the reference.
-* Keep controllers, focus nodes and `BuildContext` in UI lifecycle owners. No global mutable feature caches. Preserve disposal, stale-response guards and duplicate-request protection.
+* Keep controllers, focus nodes and `BuildContext` in UI lifecycle owners. No global mutable feature caches. Preserve disposal/stale-response checks, UI loading/enablement and server request identity.
 * Async Cubit actions return `Future<void>` through a returned `.then` chain; they do not use `async`/`await`, `try/catch` or `catchError`. `Err` is a value handled by a `switch` inside `.then`, and the Repository/UseCase boundary converts every exception to `Err`. Async actions avoid emitting after disposal (Section 12.4). See the UI/Cubit/State contract, Section 8.
 * Do not log credentials, OTPs, PINs or authentication tokens. Sensitive State types retain disabled generated `toString` output.
 
@@ -1058,6 +1058,13 @@ In `build.yaml`, each generator's scope is narrowed: `json_serializable` only un
 
 ### 12.4 Cubit Actions and Request Lifecycle
 
+**Owner amendment:** UI owns interaction availability through loading, enabled
+controls and conditional actions. Cubit actions do not recheck those same
+preconditions on entry. See coding-contract Section 8.2. Validation and actual
+flow choices remain in Cubit/Domain; async lifetime checks remain at completion.
+Confirmation buttons can invoke a specific action with a required ID directly;
+Cancel/dismissal do not invoke that action.
+
 One action represents a coherent operation or user event. Fetching a card list
 includes publishing loading, success or failure; these transitions remain
 visible in that action. Different user operations, such as requesting card
@@ -1066,8 +1073,8 @@ calculations may be private pure helpers; dividing an operation into generic
 State-publication helpers is prohibited. Action naming and worked examples are
 specified in coding-contract Sections 6.6–6.7.
 
-Actions resolve dependencies in Cubit-owned fields (Section 12.2), return their
-async work, and retain operation-specific business guards. A BaseCubit or
+Actions resolve dependencies in Cubit-owned fields (Section 12.2) and return
+their async work. They trust the UI interaction contract without duplicate entry guards. A BaseCubit or
 `safeEmit` wrapper must not hide State transitions or disposal checks.
 
 ```dart
@@ -1088,7 +1095,7 @@ Future<void> fetchCardServiceCatalog() {
 }
 ```
 
-* Every submission checks its operation's loading/success status before starting and publishes loading before starting the Future. Relevant edit actions also enforce the pending-operation lock; disabling the button alone is insufficient. Server idempotency remains mandatory for bank execution.
+* Submission publishes loading before starting the Future. UI uses that State to disable repeat submission, editing and Back where applicable. Do not repeat loading/success/eligibility checks at the start of the Cubit action. Server authorization and idempotency remain mandatory for bank execution.
 * Every asynchronous completion checks `isClosed` once, at the top of its `.then` (or Timer) callback. Synchronous Cubit methods and the start of async methods do not check it, because the Cubit closes together with the screen that calls them. Where requests can overlap or inputs/adapters change, a generation/request ID rejects obsolete responses in the same guard.
 * Dispose timers and owned resources when the owning scope closes. Keep per-flow caches private and in memory only when their lifetime matches the flow; never use global mutable caches.
 * Related derived fields must be updated in one snapshot whenever their inputs change. Calculations may return pure values, but `copyWith` and `emit` stay explicit in the action. Do not add helpers that prepare, return or publish State, even privately.
@@ -1139,8 +1146,8 @@ abstract class LoanRequestFormState with _$LoanRequestFormState {
   afterward. Replacing a registration does not replace a dependency already held
   by an existing Cubit. Create a fresh scope when testing a different dependency.
 * A style refactor preserves the current plain State structure, initial snapshot,
-  request identity, stale-response protection, typed effect delivery and business
-  guards. Removing an unused API requires updating its consumers and behavior
+  request identity, stale-response protection, typed effect delivery, actual
+  validation and flow choices; do not add redundant action-entry checks. Removing an unused API requires updating its consumers and behavior
   tests; it does not authorize deleting operational State fields automatically.
 
 ---
@@ -1591,14 +1598,14 @@ On seeing the `resume` parameter, the flow fetches state from the server instead
 
 ### 16.3 Cubit Testing
 
-Using `bloc_test` to assert states are emitted in the correct order. For forms, tests cover field-level validation and operation-status guards against repeated invocation.
+Using `bloc_test` to assert states are emitted in the correct order. For forms, tests cover field-level validation and State that drives UI availability during pending operations.
 
 Exercise actual actions while their Provider-owned scope is alive. Do not make
 silent no-ops for arbitrary synchronous calls after `close()` a test requirement;
 that would enforce guards prohibited by the coding contract. Test the real async
 boundaries: pending completion after close, out-of-order responses, preserved
 selection/search during a fetch, repeated effects, filter Apply/cancel and
-duplicate-submission protection. UI tests cover safe delivery of delayed modal
+loading/disabled UI interaction. UI tests cover safe delivery of delayed modal
 or post-frame callbacks. Data-dependency overrides follow Section 12.7.
 
 ### 16.4 End-to-End Testing
@@ -1850,6 +1857,12 @@ The complete list is provided in the separate document "Bank Requirements and De
 ---
 
 ## 21. Change Log
+
+**2026-10-17 UI-owned interaction gating:** The owner superseded the earlier
+Cubit submission/edit entry guards. Controls own loading/enablement; Cubits trust
+valid selected inputs and confirmed events. Async disposal/stale-response checks,
+actual validation and server authorization/idempotency remain. Sections 12.4,
+12.7 and 16.3 reflect this boundary.
 
 **2026-10-17 approved Cubit readability review:** Section 12 separates architectural
 ownership/lifetime from coding-contract Sections 6.6–6.7. State examples preserve

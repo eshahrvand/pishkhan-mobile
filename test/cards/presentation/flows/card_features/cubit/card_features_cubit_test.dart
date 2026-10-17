@@ -24,13 +24,13 @@ void main() {
           );
       addTearDown(cubit.close);
       await cubit.fetchCards();
-      cubit.requestCardActions('unknown');
-      expect(cubit.state.effect, isNull);
-      cubit.requestCardActions('resalat-0');
+      cubit.requestCardActions(
+        cubit.state.visibleCards.firstWhere((card) => card.id == 'resalat-0'),
+      );
       final card = (cubit.state.effect as CardActionsRequested).card;
       expect(cubit.state.selectedCard, card);
       final previousId = cubit.state.effectId;
-      cubit.requestCardActions(card.id);
+      cubit.requestCardActions(card);
       expect(cubit.state.effectId, previousId + 1);
       cubit.handleCardActionSelection(CardFeatureAction.details, card: card);
       expect((cubit.state.effect as CardDetailsRequested).card, card);
@@ -121,7 +121,9 @@ void main() {
       await pending;
       expect(cubit.state.visibleCards.length, 4);
       expect(() => cubit.state.cards!.clear(), throwsUnsupportedError);
-      cubit.requestCardActions('resalat-1');
+      cubit.requestCardActions(
+        cubit.state.visibleCards.firstWhere((card) => card.id == 'resalat-1'),
+      );
       expect(cubit.state.selectedCard!.id, 'resalat-1');
       cubit.selectCategory(CardCategory.family);
       expect(cubit.state.visibleCards.length, 2);
@@ -203,7 +205,9 @@ void main() {
     addTearDown(cubit.close);
     await cubit.fetchCards();
     cubit.selectCategory(CardCategory.resalat);
-    cubit.requestCardActions('resalat-1');
+    cubit.requestCardActions(
+      cubit.state.visibleCards.firstWhere((card) => card.id == 'resalat-1'),
+    );
     final selectedCard = cubit.state.selectedCard!;
     final updatedCard = ListedCard(
       id: selectedCard.id,
@@ -259,38 +263,19 @@ void main() {
       expect(cubit.state.visibleCards.single.id, 'resalat-3');
     },
   );
-  test(
-    'cancelled actions and cards absent from the catalog publish no new effect',
-    () async {
-      final repository = FakeCardsRepository();
-      final cubit =
-          withRegisteredDependency<CardsRepository, CardFeaturesCubit>(
-            repository,
-            () => CardFeaturesCubit(),
-          );
-      addTearDown(cubit.close);
-      await cubit.fetchCards();
-      cubit.requestCardActions('resalat-0');
-      final previousCard = cubit.state.selectedCard!;
-      final actionEffectId = cubit.state.effectId;
-      cubit.handleCardActionSelection(null, card: previousCard);
-      cubit.handleCardActionSelection(CardFeatureAction.details);
-      expect(cubit.state.effectId, actionEffectId);
-
-      repository.result = const Success([]);
-      await cubit.fetchCards();
-      final effectId = cubit.state.effectId;
-      cubit.handleCardActionSelection(
-        CardFeatureAction.details,
-        card: previousCard,
-      );
-      cubit.handleCardActionSelection(
-        CardFeatureAction.reissue,
-        card: previousCard,
-      );
-      expect(cubit.state.effectId, effectId);
-    },
-  );
+  test('dismissing the action sheet does not request a service', () async {
+    final cubit = withRegisteredDependency<CardsRepository, CardFeaturesCubit>(
+      MockCardsRepository(),
+      () => CardFeaturesCubit(),
+    );
+    addTearDown(cubit.close);
+    await cubit.fetchCards();
+    final card = cubit.state.visibleCards.first;
+    cubit.requestCardActions(card);
+    final effectId = cubit.state.effectId;
+    cubit.handleCardActionSelection(null, card: card);
+    expect(cubit.state.effectId, effectId);
+  });
   test(
     'outdated responses and completion after close cannot change state',
     () async {
