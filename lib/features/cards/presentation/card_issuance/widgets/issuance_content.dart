@@ -55,7 +55,9 @@ class IssuanceContent extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   AppButton(
-                    onPressed: context.read<CardIssuanceCubit>().load,
+                    onPressed: context
+                        .read<CardIssuanceCubit>()
+                        .fetchIssuanceCatalog,
                     label: S.current.dashboardRetry,
                   ),
                 ],

@@ -95,7 +95,7 @@ void main() {
       .read<CardIssuanceCubit>();
   void selection(CardIssuanceCubit c) {
     c.selectDeposit('deposit-1');
-    c.selectType(IssuanceType.newNumber);
+    c.selectIssuanceType(IssuanceType.newNumber);
   }
 
   testWidgets(
@@ -229,19 +229,19 @@ void main() {
         await mount(tester, const CardIssuanceScreen());
         final c = controller(tester);
         if (frame == 'selection-filled') selection(c);
-        if (frame == 'no-physical') c.setNoPhysicalCard(true);
+        if (frame == 'no-physical') c.updatePhysicalCardOmission(true);
         if (frame.startsWith('address') || frame.startsWith('confirmation')) {
           selection(c);
-          c.next();
+          c.advanceStep();
         }
         if (frame == 'address-filled' || frame.startsWith('confirmation')) {
           c.selectAddress('home');
         }
         if (frame.startsWith('confirmation')) {
-          c.next();
-          c.acceptTerms(true);
+          c.advanceStep();
+          c.updateTermsAcceptance(true);
         }
-        if (frame == 'confirmation-closed') c.expandInvoice(false);
+        if (frame == 'confirmation-closed') c.updateInvoiceExpansion(false);
         await tester.runAsync(() async {
           await Future<void>.delayed(const Duration(milliseconds: 100));
         });
@@ -342,7 +342,7 @@ void main() {
     await mount(tester, const CardIssuanceScreen());
     final c = controller(tester);
     selection(c);
-    c.next();
+    c.advanceStep();
     await tester.pumpAndSettle();
     await tap(tester, 'issuance_add_address');
     await tap(tester, 'issuance_save_address');
@@ -406,9 +406,9 @@ void main() {
         );
         final c = controller(tester);
         selection(c);
-        c.next();
+        c.advanceStep();
         c.selectAddress('home');
-        c.next();
+        c.advanceStep();
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull);
         expect(cardControl(tester, 'issuance_continue'), findsOneWidget);
@@ -446,9 +446,9 @@ void main() {
       await mount(tester, const CardIssuanceScreen());
       final c = controller(tester);
       selection(c);
-      c.next();
+      c.advanceStep();
       c.selectAddress('home');
-      c.next();
+      c.advanceStep();
       await tester.pumpAndSettle();
       await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();

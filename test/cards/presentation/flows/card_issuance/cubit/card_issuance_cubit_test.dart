@@ -22,14 +22,20 @@ class ControlledIssuanceRepository implements CardIssuanceRepository {
   Completer<Result<IssuanceCatalog>>? loading;
   Completer<Result<IssuanceReceipt>>? submitting;
   int calls = 0;
+  bool throwOnLoad = false;
+  bool throwOnSubmit = false;
   IssuanceRequest? captured;
   @override
-  Future<Result<IssuanceCatalog>> load() async =>
-      loading == null ? catalogResult : loading!.future;
+  Future<Result<IssuanceCatalog>> load() async {
+    if (throwOnLoad) throw StateError('catalog transport failure');
+    return loading == null ? catalogResult : loading!.future;
+  }
+
   @override
   Future<Result<IssuanceReceipt>> submit(IssuanceRequest request) async {
     calls++;
     captured = request;
+    if (throwOnSubmit) throw StateError('submission transport failure');
     return submitting == null ? submitResult : submitting!.future;
   }
 }
@@ -42,36 +48,36 @@ void main() {
           () => CardIssuanceCubit(),
         );
     addTearDown(cubit.close);
-    await cubit.load();
+    await cubit.fetchIssuanceCatalog();
     return cubit;
   }
 
   void select(CardIssuanceCubit cubit) {
     cubit.selectDeposit('deposit-1');
-    cubit.selectType(IssuanceType.newNumber);
+    cubit.selectIssuanceType(IssuanceType.newNumber);
   }
 
   void confirm(CardIssuanceCubit cubit) {
     select(cubit);
-    cubit.next();
+    cubit.advanceStep();
     cubit.selectAddress('home');
-    cubit.next();
-    cubit.acceptTerms(true);
+    cubit.advanceStep();
+    cubit.updateTermsAcceptance(true);
   }
 
   test(
     'both selections remain required with no physical card enabled',
     () async {
       final c = await ready();
-      c.setNoPhysicalCard(true);
-      c.next();
+      c.updatePhysicalCardOmission(true);
+      c.advanceStep();
       expect(c.state.step, IssuanceStep.selection);
       expect(c.state.canContinue, false);
       c.selectDeposit('deposit-1');
       expect(c.state.canContinue, false);
-      c.selectType(IssuanceType.newNumber);
+      c.selectIssuanceType(IssuanceType.newNumber);
       expect(c.state.canContinue, true);
-      c.next();
+      c.advanceStep();
       expect(c.state.step, IssuanceStep.confirmation);
       expect(c.state.request!.address, isNull);
       expect(c.state.totalRial, 600000);
@@ -79,24 +85,24 @@ void main() {
         c.state.fees.any((f) => f.kind == IssuanceFeeKind.delivery),
         false,
       );
-      c.back();
+      c.requestBack();
       expect(c.state.step, IssuanceStep.selection);
     },
   );
   test('physical path requires address and explicit terms; fee total follows items', () async {
     final c = await ready();
     select(c);
-    c.next();
+    c.advanceStep();
     expect(c.state.step, IssuanceStep.delivery);
     expect(c.state.canContinue, false);
     c.selectAddress('home');
-    c.next();
+    c.advanceStep();
     expect(c.state.step, IssuanceStep.confirmation);
     expect(c.state.totalRial, 1600000);
     expect(c.state.canContinue, false);
-    c.acceptTerms(true);
+    c.updateTermsAcceptance(true);
     expect(c.state.canContinue, true);
-    c.back();
+    c.requestBack();
     c.selectAddress('home');
     expect(c.state.draft.termsAccepted, false);
   });
@@ -105,24 +111,21 @@ void main() {
     () async {
       final c = await ready();
       select(c);
-      c.next();
+      c.advanceStep();
       c.selectAddress('home');
-      c.setOtherRecipient(true);
+      c.updateOtherRecipient(true);
       expect(c.state.canContinue, false);
-      c.setRecipient(
-        const DeliveryPerson(
-          name: 'گیرنده',
-          nationalId: '۱۲۳۴۵۶۷۸۹۱',
-          mobile: '۰۹۱۲۱۲۳۴۵۶۷',
-        ),
-      );
+      c.updateRecipientName('گیرنده');
+      c.updateRecipientNationalId('۱۲۳۴۵۶۷۸۹۱');
+      c.updateRecipientMobile('۰۹۱۲۱۲۳۴۵۶۷');
       expect(c.state.draft.recipient.nationalId, '1234567891');
       expect(c.state.canContinue, true);
-      c.setIncludeAgent(true);
+      c.updateAgentInclusion(true);
       expect(c.state.canContinue, false);
-      c.setAgent(const BankAgent(name: 'کارشناس', code: '۱۲۳'));
+      c.updateAgentName('کارشناس');
+      c.updateAgentCode('۱۲۳');
       expect(c.state.canContinue, true);
-      c.next();
+      c.advanceStep();
       expect(c.state.request!.recipient, isNotNull);
       expect(c.state.request!.agent!.code, '123');
     },
@@ -130,12 +133,12 @@ void main() {
   test('hidden physical data is excluded from nonphysical request', () async {
     final c = await ready();
     confirm(c);
-    c.back();
-    c.setOtherRecipient(true);
-    c.setIncludeAgent(true);
-    c.back();
-    c.setNoPhysicalCard(true);
-    c.next();
+    c.requestBack();
+    c.updateOtherRecipient(true);
+    c.updateAgentInclusion(true);
+    c.requestBack();
+    c.updatePhysicalCardOmission(true);
+    c.advanceStep();
     expect(c.state.request!.address, isNull);
     expect(c.state.request!.recipient, isNull);
     expect(c.state.request!.agent, isNull);
@@ -165,6 +168,7 @@ void main() {
     final c = await ready();
     c.selectDeposit('unknown');
     c.selectAddress('unknown');
+    c.selectIssuanceType(null);
     expect(c.state.deposit, isNull);
     expect(c.state.address, isNull);
     expect(c.state.selectionComplete, false);
@@ -184,13 +188,13 @@ void main() {
           walletBalanceRial: 0,
         ),
       );
-      await c.load();
+      await c.fetchIssuanceCatalog();
       expect(c.state.status, RequestStatus.success);
       expect(c.state.catalog!.deposits, isEmpty);
       repository.catalogResult = Success(
         MockCardIssuanceRepository.sampleCatalog,
       );
-      await c.load();
+      await c.fetchIssuanceCatalog();
       expect(c.state.status, RequestStatus.success);
     },
   );
@@ -208,15 +212,15 @@ void main() {
     );
     confirm(c);
     expect(c.state.canContinue, false);
-    await c.submit();
+    await c.submitCardIssuance();
     expect(c.state.status, RequestStatus.success);
   });
   test('submission captures selection once, locks editing, and reports mock receipt', () async {
     final repository = ControlledIssuanceRepository()..submitting = Completer();
     final c = await ready(repository: repository);
     confirm(c);
-    final pending = c.submit();
-    await c.submit();
+    final pending = c.submitCardIssuance();
+    await c.submitCardIssuance();
     c.selectDeposit('deposit-2');
     expect(repository.calls, 1);
     expect(c.state.submissionStatus, RequestStatus.loading);
@@ -232,27 +236,169 @@ void main() {
       ..submitResult = const Err(DataFailure('rejected'));
     final c = await ready(repository: repository);
     confirm(c);
-    await c.submit();
+    await c.submitCardIssuance();
+    final confirmedRequest = repository.captured;
     expect(c.state.failure!.code, 'rejected');
     expect(c.state.canContinue, true);
     repository.submitResult = const Success(
       IssuanceReceipt(reference: 'retry', isMock: true),
     );
-    await c.submit();
+    await c.submitCardIssuance();
+    expect(identical(repository.captured, confirmedRequest), isTrue);
     expect(c.state.receipt!.reference, 'retry');
     expect(c.state.failure, isNull);
   });
-  test('repository replacement ignores stale loads', () async {
-    final old = ControlledIssuanceRepository()..loading = Completer();
+  test(
+    'unexpected catalog and submission exceptions become retryable failures',
+    () async {
+      final repository = ControlledIssuanceRepository()..throwOnLoad = true;
+      final c = await ready(repository: repository);
+      expect(c.state.status, RequestStatus.failure);
+      expect(c.state.failure, const UnexpectedFailure());
+
+      repository.throwOnLoad = false;
+      await c.fetchIssuanceCatalog();
+      confirm(c);
+      repository.throwOnSubmit = true;
+      await c.submitCardIssuance();
+      expect(c.state.submissionStatus, RequestStatus.failure);
+      expect(c.state.failure, const UnexpectedFailure());
+      expect(c.state.editable, isTrue);
+      expect(c.state.canContinue, isTrue);
+
+      repository.throwOnSubmit = false;
+      await c.submitCardIssuance();
+      expect(c.state.submissionStatus, RequestStatus.success);
+      expect(c.state.failure, isNull);
+    },
+  );
+  test(
+    'pending and successful submission lock all edits and catalog reset',
+    () async {
+      final repository = ControlledIssuanceRepository()
+        ..submitting = Completer();
+      final c = await ready(repository: repository);
+      confirm(c);
+      final pending = c.submitCardIssuance();
+      final lockedState = c.state;
+
+      c.updateRecipientName('late edit');
+      c.updateRecipientNationalId('1234567891');
+      c.updateRecipientMobile('09121234567');
+      c.updateAgentName('late agent');
+      c.updateAgentCode('9');
+      c.updateOtherRecipient(true);
+      c.updateAgentInclusion(true);
+      c.updatePhysicalCardOmission(true);
+      c.updateTermsAcceptance(false);
+      c.selectIssuanceType(IssuanceType.existingNumber);
+      c.selectDeposit('deposit-2');
+      c.selectAddress('home');
+      c.removeAddress('home');
+      expect(
+        c.addAddress(title: 'new', detail: 'new', postalCode: '1234567890'),
+        isFalse,
+      );
+      c.updateInvoiceExpansion(false);
+      c.updateSummaryExpansion(false);
+      c.advanceStep();
+      c.requestBack();
+      c.requestHome();
+      await c.fetchIssuanceCatalog();
+      await c.continueFlow();
+      expect(c.state, lockedState);
+      expect(repository.calls, 1);
+
+      repository.submitting!.complete(repository.submitResult);
+      await pending;
+      final completedState = c.state;
+      await c.fetchIssuanceCatalog();
+      await c.submitCardIssuance();
+      c.updateRecipientName('after success');
+      expect(c.state, completedState);
+      expect(repository.calls, 1);
+    },
+  );
+  test(
+    'each recipient and agent edit publishes fresh eligibility and request',
+    () async {
+      final c = await ready();
+      confirm(c);
+      c.updateOtherRecipient(true);
+      expect(c.state.draft.termsAccepted, isFalse);
+      expect(c.state.deliveryComplete, isFalse);
+      expect(c.state.request, isNull);
+      c.updateRecipientName('گیرنده');
+      c.updateRecipientNationalId('۱۲۳۴۵۶۷۸۹۱');
+      c.updateRecipientMobile('۰۹۱۲۱۲۳۴۵۶۷');
+      expect(c.state.deliveryComplete, isTrue);
+      expect(c.state.request!.recipient, c.state.draft.recipient);
+      c.updateTermsAcceptance(true);
+      expect(c.state.canContinue, isTrue);
+
+      c.updateAgentInclusion(true);
+      expect(c.state.canContinue, isFalse);
+      expect(c.state.request, isNull);
+      c.updateAgentName('کارشناس');
+      c.updateAgentCode('۱۲۳');
+      expect(c.state.request!.agent!.code, '123');
+      c.updateTermsAcceptance(true);
+      expect(c.state.canContinue, isTrue);
+      c.updateRecipientMobile('۰۹');
+      expect(c.state.deliveryComplete, isFalse);
+      expect(c.state.request, isNull);
+      expect(c.state.canContinue, isFalse);
+      expect(c.state.draft.termsAccepted, isFalse);
+    },
+  );
+  test(
+    'catalog and submission completions after close preserve the last state',
+    () async {
+      final repository = ControlledIssuanceRepository()..loading = Completer();
+      final catalogCubit =
+          withRegisteredDependency<CardIssuanceRepository, CardIssuanceCubit>(
+            repository,
+            () => CardIssuanceCubit(),
+          );
+      final fetching = catalogCubit.fetchIssuanceCatalog();
+      await catalogCubit.close();
+      final closedCatalogState = catalogCubit.state;
+      repository.loading!.complete(repository.catalogResult);
+      await fetching;
+      expect(catalogCubit.state, closedCatalogState);
+
+      final submittingRepository = ControlledIssuanceRepository()
+        ..submitting = Completer();
+      final submittingCubit =
+          withRegisteredDependency<CardIssuanceRepository, CardIssuanceCubit>(
+            submittingRepository,
+            () => CardIssuanceCubit(),
+          );
+      await submittingCubit.fetchIssuanceCatalog();
+      confirm(submittingCubit);
+      final submitting = submittingCubit.submitCardIssuance();
+      await submittingCubit.close();
+      final closedSubmissionState = submittingCubit.state;
+      submittingRepository.submitting!.complete(
+        submittingRepository.submitResult,
+      );
+      await submitting;
+      expect(submittingCubit.state, closedSubmissionState);
+    },
+  );
+  test('overlapping fetches ignore the older catalog result', () async {
+    final repository = ControlledIssuanceRepository()..loading = Completer();
     final c =
         withRegisteredDependency<CardIssuanceRepository, CardIssuanceCubit>(
-          old,
+          repository,
           () => CardIssuanceCubit(),
         );
     addTearDown(c.close);
-    final loading = c.load();
-    await c.changeRepository(MockCardIssuanceRepository());
-    old.loading!.complete(const Err(DataFailure('stale')));
+    final firstResponse = repository.loading!;
+    final loading = c.fetchIssuanceCatalog();
+    repository.loading = null;
+    await c.fetchIssuanceCatalog();
+    firstResponse.complete(const Err(DataFailure('stale')));
     await loading;
     expect(c.state.status, RequestStatus.success);
   });
@@ -263,8 +409,10 @@ void main() {
           () => CardIssuanceCubit(initialDepositNumber: '10.1234567.1'),
         );
     addTearDown(c.close);
-    await c.load();
+    await c.fetchIssuanceCatalog();
     expect(c.state.deposit!.id, 'deposit-1');
     expect(c.state.draft.type, isNull);
+    c.requestBack();
+    expect(c.state.navigation, FlowNavigation.back);
   });
 }

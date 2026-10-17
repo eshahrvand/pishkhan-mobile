@@ -128,7 +128,7 @@ class _IssuanceDeliveryState extends State<IssuanceDelivery> {
             IssuanceToggleRow(
               label: S.current.issuanceOtherRecipient,
               value: state.draft.otherRecipient,
-              onChanged: context.read<CardIssuanceCubit>().setOtherRecipient,
+              onChanged: context.read<CardIssuanceCubit>().updateOtherRecipient,
             ),
             if (state.draft.otherRecipient) ...[
               const SizedBox(height: 16),
@@ -166,7 +166,7 @@ class _IssuanceDeliveryState extends State<IssuanceDelivery> {
             IssuanceToggleRow(
               label: S.current.issuanceIncludeAgent,
               value: state.draft.includeAgent,
-              onChanged: context.read<CardIssuanceCubit>().setIncludeAgent,
+              onChanged: context.read<CardIssuanceCubit>().updateAgentInclusion,
             ),
             if (state.draft.includeAgent) ...[
               const SizedBox(height: 16),

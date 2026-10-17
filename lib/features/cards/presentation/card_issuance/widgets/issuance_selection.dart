@@ -90,7 +90,7 @@ class IssuanceSelection extends StatelessWidget {
               label: S.current.issuanceType,
               hint: S.current.issuanceTypeHint,
               onChanged: (v) {
-                if (v != null) context.read<CardIssuanceCubit>().selectType(v);
+                context.read<CardIssuanceCubit>().selectIssuanceType(v);
               },
             ),
             const SizedBox(height: 20),
@@ -99,7 +99,9 @@ class IssuanceSelection extends StatelessWidget {
             IssuanceToggleRow(
               label: S.current.issuanceNoPhysical,
               value: state.draft.noPhysicalCard,
-              onChanged: context.read<CardIssuanceCubit>().setNoPhysicalCard,
+              onChanged: context
+                  .read<CardIssuanceCubit>()
+                  .updatePhysicalCardOmission,
             ),
           ],
         );

@@ -44,7 +44,9 @@ class IssuanceFooter extends StatelessWidget {
                           value: state.draft.termsAccepted,
                           size: AppCheckboxSize.md,
                           onChanged: state.editable
-                              ? context.read<CardIssuanceCubit>().acceptTerms
+                              ? context
+                                    .read<CardIssuanceCubit>()
+                                    .updateTermsAcceptance
                               : null,
                         ),
                       ),

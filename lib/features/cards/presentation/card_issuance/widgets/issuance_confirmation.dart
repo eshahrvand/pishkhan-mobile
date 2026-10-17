@@ -51,7 +51,7 @@ class IssuanceConfirmation extends StatelessWidget {
                       onTap: state.editable
                           ? () => context
                                 .read<CardIssuanceCubit>()
-                                .expandSummary(!state.summaryExpanded)
+                                .updateSummaryExpansion(!state.summaryExpanded)
                           : null,
                       child: Row(
                         children: [
@@ -124,7 +124,7 @@ class IssuanceConfirmation extends StatelessWidget {
               isExpanded: state.invoiceExpanded,
               onExpandedChanged: context
                   .read<CardIssuanceCubit>()
-                  .expandInvoice,
+                  .updateInvoiceExpansion,
               walletSufficientLabel: S.current.issuanceWalletSufficient,
               walletInsufficientLabel: S.current.issuanceWalletInsufficient,
               isWalletBalanceSufficient: state.walletSufficient,

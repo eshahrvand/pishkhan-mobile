@@ -53,7 +53,9 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
       case FlowNavigation.confirmExit:
         final confirmed = await showFlowExitDialog(context);
         if (context.mounted) {
-          context.read<CardIssuanceCubit>().exitConfirmationResult(confirmed);
+          context.read<CardIssuanceCubit>().handleExitConfirmationResult(
+            confirmed,
+          );
         }
       case FlowNavigation.back:
         // Wait for PopScope to rebuild with the authorized exit intent.
@@ -102,7 +104,7 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
           ),
         );
         if (context.mounted) {
-          context.read<CardIssuanceCubit>().addressRemovalResult(
+          context.read<CardIssuanceCubit>().handleAddressRemovalResult(
             address.id,
             remove,
           );
@@ -128,7 +130,7 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
     return BlocProvider<CardIssuanceCubit>(
       create: (_) =>
           CardIssuanceCubit(initialDepositNumber: widget.initialDepositNumber)
-            ..load(),
+            ..fetchIssuanceCatalog(),
       child: BlocListener<CardIssuanceCubit, CardIssuanceState>(
         listenWhen: (previous, current) =>
             previous.navigationId != current.navigationId,

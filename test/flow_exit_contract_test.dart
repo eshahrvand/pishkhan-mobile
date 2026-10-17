@@ -16,23 +16,23 @@ void main() {
     'issuance clean entry exits; edited selection survives cancelled exit',
     () async {
       final clean = CardIssuanceCubit();
-      await clean.load();
+      await clean.fetchIssuanceCatalog();
       clean.requestBack();
       expect(clean.state.navigation, FlowNavigation.back);
       await clean.close();
       final cubit = CardIssuanceCubit();
-      await cubit.load();
+      await cubit.fetchIssuanceCatalog();
       cubit.selectDeposit(cubit.state.catalog!.deposits.first.id);
       cubit.requestBack();
       expect(cubit.state.navigation, FlowNavigation.confirmExit);
       final request = cubit.state.navigationId;
       cubit.requestBack();
       expect(cubit.state.navigationId, request);
-      cubit.exitConfirmationResult(null);
+      cubit.handleExitConfirmationResult(null);
       expect(cubit.state.navigation, isNull);
       expect(cubit.state.draft.depositId, isNotNull);
       cubit.requestBack();
-      cubit.exitConfirmationResult(true);
+      cubit.handleExitConfirmationResult(true);
       expect(cubit.state.navigation, FlowNavigation.back);
       await cubit.close();
     },
