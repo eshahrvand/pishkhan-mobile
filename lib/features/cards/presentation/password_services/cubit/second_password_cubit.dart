@@ -30,9 +30,6 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
   final String? initialCardNumber;
   final bool selectOperation;
 
-  int _generation = 0;
-  String? _idempotencyKey;
-
   void requestBack() {
     if (state.effect is PasswordExitRequested ||
         state.exitConfirmationOpen ||
@@ -95,44 +92,24 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
   }
 
   Future<void> load() {
-    final generation = ++_generation;
-    _idempotencyKey = null;
     final initialOperation =
         selectOperation ? null : PasswordOperation.setSecondPassword;
     emit(
-      _derive(
-        state.copyWith(
-          status: RequestStatus.loading,
-          checkStatus: RequestStatus.initial,
-          submissionStatus: RequestStatus.initial,
-          step: SecondPasswordStep.selection,
-          catalog: null,
-          operation: initialOperation,
-          kind: null,
-          cardId: null,
-          secondPasswordSelected: false,
-          password: '',
-          currentPassword: '',
-          confirmation: '',
-          serial: '',
-          terms: false,
-          recordingConfirmed: false,
-          record: null,
-          failure: null,
-        ),
+      state.copyWith(
+        status: RequestStatus.loading,
+        failure: null,
+        operation: initialOperation,
       ),
     );
 
     return LoadPasswordCatalog(repository)().then((result) {
-      if (isClosed || generation != _generation) return;
+      if (isClosed) return;
       switch (result) {
         case Err(:final failure):
           emit(
-            _derive(
-              state.copyWith(
-                status: RequestStatus.failure,
-                failure: failure,
-              ),
+            state.copyWith(
+              status: RequestStatus.failure,
+              failure: failure,
             ),
           );
         case Success(:final data):
@@ -165,7 +142,6 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
 
   void selectKind(PasswordCardKind kind) {
     if (!state.editable) return;
-    _idempotencyKey = null;
     emit(
       _derive(
         state.copyWith(
@@ -187,7 +163,6 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
         .where((c) => c.id == id && (state.kind == null || c.kind == state.kind))
         .firstOrNull;
     if (!state.editable || card == null) return;
-    _idempotencyKey = null;
     emit(
       _derive(
         state.copyWith(
@@ -218,7 +193,6 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
         state.operation == operation) {
       return;
     }
-    _idempotencyKey = null;
     emit(
       _derive(
         state.copyWith(
@@ -285,7 +259,6 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
     }
     if (!state.editable) return;
     final normalized = DigitNormalizer.normalize(value);
-    if (normalized != state.currentPassword) _idempotencyKey = null;
     emit(
       _derive(
         state.copyWith(
@@ -293,6 +266,7 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
           terms: false,
           recordingConfirmed: false,
           failure: null,
+          idempotencyKey: normalized == state.currentPassword ? state.idempotencyKey : null,
         ),
       ),
     );
@@ -304,7 +278,6 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
     }
     if (!state.editable) return;
     final normalized = DigitNormalizer.normalize(value);
-    if (normalized != state.password) _idempotencyKey = null;
     emit(
       _derive(
         state.copyWith(
@@ -312,6 +285,7 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
           terms: false,
           recordingConfirmed: false,
           failure: null,
+          idempotencyKey: normalized == state.password ? state.idempotencyKey : null,
         ),
       ),
     );
@@ -341,13 +315,13 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
     }
     if (!state.editable) return;
     final normalized = DigitNormalizer.normalize(value).trim().toUpperCase();
-    if (normalized != state.serial) _idempotencyKey = null;
     emit(
       _derive(
         state.copyWith(
           serial: normalized,
           recordingConfirmed: false,
           failure: null,
+          idempotencyKey: normalized == state.serial ? state.idempotencyKey : null,
         ),
       ),
     );
@@ -371,29 +345,24 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
   Future<void> next() {
     if (!state.canContinue) return Future.value();
     if (state.step == SecondPasswordStep.selection) {
-      final generation = ++_generation;
       emit(
-        _derive(
-          state.copyWith(
-            checkStatus: RequestStatus.loading,
-            failure: null,
-            record: null,
-          ),
+        state.copyWith(
+          checkStatus: RequestStatus.loading,
+          failure: null,
+          record: null,
         ),
       );
       return CheckPasswordRequest(repository)(
         state.cardId!,
         operation: state.operation!,
       ).then((result) {
-        if (isClosed || generation != _generation) return;
+        if (isClosed) return;
         switch (result) {
           case Err(:final failure):
             emit(
-              _derive(
-                state.copyWith(
-                  checkStatus: RequestStatus.failure,
-                  failure: failure,
-                ),
+              state.copyWith(
+                checkStatus: RequestStatus.failure,
+                failure: failure,
               ),
             );
           case Success(:final data):
@@ -421,21 +390,19 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
             if (!state.selectionComplete ||
                 (!state.isChange && !state.walletSufficient)) {
               emit(
-                _derive(
-                  state.copyWith(
-                    checkStatus: RequestStatus.failure,
-                    failure: const DataFailure('password.request.ineligible'),
-                  ),
+                state.copyWith(
+                  checkStatus: RequestStatus.failure,
+                  failure: const DataFailure('password.request.ineligible'),
                 ),
               );
               return;
             }
-            _idempotencyKey = _newKey();
             emit(
               _derive(
                 state.copyWith(
                   checkStatus: RequestStatus.success,
                   step: SecondPasswordStep.password,
+                  idempotencyKey: _newKey(),
                 ),
               ),
             );
@@ -491,15 +458,14 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
             : state.step != SecondPasswordStep.recording)) {
       return Future.value();
     }
-    _idempotencyKey ??= _newKey();
-    final generation = ++_generation;
+    final key = state.idempotencyKey ?? _newKey();
     final request = SetSecondPasswordRequest(
       cardId: state.cardId!,
       operation: state.operation!,
       password: state.password,
       currentPassword: state.isChange ? state.currentPassword : null,
       nationalCardSerial: state.serial,
-      idempotencyKey: _idempotencyKey!,
+      idempotencyKey: key,
       kycReference: state.isChange ? '' : 'mock-kyc',
     );
     emit(
@@ -507,11 +473,12 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
         state.copyWith(
           submissionStatus: RequestStatus.loading,
           failure: null,
+          idempotencyKey: key,
         ),
       ),
     );
     return SubmitSecondPassword(repository)(request).then((result) {
-      if (isClosed || generation != _generation) return;
+      if (isClosed) return;
       switch (result) {
         case Err(:final failure):
           emit(
@@ -536,6 +503,7 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
                   newlySubmitted: true,
                 ),
                 effectId: state.effectId + 1,
+                idempotencyKey: null,
                 password: '',
                 currentPassword: '',
                 confirmation: '',
@@ -555,12 +523,6 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
       16,
       (_) => random.nextInt(256).toRadixString(16).padLeft(2, '0'),
     ).join();
-  }
-
-  @override
-  Future<void> close() {
-    _generation++;
-    return super.close();
   }
 
   List<PasswordCard> cardsForKind(

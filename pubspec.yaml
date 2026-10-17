@@ -35,7 +35,7 @@ dependencies:
     sdk: flutter
 
   avp_ui:
-    path:  /Users/mahdi/StudioProjects/avp_ui
+    path:  C:\Users\mahdi\StudioProjects\avp_ui
 #    /Users/mahdi/StudioProjects/avp_ui
   flutter_svg: ^2.0.17
 

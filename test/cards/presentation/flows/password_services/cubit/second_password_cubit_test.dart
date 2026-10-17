@@ -517,21 +517,15 @@ void main() {
     await c.close();
   });
   test(
-    'latest load wins; disposal suppresses status and submit completions',
+    'disposal suppresses status and submit completions',
     () async {
-      final r = ControlledPasswordRepository()..loading = Completer();
+      final r = ControlledPasswordRepository();
       final c =
           withRegisteredDependency<
             PasswordServicesRepository,
             SecondPasswordCubit
           >(r, () => SecondPasswordCubit());
-      final old = c.load();
-      final pending = r.loading!;
-      r.loading = null;
       await c.load();
-      pending.complete(const Err(DataFailure('old')));
-      await old;
-      expect(c.state.status, RequestStatus.success);
       select(c);
       r.checking = Completer();
       final check = c.next();

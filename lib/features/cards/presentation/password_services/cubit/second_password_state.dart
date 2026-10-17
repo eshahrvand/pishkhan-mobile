@@ -45,6 +45,7 @@ abstract class SecondPasswordState with _$SecondPasswordState {
     @Default(false) bool terms,
     @Default(false) bool recordingConfirmed,
     PasswordRequestRecord? record,
+    String? idempotencyKey,
     Failure? failure,
   }) = _SecondPasswordState;
 }

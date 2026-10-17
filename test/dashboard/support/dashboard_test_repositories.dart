@@ -17,6 +17,18 @@ const defaultDashboardTestRepositories = DashboardRepositories(
   loans: MockDashboardLoansRepository(),
 );
 
+DashboardRepositories homeRepositories({
+  DashboardHomeRepository? home,
+  DashboardCardsRepository? cards,
+  DashboardDepositsRepository? deposits,
+  DashboardLoansRepository? loans,
+}) => DashboardRepositories(
+  home: home ?? defaultDashboardTestRepositories.home,
+  cards: cards ?? defaultDashboardTestRepositories.cards,
+  deposits: deposits ?? defaultDashboardTestRepositories.deposits,
+  loans: loans ?? defaultDashboardTestRepositories.loans,
+);
+
 DashboardRepositories dashboardTestRepositories({
   List<String> favorites = const [],
   List<BankCard> cards = DashboardMockData.cards,

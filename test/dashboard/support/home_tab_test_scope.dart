@@ -21,17 +21,6 @@ import 'package:pishkhan_mobile/features/dashboard/presentation/shared/dashboard
 
 import 'dashboard_test_repositories.dart';
 
-DashboardRepositories homeRepositories({
-  DashboardHomeRepository? home,
-  DashboardCardsRepository? cards,
-  DashboardDepositsRepository? deposits,
-  DashboardLoansRepository? loans,
-}) => DashboardRepositories(
-  home: home ?? defaultDashboardTestRepositories.home,
-  cards: cards ?? defaultDashboardTestRepositories.cards,
-  deposits: deposits ?? defaultDashboardTestRepositories.deposits,
-  loans: loans ?? defaultDashboardTestRepositories.loans,
-);
 
 class HomeTabTestScope extends StatefulWidget {
   const HomeTabTestScope({

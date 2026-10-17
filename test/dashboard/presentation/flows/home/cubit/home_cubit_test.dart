@@ -1,5 +1,5 @@
 import '../../../../../support/registered_dependency.dart';
-import '../../../../support/home_tab_test_scope.dart';
+import '../../../../support/dashboard_test_repositories.dart';
 
 import 'dart:async';
 
