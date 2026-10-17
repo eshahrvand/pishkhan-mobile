@@ -1,16 +1,25 @@
 # UI, Cubit and State Coding Contract for the Team and Agents
 
 **Project:** Smart Virtual Counter — `pishkhan_mobile`  
-**Version:** 1.1 — owner-approved rules, with explicitly identified open items  
-**Date:** 2026-10-14  
+**Version:** 1.2 — mandatory Cubit ownership of all transferable logic<br>
+**Date:** 2026-10-17<br>
 **Scope:** Presentation coding style, State management and readability rules  
-**Status:** Documentation only at this stage; no application refactoring or behavior changes have been performed.
+**Status:** This revision changes documentation only. Earlier reviews and code examples may describe historical implementations; they do not override the mandatory ownership rules below.
 
 This document turns the project owner's requirements and supplied examples into explicit rules. A team member opening a screen should be able to see how the UI is built, how State is read and how Cubit is called, without navigating through multiple wrappers and files to understand a simple form.
 
 “Required” and “prohibited” in this document are owner-approved style instructions. Sections explicitly marked “recommendation” or “pending review” do not create new requirements. This document does not authorize agents to change code automatically or automatically rewrite the [architecture document](architecture-smart-virtual-counter-v2-en.md) or the [current UI skill](../.agents/skills/flutter-widget-ui-style/SKILL.md). When styles conflict, the owner's explicit instructions recorded here take precedence over older examples. Boundaries and open decisions are recorded in Section 25.
 
 **Interpretation rule:** An agent must not infer permission to introduce new abstractions, wrappers, parallel State or exceptions to prohibitions from “readability,” “cleaner code,” “extensibility” or possible future needs. Do not evade a prohibition by renaming the same pattern. Do not turn “allowed” into “mandatory for every screen.” If the required behavior truly cannot be implemented under this contract, report the specific issue rather than inventing a replacement rule.
+
+**Mandatory owner update, 2026-10-17:** Any behavior, calculation or decision that
+can be implemented in Cubit without Flutter UI resources **must be implemented
+in Cubit** (with reusable business rules in Domain). Keeping it in a UI function,
+callback, listener, builder or lifecycle hook is prohibited. Small size, a private
+method name, navigation involvement or “only UI coordination” is not an exception.
+Section 3.5 is the mandatory decision gate and overrides older permissive examples.
+This instruction requires compliance in requested work; it does not authorize an
+unsolicited refactor of the entire application.
 
 ## Contents
 
@@ -44,17 +53,18 @@ This document turns the project owner's requirements and supplied examples into 
 
 | Topic | Approved rule |
 |---|---|
-| Creating the screen Cubit | `BlocProvider(create: ...)` inside the screen's `build`; no extra Screen/View |
+| Creating the screen Cubit | Resolve a factory-registered Cubit directly in `BlocProvider(create: ...)`; no `_createCubit`/`_buildCubit` wrapper or extra Screen/View |
+| Repository ownership | GetIt registration injects Repository/UseCase into Cubit; no Repository parameters or forwarding through UI widgets |
 | Resolving Cubit | `context.read<MyCubit>()` using a context below the Provider |
 | State | One plain Freezed data class, without handwritten getters or logic |
 | Initial value | A readable `State.initial(...)` constructor; only one factory |
 | Rendering | Read `state.field` directly in widget arguments |
 | Loading | Compare `state.submissionStatus == RequestStatus.loading` directly |
-| Business decisions | Calculate in a Cubit action or specific function and store the result in State |
+| Transferable logic | Every decision/calculation independent of Flutter UI resources belongs in Cubit/Domain, including interaction orchestration and request construction |
 | Display-state changes | Even password visibility and section expansion belong in Cubit/State; routine `setState` use is prohibited |
 | Fixed forms | Explicit fields like the owner's example; parallel arrays and index-based dispatch are prohibited |
 | Text depending on multiple steps | A named UI function returning `String` |
-| Side effects | UI listener or callback; outside builders and Cubit |
+| Side effects | Cubit decides and publishes typed effect data; UI listener executes Flutter effects and returns results to Cubit |
 | UI rebuilding | `BlocBuilder` around a meaningful changing section; no mandatory builder for each widget |
 | Repeated side effects | `BlocListener` with precise `listenWhen` |
 | Splitting UI | Usually around 150–200 lines or when a section is actually reused |
@@ -107,6 +117,14 @@ before `runApp`; the Home route resolves the Cubit and BlocProvider closes it.
 Cubit constructors retain explicit dependencies, and feature widgets read their
 Cubit through Bloc rather than resolving repositories from GetIt.
 
+**Owner clarification, 2026-10-17:** Do not pass Repository/UseCase dependencies
+through screen or widget constructors. The existing GetIt composition registers
+repositories and injects them into factory-created Cubits. `BlocProvider.create`
+resolves that Cubit directly and owns its lifecycle. Do not introduce a custom
+`_create`, `_createCubit`, `_buildCubit` or equivalent factory helper in UI.
+Cubit constructor injection remains explicit inside DI; this does not require
+widgets to receive repositories, and does not require Cubits to use a locator.
+
 ## 3. Responsibilities of UI, Cubit and State
 
 ### 3.1 State: Data and Status Owned by the Flow
@@ -135,7 +153,11 @@ Cubit is responsible for:
 - Filtering data, resolving selections and calculating totals;
 - Calling use cases/repositories;
 - Preventing duplicate requests and stale responses;
-- Managing timers owned by the flow.
+- Managing timers owned by the flow;
+- Building action/service requests and preserving the selected record context;
+- Choosing available operations, footer actions, destination intents and back/exit behavior;
+- Deciding when an action sheet, details view, confirmation or category reveal is needed;
+- Interpreting sheet/dialog results and deciding the next action.
 
 Business logic reused by multiple consumers remains in Domain. “Move logic into Cubit” does not mean moving all banking rules from UseCase into Cubit. Cubit coordinates form behavior.
 
@@ -145,9 +167,9 @@ UI is responsible for:
 
 - Building the widget tree;
 - Choosing localized text, colors and spacing;
-- Managing focus, scroll and controllers;
-- Showing dialogs, sheets and snackbars;
-- Navigation and host callbacks;
+- Owning and disposing Flutter focus, scroll and controller resources;
+- Executing the dialog, sheet, snackbar, navigation or host callback requested by Cubit;
+- Returning raw interaction results to Cubit without interpreting flow behavior;
 - Calling Cubit actions in response to user interaction.
 
 “UI owns rendering” does not permit storing display booleans in a Flutter State class and changing them with `setState`. Those values live in Freezed State, and their actions live in Cubit. Controllers, focus and scroll are Flutter resources with a UI owner and explicit lifecycle; do not move these resources into data State.
@@ -162,12 +184,78 @@ UI is responsible for:
 | What is the next step? | Cubit |
 | What is the Persian title of the current step? | UI display helper |
 | What color is error text? | UI and design token |
-| Scroll to the top after a step change | UI listener |
+| Scroll to the top after a step change | Cubit decides the reveal intent; UI listener executes the scroll |
 | Close a sheet | UI |
 | Show or hide the password? | State field and Cubit action; UI renders the value |
 | Display a password-mismatch error? | Validation and error field in Cubit/State; focus-loss event from UI |
 | Store and retrieve tokens | Authentication infrastructure, outside widgets |
 | Track a screen or click | A defined side-effect location; never a repeatedly executed build |
+
+### 3.5 Mandatory Gate: No Transferable Logic in UI
+
+**Required for every new or edited UI function and callback:** examine each
+statement, not just the function's name. If it can execute using plain values,
+State and injected dependencies without `BuildContext`, widgets, controllers,
+render objects or Flutter lifecycle APIs, it belongs in Cubit/Domain. Split mixed
+functions: move their decisions to Cubit and leave only the necessary Flutter
+operation in UI. Adding an unused context parameter does not make logic UI-owned.
+
+This rule applies equally to public/private methods, inline closures, extracted
+widgets, `BlocBuilder`, `BlocListener`, modal launchers and lifecycle hooks.
+Moving `_request` into `onPressed` or a listener is not compliance.
+
+**Prohibited in UI:**
+
+- Constructing `CardFeatureRequest`, submit payloads or other flow requests;
+- Resolving a record, filtering/searching data, normalizing input for business
+  decisions, validating, calculating fees or deciding eligibility;
+- Mapping the selected category to `footerAction`, choosing which service to
+  start, or interpreting a chosen action to decide the next screen/sheet;
+- Deciding whether Back changes a step, requests confirmation or exits;
+- Chaining flow actions after awaiting a modal, such as “details opens details,
+  otherwise submit/navigate,” instead of returning the result to Cubit;
+- Deciding which category should be revealed or when a flow-driven focus/scroll
+  should occur. UI only resolves the supplied target against actual layout.
+
+**Required interaction path:**
+
+1. UI forwards the event and necessary raw input/stable record ID to a specific
+   Cubit action.
+2. Cubit validates the event, resolves data, updates dependent State fields and
+   constructs any request. It publishes a typed effect when Flutter work is needed.
+3. `BlocBuilder` renders State directly. `BlocListener` with precise `listenWhen`
+   executes an already-decided effect. It must not repeat the action/category
+   rules or reconstruct the request.
+4. After a modal or platform operation, UI checks lifecycle safety and returns
+   the result to a Cubit action. Cubit decides the continuation.
+
+Effects contain plain immutable data, meaningful targets and prepared payloads;
+never callbacks, `BuildContext`, widgets or controllers. When identical effects
+can occur repeatedly, use an explicit sequence such as `effectId` and compare
+it in `listenWhen`. A single effect field is for ordered interactions; if effects
+can overlap, design their delivery so an earlier result cannot replace newer
+flow decisions. Keep existing duplicate/stale-response/disposal protections.
+
+A listener may switch on **effect type** to execute the requested Flutter API.
+It must not switch on the user's action/category to determine a service. The
+existing router translates destination intents/service IDs into concrete routes;
+Cubit never calls `context.push`, `ScaffoldMessenger` or a modal API. Host callback
+presence may be checked by the UI adapter, but its payload and intended operation
+must already be supplied by Cubit.
+
+**Narrow UI-only work remains:** widget construction; localization and display
+formatting of an already-decided value; theme/layout/viewport measurements;
+controller attachment, disposal and synchronization from State; `mounted` and
+`hasClients` guards; and execution of focus, scroll, navigation or modal APIs.
+An existing display helper may localize an enum or format an amount, but must not
+decide the operation or calculate that amount. Do not move `S.current` or Flutter
+resources into Cubit to satisfy this rule.
+
+A tiny adapter that only invokes a Flutter API is allowed. An adapter that also
+contains transferable logic is prohibited regardless of its length. Do not add
+wrappers, artificial effects for static decoration, or dependencies merely to
+make the code resemble this pattern. During review, identify the exact Flutter
+operation that requires each remaining UI helper; “readability” is insufficient.
 
 ## 4. File Structure and Naming
 
@@ -740,12 +828,10 @@ Write the screen with a block body. Provider is inside this same `build`, and th
 class AverageBalanceScreen extends StatefulWidget {
   const AverageBalanceScreen({
     super.key,
-    required this.repository,
     this.initialDepositNumber,
     this.onCompleted,
   });
 
-  final DepositCertificatesRepository repository;
   final String? initialDepositNumber;
   final ValueChanged<CertificateReceipt>? onCompleted;
 
@@ -758,10 +844,9 @@ class AverageBalanceScreen extends StatefulWidget {
 class _AverageBalanceScreenState extends State<AverageBalanceScreen> {
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => AverageBalanceCubit(
-        repository: widget.repository,
-        initialDepositNumber: widget.initialDepositNumber,
+    return BlocProvider<AverageBalanceCubit>(
+      create: (_) => getIt<AverageBalanceCubit>(
+        param1: widget.initialDepositNumber,
       )..load(),
       child: BlocListener<AverageBalanceCubit, AverageBalanceState>(
         listenWhen: (previous, current) {
@@ -815,6 +900,27 @@ class _AverageBalanceScreenState extends State<AverageBalanceScreen> {
 
 This is a **screen-structure** example. `continueFlow` and the title helper are proposed by this document. `AverageBalanceConditions` is an independent form section that reads the State it needs through its own builder. This is not a complete multi-step screen implementation.
 
+The `getIt<AverageBalanceCubit>(param1: ...)` example requires a matching factory
+registration. This is the required dependency wiring pattern for requested work;
+it does not claim that every existing feature is already registered. Resolve
+Repository inside the DI registration, never through `widget.repository`:
+
+```dart
+// In configureDependencies, after registering the repository interface.
+getIt.registerFactoryParam<AverageBalanceCubit, String?, void>(
+  (depositNumber, _) => AverageBalanceCubit(
+    repository: getIt<DepositCertificatesRepository>(),
+    initialDepositNumber: depositNumber,
+  ),
+);
+```
+
+The DI factory callback is legitimate registration, not an additional UI creation
+helper. A fresh Cubit is returned per Provider scope; do not register a screen's
+mutable Cubit as a singleton. Widgets receive only real route inputs and needed
+host callbacks. Child sections obtain Cubit through `context.read` and State
+through Bloc subscriptions or already-selected parent State, not repository props.
+
 If the screen has no controllers or lifecycle needs, the same structure is valid in a `StatelessWidget`. Being a StatefulWidget is not a technical prerequisite for Provider. Do not add an empty Flutter State class merely to imitate the example's appearance.
 
 ### 9.2 Structure This Team Does Not Prefer
@@ -838,7 +944,20 @@ With `BlocProvider(create: ...)`, Provider owns the instance and closes it. `Blo
 
 Project rules:
 
-- Create the Cubit with `create` for a new screen.
+- Resolve the factory-registered Cubit directly in `BlocProvider.create` for a new screen.
+- Keep creation and initial action visible in that callback, for example
+  `create: (_) => getIt<CardFeaturesCubit>(param1: initialCategory)..load()`.
+- Do not add `_create`, `_createCubit`, `createFlowCubit`, `_buildCubit`, method
+  tear-offs or equivalent UI wrappers to hide construction or initialization.
+  An inline `create` block is allowed when necessary layout scheduling cannot fit
+  a simple expression; it must not become a separate factory/helper function.
+- Repository and UseCase dependencies are resolved in DI factory registrations
+  and injected into Cubit. Do not add these parameters to screen/widget
+  constructors or pass them through parent, route arguments or child sections.
+- Do not replace repository prop forwarding with repository lookup or repository
+  calls in widget code. UI resolves its Cubit; Cubit calls its injected dependency.
+- Tests override registrations in an isolated/reset GetIt container before mount;
+  do not add production Repository/Cubit constructor parameters just for tests.
 - Do not create the same Cubit again in `initState`.
 - Do not manually `close` a Cubit owned by `create`.
 - Do not add `bloc: _cubit` when the correct Provider is already an ancestor.
@@ -849,7 +968,7 @@ Project rules:
 
 Rebuilding a widget with the same type, position and Provider element identity does not itself recreate Cubit. Changing a Key or removing the subtree may dispose the previous instance; do not conceal resets this way.
 
-A new route and fresh scope suffice for a new service entry. Support runtime repository changes only when the screen API actually needs them. Do not add generic `didUpdateWidget` and `changeRepository` handling to every screen by default. If a new entry or account change in the same scope must reset data, make that behavior explicit, testable and action-specific.
+A new route and fresh scope suffice for a new service entry. If runtime repository replacement is a separately authorized requirement, handle it explicitly at the DI/flow boundary; do not introduce Repository props into the screen API. Do not add generic `didUpdateWidget` and `changeRepository` handling to every screen by default. If a new entry or account change in the same scope must reset data, make that behavior explicit, testable and action-specific.
 
 ### 9.5 Context Below the Provider
 
@@ -1364,7 +1483,7 @@ onChanged: (value) {
 },
 ```
 
-`onChanged: cubit.updateNationalId` is technically valid, but the explicit form above is the team's baseline. Do not write long callbacks combining calculations, multiple requests and navigation inside arguments. Move calculations to Cubit and UI coordination to a clearly named behavioral method.
+`onChanged: cubit.updateNationalId` is technically valid, but the explicit form above is the team's baseline. Do not write long callbacks combining calculations, multiple requests and navigation inside arguments. Move calculations and all transferable interaction decisions to Cubit. A named UI method may only execute the already-decided Flutter operation; see Section 3.5.
 
 ## 14. Splitting Screens and Public Widgets
 
@@ -1656,7 +1775,7 @@ The sheet only sends selections to these actions. Constructing the filtered list
 
 ### 16.4 Category Selection and Footer
 
-The current example calculates `footerAction` from category inside the builder. Since that choice determines which service is available, this contract proposes making the decision in Cubit:
+The current example calculates `footerAction` from category inside the builder. Since that choice determines which service is available, the decision must be made in Cubit and stored in State:
 
 ```dart
 void selectCategory(CardCategory category) {
@@ -1685,13 +1804,12 @@ if (state.footerAction != null)
   AppButton(
     label: getCardActionTitle(state.footerAction!),
     onPressed: () {
-      // Dispatch the route through the project's existing navigation contract.
-      openCardAction(context, state.footerAction!);
+      context.read<CardFeaturesCubit>().requestFooterAction();
     },
   ),
 ```
 
-Concrete navigation routes remain in UI/router. Cubit must not call `context.push` or `ScaffoldMessenger`. A clearly named adapter such as `openCardAction` is allowed; do not introduce chains of generic helpers to hide one simple action.
+Cubit prepares the footer request and destination intent. A filtered listener executes that effect through the existing router. Concrete route dispatch remains in UI/router; selecting the destination from the action/category does not. An adapter is allowed only under Section 3.5; renaming the old decision tree to `openCardAction` does not make it acceptable.
 
 ### 16.5 Proposed Typed Selector — Recommendation, Not a Migration Requirement
 
@@ -1767,7 +1885,7 @@ The `options` list above is not a prohibited form array; it contains options for
 
 ### 17.1 Allowed Pattern: Opening Function + Public Class
 
-The function only opens the sheet and supplies a public widget; a large UI tree is not hidden in its callback.
+The function only opens the already-requested sheet and supplies a public widget; a large UI tree is not hidden in its callback. It does not choose which sheet to open, construct flow requests or interpret the result. Those responsibilities belong in Cubit under Section 3.5. Call this launcher from a listener when opening the sheet is a flow decision.
 
 ```dart
 // widgets/card_details_sheet.dart
@@ -1929,7 +2047,7 @@ In `CardFilterSheet`, Apply first calls `applyFilter`, then closes the modal. `c
 
 This `.value` use is an explicit existing-instance exception; the sheet must not close the screen Cubit.
 
-### 17.4 Deletion Dialog: UI Confirms, Cubit Deletes
+### 17.4 Deletion Dialog: UI Returns the Result, Cubit Decides
 
 ```dart
 Future<void> confirmAddressRemoval(
@@ -1938,13 +2056,22 @@ Future<void> confirmAddressRemoval(
 ) async {
   final confirmed = await showAddressDeleteSheet(context, address);
 
-  if (!context.mounted || confirmed != true) return;
+  if (!context.mounted) return;
 
-  context.read<AverageBalanceCubit>().removeAddress();
+  context.read<AverageBalanceCubit>().handleAddressRemovalResult(
+    addressId: address.id,
+    confirmed: confirmed,
+  );
 }
 ```
 
-The function name explains its behavior. This callback neither filters the address list nor calculates `canContinue`. The dialog itself is defined in an independent public widget. If Cubit deletes by ID, pass the stable ID of the confirmed snapshot.
+`handleAddressRemovalResult` is an illustrative Cubit action contract, not a
+claim that the method already exists. It accepts a nullable confirmation result,
+checks `confirmed == true`, resolves the captured address ID and performs the
+permitted deletion/update. Invoke the launcher above for a Cubit-requested
+confirmation. Cancellation and outside dismissal return to that same action.
+
+The function name alone does not justify keeping logic in UI. This callback may execute the requested confirmation and forward its raw result with the captured address ID to Cubit; Cubit decides deletion. This callback neither filters the address list nor calculates `canContinue`. The dialog itself is defined in an independent public widget. If Cubit deletes by ID, pass the stable ID of the confirmed snapshot.
 
 ### 17.5 Avoid Generic Helpers Without Need
 
@@ -2298,6 +2425,26 @@ setState(() => mismatch = password.text != confirmation.text);
 
 If no implementation is possible with the flow contract and available APIs, a case-specific exception may be reviewed. Before creating an exception, the agent must report the specific technical limitation and alternatives examined, and obtain the owner's decision on that case. Shorter code, Flutter habits or “purely visual state” are not grounds for an exception. Do not replace `setState` with parallel State in ValueNotifier or a new notifier to evade this rule. Ordinary use of existing animation/controllers for Flutter lifecycle and behavior is a separate concern.
 
+### 19.8 Lifecycle Hooks Are Not Flow Orchestrators
+
+Do not add `didChangeDependencies`, `initState`, `didUpdateWidget`, a local
+“scheduled” flag or post-frame work merely to hide a decision that belongs in
+Cubit. Use `didChangeDependencies` only for an actual inherited dependency need;
+it is not the default place to initialize a category or flow.
+
+A real layout requirement may need `addPostFrameCallback`: scroll extents and
+rendered targets may not exist before the first layout. Keep only that scheduling
+boundary and lifecycle/resource guards in UI, then request the already-defined
+Cubit action or execute its pending effect. Do not place selection, initial-data
+resolution, payload construction or action routing inside the callback. Do not
+move Flutter scheduling or controllers into Cubit.
+
+Initial effects require explicit delivery: `BlocListener` does not replay the
+initial State. Arrange the first Cubit action after listener attachment and layout
+when necessary. Guard queued callbacks against disposal, preserve ordinary
+rebuilds, and do not schedule duplicate actions from repeated builds. Removing a
+redundant hook must preserve the needed initial reveal/focus behavior.
+
 ## 20. Multi-Step Flows and Back
 
 ### 20.1 One Action for the Primary Button
@@ -2342,28 +2489,19 @@ Cubit determines the next step; UI selects the form for the current step. The fo
 - The first step of a form with discardable input requires exit confirmation.
 - After a successful receipt, leave the flow using `go` to the approved destination; the user must not return to a form that can be submitted again.
 
-Allowed UI method example:
+**Required:** the in-screen Back event calls a Cubit action such as
+`requestBack()`. Cubit checks submission locks, changes a step when appropriate,
+or publishes an exit-confirmation/exit effect. UI executes that effect, checks
+`context.mounted` after awaiting, and sends the confirmation result back to Cubit.
+Only Cubit decides whether that result permits leaving. UI must not read request
+status and orchestrate `back() -> confirmation -> exit` in a helper or listener.
+These names illustrate the contract; implement only actions/effects needed by
+the actual flow, rather than assuming these APIs already exist.
 
-```dart
-Future<void> handleFlowBack(BuildContext context) async {
-  if (context.read<CardIssuanceCubit>().state.submissionStatus ==
-      RequestStatus.loading) {
-    return;
-  }
-
-  if (context.read<CardIssuanceCubit>().back()) return;
-
-  final confirmed = await showExitFlowConfirmation(context);
-
-  if (!context.mounted || confirmed != true) return;
-
-  NavigationActions.back(context);
-}
-```
-
-This example handles Back before form success; the receipt screen has its own exit path. When `PopScope.canPop` blocks exit, confirmed exit needs an explicit route to release the pop restriction or use `go`. Do not send another `pop` to the blocked scope. Actual changes must test this behavior with system Back.
-
-The UI method above coordinates side effects. Unlike `_body`, it neither creates a widget tree nor calculates steps.
+When `PopScope.canPop` blocks exit, an authorized exit effect needs a concrete
+navigation path that releases the restriction or uses the approved `go`
+destination. Do not send another `pop` to the blocked scope. Preserve platform
+Back handling and test both system Back and the in-screen button.
 
 ### 20.3 Entry Parameters and Reset
 
@@ -2457,7 +2595,7 @@ This section diagnoses style; not every item is a runtime bug.
 
 **Technical note:** The current construction is valid, and ordinary rebuilds do not necessarily reset Provider. Fixing style must not destroy correct existing lifecycle behavior.
 
-### 22.2 CardFeaturesScreen with Manually Owned Cubit
+### 22.2 CardListScreen with Manually Owned Cubit
 
 **Readability issue:** The screen creates/closes `_cubit`, supplies explicit `bloc:`, and also contains large UI sections and methods returning Widget.
 
@@ -2469,13 +2607,24 @@ Retain `didUpdateWidget` and `changeRepository` only for a runtime replacement n
 
 **Issue:** Index 3 and scattered conditions tie scrolling to enum position. GlobalKeys for all chips add mental overhead.
 
-**Rule:** Scrolling is UI logic and cannot move into Cubit. Start with the simplest required user behavior using existing scroll APIs. If ensureVisible needs a key, retain the specific reason and necessary behavior; do not add keys merely for tests or to every chip. Magic indices must not replace behavioral names.
+**Required:** Cubit owns the selected category, whether a reveal is needed and
+the intended reveal target. UI listener resolves that target against real layout
+and executes `animateTo`/`ensureVisible`. Controllers and chip contexts remain in
+UI; they never enter Cubit/State. Do not keep the reveal decision in a UI helper.
+Do not add keys merely for tests or to every chip. Magic indices must not replace
+behavioral names. Initial layout timing follows Section 19.8.
 
 ### 22.4 _request and _more
 
-These methods are not inherently invalid: sheets and navigation belong in UI. The problem arises when one method mixes eligibility, payloads, routing, messages and selection calculations.
+**Required:** move card selection, request/payload construction, available-action
+rules, destination selection and modal-result interpretation into Cubit. Cubit
+publishes prepared typed effects for an action sheet, details or service request.
+UI listener executes the selected effect and returns sheet selections to Cubit.
 
-**Rule:** Selection and availability belong in Cubit, action sheets in UI, and route dispatch in the existing router contract. A short UI method named `openCardActions` or `handleCardAction` is allowed. A side-effect method being private is not itself a reason to move it into Cubit.
+The old permission to retain `_request`/`_more` as “short UI coordination” is
+superseded. Neither private/public naming nor moving the body inline is an
+exception. A modal launcher may remain only as the Flutter-only adapter described
+in Section 3.5.
 
 ### 22.5 footerAction in the Builder
 
@@ -2536,7 +2685,9 @@ A function returning String, such as `getCardStatusTitle` or an asset path, is a
 | Disabled button as the primary guard | Explicit action guard |
 | Navigator in Cubit | UI listener/callback |
 | Validation code in a widget | Validator/UseCase, coordinated by Cubit |
-| Mock inside every screen by default | Explicit dependency; mock in example-environment composition |
+| Repository/UseCase passed through screen and child constructors | Register dependencies in GetIt; DI injects them into a factory-created Cubit |
+| `_createCubit()` or another UI creation wrapper | Direct factory resolution and explicit initial action in `BlocProvider.create` |
+| Mock inside every screen by default | Mock selected in environment DI registration |
 | Fake success for an unimplemented action | Unavailable message or explicit host callback |
 | Analytics event inside build | Appropriate lifecycle/observer or callback |
 | setState for password visibility, summary or form errors | State field and explicit Cubit action |
@@ -2546,7 +2697,7 @@ A function returning String, such as `getCardStatusTitle` or an asset path, is a
 | Deleting fields solely because current UI does not read them | Check operational responsibilities or future service contracts |
 | Mandatory builder for every Text and Icon | Builder around a meaningful changing section; a higher level to avoid fragmentation |
 
-For mock dependencies, an example flow can connect to MockRepository in route composition while the screen keeps its actual interface. This proposal does not authorize changing existing adapters without a task.
+For mock dependencies, configure the mock implementation in DI for the intended environment. Route/widget composition resolves the registered Cubit and never forwards a mock or live Repository through UI constructors. This rule does not authorize changing existing adapters without a task.
 
 ## 24. Agent Instructions and Review Checklists
 
@@ -2558,6 +2709,7 @@ Follow the approved UI/Cubit/State contract for this project's Presentation code
 1. Write UI in the team's familiar style with block-body build methods.
 2. Place BlocProvider(create) at the screen/actual flow entry. Do not add private
    Screen/View wrappers, manually owned Cubits or explicit bloc: without need.
+   Resolve the registered Cubit directly in create; no custom _create/_createCubit helpers.
 3. Use context below Provider in callbacks.
 4. State is a plain Freezed data class, without handwritten getters or logic.
 5. UI reads state.field directly. Do not introduce aliases, record projections or
@@ -2592,6 +2744,16 @@ Follow the approved UI/Cubit/State contract for this project's Presentation code
 23. The typed-selector proposal (Section 16.5) does not authorize migration. Matching enums by
     index remains open. Empty button callbacks are not currently a correction target.
 24. Use S.current.<key> for UI localization, without aliases or context.l10n.
+25. Mandatory: all logic transferable without Flutter UI resources belongs in Cubit/Domain.
+    This includes requests, action/category rules, footer choices, destination intents,
+    modal-result interpretation and flow orchestration. No UI helper/callback/listener loophole.
+26. UI sends events; Cubit updates State and publishes typed effects; listeners execute
+    Flutter operations and return raw results. Repeated effects need reliable delivery.
+27. Lifecycle hooks and post-frame callbacks contain only required attachment/layout
+    scheduling and resource guards. No redundant didChangeDependencies or local flow flags.
+28. Never pass Repository/UseCase through UI constructors, route arguments or child props.
+    Resolve them in GetIt registrations and inject into factory-created Cubits.
+    UI resolves Cubit directly in BlocProvider.create and reads State through Bloc.
 ```
 
 This text records approved rules and boundaries of open decisions. It may be placed in AGENTS/Skill through a separate documentation task. Those files have not been changed.
@@ -2601,14 +2763,17 @@ This text records approved rules and boundaries of open decisions. It may be pla
 - [ ] Actual screen needs, route inputs and exit callbacks are defined.
 - [ ] Existing `avp_ui` and app-shared components have been checked.
 - [ ] State types and operation statuses are identified.
+- [ ] Every planned UI helper/callback has passed the mandatory Section 3.5 ownership gate.
 - [ ] Cubit decisions and UI rendering responsibilities are distinct.
 - [ ] No new abstraction has been designed for a simple screen.
 - [ ] No out-of-scope change has been assumed necessary.
 
 ### 24.3 While Writing Cubit
 
-- [ ] The constructor injects required dependencies.
+- [ ] The constructor injects required dependencies supplied by the DI registration; no widget repository forwarding.
 - [ ] Every action has a clear behavioral name.
+- [ ] Requests, footer/action choices, destination intents and modal-result interpretation are owned here, not duplicated in UI.
+- [ ] Necessary effects carry prepared data and support repeated delivery without Flutter resources.
 - [ ] Input emits update dependent results in the same snapshot.
 - [ ] Helpers name their calculation; UI does not obtain rules from them.
 - [ ] Helpers neither construct State nor emit; changes are visible in the action.
@@ -2637,9 +2802,17 @@ This text records approved rules and boundaries of open decisions. It may be pla
 ### 24.5 While Writing UI
 
 - [ ] Provider placement is clear and ownership uses create.
+- [ ] Cubit factory resolution and the initial action are directly visible in create; no custom creation helper.
+- [ ] No Repository/UseCase parameters, prop forwarding or dependency calls exist in screen/child widgets.
+- [ ] DI registers dependencies and factory-created Cubits; tests override DI instead of expanding production widget APIs.
 - [ ] No private View wrapper or default Key.
 - [ ] Callbacks use the correct context below Provider.
 - [ ] State is read directly in arguments.
+- [ ] No transferable logic exists in UI methods, closures, builders, listeners or lifecycle hooks (Section 3.5).
+- [ ] No request construction, action/category-to-service mapping, footer decision or back-flow orchestration remains in UI.
+- [ ] Listeners execute typed effects and return modal results to Cubit without choosing the next flow action.
+- [ ] Every remaining UI helper requires a specific Flutter or display API; short length/private naming is not its justification.
+- [ ] Initial effects are delivered after attachment/layout where necessary; no redundant lifecycle hook or duplicate scheduling flag.
 - [ ] Fees, filtering and eligibility are not calculated in builders.
 - [ ] Lengthy title selection uses named display helpers.
 - [ ] Builders perform no side effects.
@@ -2687,8 +2860,9 @@ key: ValueKey(card.id),
 
 ### 25.1 Proposed Changes Relative to Existing Rules
 
-| Topic | Existing sources | This document's proposal |
+| Topic | Existing sources | This document's rule or stated proposal |
 |---|---|---|
+| Transferable UI logic | Older examples allow short UI coordination methods | Mandatory Section 3.5: decisions and request construction in Cubit/Domain; UI executes prepared Flutter effects only |
 | State factory | `State(...)` and independently generated State output | Reference style: `State.initial(...)`, part of Cubit |
 | Injected initialState | Required in Section 12 | Supported by the constructor; UI passes it only when needed |
 | Provider and View | Architecture example uses a child View | Simple screens have no private View wrapper; Provider and UI share the same build |
