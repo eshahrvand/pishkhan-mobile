@@ -5,6 +5,8 @@ import 'package:pishkhan_mobile/features/deposits/domain/repositories/deposits_r
 import 'package:pishkhan_mobile/features/deposits/domain/repositories/deposit_certificates_repository.dart';
 import 'package:pishkhan_mobile/features/deposits/domain/repositories/financial_certificate_repository.dart';
 import 'package:get_it/get_it.dart';
+import 'package:pishkhan_mobile/features/deposits/data/repositories/mock_proxy_deposits_repository.dart';
+import 'package:pishkhan_mobile/features/deposits/domain/repositories/proxy_deposits_repository.dart';
 import 'package:pishkhan_mobile/features/deposits/data/repositories/mock_deposit_restrictions_repository.dart';
 import 'package:pishkhan_mobile/features/deposits/domain/repositories/deposit_restrictions_repository.dart';
 import 'package:pishkhan_mobile/features/deposits/data/repositories/mock_surplus_deposits_repository.dart';
@@ -31,6 +33,9 @@ final getIt = GetIt.instance;
 /// Register once before runApp. Tests may supply an isolated container.
 void configureDependencies({GetIt? container}) {
   final dependencies = container ?? getIt;
+  dependencies.registerLazySingleton<ProxyDepositsRepository>(
+    MockProxyDepositsRepository.new,
+  );
   dependencies.registerLazySingleton<DepositRestrictionsRepository>(
     MockDepositRestrictionsRepository.new,
   );

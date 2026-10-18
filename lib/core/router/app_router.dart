@@ -22,6 +22,7 @@ import 'package:pishkhan_mobile/features/deposits/presentation/introduce_agent/s
 import 'package:pishkhan_mobile/features/deposits/presentation/agent_settings/screens/agent_settings_screen.dart';
 import 'package:pishkhan_mobile/features/deposits/presentation/close_surplus_deposits/screens/close_surplus_deposits_screen.dart';
 import 'package:pishkhan_mobile/features/deposits/presentation/deposit_restriction/screens/deposit_restriction_screen.dart';
+import 'package:pishkhan_mobile/features/deposits/presentation/proxy_deposit/screens/proxy_deposit_screen.dart';
 import 'package:pishkhan_mobile/features/deposits/domain/entities/deposit_restriction.dart';
 import 'package:pishkhan_mobile/core/notifications/notification_message.dart';
 import 'package:pishkhan_mobile/features/profile/presentation/message_center/screens/notifications_screen.dart';
@@ -157,6 +158,18 @@ GoRouter createAppRouter({
 
       // Deposits
       GoRoute(
+        path: AppRoutes.proxyDeposit,
+        builder: (context, state) {
+          final args = state.extra is ProxyDepositRouteArguments
+              ? state.extra as ProxyDepositRouteArguments
+              : null;
+          return ProxyDepositScreen(
+            initialDepositNumber: args?.initialDepositNumber,
+            onAssistantPressed: args?.onAssistantPressed,
+          );
+        },
+      ),
+      GoRoute(
         path: AppRoutes.blockDeposit,
         builder: (context, state) {
           final args = state.extra is DepositRestrictionRouteArguments
@@ -276,6 +289,15 @@ String? globalRedirect(RouterSession session, GoRouterState state) =>
 class AllServicesRouteArguments {
   const AllServicesRouteArguments(this.onServiceRequested);
   final ValueChanged<DashboardService>? onServiceRequested;
+}
+
+class ProxyDepositRouteArguments {
+  const ProxyDepositRouteArguments({
+    this.initialDepositNumber,
+    this.onAssistantPressed,
+  });
+  final String? initialDepositNumber;
+  final VoidCallback? onAssistantPressed;
 }
 
 class DepositRestrictionRouteArguments {

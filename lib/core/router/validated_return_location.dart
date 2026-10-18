@@ -18,6 +18,7 @@ String validatedReturnLocation(String? location) {
     AppRoutes.closeSurplusDeposits,
     AppRoutes.blockDeposit,
     AppRoutes.unblockDeposit,
+    AppRoutes.proxyDeposit,
     AppRoutes.cardIssuance,
     AppRoutes.virtualCardRequest,
     AppRoutes.changeCardDeposit,

@@ -31,9 +31,11 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m4(phone) => "Enter the dynamic code sent to ${phone}.";
 
-  static String m5(max) => "The card count must be between 1 and ${max}.";
+  static String m5(amount) => "${amount} tomans";
 
-  static String m6(amount) => "The issuance fee per card is ${amount}";
+  static String m6(max) => "The card count must be between 1 and ${max}.";
+
+  static String m7(amount) => "The issuance fee per card is ${amount}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -1203,7 +1205,24 @@ class MessageLookup extends MessageLookupByLibrary {
       "The number must match the account holder\'s national ID",
     ),
     "profileLabel": MessageLookupByLibrary.simpleMessage("Profile"),
+    "proxyAmount": MessageLookupByLibrary.simpleMessage("Amount"),
+    "proxyAmountToman": m5,
+    "proxyBroker": MessageLookupByLibrary.simpleMessage("Broker"),
+    "proxyCompany": MessageLookupByLibrary.simpleMessage("Company"),
+    "proxyCompanyHint": MessageLookupByLibrary.simpleMessage(
+      "Select a company",
+    ),
     "proxyDeposit": MessageLookupByLibrary.simpleMessage("Proxy deposit"),
+    "proxyDepositHint": MessageLookupByLibrary.simpleMessage(
+      "Select your deposit",
+    ),
+    "proxyDepositMockComplete": MessageLookupByLibrary.simpleMessage(
+      "The proxy deposit request was simulated. No real mandate or balance reservation was created.",
+    ),
+    "proxySubject": MessageLookupByLibrary.simpleMessage("Subject"),
+    "proxySubjectHint": MessageLookupByLibrary.simpleMessage(
+      "Select a proxy deposit subject",
+    ),
     "refreshCaptcha": MessageLookupByLibrary.simpleMessage(
       "Refresh security code",
     ),
@@ -1260,7 +1279,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "virtualRequestCount": MessageLookupByLibrary.simpleMessage(
       "Number of virtual cards",
     ),
-    "virtualRequestCountError": m5,
+    "virtualRequestCountError": m6,
     "virtualRequestCountHint": MessageLookupByLibrary.simpleMessage(
       "Enter the number of virtual cards you need",
     ),
@@ -1273,7 +1292,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "virtualRequestEmpty": MessageLookupByLibrary.simpleMessage(
       "No deposits are available for virtual card issuance.",
     ),
-    "virtualRequestFeeNotice": m6,
+    "virtualRequestFeeNotice": m7,
     "virtualRequestMockReceipt": MessageLookupByLibrary.simpleMessage(
       "Demo request registered. No virtual cards were created and no payment was made.",
     ),

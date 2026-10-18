@@ -49,6 +49,7 @@ Visual captures are not stored in `doc`; optional test captures use ignored
 - [Agent settings](doc/deposits/agent-settings.md)
 - [Close surplus deposits](doc/deposits/close-surplus-deposits.md)
 - [Deposit blocking and unblocking](doc/deposits/deposit-restriction.md)
+- [Proxy deposit](doc/deposits/proxy-deposit.md)
 - [Loans](doc/loans/development.md)
 
 General architecture and design-system guidance remain in the top-level `doc`

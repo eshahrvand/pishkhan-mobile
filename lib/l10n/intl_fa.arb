@@ -587,5 +587,15 @@
   "depositRestrictionManagement": "مدیریت سپرده",
   "depositBlockedReason": "علت مسدودی",
   "depositBlockedDate": "تاریخ مسدودی",
-  "depositRestrictionMockComplete": "درخواست به صورت آزمایشی ثبت شد. هیچ سپرده یا کیف پول واقعی تغییر نکرده است."
+  "depositRestrictionMockComplete": "درخواست به صورت آزمایشی ثبت شد. هیچ سپرده یا کیف پول واقعی تغییر نکرده است.",
+  "proxyCompany": "شرکت",
+  "proxyCompanyHint": "شرکت مورد نظر را انتخاب کنید",
+  "proxySubject": "موضوع",
+  "proxySubjectHint": "موضوع سپرده وکالتی را انتخاب کنید",
+  "proxyDepositHint": "سپرده خود را انتخاب کنید",
+  "proxyBroker": "کارگزار",
+  "proxyAmount": "مبلغ",
+  "proxyAmountToman": "{amount} تومان",
+  "proxyDepositMockComplete": "درخواست سپرده وکالتی به صورت آزمایشی ثبت شد. هیچ وکالت یا مسدودی مبلغ واقعی ایجاد نشده است.",
+  "@proxyAmountToman": {"placeholders":{"amount":{"type":"String"}}}
 }

@@ -5294,6 +5294,76 @@ class S {
       args: [],
     );
   }
+
+  /// `شرکت`
+  String get proxyCompany {
+    return Intl.message('شرکت', name: 'proxyCompany', desc: '', args: []);
+  }
+
+  /// `شرکت مورد نظر را انتخاب کنید`
+  String get proxyCompanyHint {
+    return Intl.message(
+      'شرکت مورد نظر را انتخاب کنید',
+      name: 'proxyCompanyHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `موضوع`
+  String get proxySubject {
+    return Intl.message('موضوع', name: 'proxySubject', desc: '', args: []);
+  }
+
+  /// `موضوع سپرده وکالتی را انتخاب کنید`
+  String get proxySubjectHint {
+    return Intl.message(
+      'موضوع سپرده وکالتی را انتخاب کنید',
+      name: 'proxySubjectHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `سپرده خود را انتخاب کنید`
+  String get proxyDepositHint {
+    return Intl.message(
+      'سپرده خود را انتخاب کنید',
+      name: 'proxyDepositHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `کارگزار`
+  String get proxyBroker {
+    return Intl.message('کارگزار', name: 'proxyBroker', desc: '', args: []);
+  }
+
+  /// `مبلغ`
+  String get proxyAmount {
+    return Intl.message('مبلغ', name: 'proxyAmount', desc: '', args: []);
+  }
+
+  /// `{amount} تومان`
+  String proxyAmountToman(String amount) {
+    return Intl.message(
+      '$amount تومان',
+      name: 'proxyAmountToman',
+      desc: '',
+      args: [amount],
+    );
+  }
+
+  /// `درخواست سپرده وکالتی به صورت آزمایشی ثبت شد. هیچ وکالت یا مسدودی مبلغ واقعی ایجاد نشده است.`
+  String get proxyDepositMockComplete {
+    return Intl.message(
+      'درخواست سپرده وکالتی به صورت آزمایشی ثبت شد. هیچ وکالت یا مسدودی مبلغ واقعی ایجاد نشده است.',
+      name: 'proxyDepositMockComplete',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

@@ -12,6 +12,16 @@ abstract final class ServiceRegistry {
     String? initialDepositNumber,
     String? initialCardNumber,
   }) {
+    if (id == 'deposit-proxy') {
+      context.push<void>(
+        AppRoutes.proxyDeposit,
+        extra: ProxyDepositRouteArguments(
+          initialDepositNumber: initialDepositNumber,
+          onAssistantPressed: onAssistantPressed,
+        ),
+      );
+      return true;
+    }
     if (id == 'deposit-block') {
       context.push<void>(
         AppRoutes.blockDeposit,

@@ -31,9 +31,11 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m4(phone) => "أدخل الرمز الديناميكي المرسل إلى ${phone}.";
 
-  static String m5(max) => "يجب أن يكون عدد البطاقات بين 1 و${max}.";
+  static String m5(amount) => "${amount} تومان";
 
-  static String m6(amount) => "رسوم إصدار كل بطاقة هي ${amount}";
+  static String m6(max) => "يجب أن يكون عدد البطاقات بين 1 و${max}.";
+
+  static String m7(amount) => "رسوم إصدار كل بطاقة هي ${amount}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -1145,7 +1147,22 @@ class MessageLookup extends MessageLookupByLibrary {
       "يجب أن يتطابق الرقم مع الرقم الوطني لصاحب الحساب",
     ),
     "profileLabel": MessageLookupByLibrary.simpleMessage("الملف الشخصي"),
+    "proxyAmount": MessageLookupByLibrary.simpleMessage("المبلغ"),
+    "proxyAmountToman": m5,
+    "proxyBroker": MessageLookupByLibrary.simpleMessage("الوسيط"),
+    "proxyCompany": MessageLookupByLibrary.simpleMessage("الشركة"),
+    "proxyCompanyHint": MessageLookupByLibrary.simpleMessage(
+      "اختر الشركة المطلوبة",
+    ),
     "proxyDeposit": MessageLookupByLibrary.simpleMessage("الوديعة بالوكالة"),
+    "proxyDepositHint": MessageLookupByLibrary.simpleMessage("اختر وديعتك"),
+    "proxyDepositMockComplete": MessageLookupByLibrary.simpleMessage(
+      "تمت محاكاة طلب الوديعة بالتوكيل. لم يتم إنشاء توكيل أو حجز رصيد حقيقي.",
+    ),
+    "proxySubject": MessageLookupByLibrary.simpleMessage("الموضوع"),
+    "proxySubjectHint": MessageLookupByLibrary.simpleMessage(
+      "اختر موضوع الوديعة بالتوكيل",
+    ),
     "refreshCaptcha": MessageLookupByLibrary.simpleMessage("تحديث رمز الأمان"),
     "relatedLinks": MessageLookupByLibrary.simpleMessage("روابط ذات صلة"),
     "requestIdentifier": MessageLookupByLibrary.simpleMessage("معرف الطلب"),
@@ -1198,7 +1215,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "virtualRequestCount": MessageLookupByLibrary.simpleMessage(
       "عدد البطاقات الافتراضية",
     ),
-    "virtualRequestCountError": m5,
+    "virtualRequestCountError": m6,
     "virtualRequestCountHint": MessageLookupByLibrary.simpleMessage(
       "أدخل عدد البطاقات الافتراضية المطلوبة",
     ),
@@ -1211,7 +1228,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "virtualRequestEmpty": MessageLookupByLibrary.simpleMessage(
       "لا توجد ودائع متاحة لإصدار بطاقة افتراضية.",
     ),
-    "virtualRequestFeeNotice": m6,
+    "virtualRequestFeeNotice": m7,
     "virtualRequestMockReceipt": MessageLookupByLibrary.simpleMessage(
       "تم تسجيل طلب تجريبي. لم تُنشأ بطاقات افتراضية ولم تُدفع أي مبالغ.",
     ),

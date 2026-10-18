@@ -546,5 +546,15 @@
   "depositRestrictionManagement": "إدارة الوديعة",
   "depositBlockedReason": "سبب الحظر",
   "depositBlockedDate": "تاريخ الحظر",
-  "depositRestrictionMockComplete": "تمت محاكاة الطلب. لم تتغير أي وديعة أو محفظة حقيقية."
+  "depositRestrictionMockComplete": "تمت محاكاة الطلب. لم تتغير أي وديعة أو محفظة حقيقية.",
+  "proxyCompany": "الشركة",
+  "proxyCompanyHint": "اختر الشركة المطلوبة",
+  "proxySubject": "الموضوع",
+  "proxySubjectHint": "اختر موضوع الوديعة بالتوكيل",
+  "proxyDepositHint": "اختر وديعتك",
+  "proxyBroker": "الوسيط",
+  "proxyAmount": "المبلغ",
+  "proxyAmountToman": "{amount} تومان",
+  "proxyDepositMockComplete": "تمت محاكاة طلب الوديعة بالتوكيل. لم يتم إنشاء توكيل أو حجز رصيد حقيقي.",
+  "@proxyAmountToman": {"placeholders":{"amount":{"type":"String"}}}
 }

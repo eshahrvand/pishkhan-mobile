@@ -566,5 +566,15 @@
   "depositRestrictionManagement": "Deposit management",
   "depositBlockedReason": "Blocking reason",
   "depositBlockedDate": "Date blocked",
-  "depositRestrictionMockComplete": "The request was simulated. No real deposit or wallet has changed."
+  "depositRestrictionMockComplete": "The request was simulated. No real deposit or wallet has changed.",
+  "proxyCompany": "Company",
+  "proxyCompanyHint": "Select a company",
+  "proxySubject": "Subject",
+  "proxySubjectHint": "Select a proxy deposit subject",
+  "proxyDepositHint": "Select your deposit",
+  "proxyBroker": "Broker",
+  "proxyAmount": "Amount",
+  "proxyAmountToman": "{amount} tomans",
+  "proxyDepositMockComplete": "The proxy deposit request was simulated. No real mandate or balance reservation was created.",
+  "@proxyAmountToman": {"placeholders":{"amount":{"type":"String"}}}
 }

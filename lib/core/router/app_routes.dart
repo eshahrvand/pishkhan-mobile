@@ -22,6 +22,7 @@ abstract final class AppRoutes {
   static const closeSurplusDeposits = '/deposits/close-surplus-deposits';
   static const blockDeposit = '/deposits/block';
   static const unblockDeposit = '/deposits/unblock';
+  static const proxyDeposit = '/deposits/proxy';
 
   static const messages = '/profile/messages';
   static const messageDetail = '/profile/messages/:messageId';

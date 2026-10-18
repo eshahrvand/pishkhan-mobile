@@ -32,9 +32,11 @@ class MessageLookup extends MessageLookupByLibrary {
   static String m4(phone) =>
       "رمز پویای ارسال شده به شماره ${phone} را وارد کنید.";
 
-  static String m5(max) => "تعداد کارت باید بین ۱ و ${max} باشد.";
+  static String m5(amount) => "${amount} تومان";
 
-  static String m6(amount) => "کارمزد صدور هر کارت ${amount} است";
+  static String m6(max) => "تعداد کارت باید بین ۱ و ${max} باشد.";
+
+  static String m7(amount) => "کارمزد صدور هر کارت ${amount} است";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -1134,7 +1136,24 @@ class MessageLookup extends MessageLookupByLibrary {
       "شماره باید با کد ملی دارنده حساب مطابقت داشته باشد",
     ),
     "profileLabel": MessageLookupByLibrary.simpleMessage("پروفایل"),
+    "proxyAmount": MessageLookupByLibrary.simpleMessage("مبلغ"),
+    "proxyAmountToman": m5,
+    "proxyBroker": MessageLookupByLibrary.simpleMessage("کارگزار"),
+    "proxyCompany": MessageLookupByLibrary.simpleMessage("شرکت"),
+    "proxyCompanyHint": MessageLookupByLibrary.simpleMessage(
+      "شرکت مورد نظر را انتخاب کنید",
+    ),
     "proxyDeposit": MessageLookupByLibrary.simpleMessage("سپرده وکالتی"),
+    "proxyDepositHint": MessageLookupByLibrary.simpleMessage(
+      "سپرده خود را انتخاب کنید",
+    ),
+    "proxyDepositMockComplete": MessageLookupByLibrary.simpleMessage(
+      "درخواست سپرده وکالتی به صورت آزمایشی ثبت شد. هیچ وکالت یا مسدودی مبلغ واقعی ایجاد نشده است.",
+    ),
+    "proxySubject": MessageLookupByLibrary.simpleMessage("موضوع"),
+    "proxySubjectHint": MessageLookupByLibrary.simpleMessage(
+      "موضوع سپرده وکالتی را انتخاب کنید",
+    ),
     "refreshCaptcha": MessageLookupByLibrary.simpleMessage(
       "تازه‌سازی کد امنیتی",
     ),
@@ -1183,7 +1202,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "virtualRequestCount": MessageLookupByLibrary.simpleMessage(
       "تعداد کارت مجازی",
     ),
-    "virtualRequestCountError": m5,
+    "virtualRequestCountError": m6,
     "virtualRequestCountHint": MessageLookupByLibrary.simpleMessage(
       "تعداد کارت مجازی مورد نیاز خود را وارد کنید",
     ),
@@ -1194,7 +1213,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "virtualRequestEmpty": MessageLookupByLibrary.simpleMessage(
       "هیچ سپرده‌ای برای صدور کارت مجازی موجود نیست.",
     ),
-    "virtualRequestFeeNotice": m6,
+    "virtualRequestFeeNotice": m7,
     "virtualRequestMockReceipt": MessageLookupByLibrary.simpleMessage(
       "درخواست آزمایشی ثبت شد؛ کارت مجازی ایجاد نشده و مبلغی پرداخت نمی‌شود.",
     ),

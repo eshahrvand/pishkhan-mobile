@@ -74,12 +74,14 @@ class CertificateInput extends StatelessWidget {
     this.latin = false,
     this.addonEnd,
     this.maxLength,
+    this.textStyle,
   });
   final String label, hint, value;
   final ValueChanged<String>? onChanged;
   final bool readOnly, numeric, latin;
   final Widget? addonEnd;
   final int? maxLength;
+  final TextStyle? textStyle;
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -98,7 +100,7 @@ class CertificateInput extends StatelessWidget {
           textDirection: latin ? TextDirection.ltr : TextDirection.rtl,
           textAlign: TextAlign.right,
           hintTextDirection: TextDirection.rtl,
-          textStyle: certificateValueStyle(context),
+          textStyle: textStyle ?? certificateValueStyle(context),
           suffixIcon: addonEnd,
         ),
       ],
