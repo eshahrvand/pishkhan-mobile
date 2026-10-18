@@ -43,10 +43,14 @@ class VirtualCardQuote extends Equatable {
   ];
 }
 
-class VirtualCardRequest {
+class VirtualCardRequest extends Equatable {
   const VirtualCardRequest({required this.quote, required this.idempotencyKey});
   final VirtualCardQuote quote;
   final String idempotencyKey;
+  @override
+  List<Object?> get props => [quote, idempotencyKey];
+  @override
+  String toString() => 'VirtualCardRequest(redacted)';
 }
 
 class VirtualCardReceipt extends Equatable {

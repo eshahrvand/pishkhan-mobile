@@ -112,25 +112,4 @@ class AppRepresentativeCard extends StatelessWidget {
     height: 20 / 14,
     letterSpacing: 0,
   );
-
-  TextStyle get _subtitleStyle => AppTypography.bodyMedium.copyWith(
-    color: AppPalette.gray700,
-    fontSize: 14,
-    fontWeight: FontWeight.w500,
-    height: 20 / 14,
-    letterSpacing: 0,
-  );
-
-  TextStyle get _valueStyle => AppTypography.bodySmall.copyWith(
-    color: const Color(0xFF181D27),
-    fontWeight: FontWeight.w500,
-    height: 18 / 12,
-    letterSpacing: 0,
-  );
-
-  TextStyle get _labelStyle => AppTypography.bodySmall.copyWith(
-    color: const Color(0xFF181D27),
-    height: 18 / 12,
-    letterSpacing: 0,
-  );
 }

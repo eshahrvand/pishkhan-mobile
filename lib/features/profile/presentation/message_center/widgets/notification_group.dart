@@ -1,7 +1,8 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 
-import '../../../domain/entities/notification_message.dart';
+import 'package:pishkhan_mobile/core/notifications/notification_message.dart';
+
 import 'notification_card.dart';
 
 class NotificationGroup extends StatelessWidget {

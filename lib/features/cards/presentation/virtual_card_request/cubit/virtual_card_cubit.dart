@@ -30,7 +30,8 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
   // Count and deposit controls stay available during quoting. Only the latest
   // quote may describe the current form, including when a new count is invalid.
   int _quoteRequestId = 0;
-  String? _idempotencyKey;
+  // The last sent payload owns its key; editing the form does not create a request.
+  VirtualCardRequest? _submittedRequest;
 
   Future<void> fetchCatalog() {
     emit(
@@ -67,7 +68,6 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
 
   Future<void> selectDeposit(VirtualCardDeposit deposit) {
     final requestId = ++_quoteRequestId;
-    _idempotencyKey = null;
     emit(
       state.copyWith(
         deposit: deposit,
@@ -118,7 +118,6 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
     );
     final canQuote = state.deposit != null && count != null;
     final requestId = ++_quoteRequestId;
-    _idempotencyKey = null;
     emit(
       state.copyWith(
         countText: normalized,
@@ -164,7 +163,6 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
 
   Future<void> fetchQuote() {
     final requestId = ++_quoteRequestId;
-    _idempotencyKey = null;
     emit(
       state.copyWith(
         quoteStatus: RequestStatus.loading,
@@ -223,14 +221,11 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
   }
 
   Future<void> submitVirtualCards() {
-    _idempotencyKey ??= List.generate(
-      16,
-      (_) => Random.secure().nextInt(256).toRadixString(16).padLeft(2, '0'),
-    ).join();
-    final request = VirtualCardRequest(
-      quote: state.quote!,
-      idempotencyKey: _idempotencyKey!,
-    );
+    var request = _createRequest(_submittedRequest?.idempotencyKey);
+    if (_submittedRequest != null && request != _submittedRequest) {
+      request = _createRequest(null);
+    }
+    _submittedRequest = request;
     emit(
       state.copyWith(
         submissionStatus: RequestStatus.loading,
@@ -300,5 +295,18 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
     return catalog.deposits
         .where((deposit) => DigitNormalizer.normalize(deposit.number) == number)
         .lastOrNull;
+  }
+
+  VirtualCardRequest _createRequest(String? idempotencyKey) {
+    return VirtualCardRequest(
+      quote: state.quote!,
+      idempotencyKey:
+          idempotencyKey ??
+          List.generate(
+            16,
+            (_) =>
+                Random.secure().nextInt(256).toRadixString(16).padLeft(2, '0'),
+          ).join(),
+    );
   }
 }

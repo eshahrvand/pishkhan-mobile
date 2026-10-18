@@ -2,7 +2,7 @@ import 'package:pishkhan_mobile/core/router/app_routes.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pishkhan_mobile/core/router/app_router.dart';
 import 'package:flutter/material.dart';
-import 'package:pishkhan_mobile/features/profile/domain/entities/notification_message.dart';
+import 'package:pishkhan_mobile/core/notifications/notification_message.dart';
 
 /// Flutter routing adapter; message data is owned by the dashboard flow.
 class DashboardNotificationsNavigation {

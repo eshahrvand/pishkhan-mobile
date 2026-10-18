@@ -1,6 +1,6 @@
 part of 'notifications_cubit.dart';
 
-@freezed
+@Freezed(toStringOverride: false)
 abstract class NotificationsState with _$NotificationsState {
   const factory NotificationsState.initial({
     NotificationMessage? detailMessage,

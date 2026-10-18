@@ -52,8 +52,8 @@ packages:
   avp_ui:
     dependency: "direct main"
     description:
-      path: "/Users/mahdi/StudioProjects/avp_ui"
-      relative: false
+      path: "../avp_ui"
+      relative: true
     source: path
     version: "0.0.1"
   bloc:

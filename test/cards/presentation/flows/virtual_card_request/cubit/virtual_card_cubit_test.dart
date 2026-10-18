@@ -176,6 +176,14 @@ void main() {
       await c.submitVirtualCards();
       await c.submitVirtualCards();
       expect(r.requests[0].idempotencyKey, r.requests[1].idempotencyKey);
+      await c.selectDeposit(c.state.deposit!);
+      c.updateTermsAcceptance(true);
+      await c.submitVirtualCards();
+      expect(r.requests.last, r.requests.first);
+      await c.updateCount('٤');
+      c.updateTermsAcceptance(true);
+      await c.submitVirtualCards();
+      expect(r.requests.last, r.requests.first);
       await c.updateCount('2');
       c.updateTermsAcceptance(true);
       r.submitFailure = null;
@@ -185,7 +193,7 @@ void main() {
       expect(c.state.quoteStatus, RequestStatus.success);
       expect(c.state.isEditable, isFalse);
       expect(c.state.canSubmit, isFalse);
-      expect(r.requests.length, 3);
+      expect(r.requests.length, 5);
       expect(c.state.count, 2);
       expect(
         r.requests.last.idempotencyKey,

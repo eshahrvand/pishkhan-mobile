@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_address_card.dart';
@@ -244,6 +245,39 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
+  testWidgets(
+    'Latin edits retain the screen shell, progress and unrelated passport fields',
+    (tester) async {
+      await mountCertificate(
+        tester,
+        FinancialCertificateScreen(initialState: filled),
+      );
+      final topBar = tester.widget<AppTopBar>(find.byType(AppTopBar));
+      final stepper = tester.widget<AppStepper>(find.byType(AppStepper));
+      final passportFinder = find.byWidgetPredicate(
+        (widget) =>
+            widget is AppTextField &&
+            widget.hintText == S.current.financialPassportHint,
+      );
+      final passport = tester.widget<AppTextField>(passportFinder);
+      final name = find.byWidgetPredicate(
+        (widget) =>
+            widget is AppTextField &&
+            widget.hintText == S.current.financialNameHint,
+      );
+      await tester.enterText(
+        find.descendant(of: name, matching: find.byType(TextField)),
+        'Alice',
+      );
+      await tester.pump();
+      expect(tester.widget<AppTextField>(name).value, 'Alice');
+      expect(tester.widget<AppTopBar>(find.byType(AppTopBar)), same(topBar));
+      expect(tester.widget<AppStepper>(find.byType(AppStepper)), same(stepper));
+      expect(tester.widget<AppTextField>(passportFinder), same(passport));
+      expect(tester.takeException(), isNull);
+    },
+  );
+
   for (final locale in ['fa', 'en', 'ar']) {
     testWidgets(
       '$locale Latin form fits a compact phone with larger text and keyboard',

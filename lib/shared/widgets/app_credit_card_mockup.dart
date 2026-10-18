@@ -32,12 +32,6 @@ class AppCreditCardMockup extends StatelessWidget {
 
   bool get _isWallet => state == AppCreditCardMockupState.wallet;
 
-  String get _channelTitle => switch (channel) {
-    AppBankingChannel.mobile => 'همراه بانک',
-    AppBankingChannel.web => 'اینترنت بانک',
-    AppBankingChannel.phone => 'تلفن بانک',
-  };
-
   String get _channelIcon => switch (channel) {
     AppBankingChannel.mobile => AppAssets.bankingChannelCardMobile,
     AppBankingChannel.web => AppAssets.bankingChannelCardGlobe,
@@ -129,26 +123,4 @@ class AppCreditCardMockup extends StatelessWidget {
       ),
     );
   }
-
-  TextStyle _regularStyle(Color color) => AppTypography.bodySmall.copyWith(
-    color: color,
-    height: 18 / 12,
-    letterSpacing: 0,
-  );
-
-  TextStyle _mediumStyle(Color color) =>
-      _regularStyle(color).copyWith(fontWeight: FontWeight.w500);
-
-  TextStyle _demiBoldStyle(Color color) =>
-      _regularStyle(color).copyWith(fontWeight: FontWeight.w600);
-
-  TextStyle get _walletRegularStyle => AppTypography.bodySmall.copyWith(
-    color: AppPalette.gray800,
-    fontSize: 12.752,
-    height: 19.128 / 12.752,
-    letterSpacing: 0,
-  );
-
-  TextStyle get _walletMediumStyle =>
-      _walletRegularStyle.copyWith(fontWeight: FontWeight.w500);
 }

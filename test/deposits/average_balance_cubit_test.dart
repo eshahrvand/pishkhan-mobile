@@ -178,6 +178,18 @@ void main() {
       final firstKey = repository.requests.single.idempotencyKey;
       cubit.requestBack();
       cubit.updateIncludeAgent(true);
+      await cubit.continueFlow();
+      await cubit.submitCertificate();
+      expect(repository.requests.last.agentIdentifier, isNull);
+      expect(repository.requests.last.idempotencyKey, firstKey);
+      cubit.requestBack();
+      cubit.updateAgentIdentifier('   ');
+      cubit.updateRecipientName('Hidden recipient');
+      cubit.updateRecipientNationalId('0081234562');
+      await cubit.continueFlow();
+      await cubit.submitCertificate();
+      expect(repository.requests.last.idempotencyKey, firstKey);
+      cubit.requestBack();
       cubit.updateAgentIdentifier('123');
       await cubit.continueFlow();
       await cubit.submitCertificate();

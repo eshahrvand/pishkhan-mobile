@@ -1,4 +1,3 @@
-
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 
@@ -81,20 +80,4 @@ class AppCardsListHeader extends StatelessWidget {
       ),
     );
   }
-
-  TextStyle _mediumStyle(Color color) => AppTypography.bodySmall.copyWith(
-    color: color,
-    fontWeight: FontWeight.w500,
-    height: 18 / 12,
-    letterSpacing: 0,
-  );
-  String get _title =>
-      title ??
-      switch (type) {
-        AppCardsListType.resalat => 'رسالت کارت',
-        AppCardsListType.gift => 'کارت هدیه',
-        AppCardsListType.virtual => 'کارت مجازی',
-        AppCardsListType.coupon => 'بن کارت',
-        AppCardsListType.family => 'کارت خانواده',
-      };
 }

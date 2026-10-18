@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:characters/characters.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
-import 'package:pishkhan_mobile/features/profile/domain/entities/notification_message.dart';
+import 'package:pishkhan_mobile/core/notifications/notification_message.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';

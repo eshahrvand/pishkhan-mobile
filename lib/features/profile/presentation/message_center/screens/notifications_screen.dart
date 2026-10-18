@@ -7,7 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:pishkhan_mobile/core/router/app_routes.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:pishkhan_mobile/features/profile/domain/entities/notification_message.dart';
+import 'package:pishkhan_mobile/core/notifications/notification_message.dart';
 import 'package:pishkhan_mobile/features/profile/presentation/message_center/widgets/notification_header.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
@@ -32,7 +32,7 @@ class NotificationsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => NotificationsCubit(messages)..load(),
+      create: (context) => NotificationsCubit()..openInbox(messages),
       child: BlocListener<NotificationsCubit, NotificationsState>(
         listenWhen: (previous, current) =>
             previous.detailRequestId != current.detailRequestId,

@@ -13,7 +13,7 @@ import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:pishkhan_mobile/features/profile/domain/entities/notification_message.dart';
+import 'package:pishkhan_mobile/core/notifications/notification_message.dart';
 import 'package:pishkhan_mobile/features/profile/presentation/message_center/screens/notifications_screen.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 
@@ -129,7 +129,7 @@ void main() {
     await tester.pumpWidget(
       subject(
         home: NotificationsScreen(
-          messages: const [
+          messages: [
             NotificationMessage(
               id: 'custom',
               title: 'عنوان سفارشی',

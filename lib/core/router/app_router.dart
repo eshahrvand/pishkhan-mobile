@@ -18,7 +18,7 @@ import 'package:pishkhan_mobile/features/cards/presentation/expired_gift_balance
 import 'package:pishkhan_mobile/features/deposits/presentation/deposit_list/screens/deposit_list_screen.dart';
 import 'package:pishkhan_mobile/features/deposits/presentation/average_balance/screens/average_balance_screen.dart';
 import 'package:pishkhan_mobile/features/deposits/presentation/financial_certificate/screens/financial_certificate_screen.dart';
-import 'package:pishkhan_mobile/features/profile/domain/entities/notification_message.dart';
+import 'package:pishkhan_mobile/core/notifications/notification_message.dart';
 import 'package:pishkhan_mobile/features/profile/presentation/message_center/screens/notifications_screen.dart';
 import 'package:pishkhan_mobile/features/profile/presentation/message_center/screens/notification_detail_screen.dart';
 

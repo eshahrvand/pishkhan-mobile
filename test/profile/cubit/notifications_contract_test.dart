@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:pishkhan_mobile/features/profile/domain/entities/notification_message.dart';
+import 'package:pishkhan_mobile/core/notifications/notification_message.dart';
 import 'package:pishkhan_mobile/features/profile/presentation/message_center/cubit/notifications_cubit.dart';
 import 'package:pishkhan_mobile/features/profile/presentation/message_center/widgets/notification_labels.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
@@ -10,20 +10,15 @@ void main() {
     'constructor preserves the snapshot; load and opening own inbox changes',
     () async {
       const initial = NotificationsState.initial(detailRequestId: 8);
-      final cubit = NotificationsCubit(
-        NotificationMessage.examples(),
-        initialState: initial,
-      );
+      final cubit = NotificationsCubit(initialState: initial);
       expect(identical(cubit.state, initial), isTrue);
-      cubit.load();
+      cubit.openInbox(NotificationMessage.examples());
       expect(cubit.state.unreadMessages, hasLength(2));
-      cubit.openMessage('secured-loan');
+      cubit.openMessage(cubit.state.messages.first);
       expect(cubit.state.detailMessage!.isRead, isTrue);
       expect(cubit.state.unreadMessages, hasLength(1));
       final request = cubit.state.detailRequestId;
-      cubit.openMessage('secured-loan');
-      expect(cubit.state.detailRequestId, request + 1);
-      cubit.openMessage('unknown');
+      cubit.openMessage(cubit.state.messages.first);
       expect(cubit.state.detailRequestId, request + 1);
       await cubit.close();
     },
@@ -45,4 +40,30 @@ void main() {
       expect(english.last.id, 'security-sample-date');
     },
   );
+  test('notification values are equal and snapshot incoming bullet lists', () {
+    final bullets = ['First'];
+    final message = NotificationMessage(
+      id: 'one',
+      title: 'Title',
+      subtitle: 'Body',
+      dateLabel: '',
+      bullets: bullets,
+    );
+    final equal = NotificationMessage(
+      id: 'one',
+      title: 'Title',
+      subtitle: 'Body',
+      dateLabel: '',
+      bullets: ['First'],
+    );
+    expect(message, equal);
+    bullets.add('Changed outside State');
+    expect(message.bullets, ['First']);
+    expect(
+      () => message.bullets.add('Changed inside State'),
+      throwsUnsupportedError,
+    );
+    expect(message.markRead(), isNot(message));
+    expect(message.markRead().markRead(), message.markRead());
+  });
 }

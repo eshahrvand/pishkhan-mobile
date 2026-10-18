@@ -116,6 +116,8 @@ class FinancialCertificateScreen extends StatelessWidget {
               previous.submissionStatus != current.submissionStatus &&
               current.submissionStatus == RequestStatus.success,
           listener: _handleReceipt,
+          buildWhen: (previous, current) =>
+              previous.navigation != current.navigation,
           builder: (context, state) {
             return Directionality(
               textDirection: TextDirection.rtl,
@@ -157,21 +159,33 @@ class FinancialCertificateScreen extends StatelessWidget {
                                   crossAxisAlignment:
                                       CrossAxisAlignment.stretch,
                                   children: [
-                                    AppStepper(
-                                      currentStep: state.stepNumber,
-                                      totalSteps: 5,
-                                      title: getFinancialCertificateStepTitle(
-                                        state.step,
-                                      ),
-                                      supportingText:
-                                          state.step ==
-                                              FinancialCertificateStep
-                                                  .confirmation
-                                          ? S.current.issuanceEnd
-                                          : '${S.current.certificateNextPrefix} ${getFinancialCertificateNextStepTitle(state.step)}',
+                                    BlocBuilder<
+                                      FinancialCertificateCubit,
+                                      FinancialCertificateState
+                                    >(
+                                      buildWhen: (previous, current) =>
+                                          previous.step != current.step ||
+                                          previous.stepNumber !=
+                                              current.stepNumber,
+                                      builder: (context, state) {
+                                        return AppStepper(
+                                          currentStep: state.stepNumber,
+                                          totalSteps: 5,
+                                          title:
+                                              getFinancialCertificateStepTitle(
+                                                state.step,
+                                              ),
+                                          supportingText:
+                                              state.step ==
+                                                  FinancialCertificateStep
+                                                      .confirmation
+                                              ? S.current.issuanceEnd
+                                              : '${S.current.certificateNextPrefix} ${getFinancialCertificateNextStepTitle(state.step)}',
+                                        );
+                                      },
                                     ),
                                     const SizedBox(height: 26),
-                                    FinancialCertificateContent(state: state),
+                                    const FinancialCertificateContent(),
                                   ],
                                 ),
                               ),
@@ -187,25 +201,38 @@ class FinancialCertificateScreen extends StatelessWidget {
                             ],
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                          child: AppButton(
-                            label:
-                                state.step ==
-                                    FinancialCertificateStep.confirmation
-                                ? S.current.issuanceSubmit
-                                : S.current.issuanceNext,
-                            size: AppButtonSize.lg,
-                            disabledAppearance:
-                                AppButtonDisabledAppearance.service,
-                            isLoading:
-                                state.submissionStatus == RequestStatus.loading,
-                            onPressed: state.canContinue
-                                ? context
-                                      .read<FinancialCertificateCubit>()
-                                      .continueFlow
-                                : null,
-                          ),
+                        BlocBuilder<
+                          FinancialCertificateCubit,
+                          FinancialCertificateState
+                        >(
+                          buildWhen: (previous, current) =>
+                              previous.canContinue != current.canContinue ||
+                              previous.submissionStatus !=
+                                  current.submissionStatus ||
+                              previous.step != current.step,
+                          builder: (context, state) {
+                            return Padding(
+                              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                              child: AppButton(
+                                label:
+                                    state.step ==
+                                        FinancialCertificateStep.confirmation
+                                    ? S.current.issuanceSubmit
+                                    : S.current.issuanceNext,
+                                size: AppButtonSize.lg,
+                                disabledAppearance:
+                                    AppButtonDisabledAppearance.service,
+                                isLoading:
+                                    state.submissionStatus ==
+                                    RequestStatus.loading,
+                                onPressed: state.canContinue
+                                    ? context
+                                          .read<FinancialCertificateCubit>()
+                                          .continueFlow
+                                    : null,
+                              ),
+                            );
+                          },
                         ),
                       ],
                     ),

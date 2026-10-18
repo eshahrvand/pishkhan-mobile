@@ -1,24 +1,17 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import '../../../domain/entities/notification_message.dart';
+import 'package:pishkhan_mobile/core/notifications/notification_message.dart';
 
 part 'notifications_state.dart';
 part 'notifications_cubit.freezed.dart';
 
 class NotificationsCubit extends Cubit<NotificationsState> {
-  NotificationsCubit(
-    this.initialMessages, {
+  NotificationsCubit({
     NotificationsState initialState = const NotificationsState.initial(),
   }) : super(initialState);
-  final List<NotificationMessage> initialMessages;
 
-  void load() {
-    replaceInbox(initialMessages);
-  }
-
-  void replaceInbox(List<NotificationMessage> inbox) {
-    if (isClosed) return;
+  void openInbox(List<NotificationMessage> inbox) {
     emit(
       state.copyWith(
         messages: List.unmodifiable(inbox),
@@ -29,16 +22,11 @@ class NotificationsCubit extends Cubit<NotificationsState> {
     );
   }
 
-  void openMessage(String id) {
-    if (isClosed) return;
-    final selected = state.messages
-        .where((message) => message.id == id)
-        .firstOrNull;
-    if (selected == null) return;
+  void openMessage(NotificationMessage selected) {
     final readMessage = selected.markRead();
     final messages = [
       for (final message in state.messages)
-        message.id == id ? readMessage : message,
+        message.id == selected.id ? readMessage : message,
     ];
     emit(
       state.copyWith(
@@ -47,20 +35,6 @@ class NotificationsCubit extends Cubit<NotificationsState> {
         readMessages: messages.where((message) => message.isRead).toList(),
         detailMessage: readMessage,
         detailRequestId: state.detailRequestId + 1,
-      ),
-    );
-  }
-
-  void markRead(String id) {
-    final messages = [
-      for (final message in state.messages)
-        message.id == id ? message.markRead() : message,
-    ];
-    emit(
-      state.copyWith(
-        messages: messages,
-        unreadMessages: messages.where((message) => !message.isRead).toList(),
-        readMessages: messages.where((message) => message.isRead).toList(),
       ),
     );
   }

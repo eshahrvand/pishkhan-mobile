@@ -121,12 +121,6 @@ class AppDepositList extends StatelessWidget {
     );
   }
 
-  TextStyle _regularStyle(Color color) => AppTypography.bodySmall.copyWith(
-    color: color,
-    height: 18 / 12,
-    letterSpacing: 0,
-  );
-
   TextStyle _mediumStyle(Color color) => AppTypography.bodySmall.copyWith(
     color: color,
     fontWeight: FontWeight.w500,

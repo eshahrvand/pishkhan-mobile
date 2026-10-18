@@ -84,16 +84,6 @@ class AppCardsList extends StatelessWidget {
   final bool coloredHeader;
   final String cardNumberLabel, linkedDepositLabel;
 
-  String get _title =>
-      title ??
-      switch (type) {
-        AppCardsListType.resalat => 'رسالت کارت',
-        AppCardsListType.gift => 'کارت هدیه',
-        AppCardsListType.virtual => 'کارت مجازی',
-        AppCardsListType.coupon => 'بن کارت',
-        AppCardsListType.family => 'کارت خانواده',
-      };
-
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
@@ -155,17 +145,4 @@ class AppCardsList extends StatelessWidget {
       ),
     );
   }
-
-  TextStyle _regularStyle(Color color) => AppTypography.bodySmall.copyWith(
-    color: color,
-    height: 18 / 12,
-    letterSpacing: 0,
-  );
-
-  TextStyle _mediumStyle(Color color) => AppTypography.bodySmall.copyWith(
-    color: color,
-    fontWeight: FontWeight.w500,
-    height: 18 / 12,
-    letterSpacing: 0,
-  );
 }

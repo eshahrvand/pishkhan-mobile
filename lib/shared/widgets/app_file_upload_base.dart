@@ -63,27 +63,4 @@ class AppFileUploadBase extends StatelessWidget {
           : content,
     );
   }
-
-  TextStyle get _bodyStyle => AppTypography.bodyMedium.copyWith(
-    color: AppPalette.gray600,
-    fontSize: 14,
-    height: 20 / 14,
-    letterSpacing: 0,
-  );
-
-  TextStyle get _actionStyle => _bodyStyle.copyWith(
-    color: AppPalette.brand700,
-    fontWeight: FontWeight.w600,
-  );
-
-  TextStyle get _supportingStyle => AppTypography.bodySmall.copyWith(
-    color: AppPalette.gray600,
-    height: 18 / 12,
-    letterSpacing: 0,
-  );
-
-  TextStyle get _fileNameStyle => _bodyStyle.copyWith(
-    color: AppPalette.gray700,
-    fontWeight: FontWeight.w500,
-  );
 }

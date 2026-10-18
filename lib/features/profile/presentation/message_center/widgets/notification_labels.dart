@@ -1,4 +1,4 @@
-import '../../../domain/entities/notification_message.dart';
+import 'package:pishkhan_mobile/core/notifications/notification_message.dart';
 
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';

@@ -15,32 +15,56 @@ class CertificateAddressCubit extends Cubit<CertificateAddressState> {
   }) : super(initialState);
 
   void updateTitle(String value) {
-    emit(state.copyWith(title: value));
+    final valid = value.trim().isNotEmpty;
+    emit(
+      state.copyWith(
+        title: value,
+        isTitleValid: valid,
+        isInvalid:
+            state.isInvalid &&
+            !(valid && state.isDetailValid && state.isPostalCodeValid),
+      ),
+    );
   }
 
   void updateDetail(String value) {
-    emit(state.copyWith(detail: value));
+    final valid = value.trim().isNotEmpty;
+    emit(
+      state.copyWith(
+        detail: value,
+        isDetailValid: valid,
+        isInvalid:
+            state.isInvalid &&
+            !(state.isTitleValid && valid && state.isPostalCodeValid),
+      ),
+    );
   }
 
   void updatePostalCode(String value) {
-    emit(state.copyWith(postalCode: value));
+    final normalized = DigitNormalizer.normalize(value).trim();
+    final valid = PostalCodeValidator.isValid(normalized);
+    emit(
+      state.copyWith(
+        postalCode: normalized,
+        isPostalCodeValid: valid,
+        isInvalid:
+            state.isInvalid &&
+            !(state.isTitleValid && state.isDetailValid && valid),
+      ),
+    );
   }
 
-  CertificateAddress? submit() {
-    final postalCode = DigitNormalizer.normalize(state.postalCode).trim();
-    if (state.title.trim().isEmpty ||
-        state.detail.trim().isEmpty ||
-        !PostalCodeValidator.isValid(postalCode)) {
+  void submitAddress() {
+    if (state.isTitleValid && state.isDetailValid && state.isPostalCodeValid) {
+      final address = CertificateAddress(
+        id: 'local',
+        title: state.title.trim(),
+        detail: state.detail.trim(),
+        postalCode: state.postalCode,
+      );
+      emit(state.copyWith(savedAddress: address, saveId: state.saveId + 1));
+    } else {
       emit(state.copyWith(isInvalid: true));
-      return null;
     }
-    final address = CertificateAddress(
-      id: 'local',
-      title: state.title.trim(),
-      detail: state.detail.trim(),
-      postalCode: postalCode,
-    );
-    emit(state.copyWith(savedAddress: address, saveId: state.saveId + 1));
-    return address;
   }
 }

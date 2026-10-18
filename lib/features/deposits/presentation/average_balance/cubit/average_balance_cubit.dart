@@ -32,7 +32,8 @@ class AverageBalanceCubit extends Cubit<AverageBalanceState> {
   final repository = getIt<DepositCertificatesRepository>();
   final String? initialDepositNumber;
   int _localAddress = 0;
-  String? _key;
+  // The last sent payload owns its key; editing the form does not create a request.
+  AverageBalanceRequest? _submittedRequest;
 
   AverageBalanceState? _entryState;
 
@@ -260,7 +261,6 @@ class AverageBalanceCubit extends Cubit<AverageBalanceState> {
   }
 
   void selectDeposit(ListedDeposit deposit) {
-    _key = null;
     emit(
       state.copyWith(
         deposit: deposit,
@@ -275,7 +275,6 @@ class AverageBalanceCubit extends Cubit<AverageBalanceState> {
   }
 
   void selectLanguage(CertificateLanguage language) {
-    _key = null;
     emit(
       state.copyWith(
         language: language,
@@ -286,7 +285,6 @@ class AverageBalanceCubit extends Cubit<AverageBalanceState> {
   }
 
   void selectTurnover(StatementTurnover turnover) {
-    _key = null;
     emit(
       state.copyWith(
         turnover: turnover,
@@ -297,7 +295,6 @@ class AverageBalanceCubit extends Cubit<AverageBalanceState> {
   }
 
   void selectAddress(CertificateAddress address) {
-    _key = null;
     emit(
       state.copyWith(
         address: address,
@@ -316,7 +313,6 @@ class AverageBalanceCubit extends Cubit<AverageBalanceState> {
       detail: address.detail,
       postalCode: address.postalCode,
     );
-    _key = null;
     emit(
       state.copyWith(
         addresses: [...state.addresses, local],
@@ -329,7 +325,6 @@ class AverageBalanceCubit extends Cubit<AverageBalanceState> {
   }
 
   void removeAddress(CertificateAddress address) {
-    _key = null;
     emit(
       state.copyWith(
         addresses: state.addresses
@@ -342,7 +337,6 @@ class AverageBalanceCubit extends Cubit<AverageBalanceState> {
   }
 
   void updateOtherRecipient(bool value) {
-    _key = null;
     emit(
       state.copyWith(
         isOtherRecipient: value,
@@ -357,7 +351,6 @@ class AverageBalanceCubit extends Cubit<AverageBalanceState> {
 
   void updateRecipientName(String value) {
     final valid = value.trim().isNotEmpty;
-    _key = null;
     emit(
       state.copyWith(
         recipientName: value,
@@ -373,7 +366,6 @@ class AverageBalanceCubit extends Cubit<AverageBalanceState> {
   void updateRecipientNationalId(String value) {
     final normalized = DigitNormalizer.normalize(value);
     final valid = NationalCodeValidator.isValid(normalized);
-    _key = null;
     emit(
       state.copyWith(
         recipientNationalId: normalized,
@@ -386,13 +378,11 @@ class AverageBalanceCubit extends Cubit<AverageBalanceState> {
   }
 
   void updateIncludeAgent(bool value) {
-    _key = null;
     emit(state.copyWith(isIncludeAgent: value));
   }
 
   void updateAgentIdentifier(String value) {
     final normalized = DigitNormalizer.normalize(value);
-    _key = null;
     emit(
       state.copyWith(
         agentIdentifier: normalized,
@@ -410,27 +400,11 @@ class AverageBalanceCubit extends Cubit<AverageBalanceState> {
   }
 
   Future<void> submitCertificate() {
-    _key ??= List.generate(
-      16,
-      (_) => Random.secure().nextInt(256).toRadixString(16).padLeft(2, '0'),
-    ).join();
-    final request = AverageBalanceRequest(
-      depositId: state.deposit!.id,
-      language: state.language!,
-      turnover: state.turnover!,
-      address: state.address!,
-      fromDate: state.fromDate?.toUtc(),
-      toDate: state.toDate?.toUtc(),
-      recipientName: state.isOtherRecipient ? state.recipientName.trim() : null,
-      recipientNationalId: state.isOtherRecipient
-          ? state.recipientNationalId
-          : null,
-      agentIdentifier:
-          state.isIncludeAgent && state.agentIdentifier.trim().isNotEmpty
-          ? state.agentIdentifier
-          : null,
-      idempotencyKey: _key!,
-    );
+    var request = _createRequest(_submittedRequest?.idempotencyKey);
+    if (_submittedRequest != null && request != _submittedRequest) {
+      request = _createRequest(null);
+    }
+    _submittedRequest = request;
     emit(
       state.copyWith(
         submissionStatus: RequestStatus.loading,
@@ -457,5 +431,31 @@ class AverageBalanceCubit extends Cubit<AverageBalanceState> {
               );
           }
         });
+  }
+
+  AverageBalanceRequest _createRequest(String? idempotencyKey) {
+    return AverageBalanceRequest(
+      depositId: state.deposit!.id,
+      language: state.language!,
+      turnover: state.turnover!,
+      address: state.address!,
+      fromDate: state.fromDate?.toUtc(),
+      toDate: state.toDate?.toUtc(),
+      recipientName: state.isOtherRecipient ? state.recipientName.trim() : null,
+      recipientNationalId: state.isOtherRecipient
+          ? state.recipientNationalId
+          : null,
+      agentIdentifier:
+          state.isIncludeAgent && state.agentIdentifier.trim().isNotEmpty
+          ? state.agentIdentifier
+          : null,
+      idempotencyKey:
+          idempotencyKey ??
+          List.generate(
+            16,
+            (_) =>
+                Random.secure().nextInt(256).toRadixString(16).padLeft(2, '0'),
+          ).join(),
+    );
   }
 }

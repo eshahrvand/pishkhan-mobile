@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 
-import '../../../domain/entities/notification_message.dart';
+import 'package:pishkhan_mobile/core/notifications/notification_message.dart';
+
 import '../cubit/notifications_cubit.dart';
 import 'notification_group.dart';
 
@@ -20,7 +21,7 @@ class _NotificationsListState extends State<NotificationsList> {
   void didUpdateWidget(covariant NotificationsList oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (!identical(oldWidget.messages, widget.messages)) {
-      context.read<NotificationsCubit>().replaceInbox(widget.messages);
+      context.read<NotificationsCubit>().openInbox(widget.messages);
     }
   }
 
@@ -47,7 +48,7 @@ class _NotificationsListState extends State<NotificationsList> {
                       messages: state.unreadMessages,
                       onOpen: (message) => context
                           .read<NotificationsCubit>()
-                          .openMessage(message.id),
+                          .openMessage(message),
                     ),
                   if (state.unreadMessages.isNotEmpty &&
                       state.readMessages.isNotEmpty)
@@ -58,7 +59,7 @@ class _NotificationsListState extends State<NotificationsList> {
                       messages: state.readMessages,
                       onOpen: (message) => context
                           .read<NotificationsCubit>()
-                          .openMessage(message.id),
+                          .openMessage(message),
                     ),
                 ],
               );

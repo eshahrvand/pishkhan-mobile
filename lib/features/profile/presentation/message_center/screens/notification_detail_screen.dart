@@ -2,7 +2,7 @@ import '../widgets/notification_labels.dart';
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:pishkhan_mobile/features/profile/domain/entities/notification_message.dart';
+import 'package:pishkhan_mobile/core/notifications/notification_message.dart';
 import 'package:pishkhan_mobile/features/profile/presentation/message_center/widgets/notification_header.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';

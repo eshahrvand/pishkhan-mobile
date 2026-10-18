@@ -1,3 +1,5 @@
+import 'package:equatable/equatable.dart';
+
 enum NotificationExample {
   loan,
   investment,
@@ -7,8 +9,8 @@ enum NotificationExample {
 }
 
 /// Presentation data; a repository can supply messages without changing the UI.
-class NotificationMessage {
-  const NotificationMessage({
+class NotificationMessage extends Equatable {
+  NotificationMessage({
     required this.id,
     required this.title,
     required this.subtitle,
@@ -17,16 +19,31 @@ class NotificationMessage {
     this.example,
     this.intro,
     this.advice,
-    this.bullets = const [],
+    Iterable<String> bullets = const [],
     this.closing,
     this.imageAsset,
-  });
+  }) : bullets = List.unmodifiable(bullets);
 
   final String id, title, subtitle, dateLabel;
   final bool isRead;
   final NotificationExample? example;
   final String? intro, advice, closing, imageAsset;
   final List<String> bullets;
+
+  @override
+  List<Object?> get props => [
+    id,
+    title,
+    subtitle,
+    dateLabel,
+    isRead,
+    example,
+    intro,
+    advice,
+    bullets,
+    closing,
+    imageAsset,
+  ];
 
   NotificationMessage markRead() => NotificationMessage(
     id: id,
@@ -43,7 +60,7 @@ class NotificationMessage {
   );
 
   /// Stable sample identities and semantic content; UI owns their translations.
-  static List<NotificationMessage> examples() => const [
+  static List<NotificationMessage> examples() => List.unmodifiable([
     NotificationMessage(
       id: 'secured-loan',
       title: '',
@@ -82,5 +99,5 @@ class NotificationMessage {
       isRead: true,
       example: NotificationExample.securitySampleDate,
     ),
-  ];
+  ]);
 }

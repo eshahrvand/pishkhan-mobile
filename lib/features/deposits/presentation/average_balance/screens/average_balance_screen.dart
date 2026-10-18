@@ -114,6 +114,8 @@ class AverageBalanceScreen extends StatelessWidget {
               previous.submissionStatus != current.submissionStatus &&
               current.submissionStatus == RequestStatus.success,
           listener: _handleReceipt,
+          buildWhen: (previous, current) =>
+              previous.navigation != current.navigation,
           builder: (context, state) {
             return Directionality(
               textDirection: TextDirection.rtl,
@@ -155,21 +157,34 @@ class AverageBalanceScreen extends StatelessWidget {
                                   crossAxisAlignment:
                                       CrossAxisAlignment.stretch,
                                   children: [
-                                    AppStepper(
-                                      currentStep: state.stepNumber,
-                                      totalSteps: 3,
-                                      progress: state.progress,
-                                      title: getAverageBalanceStepTitle(
-                                        state.step,
-                                      ),
-                                      supportingText:
-                                          state.step ==
-                                              AverageBalanceStep.confirmation
-                                          ? S.current.issuanceEnd
-                                          : '${S.current.certificateNextPrefix} ${getAverageBalanceNextStepTitle(state.step)}',
+                                    BlocBuilder<
+                                      AverageBalanceCubit,
+                                      AverageBalanceState
+                                    >(
+                                      buildWhen: (previous, current) =>
+                                          previous.step != current.step ||
+                                          previous.stepNumber !=
+                                              current.stepNumber ||
+                                          previous.progress != current.progress,
+                                      builder: (context, state) {
+                                        return AppStepper(
+                                          currentStep: state.stepNumber,
+                                          totalSteps: 3,
+                                          progress: state.progress,
+                                          title: getAverageBalanceStepTitle(
+                                            state.step,
+                                          ),
+                                          supportingText:
+                                              state.step ==
+                                                  AverageBalanceStep
+                                                      .confirmation
+                                              ? S.current.issuanceEnd
+                                              : '${S.current.certificateNextPrefix} ${getAverageBalanceNextStepTitle(state.step)}',
+                                        );
+                                      },
                                     ),
                                     const SizedBox(height: 26),
-                                    AverageBalanceContent(state: state),
+                                    const AverageBalanceContent(),
                                   ],
                                 ),
                               ),
@@ -185,23 +200,35 @@ class AverageBalanceScreen extends StatelessWidget {
                             ],
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                          child: AppButton(
-                            label: state.step == AverageBalanceStep.confirmation
-                                ? S.current.issuanceSubmit
-                                : S.current.issuanceNext,
-                            size: AppButtonSize.lg,
-                            disabledAppearance:
-                                AppButtonDisabledAppearance.service,
-                            isLoading:
-                                state.submissionStatus == RequestStatus.loading,
-                            onPressed: state.canContinue
-                                ? context
-                                      .read<AverageBalanceCubit>()
-                                      .continueFlow
-                                : null,
-                          ),
+                        BlocBuilder<AverageBalanceCubit, AverageBalanceState>(
+                          buildWhen: (previous, current) =>
+                              previous.canContinue != current.canContinue ||
+                              previous.submissionStatus !=
+                                  current.submissionStatus ||
+                              previous.step != current.step,
+                          builder: (context, state) {
+                            return Padding(
+                              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                              child: AppButton(
+                                label:
+                                    state.step ==
+                                        AverageBalanceStep.confirmation
+                                    ? S.current.issuanceSubmit
+                                    : S.current.issuanceNext,
+                                size: AppButtonSize.lg,
+                                disabledAppearance:
+                                    AppButtonDisabledAppearance.service,
+                                isLoading:
+                                    state.submissionStatus ==
+                                    RequestStatus.loading,
+                                onPressed: state.canContinue
+                                    ? context
+                                          .read<AverageBalanceCubit>()
+                                          .continueFlow
+                                    : null,
+                              ),
+                            );
+                          },
                         ),
                       ],
                     ),

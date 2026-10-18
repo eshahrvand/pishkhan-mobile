@@ -35,7 +35,8 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
   final repository = getIt<FinancialCertificateRepository>();
   final String? initialDepositNumber;
   int _localAddress = 0;
-  String? _key;
+  // The last sent payload owns its key; editing the form does not create a request.
+  FinancialCertificateRequest? _submittedRequest;
 
   FinancialCertificateState? _entryState;
 
@@ -336,7 +337,6 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
   }
 
   void selectDeposit(ListedDeposit deposit) {
-    _key = null;
     emit(
       state.copyWith(
         deposit: deposit,
@@ -350,7 +350,6 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
   void toggleCondition(FinancialCertificateCondition condition) {
     final conditions = {...state.conditions};
     if (!conditions.remove(condition)) conditions.add(condition);
-    _key = null;
     emit(
       state.copyWith(
         conditions: conditions,
@@ -361,7 +360,6 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
   }
 
   void selectRecipient(FinancialCertificateRecipient recipient) {
-    _key = null;
     emit(
       state.copyWith(
         recipient: recipient,
@@ -378,7 +376,6 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
 
   void selectEmbassy(CertificateEmbassy embassy) {
     final complete = state.currency != null;
-    _key = null;
     emit(
       state.copyWith(
         embassy: embassy,
@@ -392,7 +389,6 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
   void updateAuthorityName(String value) {
     final valid = value.trim().isNotEmpty;
     final complete = valid && state.currency != null;
-    _key = null;
     emit(
       state.copyWith(
         authorityName: value,
@@ -411,7 +407,6 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
         state.isAuthorityNameValid,
       null => false,
     };
-    _key = null;
     emit(
       state.copyWith(
         currency: currency,
@@ -431,7 +426,6 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
         state.isPassportNumberValid &&
         state.passportExpiry != null &&
         state.isLatinAddressValid;
-    _key = null;
     emit(
       state.copyWith(
         name: value,
@@ -452,7 +446,6 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
         state.isPassportNumberValid &&
         state.passportExpiry != null &&
         state.isLatinAddressValid;
-    _key = null;
     emit(
       state.copyWith(
         surname: value,
@@ -473,7 +466,6 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
         state.isPassportNumberValid &&
         state.passportExpiry != null &&
         state.isLatinAddressValid;
-    _key = null;
     emit(
       state.copyWith(
         fatherName: value,
@@ -495,7 +487,6 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
         valid &&
         state.passportExpiry != null &&
         state.isLatinAddressValid;
-    _key = null;
     emit(
       state.copyWith(
         passportNumber: normalized,
@@ -517,7 +508,6 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
         state.isPassportNumberValid &&
         expiry != null &&
         state.isLatinAddressValid;
-    _key = null;
     emit(
       state.copyWith(
         passportExpiryText: normalized,
@@ -538,7 +528,6 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
         state.isPassportNumberValid &&
         state.passportExpiry != null &&
         valid;
-    _key = null;
     emit(
       state.copyWith(
         latinAddress: value,
@@ -551,7 +540,6 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
   }
 
   void selectAddress(CertificateAddress address) {
-    _key = null;
     emit(
       state.copyWith(
         address: address,
@@ -570,7 +558,6 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
       detail: address.detail,
       postalCode: address.postalCode,
     );
-    _key = null;
     emit(
       state.copyWith(
         addresses: [...state.addresses, local],
@@ -583,7 +570,6 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
   }
 
   void removeAddress(CertificateAddress address) {
-    _key = null;
     emit(
       state.copyWith(
         addresses: state.addresses
@@ -596,7 +582,6 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
   }
 
   void updateOtherRecipient(bool value) {
-    _key = null;
     emit(
       state.copyWith(
         isOtherRecipient: value,
@@ -611,7 +596,6 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
 
   void updateRecipientName(String value) {
     final valid = value.trim().isNotEmpty;
-    _key = null;
     emit(
       state.copyWith(
         deliveryRecipientName: value,
@@ -627,7 +611,6 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
   void updateRecipientNationalId(String value) {
     final normalized = DigitNormalizer.normalize(value);
     final valid = NationalCodeValidator.isValid(normalized);
-    _key = null;
     emit(
       state.copyWith(
         deliveryRecipientNationalId: normalized,
@@ -640,13 +623,11 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
   }
 
   void updateIncludeAgent(bool value) {
-    _key = null;
     emit(state.copyWith(isIncludeAgent: value));
   }
 
   void updateAgentIdentifier(String value) {
     final normalized = DigitNormalizer.normalize(value);
-    _key = null;
     emit(
       state.copyWith(
         agentIdentifier: normalized,
@@ -664,11 +645,42 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
   }
 
   Future<void> submitCertificate() {
-    _key ??= List.generate(
-      16,
-      (_) => Random.secure().nextInt(256).toRadixString(16).padLeft(2, '0'),
-    ).join();
-    final request = FinancialCertificateRequest(
+    var request = _createRequest(_submittedRequest?.idempotencyKey);
+    if (_submittedRequest != null && request != _submittedRequest) {
+      request = _createRequest(null);
+    }
+    _submittedRequest = request;
+    emit(
+      state.copyWith(
+        submissionStatus: RequestStatus.loading,
+        submissionFailure: null,
+      ),
+    );
+    return certificateBoundary(
+      () => repository.submitFinancialCertificate(request),
+    ).then((result) {
+      switch (result) {
+        case Err(:final failure):
+          emit(
+            state.copyWith(
+              submissionStatus: RequestStatus.failure,
+              submissionFailure: failure,
+            ),
+          );
+        case Success(:final data):
+          emit(
+            state.copyWith(
+              submissionStatus: RequestStatus.success,
+              receipt: data,
+              canContinue: false,
+            ),
+          );
+      }
+    });
+  }
+
+  FinancialCertificateRequest _createRequest(String? idempotencyKey) {
+    return FinancialCertificateRequest(
       depositId: state.deposit!.id,
       conditions: state.conditions,
       recipient: state.recipient!,
@@ -699,34 +711,13 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
           state.isIncludeAgent && state.agentIdentifier.trim().isNotEmpty
           ? state.agentIdentifier
           : null,
-      idempotencyKey: _key!,
+      idempotencyKey:
+          idempotencyKey ??
+          List.generate(
+            16,
+            (_) =>
+                Random.secure().nextInt(256).toRadixString(16).padLeft(2, '0'),
+          ).join(),
     );
-    emit(
-      state.copyWith(
-        submissionStatus: RequestStatus.loading,
-        submissionFailure: null,
-      ),
-    );
-    return certificateBoundary(
-      () => repository.submitFinancialCertificate(request),
-    ).then((result) {
-      switch (result) {
-        case Err(:final failure):
-          emit(
-            state.copyWith(
-              submissionStatus: RequestStatus.failure,
-              submissionFailure: failure,
-            ),
-          );
-        case Success(:final data):
-          emit(
-            state.copyWith(
-              submissionStatus: RequestStatus.success,
-              receipt: data,
-              canContinue: false,
-            ),
-          );
-      }
-    });
   }
 }

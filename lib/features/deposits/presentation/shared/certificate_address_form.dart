@@ -90,7 +90,7 @@ class _CertificateAddressFormState extends State<CertificateAddressForm> {
                             size: AppButtonSize.lg,
                             onPressed: context
                                 .read<CertificateAddressCubit>()
-                                .submit,
+                                .submitAddress,
                           ),
                         ],
                       ),
