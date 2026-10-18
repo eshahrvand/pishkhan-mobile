@@ -20,7 +20,9 @@ import 'package:pishkhan_mobile/core/router/card_features_navigation.dart';
 import 'package:pishkhan_mobile/features/cards/cards.dart';
 import 'package:pishkhan_mobile/features/cards/presentation/change_card_deposit/cubit/change_card_deposit_cubit.dart';
 import 'package:pishkhan_mobile/features/cards/presentation/expired_gift_balance/cubit/expired_gift_balance_cubit.dart';
-import 'package:pishkhan_mobile/features/cards/presentation/expired_gift_balance/widgets/gift_balance_sheets.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/expired_gift_balance/widgets/gift_balance_review_sheet.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/expired_gift_balance/widgets/gift_balance_filter_sheet.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/expired_gift_balance/models/gift_balance_deposit_filter.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 
 import '../../support/router_test_app.dart';
@@ -248,21 +250,24 @@ void main() {
       await t.pumpAndSettle();
       await t.tap(find.byType(AppCheckbox).at(2));
       await t.pumpAndSettle();
-      expect(giftCubit(t).state.selectedIds, {'gift-0', 'gift-2'});
+      expect(giftCubit(t).state.selectedCards.map((card) => card.id).toSet(), {
+        'gift-0',
+        'gift-2',
+      });
       await capture(t, 'gift-2-selected');
       await t.tap(button('مرحله بعد'));
       await t.pumpAndSettle();
       expect(find.byType(GiftBalanceReviewSheet), findsOneWidget);
       expect(find.text('لیست کارت‌های انتخاب شده (2)'), findsOneWidget);
       await capture(t, 'gift-3-review');
-      await t.tap(button('بازگشت'));
+      await t.tap(button(S.current.backLabel));
       await t.pumpAndSettle();
       expect(giftCubit(t).state.step, GiftBalanceStep.destination);
       expect(find.text('مجموع مبلغ (ریال)'), findsOneWidget);
       t.view.physicalSize = const Size(375, 812);
       await t.pumpAndSettle();
       await capture(t, 'gift-4-destination');
-      await choose<String>(t, 0, '10.123456.1');
+      await choose<CardServiceDeposit>(t, 0, '10.123456.1');
       await t.tap(find.byType(AppCheckbox));
       await t.pumpAndSettle();
       await capture(t, 'gift-5-complete');
@@ -288,7 +293,7 @@ void main() {
     await t.tap(filter);
     await t.pumpAndSettle();
     await capture(t, 'gift-7-filter-all');
-    await choose<String>(t, 0, '10.123456.2');
+    await choose<GiftBalanceDepositFilter>(t, 0, '10.123456.2');
     expect(giftCubit(t).state.visibleCards.length, 5);
     await capture(t, 'gift-8-filter-draft');
     await t.tap(button('اعمال فیلتر'));
@@ -296,16 +301,119 @@ void main() {
     expect(giftCubit(t).state.visibleCards.length, 2);
     await t.tap(find.byType(AppToggle));
     await t.pumpAndSettle();
-    expect(giftCubit(t).state.selectedIds, {'gift-1', 'gift-3'});
+    expect(giftCubit(t).state.selectedCards.map((card) => card.id).toSet(), {
+      'gift-1',
+      'gift-3',
+    });
     await t.tap(filter);
     await t.pumpAndSettle();
-    await choose<String>(t, 0, 'همه');
+    await choose<GiftBalanceDepositFilter>(t, 0, 'همه');
     await t.tap(button('اعمال فیلتر'));
     await t.pumpAndSettle();
     expect(giftCubit(t).state.visibleCards.length, 5);
-    expect(giftCubit(t).state.selectedIds.length, 2);
+    expect(giftCubit(t).state.selectedCards.length, 2);
     expect(t.takeException(), isNull);
   });
+  testWidgets(
+    'dismissing a filter discards its draft and review dismissal keeps the step',
+    (t) async {
+      await mount(t, const ExpiredGiftBalanceScreen());
+      final cubit = giftCubit(t);
+      await t.tap(find.byType(AppCheckbox).first);
+      await t.pumpAndSettle();
+      final filter = find.byWidgetPredicate(
+        (widget) =>
+            widget is AppButton &&
+            widget.tooltip == S.current.cardFeatureFilter,
+      );
+      await t.tap(filter);
+      await t.pumpAndSettle();
+      await choose<GiftBalanceDepositFilter>(t, 0, '10.123456.2');
+      Navigator.of(t.element(find.byType(GiftBalanceFilterSheet))).pop();
+      await t.pumpAndSettle();
+      expect(cubit.state.activeFilter.deposit, isNull);
+      expect(cubit.state.visibleCards.length, 5);
+      expect(cubit.state.isEditable, isTrue);
+      await t.tap(filter);
+      await t.pumpAndSettle();
+      expect(cubit.state.draftFilter.deposit, isNull);
+      Navigator.of(t.element(find.byType(GiftBalanceFilterSheet))).pop();
+      await t.pumpAndSettle();
+      await t.tap(button(S.current.giftBalanceNext));
+      await t.pumpAndSettle();
+      Navigator.of(t.element(find.byType(GiftBalanceReviewSheet))).pop();
+      await t.pumpAndSettle();
+      expect(giftCubit(t), same(cubit));
+      expect(cubit.state.step, GiftBalanceStep.selection);
+      expect(cubit.state.selectedCards, hasLength(1));
+      expect(cubit.state.canContinue, isTrue);
+      expect(t.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
+    'gift load and transfer retries preserve selection and disable controls while pending',
+    (t) async {
+      final repository = TestCardServicesRepository()..throwLoad = true;
+      var completions = 0;
+      await mount(
+        t,
+        ExpiredGiftBalanceScreen(onCompleted: (_) => completions++),
+        repository: repository,
+      );
+      expect(giftCubit(t).state.catalogStatus, RequestStatus.failure);
+      repository.throwLoad = false;
+      await t.tap(button(S.current.dashboardRetry));
+      await t.pumpAndSettle();
+      await t.tap(find.byType(AppCheckbox).first);
+      await t.pumpAndSettle();
+      await t.tap(button(S.current.giftBalanceNext));
+      await t.pumpAndSettle();
+      await t.tap(button(S.current.backLabel));
+      await t.pumpAndSettle();
+      await choose<CardServiceDeposit>(t, 0, '10.123456.2');
+      await t.tap(find.byType(AppCheckbox));
+      await t.pumpAndSettle();
+      repository.failSubmit = true;
+      await t.tap(button(S.current.giftBalanceSubmit));
+      await t.pumpAndSettle();
+      expect(find.text(S.current.cardServiceSubmitError), findsOneWidget);
+      expect(giftCubit(t).state.selectedCards, hasLength(1));
+      repository.pendingSubmit = Completer<Result<CardServiceReceipt>>();
+      await t.tap(button(S.current.giftBalanceSubmit));
+      await t.pump();
+      expect(
+        t.widget<AppButton>(button(S.current.giftBalanceSubmit)).onPressed,
+        isNull,
+      );
+      expect(t.widget<AppCheckbox>(find.byType(AppCheckbox)).onChanged, isNull);
+      expect(
+        t.widget<AppTopBar>(find.byType(AppTopBar)).onTrailingPressed,
+        isNotNull,
+      );
+      final review = find.byWidgetPredicate(
+        (widget) =>
+            widget is AppButton &&
+            widget.tooltip == S.current.giftBalanceSelectedList(1),
+      );
+      expect(t.widget<AppButton>(review).onPressed, isNull);
+      await t.tap(button(S.current.giftBalanceSubmit));
+      await t.pump();
+      expect(repository.transfers, hasLength(2));
+      expect(
+        repository.transfers.first.idempotencyKey,
+        repository.transfers.last.idempotencyKey,
+      );
+      repository.pendingSubmit!.complete(
+        const Success(CardServiceReceipt(reference: 'gift-done', isMock: true)),
+      );
+      await t.pumpAndSettle();
+      expect(completions, 1);
+      expect(giftCubit(t).state.submissionStatus, RequestStatus.success);
+      expect(t.takeException(), isNull);
+    },
+  );
+
   testWidgets(
     'review removal updates count and dismissing review keeps selection step',
     (t) async {
@@ -317,7 +425,7 @@ void main() {
       await t.tap(find.bySemanticsLabel('حذف کارت 5041721456783407'));
       await t.pumpAndSettle();
       expect(find.text('لیست کارت‌های انتخاب شده (0)'), findsOneWidget);
-      await t.tap(button('بازگشت'));
+      await t.tap(button(S.current.backLabel));
       await t.pumpAndSettle();
       expect(giftCubit(t).state.step, GiftBalanceStep.selection);
       expect(t.widget<AppButton>(button('مرحله بعد')).onPressed, isNull);
@@ -426,12 +534,18 @@ void main() {
       );
       final gift = giftCubit(t);
       gift.selectAllVisible(true);
-      gift.beginReview();
-      gift.finishReview(advance: true);
-      gift.selectDestination('deposit-2');
-      gift.acceptTerms(true);
+      await gift.submitCurrentStep();
       await t.pumpAndSettle();
-      expect(gift.state.canSubmit, isTrue);
+      await t.tap(button(S.current.backLabel));
+      await t.pumpAndSettle();
+      gift.selectDestination(
+        gift.state.catalog!.deposits.firstWhere(
+          (deposit) => deposit.id == 'deposit-2',
+        ),
+      );
+      gift.updateTermsAcceptance(true);
+      await t.pumpAndSettle();
+      expect(gift.state.canContinue, isTrue);
       expect(t.takeException(), isNull);
     });
   }
@@ -513,11 +627,11 @@ void main() {
       final repo = TestCardServicesRepository();
       await mount(t, const ExpiredGiftBalanceScreen(), repository: repo);
       final cubit = giftCubit(t);
-      cubit.toggleCard('gift-0');
+      cubit.toggleCard(cubit.state.visibleCards.first);
       await mount(t, ExpiredGiftBalanceScreen(onTermsRequested: () {}));
       expect(giftCubit(t), same(cubit));
       expect(repo.loadCalls, 1);
-      expect(cubit.state.selectedIds, {'gift-0'});
+      expect(cubit.state.selectedCards.map((card) => card.id), ['gift-0']);
       expect(cubit.state.step, GiftBalanceStep.selection);
       await mount(t, const Scaffold());
       expect(cubit.isClosed, isTrue);

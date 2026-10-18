@@ -53,14 +53,14 @@ void main() {
     'gift selection confirms exit and keeps selection on outside dismissal',
     () async {
       final cubit = ExpiredGiftBalanceCubit();
-      await cubit.load();
-      cubit.toggleCard(cubit.state.catalog!.gifts.first.id);
+      await cubit.fetchCatalog();
+      cubit.toggleCard(cubit.state.catalog!.gifts.first);
       cubit.requestBack();
       expect(cubit.state.navigation, FlowNavigation.confirmExit);
-      cubit.exitConfirmationResult(null);
-      expect(cubit.state.selectedIds, hasLength(1));
+      cubit.applyExitConfirmation(null);
+      expect(cubit.state.selectedCards, hasLength(1));
       cubit.requestBack();
-      cubit.exitConfirmationResult(true);
+      cubit.applyExitConfirmation(true);
       expect(cubit.state.navigation, FlowNavigation.back);
       await cubit.close();
     },

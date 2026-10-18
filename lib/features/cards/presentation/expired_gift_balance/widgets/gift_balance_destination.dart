@@ -1,24 +1,21 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
+import '../../../domain/entities/card_service_data.dart';
 import '../../shared/card_service_widgets.dart';
 import '../cubit/expired_gift_balance_cubit.dart';
-import 'gift_balance_selection.dart';
+import 'gift_balance_card_details.dart';
 
 class GiftBalanceDestination extends StatelessWidget {
-  const GiftBalanceDestination({
-    super.key,
-    required this.cubit,
-    required this.state,
-  });
-  final ExpiredGiftBalanceCubit cubit;
+  const GiftBalanceDestination({super.key, required this.state});
   final ExpiredGiftBalanceState state;
   @override
   Widget build(BuildContext context) {
     return AbsorbPointer(
-      absorbing: !state.editable,
+      absorbing: !state.isEditable,
       child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
         child: Column(
@@ -49,10 +46,10 @@ class GiftBalanceDestination extends StatelessWidget {
             const SizedBox(height: 20),
             const CardServiceDivider(),
             const SizedBox(height: 20),
-            AppSelect<String>(
+            AppSelect<CardServiceDeposit>(
               label: S.current.giftBalanceTransferTo,
               hintText: S.current.giftBalanceDepositHint,
-              value: state.destinationId,
+              value: state.destination,
               labelStyle: cardServiceSmall(context, medium: true),
               labelSpacing: 8,
               textStyle: AppTypography.bodyMedium.copyWith(
@@ -65,11 +62,13 @@ class GiftBalanceDestination extends StatelessWidget {
               trailing: cardServiceIcon(AppAssets.cardFeaturesChevron),
               options: [
                 for (final d in state.catalog!.deposits)
-                  AppSelectOption(value: d.id, label: d.number),
+                  AppSelectOption(value: d, label: d.number),
               ],
-              onChanged: cubit.selectDestination,
+              onChanged: context
+                  .read<ExpiredGiftBalanceCubit>()
+                  .selectDestination,
             ),
-            if (state.failure != null) ...[
+            if (state.submissionFailure != null) ...[
               const SizedBox(height: 12),
               Semantics(
                 liveRegion: true,

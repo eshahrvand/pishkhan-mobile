@@ -17,7 +17,6 @@ class TestCardServicesRepository implements CardServicesRepository {
     : mock = MockCardServicesRepository(catalog: catalog);
   final MockCardServicesRepository mock;
   int loadCalls = 0;
-  Completer<Result<CardServiceCatalog>>? pendingLoad;
   Completer<Result<CardServiceReceipt>>? pendingSubmit;
   bool failSubmit = false, throwLoad = false;
   final changes = <ChangeCardDepositRequest>[];
@@ -26,7 +25,7 @@ class TestCardServicesRepository implements CardServicesRepository {
   Future<Result<CardServiceCatalog>> load() async {
     loadCalls++;
     if (throwLoad) throw StateError('unavailable');
-    return pendingLoad?.future ?? mock.load();
+    return mock.load();
   }
 
   @override
@@ -328,196 +327,248 @@ void main() {
     },
   );
 
-  test('gifts normalize search and toggle all visible without losing hidden selection', () async {
-    final c =
-        withRegisteredDependency<
-          CardServicesRepository,
-          ExpiredGiftBalanceCubit
-        >(TestCardServicesRepository(), () => ExpiredGiftBalanceCubit());
-    addTearDown(c.close);
-    await c.load();
-    expect(c.state.hasFilter, isTrue);
-    c.toggleCard('gift-1');
-    c.search('۵۰۴۱-۷۲۱۴ ۵۶۷۸۳۴۰۷');
-    expect(c.state.visibleCards.map((c) => c.id), ['gift-0']);
-    c.selectAllVisible(true);
-    expect(c.state.selectedIds, {'gift-0', 'gift-1'});
-    expect(c.state.totalRial, 2000000);
-    c.selectAllVisible(false);
-    expect(c.state.selectedIds, {'gift-1'});
-  });
-  test('filter is staged and cancellable, selections survive applying and clearing', () async {
-    final c =
-        withRegisteredDependency<
-          CardServicesRepository,
-          ExpiredGiftBalanceCubit
-        >(TestCardServicesRepository(), () => ExpiredGiftBalanceCubit());
-    addTearDown(c.close);
-    await c.load();
-    c.toggleCard('gift-1');
-    c.beginFilter();
-    c.selectDraftFilter('deposit-1');
-    expect(c.state.visibleCards.length, 5);
-    c.cancelFilter();
-    expect(c.state.filterDepositId, isNull);
-    c.beginFilter();
-    c.selectDraftFilter('deposit-1');
-    c.applyFilter();
-    expect(c.state.visibleCards.map((c) => c.id), [
-      'gift-0',
-      'gift-2',
-      'gift-4',
-    ]);
-    expect(c.state.selectedIds, {'gift-1'});
-    c.beginFilter();
-    c.selectDraftFilter(null);
-    c.applyFilter();
-    expect(c.state.visibleCards.length, 5);
-  });
-  test('one account hides and disables the filter', () async {
-    final c =
+  Future<ExpiredGiftBalanceCubit> createGiftCubit({
+    TestCardServicesRepository? repository,
+  }) async {
+    final cubit =
         withRegisteredDependency<
           CardServicesRepository,
           ExpiredGiftBalanceCubit
         >(
-          TestCardServicesRepository(catalog: singleAccountCatalog()),
+          repository ?? TestCardServicesRepository(),
           () => ExpiredGiftBalanceCubit(),
         );
-    addTearDown(c.close);
-    await c.load();
-    expect(c.state.hasFilter, isFalse);
-    c.beginFilter();
-    expect(c.state.filterOpen, isFalse);
+    addTearDown(cubit.close);
+    await cubit.fetchCatalog();
+    return cubit;
+  }
+
+  test('gifts normalize search and toggle visible cards without losing hidden selection', () async {
+    final cubit = await createGiftCubit();
+    cubit.toggleCard(cubit.state.visibleCards[1]);
+    cubit.updateSearchQuery('۵۰۴۱-۷۲۱۴ ۵۶۷۸۳۴۰۷');
+    expect(cubit.state.visibleCards.map((card) => card.id), ['gift-0']);
+    cubit.selectAllVisible(true);
+    expect(cubit.state.selectedCards.map((card) => card.id), [
+      'gift-0',
+      'gift-1',
+    ]);
+    expect(cubit.state.totalRial, 2000000);
+    expect(cubit.state.isAllVisibleSelected, isTrue);
+    cubit.selectAllVisible(false);
+    expect(cubit.state.selectedCards.map((card) => card.id), ['gift-1']);
+    expect(cubit.state.totalRial, 1000000);
+    expect(cubit.state.isAllVisibleSelected, isFalse);
   });
-  test('review removes cards, dismiss stays on selection, Back advances and total remains accurate', () async {
-    final c =
-        withRegisteredDependency<
-          CardServicesRepository,
-          ExpiredGiftBalanceCubit
-        >(TestCardServicesRepository(), () => ExpiredGiftBalanceCubit());
-    addTearDown(c.close);
-    await c.load();
-    expect(c.beginReview(), isFalse);
-    c.selectAllVisible(true);
-    expect(c.beginReview(), isTrue);
-    c.removeSelected('gift-2');
-    c.search('999');
-    expect(c.state.query, '');
-    expect(c.state.totalRial, 4000000);
-    c.finishReview();
-    expect(c.state.step, GiftBalanceStep.selection);
-    c.beginReview();
-    c.finishReview(advance: true);
-    expect(c.state.step, GiftBalanceStep.destination);
-    c.selectDestination('deposit-2');
-    c.acceptTerms(true);
-    expect(c.state.canSubmit, isTrue);
-    c.beginReview();
-    c.removeSelected('gift-1');
-    c.finishReview();
-    expect(c.state.termsAccepted, isFalse);
-    expect(c.state.totalRial, 3000000);
-    c.acceptTerms(true);
-    await c.submit();
-    expect(c.state.receipt!.isMock, isTrue);
+
+  test(
+    'filter drafts apply or cancel without dropping hidden selected cards',
+    () async {
+      final cubit = await createGiftCubit();
+      cubit.toggleCard(cubit.state.visibleCards[1]);
+      cubit.requestFilter();
+      cubit.selectDraftFilter(cubit.state.filterOptions[1]);
+      expect(cubit.state.visibleCards.length, 5);
+      expect(cubit.state.isEditable, isFalse);
+      cubit.applyFilterResult(null);
+      expect(cubit.state.activeFilter.deposit, isNull);
+      expect(cubit.state.draftFilter.deposit, isNull);
+      expect(cubit.state.isEditable, isTrue);
+      cubit.requestFilter();
+      cubit.selectDraftFilter(cubit.state.filterOptions[1]);
+      cubit.applyFilterResult(true);
+      expect(cubit.state.visibleCards.map((card) => card.id), [
+        'gift-0',
+        'gift-2',
+        'gift-4',
+      ]);
+      expect(cubit.state.selectedCards.map((card) => card.id), ['gift-1']);
+      cubit.requestFilter();
+      cubit.selectDraftFilter(cubit.state.filterOptions.first);
+      cubit.applyFilterResult(false);
+      expect(cubit.state.activeFilter.deposit!.id, 'deposit-1');
+      cubit.requestFilter();
+      cubit.selectDraftFilter(cubit.state.filterOptions.first);
+      cubit.applyFilterResult(true);
+      expect(cubit.state.visibleCards.length, 5);
+    },
+  );
+
+  test('one account has no available filter control', () async {
+    final cubit = await createGiftCubit(
+      repository: TestCardServicesRepository(catalog: singleAccountCatalog()),
+    );
+    expect(cubit.state.isFilterAvailable, isFalse);
   });
+
+  test('review removes cards, dismissal stays on selection and confirmation advances', () async {
+    final cubit = await createGiftCubit();
+    cubit.selectAllVisible(true);
+    await cubit.submitCurrentStep();
+    expect(cubit.state.effect, GiftBalanceEffect.review);
+    expect(cubit.state.isEditable, isFalse);
+    cubit.removeSelectedCard(cubit.state.selectedCards[2]);
+    expect(cubit.state.totalRial, 4000000);
+    cubit.applyReviewResult(null);
+    expect(cubit.state.step, GiftBalanceStep.selection);
+    expect(cubit.state.canContinue, isTrue);
+    await cubit.submitCurrentStep();
+    cubit.applyReviewResult(true);
+    expect(cubit.state.step, GiftBalanceStep.destination);
+    expect(cubit.state.canContinue, isFalse);
+    cubit.selectDestination(cubit.state.catalog!.deposits[1]);
+    cubit.updateTermsAcceptance(true);
+    expect(cubit.state.canContinue, isTrue);
+    cubit.requestReview();
+    cubit.removeSelectedCard(cubit.state.selectedCards[1]);
+    cubit.applyReviewResult(true);
+    expect(cubit.state.step, GiftBalanceStep.destination);
+    expect(cubit.state.termsAccepted, isFalse);
+    expect(cubit.state.totalRial, 3000000);
+    cubit.updateTermsAcceptance(true);
+    await cubit.submitCurrentStep();
+    expect(cubit.state.receipt!.isMock, isTrue);
+    expect(cubit.state.canContinue, isFalse);
+    expect(cubit.state.canReviewSelection, isFalse);
+  });
+
   test(
-    'removing the last card from destination review returns to selection',
+    'removing the last card in destination review returns to selection',
     () async {
-      final c =
+      final cubit = await createGiftCubit();
+      cubit.toggleCard(cubit.state.visibleCards.first);
+      await cubit.submitCurrentStep();
+      cubit.applyReviewResult(true);
+      cubit.requestReview();
+      cubit.removeSelectedCard(cubit.state.selectedCards.first);
+      cubit.applyReviewResult(null);
+      expect(cubit.state.step, GiftBalanceStep.selection);
+      expect(cubit.state.totalRial, 0);
+      expect(cubit.state.canContinue, isFalse);
+      expect(cubit.state.canReviewSelection, isFalse);
+    },
+  );
+
+  test('Back preserves cards and destination but clears consent', () async {
+    final cubit = await createGiftCubit();
+    cubit.toggleCard(cubit.state.visibleCards.first);
+    await cubit.submitCurrentStep();
+    cubit.applyReviewResult(true);
+    cubit.selectDestination(cubit.state.catalog!.deposits[1]);
+    cubit.updateTermsAcceptance(true);
+    cubit.requestBack();
+    expect(cubit.state.step, GiftBalanceStep.selection);
+    expect(cubit.state.selectedCards.map((card) => card.id), ['gift-0']);
+    expect(cubit.state.destination!.id, 'deposit-2');
+    expect(cubit.state.termsAccepted, isFalse);
+    cubit.requestBack();
+    expect(cubit.state.navigation, FlowNavigation.confirmExit);
+    cubit.applyExitConfirmation(false);
+    expect(cubit.state.navigation, isNull);
+  });
+
+  test('gift submission preserves retry identity and prepares independent statuses', () async {
+    final repository = TestCardServicesRepository()..failSubmit = true;
+    final cubit = await createGiftCubit(repository: repository);
+    cubit.toggleCard(cubit.state.visibleCards.first);
+    await cubit.submitCurrentStep();
+    cubit.applyReviewResult(true);
+    cubit.selectDestination(cubit.state.catalog!.deposits[1]);
+    cubit.updateTermsAcceptance(true);
+    await cubit.submitCurrentStep();
+    expect(cubit.state.submissionStatus, RequestStatus.failure);
+    expect(cubit.state.submissionFailure, isA<DataFailure>());
+    expect(cubit.state.catalogStatus, RequestStatus.success);
+    expect(cubit.state.catalogFailure, isNull);
+    expect(cubit.state.canContinue, isTrue);
+    // Consent and an unchanged review do not alter the payload.
+    cubit.updateTermsAcceptance(false);
+    cubit.updateTermsAcceptance(true);
+    cubit.requestReview();
+    cubit.applyReviewResult(null);
+    repository.pendingSubmit = Completer();
+    final pending = cubit.submitCurrentStep();
+    expect(cubit.state.isEditable, isFalse);
+    expect(cubit.state.canContinue, isFalse);
+    expect(cubit.state.canReviewSelection, isFalse);
+    expect(repository.transfers, hasLength(2));
+    expect(
+      repository.transfers.first.idempotencyKey,
+      repository.transfers.last.idempotencyKey,
+    );
+    repository.pendingSubmit!.complete(
+      const Success(CardServiceReceipt(reference: 'GB-demo', isMock: true)),
+    );
+    await pending;
+    expect(cubit.state.receipt!.reference, 'GB-demo');
+    cubit.requestBack();
+    expect(cubit.state.navigation, FlowNavigation.back);
+  });
+
+  test('changing destination or selected cards creates a new gift request identity', () async {
+    final repository = TestCardServicesRepository()..failSubmit = true;
+    final cubit = await createGiftCubit(repository: repository);
+    cubit.selectAllVisible(true);
+    await cubit.submitCurrentStep();
+    cubit.applyReviewResult(true);
+    cubit.selectDestination(cubit.state.catalog!.deposits.first);
+    cubit.updateTermsAcceptance(true);
+    await cubit.submitCurrentStep();
+    cubit.selectDestination(cubit.state.catalog!.deposits.last);
+    expect(cubit.state.termsAccepted, isFalse);
+    expect(cubit.state.submissionFailure, isNull);
+    cubit.updateTermsAcceptance(true);
+    await cubit.submitCurrentStep();
+    expect(
+      repository.transfers[1].idempotencyKey,
+      isNot(repository.transfers[0].idempotencyKey),
+    );
+    cubit.requestReview();
+    cubit.removeSelectedCard(cubit.state.selectedCards.first);
+    cubit.applyReviewResult(true);
+    expect(cubit.state.canContinue, isFalse);
+    cubit.updateTermsAcceptance(true);
+    await cubit.submitCurrentStep();
+    expect(
+      repository.transfers[2].idempotencyKey,
+      isNot(repository.transfers[1].idempotencyKey),
+    );
+    expect(repository.transfers.last.cardIds, [
+      'gift-1',
+      'gift-2',
+      'gift-3',
+      'gift-4',
+    ]);
+  });
+
+  test(
+    'gift constructor preserves supplied state and fetch failures can retry',
+    () async {
+      final repository = TestCardServicesRepository()..throwLoad = true;
+      const initialState = ExpiredGiftBalanceState.initial(query: '۵۰۴۱');
+      final cubit =
           withRegisteredDependency<
             CardServicesRepository,
             ExpiredGiftBalanceCubit
-          >(TestCardServicesRepository(), () => ExpiredGiftBalanceCubit());
-      addTearDown(c.close);
-      await c.load();
-      c.toggleCard('gift-0');
-      c.beginReview();
-      c.finishReview(advance: true);
-      c.beginReview();
-      c.removeSelected('gift-0');
-      c.finishReview();
-      expect(c.state.step, GiftBalanceStep.selection);
-      expect(c.state.canContinue, isFalse);
+          >(
+            repository,
+            () => ExpiredGiftBalanceCubit(initialState: initialState),
+          );
+      addTearDown(cubit.close);
+      expect(cubit.state, same(initialState));
+      expect(repository.loadCalls, 0);
+      await cubit.fetchCatalog();
+      expect(cubit.state.catalogStatus, RequestStatus.failure);
+      expect(cubit.state.catalogFailure, isA<UnexpectedFailure>());
+      expect(cubit.state.submissionFailure, isNull);
+      repository.throwLoad = false;
+      await cubit.fetchCatalog();
+      expect(cubit.state.catalogStatus, RequestStatus.success);
+      expect(cubit.state.catalogFailure, isNull);
+      expect(cubit.state.query, '۵۰۴۱');
     },
   );
-  test(
-    'back preserves cards and destination but requires consent again',
-    () async {
-      final c =
-          withRegisteredDependency<
-            CardServicesRepository,
-            ExpiredGiftBalanceCubit
-          >(TestCardServicesRepository(), () => ExpiredGiftBalanceCubit());
-      addTearDown(c.close);
-      await c.load();
-      c.toggleCard('gift-0');
-      c.beginReview();
-      c.finishReview(advance: true);
-      c.selectDestination('deposit-2');
-      c.acceptTerms(true);
-      expect(c.back(), isTrue);
-      expect(c.state.selectedIds, {'gift-0'});
-      expect(c.state.termsAccepted, isFalse);
-      expect(c.back(), isFalse);
-    },
-  );
-  test(
-    'gift submission gates edits and duplicate transfer and retries safely',
-    () async {
-      final repo = TestCardServicesRepository()..failSubmit = true;
-      final c =
-          withRegisteredDependency<
-            CardServicesRepository,
-            ExpiredGiftBalanceCubit
-          >(repo, () => ExpiredGiftBalanceCubit());
-      addTearDown(c.close);
-      await c.load();
-      c.toggleCard('gift-0');
-      c.beginReview();
-      c.finishReview(advance: true);
-      c.selectDestination('deposit-2');
-      c.acceptTerms(true);
-      await c.submit();
-      expect(c.state.submissionStatus, RequestStatus.failure);
-      repo.pendingSubmit = Completer();
-      final pending = c.submit();
-      c.selectDestination('deposit-1');
-      c.acceptTerms(false);
-      await c.submit();
-      expect(c.state.destinationId, 'deposit-2');
-      expect(repo.transfers.length, 2);
-      expect(
-        repo.transfers.first.idempotencyKey,
-        repo.transfers.last.idempotencyKey,
-      );
-      repo.pendingSubmit!.complete(
-        const Success(CardServiceReceipt(reference: 'GB-demo', isMock: true)),
-      );
-      await pending;
-      expect(c.state.receipt!.reference, 'GB-demo');
-    },
-  );
-  test(
-    'latest gift load wins and a closed gift cubit ignores delayed results',
-    () async {
-      final firstLoad = Completer<Result<CardServiceCatalog>>();
-      final repo = TestCardServicesRepository()..pendingLoad = firstLoad;
-      final c =
-          withRegisteredDependency<
-            CardServicesRepository,
-            ExpiredGiftBalanceCubit
-          >(repo, () => ExpiredGiftBalanceCubit());
-      final pending = c.load();
-      repo.pendingLoad = null;
-      await c.load();
-      expect(c.state.status, RequestStatus.success);
-      await c.close();
-      firstLoad.complete(const Err(DataFailure('superseded')));
-      await pending;
-      expect(c.state.status, RequestStatus.success);
-    },
-  );
+
   test(
     'repository exception and invalid catalog become recoverable failures',
     () async {
@@ -557,8 +608,8 @@ void main() {
             () => ExpiredGiftBalanceCubit(),
           );
       addTearDown(invalid.close);
-      await invalid.load();
-      expect(invalid.state.status, RequestStatus.failure);
+      await invalid.fetchCatalog();
+      expect(invalid.state.catalogStatus, RequestStatus.failure);
     },
   );
 }

@@ -1,27 +1,21 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
-import '../../../domain/entities/card_service_data.dart';
 import '../../shared/card_service_widgets.dart';
 import '../cubit/expired_gift_balance_cubit.dart';
+import 'gift_balance_card_details.dart';
 
 class GiftBalanceSelection extends StatelessWidget {
-  const GiftBalanceSelection({
-    super.key,
-    required this.cubit,
-    required this.state,
-    required this.onFilter,
-  });
-  final ExpiredGiftBalanceCubit cubit;
+  const GiftBalanceSelection({super.key, required this.state});
   final ExpiredGiftBalanceState state;
-  final VoidCallback onFilter;
   @override
   Widget build(BuildContext context) {
     return AbsorbPointer(
-      absorbing: !state.editable,
+      absorbing: !state.isEditable,
       child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 28),
         keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -43,7 +37,9 @@ class GiftBalanceSelection extends StatelessWidget {
                 Expanded(
                   child: AppTextField(
                     value: state.query,
-                    onChanged: cubit.search,
+                    onChanged: context
+                        .read<ExpiredGiftBalanceCubit>()
+                        .updateSearchQuery,
                     hintText: S.current.giftBalanceSearch,
                     prefixIcon: Center(
                       widthFactor: 1,
@@ -65,12 +61,14 @@ class GiftBalanceSelection extends StatelessWidget {
                     focusRing: AppTextFieldFocusRing.none,
                   ),
                 ),
-                if (state.hasFilter) ...[
+                if (state.isFilterAvailable) ...[
                   const SizedBox(width: 8),
                   SizedBox.square(
                     dimension: 44,
                     child: AppButton(
-                      onPressed: onFilter,
+                      onPressed: context
+                          .read<ExpiredGiftBalanceCubit>()
+                          .requestFilter,
                       variant: AppButtonVariant.secondaryGray,
                       tooltip: S.current.cardFeatureFilter,
                       backgroundColor: AppPalette.warning300,
@@ -86,11 +84,13 @@ class GiftBalanceSelection extends StatelessWidget {
                 Semantics(
                   label: S.current.giftBalanceSelectAll,
                   child: AppToggle(
-                    value: state.allVisibleSelected,
+                    value: state.isAllVisibleSelected,
                     appearance: AppToggleAppearance.issuance,
                     onChanged: state.visibleCards.isEmpty
                         ? null
-                        : cubit.selectAllVisible,
+                        : context
+                              .read<ExpiredGiftBalanceCubit>()
+                              .selectAllVisible,
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -117,12 +117,13 @@ class GiftBalanceSelection extends StatelessWidget {
             for (final card in state.visibleCards) ...[
               GestureDetector(
                 behavior: HitTestBehavior.opaque,
-                onTap: () => cubit.toggleCard(card.id),
+                onTap: () =>
+                    context.read<ExpiredGiftBalanceCubit>().toggleCard(card),
                 child: DecoratedBox(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: state.selectedIds.contains(card.id)
+                      color: state.selectedCards.contains(card)
                           ? context.colors.primary
                           : context.colors.border,
                     ),
@@ -134,16 +135,18 @@ class GiftBalanceSelection extends StatelessWidget {
                         Semantics(
                           label: card.number,
                           child: AppCheckbox(
-                            value: state.selectedIds.contains(card.id),
+                            value: state.selectedCards.contains(card),
                             size: AppCheckboxSize.md,
-                            onChanged: (_) => cubit.toggleCard(card.id),
+                            onChanged: (_) => context
+                                .read<ExpiredGiftBalanceCubit>()
+                                .toggleCard(card),
                           ),
                         ),
                         const SizedBox(width: 10),
                         Expanded(
                           child: GiftBalanceCardDetails(
                             card: card,
-                            deposit: state.hasFilter
+                            deposit: state.isFilterAvailable
                                 ? state.depositsByGiftId[card.id]
                                 : null,
                           ),
@@ -158,70 +161,6 @@ class GiftBalanceSelection extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-/// The same card details are used in selection and the removable review list.
-class GiftBalanceCardDetails extends StatelessWidget {
-  const GiftBalanceCardDetails({super.key, required this.card, this.deposit});
-  final ExpiredGiftCard card;
-  final CardServiceDeposit? deposit;
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        GiftBalanceDetailRow(
-          label: S.current.cardFeatureNumber,
-          value: card.number,
-        ),
-        const SizedBox(height: 8),
-        if (deposit != null) ...[
-          const CardServiceRowDivider(),
-          const SizedBox(height: 8),
-          GiftBalanceDetailRow(
-            label: S.current.cardFeatureDeposit,
-            value: deposit!.number,
-          ),
-          const SizedBox(height: 8),
-        ],
-        const CardServiceRowDivider(),
-        const SizedBox(height: 8),
-        GiftBalanceDetailRow(
-          label: S.current.giftBalanceRemaining,
-          value: CurrencyFormatter.format(card.balanceRial),
-        ),
-      ],
-    );
-  }
-}
-
-class GiftBalanceDetailRow extends StatelessWidget {
-  const GiftBalanceDetailRow({
-    super.key,
-    required this.label,
-    required this.value,
-  });
-  final String label, value;
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Expanded(child: Text(label, style: cardServiceSmall(context))),
-        const SizedBox(width: 8),
-        Flexible(
-          child: Text(
-            value,
-            textDirection: TextDirection.ltr,
-            style: cardServiceSmall(
-              context,
-              color: context.colors.textPrimary,
-              medium: true,
-            ),
-          ),
-        ),
-      ],
     );
   }
 }
