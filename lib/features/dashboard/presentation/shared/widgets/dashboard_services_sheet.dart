@@ -66,7 +66,7 @@ class _DashboardServicesSheetState extends State<DashboardServicesSheet> {
         initialState: DashboardServicesSheetState.initial(
           query: widget.initialQuery,
         ),
-      )..loadServices(getDashboardServiceSearchLabels()),
+      )..resolveServices(getDashboardServiceSearchLabels()),
       child:
           BlocConsumer<
             DashboardServicesSheetCubit,
@@ -143,7 +143,7 @@ class _DashboardServicesSheetState extends State<DashboardServicesSheet> {
                                     focusRing: AppTextFieldFocusRing.subtle,
                                     onChanged: (value) => context
                                         .read<DashboardServicesSheetCubit>()
-                                        .updateQuery(value),
+                                        .updateSearchQuery(value),
                                   ),
                                 ),
                                 Expanded(
@@ -201,72 +201,3 @@ class _DashboardServicesSheetState extends State<DashboardServicesSheet> {
     );
   }
 }
-
-Future<bool?> showDashboardResetSheet(BuildContext context) =>
-    showModalBottomSheet<bool>(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      backgroundColor: Colors.transparent,
-      barrierColor: AppDashboardColors.sheetScrim.withValues(alpha: .64),
-      builder: (context) => BackdropFilter(
-        filter: ui.ImageFilter.blur(sigmaX: 1, sigmaY: 1),
-        child: Directionality(
-          textDirection: TextDirection.rtl,
-          child: Material(
-            color: context.colors.surfaceSubtle,
-            borderRadius: const BorderRadius.vertical(top: AppRadius.xl),
-            clipBehavior: Clip.antiAlias,
-            child: SafeArea(
-              top: false,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  AppBottomSheetHeader(
-                    title: S.current.dashboardResetTitle,
-                    showRightIcon: false,
-                    showLeftAction: false,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
-                    child: Text(
-                      S.current.dashboardResetDescription,
-                      style: AppTypography.bodyMedium.copyWith(
-                        fontWeight: FontWeight.w500,
-                        height: 20 / 14,
-                        letterSpacing: 0,
-                        color: context.colors.textPrimary,
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
-                    child: Row(
-                      textDirection: TextDirection.ltr,
-                      children: [
-                        Expanded(
-                          child: AppButton(
-                            onPressed: () => Navigator.of(context).pop(true),
-                            label: S.current.dashboardResetConfirm,
-                            size: AppButtonSize.lg,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: AppButton(
-                            onPressed: () => Navigator.of(context).pop(false),
-                            label: S.current.dashboardCancel,
-                            variant: AppButtonVariant.secondaryGray,
-                            size: AppButtonSize.lg,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );

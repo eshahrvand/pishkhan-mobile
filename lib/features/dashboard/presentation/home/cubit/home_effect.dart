@@ -1,7 +1,6 @@
 import 'package:equatable/equatable.dart';
 
 import '../../../domain/entities/bank_card.dart';
-import '../../../domain/entities/bank_deposit.dart';
 import '../../../domain/entities/bank_loan.dart';
 import '../../shared/deposit_actions.dart';
 import '../../shared/loan_actions.dart';
@@ -26,14 +25,6 @@ final class HomeCardActionRequested extends HomeEffect {
 
 final class HomeCardMoreRequested extends HomeEffect {
   const HomeCardMoreRequested(this.card);
-  final BankCard card;
-
-  @override
-  List<Object?> get props => [card];
-}
-
-final class HomeCardSelectionChanged extends HomeEffect {
-  const HomeCardSelectionChanged(this.card);
   final BankCard card;
 
   @override
@@ -87,20 +78,6 @@ final class HomeLoanActionRequested extends HomeEffect {
   final LoanActionRequest request;
   @override
   List<Object?> get props => [request.action, request.loan];
-}
-
-final class HomeDepositSelectionChanged extends HomeEffect {
-  const HomeDepositSelectionChanged(this.deposit);
-  final BankDeposit deposit;
-  @override
-  List<Object?> get props => [deposit];
-}
-
-final class HomeLoanSelectionChanged extends HomeEffect {
-  const HomeLoanSelectionChanged(this.loan);
-  final BankLoan loan;
-  @override
-  List<Object?> get props => [loan];
 }
 
 final class HomeLoanDetailsRequested extends HomeEffect {
@@ -162,4 +139,8 @@ final class HomeFavoritePickerRequested extends HomeEffect {
 
 final class HomeFavoritesResetRequested extends HomeEffect {
   const HomeFavoritesResetRequested();
+}
+
+final class HomeAllServicesRequested extends HomeEffect {
+  const HomeAllServicesRequested();
 }

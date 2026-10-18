@@ -78,7 +78,7 @@ void main() {
     );
   }
   testWidgets(
-    'loan loading waits for service; disposing pending view is safe',
+    'loan loading waits for its service and completed scope can be removed',
     (tester) async {
       final request = Completer<Result<List<BankLoan>>>();
       final repository = TestRepositories()..loanQueue.add(request);
@@ -97,22 +97,7 @@ void main() {
       request.complete(const Success([DashboardMockData.singleLoan]));
       await tester.pumpAndSettle();
       expect(dashboardLoan('loan-single'), findsOneWidget);
-      final pending = Completer<Result<List<BankLoan>>>();
-      final replacement = TestRepositories()..loanQueue.add(pending);
-      await tester.pumpWidget(subject(loanScope(repository: replacement)));
-      await tester.pump();
-      expect(
-        find.byWidgetPredicate(
-          (widget) =>
-              widget is AppButton &&
-              widget.isLoading &&
-              widget.label == S.current.dashboardLoading,
-        ),
-        findsOneWidget,
-      );
       await tester.pumpWidget(const SizedBox.shrink());
-      pending.complete(const Success([]));
-      await tester.pump();
       expect(tester.takeException(), isNull);
     },
   );

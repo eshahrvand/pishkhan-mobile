@@ -31,23 +31,28 @@ class _DashboardLoansCarouselState extends State<DashboardLoansCarousel> {
     super.dispose();
   }
 
+  void _syncSelectedPage(BuildContext context, HomeState state) {
+    if (state.loansStatus == RequestStatus.loading) _controllerItems = null;
+    if (state.loansStatus == RequestStatus.success &&
+        state.visibleLoans.isNotEmpty &&
+        _controllerItems ==
+            state.visibleLoans.map((item) => item.id).join('|')) {
+      if (_pages?.hasClients == true &&
+          !_pages!.position.isScrollingNotifier.value &&
+          ((_pages!.page ?? 0) - state.selectedLoanIndex).abs() > .01) {
+        _pages!.jumpToPage(state.selectedLoanIndex);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<HomeCubit, HomeState>(
       listenWhen: (previous, current) =>
           previous.loansStatus != current.loansStatus ||
           previous.selectedLoanIndex != current.selectedLoanIndex ||
-          previous.loans != current.loans,
-      listener: (context, state) {
-        if (state.loansStatus == RequestStatus.loading) _controllerItems = null;
-        if (state.loansStatus == RequestStatus.success && state.loans != null) {
-          if (_pages?.hasClients == true &&
-              !_pages!.position.isScrollingNotifier.value &&
-              ((_pages!.page ?? 0) - state.selectedLoanIndex).abs() > .01) {
-            _pages!.jumpToPage(state.selectedLoanIndex);
-          }
-        }
-      },
+          previous.visibleLoans != current.visibleLoans,
+      listener: _syncSelectedPage,
       buildWhen: (previous, current) =>
           previous.visibleLoans != current.visibleLoans ||
           previous.selectedLoanIndex != current.selectedLoanIndex,
@@ -117,10 +122,10 @@ class _DashboardLoansCarouselState extends State<DashboardLoansCarousel> {
                               height: height,
                               onCopyNumber: (_) => context
                                   .read<HomeCubit>()
-                                  .copyLoanNumber(state.visibleLoans[0].id),
+                                  .requestLoanNumberCopy(state.visibleLoans[0]),
                               onDetailsRequested: (_) => context
                                   .read<HomeCubit>()
-                                  .requestLoanDetails(state.visibleLoans[0].id),
+                                  .requestLoanDetails(state.visibleLoans[0]),
                             ),
                           )
                         : PageView.builder(
@@ -128,7 +133,9 @@ class _DashboardLoansCarouselState extends State<DashboardLoansCarousel> {
                             itemCount: state.visibleLoans.length,
                             onPageChanged: (index) {
                               if (_syncingPages) return;
-                              context.read<HomeCubit>().selectLoan(index);
+                              context.read<HomeCubit>().selectLoan(
+                                state.visibleLoans[index],
+                              );
                             },
                             itemBuilder: (context, index) => Center(
                               child: DashboardLoanTile(
@@ -136,14 +143,15 @@ class _DashboardLoansCarouselState extends State<DashboardLoansCarousel> {
                                 width: width,
                                 isSingle: state.visibleLoans.length == 1,
                                 height: height,
-                                onCopyNumber: (_) =>
-                                    context.read<HomeCubit>().copyLoanNumber(
-                                      state.visibleLoans[index].id,
+                                onCopyNumber: (_) => context
+                                    .read<HomeCubit>()
+                                    .requestLoanNumberCopy(
+                                      state.visibleLoans[index],
                                     ),
                                 onDetailsRequested: (_) => context
                                     .read<HomeCubit>()
                                     .requestLoanDetails(
-                                      state.visibleLoans[index].id,
+                                      state.visibleLoans[index],
                                     ),
                               ),
                             ),

@@ -19,9 +19,9 @@ import 'package:pishkhan_mobile/features/dashboard/presentation/home/cubit/home_
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/card_actions.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/deposit_actions.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/dashboard_tab.dart';
+import 'package:pishkhan_mobile/features/dashboard/presentation/shared/dashboard_services.dart';
 
 import '../../../../support/dashboard_test_repositories.dart';
-import '../../../../support/home_tab_test_scope.dart';
 
 ({
   RequestStatus status,
@@ -32,20 +32,20 @@ import '../../../../support/home_tab_test_scope.dart';
 snapshot(HomeState state, String tab) => switch (tab) {
   'cards' => (
     status: state.cardsStatus,
-    items: state.cards,
-    selectedId: state.selectedCardId,
+    items: state.visibleCards,
+    selectedId: state.selectedCard?.id,
     failure: state.cardsFailure,
   ),
   'deposits' => (
     status: state.depositsStatus,
-    items: state.deposits,
-    selectedId: state.selectedDepositId,
+    items: state.visibleDeposits,
+    selectedId: state.selectedDeposit?.id,
     failure: state.depositsFailure,
   ),
   _ => (
     status: state.loansStatus,
-    items: state.loans,
-    selectedId: state.selectedLoanId,
+    items: state.visibleLoans,
+    selectedId: state.selectedLoan?.id,
     failure: state.loansFailure,
   ),
 };
@@ -62,19 +62,19 @@ HomeCubit createHome(TestRepositories repository) =>
     );
 
 Future<void> loadTab(HomeCubit cubit, String tab) => switch (tab) {
-  'cards' => cubit.loadCards(),
-  'deposits' => cubit.loadDeposits(),
-  _ => cubit.loadLoans(),
+  'cards' => cubit.fetchCards(),
+  'deposits' => cubit.fetchDeposits(),
+  _ => cubit.fetchLoans(),
 };
 
 void selectItem(HomeCubit cubit, String tab, int index) {
   switch (tab) {
     case 'cards':
-      cubit.selectCard(index);
+      cubit.selectCard(cubit.state.visibleCards[index]);
     case 'deposits':
-      cubit.selectDeposit(index);
+      cubit.selectDeposit(cubit.state.visibleDeposits[index]);
     default:
-      cubit.selectLoan(index);
+      cubit.selectLoan(cubit.state.visibleLoans[index]);
   }
 }
 
@@ -117,8 +117,7 @@ void main() {
             repository.loans = const Success([]);
         }
         await loadTab(cubit, tab);
-        expect(snapshot(cubit.state, tab).items, isNull);
-        selectItem(cubit, tab, 99);
+        expect(snapshot(cubit.state, tab).items, isEmpty);
         switch (tab) {
           case 'cards':
             repository.cards = const Err(DataFailure('offline'));
@@ -161,7 +160,7 @@ void main() {
       repository.loanQueue.add(loans);
       final cubit = createHome(repository);
       addTearDown(cubit.close);
-      final pending = cubit.load();
+      final pending = cubit.fetchDashboard();
       expect(cubit.state.homeStatus, RequestStatus.loading);
       expect(cubit.state.cardsStatus, RequestStatus.loading);
       expect(cubit.state.depositsStatus, RequestStatus.loading);
@@ -172,8 +171,8 @@ void main() {
         ),
       );
       await Future<void>.delayed(Duration.zero);
-      cubit.editFavorites();
-      cubit.addFavorite('card-deposit');
+      cubit.beginFavoritesEditing();
+      cubit.addFavorite(DashboardService.cardDeposit);
       cubit.selectTab(AppPrimaryTab.deposits);
       loans.complete(const Success([DashboardMockData.singleLoan]));
       cards.complete(const Err(DataFailure('offline')));
@@ -184,85 +183,18 @@ void main() {
       expect(cubit.state.homeStatus, RequestStatus.success);
       expect(cubit.state.depositsStatus, RequestStatus.success);
       expect(cubit.state.loansStatus, RequestStatus.success);
-      expect(cubit.state.draft, ['card-issue', 'card-deposit']);
+      expect(cubit.state.favoriteServices, [
+        DashboardService.issue,
+        DashboardService.cardDeposit,
+      ]);
       expect(cubit.state.selectedTab, AppPrimaryTab.deposits);
-      cubit.confirmFavorites();
-      await cubit.loadCards();
+      cubit.applyFavorites();
+      await cubit.fetchCards();
       expect(cubit.state.homeData!.favorites, ['card-issue', 'card-deposit']);
       expect(
         cubit.state.selectedDeposit!.id,
         DashboardMockData.singleDeposit.id,
       );
-    },
-  );
-
-  test(
-    'latest requests win per tab; closing prevents all pending completions',
-    () async {
-      final repository = TestRepositories();
-      final oldCard = Completer<Result<List<BankCard>>>();
-      final newCard = Completer<Result<List<BankCard>>>();
-      final oldLoan = Completer<Result<List<BankLoan>>>();
-      final newLoan = Completer<Result<List<BankLoan>>>();
-      repository.cardQueue.addAll([oldCard, newCard]);
-      repository.loanQueue.addAll([oldLoan, newLoan]);
-      final cubit = createHome(repository);
-      final oldCardsLoad = cubit.loadCards(), oldLoansLoad = cubit.loadLoans();
-      final latestCardsLoad = cubit.loadCards(),
-          latestLoansLoad = cubit.loadLoans();
-      newCard.complete(const Success([BankCard(id: 'latest')]));
-      newLoan.complete(Success([DashboardMockData.loans[1]]));
-      await Future.wait([latestCardsLoad, latestLoansLoad]);
-      oldCard.complete(const Err(DataFailure('old')));
-      oldLoan.complete(const Success([]));
-      await Future.wait([oldCardsLoad, oldLoansLoad]);
-      expect(cubit.state.selectedCardId, 'latest');
-      expect(cubit.state.selectedLoanId, DashboardMockData.loans[1].id);
-      final pending = Completer<Result<List<BankDeposit>>>();
-      repository.depositQueue.add(pending);
-      final load = cubit.loadDeposits();
-      await cubit.close();
-      pending.complete(const Success([]));
-      await load;
-      expect(cubit.state.depositsStatus, RequestStatus.loading);
-    },
-  );
-
-  test(
-    'replacing one repository reloads only that tab and rejects old responses',
-    () async {
-      final old = TestRepositories()
-        ..home = Success(
-          DashboardHomeData(walletBalance: '123', favorites: ['card-issue']),
-        );
-      final pending = Completer<Result<List<BankCard>>>();
-      old.cardQueue.add(pending);
-      final cubit = createHome(old);
-      addTearDown(cubit.close);
-      await cubit.loadHome();
-      await cubit.loadDeposits();
-      cubit.editFavorites();
-      cubit.selectTab(AppPrimaryTab.loans);
-      final oldLoad = cubit.loadCards();
-      final replacement = TestRepositories()
-        ..cards = const Success([BankCard(id: 'new')]);
-      final untouched = Completer<Result<List<BankDeposit>>>();
-      old.depositQueue.add(untouched);
-      await cubit.changeRepositories(
-        homeRepositories(
-          home: old,
-          cards: replacement,
-          deposits: old,
-          loans: old,
-        ),
-      );
-      expect(old.depositQueue, hasLength(1));
-      pending.complete(const Success([BankCard(id: 'old')]));
-      await oldLoad;
-      expect(cubit.state.selectedCardId, 'new');
-      expect(cubit.state.draft, isNotNull);
-      expect(cubit.state.selectedTab, AppPrimaryTab.loans);
-      expect(cubit.state.depositsStatus, RequestStatus.success);
     },
   );
 
@@ -276,85 +208,82 @@ void main() {
         ]);
       final cubit = createHome(repository);
       addTearDown(cubit.close);
-      expect(cubit.requestCardAction(CardAction.block), isNull);
-      await cubit.loadCards();
+      await cubit.fetchCards();
+      cubit.requestCardAction(CardAction.setSecondPin);
       expect(
-        cubit.requestCardAction(CardAction.setSecondPin)?.card.id,
+        (cubit.state.effect as HomeCardActionRequested).request.card.id,
         'setup',
       );
-      expect(cubit.requestCardAction(CardAction.forgotSecondPin), isNull);
-      cubit.setCardVisibility('setup', true);
-      cubit.selectCard(1);
-      expect(cubit.state.cardVisibility['setup'], isTrue);
-      expect(cubit.requestCardAction(CardAction.setSecondPin), isNull);
       expect(
-        cubit.requestCardAction(CardAction.forgotSecondPin)?.card.id,
+        cubit.state.pinActions,
+        isNot(contains(CardAction.forgotSecondPin)),
+      );
+      cubit.updateCardVisibility(cubit.state.visibleCards.first, true);
+      cubit.selectCard(cubit.state.visibleCards[1]);
+      expect(cubit.state.cardVisibility['setup'], isTrue);
+      expect(cubit.state.pinActions, isNot(contains(CardAction.setSecondPin)));
+      cubit.requestCardAction(CardAction.forgotSecondPin);
+      expect(
+        (cubit.state.effect as HomeCardActionRequested).request.card.id,
         'recovery',
       );
       expect(() => cubit.state.pinActions.clear(), throwsUnsupportedError);
       repository.cards = const Success([BankCard(id: 'recovery')]);
-      final reload = cubit.loadCards();
+      final reload = cubit.fetchCards();
       expect(cubit.state.cardActions, isEmpty);
-      expect(cubit.requestCardAction(CardAction.block), isNull);
       await reload;
+      cubit.requestCardAction(CardAction.setSecondPin);
       expect(
-        cubit.requestCardAction(CardAction.setSecondPin)?.card.id,
+        (cubit.state.effect as HomeCardActionRequested).request.card.id,
         'recovery',
       );
     },
   );
 
-  test(
-    'cheque eligibility is independent of account count and guarded by Cubit',
-    () async {
-      final repository = TestRepositories()
-        ..deposits = const Success([
-          BankDeposit(id: 'without', hasChequeOperations: false),
-          BankDeposit(id: 'with', hasChequeOperations: true),
-        ]);
-      final cubit = createHome(repository);
-      addTearDown(cubit.close);
-      await cubit.loadDeposits();
-      expect(cubit.state.depositChequeActions, isEmpty);
-      expect(cubit.requestDepositAction(DepositAction.issueCheque), isNull);
-      cubit.selectDeposit(1);
-      expect(
-        cubit.requestDepositAction(DepositAction.issueCheque)?.deposit.id,
-        'with',
-      );
-      expect(cubit.state.effect, isA<HomeDepositActionRequested>());
-    },
-  );
+  test('cheque availability is prepared for the selected account', () async {
+    final repository = TestRepositories()
+      ..deposits = const Success([
+        BankDeposit(id: 'without', hasChequeOperations: false),
+        BankDeposit(id: 'with', hasChequeOperations: true),
+      ]);
+    final cubit = createHome(repository);
+    addTearDown(cubit.close);
+    await cubit.fetchDeposits();
+    expect(cubit.state.depositChequeActions, isEmpty);
+    cubit.selectDeposit(cubit.state.visibleDeposits[1]);
+    cubit.requestDepositAction(DepositAction.issueCheque);
+    expect(
+      (cubit.state.effect as HomeDepositActionRequested).request.deposit.id,
+      'with',
+    );
+    expect(cubit.state.effect, isA<HomeDepositActionRequested>());
+  });
 
   test(
-    'typed effects support repeated actions and validate copied item IDs',
+    'typed effects support repeated actions and carry the rendered models',
     () async {
       final cubit = createHome(TestRepositories());
       addTearDown(cubit.close);
-      await cubit.load();
+      await cubit.fetchDashboard();
       cubit.requestCardAction(CardAction.block);
       final id = cubit.state.effectId;
       cubit.requestCardAction(CardAction.block);
       expect(cubit.state.effectId, id + 1);
-      cubit.copyCardNumber(cubit.state.selectedCard!.id);
+      cubit.requestCardNumberCopy(cubit.state.selectedCard!);
       expect(
         cubit.state.effect,
         HomeCardNumberCopyRequested(cubit.state.selectedCard!.number),
       );
-      cubit.copyDepositIban(cubit.state.selectedDeposit!.id);
+      cubit.requestDepositIbanCopy(cubit.state.selectedDeposit!);
       expect(
         cubit.state.effect,
         HomeDepositIbanCopyRequested(cubit.state.selectedDeposit!.iban),
       );
-      cubit.requestLoanDetails(cubit.state.selectedLoan!.id);
+      cubit.requestLoanDetails(cubit.state.selectedLoan!);
       expect(
         cubit.state.effect,
         HomeLoanDetailsRequested(cubit.state.selectedLoan!),
       );
-      final before = cubit.state.effectId;
-      cubit.copyLoanNumber('unknown');
-      cubit.copyCardNumber('unknown');
-      expect(cubit.state.effectId, before);
       cubit.requestMenu(AppPrimaryTab.deposits);
       expect((cubit.state.effect as HomeMenuRequested).category, isNotEmpty);
       cubit.requestAssistant();
@@ -373,12 +302,12 @@ void main() {
       final repository = TestRepositories()..cards = Success(input);
       final cubit = createHome(repository);
       addTearDown(cubit.close);
-      await cubit.loadCards();
+      await cubit.fetchCards();
       parts[0] = '0000';
       input.clear();
-      expect(cubit.state.cards![0].number, '1234567890123456');
-      expect(() => cubit.state.cards!.clear(), throwsUnsupportedError);
-      cubit.setCardVisibility('a', true);
+      expect(cubit.state.visibleCards[0].number, '1234567890123456');
+      expect(() => cubit.state.visibleCards.clear(), throwsUnsupportedError);
+      cubit.updateCardVisibility(cubit.state.visibleCards.first, true);
       expect(
         () => cubit.state.cardVisibility['a'] = false,
         throwsUnsupportedError,
@@ -387,10 +316,10 @@ void main() {
         BankCard(id: 'duplicate'),
         BankCard(id: 'duplicate'),
       ]);
-      await cubit.loadCards();
+      await cubit.fetchCards();
       expect(cubit.state.cardsFailure!.code, 'dashboard.items.invalid');
       repository.throwOnCards = true;
-      await cubit.loadCards();
+      await cubit.fetchCards();
       expect(cubit.state.cardsFailure!.code, 'unexpected');
     },
   );

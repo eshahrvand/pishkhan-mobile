@@ -58,7 +58,7 @@ class DepositsTab extends StatelessWidget {
                                   RequestStatus.failure)
                                 DashboardAsyncView(
                                   onRetry: () {
-                                    context.read<HomeCubit>().loadDeposits();
+                                    context.read<HomeCubit>().fetchDeposits();
                                   },
                                 )
                               else if (state.visibleDeposits.isEmpty)

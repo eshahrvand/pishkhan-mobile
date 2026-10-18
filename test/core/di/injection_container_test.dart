@@ -186,8 +186,8 @@ void main() {
     addTearDown(next.close);
     expect(next.isClosed, isFalse);
     expect(next.state.selectedTab, AppPrimaryTab.dashboard);
-    await next.load();
-    expect(next.state.cards, isNotEmpty);
+    await next.fetchDashboard();
+    expect(next.state.visibleCards, isNotEmpty);
   });
 
   test(
@@ -202,7 +202,7 @@ void main() {
         () => HomeCubit(),
       );
       addTearDown(cubit.close);
-      await cubit.loadHome();
+      await cubit.fetchHome();
       expect(cubit.state.homeData!.favorites, ['card-issue']);
     },
   );

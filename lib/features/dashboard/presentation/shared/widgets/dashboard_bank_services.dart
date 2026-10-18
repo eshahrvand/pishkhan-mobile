@@ -25,16 +25,16 @@ class DashboardBankServices extends StatelessWidget {
     required this.onAllServices,
   });
   final VoidCallback onEdit, onReset, onAdd, onConfirm, onCancel, onAllServices;
-  final ValueChanged<String> onRemove;
+  final ValueChanged<DashboardService> onRemove;
   final ValueChanged<DashboardService> onService;
 
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<HomeCubit, HomeState>(
       buildWhen: (previous, current) =>
-          previous.draft != current.draft ||
+          previous.isEditingFavorites != current.isEditingFavorites ||
           previous.homeData != current.homeData ||
-          previous.fixedServices != current.fixedServices,
+          previous.favoriteServices != current.favoriteServices,
       builder: (context, state) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -126,9 +126,10 @@ class DashboardBankServices extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            if (state.draft != null ||
+            if (state.isEditingFavorites ||
                 (state.homeData?.favorites ?? const <String>[]).isNotEmpty)
               DashboardFavoritesCard(
+                state: state,
                 onEdit: onEdit,
                 onReset: onReset,
                 onAdd: onAdd,

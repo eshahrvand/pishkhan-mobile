@@ -1,3 +1,6 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pishkhan_mobile/core/result/result.dart';
+import 'package:pishkhan_mobile/features/dashboard/presentation/home/cubit/home_cubit.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
 
 import '../../../../support/home_tab_test_scope.dart';
@@ -292,6 +295,7 @@ void main() {
           null,
         ),
       );
+      await tester.pumpWidget(const SizedBox.shrink());
       await tester.pumpWidget(
         subject(
           loanScope(repository: MockDashboardLoansRepository(loans: [second])),
@@ -304,40 +308,30 @@ void main() {
   );
 
   testWidgets(
-    'selected ID survives reorder, then removal and empty data reset safely',
+    'selected loan survives reorder and removal resets the carousel',
     (tester) async {
-      await mount(
-        tester,
-        subject(
-          loanScope(repository: MockDashboardLoansRepository(loans: sample)),
-        ),
-      );
+      final repository = TestRepositories()..loans = const Success(sample);
+      await mount(tester, subject(loanScope(repository: repository)));
       await tap(tester, dashboardIndicator(DashboardLoansCarousel, 1));
-      await tester.pumpWidget(
-        subject(
-          loanScope(
-            repository: MockDashboardLoansRepository(loans: [second, first]),
-          ),
-        ),
-      );
+      final cubit = tester
+          .element(find.byType(DashboardLoansCarousel))
+          .read<HomeCubit>();
+      repository.loans = const Success([second, first]);
+      await tester.runAsync(cubit.fetchLoans);
       await tester.pumpAndSettle();
-      var controller = tester
+      final controller = tester
           .widget<PageView>(dashboardCarousel(DashboardLoansCarousel))
           .controller!;
       expect(controller.page, 0);
-      await tester.pumpWidget(
-        subject(
-          loanScope(repository: MockDashboardLoansRepository(loans: [first])),
-        ),
-      );
+      repository.loans = const Success([first]);
+      await tester.runAsync(cubit.fetchLoans);
       await tester.pumpAndSettle();
       expect(
         tester.widget<AppLoanCard>(find.byType(AppLoanCard)).loanNumber,
         '001-123',
       );
-      await tester.pumpWidget(
-        subject(loanScope(repository: MockDashboardLoansRepository(loans: []))),
-      );
+      repository.loans = const Success([]);
+      await tester.runAsync(cubit.fetchLoans);
       await tester.pumpAndSettle();
       expect(find.byType(AppLoanCard), findsNothing);
       expect(dashboardGroup(S.current.loansOperations), findsNothing);
@@ -534,6 +528,7 @@ void main() {
         ),
       );
       verify(DashboardMockData.singleLoan);
+      await tester.pumpWidget(const SizedBox.shrink());
       await tester.pumpWidget(
         subject(
           loanScope(

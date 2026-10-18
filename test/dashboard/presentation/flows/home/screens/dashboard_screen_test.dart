@@ -88,7 +88,7 @@ void main() {
         tester.getSize(
           find
               .descendant(
-                of: find.byType(DashboardResoBannerPanel),
+                of: find.byType(DashboardResoBanner),
                 matching: find.byWidgetPredicate(
                   (widget) => widget is SizedBox && widget.height != null,
                 ),

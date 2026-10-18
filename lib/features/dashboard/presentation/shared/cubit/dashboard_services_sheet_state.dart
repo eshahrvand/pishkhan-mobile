@@ -1,6 +1,6 @@
 part of 'dashboard_services_sheet_cubit.dart';
 
-@freezed
+@Freezed(toStringOverride: false)
 abstract class DashboardServicesSheetState with _$DashboardServicesSheetState {
   const factory DashboardServicesSheetState.initial({
     @Default('') String query,

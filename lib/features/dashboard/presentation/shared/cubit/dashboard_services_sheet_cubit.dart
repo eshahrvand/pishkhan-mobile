@@ -21,66 +21,58 @@ class DashboardServicesSheetCubit extends Cubit<DashboardServicesSheetState> {
   final Set<DashboardService>? _allowed;
   Map<DashboardService, String> _searchLabels = const {};
 
-  void loadServices(Map<DashboardService, String> searchLabels) {
+  void resolveServices(Map<DashboardService, String> searchLabels) {
     _searchLabels = Map.unmodifiable(searchLabels);
     emit(
       state.copyWith(
-        groups: filterGroups(state.query, state.collapsedCategories),
-        isSearching: normalizeQuery(state.query).isNotEmpty,
+        groups: _filterGroups(state.query, state.collapsedCategories),
+        isSearching: _normalizeQuery(state.query).isNotEmpty,
       ),
     );
   }
 
-  void updateQuery(String value) {
+  void updateSearchQuery(String value) {
     emit(
       state.copyWith(
         query: value,
-        isSearching: normalizeQuery(value).isNotEmpty,
-        groups: filterGroups(value, state.collapsedCategories),
+        isSearching: _normalizeQuery(value).isNotEmpty,
+        groups: _filterGroups(value, state.collapsedCategories),
       ),
     );
   }
 
   void toggleCategory(DashboardCategory category) {
-    if (state.isSearching || category != DashboardCategory.cards) return;
     final collapsed = Set<DashboardCategory>.of(state.collapsedCategories);
     if (!collapsed.remove(category)) collapsed.add(category);
     emit(
       state.copyWith(
         collapsedCategories: collapsed,
-        groups: filterGroups(state.query, collapsed),
+        groups: _filterGroups(state.query, collapsed),
       ),
     );
   }
 
-  DashboardService? selectService(DashboardService service) {
-    if (isClosed || _excluded.contains(service.id)) return null;
-    for (final group in state.groups) {
-      if (group.choices.any((choice) => choice.service == service)) {
-        emit(
-          state.copyWith(
-            selectedService: service,
-            selectionId: state.selectionId + 1,
-          ),
-        );
-        return service;
-      }
-    }
-    return null;
+  void selectService(DashboardService service) {
+    emit(
+      state.copyWith(
+        selectedService: service,
+        selectionId: state.selectionId + 1,
+      ),
+    );
   }
 
-  List<DashboardServiceGroup> filterGroups(
+  List<DashboardServiceGroup> _filterGroups(
     String query,
     Set<DashboardCategory> collapsed,
   ) {
-    final normalized = normalizeQuery(query);
+    final normalized = _normalizeQuery(query);
     final groups = <DashboardServiceGroup>[];
     for (final category in DashboardCategory.values) {
       final choices = category.services
           .where(
             (service) =>
                 (_allowed == null || _allowed.contains(service)) &&
-                normalizeQuery(_searchLabels[service] ?? '')
+                _normalizeQuery(_searchLabels[service] ?? '')
                     .contains(normalized),
           )
           .map(
@@ -103,7 +95,7 @@ class DashboardServicesSheetCubit extends Cubit<DashboardServicesSheetState> {
     return groups;
   }
 
-  String normalizeQuery(String value) {
+  String _normalizeQuery(String value) {
     return value
         .trim()
         .replaceAll('ي', 'ی')

@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/core/enums/request_status.dart';
+
 import 'dart:async';
 
 import '../../support/registered_dependency.dart';
@@ -20,7 +22,6 @@ import 'package:pishkhan_mobile/features/dashboard/presentation/shared/loan_acti
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/dashboard_tab.dart';
 
 import 'dashboard_test_repositories.dart';
-
 
 class HomeTabTestScope extends StatefulWidget {
   const HomeTabTestScope({
@@ -67,6 +68,27 @@ class _HomeTabTestScopeState extends State<HomeTabTestScope> {
   BlocObserver? _previousObserver;
   final _subscriptions = <StreamSubscription<HomeState>>[];
 
+  void _notifySelection(HomeState previous, HomeState current) {
+    if (previous.cardsStatus == RequestStatus.success &&
+        current.cardsStatus == RequestStatus.success &&
+        previous.selectedCard != current.selectedCard &&
+        current.selectedCard != null) {
+      widget.onCardSelected?.call(current.selectedCard!);
+    }
+    if (previous.depositsStatus == RequestStatus.success &&
+        current.depositsStatus == RequestStatus.success &&
+        previous.selectedDeposit != current.selectedDeposit &&
+        current.selectedDeposit != null) {
+      widget.onDepositSelected?.call(current.selectedDeposit!);
+    }
+    if (previous.loansStatus == RequestStatus.success &&
+        current.loansStatus == RequestStatus.success &&
+        previous.selectedLoan != current.selectedLoan &&
+        current.selectedLoan != null) {
+      widget.onLoanSelected?.call(current.selectedLoan!);
+    }
+  }
+
   void _observe(HomeCubit cubit) {
     _cubit = cubit;
     var effectId = cubit.state.effectId;
@@ -80,6 +102,7 @@ class _HomeTabTestScopeState extends State<HomeTabTestScope> {
     HomeState previous = cubit.state;
     _subscriptions.add(
       cubit.stream.listen((state) {
+        _notifySelection(previous, state);
         if (previous.homeData != null &&
             state.homeData != null &&
             previous.homeData!.favorites != state.homeData!.favorites) {
@@ -107,13 +130,14 @@ class _HomeTabTestScopeState extends State<HomeTabTestScope> {
       () => HomeCubit(
         initialState: const HomeState.initial(enableAnimations: false),
       ),
-    )..load();
-  }
-
-  @override
-  void didUpdateWidget(covariant HomeTabTestScope oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    _cubit.changeRepositories(widget.repositories);
+    )..fetchDashboard();
+    var previous = _cubit.state;
+    _subscriptions.add(
+      _cubit.stream.listen((state) {
+        _notifySelection(previous, state);
+        previous = state;
+      }),
+    );
   }
 
   @override
@@ -175,12 +199,6 @@ class _HomeTabTestScopeState extends State<HomeTabTestScope> {
         }
       case HomeCardMoreRequested(:final card):
         widget.onMore?.call(card);
-      case HomeCardSelectionChanged(:final card):
-        widget.onCardSelected?.call(card);
-      case HomeDepositSelectionChanged(:final deposit):
-        widget.onDepositSelected?.call(deposit);
-      case HomeLoanSelectionChanged(:final loan):
-        widget.onLoanSelected?.call(loan);
       case HomeLoanDetailsRequested(:final loan):
         widget.onDetails?.call(loan);
       case HomeCardNumberCopyRequested(:final number):
@@ -204,6 +222,7 @@ class _HomeTabTestScopeState extends State<HomeTabTestScope> {
         widget.onServiceRequested?.call(serviceId);
       case HomePromptSubmitted(:final prompt):
         widget.onPromptSubmitted?.call(prompt);
+      case HomeAllServicesRequested():
       case HomeProfileRequested():
       case HomeNotificationsRequested():
       case HomeFavoritePickerRequested():

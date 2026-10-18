@@ -1,3 +1,6 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pishkhan_mobile/core/result/result.dart';
+import 'package:pishkhan_mobile/features/dashboard/presentation/home/cubit/home_cubit.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
 
 import '../../../../support/home_tab_test_scope.dart';
@@ -254,47 +257,27 @@ void main() {
   });
 
   testWidgets(
-    'reordering retains selected ID and removing it selects the first deposit',
+    'reordering retains selected deposit and removal chooses the first',
     (tester) async {
-      await mount(
-        tester,
-        subject(
-          depositScope(
-            repository: MockDashboardDepositsRepository(deposits: mixed),
-          ),
-        ),
-      );
+      final repository = TestRepositories()..deposits = const Success(mixed);
+      await mount(tester, subject(depositScope(repository: repository)));
       await tap(tester, dashboardIndicator(DashboardDepositsCarousel, 1));
-      await tester.pumpWidget(
-        subject(
-          depositScope(
-            repository: MockDashboardDepositsRepository(
-              deposits: [mixed[1], mixed[0]],
-            ),
-          ),
-        ),
-      );
+      final cubit = tester
+          .element(find.byType(DashboardDepositsCarousel))
+          .read<HomeCubit>();
+      repository.deposits = Success([mixed[1], mixed[0]]);
+      await tester.runAsync(cubit.fetchDeposits);
       await tester.pumpAndSettle();
       expect(
         dashboardGroup(S.current.depositsChequeOperations),
         findsOneWidget,
       );
-      await tester.pumpWidget(
-        subject(
-          depositScope(
-            repository: MockDashboardDepositsRepository(deposits: [mixed[0]]),
-          ),
-        ),
-      );
+      repository.deposits = Success([mixed[0]]);
+      await tester.runAsync(cubit.fetchDeposits);
       await tester.pumpAndSettle();
       expect(dashboardGroup(S.current.depositsChequeOperations), findsNothing);
-      await tester.pumpWidget(
-        subject(
-          depositScope(
-            repository: MockDashboardDepositsRepository(deposits: []),
-          ),
-        ),
-      );
+      repository.deposits = const Success([]);
+      await tester.runAsync(cubit.fetchDeposits);
       await tester.pumpAndSettle();
       expect(find.byType(AppDepositCard), findsNothing);
       expect(dashboardGroup(S.current.depositsOperations), findsNothing);

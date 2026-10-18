@@ -33,23 +33,28 @@ class _DashboardCardsCarouselState extends State<DashboardCardsCarousel> {
     super.dispose();
   }
 
+  void _syncSelectedPage(BuildContext context, HomeState state) {
+    if (state.cardsStatus == RequestStatus.loading) _controllerItems = null;
+    if (state.cardsStatus == RequestStatus.success &&
+        state.visibleCards.isNotEmpty &&
+        _controllerItems ==
+            state.visibleCards.map((item) => item.id).join('|')) {
+      if (_pages?.hasClients == true &&
+          !_pages!.position.isScrollingNotifier.value &&
+          ((_pages!.page ?? 0) - state.selectedCardIndex).abs() > .01) {
+        _pages!.jumpToPage(state.selectedCardIndex);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<HomeCubit, HomeState>(
       listenWhen: (previous, current) =>
           previous.cardsStatus != current.cardsStatus ||
           previous.selectedCardIndex != current.selectedCardIndex ||
-          previous.cards != current.cards,
-      listener: (context, state) {
-        if (state.cardsStatus == RequestStatus.loading) _controllerItems = null;
-        if (state.cardsStatus == RequestStatus.success && state.cards != null) {
-          if (_pages?.hasClients == true &&
-              !_pages!.position.isScrollingNotifier.value &&
-              ((_pages!.page ?? 0) - state.selectedCardIndex).abs() > .01) {
-            _pages!.jumpToPage(state.selectedCardIndex);
-          }
-        }
-      },
+          previous.visibleCards != current.visibleCards,
+      listener: _syncSelectedPage,
       buildWhen: (previous, current) =>
           previous.visibleCards != current.visibleCards ||
           previous.selectedCardIndex != current.selectedCardIndex ||
@@ -119,21 +124,22 @@ class _DashboardCardsCarouselState extends State<DashboardCardsCarousel> {
                               isSingle: state.visibleCards.length == 1,
                               onCopyNumber: (_) => context
                                   .read<HomeCubit>()
-                                  .copyCardNumber(state.visibleCards[0].id),
+                                  .requestCardNumberCopy(state.visibleCards[0]),
                               onCopyIban: (_) => context
                                   .read<HomeCubit>()
-                                  .copyCardIban(state.visibleCards[0].id),
+                                  .requestCardIbanCopy(state.visibleCards[0]),
                               onMorePressed: (_) => context
                                   .read<HomeCubit>()
-                                  .requestCardMore(state.visibleCards[0].id),
+                                  .requestCardMore(state.visibleCards[0]),
                               isVisible:
                                   state.cardVisibility[state
                                       .visibleCards[0]
                                       .id] ??
                                   state.visibleCards.length == 1,
-                              onVisibilityChanged: (value) =>
-                                  context.read<HomeCubit>().setCardVisibility(
-                                    state.visibleCards[0].id,
+                              onVisibilityChanged: (value) => context
+                                  .read<HomeCubit>()
+                                  .updateCardVisibility(
+                                    state.visibleCards[0],
                                     value,
                                   ),
                             ),
@@ -144,32 +150,37 @@ class _DashboardCardsCarouselState extends State<DashboardCardsCarousel> {
                             itemCount: state.visibleCards.length,
                             onPageChanged: (index) {
                               if (_syncingPages) return;
-                              context.read<HomeCubit>().selectCard(index);
+                              context.read<HomeCubit>().selectCard(
+                                state.visibleCards[index],
+                              );
                             },
                             itemBuilder: (context, index) => Center(
                               child: DashboardCardTile(
                                 card: state.visibleCards[index],
                                 width: width,
                                 isSingle: state.visibleCards.length == 1,
-                                onCopyNumber: (_) =>
-                                    context.read<HomeCubit>().copyCardNumber(
-                                      state.visibleCards[index].id,
+                                onCopyNumber: (_) => context
+                                    .read<HomeCubit>()
+                                    .requestCardNumberCopy(
+                                      state.visibleCards[index],
                                     ),
                                 onCopyIban: (_) => context
                                     .read<HomeCubit>()
-                                    .copyCardIban(state.visibleCards[index].id),
-                                onMorePressed: (_) =>
-                                    context.read<HomeCubit>().requestCardMore(
-                                      state.visibleCards[index].id,
+                                    .requestCardIbanCopy(
+                                      state.visibleCards[index],
                                     ),
+                                onMorePressed: (_) => context
+                                    .read<HomeCubit>()
+                                    .requestCardMore(state.visibleCards[index]),
                                 isVisible:
                                     state.cardVisibility[state
                                         .visibleCards[index]
                                         .id] ??
                                     state.visibleCards.length == 1,
-                                onVisibilityChanged: (value) =>
-                                    context.read<HomeCubit>().setCardVisibility(
-                                      state.visibleCards[index].id,
+                                onVisibilityChanged: (value) => context
+                                    .read<HomeCubit>()
+                                    .updateCardVisibility(
+                                      state.visibleCards[index],
                                       value,
                                     ),
                               ),

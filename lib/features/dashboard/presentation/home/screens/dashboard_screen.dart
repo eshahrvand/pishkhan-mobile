@@ -3,6 +3,9 @@ import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/core/router/card_features_navigation.dart';
+import 'package:go_router/go_router.dart';
+import 'package:pishkhan_mobile/core/router/app_router.dart';
+import 'package:pishkhan_mobile/core/router/app_routes.dart';
 import 'package:pishkhan_mobile/core/router/dashboard_notifications_navigation.dart';
 
 import '../cubit/home_cubit.dart';
@@ -10,6 +13,7 @@ import '../cubit/home_effect.dart';
 import '../widgets/dashboard_home_panel.dart';
 import '../../shared/dashboard_tab.dart';
 import '../../shared/widgets/dashboard_services_sheet.dart';
+import '../../shared/widgets/dashboard_reset_sheet.dart';
 import 'cards_tab.dart';
 import 'deposits_tab.dart';
 import 'loans_tab.dart';
@@ -29,14 +33,19 @@ class DashboardScreen extends StatelessWidget {
       id,
       initialDepositNumber: depositNumber,
       initialCardNumber: cardNumber,
-      onAssistantPressed: () {
-        if (!home.isClosed) home.requestAssistant();
-      },
+      onAssistantPressed: home.requestAssistant,
     );
   }
 
   Future<void> _handleHomeEffect(BuildContext context, HomeState state) async {
     switch (state.effect) {
+      case HomeAllServicesRequested():
+        context.push<void>(
+          AppRoutes.allServices,
+          extra: AllServicesRouteArguments(
+            context.read<HomeCubit>().requestService,
+          ),
+        );
       case HomeServiceRequested(:final serviceId):
         _openService(context, serviceId);
       case HomeCardActionRequested(:final request):
@@ -68,23 +77,27 @@ class DashboardScreen extends StatelessWidget {
           context,
           category: category,
         );
-        if (context.mounted) context.read<HomeCubit>().catalogResult(service);
+        if (context.mounted) {
+          context.read<HomeCubit>().applyMenuSelection(service);
+        }
       case HomeFavoritePickerRequested(:final excluded):
         final service = await showDashboardServicesSheet(
           context,
           excluded: excluded,
         );
-        if (context.mounted) context.read<HomeCubit>().catalogResult(service);
+        if (context.mounted) {
+          context.read<HomeCubit>().applyFavoriteSelection(service);
+        }
       case HomeFavoritesResetRequested():
         final confirmed = await showDashboardResetSheet(context);
         if (context.mounted) {
-          context.read<HomeCubit>().resetConfirmationResult(confirmed);
+          context.read<HomeCubit>().applyResetConfirmation(confirmed);
         }
       case HomeNotificationsRequested():
         DashboardNotificationsNavigation().open(
           context,
           messages: state.messages!,
-          onChanged: context.read<HomeCubit>().notificationsChanged,
+          onChanged: context.read<HomeCubit>().updateNotifications,
         );
       case HomeProfileRequested():
       case HomePromptSubmitted():
@@ -93,9 +106,6 @@ class DashboardScreen extends StatelessWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(S.current.cardFeatureUnavailable)),
         );
-      case HomeCardSelectionChanged():
-      case HomeDepositSelectionChanged():
-      case HomeLoanSelectionChanged():
       case HomeTabRequested():
       case HomeAssistantRequested():
       case null:
@@ -106,13 +116,10 @@ class DashboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<HomeCubit>(
-      create: (_) => HomeCubit()..load(),
+      create: (_) => HomeCubit()..fetchDashboard(),
       child: BlocListener<HomeCubit, HomeState>(
         listenWhen: (previous, current) =>
             previous.effectId != current.effectId &&
-            current.effect is! HomeCardSelectionChanged &&
-            current.effect is! HomeDepositSelectionChanged &&
-            current.effect is! HomeLoanSelectionChanged &&
             current.effect is! HomeTabRequested &&
             current.effect is! HomeAssistantRequested,
         listener: _handleHomeEffect,

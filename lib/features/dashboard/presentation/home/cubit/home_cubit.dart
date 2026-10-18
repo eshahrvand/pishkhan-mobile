@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:characters/characters.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
 import 'package:pishkhan_mobile/features/profile/domain/entities/notification_message.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -26,52 +29,27 @@ part 'home_cubit.freezed.dart';
 class HomeCubit extends Cubit<HomeState> {
   HomeCubit({HomeState initialState = const HomeState.initial()})
     : super(initialState);
-  DashboardRepositories _repositories = getIt<DashboardRepositories>();
-  late LoadDashboardHome _loadHome = LoadDashboardHome(_repositories.home);
-  late LoadDashboardItems<BankCard> _loadCards = LoadDashboardItems(
-    _repositories.cards.getCards,
-  );
-  late LoadDashboardItems<BankDeposit> _loadDeposits = LoadDashboardItems(
+
+  final _repositories = getIt<DashboardRepositories>();
+  late final _loadHome = LoadDashboardHome(_repositories.home);
+  late final _loadCards = LoadDashboardItems(_repositories.cards.getCards);
+  late final _loadDeposits = LoadDashboardItems(
     _repositories.deposits.getDeposits,
   );
-  late LoadDashboardItems<BankLoan> _loadLoans = LoadDashboardItems(
-    _repositories.loans.getLoans,
-  );
-  // Loading one tab must not invalidate another tab's pending response.
-  int _cardsRequest = 0;
-  int _depositsRequest = 0;
-  int _loansRequest = 0;
+  late final _loadLoans = LoadDashboardItems(_repositories.loans.getLoans);
 
-  Future<void> load() async {
-    await Future.wait([loadHome(), loadCards(), loadDeposits(), loadLoans()]);
-  }
+  static const maxFavorites = 8;
 
-  Future<void> changeRepositories(DashboardRepositories repositories) async {
-    if (isClosed) return;
-    final previous = _repositories;
-    _repositories = repositories;
-    final pending = <Future<void>>[];
-    if (previous.home != repositories.home) {
-      _loadHome = LoadDashboardHome(repositories.home);
-      pending.add(loadHome());
-    }
-    if (previous.cards != repositories.cards) {
-      _loadCards = LoadDashboardItems(repositories.cards.getCards);
-      pending.add(loadCards());
-    }
-    if (previous.deposits != repositories.deposits) {
-      _loadDeposits = LoadDashboardItems(repositories.deposits.getDeposits);
-      pending.add(loadDeposits());
-    }
-    if (previous.loans != repositories.loans) {
-      _loadLoans = LoadDashboardItems(repositories.loans.getLoans);
-      pending.add(loadLoans());
-    }
-    await Future.wait(pending);
+  Future<void> fetchDashboard() {
+    return Future.wait([
+      fetchHome(),
+      fetchCards(),
+      fetchDeposits(),
+      fetchLoans(),
+    ]).then((_) {});
   }
 
   void selectTab(AppPrimaryTab tab) {
-    if (isClosed) return;
     emit(
       state.copyWith(
         selectedTab: tab,
@@ -82,10 +60,8 @@ class HomeCubit extends Cubit<HomeState> {
   }
 
   void requestMenu([AppPrimaryTab tab = AppPrimaryTab.dashboard]) {
-    if (isClosed) return;
     emit(
       state.copyWith(
-        isAddingFavorite: false,
         effect: HomeMenuRequested(
           category: switch (tab) {
             AppPrimaryTab.deposits => DashboardService.deposits,
@@ -99,7 +75,6 @@ class HomeCubit extends Cubit<HomeState> {
   }
 
   void requestAssistant() {
-    if (isClosed) return;
     emit(
       state.copyWith(
         selectedTab: AppPrimaryTab.dashboard,
@@ -110,34 +85,28 @@ class HomeCubit extends Cubit<HomeState> {
   }
 
   void requestService(DashboardService service) {
-    if (isClosed) return;
     if (service == DashboardService.assistant) {
       requestAssistant();
-      return;
+    } else {
+      emit(
+        state.copyWith(
+          effect: HomeServiceRequested(service.id),
+          effectId: state.effectId + 1,
+        ),
+      );
     }
-    emit(
-      state.copyWith(
-        effect: HomeServiceRequested(service.id),
-        effectId: state.effectId + 1,
-      ),
-    );
   }
 
-  void submitPrompt(String value) {
-    if (isClosed) return;
-    final prompt = value.trim();
-    if (prompt.isEmpty) return;
+  void requestAllServices() {
     emit(
       state.copyWith(
-        submittedPrompt: prompt,
-        effect: HomePromptSubmitted(prompt),
+        effect: const HomeAllServicesRequested(),
         effectId: state.effectId + 1,
       ),
     );
   }
 
   void requestProfile() {
-    if (isClosed) return;
     emit(
       state.copyWith(
         effect: const HomeProfileRequested(),
@@ -147,7 +116,6 @@ class HomeCubit extends Cubit<HomeState> {
   }
 
   void requestNotifications() {
-    if (isClosed) return;
     emit(
       state.copyWith(
         messages: state.messages ?? NotificationMessage.examples(),
@@ -157,24 +125,24 @@ class HomeCubit extends Cubit<HomeState> {
     );
   }
 
-  void notificationsChanged(List<NotificationMessage> messages) {
-    if (isClosed) return;
+  void updateNotifications(List<NotificationMessage> messages) {
     emit(state.copyWith(messages: List.unmodifiable(messages)));
   }
 
   void requestFavoritePicker() {
-    if (isClosed || state.draft == null || !state.canAddFavorite) return;
     emit(
       state.copyWith(
-        isAddingFavorite: true,
-        effect: HomeFavoritePickerRequested(excluded: state.activeFavorites),
+        effect: HomeFavoritePickerRequested(
+          excluded: state.favoriteServices
+              .map((service) => service.id)
+              .toList(),
+        ),
         effectId: state.effectId + 1,
       ),
     );
   }
 
   void requestFavoritesReset() {
-    if (isClosed || state.draft == null || state.homeData == null) return;
     emit(
       state.copyWith(
         effect: const HomeFavoritesResetRequested(),
@@ -183,145 +151,130 @@ class HomeCubit extends Cubit<HomeState> {
     );
   }
 
-  void catalogResult(DashboardService? service) {
-    if (isClosed || service == null) return;
-    if (state.isAddingFavorite) {
-      addFavorite(service.id);
-    } else {
-      requestService(service);
-    }
+  void applyMenuSelection(DashboardService? service) {
+    if (service != null) requestService(service);
   }
 
-  void resetConfirmationResult(bool? confirmed) {
-    if (isClosed || confirmed != true) return;
-    resetFavorites();
+  void applyFavoriteSelection(DashboardService? service) {
+    if (service != null) addFavorite(service);
   }
 
-  static const maxFavorites = 8;
-  int _homeRequest = 0;
+  void applyResetConfirmation(bool? confirmed) {
+    if (confirmed == true) resetFavorites();
+  }
 
-  Future<void> loadHome() async {
-    if (isClosed) return;
-    final token = ++_homeRequest;
+  Future<void> fetchHome() {
     emit(
       state.copyWith(
         homeStatus: RequestStatus.loading,
         homeData: null,
-        draft: null,
+        isEditingFavorites: false,
         homeFailure: null,
-        activeFavorites: const [],
         favoriteServices: const [],
         fixedServices: const [],
         canAddFavorite: true,
         isFavoritesLimitReached: false,
       ),
     );
-    final result = await _loadHome();
-    if (isClosed || token != _homeRequest) return;
-    switch (result) {
-      case Err(:final failure):
-        emit(
-          state.copyWith(
-            homeStatus: RequestStatus.failure,
-            homeFailure: failure,
-          ),
-        );
-      case Success(:final data):
-        final home = data?.withFavorites(
-          data.favorites.toSet().take(maxFavorites),
-        );
-        final favorites = home?.favorites ?? const <String>[];
-        final services = getServices(favorites);
-        emit(
-          state.copyWith(
-            homeStatus: RequestStatus.success,
-            homeData: home,
-            activeFavorites: favorites,
-            favoriteServices: services,
-            fixedServices: getServices(home?.fixedServiceIds ?? const []),
-            canAddFavorite: services.length < maxFavorites,
-            isFavoritesLimitReached: favorites.length == maxFavorites,
-          ),
-        );
-    }
+    return _loadHome().then((result) {
+      switch (result) {
+        case Err(:final failure):
+          emit(
+            state.copyWith(
+              homeStatus: RequestStatus.failure,
+              homeFailure: failure,
+            ),
+          );
+        case Success(:final data):
+          final home = data?.withFavorites(
+            data.favorites.toSet().take(maxFavorites),
+          );
+          final services = _servicesForIds(home?.favorites ?? const []);
+          emit(
+            state.copyWith(
+              homeStatus: RequestStatus.success,
+              homeData: home,
+              favoriteServices: services,
+              fixedServices: _servicesForIds(home?.fixedServiceIds ?? const []),
+              canAddFavorite: services.length < maxFavorites,
+              isFavoritesLimitReached: services.length == maxFavorites,
+            ),
+          );
+      }
+    });
   }
 
-  void editFavorites() {
-    if (state.homeStatus != RequestStatus.success || state.homeData == null) {
-      return;
-    }
-    final favorites = state.homeData!.favorites.isEmpty
-        ? state.homeData!.suggestedServiceIds
-              .toSet()
-              .take(maxFavorites)
-              .toList()
-        : state.homeData!.favorites;
-    final services = getServices(favorites);
+  void beginFavoritesEditing() {
+    final services = _servicesForIds(
+      state.homeData!.favorites.isEmpty
+          ? state.homeData!.suggestedServiceIds.toSet().take(maxFavorites)
+          : state.homeData!.favorites,
+    );
     emit(
       state.copyWith(
-        draft: favorites,
-        activeFavorites: favorites,
+        isEditingFavorites: true,
         favoriteServices: services,
         canAddFavorite: services.length < maxFavorites,
-        isFavoritesLimitReached: favorites.length == maxFavorites,
+        isFavoritesLimitReached: services.length == maxFavorites,
       ),
     );
   }
 
-  void addFavorite(String id) {
-    if (state.homeStatus != RequestStatus.success ||
-        state.homeData == null ||
-        state.draft == null ||
-        state.draft!.length >= maxFavorites ||
-        state.draft!.contains(id)) {
-      return;
-    }
-    final favorites = [...state.draft!, id];
-    final services = getServices(favorites);
+  void addFavorite(DashboardService service) {
+    final services = [...state.favoriteServices, service];
     emit(
       state.copyWith(
-        draft: favorites,
-        activeFavorites: favorites,
         favoriteServices: services,
         canAddFavorite: services.length < maxFavorites,
-        isFavoritesLimitReached: favorites.length == maxFavorites,
+        isFavoritesLimitReached: services.length == maxFavorites,
       ),
     );
   }
 
-  void removeFavorite(String id) {
-    if (state.homeStatus != RequestStatus.success ||
-        state.homeData == null ||
-        state.draft == null) {
-      return;
-    }
-    final favorites = state.draft!.where((item) => item != id).toList();
-    final services = getServices(favorites);
+  void removeFavorite(DashboardService service) {
+    final services = state.favoriteServices
+        .where((favorite) => favorite != service)
+        .toList();
     emit(
       state.copyWith(
-        draft: favorites,
-        activeFavorites: favorites,
         favoriteServices: services,
         canAddFavorite: services.length < maxFavorites,
-        isFavoritesLimitReached: favorites.length == maxFavorites,
+        isFavoritesLimitReached: services.length == maxFavorites,
       ),
     );
   }
 
-  void confirmFavorites() {
-    if (state.homeStatus != RequestStatus.success || state.homeData == null) {
-      return;
-    }
-    final favorites = state.draft ?? state.homeData!.favorites;
-    final services = getServices(favorites);
+  void applyFavorites() {
     emit(
       state.copyWith(
-        homeData: state.homeData!.withFavorites(favorites),
-        draft: null,
-        activeFavorites: favorites,
+        homeData: state.homeData!.withFavorites(
+          state.favoriteServices.map((service) => service.id),
+        ),
+        isEditingFavorites: false,
+      ),
+    );
+  }
+
+  void cancelFavorites() {
+    final services = _servicesForIds(state.homeData!.favorites);
+    emit(
+      state.copyWith(
+        isEditingFavorites: false,
         favoriteServices: services,
         canAddFavorite: services.length < maxFavorites,
-        isFavoritesLimitReached: favorites.length == maxFavorites,
+        isFavoritesLimitReached: services.length == maxFavorites,
+      ),
+    );
+  }
+
+  void resetFavorites() {
+    emit(
+      state.copyWith(
+        homeData: state.homeData!.withFavorites([]),
+        isEditingFavorites: false,
+        favoriteServices: const [],
+        canAddFavorite: true,
+        isFavoritesLimitReached: false,
       ),
     );
   }
@@ -334,46 +287,11 @@ class HomeCubit extends Cubit<HomeState> {
     }
   }
 
-  void cancelFavorites() {
-    if (state.homeStatus != RequestStatus.success || state.homeData == null) {
-      return;
-    }
-    final favorites = state.homeData!.favorites;
-    final services = getServices(favorites);
-    emit(
-      state.copyWith(
-        draft: null,
-        activeFavorites: favorites,
-        favoriteServices: services,
-        canAddFavorite: services.length < maxFavorites,
-        isFavoritesLimitReached: favorites.length == maxFavorites,
-      ),
-    );
-  }
-
-  void resetFavorites() {
-    if (state.homeStatus != RequestStatus.success || state.homeData == null) {
-      return;
-    }
-    emit(
-      state.copyWith(
-        homeData: state.homeData!.withFavorites([]),
-        draft: null,
-        activeFavorites: const [],
-        favoriteServices: const [],
-        canAddFavorite: true,
-        isFavoritesLimitReached: false,
-      ),
-    );
-  }
-
-  List<DashboardService> getServices(List<String> ids) {
-    return [
-      for (final id in ids)
-        for (final service in DashboardService.values)
-          if (service.id == id) service,
-    ];
-  }
+  List<DashboardService> _servicesForIds(Iterable<String> ids) => [
+    for (final id in ids)
+      for (final service in DashboardService.values)
+        if (service.id == id) service,
+  ];
 
   static const _cardActions = [
     CardAction.reissue,
@@ -387,85 +305,15 @@ class HomeCubit extends Cubit<HomeState> {
     CardAction.giftBalance,
   ];
 
-  List<CardAction> getCardPinActions(BankCard? card) {
-    if (card == null) return const [];
-    return [
-      CardAction.changeFirstPin,
-      card.canSetSecondPin
-          ? CardAction.setSecondPin
-          : CardAction.forgotSecondPin,
-      CardAction.forgotFirstPin,
-    ];
-  }
+  List<CardAction> _pinActions(BankCard card) => [
+    CardAction.changeFirstPin,
+    card.canSetSecondPin ? CardAction.setSecondPin : CardAction.forgotSecondPin,
+    CardAction.forgotFirstPin,
+  ];
 
-  CardActionRequest? requestCardAction(CardAction action) {
-    if (isClosed ||
-        state.cardsStatus != RequestStatus.success ||
-        state.selectedCard == null ||
-        !(state.cardActions.contains(action) ||
-            state.pinActions.contains(action) ||
-            state.cardQuickActions.contains(action))) {
-      return null;
-    }
-    final request = CardActionRequest(
-      action: action,
-      card: state.selectedCard!,
-    );
-    emit(
-      state.copyWith(
-        effect: HomeCardActionRequested(request),
-        effectId: state.effectId + 1,
-      ),
-    );
-    return request;
-  }
-
-  void requestCardMore(String cardId) {
-    if (isClosed || state.cardsStatus != RequestStatus.success) return;
-    final card = state.visibleCards
-        .where((card) => card.id == cardId)
-        .firstOrNull;
-    if (card == null) return;
-    emit(
-      state.copyWith(
-        effect: HomeCardMoreRequested(card),
-        effectId: state.effectId + 1,
-      ),
-    );
-  }
-
-  void copyCardNumber(String cardId) {
-    if (isClosed || state.cardsStatus != RequestStatus.success) return;
-    final card = state.visibleCards
-        .where((card) => card.id == cardId)
-        .firstOrNull;
-    if (card == null) return;
-    emit(
-      state.copyWith(
-        effect: HomeCardNumberCopyRequested(card.number),
-        effectId: state.effectId + 1,
-      ),
-    );
-  }
-
-  void copyCardIban(String cardId) {
-    if (isClosed || state.cardsStatus != RequestStatus.success) return;
-    final card = state.visibleCards
-        .where((card) => card.id == cardId)
-        .firstOrNull;
-    if (card == null) return;
-    emit(
-      state.copyWith(
-        effect: HomeCardIbanCopyRequested(card.iban),
-        effectId: state.effectId + 1,
-      ),
-    );
-  }
-
-  Future<void> loadCards() async {
-    if (isClosed) return;
-    final token = ++_cardsRequest;
-    final previous = state;
+  Future<void> fetchCards() {
+    final previous = state.selectedCard;
+    final visibility = state.cardVisibility;
     emit(
       state.copyWith(
         cardsStatus: RequestStatus.loading,
@@ -476,88 +324,86 @@ class HomeCubit extends Cubit<HomeState> {
         cardActions: const [],
         pinActions: const [],
         cardQuickActions: const [],
-        effect: null,
       ),
     );
-    final result = await _loadCards();
-    if (isClosed || token != _cardsRequest) return;
-    switch (result) {
-      case Err(:final failure):
-        emit(
-          state.copyWith(
-            cardsStatus: RequestStatus.failure,
-            cardsFailure: failure,
-            visibleCards: const [],
-            selectedCardIndex: 0,
-            selectedCard: null,
-          ),
-        );
-      case Success(:final data):
-        final id = data.any((item) => item.id == previous.selectedCardId)
-            ? previous.selectedCardId
-            : data.firstOrNull?.id;
-        final index = data.indexWhere((item) => item.id == id);
-        emit(
-          state.copyWith(
-            cardsStatus: RequestStatus.success,
-            cards: data.isEmpty ? null : data,
-            selectedCardId: id,
-            visibleCards: data,
-            selectedCardIndex: index < 0 ? 0 : index,
-            selectedCard: index < 0 ? null : data[index],
-            cardActions: index < 0 ? const [] : _cardActions,
-            pinActions: getCardPinActions(index < 0 ? null : data[index]),
-            cardQuickActions: index < 0 ? const [] : _quickActions,
-            cardVisibility: {
-              for (final item in data)
-                item.id: previous.cardVisibility[item.id] ?? data.length == 1,
-            },
-          ),
-        );
-    }
+    return _loadCards().then((result) {
+      switch (result) {
+        case Err(:final failure):
+          emit(
+            state.copyWith(
+              cardsStatus: RequestStatus.failure,
+              cardsFailure: failure,
+            ),
+          );
+        case Success(:final data):
+          final selected =
+              data.where((item) => item.id == previous?.id).firstOrNull ??
+              data.firstOrNull;
+          emit(
+            state.copyWith(
+              cardsStatus: RequestStatus.success,
+              visibleCards: data,
+              selectedCard: selected,
+              selectedCardIndex: selected == null ? 0 : data.indexOf(selected),
+              cardActions: selected == null ? const [] : _cardActions,
+              pinActions: selected == null ? const [] : _pinActions(selected),
+              cardQuickActions: selected == null ? const [] : _quickActions,
+              cardVisibility: {
+                for (final card in data)
+                  card.id: visibility[card.id] ?? data.length == 1,
+              },
+            ),
+          );
+      }
+    });
   }
 
-  void selectCard(int index) {
-    final items = state.cards;
-    if (state.cardsStatus != RequestStatus.success ||
-        items == null ||
-        index < 0 ||
-        index >= items.length) {
-      return;
-    }
-    final selectedIndex = items.indexWhere(
-      (item) => item.id == items[index].id,
-    );
-    if (state.selectedCardId == items[selectedIndex].id &&
-        state.selectedCardIndex == selectedIndex) {
-      return;
-    }
+  void selectCard(BankCard card) {
     emit(
       state.copyWith(
-        selectedCardId: items[index].id,
-        selectedCardIndex: selectedIndex,
-        selectedCard: items[selectedIndex],
+        selectedCard: card,
+        selectedCardIndex: state.visibleCards.indexOf(card),
         cardActions: _cardActions,
-        pinActions: getCardPinActions(items[selectedIndex]),
+        pinActions: _pinActions(card),
         cardQuickActions: _quickActions,
-        effect: HomeCardSelectionChanged(items[selectedIndex]),
+      ),
+    );
+  }
+
+  void requestCardAction(CardAction action) {
+    final request = CardActionRequest(
+      action: action,
+      card: state.selectedCard!,
+    );
+    emit(
+      state.copyWith(
+        effect: HomeCardActionRequested(request),
         effectId: state.effectId + 1,
       ),
     );
   }
 
-  void setCardVisibility(String id, bool value) {
-    if (state.cardsStatus != RequestStatus.success ||
-        !(state.cards?.any((item) => item.id == id) ?? false)) {
-      return;
-    }
-    emit(state.copyWith(cardVisibility: {...state.cardVisibility, id: value}));
+  void requestCardNumberCopy(BankCard card) {
+    emit(
+      state.copyWith(
+        effect: HomeCardNumberCopyRequested(card.number),
+        effectId: state.effectId + 1,
+      ),
+    );
   }
 
-  Future<void> loadDeposits() async {
-    if (isClosed) return;
-    final token = ++_depositsRequest;
-    final previous = state;
+  void requestCardIbanCopy(BankCard card) {
+    emit(
+      state.copyWith(
+        effect: HomeCardIbanCopyRequested(card.iban),
+        effectId: state.effectId + 1,
+      ),
+    );
+  }
+
+  Future<void> fetchDeposits() {
+    final previous = state.selectedDeposit;
+
     emit(
       state.copyWith(
         depositsStatus: RequestStatus.loading,
@@ -570,80 +416,90 @@ class HomeCubit extends Cubit<HomeState> {
         depositChequeActions: const [],
       ),
     );
-    final result = await _loadDeposits();
-    if (isClosed || token != _depositsRequest) return;
-    switch (result) {
-      case Err(:final failure):
-        emit(
-          state.copyWith(
-            depositsStatus: RequestStatus.failure,
-            depositsFailure: failure,
-            visibleDeposits: const [],
-            selectedDepositIndex: 0,
-            selectedDeposit: null,
-            depositActions: const [],
-            depositQuickActions: const [],
-            depositChequeActions: const [],
-          ),
-        );
-      case Success(:final data):
-        final id = data.any((item) => item.id == previous.selectedDepositId)
-            ? previous.selectedDepositId
-            : data.firstOrNull?.id;
-        final index = data.indexWhere((item) => item.id == id);
-        emit(
-          state.copyWith(
-            depositsStatus: RequestStatus.success,
-            deposits: data.isEmpty ? null : data,
-            selectedDepositId: id,
-            visibleDeposits: data,
-            selectedDepositIndex: index < 0 ? 0 : index,
-            selectedDeposit: index < 0 ? null : data[index],
-            depositActions: index < 0 ? const [] : DepositAction.operations,
-            depositQuickActions: index < 0 ? const [] : DepositAction.quick,
-            depositChequeActions: index >= 0 && data[index].hasChequeOperations
-                ? DepositAction.cheques
-                : const [],
-          ),
-        );
-    }
+    return _loadDeposits().then((result) {
+      switch (result) {
+        case Err(:final failure):
+          emit(
+            state.copyWith(
+              depositsStatus: RequestStatus.failure,
+              depositsFailure: failure,
+            ),
+          );
+        case Success(:final data):
+          final selected =
+              data.where((item) => item.id == previous?.id).firstOrNull ??
+              data.firstOrNull;
+          emit(
+            state.copyWith(
+              depositsStatus: RequestStatus.success,
+              visibleDeposits: data,
+              selectedDeposit: selected,
+              selectedDepositIndex: selected == null
+                  ? 0
+                  : data.indexOf(selected),
+              depositActions: selected == null
+                  ? const []
+                  : DepositAction.operations,
+              depositQuickActions: selected == null
+                  ? const []
+                  : DepositAction.quick,
+              depositChequeActions: selected?.hasChequeOperations == true
+                  ? DepositAction.cheques
+                  : const [],
+            ),
+          );
+      }
+    });
   }
 
-  void selectDeposit(int index) {
-    final items = state.deposits;
-    if (state.depositsStatus != RequestStatus.success ||
-        items == null ||
-        index < 0 ||
-        index >= items.length) {
-      return;
-    }
-    final selectedIndex = items.indexWhere(
-      (item) => item.id == items[index].id,
-    );
-    if (state.selectedDepositId == items[selectedIndex].id &&
-        state.selectedDepositIndex == selectedIndex) {
-      return;
-    }
+  void selectDeposit(BankDeposit deposit) {
     emit(
       state.copyWith(
-        selectedDepositId: items[index].id,
-        selectedDepositIndex: selectedIndex,
-        selectedDeposit: items[selectedIndex],
+        selectedDeposit: deposit,
+        selectedDepositIndex: state.visibleDeposits.indexOf(deposit),
         depositActions: DepositAction.operations,
         depositQuickActions: DepositAction.quick,
-        depositChequeActions: items[selectedIndex].hasChequeOperations
+        depositChequeActions: deposit.hasChequeOperations
             ? DepositAction.cheques
             : const [],
-        effect: HomeDepositSelectionChanged(items[selectedIndex]),
+      ),
+    );
+  }
+
+  void requestDepositAction(DepositAction action) {
+    final request = DepositActionRequest(
+      action: action,
+      deposit: state.selectedDeposit!,
+    );
+    emit(
+      state.copyWith(
+        effect: HomeDepositActionRequested(request),
         effectId: state.effectId + 1,
       ),
     );
   }
 
-  Future<void> loadLoans() async {
-    if (isClosed) return;
-    final token = ++_loansRequest;
-    final previous = state;
+  void requestDepositNumberCopy(BankDeposit deposit) {
+    emit(
+      state.copyWith(
+        effect: HomeDepositNumberCopyRequested(deposit.number),
+        effectId: state.effectId + 1,
+      ),
+    );
+  }
+
+  void requestDepositIbanCopy(BankDeposit deposit) {
+    emit(
+      state.copyWith(
+        effect: HomeDepositIbanCopyRequested(deposit.iban),
+        effectId: state.effectId + 1,
+      ),
+    );
+  }
+
+  Future<void> fetchLoans() {
+    final previous = state.selectedLoan;
+
     emit(
       state.copyWith(
         loansStatus: RequestStatus.loading,
@@ -655,127 +511,45 @@ class HomeCubit extends Cubit<HomeState> {
         loanQuickActions: const [],
       ),
     );
-    final result = await _loadLoans();
-    if (isClosed || token != _loansRequest) return;
-    switch (result) {
-      case Err(:final failure):
-        emit(
-          state.copyWith(
-            loansStatus: RequestStatus.failure,
-            loansFailure: failure,
-            visibleLoans: const [],
-            selectedLoanIndex: 0,
-            selectedLoan: null,
-            loanActions: const [],
-            loanQuickActions: const [],
-          ),
-        );
-      case Success(:final data):
-        final id = data.any((item) => item.id == previous.selectedLoanId)
-            ? previous.selectedLoanId
-            : data.firstOrNull?.id;
-        final index = data.indexWhere((item) => item.id == id);
-        emit(
-          state.copyWith(
-            loansStatus: RequestStatus.success,
-            loans: data.isEmpty ? null : data,
-            selectedLoanId: id,
-            visibleLoans: data,
-            selectedLoanIndex: index < 0 ? 0 : index,
-            selectedLoan: index < 0 ? null : data[index],
-            loanActions: index < 0 ? const [] : LoanAction.operations,
-            loanQuickActions: index < 0 ? const [] : LoanAction.quick,
-          ),
-        );
-    }
+    return _loadLoans().then((result) {
+      switch (result) {
+        case Err(:final failure):
+          emit(
+            state.copyWith(
+              loansStatus: RequestStatus.failure,
+              loansFailure: failure,
+            ),
+          );
+        case Success(:final data):
+          final selected =
+              data.where((item) => item.id == previous?.id).firstOrNull ??
+              data.firstOrNull;
+          emit(
+            state.copyWith(
+              loansStatus: RequestStatus.success,
+              visibleLoans: data,
+              selectedLoan: selected,
+              selectedLoanIndex: selected == null ? 0 : data.indexOf(selected),
+              loanActions: selected == null ? const [] : LoanAction.operations,
+              loanQuickActions: selected == null ? const [] : LoanAction.quick,
+            ),
+          );
+      }
+    });
   }
 
-  void selectLoan(int index) {
-    final items = state.loans;
-    if (state.loansStatus != RequestStatus.success ||
-        items == null ||
-        index < 0 ||
-        index >= items.length) {
-      return;
-    }
-    final selectedIndex = items.indexWhere(
-      (item) => item.id == items[index].id,
-    );
-    if (state.selectedLoanId == items[selectedIndex].id &&
-        state.selectedLoanIndex == selectedIndex) {
-      return;
-    }
+  void selectLoan(BankLoan loan) {
     emit(
       state.copyWith(
-        selectedLoanId: items[index].id,
-        selectedLoanIndex: selectedIndex,
-        selectedLoan: items[selectedIndex],
+        selectedLoan: loan,
+        selectedLoanIndex: state.visibleLoans.indexOf(loan),
         loanActions: LoanAction.operations,
         loanQuickActions: LoanAction.quick,
-        effect: HomeLoanSelectionChanged(items[selectedIndex]),
-        effectId: state.effectId + 1,
       ),
     );
   }
 
-  DepositActionRequest? requestDepositAction(DepositAction action) {
-    if (isClosed ||
-        state.depositsStatus != RequestStatus.success ||
-        state.selectedDeposit == null ||
-        !(state.depositActions.contains(action) ||
-            state.depositQuickActions.contains(action) ||
-            state.depositChequeActions.contains(action))) {
-      return null;
-    }
-    final request = DepositActionRequest(
-      action: action,
-      deposit: state.selectedDeposit!,
-    );
-    emit(
-      state.copyWith(
-        effect: HomeDepositActionRequested(request),
-        effectId: state.effectId + 1,
-      ),
-    );
-    return request;
-  }
-
-  void copyDepositNumber(String id) {
-    if (isClosed || state.depositsStatus != RequestStatus.success) return;
-    final item = state.visibleDeposits
-        .where((item) => item.id == id)
-        .firstOrNull;
-    if (item == null) return;
-    emit(
-      state.copyWith(
-        effect: HomeDepositNumberCopyRequested(item.number),
-        effectId: state.effectId + 1,
-      ),
-    );
-  }
-
-  void copyDepositIban(String id) {
-    if (isClosed || state.depositsStatus != RequestStatus.success) return;
-    final item = state.visibleDeposits
-        .where((item) => item.id == id)
-        .firstOrNull;
-    if (item == null) return;
-    emit(
-      state.copyWith(
-        effect: HomeDepositIbanCopyRequested(item.iban),
-        effectId: state.effectId + 1,
-      ),
-    );
-  }
-
-  LoanActionRequest? requestLoanAction(LoanAction action) {
-    if (isClosed ||
-        state.loansStatus != RequestStatus.success ||
-        state.selectedLoan == null ||
-        !(state.loanActions.contains(action) ||
-            state.loanQuickActions.contains(action))) {
-      return null;
-    }
+  void requestLoanAction(LoanAction action) {
     final request = LoanActionRequest(
       action: action,
       loan: state.selectedLoan!,
@@ -786,25 +560,35 @@ class HomeCubit extends Cubit<HomeState> {
         effectId: state.effectId + 1,
       ),
     );
-    return request;
   }
 
-  void copyLoanNumber(String id) {
-    if (isClosed || state.loansStatus != RequestStatus.success) return;
-    final item = state.visibleLoans.where((item) => item.id == id).firstOrNull;
-    if (item == null) return;
+  void requestLoanNumberCopy(BankLoan loan) {
     emit(
       state.copyWith(
-        effect: HomeLoanNumberCopyRequested(item.number),
+        effect: HomeLoanNumberCopyRequested(loan.number),
         effectId: state.effectId + 1,
       ),
     );
   }
 
-  void requestLoanDetails(String id) {
-    if (isClosed || state.loansStatus != RequestStatus.success) return;
-    final loan = state.visibleLoans.where((loan) => loan.id == id).firstOrNull;
-    if (loan == null) return;
+  void updateCardVisibility(BankCard card, bool visible) {
+    emit(
+      state.copyWith(
+        cardVisibility: {...state.cardVisibility, card.id: visible},
+      ),
+    );
+  }
+
+  void requestCardMore(BankCard card) {
+    emit(
+      state.copyWith(
+        effect: HomeCardMoreRequested(card),
+        effectId: state.effectId + 1,
+      ),
+    );
+  }
+
+  void requestLoanDetails(BankLoan loan) {
     emit(
       state.copyWith(
         effect: HomeLoanDetailsRequested(loan),
@@ -813,12 +597,117 @@ class HomeCubit extends Cubit<HomeState> {
     );
   }
 
+  Timer? _typingTimer;
+  List<String> _phrases = const [];
+  int _phraseIndex = 0;
+  int _position = 0;
+  int _holdTicks = 0;
+  bool _erasing = false;
+
+  void updatePrompt(String value) {
+    emit(
+      state.copyWith(
+        prompt: value,
+        isInputPresent: value.isNotEmpty,
+        canSubmitPrompt: value.trim().isNotEmpty,
+        isHintTyping:
+            state.isMotionEnabled && !state.isInputFocused && value.isEmpty,
+      ),
+    );
+    _syncTypingTimer();
+  }
+
+  void submitPrompt() {
+    final prompt = state.prompt.trim();
+    emit(
+      state.copyWith(
+        submittedPrompt: prompt,
+        effect: HomePromptSubmitted(prompt),
+        effectId: state.effectId + 1,
+      ),
+    );
+  }
+
+  void updateHintPhrases(List<String> phrases) {
+    _phrases = List.unmodifiable(phrases);
+    _syncTypingTimer();
+  }
+
+  void updateForeground(bool foreground) {
+    final enabled = state.isMotionAllowed && foreground;
+    emit(
+      state.copyWith(
+        isForeground: foreground,
+        isMotionEnabled: enabled,
+        isHintTyping: enabled && !state.isInputFocused && !state.isInputPresent,
+      ),
+    );
+    _syncTypingTimer();
+  }
+
+  void updateMotion({
+    required bool enabled,
+    required bool animationsDisabled,
+    required bool tickerEnabled,
+    required bool hasFocus,
+  }) {
+    final allowed = enabled && !animationsDisabled && tickerEnabled;
+    final motion = allowed && state.isForeground;
+    emit(
+      state.copyWith(
+        isMotionAllowed: allowed,
+        isMotionEnabled: motion,
+        isInputFocused: hasFocus,
+        isHintTyping: motion && !hasFocus && !state.isInputPresent,
+      ),
+    );
+    _syncTypingTimer();
+  }
+
+  // Own only the timer resource here; each action publishes its own State.
+  void _syncTypingTimer() {
+    if (state.isHintTyping && _phrases.isNotEmpty) {
+      _typingTimer ??= Timer.periodic(
+        const Duration(milliseconds: 90),
+        (_) => _typeNextHint(),
+      );
+    } else {
+      _typingTimer?.cancel();
+      _typingTimer = null;
+    }
+  }
+
+  void _typeNextHint() {
+    if (_holdTicks > 0) {
+      _holdTicks--;
+    } else {
+      final phrase = _phrases[_phraseIndex];
+      final length = phrase.characters.length;
+      if (_erasing) {
+        _position--;
+        if (_position <= 0) {
+          _position = 0;
+          _erasing = false;
+          _phraseIndex = (_phraseIndex + 1) % _phrases.length;
+          _holdTicks = 5;
+        }
+      } else {
+        _position++;
+        if (_position >= length) {
+          _position = length;
+          _erasing = true;
+          _holdTicks = 24;
+        }
+      }
+      emit(
+        state.copyWith(typedHint: phrase.characters.take(_position).toString()),
+      );
+    }
+  }
+
   @override
   Future<void> close() {
-    _homeRequest++;
-    _cardsRequest++;
-    _depositsRequest++;
-    _loansRequest++;
+    _typingTimer?.cancel();
     return super.close();
   }
 }

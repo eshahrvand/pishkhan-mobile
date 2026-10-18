@@ -31,26 +31,30 @@ class _DashboardDepositsCarouselState extends State<DashboardDepositsCarousel> {
     super.dispose();
   }
 
+  void _syncSelectedPage(BuildContext context, HomeState state) {
+    if (state.depositsStatus == RequestStatus.loading) {
+      _controllerItems = null;
+    }
+    if (state.depositsStatus == RequestStatus.success &&
+        state.visibleDeposits.isNotEmpty &&
+        _controllerItems ==
+            state.visibleDeposits.map((item) => item.id).join('|')) {
+      if (_pages?.hasClients == true &&
+          !_pages!.position.isScrollingNotifier.value &&
+          ((_pages!.page ?? 0) - state.selectedDepositIndex).abs() > .01) {
+        _pages!.jumpToPage(state.selectedDepositIndex);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<HomeCubit, HomeState>(
       listenWhen: (previous, current) =>
           previous.depositsStatus != current.depositsStatus ||
           previous.selectedDepositIndex != current.selectedDepositIndex ||
-          previous.deposits != current.deposits,
-      listener: (context, state) {
-        if (state.depositsStatus == RequestStatus.loading) {
-          _controllerItems = null;
-        }
-        if (state.depositsStatus == RequestStatus.success &&
-            state.deposits != null) {
-          if (_pages?.hasClients == true &&
-              !_pages!.position.isScrollingNotifier.value &&
-              ((_pages!.page ?? 0) - state.selectedDepositIndex).abs() > .01) {
-            _pages!.jumpToPage(state.selectedDepositIndex);
-          }
-        }
-      },
+          previous.visibleDeposits != current.visibleDeposits,
+      listener: _syncSelectedPage,
       buildWhen: (previous, current) =>
           previous.visibleDeposits != current.visibleDeposits ||
           previous.selectedDepositIndex != current.selectedDepositIndex,
@@ -120,13 +124,16 @@ class _DashboardDepositsCarouselState extends State<DashboardDepositsCarousel> {
                               width: width,
                               isSingle: state.visibleDeposits.length == 1,
                               height: height,
-                              onCopyNumber: (_) =>
-                                  context.read<HomeCubit>().copyDepositNumber(
-                                    state.visibleDeposits[0].id,
+                              onCopyNumber: (_) => context
+                                  .read<HomeCubit>()
+                                  .requestDepositNumberCopy(
+                                    state.visibleDeposits[0],
                                   ),
                               onCopyIban: (_) => context
                                   .read<HomeCubit>()
-                                  .copyDepositIban(state.visibleDeposits[0].id),
+                                  .requestDepositIbanCopy(
+                                    state.visibleDeposits[0],
+                                  ),
                             ),
                           )
                         : PageView.builder(
@@ -134,7 +141,9 @@ class _DashboardDepositsCarouselState extends State<DashboardDepositsCarousel> {
                             itemCount: state.visibleDeposits.length,
                             onPageChanged: (index) {
                               if (_syncingPages) return;
-                              context.read<HomeCubit>().selectDeposit(index);
+                              context.read<HomeCubit>().selectDeposit(
+                                state.visibleDeposits[index],
+                              );
                             },
                             itemBuilder: (context, index) => Center(
                               child: DashboardDepositTile(
@@ -142,13 +151,15 @@ class _DashboardDepositsCarouselState extends State<DashboardDepositsCarousel> {
                                 width: width,
                                 isSingle: state.visibleDeposits.length == 1,
                                 height: height,
-                                onCopyNumber: (_) =>
-                                    context.read<HomeCubit>().copyDepositNumber(
-                                      state.visibleDeposits[index].id,
+                                onCopyNumber: (_) => context
+                                    .read<HomeCubit>()
+                                    .requestDepositNumberCopy(
+                                      state.visibleDeposits[index],
                                     ),
-                                onCopyIban: (_) =>
-                                    context.read<HomeCubit>().copyDepositIban(
-                                      state.visibleDeposits[index].id,
+                                onCopyIban: (_) => context
+                                    .read<HomeCubit>()
+                                    .requestDepositIbanCopy(
+                                      state.visibleDeposits[index],
                                     ),
                               ),
                             ),

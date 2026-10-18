@@ -11,7 +11,7 @@ export 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/a
 export 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_bank_services.dart';
 export 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_services_sheet.dart';
 export 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_category_heading.dart';
-export 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_reso_banner_panel.dart';
+export 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_reso_banner.dart';
 export 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 export 'package:pishkhan_mobile/generated/l10n.dart';
 export 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_service_option.dart';

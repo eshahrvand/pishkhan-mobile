@@ -1,3 +1,5 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pishkhan_mobile/features/dashboard/presentation/home/cubit/home_cubit.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
 
 import '../../../../support/home_tab_test_scope.dart';
@@ -17,7 +19,6 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/home/screens/dashboard_screen.dart';
-import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_reso_banner.dart';
 
 const _preview = Key('dashboard_preview');
 const _six = [
@@ -180,7 +181,10 @@ void main() {
     'typing hint and moving glow preserve user input and respect reduced motion',
     (tester) async {
       Widget subject({bool reduce = false}) => app(
-        const Scaffold(body: DashboardResoBanner()),
+        BlocProvider(
+          create: (_) => HomeCubit(),
+          child: const Scaffold(body: DashboardResoBanner()),
+        ),
         reduceMotion: reduce,
       );
       await tester.pumpWidget(subject());
@@ -214,12 +218,15 @@ void main() {
       const preview = Key('reso_motion_preview');
       await tester.pumpWidget(
         app(
-          const Scaffold(
-            body: Align(
-              alignment: Alignment.topLeft,
-              child: RepaintBoundary(
-                key: preview,
-                child: SizedBox(width: 343, child: DashboardResoBanner()),
+          BlocProvider(
+            create: (_) => HomeCubit(),
+            child: const Scaffold(
+              body: Align(
+                alignment: Alignment.topLeft,
+                child: RepaintBoundary(
+                  key: preview,
+                  child: SizedBox(width: 343, child: DashboardResoBanner()),
+                ),
               ),
             ),
           ),
@@ -290,7 +297,7 @@ void main() {
           final bannerRect = tester.getRect(
             find
                 .descendant(
-                  of: find.byType(DashboardResoBannerPanel),
+                  of: find.byType(DashboardResoBanner),
                   matching: find.byWidgetPredicate(
                     (widget) => widget is SizedBox && widget.height != null,
                   ),

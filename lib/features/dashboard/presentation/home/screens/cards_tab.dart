@@ -60,7 +60,7 @@ class CardsTab extends StatelessWidget {
                               else if (state.cardsStatus ==
                                   RequestStatus.failure)
                                 DashboardAsyncView(
-                                  onRetry: context.read<HomeCubit>().loadCards,
+                                  onRetry: context.read<HomeCubit>().fetchCards,
                                 )
                               else if (state.visibleCards.isEmpty)
                                 Padding(
