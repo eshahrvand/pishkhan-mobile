@@ -20,14 +20,9 @@ class CardFeaturesContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<CardFeaturesCubit, CardFeaturesState>(
-      buildWhen: (previous, current) =>
-          previous.status != current.status ||
-          previous.cards != current.cards ||
-          previous.visibleCards != current.visibleCards ||
-          previous.category != current.category,
       builder: (context, state) {
-        if (state.status == RequestStatus.loading ||
-            state.status == RequestStatus.initial) {
+        if (state.cardsStatus == RequestStatus.loading ||
+            state.cardsStatus == RequestStatus.initial) {
           return Center(
             child: AppButton(
               onPressed: null,
@@ -36,7 +31,7 @@ class CardFeaturesContent extends StatelessWidget {
             ),
           );
         }
-        if (state.status == RequestStatus.failure) {
+        if (state.cardsStatus == RequestStatus.failure) {
           return Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -53,7 +48,7 @@ class CardFeaturesContent extends StatelessWidget {
         if (state.visibleCards.isEmpty) {
           return Center(
             child: Text(
-              state.cards?.isEmpty == true
+              state.cards.isEmpty
                   ? S.current.cardsEmpty
                   : S.current.cardFeatureNoResults,
             ),

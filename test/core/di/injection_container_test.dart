@@ -98,7 +98,7 @@ void main() {
   test(
     'constructors preserve supplied snapshots until explicit initialization',
     () async {
-      const cardsSeed = CardFeaturesState.initial(query: '123');
+      const cardsSeed = CardFeaturesState.initial(searchQuery: '123');
       final cards =
           withRegisteredDependency<CardsRepository, CardFeaturesCubit>(
             container<CardsRepository>(),

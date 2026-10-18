@@ -1,19 +1,18 @@
 part of 'card_features_cubit.dart';
 
-@freezed
+@Freezed(toStringOverride: false)
 abstract class CardFeaturesState with _$CardFeaturesState {
   const factory CardFeaturesState.initial({
     ListedCard? selectedCard,
     @Default(<ListedCard>[]) List<ListedCard> visibleCards,
-    @Default(<String>[]) List<String> deposits,
-    @Default(RequestStatus.initial) RequestStatus status,
-    List<ListedCard>? cards,
+    @Default(<String>[]) List<String> depositNumbers,
+    @Default(RequestStatus.initial) RequestStatus cardsStatus,
+    @Default(<ListedCard>[]) List<ListedCard> cards,
     @Default(CardCategory.resalat) CardCategory category,
-    @Default('') String query,
+    @Default('') String searchQuery,
     @Default(CardFilter()) CardFilter filter,
     CardFilter? draftFilter,
-    String? selectedId,
-    Failure? failure,
+    Failure? cardsFailure,
     CardFeatureAction? footerAction,
     CardFeaturesEffect? effect,
     @Default(0) int effectId,

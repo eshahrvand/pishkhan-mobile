@@ -12,21 +12,24 @@ void main() {
       await cubit.fetchCards();
       cubit.requestFilter();
       expect(cubit.state.effect, isA<CardFilterRequested>());
-      cubit.updateDraftCardStatus('blocked');
-      cubit.updateDraftDepositNumber(cubit.state.deposits.first);
+      cubit.selectDraftCardStatus('blocked');
+      cubit.selectDraftDepositNumber(cubit.state.depositNumbers.first);
       expect(cubit.state.draftFilter!.status!.name, 'blocked');
-      expect(cubit.state.draftFilter!.deposit, cubit.state.deposits.first);
-      cubit.handleFilterSheetResult(null);
+      expect(
+        cubit.state.draftFilter!.deposit,
+        cubit.state.depositNumbers.first,
+      );
+      cubit.applyFilterSheetResult(null);
       expect(cubit.state.draftFilter, isNull);
       expect(cubit.state.filter.isActive, isFalse);
       cubit.requestFilter();
-      cubit.updateDraftCardStatus('active');
-      cubit.updateDraftDepositNumber(cubit.state.deposits.first);
-      cubit.handleFilterSheetResult(true);
+      cubit.selectDraftCardStatus('active');
+      cubit.selectDraftDepositNumber(cubit.state.depositNumbers.first);
+      cubit.applyFilterSheetResult(true);
       expect(cubit.state.filter.status!.name, 'active');
-      expect(cubit.state.filter.deposit, cubit.state.deposits.first);
+      expect(cubit.state.filter.deposit, cubit.state.depositNumbers.first);
       expect(cubit.state.draftFilter, isNull);
-      cubit.handleFilterSheetResult(null);
+      cubit.applyFilterSheetResult(null);
       expect(cubit.state.filter.isActive, isTrue);
       await cubit.close();
     },

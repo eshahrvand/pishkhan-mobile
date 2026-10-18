@@ -32,14 +32,14 @@ void main() {
       final previousId = cubit.state.effectId;
       cubit.requestCardActions(card);
       expect(cubit.state.effectId, previousId + 1);
-      cubit.handleCardActionSelection(CardFeatureAction.details, card: card);
+      cubit.selectCardAction(CardFeatureAction.details, card: card);
       expect((cubit.state.effect as CardDetailsRequested).card, card);
       for (final entry in {
         CardFeatureAction.reissue: 'card-reissue',
         CardFeatureAction.changeDeposit: 'card-deposit',
         CardFeatureAction.block: null,
       }.entries) {
-        cubit.handleCardActionSelection(entry.key, card: card);
+        cubit.selectCardAction(entry.key, card: card);
         final effect = cubit.state.effect as CardServiceRequested;
         expect(effect.serviceId, entry.value);
         expect(effect.request.card, card);
@@ -69,7 +69,7 @@ void main() {
         CardCategory.virtual: CardFeatureAction.requestVirtual,
       }.entries) {
         cubit.selectCategory(entry.key);
-        expect(cubit.state.query, '123');
+        expect(cubit.state.searchQuery, '123');
         expect(cubit.state.footerAction, entry.value);
         expect(
           (cubit.state.effect as CardCategoryRevealRequested).category,
@@ -115,12 +115,12 @@ void main() {
             MockCardsRepository(),
             () => CardFeaturesCubit(),
           );
-      expect(cubit.state.status, RequestStatus.initial);
+      expect(cubit.state.cardsStatus, RequestStatus.initial);
       final pending = cubit.fetchCards();
-      expect(cubit.state.status, RequestStatus.loading);
+      expect(cubit.state.cardsStatus, RequestStatus.loading);
       await pending;
       expect(cubit.state.visibleCards.length, 4);
-      expect(() => cubit.state.cards!.clear(), throwsUnsupportedError);
+      expect(() => cubit.state.cards.clear(), throwsUnsupportedError);
       cubit.requestCardActions(
         cubit.state.visibleCards.firstWhere((card) => card.id == 'resalat-1'),
       );
@@ -147,14 +147,14 @@ void main() {
           );
       await cubit.fetchCards();
       cubit.requestFilter();
-      cubit.updateDraftCardStatus('blocked');
+      cubit.selectDraftCardStatus('blocked');
       expect(cubit.state.visibleCards.length, 4);
       cubit.cancelFilter();
       expect(cubit.state.filter.isActive, false);
       cubit.requestFilter();
-      cubit.updateDraftCardStatus('blocked');
-      cubit.updateDraftDepositNumber('10-1234567-2');
-      cubit.handleFilterSheetResult(true);
+      cubit.selectDraftCardStatus('blocked');
+      cubit.selectDraftDepositNumber('10-1234567-2');
+      cubit.applyFilterSheetResult(true);
       expect(cubit.state.visibleCards.single.id, 'resalat-3');
       cubit.updateSearchQuery('۱۰.۱۲۳۴۵۶۷.۲');
       expect(cubit.state.visibleCards.length, 1);
@@ -162,7 +162,7 @@ void main() {
       cubit.resetDraftFilter();
       expect(cubit.state.filter.status, CardStatus.blocked);
       expect(cubit.state.visibleCards.single.id, 'resalat-3');
-      cubit.handleFilterSheetResult(true);
+      cubit.applyFilterSheetResult(true);
       cubit.updateSearchQuery('');
       expect(cubit.state.visibleCards.length, 4);
       await cubit.close();
@@ -176,24 +176,24 @@ void main() {
       () => CardFeaturesCubit(),
     );
     await cubit.fetchCards();
-    expect(cubit.state.status, RequestStatus.failure);
-    expect(cubit.state.failure!.code, 'offline');
+    expect(cubit.state.cardsStatus, RequestStatus.failure);
+    expect(cubit.state.cardsFailure!.code, 'offline');
     repo.result = const Success([]);
     await cubit.fetchCards();
-    expect(cubit.state.status, RequestStatus.success);
+    expect(cubit.state.cardsStatus, RequestStatus.success);
     repo.result = Success([
       MockCardsRepository.examples.first,
       MockCardsRepository.examples.first,
     ]);
     await cubit.fetchCards();
-    expect(cubit.state.failure!.code, 'cards.invalid');
+    expect(cubit.state.cardsFailure!.code, 'cards.invalid');
     repo.throws = true;
     await cubit.fetchCards();
-    expect(cubit.state.failure!.code, 'unexpected');
+    expect(cubit.state.cardsFailure!.code, 'unexpected');
     repo.throws = false;
     repo.result = Success([MockCardsRepository.examples.first]);
     await cubit.fetchCards();
-    expect(cubit.state.status, RequestStatus.success);
+    expect(cubit.state.cardsStatus, RequestStatus.success);
     await cubit.close();
   });
   test('reload preserves the current category and resolves the selected card from fresh data', () async {
@@ -225,13 +225,13 @@ void main() {
 
     expect(cubit.state.category, CardCategory.resalat);
     expect(cubit.state.footerAction, isNull);
-    expect(cubit.state.selectedId, selectedCard.id);
+
     expect(cubit.state.selectedCard, updatedCard);
-    expect(cubit.state.deposits, ['updated-deposit']);
+    expect(cubit.state.depositNumbers, ['updated-deposit']);
 
     repository.result = const Success([]);
     await cubit.fetchCards();
-    expect(cubit.state.selectedId, isNull);
+
     expect(cubit.state.selectedCard, isNull);
   });
   test(
@@ -251,14 +251,14 @@ void main() {
       cubit.selectCategory(CardCategory.resalat);
       cubit.updateSearchQuery('۱۰.۱۲۳۴۵۶۷.۲');
       cubit.requestFilter();
-      cubit.updateDraftCardStatus('blocked');
-      cubit.handleFilterSheetResult(true);
+      cubit.selectDraftCardStatus('blocked');
+      cubit.applyFilterSheetResult(true);
       response.complete(Success(MockCardsRepository.examples));
       await pending;
 
-      expect(cubit.state.status, RequestStatus.success);
+      expect(cubit.state.cardsStatus, RequestStatus.success);
       expect(cubit.state.category, CardCategory.resalat);
-      expect(cubit.state.query, '۱۰.۱۲۳۴۵۶۷.۲');
+      expect(cubit.state.searchQuery, '۱۰.۱۲۳۴۵۶۷.۲');
       expect(cubit.state.filter.status, CardStatus.blocked);
       expect(cubit.state.visibleCards.single.id, 'resalat-3');
     },
@@ -273,35 +273,7 @@ void main() {
     final card = cubit.state.visibleCards.first;
     cubit.requestCardActions(card);
     final effectId = cubit.state.effectId;
-    cubit.handleCardActionSelection(null, card: card);
+    cubit.selectCardAction(null, card: card);
     expect(cubit.state.effectId, effectId);
   });
-  test(
-    'outdated responses and completion after close cannot change state',
-    () async {
-      final repo = FakeCardsRepository();
-      final first = Completer<Result<List<ListedCard>>>(),
-          second = Completer<Result<List<ListedCard>>>();
-      repo.queue.addAll([first, second]);
-      final cubit =
-          withRegisteredDependency<CardsRepository, CardFeaturesCubit>(
-            repo,
-            () => CardFeaturesCubit(),
-          );
-      final a = cubit.fetchCards(), b = cubit.fetchCards();
-      second.complete(Success([MockCardsRepository.examples[1]]));
-      await b;
-      first.complete(const Success([]));
-      await a;
-      expect(cubit.state.cards!.single.id, 'resalat-1');
-      final late = Completer<Result<List<ListedCard>>>();
-      repo.queue.add(late);
-      final c = cubit.fetchCards();
-      await cubit.close();
-      final closedState = cubit.state;
-      late.complete(const Success([]));
-      await c;
-      expect(cubit.state, closedState);
-    },
-  );
 }

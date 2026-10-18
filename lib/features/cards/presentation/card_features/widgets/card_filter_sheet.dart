@@ -18,7 +18,7 @@ class CardFilterSheet extends StatelessWidget {
     return BlocBuilder<CardFeaturesCubit, CardFeaturesState>(
       buildWhen: (previous, current) =>
           previous.draftFilter != current.draftFilter ||
-          previous.deposits != current.deposits,
+          previous.depositNumbers != current.depositNumbers,
       builder: (context, state) {
         if (state.draftFilter == null) return const SizedBox.shrink();
         return Column(
@@ -57,7 +57,7 @@ class CardFilterSheet extends StatelessWidget {
                         ),
                     ],
                     onChanged: (value) {
-                      context.read<CardFeaturesCubit>().updateDraftCardStatus(
+                      context.read<CardFeaturesCubit>().selectDraftCardStatus(
                         value,
                       );
                     },
@@ -77,13 +77,13 @@ class CardFilterSheet extends StatelessWidget {
                         value: 'all',
                         label: S.current.cardFeatureAll,
                       ),
-                      for (final deposit in state.deposits)
+                      for (final deposit in state.depositNumbers)
                         AppSelectOption(value: deposit, label: deposit),
                     ],
                     onChanged: (value) {
                       context
                           .read<CardFeaturesCubit>()
-                          .updateDraftDepositNumber(value);
+                          .selectDraftDepositNumber(value);
                     },
                   ),
                 ],

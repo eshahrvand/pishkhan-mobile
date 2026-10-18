@@ -24,9 +24,12 @@ import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pishkhan_mobile/features/cards/cards.dart';
 import 'package:pishkhan_mobile/features/cards/data/repositories/mock_cards_repository.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/card_features/cubit/card_features_cubit.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/card_features/widgets/card_features_filters.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_cards_list.dart';
 
 const boundary = Key('cards_flow_preview');
@@ -153,9 +156,7 @@ void main() {
       CardFeatureRequest? request;
       await mount(
         tester,
-        subject(
-          CardListScreen(onActionRequested: (value) => request = value),
-        ),
+        subject(CardListScreen(onActionRequested: (value) => request = value)),
       );
       final more = find
           .descendant(
@@ -193,6 +194,71 @@ void main() {
     },
   );
   testWidgets(
+    'initial trailing category is selected and visible after layout',
+    (tester) async {
+      await mount(
+        tester,
+        subject(const CardListScreen(initialCategory: CardCategory.family)),
+      );
+      final chip = cardControl(tester, 'card_category_family');
+      expect(tester.widget<AppChips>(chip).selected, isTrue);
+      final viewport = tester.getRect(
+        cardControl(tester, 'card_features_categories'),
+      );
+      final selectedRect = tester.getRect(chip);
+      expect(selectedRect.left, greaterThanOrEqualTo(viewport.left));
+      expect(selectedRect.right, lessThanOrEqualTo(viewport.right));
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
+
+  testWidgets('ordinary rebuild retains Cubit, selected category and search', (
+    tester,
+  ) async {
+    await mount(tester, subject(const CardListScreen()));
+    final cubit = tester
+        .element(find.byType(CardFeaturesFilters))
+        .read<CardFeaturesCubit>();
+    await tester.enterText(find.byType(TextField), '۱۰.۱۲۳۴۵۶۷.۲');
+    await tap(tester, cardControl(tester, 'card_category_gift'));
+    await tester.pumpWidget(subject(CardListScreen(onActionRequested: (_) {})));
+    await tester.pumpAndSettle();
+    expect(
+      tester
+          .element(find.byType(CardFeaturesFilters))
+          .read<CardFeaturesCubit>(),
+      same(cubit),
+    );
+    expect(cubit.state.category, CardCategory.gift);
+    expect(cubit.state.searchQuery, '۱۰.۱۲۳۴۵۶۷.۲');
+    expect(
+      tester.widget<TextField>(find.byType(TextField)).controller!.text,
+      '۱۰.۱۲۳۴۵۶۷.۲',
+    );
+    expect(find.byType(AppCardsList), findsOneWidget);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('outside dismissal discards the draft without filtering cards', (
+    tester,
+  ) async {
+    await mount(tester, subject(const CardListScreen()));
+    await tap(tester, cardControl(tester, 'card_features_filter_button'));
+    await tap(tester, cardControl(tester, 'card_features_status_select'));
+    await tap(tester, find.text('مسدود').last);
+    await tester.tapAt(const Offset(12, 100));
+    await tester.pumpAndSettle();
+    final cubit = tester
+        .element(find.byType(CardFeaturesFilters))
+        .read<CardFeaturesCubit>();
+    expect(cubit.state.draftFilter, isNull);
+    expect(cubit.state.filter.isActive, isFalse);
+    expect(find.byType(AppCardsList), findsNWidgets(4));
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets(
     'filter edits commit only on Apply; remove filter and system back work',
     (tester) async {
       await mount(tester, subject(const CardListScreen()));
@@ -226,9 +292,7 @@ void main() {
       CardFeatureRequest? request;
       await mount(
         tester,
-        subject(
-          CardListScreen(onActionRequested: (value) => request = value),
-        ),
+        subject(CardListScreen(onActionRequested: (value) => request = value)),
       );
       await tester.enterText(find.byType(TextField), '۱۰.۱۲۳۴۵۶۷.۲');
       await tester.pumpAndSettle();
