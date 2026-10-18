@@ -1,8 +1,8 @@
 # UI, Cubit and State Coding Contract for the Team and Agents
 
 **Project:** Smart Virtual Counter — `pishkhan_mobile`  
-**Version:** 1.8 — UI-owned interaction gating; no duplicate Cubit entry guards<br>
-**Date:** 2026-10-17<br>
+**Version:** 1.9 — Owner simplicity amendment: no `isClosed`, no BaseCubit, validate once, no default re-emit, naming rules<br>
+**Date:** 2026-10-18<br>
 **Scope:** Presentation coding style, State management and readability rules  
 **Status:** This revision changes documentation only. Earlier reviews and code examples may describe historical implementations; they do not override the mandatory ownership rules below.
 
@@ -31,12 +31,69 @@ directly to specific actions. Do not move the same redundant check into a helper
 listener or generic wrapper. This supersedes the earlier requirement for defensive
 Cubit submission/edit guards throughout this document and architecture Section 12.
 
-Actual behavior remains explicit: form validation, choosing a step/action,
-Apply versus Cancel, optional entry-data resolution, and incomplete request
-construction are calculations/flow decisions. Async disposal and stale-response
-checks remain at completion, and server authorization/idempotency remains at
-its existing boundary. A modal may directly bind its Confirm button to a Cubit
+Actual behavior remains explicit: form validation, choosing a step/action, Apply versus Cancel and optional entry-data resolution are calculations/flow decisions. Server authorization/idempotency remains at its existing boundary. There is no async disposal check of any kind (owner decision 2026-10-18; Section 8.3). A modal may directly bind its Confirm button to a Cubit
 action; Cancel and dismissal simply close it without invoking that action.
+
+## Mandatory Owner Amendment, 2026-10-18: Minimal Cubit Rules (override every example below)
+
+The owner found that agents produce Cubits full of defensive guards, repeated
+validation, default-State re-emits and speculative methods. The rules below
+**override any example, snippet or older sentence in this document or in the
+architecture document that appears to say otherwise.** They apply to code
+introduced or modified by an authorized task; they do not authorize an
+unsolicited rewrite of untouched code.
+
+1. **No `isClosed`, anywhere.** Not in synchronous actions, not at the start of
+   an async method, not in `.then`, Timer or stream callbacks, not in UI
+   `finally` blocks. No `BaseCubit`, `safeEmit` or overridden `emit` (Section 8.3).
+2. **No defensive guards in actions.** An action contains no `if (...) return;`
+   on: a null/empty argument, a nullable State field that the UI flow guarantees
+   (read it with `!`), `canSubmit`/`canContinue`,
+   loading/success status, option membership, or an already-validated field.
+   The only permitted early return is a real request-ID check (rule 11).
+3. **Arguments from a rendered control are non-null.** Pass the rendered object
+   (the card, the deposit) or a non-null value. Do not pass a bare/nullable ID
+   that the Cubit must find again and then null-check.
+4. **Validate once.** `updateX` runs **only X's own validator**, once, and stores
+   `isXValid` and `isXError` together with the new value. An aggregate flag
+   (`canRequestOtp`, `canSubmitLogin`) combines the current field's fresh result
+   with the **stored** `isYValid` flags of the other fields. Never re-run another
+   field's validator, never re-validate in `submit`, and use cases do not repeat
+   checks the form already performed (Sections 6.2, 6.4).
+5. **Emit only what the action changes.** Do not set a field to its default or
+   its current value (`failure: null`, `status: initial`, `canSubmit: false`)
+   unless this action is the one that must clear it.
+6. **No initial action without a real fetch.** If a feature has nothing to fetch
+   or resolve, the Provider is just `create: (_) => XCubit()`. An initial action
+   never re-emits the default State.
+7. **No dead code.** Every Cubit method and every State field has a caller/reader
+   in the same change or an identifiable service contract (Section 5.5). Do not
+   add "just in case" methods, pass-through helpers or duplicate State
+   (`selectedId` **and** `selectedCard`).
+8. **Buttons use `isLoading:`; `onPressed` checks one flag.** Pass the operation
+   status to the button's loading parameter
+   (`isLoading: state.xStatus == RequestStatus.loading`); the button ignores taps
+   while loading. Write `onPressed: state.canX ? ... : null`. Do not add
+   `!= loading` or `!= success` to `onPressed`: loading is covered by `isLoading`,
+   and the success emit sets `canX: false`. A control without a loading parameter
+   (for example a text field's `enabled:`) uses the status check instead.
+9. **Naming.** Actions use the verb vocabulary and State fields use the naming
+   scheme in Section 6.6. No `get*`, `set*`, `load`, `handle*`, `process*`, `init*`.
+10. **Target level of simplicity.** One `emit` per user event; direct `state.x!`
+    reads for fields the UI flow guarantees; a returned `.then` chain for async
+    work; no guards. Not part of the target style: `catchError` in Cubit, nested
+    `.then` pyramids, `dynamic` setters, and storage or connectivity calls
+    inside the Cubit.
+11. **Request ID only for real overlap.** Add `if (requestId != _requestId) return;`
+    at the top of one callback **only** when two responses of the same operation
+    can be in flight and the older one must lose (search-as-you-type, switching
+    category/tab while loading). Not by default, never combined with `isClosed`.
+
+**Accepted consequence of rule 1 (owner-approved):** the Cubit is released from
+memory with its screen. If an HTTP response arrives after the screen has been
+closed, the `emit` in its callback throws a `StateError` that appears in logs or
+crash reporting as an uncaught async error; the user sees nothing. Agents MUST
+NOT add a guard to avoid it, and MUST NOT report its absence as a defect.
 
 ## Mandatory Enforcement for Every Agent
 
@@ -112,6 +169,9 @@ that untouched historical code has already been brought into compliance.
 | Topic | Approved rule |
 |---|---|
 | Creating the screen Cubit | Construct Cubit directly inside `BlocProvider(create: ...)`; never register or resolve Cubit through GetIt; no `_createCubit`/`_buildCubit` wrapper or extra Screen/View |
+| Initial action | Only when the feature has a real fetch or entry resolution; otherwise `create: (_) => XCubit()`; never re-emit the default State |
+| `isClosed` / BaseCubit | Prohibited everywhere; no `safeEmit`, no overridden `emit` (Section 8.3) |
+| Validation | Each input action validates only its own field, once; aggregates read stored `isXValid` flags (Section 6.4) |
 | Repository ownership | Register Repository/service/API dependencies in GetIt; Cubit resolves its own dependencies in fields; no dependency parameters in UI or Cubit construction |
 | Resolving Cubit | `context.read<MyCubit>()` using a context below the Provider |
 | State | One plain Freezed data class, without handwritten getters or logic |
@@ -139,7 +199,7 @@ Readability is not measured solely by fewer lines. A few clear repeated lines ar
 
 ### 2.1 Accepted Patterns from the Example
 
-- Specific methods such as `updatePhoneNumber`, `updateOtp` and `requestOtp`.
+- Specific methods such as `updatePhoneNumber`, `updateOtp` and `submitOtpRequest`.
 - Explicit, traceable `emit(state.copyWith(...))` calls.
 - State containing field values, request statuses and action eligibility.
 - Provider creation inside the screen, followed by Listener and Scaffold.
@@ -150,7 +210,7 @@ Readability is not measured solely by fewer lines. A few clear repeated lines ar
 
 ### 2.2 Patterns Not to Copy Verbatim from the Other Application
 
-The Axino example is a style reference; it does not define this project's network, storage or security contracts.
+The supplied style example is a style reference; it does not define this project's network, storage or security contracts.
 
 | Reference pattern | Decision for this project |
 |---|---|
@@ -159,7 +219,7 @@ The Axino example is a style reference; it does not define this project's networ
 | A shared enum containing `otpSubmitting` and `authLoading` | Independent operations use independent statuses with the existing `RequestStatus` |
 | Two emits for an input and button eligibility | Prefer one emit for a complete, consistent snapshot |
 | `void ... async` | Awaitable operations use `Future<void>` and the project's returned `.then` style (Section 8.1) |
-| No `isClosed` check after await | One `isClosed` guard at the top of each `.then` callback, plus stale-response guards where needed; none in synchronous methods (Section 8.3) |
+| `isClosed` check after await | Not used anywhere in this project (owner decision 2026-10-18); the Cubit is released with its screen (Section 8.3) |
 | Controllers in StatelessWidget and static focus nodes | A StatefulWidget owns the lifecycle and disposes resources |
 | Printing OTPs or PINs | Prohibited; sensitive data must not enter logs |
 | Storing raw passwords or a fallback such as `0000` | Do not incorporate this into the project's contract |
@@ -205,7 +265,7 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
 
 // Inside CardListScreen.build:
 BlocProvider<CardFeaturesCubit>(
-  create: (_) => CardFeaturesCubit(initialCategory: initialCategory)..load(),
+  create: (_) => CardFeaturesCubit(initialCategory: initialCategory)..fetchCards(),
   child: ...,
 )
 ```
@@ -235,7 +295,7 @@ wrapper is required just to extract a listener method.
 ### 2.3 Consolidated Mandatory Principles
 
 The owner approved the architecture, dependency, lifecycle, action, subscription
-and UI coding principles reviewed from Caltivita (former reference Sections
+and UI coding principles reviewed from the external reference project (former reference Sections
 **2, 3, 4, 6, 7 and 8**). Their complete normative meaning is recorded here.
 The temporary English and Persian review documents have been removed. This
 contract is self-contained; agents MUST NOT depend on those drafts or reinterpret
@@ -245,16 +305,16 @@ source implementation exceptions as target rules.
 | --- | --- | --- |
 | Architecture | One screen/feature-flow owns its Provider; its actual shared steps consume the same Cubit. UI renders State and sends specific actions. Domain retains reusable business rules. | Extra Cubits per child, UI flow coordinators, request-building callbacks or unnecessary new layers |
 | GetIt | Register only actual Repository, service/API, DAO or UseCase dependencies. Resolve required dependencies in Cubit fields. Immutable dependency references MUST use final unless replacement is an actual authorized behavior. | Cubit/Bloc registration of any lifetime; resolving Cubit from GetIt; dependency arguments in UI or Cubit constructors; UI/router data lookups |
-| Construction | Construct Cubit directly in screen/feature-flow BlocProvider.create and invoke the explicit initial action there. Keep its supplied/default initial State unchanged during construction. | Route-owned screen Cubit, _createCubit helpers, hidden construction wrappers, constructor emit/load/timer/derived-State initialization |
+| Construction | Construct Cubit directly in screen/feature-flow BlocProvider.create and invoke an explicit initial action there only when the feature has a real fetch or entry resolution. Keep its supplied/default initial State unchanged during construction. | Route-owned screen Cubit, _createCubit helpers, hidden construction wrappers, constructor emit/load/timer/derived-State initialization |
 | Lifetime | Provider.create owns closing. Existing flow consumers read the shared instance. Provider.value only exposes an existing instance across a real boundary such as a modal. | New Cubit in value, manually closing a borrowed Cubit or duplicate construction on ordinary rebuilds |
 | Actions | Specific typed actions own transferable calculations, validation, request construction and flow decisions. Write emit(state.copyWith(...)) in the action. Publish dependent values consistently. | Generic string/index field dispatch, State publication intermediaries, UI reconstruction of requests or hidden State getters |
-| Async | Operations that callers can await return Future<void> through a returned `.then` chain (no async/await, no catchError in Cubit); handle Result with a switch inside `.then`; one isClosed/request-id guard at the top of each callback; UI controls interaction availability; keep async lifetime checks and server idempotency. | Copying nested void Future chains, isClosed checks in synchronous methods, catchError for expected failures, or removing safeguards merely to resemble the source |
+| Async | Operations that callers can await return Future<void> through a returned `.then` chain (no async/await, no catchError in Cubit); handle Result with a switch inside `.then`; no isClosed anywhere; a request-id check only for a real overlapping-response case; UI controls interaction availability; keep server idempotency. | Copying nested void Future chains, any isClosed check, catchError for expected failures, or defensive guards that repeat what UI/validation already guarantees |
 | Rendering | BlocBuilder renders a cohesive changing section. A child receiving the parent's selected State MUST NOT add a duplicate subscription to the same data. Rendering MUST NOT start requests. | Load/submit/analytics in build, ceremonial builder per Text/Icon, duplicate nested builders or business rules hidden in buildWhen |
 | Effects | BlocListener executes prepared Flutter effects. BlocConsumer is used when the same section needs both rendering and a side effect. MultiBlocListener groups actually independent effects. | Flow decisions in listeners, mandatory Consumer/MultiBlocListener everywhere or a new generic effect framework without a concrete need |
 | Listener methods | Every multi-case effect switch and substantial async listener body MUST be a named widget/State method referenced by listener. Keep its focused listenWhen adjacent. | An inline multi-case listener or moving eligibility/request/navigation-intent decisions into the named UI method |
 | UI structure | Use explicit widget composition and block-bodied build methods. Fixed forms show each field's label, value, error and specific action together. | Widget-tree helper methods, private Screen/View wrappers, schema/array/map/record renderers for fixed forms or compression hiding responsibilities |
 | Widget boundaries | Extract substantial responsibilities or actual reuse into public, meaningfully named widgets in their own files. Preserve their subscription/resource boundaries. | A new widget/file for every title, spacer or icon; arbitrary fragmentation; treating source line counts as a mandatory exact limit |
-| Style | Use PascalCase classes, snake_case files, camelCase methods, super.key, const where eligible, typed callbacks, S.current and the target project's theme/design-system conventions. | Function?/dynamic for known callback/input types, copying Caltivita visual tokens/APIs/assets or inventing unavailable package components |
+| Style | Use PascalCase classes, snake_case files, camelCase methods, super.key, const where eligible, typed callbacks, S.current and the target project's theme/design-system conventions. | Function?/dynamic for known callback/input types, copying visual tokens/APIs/assets from the reference project or inventing unavailable package components |
 | Modals/resources | A modal launcher only invokes the Flutter modal API with prepared inputs and a public content widget. Handle safe area and keyboard insets where required. UI owns and disposes controllers/focus/scroll. | Flow/request logic in launchers, moving Flutter resources into State/Cubit, duplicate selection in setState/notifiers or a fresh modal Cubit replacing an existing shared flow |
 
 **Existing State structure MUST be preserved:** one plain Freezed State with
@@ -304,7 +364,7 @@ Cubit is responsible for:
 - Changing steps and retaining or clearing dependent data;
 - Filtering data, resolving selections and calculating totals;
 - Calling use cases/repositories;
-- Publishing availability/loading data for UI gating and rejecting stale async responses;
+- Publishing availability/loading data for UI gating;
 - Managing timers owned by the flow;
 - Building action/service requests and preserving the selected record context;
 - Choosing available operations, footer actions, destination intents and back/exit behavior;
@@ -371,8 +431,7 @@ Moving `_request` into `onPressed` or a listener is not compliance.
 
 **Required interaction path:**
 
-1. UI forwards the event and necessary raw input/stable record ID to a specific
-   Cubit action.
+1. UI forwards the event and the necessary raw input to a specific Cubit action. Pass the rendered object (e.g. the card) or a non-null value, not a bare ID that the Cubit must look up again and null-check.
 2. Cubit validates the event, resolves data, updates dependent State fields and
    constructs any request. It publishes a typed effect when Flutter work is needed.
 3. `BlocBuilder` renders State directly. `BlocListener` with precise `listenWhen`
@@ -387,7 +446,7 @@ never callbacks, `BuildContext`, widgets or controllers. When identical effects
 can occur repeatedly, use an explicit sequence such as `effectId` and compare
 it in `listenWhen`. A single effect field is for ordered interactions; if effects
 can overlap, design their delivery so an earlier result cannot replace newer
-flow decisions. Keep UI interaction gating and async stale-response/disposal protections.
+flow decisions. Keep UI interaction gating. There is no disposal/stale-response guard (Section 8.3).
 
 A listener may switch on **effect type** to execute the requested Flutter API.
 It must not switch on the user's action/category to determine a service. The
@@ -446,7 +505,7 @@ class OtpWidget extends StatefulWidget { ... }
 void updatePhoneNumber(String value) { ... }
 void updateNationalId(String value) { ... }
 void updateOtp(String value) { ... }
-Future<void> requestOtp() { ... }
+Future<void> submitOtpRequest() { ... }
 Future<void> submitLogin() { ... }
 ```
 
@@ -501,6 +560,8 @@ abstract class AuthState with _$AuthState {
     @Default('') String phoneNumber,
     @Default('') String nationalId,
     @Default('') String otp,
+    @Default(false) bool isPhoneNumberValid,
+    @Default(false) bool isNationalIdValid,
     @Default(false) bool isPhoneNumberError,
     @Default(false) bool isNationalIdError,
     @Default(false) bool isOtpError,
@@ -515,7 +576,7 @@ abstract class AuthState with _$AuthState {
 
 Examples illustrate the proposed pattern; they are not ready-to-replace project files. Domain imports, use cases and localization keys must match the actual service. `AuthState` and `AuthCubit` in these examples are teaching definitions and have not been added to the application.
 
-**Owner review after Caltivita comparison:** the current State structure is
+**Owner review after the reference comparison:** the current State structure is
 retained. The reference uses an unnamed State factory and a separate State
 library; those organizational differences do not require a migration here.
 Do not copy nullable statuses or a dynamic edit buffer merely for source parity.
@@ -575,8 +636,7 @@ Every field needs an identifiable use or responsibility. **Direct UI consumption
 IssuanceRequest? confirmedRequest,
 ```
 
-- Do not remove a field solely because “the UI does not currently use it.”
-- Do not add ceremonial status fields to every Cubit because “they might be needed later.”
+- Do not remove a field that has an identifiable operational purpose (retry snapshot, service contract) merely because the UI does not read it. A field with no purpose and no reader is dead code and MUST NOT be added (owner amendment, rule 7). Do not add ceremonial status fields to every Cubit because “they might be needed later.”
 - A tab-selection State without async operations does not need RequestStatus merely because a template includes it.
 - Calculated results, display state or errors needed by UI must be read from State. Missing consumption may be a UI defect to investigate, rather than a reason to automatically delete the field.
 
@@ -626,12 +686,12 @@ or initialization action, start timers, filter records, calculate derived fields
 or construct flow requests in a constructor. Do not hide this work in an
 initializer/helper or a replacement State passed to `super`.
 
-The provider explicitly calls the initial action, for example:
+When — and only when — the feature has a real fetch or entry-parameter resolution, the provider explicitly calls that action, for example:
 
 ```dart
 create: (_) => CardFeaturesCubit(
-  initialCategory: initialCategory,
-)..load(),
+    initialCategory: initialCategory,
+  )..fetchCards(),
 ```
 
 That action resolves entry parameters, calculates dependent fields and publishes
@@ -643,30 +703,22 @@ This example assumes normalized numeric input and UI controls that are disabled 
 
 ```dart
 void updatePhoneNumber(String value) {
+  final isValid = PhoneNumberValidator.isValid(value);
+
   emit(
     state.copyWith(
       phoneNumber: value,
-      isPhoneNumberError: false,
-      canRequestOtp: checkOtpButtonEnable(
-        phoneNumber: value,
-        nationalId: state.nationalId,
-      ),
-      otpRequestStatus: RequestStatus.initial,
-      otpRequestFailure: null,
+      isPhoneNumberValid: isValid,
+      isPhoneNumberError: value.isNotEmpty && !isValid,
+      canRequestOtp: isValid && state.isNationalIdValid,
     ),
   );
 }
-
-bool checkOtpButtonEnable({
-  required String phoneNumber,
-  required String nationalId,
-}) {
-  return PhoneNumberValidator.isValid(phoneNumber) &&
-      NationalCodeValidator.isValid(nationalId);
-}
 ```
 
-`checkOtpButtonEnable` belongs to Cubit and is not called by UI. It receives the fresh input so its decision does not use the old `state.phoneNumber`.
+`updatePhoneNumber` runs **only the phone validator**, once. The national ID is read
+from its stored `isNationalIdValid` flag; its validator is never re-run here. There is
+no helper that re-validates every field on every change.
 
 ### 6.3 One User Change, One Consistent Snapshot
 
@@ -722,29 +774,24 @@ publishState(...);
 
 Renaming, extensions, mixins, BaseCubit or overriding `emit` are not ways around the rule. Write `emit(state.copyWith(...))` explicitly inside the action.
 
-**A pure calculation helper is different.** A function such as `checkOtpButtonEnable(...)` or `calculateSelectedCardsTotal(...)` may return a `bool` or amount; it must not construct State, emit, mutate inputs implicitly or connect UI to a rules facade.
+**A pure calculation helper is different.** A function such as `calculateSelectedCardsTotal(...)` may return a `bool` or amount; it must not construct State, emit, mutate inputs implicitly or connect UI to a rules facade. Create one only when two or more actions use the same calculation.
 
 ```dart
 // Allowed: one specific calculation, without constructing State or emitting.
-bool checkOtpButtonEnable({
-  required String phoneNumber,
-  required String nationalId,
-}) {
-  return PhoneNumberValidator.isValid(phoneNumber) &&
-      NationalCodeValidator.isValid(nationalId);
+int calculateSelectedCardsTotal(List<ListedCard> cards) {
+  return cards.fold<int>(0, (total, card) => total + card.balanceRial);
 }
 
-// Action with explicit changes
+// Action with explicit changes; validates only its own field, once.
 void updateNationalId(String value) {
+  final isValid = NationalCodeValidator.isValid(value);
+
   emit(
     state.copyWith(
       nationalId: value,
-      isNationalIdError:
-          value.isNotEmpty && !NationalCodeValidator.isValid(value),
-      canRequestOtp: checkOtpButtonEnable(
-        phoneNumber: state.phoneNumber,
-        nationalId: value,
-      ),
+      isNationalIdValid: isValid,
+      isNationalIdError: value.isNotEmpty && !isValid,
+      canRequestOtp: isValid && state.isPhoneNumberValid,
     ),
   );
 }
@@ -771,19 +818,11 @@ void validateField(String field) {
 ```dart
 // Allowed: a specific action + the project's existing central validator
 void validateNationalId() {
-  emit(
-    state.copyWith(
-      isNationalIdError: !NationalCodeValidator.isValid(state.nationalId),
-    ),
-  );
+  emit(state.copyWith(isNationalIdError: !state.isNationalIdValid));
 }
 
 void validatePhoneNumber() {
-  emit(
-    state.copyWith(
-      isPhoneNumberError: !PhoneNumberValidator.isValid(state.phoneNumber),
-    ),
-  );
+  emit(state.copyWith(isPhoneNumberError: !state.isPhoneNumberValid));
 }
 ```
 
@@ -804,7 +843,7 @@ AppTextField(
 
 The validator's name differs between the reference and the current project; do not build a second algorithm. The current project's national-ID authority is `NationalCodeValidator.isValid`. If the owner selects another function as the final authority, consumers use that function rather than parallel regex/checksum implementations in UI and Cubit.
 
-**Owner clarification: live validation starts with the first entered digit in the login national-ID and mobile-number fields, including the shared change-phone input.** Every `onChanged` event calls its field-specific Cubit action, which checks the shared validator and emits both the fresh value and its error flag together. Any nonempty invalid value, including incomplete input, immediately shows the existing red error text. Do not wait for the full length, focus loss, a debounce or submit. A valid value immediately clears the error. An untouched empty field has no typing error; required-field errors on focus loss or submit remain supported. UI reads the error flag directly through its existing BlocBuilder, and no error is stored with `setState`. This explicit clarification takes precedence over the older reference snippet that delayed national-ID errors until ten digits.
+**Owner clarification: live validation starts with the first entered digit in the login national-ID and mobile-number fields, including the shared change-phone input.** Every `onChanged` event calls its field-specific Cubit action, which checks the shared validator once and emits the fresh value, its `isXValid` flag and its error flag together. Focus-loss validation reads the stored `isXValid` flag; it does not run the validator again. Any nonempty invalid value, including incomplete input, immediately shows the existing red error text. Do not wait for the full length, focus loss, a debounce or submit. A valid value immediately clears the error. An untouched empty field has no typing error; required-field errors on focus loss or submit remain supported. UI reads the error flag directly through its existing BlocBuilder, and no error is stored with `setState`. This explicit clarification takes precedence over the older reference snippet that delayed national-ID errors until ten digits.
 
 String field identifiers in server error contracts are a separate concern. Do not infer automatic changes to server fieldErrors contracts from the prohibition on String-based dispatch in fixed forms.
 
@@ -822,14 +861,16 @@ defines behavioral testing boundaries. This section specifies how to express
 those decisions in code. The approved before/after examples are in Section 6.7.
 
 - Name an action with a verb and its subject: `fetchCards`, `updateSearchQuery`,
-  `requestCardActions`, `handleCardActionSelection` or `resetDraftFilter`.
-  Avoid a bare `load`, `process`, `handle`, `setDraft` or `requestMore` when the
+  `requestCardActions`, `selectCardAction` or `resetDraftFilter`.
+  Avoid a bare `get`, `set`, `load`, `process`, `handle`, `setDraft` or `requestMore` when the
   reader must open the body to discover the data or interaction involved.
   Earlier snippets using `load()` illustrate initialization placement, not a
   requirement to use that name. This clarification does not authorize a global rename.
 - Distinguish fetching data, updating input, requesting a Flutter effect and
   handling a returned modal result. Names should describe those differences.
   A result-handler name should identify the sheet/action whose result it accepts.
+- **Action verb vocabulary (preferred verbs):** `fetchX` (reads data and publishes loading/success/failure), `updateX` (stores a value the user typed), `selectX` (stores a choice), `toggleX` (flips a display flag), `validateX` (focus-loss validation), `submitX` (sends the final or an OTP request), `requestX` (publishes an effect asking UI to run a Flutter API), `applyX` / `cancelX` / `resetX` / `openX` (draft and sheet flows). Do not use `get`, `set`, `load`, `handle`, `process`, `init` or `on` as the verb.
+- **State field naming:** one status per operation named `<operation>Status` with a matching `<operation>Failure` (`otpRequestStatus`, `loginStatus`); eligibility flags `canX`; display flags `isX`; validator outcomes `isXValid`; shown errors `isXError`; data fields are plain nouns (`cards`, `visibleCards`, `phoneNumber`). Store the selected object once (`selectedCard`), not an ID plus the object. Do not use generic names (`value`, `data`, `item`, `flag`, `temp`) or a `request`-prefixed status (`requestProfileStatus`).
 - Each action represents one coherent event or operation. Loading, success and
   failure publication belong to the same fetch operation; do not split them
   into `emitLoading`, `handleSuccess`, `publishCards` or similar State-publication
@@ -848,17 +889,10 @@ those decisions in code. The approved before/after examples are in Section 6.7.
   them. Apply architecture Section 12.7 when deciding whether a public setter or
   dependency-replacement action represents actual product behavior; tests alone
   do not establish that requirement.
-- Name internal dependencies and request generations by purpose, for example
-  `_loadCards` and `_cardsRequestId`, rather than `_loader` and `_request`.
+- Name internal dependencies by purpose (for example `loadCardsUseCase`, not `_loader`).
   Immutable dependency references use `final`; `late` does not justify mutability.
-- Lifecycle checks follow Section 8.3 exactly: no `isClosed` in synchronous
-  actions or before starting a Future, and one combined disposal/stale-response
-  guard at the top of the returned `.then` callback. Do not repeat UI-guaranteed
-  preconditions. Keep actual validation and flow choices explicit.
-  Do not replace these checks with `safeEmit`, an overridden `emit` or a BaseCubit.
-- Apply architecture Section 16.3 when changing tests: synchronous calls after
-  `close()` do not justify prohibited guards. Pending-request disposal and
-  out-of-order-response tests remain required for those actual behaviors.
+- There is no `isClosed` check anywhere (Section 8.3), and no `safeEmit`, overridden `emit` or BaseCubit. Do not repeat UI-guaranteed preconditions. Keep actual validation and flow choices explicit.
+- Apply architecture Section 16.3 when changing tests: tests never justify a disposal guard.
 
 ### 6.7 Approved Before/After Coding Examples
 
@@ -915,8 +949,7 @@ ListedCard? _findCardById(List<ListedCard> cards, String? cardId) {
 
 The name describes the requested effect. The rendered card can be passed as
 a required record; do not look it up again only to reject a missing record. The private lookup is justified by actual reuse in selection/reload;
-do not extract every short expression mechanically. No synchronous `isClosed`
-check is added. Delayed UI delivery follows architecture Section 12.4.
+do not extract every short expression mechanically. No `isClosed` check is added anywhere.
 
 #### 6.7.2 Keep a Specific State Change Visible in Its Action
 
@@ -982,7 +1015,7 @@ CardFeatureAction? _getCategoryFooterAction(CardCategory category) {
 
 The helper returns one decision. It never returns `CardFeaturesState`, updates
 fields or emits. Loading/result/failure remain in the named fetch operation;
-Section 8.1 supplies the canonical returned-Future pattern with one async guard.
+Section 8.1 supplies the canonical returned-Future pattern (no guard).
 
 These examples introduce no fixed method-length limit. Renaming `load` to
 `fetchCards` must also update Provider initialization, retry and tests; it must
@@ -1060,11 +1093,7 @@ exception, so the failure branch is the `case Err` of the `switch` inside `.then
 This example uses the actual `CardServicesRepository` and `LoadCardServiceCatalog` contracts. The proposed State contains `catalogStatus`, `catalog` and `catalogFailure`.
 
 ```dart
-int _catalogRequestId = 0;
-
-Future<void> loadCatalog() {
-  final requestId = ++_catalogRequestId;
-
+Future<void> fetchCatalog() {
   emit(
     state.copyWith(
       catalogStatus: RequestStatus.loading,
@@ -1073,8 +1102,6 @@ Future<void> loadCatalog() {
   );
 
   return LoadCardServiceCatalog(repository)().then((result) {
-    if (isClosed || requestId != _catalogRequestId) return;
-
     switch (result) {
       case Success(:final data):
         emit(
@@ -1100,7 +1127,7 @@ Required shape:
 
 - The method is not marked `async` and contains no `await`.
 - The chain is **returned**. Without `return`, the method completes immediately and callers lose the result.
-- The only guard is the one at the top of the `.then` callback (see Section 8.3).
+- There is no guard of any kind in the callback: no `isClosed`, no request ID (Section 8.3).
 - Heavy or branching calculations are moved to pure helpers (Section 6.4) so the callback body is only `emit` calls.
 - Do not add an early completed Future merely to repeat UI loading/eligibility gates.
 
@@ -1133,8 +1160,6 @@ Future<void> submit() {
   );
 
   return submitUseCase(request).then((result) {
-    if (isClosed) return;
-
     switch (result) {
       case Success(:final data):
         emit(
@@ -1156,11 +1181,11 @@ Future<void> submit() {
 }
 ```
 
-`createSubmissionRequest` illustrates a specific request-construction function in Cubit, not a UI calculation function. The snippet assumes editing/reset controls are disabled during submission. If adapter replacement or reset can occur concurrently, the operation's request ID must also be checked inside the same guard.
+`createSubmissionRequest` illustrates a specific request-construction function in Cubit, not a UI calculation function. The snippet assumes editing/reset controls are disabled during submission.
 
 The UI button uses `isLoading` and its enabled state. Submission trusts that
 interaction contract; it publishes loading and starts its operation without a
-duplicate status or eligibility guard. Async completion still checks disposal.
+duplicate status or eligibility guard. Async completion has no disposal check (Section 8.3).
 
 ### 8.3 Mandatory Async Rules
 
@@ -1169,15 +1194,11 @@ duplicate status or eligibility guard. Async completion still checks disposal.
 - Scope: this style applies to Cubit actions. UI-side modal launchers and effect handlers that must await a Flutter API keep `async/await` and the `context.mounted` guard (Section 19.6); they are Flutter-only adapters, not flow logic.
 - Do not add `catchError`, `try/catch` or `onError` in Cubit for expected failures. `Err` is handled by the `switch` inside `.then` (Section 8.1).
 - Set the status to loading before starting the Future.
-- **`isClosed` rule:** a Cubit is closed together with the screen/flow that owns its `BlocProvider`, and everything that calls its synchronous methods (buttons, chips, listeners) leaves the tree at the same moment. Therefore:
-    - **Do not** add `isClosed` checks to synchronous methods (`select...`, `search`, `request...`, `update...`, `apply...`, `cancel...`, `reveal...`, `filter...`).
-    - **Do not** add `isClosed` at the start of an async method such as `load`; it is called immediately after construction.
-    - **Do** check `isClosed` exactly **once** per async operation, at the top of its `.then` callback, because the screen may close while the Future is pending and `emit` on a closed Cubit throws.
-    - A Cubit-owned `Timer` or stream callback is also an async gap, so one `isClosed` check at the top of that callback is correct (Section 19.5).
-    - An operation with a request/generation ID combines both checks in the same single line: `if (isClosed || requestId != _requestId) return;`.
-    - Overriding `emit` to hide this check is prohibited (Section 6.4).
-- Overlapping loads or quotes require a generation/request ID. `close()` may also increment it so pending responses are rejected.
-- A stale response must not overwrite a newer selection.
+- **No `isClosed`, anywhere (owner decision 2026-10-18).** Do not write `isClosed` in a synchronous action, at the start of an async method, in a `.then` callback, in a Timer/stream callback or in a UI `finally`. Do not hide it in `safeEmit`, an overridden `emit` or a BaseCubit (none exists in this project). The Cubit is owned by the screen's `BlocProvider` and is released from memory when the screen leaves the tree.
+  - **Accepted consequence (owner-approved):** a response that arrives after the screen closed makes its `emit` throw a `StateError`, which shows up as an uncaught async error in logs/crash reporting and changes nothing visible. Agents MUST NOT add a guard to avoid it.
+  - Cubit-owned timers and subscriptions are still cancelled in `close()` (Section 19.5).
+- A request ID is added **only** where two responses of the same operation can genuinely be in flight and the older one must lose (search-as-you-type, switching category/tab while loading). It is a single `if (requestId != _requestId) return;` at the top of that one callback. Never add one by default.
+- Where a request ID exists, a stale response must not overwrite a newer selection.
 - Disable relevant UI controls during pending operations; do not repeat that gate in Cubit actions.
 - Retrying the same banking request preserves the same idempotency key.
 - Changing the payload after failure refreshes request identity according to the service contract.
@@ -1254,9 +1275,7 @@ class _AverageBalanceScreenState extends State<AverageBalanceScreen> {
                         label: getAverageBalanceButtonTitle(state.step),
                         isLoading:
                             state.submissionStatus == RequestStatus.loading,
-                        onPressed: state.canContinue &&
-                                state.submissionStatus != RequestStatus.loading &&
-                                state.submissionStatus != RequestStatus.success
+                        onPressed: state.canContinue
                             ? () {
                                 context.read<AverageBalanceCubit>().continueFlow();
                               }
@@ -1323,12 +1342,12 @@ With `BlocProvider(create: ...)`, Provider owns the instance and closes it. `Blo
 Project rules:
 
 - Construct Cubit directly in `BlocProvider.create` for every new screen/flow scope.
-- Keep construction and the explicit initial action visible in that callback:
+- Keep construction (and the initial action, when the feature needs one) visible in that callback:
 
   ```dart
   create: (_) => CardFeaturesCubit(
     initialCategory: initialCategory,
-  )..load(),
+  )..fetchCards(),
   ```
 
 - Register only actual Repository, service/API and application dependencies in
@@ -1370,7 +1389,7 @@ Widget build(BuildContext context) {
     child: AppButton(
       onPressed: () {
         // This context belongs above the Provider.
-        context.read<AuthCubit>().requestOtp();
+        context.read<AuthCubit>().submitOtpRequest();
       },
     ),
   );
@@ -1388,7 +1407,7 @@ return BlocProvider(
         body: AppButton(
           label: S.current.dashboardRetry,
           onPressed: () {
-            context.read<AuthCubit>().requestOtp();
+            context.read<AuthCubit>().submitOtpRequest();
           },
         ),
       );
@@ -1499,9 +1518,7 @@ BlocBuilder<AuthCubit, AuthState>(
     return AppButton(
       label: S.current.issuanceSubmit,
       isLoading: state.loginStatus == RequestStatus.loading,
-      onPressed: state.canSubmitLogin &&
-              state.loginStatus != RequestStatus.loading &&
-              state.loginStatus != RequestStatus.success
+      onPressed: state.canSubmitLogin
           ? () {
               context.read<AuthCubit>().submitLogin();
             }
@@ -1604,7 +1621,7 @@ Keep listenWhen beside that reference. The method executes already-decided
 Flutter effects and forwards raw results to Cubit; extracting a method does
 not permit eligibility, request construction or flow decisions in UI.
 
-Caltivita's unfiltered/nested builders and inline long listeners are observations,
+The reference project's unfiltered/nested builders and inline long listeners are observations,
 not overrides of this project's filters and named-handler preference. A status
 transition may identify an operation result; repeated same-status effects need
 an appropriate identity when necessary. Do not remove existing reliable effect
@@ -2463,12 +2480,12 @@ Future<void> showCardFilterSheet(BuildContext context) async {
       },
     );
   } finally {
-    if (!cubit.isClosed) cubit.cancelFilter();
+    cubit.cancelFilter();
   }
 }
 ```
 
-In `CardFilterSheet`, Apply first calls `applyFilter`, then closes the modal. `cancelFilter` must return without extra effects when `draftFilter == null`. After Apply, finally must not clear the committed filter.
+In `CardFilterSheet`, Apply first calls `applyFilter`, then closes the modal. `cancelFilter` only sets `draftFilter` to null and has no entry guard; it never touches the committed filter. After Apply, finally must not clear the committed filter.
 
 This `.value` use is the expressly allowed existing-instance sharing case; the sheet must not close the screen Cubit.
 
@@ -2609,8 +2626,7 @@ class _OtpWidgetState extends State<OtpWidget> {
           keyboardType: TextInputType.number,
           maxLength: 4,
           enabled: state.otpRequestStatus != RequestStatus.loading &&
-              state.loginStatus != RequestStatus.loading &&
-              state.loginStatus != RequestStatus.success,
+              state.loginStatus != RequestStatus.loading,
           obscureText: true,
           enableIMEPersonalizedLearning: false,
           errorText: state.isOtpError
@@ -2693,11 +2709,6 @@ void startOtpTimer(int seconds) {
   _timer = Timer.periodic(
     const Duration(seconds: 1),
     (timer) {
-      if (isClosed) {
-        stopOtpTimer();
-        return;
-      }
-
       final milliseconds = _otpDeadline!
           .difference(DateTime.now())
           .inMilliseconds;
@@ -2731,7 +2742,7 @@ Future<void> close() {
 }
 ```
 
-A deadline avoids measuring elapsed time incorrectly through callback counts after delayed ticks or backgrounding. This is a display countdown; the server determines actual OTP validity and expiry. If immediate refresh on resumed is required, UI lifecycle requests fresh time through a Cubit action. Do not move MethodChannel or BuildContext into Cubit.
+The timer is cancelled in `close()`, so its callback needs no `isClosed` check. A deadline avoids measuring elapsed time incorrectly through callback counts after delayed ticks or backgrounding. This is a display countdown; the server determines actual OTP validity and expiry. If immediate refresh on resumed is required, UI lifecycle requests fresh time through a Cubit action. Do not move MethodChannel or BuildContext into Cubit.
 
 UI only formats the time:
 
@@ -2815,7 +2826,7 @@ BlocBuilder<SecondPasswordCubit, SecondPasswordState>(
       normalizeDigits: true,
       enableIMEPersonalizedLearning: false,
       onChanged: (value) {
-        context.read<SecondPasswordCubit>().passwordChanged(value);
+        context.read<SecondPasswordCubit>().updatePassword(value);
       },
       suffixIcon: AppButton(
         variant: AppButtonVariant.text,
@@ -2900,7 +2911,7 @@ Cubit determines the next step; UI selects the form for the current step. The fo
 - Cubit decides whether to move back one step.
 - UI executes navigation and shows exit confirmation.
 - Hardware Back and the in-screen button must behave consistently.
-- Back navigation and exit confirmation are always available to the user, even while an asynchronous operation or submission is loading. Cubit navigation actions (such as `requestBack`, `requestHome`, `exitConfirmationResult`) must not block navigation or confirmation based on `loading` status. In-flight network responses are safely discarded via Cubit disposal and generation tracking at the `.then` callback.
+- Back navigation and exit confirmation are always available to the user, even while an asynchronous operation or submission is loading. Cubit navigation actions (such as `requestBack`, `requestHome`, `exitConfirmationResult`) must not block navigation or confirmation based on `loading` status. A response that arrives after the screen has closed is ignored together with the released Cubit (Section 8.3).
 - The first step of a form with discardable input requires exit confirmation.
 - After a successful receipt, leave the flow using `go` to the approved destination; the user must not return to a form that can be submitted again.
 
@@ -3149,13 +3160,12 @@ introduced/modified code violates an applicable rule.
 13. Keys require behavioral needs and nearby explanations; default decorative/test keys are prohibited.
 14. Check the public avp_ui API first; do not invent nonexistent components.
 15. UI owns controllers/focus/scroll, Cubit owns timers; dispose/close them correctly.
-16. UI owns repeat-click/edit gating. Do not duplicate its entry preconditions in Cubit. Preserve async stale-response checks and server idempotency.
+16. UI owns repeat-click/edit gating. Do not duplicate its entry preconditions in Cubit. Preserve server idempotency.
     Async style: Future<void> methods return `useCase(...).then((result) { ... })`;
     no async/await and no catchError/try-catch in Cubit. Handle Result with a switch
     inside .then (Err is a value, not an exception). Repository/UseCase must convert
-    all exceptions to Err. Check `isClosed` (or `isClosed || requestId != _id`)
-    exactly once at the top of each .then/Timer callback. Never add `isClosed` to
-    synchronous Cubit methods or at the start of an async method. Do not invent an
+    all exceptions to Err. NEVER write `isClosed` anywhere (no BaseCubit/safeEmit either);
+    a request-id check only for a real overlapping-response case. Do not invent an
     unexpected-exception Failure type; report it as a pending decision.
 17. No unsolicited global refactoring, package changes or new dependencies.
 18. Do not use setState even for password/summary display state. Keep values in State
@@ -3184,6 +3194,11 @@ introduced/modified code violates an applicable rule.
     Extract multi-case listener bodies into named UI effect methods.
     BlocProvider.create directly constructs Cubit; Cubit fields resolve dependencies from GetIt.
     Provider owns the instance once per screen/flow scope; UI reads State through Bloc.
+29. Minimal Cubit Rules (owner amendment 2026-10-18) override every example: no `isClosed`,
+    no BaseCubit/safeEmit, no defensive `if (...) return;` guards in actions, validate each
+    field once (aggregates read stored `isXValid` flags), emit only changed fields, no initial
+    action without a real fetch, non-null arguments (pass the object, not an ID to re-find),
+    no dead methods/State fields, verb vocabulary and State naming from Section 6.6.
 ```
 
 This text is a compact summary of the mandatory contract, not an alternative to it. Root AGENTS.md requires agents to read and apply the complete contract. Open decisions do not relax approved rules.
@@ -3214,7 +3229,9 @@ This text is a compact summary of the mandatory contract, not an alternative to 
 - [ ] UI loading/eligibility gates are not repeated as Cubit entry guards; selected inputs use meaningful non-null contracts.
 - [ ] Loading is recorded before the Future starts.
 - [ ] Async methods return a `.then` chain: no `async`/`await`, no `catchError`/`try-catch`, and the chain is returned.
-- [ ] Exactly one `isClosed` (or `isClosed || requestId != _id`) guard sits at the top of each `.then`/Timer callback; none in synchronous methods or at the start of async methods.
+- [ ] There is no `isClosed` anywhere; a request-id check exists only for a real overlapping-response case.
+- [ ] Each `updateX` runs only X's validator; other fields are read from stored `isXValid` flags.
+- [ ] No `if (...) return;` guard exists in any action, no field is re-emitted with its default/current value, and every method/State field has a caller/reader in the same change.
 - [ ] The `.then` callback contains only `emit` calls and pure helper calls that cannot throw.
 - [ ] Retrying the same payload uses an appropriate stable key.
 - [ ] Cubit-owned timers/subscriptions are released in close.
@@ -3271,7 +3288,7 @@ When actual code changes are requested, these scenarios merit testing:
 3. Loading/disabled UI controls do not invoke another submission.
 4. Failure preserves data needed for retry.
 5. An old quote response does not replace a newer selection.
-6. Closing a flow prevents late emits.
+6. Closing a flow releases its Cubit and cancels its owned timers.
 7. Back/outside dismissal of the filter sheet discards the draft.
 8. Ordinary form rebuilds do not reset Cubit or inputs.
 9. System Back and in-UI Back behave consistently.
@@ -3322,8 +3339,13 @@ not invent additional allowances. Keep unrelated work outside the authorized tas
 | Fixed forms | Some forms use parallel arrays | Explicit fields like the owner's examples; no renderer or index-based dispatch |
 | Builder level | “Lowest subtree” could be read absolutely | Meaningful changing sections; higher-level grouping is allowed for readability |
 | Async style in Cubit | Section 8 baseline was `async/await`; `.then` was merely allowed | Owner decision 2026-10-17: returned `.then` chain, no `catchError`/`try-catch` in Cubit; Repository/UseCase must convert all exceptions to `Err` |
-| `isClosed` placement | Guard appeared at the start of async methods and in synchronous methods | One guard at the top of each `.then`/Timer callback only; none in synchronous methods |
+| `isClosed` placement | One guard at the top of each `.then`/Timer callback (2026-10-17) | Removed entirely (owner decision 2026-10-18) |
 | Unexpected-exception Failure | Not defined in architecture Section 11.2 | Pending owner decision; agents must not add a Failure type on their own |
+| BaseCubit | Listed in the architecture tree (`core/cubit/base_cubit.dart`) | Removed (owner decision 2026-10-18) |
+| Field validation | Aggregate flags re-ran every validator on every change | Validate once per field; aggregates read stored `isXValid` flags |
+| Initial emit | Initial action published the default State | No initial action without a real fetch; never re-emit defaults |
+| Button gating | `canX && != loading && != success` inside `onPressed` | `isLoading:` parameter + `onPressed: state.canX ? ... : null` |
+| Naming | `load`, `set*`, `get*`, `handle*`, ID + object pairs | Verb vocabulary and State naming (Section 6.6) |
 
 ### 25.1.1 Final Status of Reviewed Items: Do Not Turn Proposals into New Requirements
 
@@ -3349,9 +3371,10 @@ Open item 7 does not permit array-driven fixed forms or index-based field action
 
 Version 1.6 consolidates all approved principles from reference Sections 2, 3,
 4, 6, 7 and 8 into this contract, preserves existing State conventions, and adds
-the root AGENTS.md entry requirement and compliance gate. The two temporary
-Caltivita reference Markdown files are removed. This documentation revision does
+the root AGENTS.md entry requirement and compliance gate. The two temporary reference Markdown files are removed. This documentation revision does
 not modify Dart code or certify the compliance of the existing application.
+
+Version 1.9 (2026-10-18) applies the owner simplicity amendment (top of this document): no `isClosed`, no BaseCubit, validate-once, no default re-emit, no dead code, naming rules. It changes documentation only.
 
 ### 25.3 Contract Adoption Does Not Authorize Automatic Refactoring
 

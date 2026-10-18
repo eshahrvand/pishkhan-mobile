@@ -114,15 +114,15 @@ The following versions are the latest available at the time of writing. `freezed
 
 ```yaml
 dependencies:
-   freezed_annotation: ^3.1.0
-   json_annotation: ^4.12.0
-   retrofit: ^4.10.0
+  freezed_annotation: ^3.1.0
+  json_annotation: ^4.12.0
+  retrofit: ^4.10.0
 
 dev_dependencies:
-   build_runner: ^2.16.2
-   freezed: ^4.0.2
-   json_serializable: ^6.14.1
-   retrofit_generator: ^10.2.11
+  build_runner: ^2.16.2
+  freezed: ^4.0.2
+  json_serializable: ^6.14.1
+  retrofit_generator: ^10.2.11
 ```
 
 > [!IMPORTANT]
@@ -343,8 +343,6 @@ pishkhan_project/
         │   │   └── remote_config.dart         # Timeout, thresholds, enabled services
         │   ├── push/
         │   │   └── push_service.dart          # Interface + platform implementations
-        │   ├── cubit/
-        │   │   └── base_cubit.dart
         │   ├── enums/
         │   │   └── request_status.dart        # Shared enums (request lifecycle status)
         │   └── router/
@@ -449,7 +447,7 @@ Features do not talk to each other directly. Three permitted paths:
 
 ### 7.3 Pure Validators
 
-Validator classes carry no Flutter dependency and are used directly in use cases.
+Validator classes carry no Flutter dependency. Cubit actions call them once per input change (coding contract Section 6.4); use cases call them only for rules the form cannot know and never repeat a check the Cubit already performed.
 
 ```dart
 // app/lib/core/validators/card_validator.dart
@@ -491,19 +489,14 @@ class BlockCardUseCase {
   final CardsRepository _repository;
   const BlockCardUseCase(this._repository);
 
-  Future<Result<BlockCardReceipt>> call(BlockCardParams params) async {
-    final errors = <String, String>{};
-    if (params.cardId.isEmpty) errors['cardId'] = 'field.required';
-    if (params.reason == null) errors['reason'] = 'field.required';
-    if (errors.isNotEmpty) return Err(ValidationFailure(errors));
-
+  Future<Result<BlockCardReceipt>> call(BlockCardParams params) {
     return _repository.blockCard(params);
   }
 }
 ```
 
 > [!NOTE]
-> Use cases produce no displayable text; they return error codes only. Translation happens in the presentation layer (Section 11.2).
+> Use cases produce no displayable text; they return error codes only. The form has already validated `cardId` and `reason` (required, non-null), so the use case does not check them again. Translation happens in the presentation layer (Section 11.2).
 ---
 
 ## 8. Service Flow Pattern and Suspended Requests
@@ -989,8 +982,8 @@ refactors, not a claim that every existing Cubit already complies.
 * Store derived results needed by UI in State and update them together with their inputs using explicit `emit(state.copyWith(...))` in the action. Pure helpers return values; they never construct or publish State. No State-preparation/publication intermediary, overridden `emit` or separate rules facade may hide these transitions.
 * Cubit constructors accept an initial State and real entry parameters only. A Cubit resolves its registered Repository, service and UseCase dependencies from GetIt in its own fields; dependencies are not passed through Cubit constructors, screen constructors, route arguments or child widgets. Cubit/Bloc are never registered in GetIt. Do not copy the other application's models or imports. See the UI/Cubit/State contract, Section 2.2.
 * Keep defaults non-null for known values (`bool`, counters, lists and statuses). Use nullable fields when absence is meaningful. Do not copy nullable defaults mechanically from the reference.
-* Keep controllers, focus nodes and `BuildContext` in UI lifecycle owners. No global mutable feature caches. Preserve disposal/stale-response checks, UI loading/enablement and server request identity.
-* Async Cubit actions return `Future<void>` through a returned `.then` chain; they do not use `async`/`await`, `try/catch` or `catchError`. `Err` is a value handled by a `switch` inside `.then`, and the Repository/UseCase boundary converts every exception to `Err`. Async actions avoid emitting after disposal (Section 12.4). See the UI/Cubit/State contract, Section 8.
+* Keep controllers, focus nodes and `BuildContext` in UI lifecycle owners. No global mutable feature caches. Preserve UI loading/enablement and server request identity.
+* Async Cubit actions return `Future<void>` through a returned `.then` chain; they do not use `async`/`await`, `try/catch` or `catchError`. `Err` is a value handled by a `switch` inside `.then`, and the Repository/UseCase boundary converts every exception to `Err`. No async action checks `isClosed` (Section 12.4). See the UI/Cubit/State contract, Section 8.
 * Do not log credentials, OTPs, PINs or authentication tokens. Sensitive State types retain disabled generated `toString` output.
 
 ```dart
@@ -1029,7 +1022,11 @@ class ChangeCardDepositCubit extends Cubit<ChangeCardDepositState> {
 // UI reads existing fields and statuses directly.
 AppButton(
   isLoading: state.submissionStatus == RequestStatus.loading,
-  onPressed: state.canSubmit ? cubit.submit : null,
+  onPressed: state.canSubmit
+      ? () {
+          context.read<ChangeCardDepositCubit>().submit();
+        }
+      : null,
   label: S.current.cardServiceSubmit,
 );
 ```
@@ -1074,17 +1071,13 @@ State-publication helpers is prohibited. Action naming and worked examples are
 specified in coding-contract Sections 6.6–6.7.
 
 Actions resolve dependencies in Cubit-owned fields (Section 12.2) and return
-their async work. They trust the UI interaction contract without duplicate entry guards. A BaseCubit or
-`safeEmit` wrapper must not hide State transitions or disposal checks.
+their async work. They trust the UI interaction contract without duplicate entry guards. There is no BaseCubit in this project (removed 2026-10-18); do not add `safeEmit` or any other wrapper around `emit`.
 
 ```dart
 Future<void> fetchCardServiceCatalog() {
-  final generation = ++_generation;
   emit(state.copyWith(status: RequestStatus.loading, failure: null));
 
   return LoadCardServiceCatalog(repository)().then((result) {
-    if (isClosed || generation != _generation) return;
-
     switch (result) {
       case Err(:final failure):
         emit(state.copyWith(status: RequestStatus.failure, failure: failure));
@@ -1096,10 +1089,12 @@ Future<void> fetchCardServiceCatalog() {
 ```
 
 * Submission publishes loading before starting the Future. Interactive controls (such as `AppButton`) use `isLoading` to reflect pending state and prevent repeat taps. Do not repeat loading/success/eligibility checks at the start of the Cubit action or introduce redundant wrapper guards in UI. Server authorization and idempotency remain mandatory for bank execution.
-* Every asynchronous completion checks `isClosed` once, at the top of its `.then` (or Timer) callback. Synchronous Cubit methods and the start of async methods do not check it, because the Cubit closes together with the screen that calls them. Where requests can overlap or inputs/adapters change, a generation/request ID rejects obsolete responses in the same guard.
+* No `isClosed` check is written anywhere: the Cubit is owned by its `BlocProvider` and is released with its screen (owner decision 2026-10-18). Only where two responses of the same operation can genuinely overlap (search-as-you-type, switching tabs while loading), a request ID rejects the older response.
 * Dispose timers and owned resources when the owning scope closes. Keep per-flow caches private and in memory only when their lifetime matches the flow; never use global mutable caches.
 * Related derived fields must be updated in one snapshot whenever their inputs change. Calculations may return pure values, but `copyWith` and `emit` stay explicit in the action. Do not add helpers that prepare, return or publish State, even privately.
 * A delayed UI callback must check its actual Flutter lifecycle/resource boundary before calling a synchronous action. Examples include a post-frame reveal or a modal result after `await`. UI checks `mounted` or the scheduled scope's lifetime as applicable; do not add blanket synchronous Cubit guards to compensate for a stale UI callback. UI still returns raw results without interpreting flow decisions.
+* Each input action validates only its own field, once, and stores `isXValid`/`isXError` with the value; aggregate flags read the stored `isYValid` flags of the other fields instead of re-running their validators (coding contract Sections 6.2, 6.4).
+* Emit only the fields the action changes; do not re-emit default or unchanged values. An initial action exists only when the feature has a real fetch or entry resolution.
 * `BlocProvider(create: ...)` owns creation/disposal at the screen/feature-flow boundary. `BlocProvider.value` only shares that existing instance across a real boundary such as a sheet; it never creates a replacement or transfers closing responsibility.
 
 ### 12.5 Form Pattern
@@ -1128,7 +1123,7 @@ abstract class LoanRequestFormState with _$LoanRequestFormState {
 
 ### 12.6 Flow Cubit Lifecycle
 
-* The screen or feature-owned flow widget constructs its Cubit directly in `BlocProvider(create: ...)` and calls the explicit initial action there. A shared multi-screen flow places this Provider at its actual common feature boundary; child screens reuse it. GoRouter only selects the destination widget and typed inputs, never creates a screen Cubit or wires its data dependencies. The Provider owns disposal; ordinary rebuilds retain the same instance.
+* The screen or feature-owned flow widget constructs its Cubit directly in `BlocProvider(create: ...)` and, only if the feature has a real fetch or entry resolution, calls the explicit initial action there. A shared multi-screen flow places this Provider at its actual common feature boundary; child screens reuse it. GoRouter only selects the destination widget and typed inputs, never creates a screen Cubit or wires its data dependencies. The Provider owns disposal; ordinary rebuilds retain the same instance.
 * Constructed directly in `BlocProvider(create: ...)` so each flow entry gets a fresh instance. Cubit/Bloc are never registered in GetIt, with `@injectable`, `@singleton` or any other lifetime.
 * Screens, child widgets and the router must not call `getIt` for data dependencies; the Cubit resolves them in its own fields (Section 12.2).
 
@@ -1146,7 +1141,7 @@ abstract class LoanRequestFormState with _$LoanRequestFormState {
   afterward. Replacing a registration does not replace a dependency already held
   by an existing Cubit. Create a fresh scope when testing a different dependency.
 * A style refactor preserves the current plain State structure, initial snapshot,
-  request identity, stale-response protection, typed effect delivery, actual
+  request identity, typed effect delivery, actual
   validation and flow choices; do not add redundant action-entry checks. Removing an unused API requires updating its consumers and behavior
   tests; it does not authorize deleting operational State fields automatically.
 
@@ -1256,7 +1251,7 @@ Golden tests are **not implemented** in this phase and are deferred until after 
 
 #### 14.1.1 Owner-Approved UI Access Convention
 
-**Decision, 2026-10-14:** use the same localization access style as the owner's Axino application: **`S.current.<key>`**. The class `S` is generated from ARB resources through `intl_utils`; it is not a handwritten facade over `AppLocalizations`.
+**Decision, 2026-10-14:** use the owner's established localization access style: **`S.current.<key>`**. The class `S` is generated from ARB resources through `intl_utils`; it is not a handwritten facade over `AppLocalizations`.
 
 ```dart
 import 'package:pishkhan_mobile/generated/l10n.dart';
@@ -1306,7 +1301,7 @@ AppButton(
 
 #### 14.1.2 Target Generator Configuration and Resource Layout
 
-The planned configuration follows Axino's `intl_utils` approach, with Persian selected explicitly as the main locale. Dependency versions remain subject to Section 5 and compatibility with the project's existing code-generation toolchain; other Axino packages and SDK versions are not copied.
+The planned configuration follows the owner's established `intl_utils` approach, with Persian selected explicitly as the main locale. Dependency versions remain subject to Section 5 and compatibility with the project's existing code-generation toolchain; packages and SDK versions from the reference project are not copied.
 
 ```yaml
 # Target configuration for a separately authorized implementation task.
@@ -1600,10 +1595,7 @@ On seeing the `resume` parameter, the flow fetches state from the server instead
 
 Using `bloc_test` to assert states are emitted in the correct order. For forms, tests cover field-level validation and State that drives UI availability during pending operations.
 
-Exercise actual actions while their Provider-owned scope is alive. Do not make
-silent no-ops for arbitrary synchronous calls after `close()` a test requirement;
-that would enforce guards prohibited by the coding contract. Test the real async
-boundaries: pending completion after close, out-of-order responses, preserved
+Exercise actual actions while their Provider-owned scope is alive. Do not test behavior after `close()`: no `isClosed` guard exists (Section 12.4). Test the real async boundaries: out-of-order responses (only where a request ID exists), preserved
 selection/search during a fetch, repeated effects, filter Apply/cancel and
 loading/disabled UI interaction. UI tests cover safe delivery of delayed modal
 or post-frame callbacks. Data-dependency overrides follow Section 12.7.
@@ -1858,6 +1850,8 @@ The complete list is provided in the separate document "Bank Requirements and De
 
 ## 21. Change Log
 
+**2026-10-18 owner simplicity amendment:** `BaseCubit` (`core/cubit/base_cubit.dart`) is removed from the directory tree and from the design; `isClosed` is prohibited everywhere (Sections 12.2, 12.4, 12.7, 16.3) — the Cubit is released with its screen; validation runs once per field and use cases no longer repeat form checks (Sections 7.3, 7.4, 12.4); initial actions exist only for real fetches; the Section 12.2 snippet no longer references an undefined `cubit`. See coding contract v1.9.
+
 **2026-10-17 UI-owned interaction gating:** The owner superseded the earlier
 Cubit submission/edit entry guards. Controls own loading/enablement; Cubits trust
 valid selected inputs and confirmed events. Async disposal/stale-response checks,
@@ -1883,7 +1877,7 @@ post-close calls. Application Dart code is unchanged by this documentation updat
 | Version | Description |
 |---|---|
 | **1.0.0 – 1.0.4** | Initial document versions, based on the assumption of a payment-oriented mobile banking application on two native platforms. |
-| **2.0.0** | **Full revision based on the project's actual scope.** Key changes:<br>1. Scope aligned to request-based services; all payment-oriented references removed (fund transfer, bills, card-to-card).<br>2. Web platform added along with a per-platform capability matrix.<br>3. Module granularity redefined: feature = service category (12 modules instead of 80).<br>4. Explicit decision for a folder structure without `melos`, compensated through `custom_lint`.<br>5. Suspended request pattern added, with state held on the server.<br>6. Binary Developer Mode blocking replaced with multi-level `SecurityVerdict`; root/jailbreak detection reinstated.<br>7. `TokenStore` split between web and mobile.<br>8. Interceptor list and ordering completed; correlation ID, idempotency, and error mapping added.<br>9. `Error` renamed to `Err`; message field removed from `Failure`; five new failure types added.<br>10. `freezed` usage restricted; `BaseCubit` and the form pattern added.<br>11. UI package renamed to `avp_ui` and `core_infrastructure` to `core`.<br>12. Section on localization, Persian support, digits, and the Jalali calendar added.<br>13. Routing section rewritten: synchronous global guard, distributed routes, `ServiceRegistry`.<br>14. Test coverage matrix rewritten; mappers and contract testing added; diff coverage adopted.<br>15. CI/CD section completed for the bank's internal GitLab and real distribution channels.<br>16. Section 19 (AI assistant) added as a structured placeholder, and Section 20 (open items) added. |
+| **2.0.0** | **Full revision based on the project's actual scope.** Key changes:<br>1. Scope aligned to request-based services; all payment-oriented references removed (fund transfer, bills, card-to-card).<br>2. Web platform added along with a per-platform capability matrix.<br>3. Module granularity redefined: feature = service category (12 modules instead of 80).<br>4. Explicit decision for a folder structure without `melos`, compensated through `custom_lint`.<br>5. Suspended request pattern added, with state held on the server.<br>6. Binary Developer Mode blocking replaced with multi-level `SecurityVerdict`; root/jailbreak detection reinstated.<br>7. `TokenStore` split between web and mobile.<br>8. Interceptor list and ordering completed; correlation ID, idempotency, and error mapping added.<br>9. `Error` renamed to `Err`; message field removed from `Failure`; five new failure types added.<br>10. `freezed` usage restricted; the form pattern added (`BaseCubit` was removed again on 2026-10-18).<br>11. UI package renamed to `avp_ui` and `core_infrastructure` to `core`.<br>12. Section on localization, Persian support, digits, and the Jalali calendar added.<br>13. Routing section rewritten: synchronous global guard, distributed routes, `ServiceRegistry`.<br>14. Test coverage matrix rewritten; mappers and contract testing added; diff coverage adopted.<br>15. CI/CD section completed for the bank's internal GitLab and real distribution channels.<br>16. Section 19 (AI assistant) added as a structured placeholder, and Section 20 (open items) added. |
 
 ---
 
