@@ -13,6 +13,7 @@ String validatedReturnLocation(String? location) {
     AppRoutes.depositList,
     AppRoutes.averageBalance,
     AppRoutes.financialCertificate,
+    AppRoutes.introduceRepresentative,
     AppRoutes.cardIssuance,
     AppRoutes.virtualCardRequest,
     AppRoutes.changeCardDeposit,

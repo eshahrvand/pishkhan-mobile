@@ -18,6 +18,7 @@ import 'package:pishkhan_mobile/features/cards/presentation/expired_gift_balance
 import 'package:pishkhan_mobile/features/deposits/presentation/deposit_list/screens/deposit_list_screen.dart';
 import 'package:pishkhan_mobile/features/deposits/presentation/average_balance/screens/average_balance_screen.dart';
 import 'package:pishkhan_mobile/features/deposits/presentation/financial_certificate/screens/financial_certificate_screen.dart';
+import 'package:pishkhan_mobile/features/deposits/presentation/introduce_representative/screens/introduce_representative_screen.dart';
 import 'package:pishkhan_mobile/core/notifications/notification_message.dart';
 import 'package:pishkhan_mobile/features/profile/presentation/message_center/screens/notifications_screen.dart';
 import 'package:pishkhan_mobile/features/profile/presentation/message_center/screens/notification_detail_screen.dart';
@@ -152,6 +153,15 @@ GoRouter createAppRouter({
 
       // Deposits
       GoRoute(
+        path: AppRoutes.introduceRepresentative,
+        builder: (context, state) => IntroduceRepresentativeScreen(
+          initialDepositNumber: state.extra is RepresentativeRouteArguments
+              ? (state.extra as RepresentativeRouteArguments)
+                    .initialDepositNumber
+              : null,
+        ),
+      ),
+      GoRoute(
         path: AppRoutes.financialCertificate,
         builder: (context, state) => FinancialCertificateScreen(
           initialDepositNumber: state.extra is CertificateRouteArguments
@@ -237,6 +247,11 @@ class CardRouteArguments {
 
 class CertificateRouteArguments {
   const CertificateRouteArguments({this.initialDepositNumber});
+  final String? initialDepositNumber;
+}
+
+class RepresentativeRouteArguments {
+  const RepresentativeRouteArguments({this.initialDepositNumber});
   final String? initialDepositNumber;
 }
 

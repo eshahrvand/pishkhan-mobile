@@ -5,6 +5,8 @@ import 'package:pishkhan_mobile/features/deposits/domain/repositories/deposits_r
 import 'package:pishkhan_mobile/features/deposits/domain/repositories/deposit_certificates_repository.dart';
 import 'package:pishkhan_mobile/features/deposits/domain/repositories/financial_certificate_repository.dart';
 import 'package:get_it/get_it.dart';
+import 'package:pishkhan_mobile/features/deposits/data/repositories/mock_representative_repository.dart';
+import 'package:pishkhan_mobile/features/deposits/domain/repositories/representative_repository.dart';
 import 'package:pishkhan_mobile/features/dashboard/data/repositories/mock_dashboard_repositories.dart';
 import 'package:pishkhan_mobile/features/dashboard/domain/repositories/dashboard_repositories.dart';
 import 'package:pishkhan_mobile/features/cards/data/repositories/mock_cards_repository.dart';
@@ -25,6 +27,9 @@ void configureDependencies({GetIt? container}) {
   final dependencies = container ?? getIt;
   dependencies.registerLazySingleton<DepositsRepository>(
     MockDepositsRepository.new,
+  );
+  dependencies.registerLazySingleton<RepresentativeRepository>(
+    MockRepresentativeRepository.new,
   );
   dependencies.registerLazySingleton<DepositCertificatesRepository>(
     MockDepositCertificatesRepository.new,

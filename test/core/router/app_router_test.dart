@@ -79,6 +79,7 @@ void main() {
         AppRoutes.depositList,
         AppRoutes.averageBalance,
         AppRoutes.financialCertificate,
+        AppRoutes.introduceRepresentative,
       ],
     };
     final declaredPaths = modulePaths.values.expand((paths) => paths).toList();
@@ -101,6 +102,7 @@ void main() {
         AppRoutes.expiredGiftBalance,
         AppRoutes.depositList,
         '/cards/list?category=virtual',
+        AppRoutes.introduceRepresentative,
         '/profile/messages/security-id',
         AppRoutes.allServices,
       ]) {

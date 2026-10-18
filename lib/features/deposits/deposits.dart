@@ -12,3 +12,6 @@ export 'presentation/financial_certificate/screens/financial_certificate_screen.
 export 'presentation/deposit_list/screens/deposit_list_screen.dart';
 export 'presentation/deposit_list/widgets/deposit_actions_sheet.dart';
 export 'presentation/deposit_list/widgets/deposit_account_details_sheet.dart';
+export 'domain/entities/representative_request.dart';
+export 'domain/repositories/representative_repository.dart';
+export 'presentation/introduce_representative/screens/introduce_representative_screen.dart';

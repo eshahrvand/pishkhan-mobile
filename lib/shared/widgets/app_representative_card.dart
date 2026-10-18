@@ -11,17 +11,26 @@ class AppRepresentativeCard extends StatelessWidget {
   const AppRepresentativeCard({
     super.key,
     required this.title,
-    required this.status,
+    this.status,
     required this.rows,
     required this.onMorePressed,
     this.secondary,
+    this.actionIcon,
+    this.actionLabel,
+    this.actionAlignment = Alignment.center,
+    this.bodyColor,
+    this.detailLabelColor,
   });
 
   final String title;
   final String? secondary;
-  final AppRepresentativeStatus status;
+  final AppRepresentativeStatus? status;
   final List<({String label, String value})> rows;
   final VoidCallback? onMorePressed;
+  final Widget? actionIcon;
+  final String? actionLabel;
+  final AlignmentGeometry actionAlignment;
+  final Color? bodyColor, detailLabelColor;
 
   @override
   Widget build(BuildContext context) {
@@ -47,16 +56,24 @@ class AppRepresentativeCard extends StatelessWidget {
                 children: [
                   SizedBox.square(
                     dimension: 48,
-                    child: InkWell(
-                      key: const Key('app_representative_more'),
-                      onTap: onMorePressed,
-                      borderRadius: AppRadius.borderSm,
-                      child: Center(
-                        child: SizedBox.square(
-                          dimension: 20,
-                          child: AvpImage(
-                            image: AppAssets.representativeCardMoreVertical,
-                            fit: BoxFit.contain,
+                    child: Semantics(
+                      label: actionLabel,
+                      button: true,
+                      child: InkWell(
+                        key: const Key('app_representative_more'),
+                        onTap: onMorePressed,
+                        borderRadius: AppRadius.borderSm,
+                        child: Align(
+                          alignment: actionAlignment,
+                          child: SizedBox.square(
+                            dimension: 20,
+                            child:
+                                actionIcon ??
+                                AvpImage(
+                                  image:
+                                      AppAssets.representativeCardMoreVertical,
+                                  fit: BoxFit.contain,
+                                ),
                           ),
                         ),
                       ),
@@ -76,10 +93,22 @@ class AppRepresentativeCard extends StatelessWidget {
                           style: _nameStyle,
                         ),
                         const SizedBox(height: 4),
-                        AppRepresentativeCardStatusLine(
-                          secondary: secondary,
-                          status: status,
-                        ),
+                        if (status == null)
+                          Text(
+                            secondary ?? '',
+                            textAlign: TextAlign.right,
+                            style: Theme.of(context).textTheme.bodyMedium!
+                                .copyWith(
+                                  color: context.colors.textSecondary,
+                                  fontWeight: FontWeight.w500,
+                                  height: 20 / 14,
+                                ),
+                          )
+                        else
+                          AppRepresentativeCardStatusLine(
+                            secondary: secondary,
+                            status: status!,
+                          ),
                       ],
                     ),
                   ),
@@ -89,12 +118,15 @@ class AppRepresentativeCard extends StatelessWidget {
             Container(
               height: 118,
               padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
-              color: context.colors.surfaceSubtle,
+              color: bodyColor ?? context.colors.surfaceSubtle,
               child: Column(
                 children: [
                   for (var index = 0; index < rows.length; index++) ...[
                     if (index > 0) const SizedBox(height: 12),
-                    AppRepresentativeCardDetailRow(row: rows[index]),
+                    AppRepresentativeCardDetailRow(
+                      row: rows[index],
+                      labelColor: detailLabelColor,
+                    ),
                   ],
                 ],
               ),

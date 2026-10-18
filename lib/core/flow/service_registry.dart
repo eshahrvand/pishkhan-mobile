@@ -12,6 +12,15 @@ abstract final class ServiceRegistry {
     String? initialDepositNumber,
     String? initialCardNumber,
   }) {
+    if (id == 'deposit-representation-settings') {
+      context.push<void>(
+        AppRoutes.introduceRepresentative,
+        extra: RepresentativeRouteArguments(
+          initialDepositNumber: initialDepositNumber,
+        ),
+      );
+      return true;
+    }
     if (id == 'deposit-certificate') {
       context.push<void>(
         AppRoutes.financialCertificate,

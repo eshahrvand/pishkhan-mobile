@@ -4919,6 +4919,206 @@ class S {
       args: [],
     );
   }
+
+  /// `معرفی نماینده جدید`
+  String get representativeTitle {
+    return Intl.message(
+      'معرفی نماینده جدید',
+      name: 'representativeTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `انتخاب سپرده`
+  String get representativeDeposit {
+    return Intl.message(
+      'انتخاب سپرده',
+      name: 'representativeDeposit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `سپرده مورد نظر خود را انتخاب کنید`
+  String get representativeDepositHint {
+    return Intl.message(
+      'سپرده مورد نظر خود را انتخاب کنید',
+      name: 'representativeDepositHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `نوع عملیات`
+  String get representativeOperation {
+    return Intl.message(
+      'نوع عملیات',
+      name: 'representativeOperation',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `عملیات مجاز نماینده را انتخاب کنید`
+  String get representativeOperationHint {
+    return Intl.message(
+      'عملیات مجاز نماینده را انتخاب کنید',
+      name: 'representativeOperationHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `صدور دسته چک`
+  String get representativeChequeBook {
+    return Intl.message(
+      'صدور دسته چک',
+      name: 'representativeChequeBook',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `کد ملی نماینده`
+  String get representativeNationalId {
+    return Intl.message(
+      'کد ملی نماینده',
+      name: 'representativeNationalId',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `کد ملی نماینده را وارد کنید`
+  String get representativeNationalIdHint {
+    return Intl.message(
+      'کد ملی نماینده را وارد کنید',
+      name: 'representativeNationalIdHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `تاریخ اعتبار`
+  String get representativeValidity {
+    return Intl.message(
+      'تاریخ اعتبار',
+      name: 'representativeValidity',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `تاریخ انقضا را تعیین کنید`
+  String get representativeValidityHint {
+    return Intl.message(
+      'تاریخ انقضا را تعیین کنید',
+      name: 'representativeValidityHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `تاریخ معتبر از امروز به بعد با قالب ۱۴۰۵/۰۶/۳۰ وارد کنید.`
+  String get representativeValidityError {
+    return Intl.message(
+      'تاریخ معتبر از امروز به بعد با قالب ۱۴۰۵/۰۶/۳۰ وارد کنید.',
+      name: 'representativeValidityError',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `ثبت اولیه`
+  String get representativePreliminarySave {
+    return Intl.message(
+      'ثبت اولیه',
+      name: 'representativePreliminarySave',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `افزودن نماینده بعدی`
+  String get representativeAddNext {
+    return Intl.message(
+      'افزودن نماینده بعدی',
+      name: 'representativeAddNext',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `نماینده جدید`
+  String get representativeNewPerson {
+    return Intl.message(
+      'نماینده جدید',
+      name: 'representativeNewPerson',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `حذف نماینده`
+  String get representativeRemove {
+    return Intl.message(
+      'حذف نماینده',
+      name: 'representativeRemove',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `نوع نمایندگی`
+  String get representativeKind {
+    return Intl.message(
+      'نوع نمایندگی',
+      name: 'representativeKind',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `سپرده`
+  String get representativeDepositShort {
+    return Intl.message(
+      'سپرده',
+      name: 'representativeDepositShort',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `انصراف`
+  String get representativeCancel {
+    return Intl.message(
+      'انصراف',
+      name: 'representativeCancel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `ثبت`
+  String get representativeSave {
+    return Intl.message(
+      'ثبت',
+      name: 'representativeSave',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `درخواست آزمایشی ثبت شد؛ هیچ نمایندگی بانکی ایجاد نشده است.`
+  String get representativeMockComplete {
+    return Intl.message(
+      'درخواست آزمایشی ثبت شد؛ هیچ نمایندگی بانکی ایجاد نشده است.',
+      name: 'representativeMockComplete',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

@@ -1,10 +1,14 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 
-
 class AppRepresentativeCardDetailRow extends StatelessWidget {
-  const AppRepresentativeCardDetailRow({super.key, required this.row});
+  const AppRepresentativeCardDetailRow({
+    super.key,
+    required this.row,
+    this.labelColor,
+  });
   final ({String label, String value}) row;
+  final Color? labelColor;
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +28,7 @@ class AppRepresentativeCardDetailRow extends StatelessWidget {
             child: Text(
               row.label,
               textAlign: TextAlign.right,
-              style: _labelStyle,
+              style: _labelStyle.copyWith(color: labelColor),
             ),
           ),
         ],

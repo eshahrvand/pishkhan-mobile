@@ -854,6 +854,44 @@ class MessageLookup extends MessageLookupByLibrary {
         "refreshCaptcha":
             MessageLookupByLibrary.simpleMessage("Refresh security code"),
         "relatedLinks": MessageLookupByLibrary.simpleMessage("Related links"),
+        "representativeAddNext":
+            MessageLookupByLibrary.simpleMessage("Add another representative"),
+        "representativeCancel": MessageLookupByLibrary.simpleMessage("Cancel"),
+        "representativeChequeBook":
+            MessageLookupByLibrary.simpleMessage("Cheque book issuance"),
+        "representativeDeposit":
+            MessageLookupByLibrary.simpleMessage("Select deposit"),
+        "representativeDepositHint":
+            MessageLookupByLibrary.simpleMessage("Select your deposit"),
+        "representativeDepositShort":
+            MessageLookupByLibrary.simpleMessage("Deposit"),
+        "representativeKind":
+            MessageLookupByLibrary.simpleMessage("Authorization type"),
+        "representativeMockComplete": MessageLookupByLibrary.simpleMessage(
+            "Demo request recorded. No banking authority has been granted."),
+        "representativeNationalId":
+            MessageLookupByLibrary.simpleMessage("Representative national ID"),
+        "representativeNationalIdHint": MessageLookupByLibrary.simpleMessage(
+            "Enter representative national ID"),
+        "representativeNewPerson":
+            MessageLookupByLibrary.simpleMessage("New representative"),
+        "representativeOperation":
+            MessageLookupByLibrary.simpleMessage("Operation type"),
+        "representativeOperationHint": MessageLookupByLibrary.simpleMessage(
+            "Select the representative’s permitted operation"),
+        "representativePreliminarySave":
+            MessageLookupByLibrary.simpleMessage("Add to pending list"),
+        "representativeRemove":
+            MessageLookupByLibrary.simpleMessage("Remove representative"),
+        "representativeSave": MessageLookupByLibrary.simpleMessage("Save"),
+        "representativeTitle": MessageLookupByLibrary.simpleMessage(
+            "Introduce a new representative"),
+        "representativeValidity":
+            MessageLookupByLibrary.simpleMessage("Valid until"),
+        "representativeValidityError": MessageLookupByLibrary.simpleMessage(
+            "Enter a valid date from today onward in Jalali YYYY/MM/DD format."),
+        "representativeValidityHint":
+            MessageLookupByLibrary.simpleMessage("Enter expiry date"),
         "requestIdentifier":
             MessageLookupByLibrary.simpleMessage("Request identifier"),
         "requestOtp":

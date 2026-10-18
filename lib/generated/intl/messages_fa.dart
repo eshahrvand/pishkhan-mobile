@@ -823,6 +823,44 @@ class MessageLookup extends MessageLookupByLibrary {
         "refreshCaptcha":
             MessageLookupByLibrary.simpleMessage("تازه‌سازی کد امنیتی"),
         "relatedLinks": MessageLookupByLibrary.simpleMessage("لینک‌های مرتبط"),
+        "representativeAddNext":
+            MessageLookupByLibrary.simpleMessage("افزودن نماینده بعدی"),
+        "representativeCancel": MessageLookupByLibrary.simpleMessage("انصراف"),
+        "representativeChequeBook":
+            MessageLookupByLibrary.simpleMessage("صدور دسته چک"),
+        "representativeDeposit":
+            MessageLookupByLibrary.simpleMessage("انتخاب سپرده"),
+        "representativeDepositHint": MessageLookupByLibrary.simpleMessage(
+            "سپرده مورد نظر خود را انتخاب کنید"),
+        "representativeDepositShort":
+            MessageLookupByLibrary.simpleMessage("سپرده"),
+        "representativeKind":
+            MessageLookupByLibrary.simpleMessage("نوع نمایندگی"),
+        "representativeMockComplete": MessageLookupByLibrary.simpleMessage(
+            "درخواست آزمایشی ثبت شد؛ هیچ نمایندگی بانکی ایجاد نشده است."),
+        "representativeNationalId":
+            MessageLookupByLibrary.simpleMessage("کد ملی نماینده"),
+        "representativeNationalIdHint":
+            MessageLookupByLibrary.simpleMessage("کد ملی نماینده را وارد کنید"),
+        "representativeNewPerson":
+            MessageLookupByLibrary.simpleMessage("نماینده جدید"),
+        "representativeOperation":
+            MessageLookupByLibrary.simpleMessage("نوع عملیات"),
+        "representativeOperationHint": MessageLookupByLibrary.simpleMessage(
+            "عملیات مجاز نماینده را انتخاب کنید"),
+        "representativePreliminarySave":
+            MessageLookupByLibrary.simpleMessage("ثبت اولیه"),
+        "representativeRemove":
+            MessageLookupByLibrary.simpleMessage("حذف نماینده"),
+        "representativeSave": MessageLookupByLibrary.simpleMessage("ثبت"),
+        "representativeTitle":
+            MessageLookupByLibrary.simpleMessage("معرفی نماینده جدید"),
+        "representativeValidity":
+            MessageLookupByLibrary.simpleMessage("تاریخ اعتبار"),
+        "representativeValidityError": MessageLookupByLibrary.simpleMessage(
+            "تاریخ معتبر از امروز به بعد با قالب ۱۴۰۵/۰۶/۳۰ وارد کنید."),
+        "representativeValidityHint":
+            MessageLookupByLibrary.simpleMessage("تاریخ انقضا را تعیین کنید"),
         "requestIdentifier":
             MessageLookupByLibrary.simpleMessage("شناسه درخواست"),
         "requestOtp": MessageLookupByLibrary.simpleMessage("درخواست ارسال رمز"),
