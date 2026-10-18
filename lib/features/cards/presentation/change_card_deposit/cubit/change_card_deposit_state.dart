@@ -1,25 +1,24 @@
 part of 'change_card_deposit_cubit.dart';
 
-@freezed
+@Freezed(toStringOverride: false)
 abstract class ChangeCardDepositState with _$ChangeCardDepositState {
   const factory ChangeCardDepositState.initial({
     FlowNavigation? navigation,
     @Default(0) int navigationId,
-    @Default(RequestStatus.initial) RequestStatus status,
+    @Default(RequestStatus.initial) RequestStatus catalogStatus,
     @Default(RequestStatus.initial) RequestStatus submissionStatus,
     CardServiceCatalog? catalog,
-    String? cardId,
     ServiceBankCard? card,
     CardServiceDeposit? source,
     @Default(<CardServiceDeposit>[]) List<CardServiceDeposit> destinations,
     CardServiceDeposit? destination,
-    @Default(false) bool isEmpty,
-    @Default(false) bool editable,
-    @Default(false) bool walletSufficient,
+    @Default(false) bool isCatalogEmpty,
+    @Default(false) bool isEditable,
+    @Default(false) bool isWalletSufficient,
     @Default(false) bool canSubmit,
-    String? destinationId,
     @Default(false) bool termsAccepted,
-    Failure? failure,
+    Failure? catalogFailure,
+    Failure? submissionFailure,
     CardServiceReceipt? receipt,
   }) = _ChangeCardDepositState;
 }

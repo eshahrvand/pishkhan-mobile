@@ -1,7 +1,11 @@
-import 'package:flutter_localizations/flutter_localizations.dart';
-
+import 'dart:async';
 import 'dart:io';
 import 'dart:ui' as ui;
+
+import 'package:pishkhan_mobile/core/result/result.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/change_card_deposit/widgets/change_card_deposit_form.dart';
+import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
@@ -102,8 +106,8 @@ void main() {
 
   Finder button(String label) =>
       find.byWidgetPredicate((w) => w is AppButton && w.label == label);
-  Future<void> choose(WidgetTester t, int index, String number) async {
-    await t.tap(find.byType(AppSelect<String>).at(index));
+  Future<void> choose<T>(WidgetTester t, int index, String number) async {
+    await t.tap(find.byType(AppSelect<T>).at(index));
     await t.pumpAndSettle();
     await t.tap(find.text(number).last);
     await t.pumpAndSettle();
@@ -129,13 +133,13 @@ void main() {
     (t) async {
       final repo = TestCardServicesRepository();
       await mount(t, const ChangeCardDepositScreen(), repository: repo);
-      expect(find.byType(AppSelect<String>), findsOneWidget);
+      expect(find.byType(AppSelect<ServiceBankCard>), findsOneWidget);
       expect(
         t.widget<AppButton>(button('تایید و ثبت درخواست')).onPressed,
         isNull,
       );
       await capture(t, 'change-1-empty');
-      await choose(t, 0, '\u200e5041 7212 2345 6787');
+      await choose<ServiceBankCard>(t, 0, '\u200e5041 7212 2345 6787');
       final number = t.renderObject<RenderParagraph>(
         find.text('\u200e5041 7212 2345 6787'),
       );
@@ -147,15 +151,15 @@ void main() {
       );
       expect(firstGroup.first.left, lessThan(lastGroup.first.left));
 
-      expect(find.byType(AppSelect<String>), findsNWidgets(3));
+      expect(find.byType(AppSelect<ServiceBankCard>), findsOneWidget);
+      expect(find.byType(AppSelect<CardServiceDeposit>), findsOneWidget);
+      expect(find.byType(AppSelect<String>), findsOneWidget);
       expect(
-        t
-            .widget<AppSelect<String>>(find.byType(AppSelect<String>).at(1))
-            .enabled,
+        t.widget<AppSelect<String>>(find.byType(AppSelect<String>)).enabled,
         isFalse,
       );
       await capture(t, 'change-2-card');
-      await choose(t, 2, '10.123456.2');
+      await choose<CardServiceDeposit>(t, 0, '10.123456.2');
       await t.tap(find.byType(AppCheckbox));
       await t.pumpAndSettle();
       expect(changeCubit(t).state.canSubmit, isTrue);
@@ -169,6 +173,54 @@ void main() {
       expect(t.takeException(), isNull);
     },
   );
+  testWidgets(
+    'change submission disables form actions and keeps Back available',
+    (t) async {
+      final repo = TestCardServicesRepository()
+        ..pendingSubmit = Completer<Result<CardServiceReceipt>>();
+      var completions = 0;
+      await mount(
+        t,
+        ChangeCardDepositScreen(onCompleted: (_) => completions++),
+        repository: repo,
+      );
+      await choose<ServiceBankCard>(t, 0, '\u200e5041 7212 2345 6787');
+      await choose<CardServiceDeposit>(t, 0, '10.123456.2');
+      await t.tap(find.byType(AppCheckbox));
+      await t.pumpAndSettle();
+      await t.tap(button('تایید و ثبت درخواست'));
+      await t.pump();
+      expect(
+        t.widget<AppButton>(button('تایید و ثبت درخواست')).onPressed,
+        isNull,
+      );
+      expect(t.widget<AppCheckbox>(find.byType(AppCheckbox)).onChanged, isNull);
+      expect(
+        t
+            .widget<AbsorbPointer>(
+              find.descendant(
+                of: find.byType(ChangeCardDepositForm),
+                matching: find.byType(AbsorbPointer),
+              ),
+            )
+            .absorbing,
+        isTrue,
+      );
+      expect(
+        t.widget<AppTopBar>(find.byType(AppTopBar)).onTrailingPressed,
+        isNotNull,
+      );
+      expect(repo.changes, hasLength(1));
+      repo.pendingSubmit!.complete(
+        const Success(CardServiceReceipt(reference: 'done', isMock: true)),
+      );
+      await t.pumpAndSettle();
+      expect(completions, 1);
+      expect(changeCubit(t).state.submissionStatus, RequestStatus.success);
+      expect(t.takeException(), isNull);
+    },
+  );
+
   testWidgets(
     'one-account gift flow reviews selection and then submits to destination',
     (t) async {
@@ -210,7 +262,7 @@ void main() {
       t.view.physicalSize = const Size(375, 812);
       await t.pumpAndSettle();
       await capture(t, 'gift-4-destination');
-      await choose(t, 0, '10.123456.1');
+      await choose<String>(t, 0, '10.123456.1');
       await t.tap(find.byType(AppCheckbox));
       await t.pumpAndSettle();
       await capture(t, 'gift-5-complete');
@@ -236,7 +288,7 @@ void main() {
     await t.tap(filter);
     await t.pumpAndSettle();
     await capture(t, 'gift-7-filter-all');
-    await choose(t, 0, '10.123456.2');
+    await choose<String>(t, 0, '10.123456.2');
     expect(giftCubit(t).state.visibleCards.length, 5);
     await capture(t, 'gift-8-filter-draft');
     await t.tap(button('اعمال فیلتر'));
@@ -247,7 +299,7 @@ void main() {
     expect(giftCubit(t).state.selectedIds, {'gift-1', 'gift-3'});
     await t.tap(filter);
     await t.pumpAndSettle();
-    await choose(t, 0, 'همه');
+    await choose<String>(t, 0, 'همه');
     await t.tap(button('اعمال فیلتر'));
     await t.pumpAndSettle();
     expect(giftCubit(t).state.visibleCards.length, 5);
@@ -276,18 +328,18 @@ void main() {
   ) async {
     final repo = TestCardServicesRepository()..throwLoad = true;
     await mount(t, const ChangeCardDepositScreen(), repository: repo);
-    expect(changeCubit(t).state.status, RequestStatus.failure);
+    expect(changeCubit(t).state.catalogStatus, RequestStatus.failure);
     repo.throwLoad = false;
     await t.tap(button('تلاش دوباره'));
     await t.pumpAndSettle();
-    await choose(t, 0, '\u200e5041 7212 2345 6787');
-    await choose(t, 2, '10.123456.2');
+    await choose<ServiceBankCard>(t, 0, '\u200e5041 7212 2345 6787');
+    await choose<CardServiceDeposit>(t, 0, '10.123456.2');
     await t.tap(find.byType(AppCheckbox));
     await t.pumpAndSettle();
     repo.failSubmit = true;
     await t.tap(button('تایید و ثبت درخواست'));
     await t.pumpAndSettle();
-    expect(changeCubit(t).state.editable, isTrue);
+    expect(changeCubit(t).state.isEditable, isTrue);
     expect(
       find.text('ثبت درخواست انجام نشد. دوباره تلاش کنید.'),
       findsOneWidget,
@@ -353,9 +405,15 @@ void main() {
         scale: 1.5,
       );
       final change = changeCubit(t);
-      change.selectCard('card-1');
-      change.selectDestination('deposit-2');
-      change.acceptTerms(true);
+      change.selectCard(
+        change.state.catalog!.cards.firstWhere((card) => card.id == 'card-1'),
+      );
+      change.selectDestination(
+        change.state.destinations.firstWhere(
+          (deposit) => deposit.id == 'deposit-2',
+        ),
+      );
+      change.updateTermsAcceptance(true);
       await t.pumpAndSettle();
       expect(change.state.canSubmit, isTrue);
       expect(t.takeException(), isNull);
@@ -383,7 +441,9 @@ void main() {
       final first = TestCardServicesRepository();
       await mount(t, const ChangeCardDepositScreen(), repository: first);
       final previous = changeCubit(t);
-      previous.selectCard('card-1');
+      previous.selectCard(
+        previous.state.catalog!.cards.firstWhere((card) => card.id == 'card-1'),
+      );
       await mount(t, const SizedBox.shrink());
       await mount(
         t,
@@ -391,7 +451,7 @@ void main() {
         repository: TestCardServicesRepository(catalog: singleAccountCatalog()),
       );
       expect(previous.isClosed, isTrue);
-      expect(changeCubit(t).state.cardId, isNull);
+      expect(changeCubit(t).state.card, isNull);
       expect(find.text('موردی برای نمایش وجود ندارد.'), findsOneWidget);
       expect(find.byType(AppSelect<String>), findsNothing);
     },
@@ -435,12 +495,14 @@ void main() {
       final repo = TestCardServicesRepository();
       await mount(t, const ChangeCardDepositScreen(), repository: repo);
       final cubit = changeCubit(t);
-      cubit.selectCard('card-1');
+      cubit.selectCard(
+        cubit.state.catalog!.cards.firstWhere((card) => card.id == 'card-1'),
+      );
       await mount(t, ChangeCardDepositScreen(onTermsRequested: () {}));
       expect(changeCubit(t), same(cubit));
       expect(repo.loadCalls, 1);
-      expect(cubit.state.cardId, 'card-1');
-      expect(cubit.state.status, RequestStatus.success);
+      expect(cubit.state.card?.id, 'card-1');
+      expect(cubit.state.catalogStatus, RequestStatus.success);
       await mount(t, const Scaffold());
       expect(cubit.isClosed, isTrue);
     },

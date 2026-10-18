@@ -37,14 +37,14 @@ void main() {
 
   test('deposit change confirms discarded card selection', () async {
     final cubit = ChangeCardDepositCubit();
-    await cubit.load();
-    cubit.selectCard(cubit.state.catalog!.cards.first.id);
+    await cubit.fetchCatalog();
+    cubit.selectCard(cubit.state.catalog!.cards.first);
     cubit.requestBack();
     expect(cubit.state.navigation, FlowNavigation.confirmExit);
-    cubit.exitConfirmationResult(false);
-    expect(cubit.state.cardId, isNotNull);
+    cubit.applyExitConfirmation(false);
+    expect(cubit.state.card, isNotNull);
     cubit.requestBack();
-    cubit.exitConfirmationResult(true);
+    cubit.applyExitConfirmation(true);
     expect(cubit.state.navigation, FlowNavigation.back);
     await cubit.close();
   });

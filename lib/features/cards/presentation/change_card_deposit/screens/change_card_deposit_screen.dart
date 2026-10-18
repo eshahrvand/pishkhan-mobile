@@ -39,7 +39,7 @@ class _ChangeCardDepositScreenState extends State<ChangeCardDepositScreen> {
       case FlowNavigation.confirmExit:
         final confirmed = await showFlowExitDialog(context);
         if (context.mounted) {
-          context.read<ChangeCardDepositCubit>().exitConfirmationResult(
+          context.read<ChangeCardDepositCubit>().applyExitConfirmation(
             confirmed,
           );
         }
@@ -60,7 +60,7 @@ class _ChangeCardDepositScreenState extends State<ChangeCardDepositScreen> {
     return BlocProvider<ChangeCardDepositCubit>(
       create: (_) =>
           ChangeCardDepositCubit(initialCardNumber: widget.initialCardNumber)
-            ..load(),
+            ..fetchCatalog(),
       child: BlocListener<ChangeCardDepositCubit, ChangeCardDepositState>(
         listenWhen: (previous, current) =>
             previous.navigationId != current.navigationId,
@@ -69,11 +69,10 @@ class _ChangeCardDepositScreenState extends State<ChangeCardDepositScreen> {
           textDirection: TextDirection.rtl,
           child: BlocConsumer<ChangeCardDepositCubit, ChangeCardDepositState>(
             listenWhen: (previous, current) =>
-                previous.submissionStatus != current.submissionStatus,
+                previous.submissionStatus != current.submissionStatus &&
+                current.submissionStatus == RequestStatus.success,
             listener: (context, state) {
-              if (state.receipt != null) {
-                widget.onCompleted?.call(state.receipt!);
-              }
+              widget.onCompleted?.call(state.receipt!);
             },
             builder: (context, state) {
               return PopScope(
@@ -102,37 +101,36 @@ class _ChangeCardDepositScreenState extends State<ChangeCardDepositScreen> {
                         ),
                         Expanded(
                           child:
-                              (state.status == RequestStatus.success &&
-                                  !state.isEmpty &&
+                              (state.catalogStatus == RequestStatus.success &&
+                                  !state.isCatalogEmpty &&
                                   state.receipt == null)
-                              ? ChangeCardDepositForm(
-                                  cubit: context.read<ChangeCardDepositCubit>(),
-                                  state: state,
-                                )
+                              ? ChangeCardDepositForm(state: state)
                               : CardServiceStatus(
-                                  status: state.status,
-                                  empty: state.isEmpty,
+                                  status: state.catalogStatus,
+                                  empty: state.isCatalogEmpty,
                                   receipt: state.receipt,
                                   onRetry: context
                                       .read<ChangeCardDepositCubit>()
-                                      .load,
+                                      .fetchCatalog,
                                 ),
                         ),
-                        if ((state.status == RequestStatus.success &&
-                            !state.isEmpty &&
+                        if ((state.catalogStatus == RequestStatus.success &&
+                            !state.isCatalogEmpty &&
                             state.receipt == null))
                           CardServiceFooter(
                             label: S.current.cardServiceSubmit,
                             loading:
                                 state.submissionStatus == RequestStatus.loading,
                             onSubmit: state.canSubmit
-                                ? context.read<ChangeCardDepositCubit>().submit
-                                : null,
-                            termsAccepted: state.termsAccepted,
-                            onTermsChanged: state.editable
                                 ? context
                                       .read<ChangeCardDepositCubit>()
-                                      .acceptTerms
+                                      .submitDepositChange
+                                : null,
+                            termsAccepted: state.termsAccepted,
+                            onTermsChanged: state.isEditable
+                                ? context
+                                      .read<ChangeCardDepositCubit>()
+                                      .updateTermsAcceptance
                                 : null,
                             onTermsRequested: widget.onTermsRequested,
                           ),

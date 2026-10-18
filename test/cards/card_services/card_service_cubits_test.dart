@@ -80,23 +80,31 @@ void main() {
           ChangeCardDepositCubit
         >(repo, () => ChangeCardDepositCubit());
     addTearDown(cubit.close);
-    await cubit.load();
+    await cubit.fetchCatalog();
     expect(cubit.state.card, isNull);
     expect(cubit.state.canSubmit, isFalse);
-    cubit.selectCard('card-1');
+    cubit.selectCard(
+      cubit.state.catalog!.cards.firstWhere((card) => card.id == 'card-1'),
+    );
     expect(cubit.state.source!.id, 'deposit-1');
-    cubit.selectDestination('deposit-1');
-    expect(cubit.state.destinationId, isNull);
-    cubit.selectDestination('deposit-2');
+    expect(
+      cubit.state.destinations.map((deposit) => deposit.id),
+      isNot(contains('deposit-1')),
+    );
+    cubit.selectDestination(
+      cubit.state.destinations.firstWhere(
+        (deposit) => deposit.id == 'deposit-2',
+      ),
+    );
     expect(cubit.state.canSubmit, isFalse);
-    cubit.acceptTerms(true);
+    cubit.updateTermsAcceptance(true);
     expect(cubit.state.canSubmit, isTrue);
-    cubit.selectCard('card-3');
+    cubit.selectCard(
+      cubit.state.catalog!.cards.firstWhere((card) => card.id == 'card-3'),
+    );
     expect(cubit.state.source!.id, 'deposit-2');
-    expect(cubit.state.destinationId, isNull);
+    expect(cubit.state.destination?.id, isNull);
     expect(cubit.state.termsAccepted, isFalse);
-    cubit.selectCard('unknown');
-    expect(cubit.state.cardId, 'card-3');
   });
   test('selected card seed normalizes Persian digits and grouping', () async {
     final c =
@@ -109,8 +117,8 @@ void main() {
               ChangeCardDepositCubit(initialCardNumber: '۵۰۴۱ ۷۲۱۲ ۲۳۴۵ ۶۷۸۷'),
         );
     addTearDown(c.close);
-    await c.load();
-    expect(c.state.cardId, 'card-1');
+    await c.fetchCatalog();
+    expect(c.state.card?.id, 'card-1');
   });
   test('insufficient wallet prevents submission', () async {
     final sample = MockCardServicesRepository.examples;
@@ -131,48 +139,195 @@ void main() {
           () => ChangeCardDepositCubit(),
         );
     addTearDown(c.close);
-    await c.load();
-    c.selectCard('card-1');
-    c.selectDestination('deposit-2');
-    c.acceptTerms(true);
+    await c.fetchCatalog();
+    c.selectCard(
+      c.state.catalog!.cards.firstWhere((card) => card.id == 'card-1'),
+    );
+    c.selectDestination(
+      c.state.destinations.firstWhere((deposit) => deposit.id == 'deposit-2'),
+    );
+    c.updateTermsAcceptance(true);
     expect(c.state.canSubmit, isFalse);
   });
+  test('submission disables editing and retry reuses request key', () async {
+    final repo = TestCardServicesRepository()..failSubmit = true;
+    final c =
+        withRegisteredDependency<
+          CardServicesRepository,
+          ChangeCardDepositCubit
+        >(repo, () => ChangeCardDepositCubit());
+    addTearDown(c.close);
+    await c.fetchCatalog();
+    c.selectCard(
+      c.state.catalog!.cards.firstWhere((card) => card.id == 'card-1'),
+    );
+    c.selectDestination(
+      c.state.destinations.firstWhere((deposit) => deposit.id == 'deposit-2'),
+    );
+    c.updateTermsAcceptance(true);
+    await c.submitDepositChange();
+    expect(c.state.submissionStatus, RequestStatus.failure);
+    repo.failSubmit = false;
+    repo.pendingSubmit = Completer();
+    final submit = c.submitDepositChange();
+    expect(c.state.isEditable, isFalse);
+    expect(c.state.canSubmit, isFalse);
+    expect(repo.changes.length, 2);
+    expect(c.state.card?.id, 'card-1');
+    expect(repo.changes.first.idempotencyKey, repo.changes.last.idempotencyKey);
+    repo.pendingSubmit!.complete(
+      const Success(CardServiceReceipt(reference: 'demo', isMock: true)),
+    );
+    await submit;
+    expect(c.state.receipt!.reference, 'demo');
+    expect(c.state.isEditable, isFalse);
+  });
   test(
-    'duplicate submits and edits are blocked, retry reuses request key',
+    'deposit change preserves supplied state without loading in constructor',
+    () async {
+      final repo = TestCardServicesRepository();
+      const initialState = ChangeCardDepositState.initial(termsAccepted: true);
+      final cubit =
+          withRegisteredDependency<
+            CardServicesRepository,
+            ChangeCardDepositCubit
+          >(repo, () => ChangeCardDepositCubit(initialState: initialState));
+      addTearDown(cubit.close);
+      expect(cubit.state, same(initialState));
+      expect(repo.loadCalls, 0);
+    },
+  );
+
+  test(
+    'editing a failed request clears its error and creates a new request key',
     () async {
       final repo = TestCardServicesRepository()..failSubmit = true;
-      final c =
+      final cubit =
           withRegisteredDependency<
             CardServicesRepository,
             ChangeCardDepositCubit
           >(repo, () => ChangeCardDepositCubit());
-      addTearDown(c.close);
-      await c.load();
-      c.selectCard('card-1');
-      c.selectDestination('deposit-2');
-      c.acceptTerms(true);
-      await c.submit();
-      expect(c.state.submissionStatus, RequestStatus.failure);
-      repo.failSubmit = false;
-      repo.pendingSubmit = Completer();
-      final submit = c.submit();
-      c.selectCard('card-3');
-      await c.submit();
-      await c.load();
-      expect(repo.changes.length, 2);
-      expect(c.state.cardId, 'card-1');
+      addTearDown(cubit.close);
+      await cubit.fetchCatalog();
+      cubit.selectCard(cubit.state.catalog!.cards.first);
+      cubit.selectDestination(cubit.state.destinations.first);
+      cubit.updateTermsAcceptance(true);
+      await cubit.submitDepositChange();
+      expect(cubit.state.catalogStatus, RequestStatus.success);
+      expect(cubit.state.catalogFailure, isNull);
+      expect(cubit.state.submissionFailure, isA<DataFailure>());
+      expect(cubit.state.canSubmit, isTrue);
+      cubit.selectCard(
+        cubit.state.catalog!.cards.firstWhere((card) => card.id == 'card-3'),
+      );
+      expect(cubit.state.submissionFailure, isNull);
+      expect(cubit.state.destination, isNull);
+      cubit.selectDestination(cubit.state.destinations.first);
+      cubit.updateTermsAcceptance(true);
+      await cubit.submitDepositChange();
       expect(
-        repo.changes.first.idempotencyKey,
         repo.changes.last.idempotencyKey,
+        isNot(repo.changes.first.idempotencyKey),
       );
-      repo.pendingSubmit!.complete(
-        const Success(CardServiceReceipt(reference: 'demo', isMock: true)),
-      );
-      await submit;
-      expect(c.state.receipt!.reference, 'demo');
-      expect(c.state.editable, isFalse);
+      expect(repo.changes.last.cardId, 'card-3');
+      expect(repo.changes.last.sourceDepositId, 'deposit-2');
     },
   );
+
+  test('changing destination resets consent and request identity', () async {
+    final sample = MockCardServicesRepository.examples;
+    final repo = TestCardServicesRepository(
+      catalog: CardServiceCatalog(
+        deposits: [
+          ...sample.deposits,
+          const CardServiceDeposit(id: 'deposit-3', number: '10.123456.3'),
+        ],
+        cards: sample.cards,
+        gifts: sample.gifts,
+        changeDepositFeeRial: sample.changeDepositFeeRial,
+        walletBalanceRial: sample.walletBalanceRial,
+      ),
+    )..failSubmit = true;
+    final cubit =
+        withRegisteredDependency<
+          CardServicesRepository,
+          ChangeCardDepositCubit
+        >(repo, () => ChangeCardDepositCubit());
+    addTearDown(cubit.close);
+    await cubit.fetchCatalog();
+    cubit.selectCard(cubit.state.catalog!.cards.first);
+    cubit.selectDestination(cubit.state.destinations.first);
+    cubit.updateTermsAcceptance(true);
+    await cubit.submitDepositChange();
+    // Pick another rendered deposit after a failed attempt.
+    cubit.selectDestination(cubit.state.destinations.last);
+    expect(cubit.state.termsAccepted, isFalse);
+    expect(cubit.state.canSubmit, isFalse);
+    expect(cubit.state.submissionFailure, isNull);
+    cubit.updateTermsAcceptance(true);
+    await cubit.submitDepositChange();
+    expect(
+      repo.changes.last.idempotencyKey,
+      isNot(repo.changes.first.idempotencyKey),
+    );
+    expect(repo.changes.last.destinationDepositId, cubit.state.destination!.id);
+  });
+
+  test(
+    'a seeded card is a clean entry and cancelled exit preserves destination',
+    () async {
+      final cubit =
+          withRegisteredDependency<
+            CardServicesRepository,
+            ChangeCardDepositCubit
+          >(
+            TestCardServicesRepository(),
+            () => ChangeCardDepositCubit(
+              initialCardNumber: '۵۰۴۱ ۷۲۱۲ ۲۳۴۵ ۶۷۸۷',
+            ),
+          );
+      addTearDown(cubit.close);
+      await cubit.fetchCatalog();
+      cubit.requestBack();
+      expect(cubit.state.navigation, FlowNavigation.back);
+      cubit.selectDestination(cubit.state.destinations.first);
+      cubit.requestBack();
+      expect(cubit.state.navigation, FlowNavigation.confirmExit);
+      cubit.applyExitConfirmation(null);
+      expect(cubit.state.navigation, isNull);
+      expect(cubit.state.destination, isNotNull);
+    },
+  );
+
+  test(
+    'invalid change catalog is a catalog failure without submission failure',
+    () async {
+      final sample = MockCardServicesRepository.examples;
+      final cubit =
+          withRegisteredDependency<
+            CardServicesRepository,
+            ChangeCardDepositCubit
+          >(
+            TestCardServicesRepository(
+              catalog: CardServiceCatalog(
+                deposits: [],
+                cards: sample.cards,
+                gifts: [],
+                changeDepositFeeRial: 0,
+                walletBalanceRial: 0,
+              ),
+            ),
+            () => ChangeCardDepositCubit(),
+          );
+      addTearDown(cubit.close);
+      await cubit.fetchCatalog();
+      expect(cubit.state.catalogStatus, RequestStatus.failure);
+      expect(cubit.state.catalogFailure, isA<DataFailure>());
+      expect(cubit.state.submissionStatus, RequestStatus.initial);
+      expect(cubit.state.submissionFailure, isNull);
+    },
+  );
+
   test('gifts normalize search and toggle all visible without losing hidden selection', () async {
     final c =
         withRegisteredDependency<
@@ -343,35 +498,26 @@ void main() {
       expect(c.state.receipt!.reference, 'GB-demo');
     },
   );
-  test('latest load wins and a closed cubit ignores delayed results', () async {
-    final firstLoad = Completer<Result<CardServiceCatalog>>();
-    final repo = TestCardServicesRepository()..pendingLoad = firstLoad;
-    final c =
-        withRegisteredDependency<
-          CardServicesRepository,
-          ExpiredGiftBalanceCubit
-        >(repo, () => ExpiredGiftBalanceCubit());
-    final pending = c.load();
-    repo.pendingLoad = null;
-    await c.load();
-    expect(c.state.status, RequestStatus.success);
-    await c.close();
-    firstLoad.complete(const Err(DataFailure('superseded')));
-    await pending;
-    final closedRepo = TestCardServicesRepository();
-    final completer = Completer<Result<CardServiceCatalog>>();
-    closedRepo.pendingLoad = completer;
-    final closed =
-        withRegisteredDependency<
-          CardServicesRepository,
-          ChangeCardDepositCubit
-        >(closedRepo, () => ChangeCardDepositCubit());
-    final load = closed.load();
-    await closed.close();
-    completer.complete(Success(closedRepo.mock.catalog));
-    await load;
-    expect(c.state.status, RequestStatus.success);
-  });
+  test(
+    'latest gift load wins and a closed gift cubit ignores delayed results',
+    () async {
+      final firstLoad = Completer<Result<CardServiceCatalog>>();
+      final repo = TestCardServicesRepository()..pendingLoad = firstLoad;
+      final c =
+          withRegisteredDependency<
+            CardServicesRepository,
+            ExpiredGiftBalanceCubit
+          >(repo, () => ExpiredGiftBalanceCubit());
+      final pending = c.load();
+      repo.pendingLoad = null;
+      await c.load();
+      expect(c.state.status, RequestStatus.success);
+      await c.close();
+      firstLoad.complete(const Err(DataFailure('superseded')));
+      await pending;
+      expect(c.state.status, RequestStatus.success);
+    },
+  );
   test(
     'repository exception and invalid catalog become recoverable failures',
     () async {
@@ -382,11 +528,11 @@ void main() {
             ChangeCardDepositCubit
           >(repo, () => ChangeCardDepositCubit());
       addTearDown(c.close);
-      await c.load();
-      expect(c.state.status, RequestStatus.failure);
+      await c.fetchCatalog();
+      expect(c.state.catalogStatus, RequestStatus.failure);
       repo.throwLoad = false;
-      await c.load();
-      expect(c.state.status, RequestStatus.success);
+      await c.fetchCatalog();
+      expect(c.state.catalogStatus, RequestStatus.success);
       final invalid =
           withRegisteredDependency<
             CardServicesRepository,
