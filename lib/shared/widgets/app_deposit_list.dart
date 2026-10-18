@@ -1,8 +1,10 @@
+import 'app_deposit_list_header.dart';
+import 'app_deposit_list_detail_row.dart';
+
 import 'dart:math' as math;
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 /// Local Figma SVG assets used by [AppDepositList].
@@ -23,13 +25,13 @@ abstract final class AppDepositListIcons {
   static Widget divider() => SizedBox(
     height: .5,
     width: double.infinity,
-    child: SvgPicture.asset(AppAssets.dividerCardGray200, fit: BoxFit.fill),
+    child: AvpImage(image: AppAssets.dividerCardGray200, fit: BoxFit.fill),
   );
 
   static Widget _svg(String path) => SizedBox(
     width: 20,
     height: 20,
-    child: SvgPicture.asset(path, fit: BoxFit.contain),
+    child: AvpImage(image: path, fit: BoxFit.contain),
   );
 }
 
@@ -44,6 +46,10 @@ class AppDepositList extends StatelessWidget {
     this.moreIcon,
     this.depositIcon,
     this.onMoreTap,
+    this.accountNumberLabel = 'شماره سپرده',
+    this.statusFieldLabel = 'وضعیت',
+    this.divider,
+    this.alignContentToEdges = false,
   });
 
   final String title;
@@ -53,6 +59,9 @@ class AppDepositList extends StatelessWidget {
   final Widget? moreIcon;
   final Widget? depositIcon;
   final VoidCallback? onMoreTap;
+  final String accountNumberLabel, statusFieldLabel;
+  final Widget? divider;
+  final bool alignContentToEdges;
 
   @override
   Widget build(BuildContext context) {
@@ -73,30 +82,36 @@ class AppDepositList extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _header(context),
+                AppDepositListHeader(
+                  alignContentToEdges: alignContentToEdges,
+                  depositIcon: depositIcon,
+                  moreIcon: moreIcon,
+                  onMoreTap: onMoreTap,
+                  title: title,
+                ),
                 const SizedBox(height: 8),
-                AppDepositListIcons.divider(),
+                divider ?? AppDepositListIcons.divider(),
                 const SizedBox(height: 8),
-                _detailRow(
-                  context,
+                AppDepositListDetailRow(
                   leading: Text(
                     accountNumber,
                     overflow: TextOverflow.ellipsis,
                     textDirection: TextDirection.ltr,
                     style: _mediumStyle(colors.textPrimary),
                   ),
-                  label: 'شماره سپرده',
+                  label: accountNumberLabel,
+                  alignContentToEdges: alignContentToEdges,
                 ),
                 const SizedBox(height: 8),
-                _detailRow(
-                  context,
+                AppDepositListDetailRow(
                   leading: AppBadge(
                     label: statusLabel,
                     color: statusColor,
                     background: AppBadgeBackground.light,
                     corner: AppBadgeCorner.rounded,
                   ),
-                  label: 'وضعیت',
+                  label: statusFieldLabel,
+                  alignContentToEdges: alignContentToEdges,
                 ),
               ],
             ),
@@ -105,68 +120,6 @@ class AppDepositList extends StatelessWidget {
       ),
     );
   }
-
-  Widget _header(BuildContext context) {
-    final colors = context.colors;
-    final more = SizedBox(
-      width: 20,
-      height: 20,
-      child: Center(child: moreIcon ?? AppDepositListIcons.moreHorizontal()),
-    );
-    return SizedBox(
-      height: 20,
-      child: Row(
-        textDirection: TextDirection.ltr,
-        children: [
-          onMoreTap == null
-              ? more
-              : InkWell(
-                  onTap: onMoreTap,
-                  borderRadius: AppRadius.borderXs,
-                  child: more,
-                ),
-          const Spacer(),
-          Flexible(
-            child: Text(
-              title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.end,
-              style: _mediumStyle(colors.textPrimary),
-            ),
-          ),
-          const SizedBox(width: 4),
-          SizedBox(
-            width: 20,
-            height: 20,
-            child: Center(child: depositIcon ?? AppDepositListIcons.deposit()),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _detailRow(
-    BuildContext context, {
-    required Widget leading,
-    required String label,
-  }) => SizedBox(
-    height: 22,
-    child: Row(
-      textDirection: TextDirection.ltr,
-      children: [
-        Flexible(child: leading),
-        const Spacer(),
-        Text(label, style: _regularStyle(context.colors.textSecondary)),
-      ],
-    ),
-  );
-
-  TextStyle _regularStyle(Color color) => AppTypography.bodySmall.copyWith(
-    color: color,
-    height: 18 / 12,
-    letterSpacing: 0,
-  );
 
   TextStyle _mediumStyle(Color color) => AppTypography.bodySmall.copyWith(
     color: color,

@@ -2,182 +2,195 @@ import 'dart:math';
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
+import 'package:pishkhan_mobile/core/flow/flow_navigation.dart';
+import 'package:pishkhan_mobile/core/result/failure.dart';
 import 'package:pishkhan_mobile/core/result/result.dart';
 
 import '../../../domain/entities/card_service_data.dart';
 import '../../../domain/repositories/card_services_repository.dart';
 import '../../../domain/usecases/card_services.dart';
-import 'change_card_deposit_state.dart';
-export 'change_card_deposit_state.dart';
+
+export 'package:pishkhan_mobile/core/flow/flow_navigation.dart';
+
+part 'change_card_deposit_state.dart';
+part 'change_card_deposit_cubit.freezed.dart';
 
 class ChangeCardDepositCubit extends Cubit<ChangeCardDepositState> {
   ChangeCardDepositCubit({
-    ChangeCardDepositState initialState = const ChangeCardDepositState(),
-    required this.repository,
+    ChangeCardDepositState initialState =
+        const ChangeCardDepositState.initial(),
     this.initialCardNumber,
   }) : super(initialState);
-  final CardServicesRepository repository;
+
+  final _repository = getIt<CardServicesRepository>();
   final String? initialCardNumber;
-  int _generation = 0;
-  String? _key;
+  String? _idempotencyKey;
 
-  Future<void> load() async {
-    if (state.submissionStatus == RequestStatus.loading) return;
-    final generation = ++_generation;
-    _key = null;
-    _updateState(const ChangeCardDepositState(status: RequestStatus.loading));
-    final result = await LoadCardServiceCatalog(repository)();
-    if (isClosed || generation != _generation) return;
-    switch (result) {
-      case Err(:final failure):
-        _updateState(
-          ChangeCardDepositState(
-            status: RequestStatus.failure,
-            failure: failure,
-          ),
-        );
-      case Success(:final data):
-        final number = _number(initialCardNumber ?? '');
-        final card = data.cards
-            .where((c) => _number(c.number) == number)
-            .firstOrNull;
-        _updateState(
-          ChangeCardDepositState(
-            status: RequestStatus.success,
-            catalog: data,
-            cardId: card?.id,
-          ),
-        );
-    }
+  Future<void> fetchCatalog() {
+    emit(
+      state.copyWith(
+        catalogStatus: RequestStatus.loading,
+        catalogFailure: null,
+      ),
+    );
+    return LoadCardServiceCatalog(_repository)().then((result) {
+      switch (result) {
+        case Err(:final failure):
+          emit(
+            state.copyWith(
+              catalogStatus: RequestStatus.failure,
+              catalogFailure: failure,
+            ),
+          );
+        case Success(:final data):
+          final card = _entryCard(data);
+          final source = data.deposits
+              .where((deposit) => deposit.id == card?.depositId)
+              .firstOrNull;
+          emit(
+            state.copyWith(
+              catalogStatus: RequestStatus.success,
+              catalog: data,
+              card: card,
+              source: source,
+              destinations: data.deposits
+                  .where((deposit) => deposit.id != source?.id)
+                  .toList(),
+              isCatalogEmpty: data.cards.isEmpty || data.deposits.isEmpty,
+              isEditable: true,
+              isWalletSufficient:
+                  data.walletBalanceRial >= data.changeDepositFeeRial,
+            ),
+          );
+      }
+    });
   }
 
-  String _number(String value) =>
-      DigitNormalizer.normalize(value).replaceAll(RegExp(r'[^0-9]'), '');
-
-  void selectCard(String id) {
-    if (!state.editable ||
-        id == state.cardId ||
-        !state.catalog!.cards.any((c) => c.id == id)) {
-      return;
-    }
-    _key = null;
-    _updateState(
+  void selectCard(ServiceBankCard card) {
+    final source = state.catalog!.deposits.firstWhere(
+      (deposit) => deposit.id == card.depositId,
+    );
+    _idempotencyKey = null;
+    emit(
       state.copyWith(
-        cardId: id,
-        destinationId: null,
+        card: card,
+        source: source,
+        destinations: state.catalog!.deposits
+            .where((deposit) => deposit.id != source.id)
+            .toList(),
+        destination: null,
         termsAccepted: false,
+        canSubmit: false,
         submissionStatus: RequestStatus.initial,
-        failure: null,
+        submissionFailure: null,
       ),
     );
   }
 
-  void selectDestination(String id) {
-    if (!state.editable ||
-        id == state.destinationId ||
-        !state.destinations.any((d) => d.id == id)) {
-      return;
-    }
-    _key = null;
-    _updateState(
+  void selectDestination(CardServiceDeposit destination) {
+    _idempotencyKey = null;
+    emit(
       state.copyWith(
-        destinationId: id,
+        destination: destination,
         termsAccepted: false,
+        canSubmit: false,
         submissionStatus: RequestStatus.initial,
-        failure: null,
+        submissionFailure: null,
       ),
     );
   }
 
-  void acceptTerms(bool value) {
-    if (state.editable) _updateState(state.copyWith(termsAccepted: value));
+  void updateTermsAcceptance(bool accepted) {
+    emit(
+      state.copyWith(
+        termsAccepted: accepted,
+        canSubmit:
+            state.card != null &&
+            state.destination != null &&
+            accepted &&
+            state.isWalletSufficient,
+      ),
+    );
   }
 
-  Future<void> submit() async {
-    if (!state.canSubmit) return;
-    _key ??= List.generate(
+  Future<void> submitDepositChange() {
+    _idempotencyKey ??= List.generate(
       16,
       (_) => Random.secure().nextInt(256).toRadixString(16).padLeft(2, '0'),
     ).join();
     final request = ChangeCardDepositRequest(
-      cardId: state.cardId!,
+      cardId: state.card!.id,
       sourceDepositId: state.source!.id,
-      destinationDepositId: state.destinationId!,
-      idempotencyKey: _key!,
+      destinationDepositId: state.destination!.id,
+      idempotencyKey: _idempotencyKey!,
     );
-    final generation = ++_generation;
-    _updateState(
-      state.copyWith(submissionStatus: RequestStatus.loading, failure: null),
+    emit(
+      state.copyWith(
+        submissionStatus: RequestStatus.loading,
+        submissionFailure: null,
+        isEditable: false,
+        canSubmit: false,
+      ),
     );
-    final result = await cardServiceBoundary(
-      () => repository.changeDeposit(request),
-    );
-    if (isClosed || generation != _generation) return;
-    switch (result) {
-      case Err(:final failure):
-        _updateState(
-          state.copyWith(
-            submissionStatus: RequestStatus.failure,
-            failure: failure,
-          ),
-        );
-      case Success(:final data):
-        _updateState(
-          state.copyWith(
-            submissionStatus: RequestStatus.success,
-            receipt: data,
-          ),
-        );
-    }
+    return cardServiceBoundary(() => _repository.changeDeposit(request))
+        .then((result) {
+          switch (result) {
+            case Err(:final failure):
+              emit(
+                state.copyWith(
+                  submissionStatus: RequestStatus.failure,
+                  submissionFailure: failure,
+                  isEditable: true,
+                  canSubmit: state.termsAccepted && state.isWalletSufficient,
+                ),
+              );
+            case Success(:final data):
+              emit(
+                state.copyWith(
+                  submissionStatus: RequestStatus.success,
+                  receipt: data,
+                ),
+              );
+          }
+        });
   }
 
-  // Calculate dependent data once, before emitting a consistent snapshot.
-  void _updateState(ChangeCardDepositState next) {
-    final card = next.catalog?.cards
-        .where((c) => c.id == next.cardId)
-        .firstOrNull;
-    final source = next.catalog?.deposits
-        .where((d) => d.id == card?.depositId)
-        .firstOrNull;
-    final destinations =
-        next.catalog?.deposits.where((d) => d.id != source?.id).toList() ??
-        <CardServiceDeposit>[];
-    final destination = destinations
-        .where((d) => d.id == next.destinationId)
-        .firstOrNull;
-    final editable =
-        next.status == RequestStatus.success &&
-        next.submissionStatus != RequestStatus.loading &&
-        next.submissionStatus != RequestStatus.success;
-    final walletSufficient =
-        next.catalog != null &&
-        next.catalog!.walletBalanceRial >= next.catalog!.changeDepositFeeRial;
+  void requestBack() {
+    final needsConfirmation =
+        state.submissionStatus != RequestStatus.success &&
+        state.catalogStatus == RequestStatus.success &&
+        (state.card != _entryCard(state.catalog!) ||
+            state.destination != null ||
+            state.termsAccepted);
     emit(
-      next.copyWith(
-        card: card,
-        source: source,
-        destinations: destinations,
-        destination: destination,
-        isEmpty:
-            next.catalog?.cards.isEmpty == true ||
-            next.catalog?.deposits.isEmpty == true,
-        editable: editable,
-        walletSufficient: walletSufficient,
-        canSubmit:
-            editable &&
-            card != null &&
-            source != null &&
-            destination != null &&
-            next.termsAccepted &&
-            walletSufficient,
+      state.copyWith(
+        navigation: needsConfirmation
+            ? FlowNavigation.confirmExit
+            : FlowNavigation.back,
+        navigationId: state.navigationId + 1,
       ),
     );
   }
 
-  @override
-  Future<void> close() {
-    _generation++;
-    return super.close();
+  void applyExitConfirmation(bool? confirmed) {
+    emit(
+      state.copyWith(
+        navigation: confirmed == true ? FlowNavigation.back : null,
+        navigationId: state.navigationId + 1,
+      ),
+    );
   }
+
+  ServiceBankCard? _entryCard(CardServiceCatalog catalog) {
+    final number = _number(initialCardNumber ?? '');
+    return catalog.cards
+        .where((card) => _number(card.number) == number)
+        .firstOrNull;
+  }
+
+  String _number(String value) =>
+      DigitNormalizer.normalize(value).replaceAll(RegExp(r'[^0-9]'), '');
 }

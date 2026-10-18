@@ -1,37 +1,33 @@
+import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:pishkhan_mobile/l10n/l10n.dart';
+import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_cards_list.dart';
 
 import '../../../domain/entities/listed_card.dart';
-import 'card_feature_actions.dart';
+import '../card_feature_action.dart';
 
-String categoryLabel(BuildContext context, CardCategory category) =>
-    switch (category) {
-      CardCategory.resalat => context.l10n.cardFeatureResalat,
-      CardCategory.gift => context.l10n.cardFeatureGift,
-      CardCategory.virtual => context.l10n.cardsVirtual,
-      CardCategory.coupon => context.l10n.cardFeatureCoupon,
-      CardCategory.family => context.l10n.cardFeatureFamily,
-    };
-String statusLabel(BuildContext context, CardStatus status) => switch (status) {
-  CardStatus.active => context.l10n.cardFeatureActive,
-  CardStatus.blocked => context.l10n.cardFeatureBlocked,
-  CardStatus.expired => context.l10n.cardFeatureExpired,
+String categoryLabel(CardCategory category) => switch (category) {
+  CardCategory.resalat => S.current.cardFeatureResalat,
+  CardCategory.gift => S.current.cardFeatureGift,
+  CardCategory.virtual => S.current.cardsVirtual,
+  CardCategory.coupon => S.current.cardFeatureCoupon,
+  CardCategory.family => S.current.cardFeatureFamily,
+};
+String statusLabel(CardStatus status) => switch (status) {
+  CardStatus.active => S.current.cardFeatureActive,
+  CardStatus.blocked => S.current.cardFeatureBlocked,
+  CardStatus.expired => S.current.cardFeatureExpired,
 };
 AppCardsListType listType(CardCategory category) =>
     AppCardsListType.values[category.index];
-String actionLabel(
-  BuildContext context,
-  CardFeatureAction action,
-) => switch (action) {
-  CardFeatureAction.details => context.l10n.cardFeatureDetails,
-  CardFeatureAction.reissue => context.l10n.cardsReissue,
-  CardFeatureAction.changeDeposit => context.l10n.changeCardDeposit,
-  CardFeatureAction.block => context.l10n.blockCard,
-  CardFeatureAction.expiredGiftBalance => context.l10n.cardFeatureGiftTransfer,
-  CardFeatureAction.requestVirtual => context.l10n.cardFeatureVirtualRequest,
+String actionLabel(CardFeatureAction action) => switch (action) {
+  CardFeatureAction.details => S.current.cardFeatureDetails,
+  CardFeatureAction.reissue => S.current.cardsReissue,
+  CardFeatureAction.changeDeposit => S.current.changeCardDeposit,
+  CardFeatureAction.block => S.current.blockCard,
+  CardFeatureAction.expiredGiftBalance => S.current.cardFeatureGiftTransfer,
+  CardFeatureAction.requestVirtual => S.current.cardFeatureVirtualRequest,
 };
 String actionAsset(CardFeatureAction action) => switch (action) {
   CardFeatureAction.details => AppAssets.cardFeaturesInfo,
@@ -43,7 +39,9 @@ String actionAsset(CardFeatureAction action) => switch (action) {
 };
 Widget cardFeatureIcon(String path, {double size = 20}) => SizedBox.square(
   dimension: size,
-  child: Center(child: SvgPicture.asset(path, fit: BoxFit.contain)),
+  child: Center(
+    child: AvpImage(image: path, fit: BoxFit.contain),
+  ),
 );
 
 Widget cardCategoryIcon(CardCategory category) {
@@ -57,16 +55,9 @@ Widget cardCategoryIcon(CardCategory category) {
   if (category == CardCategory.virtual) {
     return SizedBox.square(
       dimension: 20,
-      child: Stack(
-        children: [
-          Positioned(
-            left: 1.667,
-            top: 3.334,
-            width: 16.284,
-            height: 12.95,
-            child: SvgPicture.asset(asset),
-          ),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(1.667, 3.334, 2.049, 3.716),
+        child: AvpImage(image: asset),
       ),
     );
   }

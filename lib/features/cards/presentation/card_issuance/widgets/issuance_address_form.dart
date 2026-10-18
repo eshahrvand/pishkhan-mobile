@@ -1,0 +1,108 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:avp_ui/avp_ui.dart';
+import 'package:flutter/material.dart';
+import 'package:pishkhan_mobile/generated/l10n.dart';
+import 'package:pishkhan_mobile/shared/widgets/app_bottom_sheet_header.dart';
+
+import '../cubit/card_issuance_cubit.dart';
+
+class IssuanceAddressForm extends StatefulWidget {
+  const IssuanceAddressForm({super.key});
+  @override
+  State<IssuanceAddressForm> createState() => _IssuanceAddressFormState();
+}
+
+class _IssuanceAddressFormState extends State<IssuanceAddressForm> {
+  final title = TextEditingController(),
+      detail = TextEditingController(),
+      postal = TextEditingController();
+  @override
+  void dispose() {
+    title.dispose();
+    detail.dispose();
+    postal.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocConsumer<CardIssuanceCubit, CardIssuanceState>(
+      listenWhen: (previous, current) =>
+          previous.addressSavedId != current.addressSavedId,
+      listener: (context, state) => Navigator.of(context).pop(),
+      buildWhen: (previous, current) =>
+          previous.isAddressFormError != current.isAddressFormError,
+      builder: (context, state) {
+        return SafeArea(
+          child: Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.viewInsetsOf(context).bottom,
+            ),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  AppBottomSheetHeader(
+                    title: S.current.issuanceAddAddress,
+                    showLeftAction: false,
+                    showRightIcon: false,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        AppTextField(
+                          controller: title,
+                          onChanged: context
+                              .read<CardIssuanceCubit>()
+                              .updateAddressTitle,
+                          label: S.current.issuanceAddressTitle,
+                        ),
+                        const SizedBox(height: 12),
+                        AppTextArea(
+                          controller: detail,
+                          onChanged: context
+                              .read<CardIssuanceCubit>()
+                              .updateAddressDetail,
+                          label: S.current.issuanceAddressDetail,
+                        ),
+                        const SizedBox(height: 12),
+                        AppTextField(
+                          controller: postal,
+                          onChanged: context
+                              .read<CardIssuanceCubit>()
+                              .updateAddressPostalCode,
+                          label: S.current.issuancePostalCode,
+                          keyboardType: TextInputType.number,
+                          normalizeDigits: true,
+                        ),
+                        if (state.isAddressFormError) ...[
+                          const SizedBox(height: 8),
+                          Text(
+                            S.current.issuanceAddressInvalid,
+                            style: AppTypography.bodySmall.copyWith(
+                              color: context.colors.error,
+                            ),
+                          ),
+                        ],
+                        const SizedBox(height: 20),
+                        AppButton(
+                          label: S.current.issuanceSaveAddress,
+                          size: AppButtonSize.lg,
+                          onPressed: () {
+                            context.read<CardIssuanceCubit>().submitAddress();
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}

@@ -1,6 +1,8 @@
+import 'app_wallet_card_amount.dart';
+import 'app_wallet_card_title.dart';
+
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 /// Figma WalletCard layouts.
@@ -14,7 +16,7 @@ abstract final class AppWalletCardIcons {
   static Widget _svg(String path, {required double size}) => SizedBox(
     width: size,
     height: size,
-    child: SvgPicture.asset(path, fit: BoxFit.contain),
+    child: AvpImage(image: path, fit: BoxFit.contain),
   );
 }
 
@@ -52,7 +54,83 @@ class AppWalletCard extends StatelessWidget {
         child: Row(
           textDirection: TextDirection.ltr,
           children: [
-            Expanded(child: _balancePanel()),
+            Expanded(
+              child: DecoratedBox(
+                decoration: const BoxDecoration(
+                  color: AppPalette.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft: AppRadius.md,
+                    bottomLeft: AppRadius.md,
+                  ),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    left: _isDesktop ? 16 : 20,
+                    right: 16,
+                  ),
+                  child: _isDesktop
+                      ? Builder(
+                          builder: (context) => Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Row(
+                                textDirection: TextDirection.ltr,
+                                children: [
+                                  SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: Center(
+                                      child:
+                                          angleIcon ??
+                                          AppWalletCardIcons.angleLeft(),
+                                    ),
+                                  ),
+                                  const Spacer(),
+                                  AppWalletCardTitle(title: title),
+                                ],
+                              ),
+                              const SizedBox(height: 14),
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child: AppWalletCardAmount(
+                                  balance: balance,
+                                  currencyLabel: currencyLabel,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      : Builder(
+                          builder: (context) => Row(
+                            textDirection: TextDirection.ltr,
+                            children: [
+                              Expanded(
+                                child: Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: FittedBox(
+                                    fit: BoxFit.scaleDown,
+                                    alignment: Alignment.centerLeft,
+                                    child: AppWalletCardAmount(
+                                      balance: balance,
+                                      currencyLabel: currencyLabel,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: AppSpacing.sm),
+                              Flexible(
+                                child: Align(
+                                  alignment: Alignment.centerRight,
+                                  child: AppWalletCardTitle(title: title),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                ),
+              ),
+            ),
             const SizedBox(width: 12),
             SizedBox(
               width: 32,
@@ -86,104 +164,4 @@ class AppWalletCard extends StatelessWidget {
       ),
     );
   }
-
-  Widget _balancePanel() => DecoratedBox(
-    decoration: const BoxDecoration(
-      color: AppPalette.white,
-      borderRadius: BorderRadius.only(
-        topLeft: AppRadius.md,
-        bottomLeft: AppRadius.md,
-      ),
-    ),
-    child: Padding(
-      padding: EdgeInsets.only(left: _isDesktop ? 16 : 20, right: 16),
-      child: _isDesktop ? _desktopContent() : _mobileContent(),
-    ),
-  );
-
-  Widget _amount(BuildContext context) {
-    final colors = context.colors;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      textDirection: TextDirection.ltr,
-      children: [
-        Text(
-          currencyLabel,
-          style: AppTypography.bodyMedium.copyWith(
-            color: colors.textTertiary,
-            letterSpacing: 0,
-          ),
-        ),
-        const SizedBox(width: 4),
-        Text(
-          balance,
-          style: AppTypography.bodyMedium.copyWith(
-            color: colors.textPrimary,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _title(BuildContext context) => Text(
-    title,
-    maxLines: 1,
-    overflow: TextOverflow.ellipsis,
-    textAlign: TextAlign.start,
-    style: AppTypography.bodySmall.copyWith(
-      color: context.colors.textPrimary,
-      height: 18 / 12,
-      letterSpacing: 0,
-    ),
-  );
-
-  Widget _mobileContent() => Builder(
-    builder: (context) => Row(
-      textDirection: TextDirection.ltr,
-      children: [
-        Expanded(
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: Alignment.centerLeft,
-              child: _amount(context),
-            ),
-          ),
-        ),
-        const SizedBox(width: AppSpacing.sm),
-        Flexible(
-          child: Align(
-            alignment: Alignment.centerRight,
-            child: _title(context),
-          ),
-        ),
-      ],
-    ),
-  );
-
-  Widget _desktopContent() => Builder(
-    builder: (context) => Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Row(
-          textDirection: TextDirection.ltr,
-          children: [
-            SizedBox(
-              width: 20,
-              height: 20,
-              child: Center(child: angleIcon ?? AppWalletCardIcons.angleLeft()),
-            ),
-            const Spacer(),
-            _title(context),
-          ],
-        ),
-        const SizedBox(height: 14),
-        Align(alignment: Alignment.centerRight, child: _amount(context)),
-      ],
-    ),
-  );
 }

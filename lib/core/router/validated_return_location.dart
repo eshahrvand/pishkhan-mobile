@@ -4,28 +4,31 @@ import 'app_routes.dart';
 String validatedReturnLocation(String? location) {
   final uri = location == null ? null : Uri.tryParse(location);
   if (uri == null || uri.hasScheme || uri.hasAuthority || uri.hasFragment) {
-    return DashboardRoutes.home;
+    return AppRoutes.home;
   }
   const paths = {
-    DashboardRoutes.home,
-    DashboardRoutes.allServices,
-    CardsRoutes.list,
-    CardsRoutes.issuance,
-    CardsRoutes.virtualRequest,
-    CardsRoutes.changeDeposit,
-    CardsRoutes.expiredGiftBalance,
-    AuthRoutes.passwords,
-    ProfileRoutes.messages,
+    AppRoutes.home,
+    AppRoutes.allServices,
+    AppRoutes.cardList,
+    AppRoutes.depositList,
+    AppRoutes.averageBalance,
+    AppRoutes.financialCertificate,
+    AppRoutes.cardIssuance,
+    AppRoutes.virtualCardRequest,
+    AppRoutes.changeCardDeposit,
+    AppRoutes.expiredGiftBalance,
+    AppRoutes.cardPasswords,
+    AppRoutes.messages,
   };
-  final messageSegments = Uri.parse(ProfileRoutes.messages).pathSegments;
+  final messageSegments = Uri.parse(AppRoutes.messages).pathSegments;
   final detail =
       uri.pathSegments.length == 3 &&
       uri.pathSegments[0] == messageSegments[0] &&
       uri.pathSegments[1] == messageSegments[1] &&
       uri.pathSegments[2].isNotEmpty;
-  if (!paths.contains(uri.path) && !detail) return DashboardRoutes.home;
+  if (!paths.contains(uri.path) && !detail) return AppRoutes.home;
   if (uri.hasQuery) {
-    if (uri.path != CardsRoutes.list ||
+    if (uri.path != AppRoutes.cardList ||
         uri.queryParametersAll.keys.any((k) => k != 'category') ||
         uri.queryParametersAll['category']?.length != 1 ||
         !const {
@@ -35,7 +38,7 @@ String validatedReturnLocation(String? location) {
           'coupon',
           'family',
         }.contains(uri.queryParameters['category'])) {
-      return DashboardRoutes.home;
+      return AppRoutes.home;
     }
   }
   return uri.toString();

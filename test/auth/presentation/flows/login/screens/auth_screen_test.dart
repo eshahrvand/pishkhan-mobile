@@ -1,3 +1,6 @@
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+
 import '../../../../../support/auth_ui_finders.dart';
 import '../../../../../support/router_test_app.dart';
 
@@ -12,12 +15,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/login/screens/auth_screen.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/login/cubit/auth_cubit.dart';
-import 'package:pishkhan_mobile/l10n/l10n.dart';
+import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/shared/auth_assets.dart';
 
 const previewKey = Key('auth_preview');
 
 void main() {
+  setUp(configureDependencies);
+  tearDown(() => getIt.reset());
   setUpAll(() async {
     final fonts = FontLoader(AppTypography.defaultFontFamily);
     for (final weight in ['Regular', 'Medium', 'DemiBold', 'Bold']) {
@@ -32,7 +37,7 @@ void main() {
 
   Future<AuthCubit> mount(
     WidgetTester tester, {
-    AuthState state = const AuthState(),
+    AuthState state = const AuthState.initial(),
     bool keyboard = true,
     VoidCallback? onAuthenticated,
     ValueChanged<String>? onGuestServiceRequested,
@@ -43,7 +48,6 @@ void main() {
     tester.view.padding = FakeViewPadding(top: 24, bottom: keyboard ? 0 : 40);
     tester.view.viewInsets = FakeViewPadding(bottom: keyboard ? 315 : 0);
     addTearDown(tester.view.reset);
-    final cubit = AuthCubit(initialState: state);
     await tester.pumpWidget(
       RepaintBoundary(
         key: previewKey,
@@ -51,16 +55,19 @@ void main() {
           debugShowCheckedModeBanner: false,
           theme: AppTheme.light(),
           locale: const Locale('fa'),
-          supportedLocales: AppLocalizations.supportedLocales,
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: S.delegate.supportedLocales,
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+          ],
           builder: (context, child) =>
               Directionality(textDirection: TextDirection.rtl, child: child!),
-          home: BlocProvider.value(
-            value: cubit,
-            child: AuthScreen(
-              onAuthenticated: onAuthenticated,
-              onGuestServiceRequested: onGuestServiceRequested,
-            ),
+          home: AuthScreen(
+            initialState: state,
+            onAuthenticated: onAuthenticated,
+            onGuestServiceRequested: onGuestServiceRequested,
           ),
         ),
       ),
@@ -72,8 +79,9 @@ void main() {
       await precacheImage(const AssetImage(AuthAssets.captcha), context);
     });
     await tester.pumpAndSettle();
-    addTearDown(cubit.close);
-    return cubit;
+    return tester
+        .element(find.byType(BlocBuilder<AuthCubit, AuthState>).first)
+        .read<AuthCubit>();
   }
 
   Future<void> preview(
@@ -109,22 +117,36 @@ void main() {
     });
   }
 
-  const filled = AuthState(
+  const filled = AuthState.initial(
     nationalId: '0081234562',
-    phone: '09121127934',
+    phoneNumber: '09121127934',
     captcha: '011759',
+    canRequestOtp: true,
+    isNationalIdValid: true,
+    isPhoneNumberValid: true,
+    isCaptchaValid: true,
+    maskedPhone: '0912*******34',
+  );
+  final loginOtp = filled.copyWith(
+    step: AuthStep.loginOtp,
+    remainingSeconds: 60,
+  );
+  final changePhone = filled.copyWith(step: AuthStep.changePhone);
+  final changePhoneOtp = changePhone.copyWith(
+    step: AuthStep.changePhoneOtp,
+    remainingSeconds: 60,
   );
   final cases = <(String, AuthState)>[
-    ('phase1-empty', const AuthState()),
+    ('phase1-empty', const AuthState.initial()),
     ('phase1-filled', filled),
-    ('phase1-wait-otp', filled.copyWith(step: AuthStep.loginOtp)),
-    ('phase1-enter-otp', filled.copyWith(step: AuthStep.loginOtp, otp: '2345')),
-    ('phase3-empty', const AuthState(step: AuthStep.changePhone)),
-    ('phase3-filled', filled.copyWith(step: AuthStep.changePhone)),
-    ('phase3-wait-otp', filled.copyWith(step: AuthStep.changePhoneOtp)),
+    ('phase1-wait-otp', loginOtp),
+    ('phase1-enter-otp', loginOtp.copyWith(otp: '2345', canSubmitLogin: true)),
+    ('phase3-empty', const AuthState.initial(step: AuthStep.changePhone)),
+    ('phase3-filled', changePhone),
+    ('phase3-wait-otp', changePhoneOtp),
     (
       'phase3-enter-otp',
-      filled.copyWith(step: AuthStep.changePhoneOtp, otp: '2345'),
+      changePhoneOtp.copyWith(otp: '2345', canSubmitLogin: true),
     ),
   ];
 
@@ -226,12 +248,59 @@ void main() {
   );
 
   testWidgets(
+    'identity errors appear from the first digit and clear on valid input',
+    (tester) async {
+      final cubit = await mount(tester, keyboard: false);
+      final national = find.descendant(
+        of: authControl(tester, 'login-national-id'),
+        matching: find.byType(TextField),
+      );
+      final phone = find.descendant(
+        of: authControl(tester, 'login-phone'),
+        matching: find.byType(TextField),
+      );
+      expect(cubit.state.isNationalIdError, isFalse);
+      expect(cubit.state.isPhoneNumberError, isFalse);
+
+      await tester.enterText(national, '۰');
+      await tester.pump();
+      expect(cubit.state.isNationalIdError, isTrue);
+      expect(find.text(S.current.authInvalidNationalId), findsOneWidget);
+      await tester.enterText(national, '۰۰۸۱۲۳۴۵۶۲');
+      await tester.pump();
+      expect(cubit.state.isNationalIdError, isFalse);
+      expect(find.text(S.current.authInvalidNationalId), findsNothing);
+
+      await tester.enterText(phone, '۰');
+      await tester.pump();
+      expect(cubit.state.isPhoneNumberError, isTrue);
+      expect(find.text(S.current.authInvalidPhone), findsOneWidget);
+      await tester.enterText(phone, '۰۹۱۲۱۱۲۷۹۳۴');
+      await tester.pump();
+      expect(cubit.state.isPhoneNumberError, isFalse);
+      expect(find.text(S.current.authInvalidPhone), findsNothing);
+      await tester.enterText(phone, '۰۹');
+      await tester.pump();
+      expect(cubit.state.isPhoneNumberError, isTrue);
+      expect(find.text(S.current.authInvalidPhone), findsOneWidget);
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
+
+  testWidgets(
     'normalizes Persian input, validates submission and preserves fields on back',
     (tester) async {
       final cubit = await mount(tester);
       await tester.tap(authControl(tester, 'request_otp_button'));
       await tester.pumpAndSettle();
-      expect(cubit.state.invalidFields, {'nationalId', 'phone', 'captcha'});
+      expect(
+        [
+          cubit.state.isNationalIdError,
+          cubit.state.isPhoneNumberError,
+          cubit.state.isCaptchaError,
+        ],
+        [false, false, false],
+      );
       for (final (field, value) in [
         ('national-id', '۰۰۸۱۲۳۴۵۶۲'),
         ('phone', '۰۹۱۲۱۱۲۷۹۳۴'),
@@ -246,7 +315,14 @@ void main() {
       }
       await tester.pumpAndSettle();
       expect(cubit.state.nationalId, '0081234562');
-      expect(cubit.state.invalidFields, isEmpty);
+      expect(
+        [
+          cubit.state.isNationalIdError,
+          cubit.state.isPhoneNumberError,
+          cubit.state.isCaptchaError,
+        ],
+        [false, false, false],
+      );
       await tester.ensureVisible(authControl(tester, 'request_otp_button'));
       await tester.tap(authControl(tester, 'request_otp_button'));
       await tester.pumpAndSettle();
@@ -259,15 +335,192 @@ void main() {
     },
   );
 
+  for (final changePhone in [false, true]) {
+    testWidgets(
+      'request OTP requires valid identity and complete captcha (changePhone: $changePhone)',
+      (tester) async {
+        final cubit = await mount(
+          tester,
+          keyboard: false,
+          state: changePhone
+              ? const AuthState.initial(step: AuthStep.changePhone)
+              : const AuthState.initial(),
+        );
+        final step = changePhone ? 'changePhone' : 'login';
+        final button = authControl(tester, 'request_otp_button');
+        Finder input(String field) => find.descendant(
+          of: authControl(tester, '$step-$field'),
+          matching: find.byType(TextField),
+        );
+        void expectActive(bool active) {
+          expect(
+            tester.widget<AppButton>(button).onPressed,
+            active ? isNotNull : isNull,
+          );
+          expect(
+            tester
+                .widget<InkWell>(
+                  find.descendant(of: button, matching: find.byType(InkWell)),
+                )
+                .onTap,
+            active ? isNotNull : isNull,
+          );
+        }
+
+        expectActive(false);
+        await tester.tap(button);
+        await tester.pump();
+        expect(
+          cubit.state.step,
+          changePhone ? AuthStep.changePhone : AuthStep.login,
+        );
+        expect(cubit.state.isNationalIdError, isFalse);
+
+        await tester.enterText(input('captcha'), '۱۲۳۴۵');
+        await tester.enterText(input('national-id'), '۰۰۸۱۲۳۴۵۶۲');
+        await tester.enterText(input('phone'), '۰۹۱۲۱۱۲۷۹۳۴');
+        await tester.pump();
+        expectActive(false);
+
+        await tester.enterText(input('captcha'), '۱۲۳۴۵۶');
+        await tester.pump();
+        expectActive(true);
+
+        await tester.enterText(input('national-id'), '۰۰۸۱۲۳۴۵۶۳');
+        await tester.pump();
+        expectActive(false);
+        await tester.enterText(input('national-id'), '۰۰۸۱۲۳۴۵۶۲');
+        await tester.pump();
+        expectActive(true);
+
+        await tester.enterText(input('phone'), '۰۸۱۲۱۱۲۷۹۳۴');
+        await tester.pump();
+        expectActive(false);
+        await tester.enterText(input('phone'), '۰۹۱۲۱۱۲۷۹۳۴');
+        await tester.pump();
+        expectActive(true);
+
+        cubit.resetCaptcha();
+        await tester.pump();
+        expectActive(false);
+        expect(cubit.state.captcha, isEmpty);
+        await tester.pumpWidget(const SizedBox.shrink());
+      },
+    );
+  }
+
+  testWidgets('keyboard submission respects identity eligibility', (
+    tester,
+  ) async {
+    final cubit = await mount(tester, keyboard: false);
+    final captcha = find.descendant(
+      of: authControl(tester, 'login-captcha'),
+      matching: find.byType(TextField),
+    );
+    await tester.enterText(captcha, '123456');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pump();
+    expect(cubit.state.step, AuthStep.login);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('OTP timer displays minutes and seconds from remaining state', (
+    tester,
+  ) async {
+    for (final (seconds, label) in [
+      (125, '02:05'),
+      (60, '01:00'),
+      (59, '00:59'),
+      (1, '00:01'),
+    ]) {
+      await mount(tester, state: loginOtp.copyWith(remainingSeconds: seconds));
+      expect(
+        tester.widget<AppButton>(authControl(tester, 'otp_timer_button')).label,
+        label,
+      );
+      await tester.pumpWidget(const SizedBox.shrink());
+    }
+  });
+
+  testWidgets(
+    'expiry disables keyboard submission and Back cancels the timer',
+    (tester) async {
+      final cubit = await mount(tester, state: filled, keyboard: false);
+      await tester.tap(authControl(tester, 'request_otp_button'));
+      await tester.pumpAndSettle();
+      final otp = find.descendant(
+        of: authControl(tester, 'loginOtp-otp'),
+        matching: find.byType(TextField),
+      );
+      await tester.enterText(otp, '1234');
+      await tester.pump();
+      expect(cubit.state.canSubmitLogin, isTrue);
+      await tester.pump(const Duration(seconds: 60));
+      expect(cubit.state.remainingSeconds, 0);
+      expect(cubit.state.canSubmitLogin, isFalse);
+      expect(cubit.state.canResendOtp, isTrue);
+      expect(
+        tester
+            .widget<AppButton>(authControl(tester, 'submit_otp_button'))
+            .onPressed,
+        isNull,
+      );
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pump();
+      expect(cubit.state.effect, isNot(isA<AuthCompleted>()));
+      await tester.tap(authControl(tester, 'otp_timer_button'));
+      await tester.pump();
+      expect(cubit.state.remainingSeconds, 60);
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      expect(cubit.state.step, AuthStep.login);
+      final identityState = cubit.state;
+      await tester.pump(const Duration(seconds: 61));
+      expect(cubit.state, identityState);
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
+
+  testWidgets('successful keyboard login disables input and repeat taps', (
+    tester,
+  ) async {
+    var completed = 0;
+    await mount(
+      tester,
+      state: loginOtp,
+      keyboard: false,
+      onAuthenticated: () => completed++,
+    );
+    final otp = find.descendant(
+      of: authControl(tester, 'loginOtp-otp'),
+      matching: find.byType(TextField),
+    );
+    await tester.enterText(otp, '1234');
+    await tester.pump();
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pump();
+    expect(completed, 1);
+    final input = tester.widget<AppTextField>(
+      authControl(tester, 'loginOtp-otp'),
+    );
+    expect(input.enabled, isFalse);
+    expect(input.onSubmitted, isNull);
+    await tester.tap(authControl(tester, 'submit_otp_button'));
+    await tester.pump();
+    expect(completed, 1);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
   testWidgets(
     'expired OTP clears on resend and change-phone back keeps entered values',
     (tester) async {
       final cubit = await mount(
         tester,
-        state: filled.copyWith(
-          step: AuthStep.changePhoneOtp,
+        state: changePhoneOtp.copyWith(
           otp: '2345',
-          secondsRemaining: 0,
+          isOtpValid: true,
+          remainingSeconds: 0,
+          canResendOtp: true,
         ),
       );
       var submit = tester.widget<AppButton>(
@@ -277,9 +530,12 @@ void main() {
       await tester.tap(authControl(tester, 'otp_timer_button'));
       await tester.pump();
       expect(cubit.state.otp, isEmpty);
-      expect(cubit.state.secondsRemaining, 60);
-      await tester.pump(const Duration(seconds: 60));
-      expect(cubit.state.secondsRemaining, 0);
+      expect(cubit.state.remainingSeconds, 60);
+      expect(find.text('01:00'), findsOneWidget);
+      await tester.pump(const Duration(seconds: 1));
+      expect(find.text('00:59'), findsOneWidget);
+      await tester.pump(const Duration(seconds: 59));
+      expect(cubit.state.remainingSeconds, 0);
       await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
       expect(cubit.state.step, AuthStep.changePhone);
@@ -297,7 +553,7 @@ void main() {
       await mount(
         tester,
         keyboard: false,
-        state: const AuthState(step: AuthStep.changePhone),
+        state: const AuthState.initial(step: AuthStep.changePhone),
         onGuestServiceRequested: (id) => selected = id,
       );
       tester.view.physicalSize = const Size(320, 480);

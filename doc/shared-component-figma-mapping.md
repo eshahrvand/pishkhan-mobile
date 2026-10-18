@@ -32,6 +32,7 @@ they do not change the public API of `avp_ui`.
 
 ## Usage rules
 
+- Render image assets with the public `AvpImage` primitive from `avp_ui`; the shared component continues to own its asset and composition. `AvpImage` does not introduce new Figma artwork.
 - Compose these components in screens with feature data and callbacks; do not
   put navigation, API calls, or domain state inside them.
 - Keep every new shared component RTL-first and use `avp_ui` tokens and public
@@ -76,6 +77,13 @@ See [Dashboard cards development](cards/my-cards.md) for the two Phase 1 frame m
 AppServiceGridCard.stretchItems defaults to true; set false and itemSpacing to 6 for compact RTL rows. AppResalatCard accepts responsive width and semantic labels and masks expiry/CVV2 when isVisible is false. The shared AppTopBar, AppPrimaryNavigation, AppAssistantButton and AppServiceArtworkTile reuse the dashboard visuals.
 
 ## My Deposits (third primary tab)
+
+Standalone deposit list and its two distinct sheets (`28060:13805`,
+`28060:15113`, `28060:15220`) are documented in
+[Deposit list](deposits/deposit-list.md). `AppDepositList` adds optional
+localized label/divider slots and `alignContentToEdges`; existing defaults
+are retained. New consumers use `DepositActionsSheet` and
+`DepositAccountDetailsSheet` as separate compositions.
 
 Figma single deposit: `27902:82476`; multiple deposits: `27902:82503`. `DepositsTab` composes the existing `AppDepositCard`, `AppTopBar`, `AppServiceGridCard`, `AppServiceArtworkTile`, `AppAssistantButton` and `AppPrimaryNavigation` without modifying their source. The selected `BankDeposit.hasChequeOperations` controls cheque operations, independently of deposit count.
 

@@ -261,7 +261,21 @@ Import package:pishkhan_mobile/features/dashboard/dashboard.dart for DashboardSc
 
 ## Standalone Cards feature
 
-See [Cards architecture](cards/card-services.md). Import features/cards/cards.dart for CardFeaturesScreen, CardsRepository, ListedCard and typed CardFeatureRequest. Dashboard card summaries remain a separate feature. Compatible new package APIs are documented in avp_ui/docs/main-app-integration-guide.md; deploy the sibling package changes together with this app.
+Routing uses two central files for every feature: `core/router/app_routes.dart`
+contains the single `AppRoutes` class and URL builders; `core/router/app_router.dart`
+contains all `GoRoute` definitions directly in `createAppRouter`, plus typed route
+arguments. Add routes there; per-feature `*_routes.dart` files and `build*Routes`
+factories are no longer used. The app owns and disposes its router/session.
+
+Card password setup, change and recovery are owned by `features/cards`, including
+their presentation, domain and mock data layers. Use `AppRoutes.cardPasswords`
+(`/cards/password-services`) from `core/router/app_routes.dart` and
+`PasswordRouteArguments` from `core/router/app_router.dart`.
+`ServiceRegistry.openCardService` forwards the existing password service IDs to
+this route. Login and login OTP remain in `features/auth`. See
+[Password services](cards/password-services.md) for paths and flow contracts.
+
+See [Cards architecture](cards/card-services.md). Import features/cards/cards.dart for CardListScreen, CardsRepository, ListedCard and typed CardFeatureRequest. Dashboard card summaries remain a separate feature. Compatible new package APIs are documented in avp_ui/docs/main-app-integration-guide.md; deploy the sibling package changes together with this app.
 
 ## Stepper and card issuance instances
 
@@ -320,6 +334,19 @@ Card Services `card-pin-second-change` enables operation selection on `SecondPas
 
 `VirtualCardRequestScreen(repository: adapter, initialDepositNumber: number)` composes public avp_ui inputs/selects/buttons and the app-owned AppInvoice. `VirtualCardRepository` supplies catalog, bound fee quotes and idempotent submission receipts. `card-virtual`/`card-virtual-request` open the request form; `card-virtual-list` and card category chips retain list access. The virtual-list footer opens the same form unless a host callback handles it. See [request architecture and mock fee limits](cards/virtual-card-request.md).
 
+## Button activity and loading
+
+`AppButton.isActive` defaults to `true`; set it to `false` to disable interaction
+and apply disabled styling while keeping an `onPressed` callback. A null callback
+still disables the button. `isLoading: true` shows the existing spinner in place
+of its content and blocks interaction regardless of `isActive`. Existing callers
+that omit `isActive` keep their previous behavior.
+
+Login supplies `isActive: state.formValid` and
+`isLoading: state.status == RequestStatus.loading`. The current synchronous login
+prototype does not create artificial loading states; real request status changes
+belong to future bank integration.
+
 ## Direct state-driven text inputs
 
 `AppTextField` accepts optional `value`, `onFocusLost`, and `maxLength` inputs.
@@ -339,3 +366,133 @@ Login, CAPTCHA, and OTP pass their Cubit values directly, with
 individual length limits. Their text uses `TextDirection.rtl` and
 `TextAlign.start` in empty and filled states. Banking validation belongs to the
 app. No intermediary input widget is required.
+
+## AvpImage: shared image presentation
+
+Use `AvpImage` from `package:avp_ui/avp_ui.dart` for app image rendering instead
+of directly constructing `SvgPicture.asset`, `Image.asset` or their network/file
+variants. This is a shared rendering primitive, not a Figma component with a new
+node ID. Existing assets stay owned by their app/package and keep their paths.
+
+```dart
+AvpImage(image: asset, width: 20, height: 20)
+
+AvpImage(
+  image: AppAssets.examplePhoto,
+  width: 80,
+  height: 80,
+  fit: BoxFit.cover,
+  isCircle: true,
+  semanticsLabel: localizedDescription,
+)
+
+AvpImage(
+  image: imageUrl,
+  placeholder: AppAssets.examplePlaceholder,
+  width: 120,
+  height: 80,
+  headers: imageHeaders,
+  cacheManager: imageCacheManager,
+  cacheKey: scopedCacheKey,
+)
+```
+
+The `AppAssets.example...` names above illustrate host-supplied paths, not new
+package assets. The package does not import application registries or Cubits.
+
+### Supported inputs
+
+- `image`: nullable asset path, HTTP(S) URL or native file path. Empty/missing
+  input safely renders the placeholder or a size-preserving empty box.
+- SVG, raster formats supported by Flutter, and Lottie JSON are selected from
+  the URI **path**, case-insensitively. URL query strings do not change type.
+  `type: AvpImageType.svg/raster/lottie` overrides detection for extensionless URLs.
+- `isFile: true` selects native files; `file:` URIs are also recognized. File
+  access uses a conditional native implementation. Browser filesystem paths
+  render the fallback rather than importing `dart:io` into the web entry point.
+- `placeholder`: another asset path used for missing input, async loading or
+  errors. A failed placeholder terminates at an empty box, without recursive
+  loading. No fallback image asset is fabricated by the package.
+- `width`, `height`, `fit` (default `BoxFit.contain`), `alignment` and directional
+  `padding` control presentation. `package` resolves package-owned assets.
+- `isCircle`, optional `circleWidth/circleHeight` clip content. `isMicro` renders
+  the placeholder on the semantic disabled surface with the package 16px radius.
+  `backgroundColor` may override the surface using an existing semantic token.
+- `color` or `colorFilter` tints the rendered content; provide only one. A
+  ColorFiltered wrapper applies consistently across SVG, raster and Lottie.
+- `semanticsLabel` describes informative images; `excludeFromSemantics: true`
+  excludes decoration. `matchTextDirection` opts asset/network SVG and raster
+  content into RTL mirroring; the default is false for bank logos and numbers.
+- `animate` and `repeat` control Lottie playback (both default true).
+
+`placeHolder` from the supplied reference becomes `placeholder`; `boxFit`
+becomes `fit`. Boolean parameters are non-nullable and have explicit defaults.
+There are no imports, palettes or hard-coded fallback assets from Caltivita.
+
+### Network and cache ownership
+
+Raster HTTP(S) images use `cached_network_image`, `cacheManager`, `cacheKey` and
+`headers`. The default manager provides a disk cache on supported native
+platforms; it is an evictable cache, not permanent user storage. The package uses
+the HttpGet web image strategy, which requires suitable CORS headers. The
+upstream library does not provide the same persistent disk cache on web.
+
+As in the supplied reference, network SVG and Lottie use their respective
+loaders; they do not pass through the raster disk cache manager. `headers` is
+forwarded to all HTTP(S) loaders. App authentication, allowed URLs, cache-key
+scoping, retention and cleanup remain host-owned. Do not use the default public
+image cache for private banking documents. A host can inject its own configured
+`BaseCacheManager`; the public barrel also exports `CacheManager`, `Config` and
+`DefaultCacheManager` for this purpose.
+
+Use a native filesystem path only on native platforms. Browser file pickers
+require a separate bytes/blob contract; a desktop path is not a browser image.
+
+### Dependencies and alternatives
+
+The owner explicitly requested all capabilities of the reference, including
+Lottie and cached network raster images. The direct additions are
+`cached_network_image ^4.0.4`, its platform interface `^5.0.3` (for HttpGet),
+`flutter_cache_manager ^3.4.5`, and `lottie ^3.6.1`. `file ^7.0.1` is a test-only
+dependency for a deterministic cache-manager fixture. These image/cache/Lottie
+dependencies have MIT licenses according to their upstream package records.
+The existing SVG toolchain dependency `vector_graphics_compiler ^1.3.0` is also
+declared directly (BSD-3-Clause) to compile SVG before mounting its renderer.
+This keeps failed I/O and invalid SVG on the observed loading Future, rendering
+the fallback without unhandled secondary cache Futures. Theme data is captured
+before awaiting; source changes and disposal are handled by the widget lifecycle.
+
+Flutter's plain `Image.network` provides no equivalent managed disk cache.
+Implementing an independent file-cache/eviction system would duplicate the
+cache manager. Lottie JSON cannot be decoded by Flutter's raster or SVG loaders;
+converting animations to GIF/video would change the supplied asset contract.
+The existing `flutter_svg` remains the SVG engine. No business validation,
+navigation or service state is added to this widget.
+
+References: [cached_network_image](https://pub.dev/packages/cached_network_image),
+[flutter_cache_manager](https://pub.dev/packages/flutter_cache_manager),
+[Lottie](https://pub.dev/packages/lottie).
+
+### Main-application migration
+
+The Pishkhan app's 132 direct SVG and 9 direct raster widget constructions were
+replaced with `AvpImage` in 86 Dart files. Existing width/height/fit, callbacks
+and surrounding layout remain at their original consumption points. Direct
+`flutter_svg` imports were removed from app rendering code.
+
+`AssetImage` used to decode the dashboard's `ui.Image` texture for an existing
+`CustomPainter` remains: it is an image-provider/pixel-decoding operation, not a
+widget displaying an image. Test pre-caching and test inspection of internal
+Flutter/SVG widgets also remain valid. Existing avp_ui component internals need
+not be globally rewritten to consume their own new wrapper.
+
+## Unified dashboard/Home scope (2026-10-16)
+
+Supply adapters through `DashboardScreen(repositories: bundle)`. The screen owns
+one `HomeCubit` and one plain `HomeState` for all four retained tabs.
+`CardsTab()`, `DepositsTab()` and `LoansTab()` use that existing Provider;
+they no longer accept repositories or callbacks. Home owns independent request
+statuses, catalog generations, selected banking records, favorite editing and
+operation eligibility. The parent listener executes typed `HomeEffect` outputs
+for navigation, copy and host integration. Replacing the bundle reloads only
+the changed adapters. Do not create a Cubit per tab.

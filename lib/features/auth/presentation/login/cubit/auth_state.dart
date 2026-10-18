@@ -1,26 +1,29 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:pishkhan_mobile/core/enums/request_status.dart';
-
-part 'auth_state.freezed.dart';
+part of 'auth_cubit.dart';
 
 enum AuthStep { login, loginOtp, changePhone, changePhoneOtp }
 
 @Freezed(toStringOverride: false)
 abstract class AuthState with _$AuthState {
-  const factory AuthState({
-    @Default(true) bool isLoginForm,
-    @Default(false) bool isOtp,
-    @Default(false) bool isChangePhone,
-    @Default(false) bool formValid,
-    @Default(false) bool otpValid,
-    @Default('0912*******42') String maskedPhone,
-    @Default(RequestStatus.initial) RequestStatus status,
+  const factory AuthState.initial({
     @Default(AuthStep.login) AuthStep step,
     @Default('') String nationalId,
-    @Default('') String phone,
+    @Default('') String phoneNumber,
     @Default('') String captcha,
     @Default('') String otp,
-    @Default(60) int secondsRemaining,
-    @Default({}) Set<String> invalidFields,
+    @Default('') String maskedPhone,
+    @Default(false) bool isNationalIdValid,
+    @Default(false) bool isPhoneNumberValid,
+    @Default(false) bool isCaptchaValid,
+    @Default(false) bool isOtpValid,
+    @Default(false) bool isNationalIdError,
+    @Default(false) bool isPhoneNumberError,
+    @Default(false) bool isCaptchaError,
+    @Default(false) bool canRequestOtp,
+    @Default(false) bool canSubmitLogin,
+    @Default(false) bool canResendOtp,
+    @Default(0) int remainingSeconds,
+    @Default(RequestStatus.initial) RequestStatus loginStatus,
+    AuthEffect? effect,
+    @Default(0) int effectId,
   }) = _AuthState;
 }

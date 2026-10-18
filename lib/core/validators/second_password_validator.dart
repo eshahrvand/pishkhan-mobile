@@ -3,7 +3,10 @@ abstract final class SecondPasswordValidator {
   static bool hasValidLength(String value) =>
       RegExp(r'^[0-9]{4,6}$').hasMatch(value);
   static bool hasSafePattern(String value) {
-    if (!hasValidLength(value)) return false;
+    return hasValidLength(value) && _hasSafePattern(value);
+  }
+
+  static bool _hasSafePattern(String value) {
     for (var length = 1; length <= value.length ~/ 2; length++) {
       if (value.length % length == 0 &&
           List.filled(
@@ -27,10 +30,24 @@ abstract final class SecondPasswordValidator {
 
   static bool avoidsKnownDates(String value, Iterable<String> dates) =>
       hasValidLength(value) && !dates.contains(value);
-  static bool isValid(String value, Iterable<String> dates) =>
-      hasValidLength(value) &&
-      hasSafePattern(value) &&
-      avoidsKnownDates(value, dates);
+  static SecondPasswordValidation validate(
+    String value,
+    Iterable<String> dates,
+  ) {
+    final isLengthValid = hasValidLength(value);
+    return SecondPasswordValidation(
+      isLengthValid: isLengthValid,
+      isPatternValid: isLengthValid && _hasSafePattern(value),
+      isDateValid: isLengthValid && !dates.contains(value),
+    );
+  }
+
+  static bool isValid(String value, Iterable<String> dates) {
+    final validation = validate(value, dates);
+    return validation.isLengthValid &&
+        validation.isPatternValid &&
+        validation.isDateValid;
+  }
 
   /// The supplied example is 3R12345678. Receipt format remains bank-defined;
   /// this prototype checks one Latin letter and digits only (4–20 characters).
@@ -40,4 +57,16 @@ abstract final class SecondPasswordValidator {
       RegExp(r'^[A-Za-z0-9]+$').hasMatch(value) &&
       RegExp(r'[A-Za-z]').allMatches(value).length == 1 &&
       RegExp(r'[0-9]').hasMatch(value);
+}
+
+class SecondPasswordValidation {
+  const SecondPasswordValidation({
+    required this.isLengthValid,
+    required this.isPatternValid,
+    required this.isDateValid,
+  });
+
+  final bool isLengthValid;
+  final bool isPatternValid;
+  final bool isDateValid;
 }

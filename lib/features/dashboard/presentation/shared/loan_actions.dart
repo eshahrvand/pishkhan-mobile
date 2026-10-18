@@ -1,5 +1,5 @@
 import 'package:pishkhan_mobile/features/dashboard/domain/entities/bank_loan.dart';
-import 'package:pishkhan_mobile/l10n/l10n.dart';
+import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 /// Supported UI integration IDs; these do not execute banking operations.
@@ -21,13 +21,13 @@ enum LoanAction {
   ];
   static const quick = [relationships, consolidate];
 
-  String label(AppLocalizations l10n) => switch (this) {
-    payInstallments => l10n.loansPayInstallments,
-    defer => l10n.dashboardDeferLoan,
-    correctInstallments => l10n.dashboardCorrectInstallments,
-    changeDeposit => l10n.loansChangeDeposit,
-    relationships => l10n.loansRelationships,
-    consolidate => l10n.consolidateDepositCredit,
+  String label() => switch (this) {
+    payInstallments => S.current.loansPayInstallments,
+    defer => S.current.dashboardDeferLoan,
+    correctInstallments => S.current.dashboardCorrectInstallments,
+    changeDeposit => S.current.loansChangeDeposit,
+    relationships => S.current.loansRelationships,
+    consolidate => S.current.consolidateDepositCredit,
   };
   String get asset => switch (this) {
     payInstallments => AppAssets.loansPay,

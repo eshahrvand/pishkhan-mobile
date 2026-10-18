@@ -1,36 +1,49 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:pishkhan_mobile/core/enums/request_status.dart';
-import 'package:pishkhan_mobile/core/result/failure.dart';
-
-import '../../../domain/entities/issuance_data.dart';
-import '../../../domain/entities/issuance_draft.dart';
-export '../../../domain/entities/issuance_draft.dart';
-
-part 'card_issuance_state.freezed.dart';
+part of 'card_issuance_cubit.dart';
 
 enum IssuanceStep { selection, delivery, confirmation }
 
-@freezed
+@Freezed(toStringOverride: false)
 abstract class CardIssuanceState with _$CardIssuanceState {
-  const factory CardIssuanceState({
-    IssuanceDeposit? deposit,
-    IssuanceAddress? address,
-    @Default(false) bool selectionComplete,
-    @Default(false) bool deliveryComplete,
-    @Default(<IssuanceFee>[]) List<IssuanceFee> fees,
-    @Default(0) int totalRial,
-    @Default(false) bool walletSufficient,
-    @Default(false) bool editable,
-    @Default(false) bool canContinue,
-    IssuanceRequest? request,
-    @Default(RequestStatus.initial) RequestStatus status,
+  const factory CardIssuanceState.initial({
+    @Default(RequestStatus.initial) RequestStatus catalogStatus,
     @Default(RequestStatus.initial) RequestStatus submissionStatus,
+    Failure? catalogFailure,
+    Failure? submissionFailure,
     IssuanceCatalog? catalog,
     @Default(IssuanceDraft()) IssuanceDraft draft,
     @Default(IssuanceStep.selection) IssuanceStep step,
-    @Default(true) bool invoiceExpanded,
-    @Default(true) bool summaryExpanded,
-    Failure? failure,
+    @Default(1) int stepNumber,
+    @Default(false) bool isSelectionComplete,
+    @Default(false) bool isDeliveryComplete,
+    @Default(false) bool isCatalogEmpty,
+    @Default(false) bool isEditable,
+    @Default(false) bool canContinue,
+    @Default(<IssuanceFee>[]) List<IssuanceFee> fees,
+    @Default(0) int totalRial,
+    @Default(false) bool isWalletSufficient,
+    @Default(true) bool isInvoiceExpanded,
+    @Default(true) bool isSummaryExpanded,
+    @Default(false) bool isRecipientNameValid,
+    @Default(false) bool isRecipientNationalIdValid,
+    @Default(false) bool isRecipientMobileValid,
+    @Default(false) bool isRecipientValid,
+    @Default(false) bool isAgentNameValid,
+    @Default(false) bool isAgentCodeValid,
+    @Default(false) bool isAgentValid,
+    @Default('') String addressTitle,
+    @Default('') String addressDetail,
+    @Default('') String addressPostalCode,
+    @Default(false) bool isAddressTitleValid,
+    @Default(false) bool isAddressDetailValid,
+    @Default(false) bool isAddressPostalCodeValid,
+    @Default(false) bool isAddressFormError,
+    @Default(0) int addressSavedId,
+    IssuanceRequest? confirmedRequest,
     IssuanceReceipt? receipt,
+    IssuanceEffect? effect,
+    @Default(0) int effectId,
+    FlowNavigation? navigation,
+    @Default(0) int navigationId,
+    @Default(0) int scrollId,
   }) = _CardIssuanceState;
 }

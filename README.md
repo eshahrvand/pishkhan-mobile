@@ -43,7 +43,14 @@ Visual captures are not stored in `doc`; optional test captures use ignored
 - [Login](doc/login/development.md)
 - [Dashboard](doc/dashboard/development.md)
 - [Deposits](doc/deposits/development.md)
+- [Standalone deposit list and account sheets](doc/deposits/deposit-list.md)
+- [Statement / average balance request](doc/deposits/average-balance.md)
+- [Financial solvency certificate](doc/deposits/financial-certificate.md)
 - [Loans](doc/loans/development.md)
 
 General architecture and design-system guidance remain in the top-level `doc`
 files. Existing Persian documents are retained unchanged.
+
+All four dashboard tabs share one `HomeCubit` and plain `HomeState` under
+`lib/features/dashboard/presentation/home/cubit/`. See
+[current Home state ownership](doc/dashboard/development.md#12-state-management-with-cubit).

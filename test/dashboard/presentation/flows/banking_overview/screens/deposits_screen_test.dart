@@ -1,3 +1,13 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pishkhan_mobile/core/result/result.dart';
+import 'package:pishkhan_mobile/features/dashboard/presentation/home/cubit/home_cubit.dart';
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
+
+import '../../../../support/home_tab_test_scope.dart';
+import '../../../../support/dashboard_ui_finders.dart';
+
+import 'package:flutter_localizations/flutter_localizations.dart';
+
 import '../../../../support/dashboard_test_repositories.dart';
 import '../../../../../support/router_test_app.dart';
 
@@ -12,11 +22,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:pishkhan_mobile/features/dashboard/presentation/home/screens/dashboard_screen.dart';
 import 'package:pishkhan_mobile/features/dashboard/domain/entities/bank_deposit.dart';
-import 'package:pishkhan_mobile/features/dashboard/presentation/home/screens/deposits_tab.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/deposit_actions.dart';
-import 'package:pishkhan_mobile/l10n/l10n.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_deposit_card.dart';
 
 const preview = Key('deposits_preview');
@@ -41,8 +48,13 @@ Widget subject(Widget child, {double scale = 1}) => RepaintBoundary(
     debugShowCheckedModeBanner: false,
     theme: AppTheme.light(),
     locale: const Locale('fa'),
-    supportedLocales: AppLocalizations.supportedLocales,
-    localizationsDelegates: AppLocalizations.localizationsDelegates,
+    supportedLocales: S.delegate.supportedLocales,
+    localizationsDelegates: const [
+      S.delegate,
+      GlobalMaterialLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+    ],
     builder: (context, child) => MediaQuery(
       data: MediaQuery.of(context)
           .copyWith(textScaler: TextScaler.linear(scale)),
@@ -66,14 +78,15 @@ Future<void> mount(
   await tester.pumpAndSettle();
 }
 
-Future<void> tap(WidgetTester tester, String key) async {
-  final finder = find.byKey(Key(key));
+Future<void> tap(WidgetTester tester, Finder finder) async {
   await tester.ensureVisible(finder);
   await tester.tap(finder);
   await tester.pumpAndSettle();
 }
 
 void main() {
+  setUp(configureDependencies);
+  tearDown(() => getIt.reset());
   setUpAll(() async {
     final loader = FontLoader(AppTypography.defaultFontFamily);
     for (final weight in ['Regular', 'Medium', 'DemiBold', 'Bold']) {
@@ -96,7 +109,7 @@ void main() {
           await mount(
             tester,
             subject(
-              DepositsTab(
+              depositScope(
                 repository: MockDashboardDepositsRepository(
                   deposits: single
                       ? const [DashboardMockData.singleDeposit]
@@ -106,10 +119,12 @@ void main() {
             ),
             size: Size(375, single ? 1264 : 1089),
           );
-          if (!single) await tap(tester, 'deposits_indicator_1');
+          if (!single) {
+            await tap(tester, dashboardIndicator(DashboardDepositsCarousel, 1));
+          }
           expect(tester.takeException(), isNull);
           expect(
-            tester.getTopLeft(find.byKey(const Key('deposits_operations'))).dy,
+            tester.getTopLeft(dashboardGroup(S.current.depositsOperations)).dy,
             341,
           );
           final card = tester.widget<AppDepositCard>(
@@ -120,7 +135,7 @@ void main() {
             single ? AppDepositCardSize.single : AppDepositCardSize.multi,
           );
           expect(
-            find.byKey(const Key('deposits_cheque_operations')),
+            dashboardGroup(S.current.depositsChequeOperations),
             single ? findsOneWidget : findsNothing,
           );
           final statement = tester
@@ -169,25 +184,28 @@ void main() {
       await mount(
         tester,
         subject(
-          DepositsTab(
+          depositScope(
             repository: MockDashboardDepositsRepository(deposits: mixed),
             onActionRequested: (value) => request = value,
             onSelectedDepositChanged: (value) => selected = value,
           ),
         ),
       );
-      expect(find.byKey(const Key('deposits_cheque_operations')), findsNothing);
-      await tap(tester, 'deposits_indicator_1');
+      expect(dashboardGroup(S.current.depositsChequeOperations), findsNothing);
+      await tap(tester, dashboardIndicator(DashboardDepositsCarousel, 1));
       expect(selected?.id, 'with');
       expect(
-        find.byKey(const Key('deposits_cheque_operations')),
+        dashboardGroup(S.current.depositsChequeOperations),
         findsOneWidget,
       );
-      await tap(tester, 'app_service_grid_icon_deposits-deposit-statement');
+      await tap(
+        tester,
+        find.byKey(Key('app_service_grid_icon_deposits-deposit-statement')),
+      );
       expect(request?.action, DepositAction.statement);
       expect(request?.deposit.id, 'with');
-      await tap(tester, 'deposits_indicator_0');
-      expect(find.byKey(const Key('deposits_cheque_operations')), findsNothing);
+      await tap(tester, dashboardIndicator(DashboardDepositsCarousel, 0));
+      expect(dashboardGroup(S.current.depositsChequeOperations), findsNothing);
       expect(tester.takeException(), isNull);
     },
   );
@@ -199,15 +217,15 @@ void main() {
     await mount(
       tester,
       subject(
-        DepositsTab(
+        depositScope(
           repository: MockDashboardDepositsRepository(deposits: [mixed[1]]),
           onCopyNumber: (value) => copiedNumber = value,
           onCopyIban: (value) => copiedIban = value,
         ),
       ),
     );
-    await tap(tester, 'app_deposit_card_copy_number');
-    await tap(tester, 'app_deposit_card_copy_iban');
+    await tap(tester, find.byKey(Key('app_deposit_card_copy_number')));
+    await tap(tester, find.byKey(Key('app_deposit_card_copy_iban')));
     expect(copiedNumber, '10.456.1');
     expect(copiedIban, 'IR456');
     String? clipboard;
@@ -228,61 +246,41 @@ void main() {
     );
     await tester.pumpWidget(
       subject(
-        DepositsTab(
+        depositScope(
           repository: MockDashboardDepositsRepository(deposits: [mixed[1]]),
         ),
       ),
     );
     await tester.pumpAndSettle();
-    await tap(tester, 'app_deposit_card_copy_iban');
+    await tap(tester, find.byKey(Key('app_deposit_card_copy_iban')));
     expect(clipboard, 'IR456');
   });
 
   testWidgets(
-    'reordering retains selected ID and removing it selects the first deposit',
+    'reordering retains selected deposit and removal chooses the first',
     (tester) async {
-      await mount(
-        tester,
-        subject(
-          const DepositsTab(
-            repository: MockDashboardDepositsRepository(deposits: mixed),
-          ),
-        ),
-      );
-      await tap(tester, 'deposits_indicator_1');
-      await tester.pumpWidget(
-        subject(
-          DepositsTab(
-            repository: MockDashboardDepositsRepository(
-              deposits: [mixed[1], mixed[0]],
-            ),
-          ),
-        ),
-      );
+      final repository = TestRepositories()..deposits = const Success(mixed);
+      await mount(tester, subject(depositScope(repository: repository)));
+      await tap(tester, dashboardIndicator(DashboardDepositsCarousel, 1));
+      final cubit = tester
+          .element(find.byType(DashboardDepositsCarousel))
+          .read<HomeCubit>();
+      repository.deposits = Success([mixed[1], mixed[0]]);
+      await tester.runAsync(cubit.fetchDeposits);
       await tester.pumpAndSettle();
       expect(
-        find.byKey(const Key('deposits_cheque_operations')),
+        dashboardGroup(S.current.depositsChequeOperations),
         findsOneWidget,
       );
-      await tester.pumpWidget(
-        subject(
-          DepositsTab(
-            repository: MockDashboardDepositsRepository(deposits: [mixed[0]]),
-          ),
-        ),
-      );
+      repository.deposits = Success([mixed[0]]);
+      await tester.runAsync(cubit.fetchDeposits);
       await tester.pumpAndSettle();
-      expect(find.byKey(const Key('deposits_cheque_operations')), findsNothing);
-      await tester.pumpWidget(
-        subject(
-          const DepositsTab(
-            repository: MockDashboardDepositsRepository(deposits: []),
-          ),
-        ),
-      );
+      expect(dashboardGroup(S.current.depositsChequeOperations), findsNothing);
+      repository.deposits = const Success([]);
+      await tester.runAsync(cubit.fetchDeposits);
       await tester.pumpAndSettle();
       expect(find.byType(AppDepositCard), findsNothing);
-      expect(find.byKey(const Key('deposits_operations')), findsNothing);
+      expect(dashboardGroup(S.current.depositsOperations), findsNothing);
       expect(tester.takeException(), isNull);
     },
   );
@@ -294,19 +292,19 @@ void main() {
     await mount(
       tester,
       subject(
-        DepositsTab(
+        depositScope(
           repository: MockDashboardDepositsRepository(deposits: mixed),
           onSelectedDepositChanged: (value) => selected = value,
         ),
       ),
     );
     await tester.drag(
-      find.byKey(const Key('deposits_carousel')),
+      dashboardCarousel(DashboardDepositsCarousel),
       const Offset(300, 0),
     );
     await tester.pumpAndSettle();
     expect(selected?.id, 'with');
-    expect(find.byKey(const Key('deposits_cheque_operations')), findsOneWidget);
+    expect(dashboardGroup(S.current.depositsChequeOperations), findsOneWidget);
   });
 
   testWidgets(
@@ -316,26 +314,48 @@ void main() {
       await mount(
         tester,
         subject(
-          DashboardScreen(
+          dashboardScope(
             repositories: dashboardTestRepositories(deposits: mixed),
-            enableAnimations: false,
             onDepositActionRequested: (value) => request = value,
           ),
         ),
       );
-      await tap(tester, 'primary_tab_deposits');
-      await tap(tester, 'deposits_indicator_1');
-      await tap(tester, 'primary_tab_cards');
-      await tap(tester, 'primary_tab_deposits');
+      await tap(
+        tester,
+        find.descendant(
+          of: find.byType(AppPrimaryNavigation),
+          matching: find.text(S.current.dashboardDepositsTab),
+        ),
+      );
+      await tap(tester, dashboardIndicator(DashboardDepositsCarousel, 1));
+      await tap(
+        tester,
+        find.descendant(
+          of: find.byType(AppPrimaryNavigation),
+          matching: find.text(S.current.dashboardCardsTab),
+        ),
+      );
+      await tap(
+        tester,
+        find.descendant(
+          of: find.byType(AppPrimaryNavigation),
+          matching: find.text(S.current.dashboardDepositsTab),
+        ),
+      );
       expect(
-        find.byKey(const Key('deposits_cheque_operations')),
+        dashboardGroup(S.current.depositsChequeOperations),
         findsOneWidget,
       );
-      await tap(tester, 'app_service_grid_icon_deposits-deposit-statement');
+      await tap(
+        tester,
+        find.byKey(Key('app_service_grid_icon_deposits-deposit-statement')),
+      );
       expect(request?.deposit.id, 'with');
       await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
-      expect(find.byKey(const Key('dashboard_bank_services')), findsOneWidget);
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      expect(find.byType(DashboardBankServices), findsOneWidget);
       expect(tester.takeException(), isNull);
     },
   );
@@ -348,24 +368,42 @@ void main() {
     await mount(
       tester,
       subject(
-        DashboardScreen(
+        dashboardScope(
           repositories: defaultDashboardTestRepositories,
-          enableAnimations: false,
           onServiceRequested: ids.add,
           onMenuPressed: () => menu++,
         ),
       ),
     );
-    await tap(tester, 'primary_tab_deposits');
-    await tap(tester, 'app_service_grid_icon_deposits-deposit-statement');
+    await tap(
+      tester,
+      find.descendant(
+        of: find.byType(AppPrimaryNavigation),
+        matching: find.text(S.current.dashboardDepositsTab),
+      ),
+    );
+    await tap(
+      tester,
+      find.byKey(Key('app_service_grid_icon_deposits-deposit-statement')),
+    );
     expect(ids.last, 'deposit-statement');
-    await tap(tester, 'dashboard_menu_button');
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    await tap(tester, find.byKey(Key('dashboard_menu_button')));
     expect(menu, 1);
-    await tap(tester, 'deposits_assistant_button');
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    await tap(tester, find.byType(AppAssistantButton));
     expect(ids.last, 'assistant');
-    expect(find.byKey(const Key('dashboard_bank_services')), findsOneWidget);
-    await tap(tester, 'primary_tab_loans');
-    expect(find.byKey(const Key('loans_screen')), findsOneWidget);
+    expect(find.byType(DashboardBankServices), findsOneWidget);
+    await tap(
+      tester,
+      find.descendant(
+        of: find.byType(AppPrimaryNavigation),
+        matching: find.text(S.current.dashboardLoansTab),
+      ),
+    );
+    expect(find.byType(LoansTab), findsOneWidget);
   });
 
   testWidgets(
@@ -375,7 +413,7 @@ void main() {
       await mount(
         tester,
         subject(
-          DepositsTab(
+          depositScope(
             repository: MockDashboardDepositsRepository(
               deposits: const [DashboardMockData.singleDeposit],
             ),
@@ -385,19 +423,22 @@ void main() {
         ),
         size: const Size(320, 700),
       );
-      await tap(tester, 'app_service_grid_icon_deposits-modern-phone');
+      await tap(
+        tester,
+        find.byKey(Key('app_service_grid_icon_deposits-modern-phone')),
+      );
       expect(request?.action, DepositAction.phoneBank);
       expect(tester.takeException(), isNull);
       await tester.pumpWidget(
         subject(
-          const DepositsTab(
+          depositScope(
             repository: MockDashboardDepositsRepository(deposits: []),
           ),
           scale: 1.4,
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.byKey(const Key('deposits_navigation')), findsOneWidget);
+      expect(find.byType(AppPrimaryNavigation), findsOneWidget);
       expect(tester.takeException(), isNull);
     },
   );

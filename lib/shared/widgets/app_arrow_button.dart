@@ -1,6 +1,5 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 enum AppArrowDirection { left, right }
@@ -50,7 +49,7 @@ class AppArrowButton extends StatelessWidget {
             child: Center(
               child: SizedBox.square(
                 dimension: _iconSize,
-                child: SvgPicture.asset(path, fit: BoxFit.contain),
+                child: AvpImage(image: path, fit: BoxFit.contain),
               ),
             ),
           ),

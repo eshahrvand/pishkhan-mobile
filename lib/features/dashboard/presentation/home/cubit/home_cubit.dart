@@ -1,0 +1,713 @@
+import 'dart:async';
+
+import 'package:characters/characters.dart';
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
+import 'package:pishkhan_mobile/core/notifications/notification_message.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:pishkhan_mobile/core/enums/request_status.dart';
+import 'package:pishkhan_mobile/core/result/failure.dart';
+import 'package:pishkhan_mobile/core/result/result.dart';
+
+import '../../../domain/entities/bank_card.dart';
+import '../../../domain/entities/bank_deposit.dart';
+import '../../../domain/entities/bank_loan.dart';
+import '../../../domain/entities/dashboard_home_data.dart';
+import '../../../domain/repositories/dashboard_repositories.dart';
+import '../../../domain/usecases/home.dart';
+import '../../shared/card_actions.dart';
+import '../../shared/deposit_actions.dart';
+import '../../shared/loan_actions.dart';
+import '../../shared/dashboard_services.dart';
+import '../../shared/dashboard_tab.dart';
+import 'home_effect.dart';
+
+part 'home_state.dart';
+
+part 'home_cubit.freezed.dart';
+
+class HomeCubit extends Cubit<HomeState> {
+  HomeCubit({HomeState initialState = const HomeState.initial()})
+    : super(initialState);
+
+  final _repositories = getIt<DashboardRepositories>();
+  late final _loadHome = LoadDashboardHome(_repositories.home);
+  late final _loadCards = LoadDashboardItems(_repositories.cards.getCards);
+  late final _loadDeposits = LoadDashboardItems(
+    _repositories.deposits.getDeposits,
+  );
+  late final _loadLoans = LoadDashboardItems(_repositories.loans.getLoans);
+
+  static const maxFavorites = 8;
+
+  Future<void> fetchDashboard() {
+    return Future.wait([
+      fetchHome(),
+      fetchCards(),
+      fetchDeposits(),
+      fetchLoans(),
+    ]).then((_) {});
+  }
+
+  void selectTab(AppPrimaryTab tab) {
+    emit(
+      state.copyWith(
+        selectedTab: tab,
+        effect: HomeTabRequested(tab),
+        effectId: state.effectId + 1,
+      ),
+    );
+  }
+
+  void requestMenu([AppPrimaryTab tab = AppPrimaryTab.dashboard]) {
+    emit(
+      state.copyWith(
+        effect: HomeMenuRequested(
+          category: switch (tab) {
+            AppPrimaryTab.deposits => DashboardService.deposits,
+            AppPrimaryTab.loans => DashboardService.loans,
+            _ => null,
+          },
+        ),
+        effectId: state.effectId + 1,
+      ),
+    );
+  }
+
+  void requestAssistant() {
+    emit(
+      state.copyWith(
+        selectedTab: AppPrimaryTab.dashboard,
+        effect: const HomeAssistantRequested(),
+        effectId: state.effectId + 1,
+      ),
+    );
+  }
+
+  void requestService(DashboardService service) {
+    if (service == DashboardService.assistant) {
+      requestAssistant();
+    } else {
+      emit(
+        state.copyWith(
+          effect: HomeServiceRequested(service.id),
+          effectId: state.effectId + 1,
+        ),
+      );
+    }
+  }
+
+  void requestAllServices() {
+    emit(
+      state.copyWith(
+        effect: const HomeAllServicesRequested(),
+        effectId: state.effectId + 1,
+      ),
+    );
+  }
+
+  void requestProfile() {
+    emit(
+      state.copyWith(
+        effect: const HomeProfileRequested(),
+        effectId: state.effectId + 1,
+      ),
+    );
+  }
+
+  void requestNotifications() {
+    emit(
+      state.copyWith(
+        messages: state.messages ?? NotificationMessage.examples(),
+        effect: const HomeNotificationsRequested(),
+        effectId: state.effectId + 1,
+      ),
+    );
+  }
+
+  void updateNotifications(List<NotificationMessage> messages) {
+    emit(state.copyWith(messages: List.unmodifiable(messages)));
+  }
+
+  void requestFavoritePicker() {
+    emit(
+      state.copyWith(
+        effect: HomeFavoritePickerRequested(
+          excluded: state.favoriteServices
+              .map((service) => service.id)
+              .toList(),
+        ),
+        effectId: state.effectId + 1,
+      ),
+    );
+  }
+
+  void requestFavoritesReset() {
+    emit(
+      state.copyWith(
+        effect: const HomeFavoritesResetRequested(),
+        effectId: state.effectId + 1,
+      ),
+    );
+  }
+
+  void applyMenuSelection(DashboardService? service) {
+    if (service != null) requestService(service);
+  }
+
+  void applyFavoriteSelection(DashboardService? service) {
+    if (service != null) addFavorite(service);
+  }
+
+  void applyResetConfirmation(bool? confirmed) {
+    if (confirmed == true) resetFavorites();
+  }
+
+  Future<void> fetchHome() {
+    emit(
+      state.copyWith(
+        homeStatus: RequestStatus.loading,
+        homeData: null,
+        isEditingFavorites: false,
+        homeFailure: null,
+        favoriteServices: const [],
+        fixedServices: const [],
+        canAddFavorite: true,
+        isFavoritesLimitReached: false,
+      ),
+    );
+    return _loadHome().then((result) {
+      switch (result) {
+        case Err(:final failure):
+          emit(
+            state.copyWith(
+              homeStatus: RequestStatus.failure,
+              homeFailure: failure,
+            ),
+          );
+        case Success(:final data):
+          final home = data?.withFavorites(
+            data.favorites.toSet().take(maxFavorites),
+          );
+          final services = _servicesForIds(home?.favorites ?? const []);
+          emit(
+            state.copyWith(
+              homeStatus: RequestStatus.success,
+              homeData: home,
+              favoriteServices: services,
+              fixedServices: _servicesForIds(home?.fixedServiceIds ?? const []),
+              canAddFavorite: services.length < maxFavorites,
+              isFavoritesLimitReached: services.length == maxFavorites,
+            ),
+          );
+      }
+    });
+  }
+
+  void beginFavoritesEditing() {
+    final services = _servicesForIds(
+      state.homeData!.favorites.isEmpty
+          ? state.homeData!.suggestedServiceIds.toSet().take(maxFavorites)
+          : state.homeData!.favorites,
+    );
+    emit(
+      state.copyWith(
+        isEditingFavorites: true,
+        favoriteServices: services,
+        canAddFavorite: services.length < maxFavorites,
+        isFavoritesLimitReached: services.length == maxFavorites,
+      ),
+    );
+  }
+
+  void addFavorite(DashboardService service) {
+    final services = [...state.favoriteServices, service];
+    emit(
+      state.copyWith(
+        favoriteServices: services,
+        canAddFavorite: services.length < maxFavorites,
+        isFavoritesLimitReached: services.length == maxFavorites,
+      ),
+    );
+  }
+
+  void removeFavorite(DashboardService service) {
+    final services = state.favoriteServices
+        .where((favorite) => favorite != service)
+        .toList();
+    emit(
+      state.copyWith(
+        favoriteServices: services,
+        canAddFavorite: services.length < maxFavorites,
+        isFavoritesLimitReached: services.length == maxFavorites,
+      ),
+    );
+  }
+
+  void applyFavorites() {
+    emit(
+      state.copyWith(
+        homeData: state.homeData!.withFavorites(
+          state.favoriteServices.map((service) => service.id),
+        ),
+        isEditingFavorites: false,
+      ),
+    );
+  }
+
+  void cancelFavorites() {
+    final services = _servicesForIds(state.homeData!.favorites);
+    emit(
+      state.copyWith(
+        isEditingFavorites: false,
+        favoriteServices: services,
+        canAddFavorite: services.length < maxFavorites,
+        isFavoritesLimitReached: services.length == maxFavorites,
+      ),
+    );
+  }
+
+  void resetFavorites() {
+    emit(
+      state.copyWith(
+        homeData: state.homeData!.withFavorites([]),
+        isEditingFavorites: false,
+        favoriteServices: const [],
+        canAddFavorite: true,
+        isFavoritesLimitReached: false,
+      ),
+    );
+  }
+
+  void requestBack() {
+    if (state.selectedTab != AppPrimaryTab.dashboard) {
+      selectTab(AppPrimaryTab.dashboard);
+    } else {
+      cancelFavorites();
+    }
+  }
+
+  List<DashboardService> _servicesForIds(Iterable<String> ids) => [
+    for (final id in ids)
+      for (final service in DashboardService.values)
+        if (service.id == id) service,
+  ];
+
+  static const _cardActions = [
+    CardAction.reissue,
+    CardAction.changeDeposit,
+    CardAction.block,
+  ];
+  static const _quickActions = [
+    CardAction.issue,
+    CardAction.virtualCard,
+    CardAction.giftPurchase,
+    CardAction.giftBalance,
+  ];
+
+  List<CardAction> _pinActions(BankCard card) => [
+    CardAction.changeFirstPin,
+    card.canSetSecondPin ? CardAction.setSecondPin : CardAction.forgotSecondPin,
+    CardAction.forgotFirstPin,
+  ];
+
+  Future<void> fetchCards() {
+    final previous = state.selectedCard;
+    final visibility = state.cardVisibility;
+    emit(
+      state.copyWith(
+        cardsStatus: RequestStatus.loading,
+        cardsFailure: null,
+        visibleCards: const [],
+        selectedCardIndex: 0,
+        selectedCard: null,
+        cardActions: const [],
+        pinActions: const [],
+        cardQuickActions: const [],
+      ),
+    );
+    return _loadCards().then((result) {
+      switch (result) {
+        case Err(:final failure):
+          emit(
+            state.copyWith(
+              cardsStatus: RequestStatus.failure,
+              cardsFailure: failure,
+            ),
+          );
+        case Success(:final data):
+          final selected =
+              data.where((item) => item.id == previous?.id).firstOrNull ??
+              data.firstOrNull;
+          emit(
+            state.copyWith(
+              cardsStatus: RequestStatus.success,
+              visibleCards: data,
+              selectedCard: selected,
+              selectedCardIndex: selected == null ? 0 : data.indexOf(selected),
+              cardActions: selected == null ? const [] : _cardActions,
+              pinActions: selected == null ? const [] : _pinActions(selected),
+              cardQuickActions: selected == null ? const [] : _quickActions,
+              cardVisibility: {
+                for (final card in data)
+                  card.id: visibility[card.id] ?? data.length == 1,
+              },
+            ),
+          );
+      }
+    });
+  }
+
+  void selectCard(BankCard card) {
+    emit(
+      state.copyWith(
+        selectedCard: card,
+        selectedCardIndex: state.visibleCards.indexOf(card),
+        cardActions: _cardActions,
+        pinActions: _pinActions(card),
+        cardQuickActions: _quickActions,
+      ),
+    );
+  }
+
+  void requestCardAction(CardAction action) {
+    final request = CardActionRequest(
+      action: action,
+      card: state.selectedCard!,
+    );
+    emit(
+      state.copyWith(
+        effect: HomeCardActionRequested(request),
+        effectId: state.effectId + 1,
+      ),
+    );
+  }
+
+  void requestCardNumberCopy(BankCard card) {
+    emit(
+      state.copyWith(
+        effect: HomeCardNumberCopyRequested(card.number),
+        effectId: state.effectId + 1,
+      ),
+    );
+  }
+
+  void requestCardIbanCopy(BankCard card) {
+    emit(
+      state.copyWith(
+        effect: HomeCardIbanCopyRequested(card.iban),
+        effectId: state.effectId + 1,
+      ),
+    );
+  }
+
+  Future<void> fetchDeposits() {
+    final previous = state.selectedDeposit;
+
+    emit(
+      state.copyWith(
+        depositsStatus: RequestStatus.loading,
+        depositsFailure: null,
+        visibleDeposits: const [],
+        selectedDepositIndex: 0,
+        selectedDeposit: null,
+        depositActions: const [],
+        depositQuickActions: const [],
+        depositChequeActions: const [],
+      ),
+    );
+    return _loadDeposits().then((result) {
+      switch (result) {
+        case Err(:final failure):
+          emit(
+            state.copyWith(
+              depositsStatus: RequestStatus.failure,
+              depositsFailure: failure,
+            ),
+          );
+        case Success(:final data):
+          final selected =
+              data.where((item) => item.id == previous?.id).firstOrNull ??
+              data.firstOrNull;
+          emit(
+            state.copyWith(
+              depositsStatus: RequestStatus.success,
+              visibleDeposits: data,
+              selectedDeposit: selected,
+              selectedDepositIndex: selected == null
+                  ? 0
+                  : data.indexOf(selected),
+              depositActions: selected == null
+                  ? const []
+                  : DepositAction.operations,
+              depositQuickActions: selected == null
+                  ? const []
+                  : DepositAction.quick,
+              depositChequeActions: selected?.hasChequeOperations == true
+                  ? DepositAction.cheques
+                  : const [],
+            ),
+          );
+      }
+    });
+  }
+
+  void selectDeposit(BankDeposit deposit) {
+    emit(
+      state.copyWith(
+        selectedDeposit: deposit,
+        selectedDepositIndex: state.visibleDeposits.indexOf(deposit),
+        depositActions: DepositAction.operations,
+        depositQuickActions: DepositAction.quick,
+        depositChequeActions: deposit.hasChequeOperations
+            ? DepositAction.cheques
+            : const [],
+      ),
+    );
+  }
+
+  void requestDepositAction(DepositAction action) {
+    final request = DepositActionRequest(
+      action: action,
+      deposit: state.selectedDeposit!,
+    );
+    emit(
+      state.copyWith(
+        effect: HomeDepositActionRequested(request),
+        effectId: state.effectId + 1,
+      ),
+    );
+  }
+
+  void requestDepositNumberCopy(BankDeposit deposit) {
+    emit(
+      state.copyWith(
+        effect: HomeDepositNumberCopyRequested(deposit.number),
+        effectId: state.effectId + 1,
+      ),
+    );
+  }
+
+  void requestDepositIbanCopy(BankDeposit deposit) {
+    emit(
+      state.copyWith(
+        effect: HomeDepositIbanCopyRequested(deposit.iban),
+        effectId: state.effectId + 1,
+      ),
+    );
+  }
+
+  Future<void> fetchLoans() {
+    final previous = state.selectedLoan;
+
+    emit(
+      state.copyWith(
+        loansStatus: RequestStatus.loading,
+        loansFailure: null,
+        visibleLoans: const [],
+        selectedLoanIndex: 0,
+        selectedLoan: null,
+        loanActions: const [],
+        loanQuickActions: const [],
+      ),
+    );
+    return _loadLoans().then((result) {
+      switch (result) {
+        case Err(:final failure):
+          emit(
+            state.copyWith(
+              loansStatus: RequestStatus.failure,
+              loansFailure: failure,
+            ),
+          );
+        case Success(:final data):
+          final selected =
+              data.where((item) => item.id == previous?.id).firstOrNull ??
+              data.firstOrNull;
+          emit(
+            state.copyWith(
+              loansStatus: RequestStatus.success,
+              visibleLoans: data,
+              selectedLoan: selected,
+              selectedLoanIndex: selected == null ? 0 : data.indexOf(selected),
+              loanActions: selected == null ? const [] : LoanAction.operations,
+              loanQuickActions: selected == null ? const [] : LoanAction.quick,
+            ),
+          );
+      }
+    });
+  }
+
+  void selectLoan(BankLoan loan) {
+    emit(
+      state.copyWith(
+        selectedLoan: loan,
+        selectedLoanIndex: state.visibleLoans.indexOf(loan),
+        loanActions: LoanAction.operations,
+        loanQuickActions: LoanAction.quick,
+      ),
+    );
+  }
+
+  void requestLoanAction(LoanAction action) {
+    final request = LoanActionRequest(
+      action: action,
+      loan: state.selectedLoan!,
+    );
+    emit(
+      state.copyWith(
+        effect: HomeLoanActionRequested(request),
+        effectId: state.effectId + 1,
+      ),
+    );
+  }
+
+  void requestLoanNumberCopy(BankLoan loan) {
+    emit(
+      state.copyWith(
+        effect: HomeLoanNumberCopyRequested(loan.number),
+        effectId: state.effectId + 1,
+      ),
+    );
+  }
+
+  void updateCardVisibility(BankCard card, bool visible) {
+    emit(
+      state.copyWith(
+        cardVisibility: {...state.cardVisibility, card.id: visible},
+      ),
+    );
+  }
+
+  void requestCardMore(BankCard card) {
+    emit(
+      state.copyWith(
+        effect: HomeCardMoreRequested(card),
+        effectId: state.effectId + 1,
+      ),
+    );
+  }
+
+  void requestLoanDetails(BankLoan loan) {
+    emit(
+      state.copyWith(
+        effect: HomeLoanDetailsRequested(loan),
+        effectId: state.effectId + 1,
+      ),
+    );
+  }
+
+  Timer? _typingTimer;
+  List<String> _phrases = const [];
+  int _phraseIndex = 0;
+  int _position = 0;
+  int _holdTicks = 0;
+  bool _erasing = false;
+
+  void updatePrompt(String value) {
+    emit(
+      state.copyWith(
+        prompt: value,
+        isInputPresent: value.isNotEmpty,
+        canSubmitPrompt: value.trim().isNotEmpty,
+        isHintTyping:
+            state.isMotionEnabled && !state.isInputFocused && value.isEmpty,
+      ),
+    );
+    _syncTypingTimer();
+  }
+
+  void submitPrompt() {
+    final prompt = state.prompt.trim();
+    emit(
+      state.copyWith(
+        submittedPrompt: prompt,
+        effect: HomePromptSubmitted(prompt),
+        effectId: state.effectId + 1,
+      ),
+    );
+  }
+
+  void updateHintPhrases(List<String> phrases) {
+    _phrases = List.unmodifiable(phrases);
+    _syncTypingTimer();
+  }
+
+  void updateForeground(bool foreground) {
+    final enabled = state.isMotionAllowed && foreground;
+    emit(
+      state.copyWith(
+        isForeground: foreground,
+        isMotionEnabled: enabled,
+        isHintTyping: enabled && !state.isInputFocused && !state.isInputPresent,
+      ),
+    );
+    _syncTypingTimer();
+  }
+
+  void updateMotion({
+    required bool enabled,
+    required bool animationsDisabled,
+    required bool tickerEnabled,
+    required bool hasFocus,
+  }) {
+    final allowed = enabled && !animationsDisabled && tickerEnabled;
+    final motion = allowed && state.isForeground;
+    emit(
+      state.copyWith(
+        isMotionAllowed: allowed,
+        isMotionEnabled: motion,
+        isInputFocused: hasFocus,
+        isHintTyping: motion && !hasFocus && !state.isInputPresent,
+      ),
+    );
+    _syncTypingTimer();
+  }
+
+  // Own only the timer resource here; each action publishes its own State.
+  void _syncTypingTimer() {
+    if (state.isHintTyping && _phrases.isNotEmpty) {
+      _typingTimer ??= Timer.periodic(
+        const Duration(milliseconds: 90),
+        (_) => _typeNextHint(),
+      );
+    } else {
+      _typingTimer?.cancel();
+      _typingTimer = null;
+    }
+  }
+
+  void _typeNextHint() {
+    if (_holdTicks > 0) {
+      _holdTicks--;
+    } else {
+      final phrase = _phrases[_phraseIndex];
+      final length = phrase.characters.length;
+      if (_erasing) {
+        _position--;
+        if (_position <= 0) {
+          _position = 0;
+          _erasing = false;
+          _phraseIndex = (_phraseIndex + 1) % _phrases.length;
+          _holdTicks = 5;
+        }
+      } else {
+        _position++;
+        if (_position >= length) {
+          _position = length;
+          _erasing = true;
+          _holdTicks = 24;
+        }
+      }
+      emit(
+        state.copyWith(typedHint: phrase.characters.take(_position).toString()),
+      );
+    }
+  }
+
+  @override
+  Future<void> close() {
+    _typingTimer?.cancel();
+    return super.close();
+  }
+}

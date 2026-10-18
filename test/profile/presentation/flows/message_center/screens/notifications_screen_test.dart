@@ -1,3 +1,11 @@
+import 'package:pishkhan_mobile/features/profile/presentation/message_center/widgets/notification_card.dart';
+import 'package:pishkhan_mobile/features/profile/presentation/message_center/widgets/notification_header.dart';
+import 'package:pishkhan_mobile/features/profile/presentation/message_center/screens/notification_detail_screen.dart';
+
+import '../../../../../dashboard/support/home_tab_test_scope.dart';
+
+import 'package:flutter_localizations/flutter_localizations.dart';
+
 import '../../../../../dashboard/support/dashboard_test_repositories.dart';
 import '../../../../../support/router_test_app.dart';
 
@@ -5,10 +13,9 @@ import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:pishkhan_mobile/features/dashboard/presentation/home/screens/dashboard_screen.dart';
-import 'package:pishkhan_mobile/features/profile/domain/entities/notification_message.dart';
+import 'package:pishkhan_mobile/core/notifications/notification_message.dart';
 import 'package:pishkhan_mobile/features/profile/presentation/message_center/screens/notifications_screen.dart';
-import 'package:pishkhan_mobile/l10n/l10n.dart';
+import 'package:pishkhan_mobile/generated/l10n.dart';
 
 void main() {
   setUpAll(() async {
@@ -24,19 +31,20 @@ void main() {
   Widget subject({Widget? home, double scale = 1}) => TestRouterApp(
     theme: AppTheme.light(),
     locale: const Locale('fa'),
-    localizationsDelegates: AppLocalizations.localizationsDelegates,
-    supportedLocales: AppLocalizations.supportedLocales,
+    localizationsDelegates: const [
+      S.delegate,
+      GlobalMaterialLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+    ],
+    supportedLocales: S.delegate.supportedLocales,
     builder: (context, child) => MediaQuery(
       data: MediaQuery.of(context)
           .copyWith(textScaler: TextScaler.linear(scale)),
       child: child!,
     ),
     home:
-        home ??
-        const DashboardScreen(
-          repositories: defaultDashboardTestRepositories,
-          enableAnimations: false,
-        ),
+        home ?? dashboardScope(repositories: defaultDashboardTestRepositories),
   );
 
   Future<void> render(
@@ -65,35 +73,20 @@ void main() {
       await openList(tester);
       expect(find.text('پیام‌های جدید'), findsOneWidget);
       expect(find.text('پیام‌های خوانده شده'), findsOneWidget);
-      expect(
-        find.byKey(const Key('notification_unread_secured-loan')),
-        findsOneWidget,
-      );
-      await tester.tap(find.byKey(const Key('notification_secured-loan')));
+      expect(notificationCard('secured-loan', unread: true), findsOneWidget);
+      await tester.tap(notificationCard('secured-loan'));
       await tester.pumpAndSettle();
-      expect(
-        find.byKey(const Key('notification_detail_screen')),
-        findsOneWidget,
-      );
+      expect(find.byType(NotificationDetailScreen), findsOneWidget);
       expect(find.text('با سرمایه خودت وام بگیر'), findsOneWidget);
       expect(find.text('امروز'), findsOneWidget);
-      await tester.tap(find.byKey(const Key('notification_back')));
+      await tester.tap(notificationBack());
       await tester.pumpAndSettle();
-      expect(
-        find.byKey(const Key('notification_unread_secured-loan')),
-        findsNothing,
-      );
-      expect(
-        find.byKey(const Key('notification_unread_gold-investment')),
-        findsOneWidget,
-      );
-      await tester.tap(find.byKey(const Key('notification_back')));
+      expect(notificationCard('secured-loan', unread: true), findsNothing);
+      expect(notificationCard('gold-investment', unread: true), findsOneWidget);
+      await tester.tap(notificationBack());
       await tester.pumpAndSettle();
       await openList(tester);
-      expect(
-        find.byKey(const Key('notification_unread_secured-loan')),
-        findsNothing,
-      );
+      expect(notificationCard('secured-loan', unread: true), findsNothing);
       expect(tester.takeException(), isNull);
     },
   );
@@ -103,20 +96,12 @@ void main() {
   ) async {
     await render(tester);
     await openList(tester);
-    await tester.tap(find.byKey(const Key('notification_read_all')));
+    await tester.tap(readAllButton());
     await tester.pumpAndSettle();
     expect(find.text('پیام‌های جدید'), findsNothing);
-    expect(
-      find.byKey(const Key('notification_unread_gold-investment')),
-      findsNothing,
-    );
-    expect(
-      tester
-          .widget<AppButton>(find.byKey(const Key('notification_read_all')))
-          .onPressed,
-      isNull,
-    );
-    await tester.tap(find.byKey(const Key('notification_back')));
+    expect(notificationCard('gold-investment', unread: true), findsNothing);
+    expect(tester.widget<AppButton>(readAllButton()).onPressed, isNull);
+    await tester.tap(notificationBack());
     await tester.pumpAndSettle();
     await openList(tester);
     expect(find.text('پیام‌های جدید'), findsNothing);
@@ -127,9 +112,7 @@ void main() {
   ) async {
     await render(tester);
     await openList(tester);
-    await tester.tap(
-      find.byKey(const Key('notification_security-۱۶ شهريور ۱۴۰۵')),
-    );
+    await tester.tap(notificationCard('security-sample-date'));
     await tester.pumpAndSettle();
     expect(find.text('۱۶ شهريور ۱۴۰۵'), findsOneWidget);
     expect(find.textContaining('کد ورودت رو به کسی نده'), findsOneWidget);
@@ -146,7 +129,7 @@ void main() {
     await tester.pumpWidget(
       subject(
         home: NotificationsScreen(
-          messages: const [
+          messages: [
             NotificationMessage(
               id: 'custom',
               title: 'عنوان سفارشی',
@@ -159,7 +142,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.byKey(const Key('notification_custom')));
+    await tester.tap(notificationCard('custom'));
     await tester.pumpAndSettle();
     expect(changed!.single.isRead, isTrue);
     expect(find.text('متن سفارشی'), findsOneWidget);
@@ -170,9 +153,7 @@ void main() {
     (tester) async {
       await render(tester, size: const Size(320, 640), scale: 1.5);
       await openList(tester);
-      final card = find.byKey(
-        const Key('notification_security-۱۶ شهريور ۱۴۰۵'),
-      );
+      final card = notificationCard('security-sample-date');
       await tester.ensureVisible(card);
       await tester.pumpAndSettle();
       await tester.tap(card);
@@ -186,3 +167,19 @@ void main() {
     },
   );
 }
+
+Finder notificationCard(String id, {bool unread = false}) =>
+    find.byWidgetPredicate(
+      (widget) =>
+          widget is NotificationCard &&
+          widget.message.id == id &&
+          (!unread || !widget.message.isRead),
+    );
+Finder notificationBack() => find.descendant(
+  of: find.byType(NotificationHeader),
+  matching: find.byType(IconButton),
+);
+Finder readAllButton() => find.byWidgetPredicate(
+  (widget) =>
+      widget is AppButton && widget.label == S.current.notificationReadAll,
+);

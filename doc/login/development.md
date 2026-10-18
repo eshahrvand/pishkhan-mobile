@@ -3,21 +3,24 @@
 ## UI structure after the auth refactor
 
 `AuthScreen` lives in
-`lib/features/auth/presentation/login/screens/auth_screen.dart`. Bloc-driven login sections,
-direct package input bindings, reusable field icons, and the guest services sheet
-live under `lib/features/auth/presentation/login/widgets/`. The identity form
-keeps its field subscriptions and CAPTCHA together. The OTP form keeps its
-countdown widget in the same file, and `auth_form_shared.dart` groups the reused
-heading and field-icon helpers.
-When UI code grows beyond about 200 lines, review its responsibilities and
-prefer extracting a coherent Bloc subscription with its UI into a widget file.
-The threshold is a guide: keep tiny one-use fragments inline and related grid
-helpers together. Keep a stateful widget and its State class together.
-Typography derives from the installed theme. Tests find controls by public
-labels, hints, and widget types; only documented flow-transition keys remain
-to reset controllers. Existing layouts, validation, and demo callbacks are
-preserved. The applicable conventions are in
-[the Flutter widget UI style skill](../../.agents/skills/flutter-widget-ui-style/SKILL.md).
+`lib/features/auth/presentation/login/screens/auth_screen.dart`. Its `widgets/`
+folder contains six files:
+
+- `auth_header.dart`: bank header and menu action.
+- `auth_identity_form.dart`: explicit identity inputs, change-phone notice,
+  CAPTCHA and request-code button.
+- `auth_otp_form.dart`: OTP input, independently subscribed countdown/resend
+  control and submission button.
+- `auth_form_shared.dart`: the heading reused by identity and OTP forms.
+- `auth_services_sheet.dart`: guest-service sheet composition and section titles.
+- `auth_services_grid.dart`: responsive service rows and their tile composition.
+
+Small field icons, CAPTCHA rows, countdown controls and service labels/tiles
+remain inline in their owning section. The identity form is intentionally larger
+than the usual 200-line review point so the complete fixed form is readable in
+one file. Existing focused subscriptions, validation callbacks, geometry and
+flow-transition keys are preserved. The authoritative style rules are the
+[UI/Cubit/State contract](../ui-cubit-state-agent-rules-en.md).
 
 The login section is implemented from the Mobile Figma file
 `nYQNyZdSs98lwymCpt5Sag`. Screens share the bank header and background artwork;
@@ -46,10 +49,13 @@ form and OTP values are controlled by `AuthCubit`.
   limits. Optional `value` and `onFocusLost` parameters provide controlled text
   and focus-loss validation. Empty and filled text stays RTL with
   `TextAlign.start`. The intermediary `AuthNumericField` has been removed.
-- `AppButton`: 40px send-code action and 44px OTP submission. The empty
-  identity form retains the blue send-code action from Figma; invalid submission
-  shows localized field errors. OTP submission is disabled until four digits are
-  present and the code has not expired.
+- `AppButton`: 40px send-code action and 44px OTP submission. The send-code
+  action uses `isActive: state.formValid` and remains disabled until the national
+  ID checksum, mobile format and six-digit CAPTCHA format are valid. CAPTCHA
+  correctness remains server-owned. `isLoading` reads the request status and
+  displays the package spinner while blocking interaction. Keyboard submission
+  also respects the Cubit's loading guard. OTP submission is disabled until four
+  digits are present and the code has not expired.
 - CAPTCHA and timer slots are 148px wide, separated from the field by 7px.
 - `AuthServicesSheet`: 528px at the reference viewport, 56px shared header,
   20px/32px body insets, 104px service rows, and 24px/12px section gaps.
@@ -97,3 +103,18 @@ insets. Golden tests are not introduced.
 ## Cubit/State coding convention
 
 Follow [architecture Section 12](../architecture-smart-virtual-counter-v2-en.md#12-state-management-with-cubit) for new work and refactors. State is a plain Freezed data class with defaults and independent request statuses. Cubits accept an initial State, compute UI data and eligibility, and emit immutable snapshots through `copyWith`. UI reads those fields directly; no custom State/Cubit getters or UI-facing rules facade is used. Dependencies remain injectable and lifecycle/duplicate-request safeguards stay in place.
+
+## UI/Cubit contract adoption (2026-10-17)
+
+AuthCubit is constructed directly in BlocProvider.create and disposed with its scope. GetIt contains data dependencies only; it never registers Cubits.
+OTP completion, OTP focus intent and guest-service selection are Cubit actions;
+a filtered listener executes typed AuthEffect values. The guest sheet returns a
+raw service ID; it no longer chooses the change-phone flow. No bank API is added.
+
+### Dependency and listener clarification (2026-10-17)
+
+The screen/feature-flow widget owns BlocProvider.create, including Home in
+DashboardScreen; GoRouter only selects the destination. Cubits resolve existing
+Repository/service/UseCase registrations through GetIt fields, without dependency
+constructor arguments from UI. Multi-case and substantial async listeners use
+named widget/State methods with the existing listenWhen filter.

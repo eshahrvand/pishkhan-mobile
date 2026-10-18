@@ -2,24 +2,17 @@ import 'dart:ui';
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/login/cubit/auth_cubit.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/login/widgets/auth_services_grid.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/shared/auth_assets.dart';
-import 'package:pishkhan_mobile/l10n/l10n.dart';
+import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_bottom_sheet_header.dart';
 
-Future<void> showAuthServicesSheet(
-  BuildContext context, {
-  ValueChanged<String>? onServiceRequested,
-}) async {
-  final cubit = context.read<AuthCubit>();
+Future<String?> showAuthServicesSheet(BuildContext context) async {
   final colors = context.colors;
   final viewport = MediaQuery.of(context);
   FocusManager.instance.primaryFocus?.unfocus();
-  await showModalBottomSheet<void>(
+  return showModalBottomSheet<String>(
     context: context,
     isScrollControlled: true,
     useSafeArea: true,
@@ -36,14 +29,7 @@ Future<void> showAuthServicesSheet(
           ),
           child: AuthServicesSheet(
             onClose: () => sheetContext.pop(),
-            onServiceRequested: (id) {
-              sheetContext.pop();
-              if (id == 'identity.changePhone') {
-                cubit.openChangePhone();
-              } else {
-                onServiceRequested?.call(id);
-              }
-            },
+            onServiceRequested: (id) => sheetContext.pop(id),
           ),
         ),
       ),
@@ -62,7 +48,6 @@ class AuthServicesSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = context.l10n;
     AuthServiceItemData item(
       String id,
       String label,
@@ -81,9 +66,9 @@ class AuthServicesSheet extends StatelessWidget {
       child: Column(
         children: [
           AppBottomSheetHeader(
-            title: l10n.servicesList,
+            title: S.current.servicesList,
             showRightIcon: false,
-            leftIcon: SvgPicture.asset(AuthAssets.sheetClose),
+            leftIcon: AvpImage(image: AuthAssets.sheetClose),
             onLeftAction: onClose,
           ),
           Expanded(
@@ -92,62 +77,102 @@ class AuthServicesSheet extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  AuthServicesSectionTitle(
-                    title: l10n.guestServices,
-                    dividerAsset: AuthAssets.sectionDivider1,
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          S.current.guestServices,
+                          style: Theme.of(context).textTheme.titleSmall!
+                              .copyWith(
+                                color: AppLoginColors.sectionLabel,
+                                fontWeight: FontWeight.w600,
+                                height: 20 / 14,
+                                letterSpacing: 0,
+                              ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: AvpImage(
+                          image: AuthAssets.sectionDivider1,
+                          height: 1,
+                          fit: BoxFit.fill,
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 16),
                   AuthServicesRow(
                     items: [
                       item(
                         'deposits.assetReport',
-                        l10n.assetReport,
+                        S.current.assetReport,
                         AuthAssets.assetReport,
                       ),
                       item(
                         'identity.changePhone',
-                        l10n.changeMobileService,
+                        S.current.changeMobileService,
                         AuthAssets.changeMobile,
                       ),
                       item(
                         'requests.status',
-                        l10n.requestStatus,
+                        S.current.requestStatus,
                         AuthAssets.requestStatus,
                         mutedLabel: true,
                       ),
                       item(
                         'identity.inheritance',
-                        l10n.inheritance,
+                        S.current.inheritance,
                         AuthAssets.inheritance,
                       ),
                     ],
                   ),
                   const SizedBox(height: 24),
-                  AuthServicesSectionTitle(
-                    title: l10n.relatedLinks,
-                    dividerAsset: AuthAssets.sectionDivider2,
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          S.current.relatedLinks,
+                          style: Theme.of(context).textTheme.titleSmall!
+                              .copyWith(
+                                color: AppLoginColors.sectionLabel,
+                                fontWeight: FontWeight.w600,
+                                height: 20 / 14,
+                                letterSpacing: 0,
+                              ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: AvpImage(
+                          image: AuthAssets.sectionDivider2,
+                          height: 1,
+                          fit: BoxFit.fill,
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 16),
                   AuthServicesRow(
                     items: [
                       item(
                         'links.mobileBank',
-                        l10n.mobileBank,
+                        S.current.mobileBank,
                         AuthAssets.mobileBank,
                       ),
                       item(
                         'links.internetBank',
-                        l10n.internetBank,
+                        S.current.internetBank,
                         AuthAssets.internetBank,
                       ),
                       item(
                         'links.callCenter',
-                        l10n.memberContactCenter,
+                        S.current.memberContactCenter,
                         AuthAssets.callCenter,
                       ),
                       item(
                         'links.resalat',
-                        l10n.resalatApp,
+                        S.current.resalatApp,
                         AuthAssets.resalatService,
                       ),
                     ],
@@ -158,12 +183,12 @@ class AuthServicesSheet extends StatelessWidget {
                     items: [
                       item(
                         'links.security',
-                        l10n.securityTips,
+                        S.current.securityTips,
                         AuthAssets.security,
                       ),
                       item(
                         'links.updateGuide',
-                        l10n.updateGuide,
+                        S.current.updateGuide,
                         AuthAssets.updateGuide,
                       ),
                     ],

@@ -12,7 +12,7 @@ All references belong to the [Cards Figma design](https://www.figma.com/design/n
 | Card selected, destination empty | `27997:10849` |
 | Destination and consent filled | `27997:10873` |
 
-The authenticated route is `/cards/change-deposit` (`CardsRoutes.changeDeposit`). Service ID `card-deposit` opens it from the dashboard service catalog, the dashboard card action, and the standalone card action sheet. Explicit host action callbacks retain precedence. `CardRouteArguments.initialCardNumber` carries selected-card context; a matching repository card is selected after loading. Unknown card numbers leave the selector empty rather than inventing a bank record.
+The authenticated route is `/cards/change-deposit` (`AppRoutes.changeCardDeposit`). Service ID `card-deposit` opens it from the dashboard service catalog, the dashboard card action, and the standalone card action sheet. Explicit host action callbacks retain precedence. `CardRouteArguments.initialCardNumber` carries selected-card context; a matching repository card is selected after loading. Unknown card numbers leave the selector empty rather than inventing a bank record.
 
 ## Behavior and state ownership
 

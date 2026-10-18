@@ -69,7 +69,7 @@ lib/features/card_issuance/
     widgets/issuance_address_sheet.dart              local address form with existing controls
 lib/core/router/card_features_navigation.dart        allowlisted entry bridge
 lib/features/dashboard/presentation/dashboard_screen.dart  selected-deposit context forwarding
-lib/features/cards/presentation/card_features_screen.dart    default reissue route
+lib/features/cards/presentation/card_list_screen.dart    default reissue route
 lib/shared/widgets/app_invoice.dart                  compatible invoice appearance/copy properties
 lib/shared/widgets/app_address_card.dart             full/default and delivery/compact variants
 lib/shared/widgets/app_delete_address_sheet.dart     reused deletion confirmation
@@ -101,7 +101,7 @@ No DTO, HTTP data source or server mapper currently exists for issuance. The moc
 
 UI: CardIssuanceScreen owns the Cubit and scroll resource; it composes AppTopBar, AppStepper, section widgets, assistant, consent and AppButton. Section widgets pass data/styles/callbacks into existing shared/package components. IssuanceDelivery owns editing controllers and disposes them; persistent values live in IssuanceDraft, so back navigation can recreate controllers.
 
-State: CardIssuanceCubit owns workflow commands, loading, selected IDs, validation orchestration and submission. CardIssuanceState and IssuanceDraft are Equatable and immutable. Derived getters resolve selection against the loaded catalog, filter fees and build the request.
+State: CardIssuanceCubit owns workflow commands, fetching, selected IDs, validation orchestration and submission. CardIssuanceState remains a plain Freezed data class; IssuanceDraft is immutable Domain data. Private pure helpers resolve selections, calculate eligibility/fees and construct requests. Each specific action publishes its affected fields explicitly with emit(state.copyWith(...)); no State-preparation or publication helper is used.
 
 Domain: plain immutable entities and a repository interface with Result returns. Use cases name loading and submission. There is no banking behavior in avp_ui or shared widgets.
 
@@ -110,17 +110,17 @@ Data: MockCardIssuanceRepository returns sampleCatalog and an IssuanceReceipt ex
 Data flow:
 
 ```text
-Screen lifecycle -> Cubit.load -> LoadIssuanceCatalog -> repository.load
+BlocProvider.create -> Cubit.fetchIssuanceCatalog -> LoadIssuanceCatalog -> repository.load
   <- Result<catalog/failure> <- mock adapter (future transport mapper)
   -> immutable state -> BlocConsumer -> existing components
 User controls -> Cubit command -> validated draft -> derived request
-Confirm -> SubmitCardIssuance -> repository.submit -> Result<receipt/failure>
+Confirm -> Cubit.submitCardIssuance -> SubmitCardIssuance -> repository.submit -> Result<receipt/failure>
   -> mock completion or preserved draft/retry
 ```
 
 ## 8. State Management
 
-IssuanceStatus: initial, loading, loaded, empty, error, submitting, submitted. IssuanceStep: selection, delivery, confirmation. Empty means no eligible deposits or no supported issuance types; an empty address list remains a usable delivery state with Add address.
+Catalog status and submissionStatus independently use RequestStatus: initial, loading, success, failure. IssuanceStep is selection, delivery, confirmation. An empty successful catalog means no eligible deposits or no supported issuance types; an empty address list remains a usable delivery state with Add address.
 
 State contains catalog, draft, step, invoiceExpanded, summaryExpanded, failure and receipt. Draft contains depositId, type, addressId, noPhysicalCard, otherRecipient, includeAgent, termsAccepted, DeliveryPerson and BankAgent. No text controller lives in a Cubit/state/entity.
 
@@ -130,16 +130,20 @@ Selected account/address are looked up by ID. Unknown IDs are ignored by Cubit c
 | --- | --- |
 | Selection complete | Existing selected deposit plus a supported non-null issuance type |
 | Delivery complete | Nonphysical path, or selected address plus complete enabled recipient/agent details |
-| Recipient complete | Nonempty trimmed name, 10 ASCII digits for national ID, 11-digit mobile beginning 09 |
+| Recipient complete | Nonempty trimmed name plus NationalCodeValidator and PhoneNumberValidator checks on normalized input |
 | Agent complete | Nonempty name and code |
 | Continue | Status loaded plus the gate for the current step |
 | Submit | Confirmation step, valid selection/delivery, accepted terms and wallet balance at least mock total |
 
-National-ID validation is a format check, not a checksum or identity/eligibility verification. Agent codes are not verified against a directory. Production rules must come from the bank.
+National-ID validation uses the shared checksum validator; it does not verify identity or banking eligibility. Agent codes are not verified against a directory. Production rules must come from the bank.
 
 Edits clear terms acceptance and submission failure. Back without edits can retain acceptance. Turning conditional delivery fields off preserves their draft text, but the request omits disabled details. A nonphysical request always omits address, recipient and agent, even if earlier draft values exist.
 
-load resets the draft and uses a generation counter. A newer load/repository replacement or disposal invalidates older asynchronous completions. submit sets submitting before awaiting, preventing double submission and editing. Submission failure returns to loaded with the draft preserved; Retry uses the same visible request data. Successful mock submission returns an explicitly identified preview completion.
+fetchIssuanceCatalog resets the draft and rejects stale fetch completions using a catalog request ID. Runtime repository replacement has been removed; dependencies are final and tests override GetIt registrations before constructing a fresh Cubit. Catalog fetching is only exposed by the UI during initial loading/retry; the Cubit does not repeat that UI gate.
+
+submitCardIssuance captures the prepared request once, publishes loading before starting the Future and publishes the availability fields used to disable repeat submission and edits in UI. Failure preserves the same request instance for retry; success leaves the flow locked with its mock receipt. Both operations return their .then chain and have one disposal/request-ID guard at callback entry. Synchronous actions have no isClosed or duplicate UI-precondition guards. Required option values use non-null callbacks; the delete dialog calls removeAddress directly from Confirm, with no nullable confirmation-result action. LoadIssuanceCatalog and SubmitCardIssuance convert unexpected dependency exceptions to the existing UnexpectedFailure at the UseCase boundary.
+
+Recipient/agent fields use specific update actions; the test-only whole-recipient/agent setters are removed. Each edit updates draft, delivery eligibility, request and canContinue together, and clears terms acceptance. Fee recalculation is limited to catalog/physical-card changes. Exit confirmation compares the draft with the initial catalog-derived selection through a pure calculation, without retaining a duplicate State snapshot. Expansion state remains in State.
 
 State/step flow:
 
@@ -296,7 +300,7 @@ Within the flow, top/system Back goes confirmation → delivery → selection; f
 
 ## 16. Testing Strategy
 
-Test sources: test/card_issuance/card_issuance_cubit_test.dart and card_issuance_screen_test.dart. Twelve Cubit cases cover required selections, both physical paths, conditional identities, normalization, add/delete validation, unknown IDs, empty/error/retry, balance gate, duplicate submission/edit lock, retry preservation, stale loading and initial account normalization.
+Test sources: test/card_issuance/card_issuance_cubit_test.dart and card_issuance_screen_test.dart. Twelve Cubit cases cover required selections, both physical paths, conditional identities, normalization, add/delete validation, unknown IDs, empty/error/retry, balance gate, UI loading/edit availability, retry preservation, stale loading and initial account normalization.
 
 Eighteen widget cases cover seven flow states, two library Stepper samples, interactive selectors/nonphysical/terms/mock completion, address form validation, empty/error/retry, three locale/large-text cases, allowlisted routing, Back/delete cancel/confirm, and nested Cards reissue/assistant return.
 
@@ -343,4 +347,20 @@ AppAssistantButton reuses existing artwork and invokes the host callback. It doe
 
 ## Cubit/State coding convention
 
-Follow [architecture Section 12](../architecture-smart-virtual-counter-v2-en.md#12-state-management-with-cubit) for new work and refactors. State is a plain Freezed data class with defaults and independent request statuses. Cubits accept an initial State, compute UI data and eligibility, and emit immutable snapshots through `copyWith`. UI reads those fields directly; no custom State/Cubit getters or UI-facing rules facade is used. Dependencies remain injectable and lifecycle/duplicate-request safeguards stay in place.
+Follow [architecture Section 12](../architecture-smart-virtual-counter-v2-en.md#12-state-management-with-cubit) and the authoritative [UI/Cubit/State contract](../ui-cubit-state-agent-rules-en.md), especially Sections 6.6–6.7 and 8. Preserve the current State.initial/part-of organization, explicit action updates, stable GetIt-resolved dependencies and banking/async safeguards.
+
+## UI/Cubit contract adoption (2026-10-17)
+
+The constructor preserves the supplied initial State. Explicit actions publish
+State directly; the former _edit publication intermediary is removed. Recipient
+and agent inputs call field-specific actions. Back, primary-action choice,
+address opening/deletion and terms intents are Cubit-owned. UI retains resource
+lifecycle, localization and effect execution.
+
+### Dependency and listener clarification (2026-10-17)
+
+The screen/feature-flow widget owns BlocProvider.create, including Home in
+DashboardScreen; GoRouter only selects the destination. Cubits resolve existing
+Repository/service/UseCase registrations through GetIt fields, without dependency
+constructor arguments from UI. Multi-case and substantial async listeners use
+named widget/State methods with the existing listenWhen filter.

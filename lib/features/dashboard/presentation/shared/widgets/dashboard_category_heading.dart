@@ -1,8 +1,6 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/dashboard_services.dart';
-import 'package:pishkhan_mobile/l10n/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 class DashboardCategoryHeading extends StatelessWidget {
@@ -27,8 +25,8 @@ class DashboardCategoryHeading extends StatelessWidget {
         : AppDashboardColors.categoryMuted;
     final heading = Row(
       children: [
-        SvgPicture.asset(
-          search
+        AvpImage(
+          image: search
               ? switch (category) {
                   DashboardCategory.cards => AppAssets.dashboardSearchCard,
                   DashboardCategory.wallet => AppAssets.dashboardSearchWallet,
@@ -44,7 +42,7 @@ class DashboardCategoryHeading extends StatelessWidget {
         ),
         const SizedBox(width: 6),
         Text(
-          category.label(context.l10n),
+          category.label(),
           style: AppTypography.bodyMedium.copyWith(
             color: color,
             fontWeight: active ? FontWeight.w600 : FontWeight.w500,
@@ -57,36 +55,40 @@ class DashboardCategoryHeading extends StatelessWidget {
           Expanded(
             child: SizedBox(
               height: 1,
-              child: SvgPicture.asset(switch (category) {
-                DashboardCategory.modern =>
-                  compact
-                      ? AppAssets.dashboardDividerSheetModern
-                      : AppAssets.dashboardDividerModern,
-                DashboardCategory.cards =>
-                  compact
-                      ? AppAssets.dashboardDividerSheetCard
-                      : AppAssets.dashboardDividerCard,
-                DashboardCategory.cheque =>
-                  compact
-                      ? AppAssets.dashboardDividerSheetCheque
-                      : AppAssets.dashboardDividerCheque,
-                DashboardCategory.transfers =>
-                  AppAssets.dashboardDividerTransfer,
-                DashboardCategory.loans => AppAssets.dashboardDividerLoan,
-                DashboardCategory.deposits => AppAssets.dashboardDividerDeposit,
-                DashboardCategory.wallet => AppAssets.dashboardDividerWallet,
-                DashboardCategory.identity =>
-                  AppAssets.dashboardDividerIdentity,
-                DashboardCategory.requests =>
-                  AppAssets.dashboardDividerRequests,
-              }, fit: BoxFit.fill),
+              child: AvpImage(
+                image: switch (category) {
+                  DashboardCategory.modern =>
+                    compact
+                        ? AppAssets.dashboardDividerSheetModern
+                        : AppAssets.dashboardDividerModern,
+                  DashboardCategory.cards =>
+                    compact
+                        ? AppAssets.dashboardDividerSheetCard
+                        : AppAssets.dashboardDividerCard,
+                  DashboardCategory.cheque =>
+                    compact
+                        ? AppAssets.dashboardDividerSheetCheque
+                        : AppAssets.dashboardDividerCheque,
+                  DashboardCategory.transfers =>
+                    AppAssets.dashboardDividerTransfer,
+                  DashboardCategory.loans => AppAssets.dashboardDividerLoan,
+                  DashboardCategory.deposits =>
+                    AppAssets.dashboardDividerDeposit,
+                  DashboardCategory.wallet => AppAssets.dashboardDividerWallet,
+                  DashboardCategory.identity =>
+                    AppAssets.dashboardDividerIdentity,
+                  DashboardCategory.requests =>
+                    AppAssets.dashboardDividerRequests,
+                },
+                fit: BoxFit.fill,
+              ),
             ),
           ),
           if (active) ...[
             const SizedBox(width: 20),
             Transform.rotate(
               angle: collapsed ? 3.141592653589793 : 0,
-              child: SvgPicture.asset(AppAssets.dashboardCategoryCollapse),
+              child: AvpImage(image: AppAssets.dashboardCategoryCollapse),
             ),
           ],
         ],

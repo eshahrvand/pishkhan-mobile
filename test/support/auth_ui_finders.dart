@@ -1,23 +1,16 @@
-import 'package:pishkhan_mobile/features/auth/presentation/password_services/widgets/password_request_status.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/password_services/widgets/password_flow_footer.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/password_services/widgets/password_request_status.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/password_services/widgets/password_flow_footer.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/login/screens/auth_screen.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/login/widgets/auth_services_sheet.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/password_services/screens/second_password_screen.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/shared/auth_assets.dart';
-import 'package:pishkhan_mobile/l10n/l10n.dart';
+import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 // Identify controls by their public content and widget type, without adding
 // production keys solely for tests. Names keep the existing frame scenarios readable.
 Finder authControl(WidgetTester tester, String name) {
-  final screen = find.byType(AuthScreen).evaluate().isNotEmpty
-      ? find.byType(AuthScreen)
-      : find.byType(SecondPasswordScreen);
-  final l = tester.element(screen.first).l10n;
   Finder button(String label) => find.byWidgetPredicate(
     (widget) => widget is AppButton && widget.label == label,
   );
@@ -30,29 +23,29 @@ Finder authControl(WidgetTester tester, String name) {
   Finder badge(String asset) => find
       .ancestor(
         of: find.byWidgetPredicate(
-          (widget) =>
-              widget is SvgPicture &&
-              widget.bytesLoader is SvgAssetLoader &&
-              (widget.bytesLoader as SvgAssetLoader).assetName == asset,
+          (widget) => widget is AvpImage && widget.image == asset,
         ),
         matching: find.byType(SizedBox),
       )
       .first;
 
   if (name.endsWith('-national-id')) {
-    return input([l.loginNationalIdHint, l.changeNationalIdHint]);
+    return input([
+      S.current.loginNationalIdHint,
+      S.current.changeNationalIdHint,
+    ]);
   }
   if (name.endsWith('-phone')) {
-    return input([l.loginPhoneHint, l.changePhoneHint]);
+    return input([S.current.loginPhoneHint, S.current.changePhoneHint]);
   }
-  if (name.endsWith('-captcha')) return input([l.captchaHint]);
-  if (name.endsWith('-otp')) return input([l.otpHint]);
+  if (name.endsWith('-captcha')) return input([S.current.captchaHint]);
+  if (name.endsWith('-otp')) return input([S.current.otpHint]);
   if (name.startsWith('password_option_')) {
     final label = switch (name.substring('password_option_'.length)) {
-      'PasswordCardKind.resalat' => l.cardFeatureResalat,
-      'second' => l.passwordSecond,
-      'PasswordOperation.changePassword' => l.passwordChange,
-      'PasswordOperation.forgotPassword' => l.passwordForgot,
+      'PasswordCardKind.resalat' => S.current.cardFeatureResalat,
+      'second' => S.current.passwordSecond,
+      'PasswordOperation.changePassword' => S.current.passwordChange,
+      'PasswordOperation.forgotPassword' => S.current.passwordForgot,
       'password-card-1' => '5041721456783407',
       final value => throw ArgumentError('Unknown password option: $value'),
     };
@@ -62,7 +55,8 @@ Finder authControl(WidgetTester tester, String name) {
   return switch (name) {
     'auth_menu_button' => find.byWidgetPredicate(
       (widget) =>
-          widget is AppButton && widget.semanticLabel == l.servicesMenuLabel,
+          widget is AppButton &&
+          widget.semanticLabel == S.current.servicesMenuLabel,
     ),
     'auth_captcha_image' =>
       find
@@ -80,46 +74,50 @@ Finder authControl(WidgetTester tester, String name) {
     'change_phone_button' =>
       find
           .ancestor(
-            of: find.text(l.changePhoneAction),
+            of: find.text(S.current.changePhoneAction),
             matching: find.byType(InkWell),
           )
           .first,
-    'request_otp_button' => button(l.requestOtp),
-    'submit_otp_button' => button(l.enterDashboard),
+    'request_otp_button' => button(S.current.requestOtp),
+    'submit_otp_button' => button(S.current.enterDashboard),
     'otp_timer_button' => find.byWidgetPredicate(
       (widget) =>
           widget is AppButton &&
-          (widget.label == l.resendOtp ||
-              (widget.label?.startsWith('00:') ?? false)),
+          (widget.label == S.current.resendOtp ||
+              RegExp(r'^\d{2,}:\d{2}$').hasMatch(widget.label ?? '')),
     ),
-    'password_card_kind' => select(l.passwordCardTypeHint),
-    'password_card_number' => select(l.passwordCardNumberHint),
-    'password_type' => select(l.passwordTypeHint),
-    'password_operation' => select(l.passwordOperationHint),
-    'password_current' => input([l.passwordCurrentHint]),
-    'password_value' => input([l.passwordValueHint, l.passwordNewHint]),
-    'password_confirmation' => input([
-      l.passwordConfirmationHint,
-      l.passwordNewConfirmationHint,
+    'password_card_kind' => select(S.current.passwordCardTypeHint),
+    'password_card_number' => select(S.current.passwordCardNumberHint),
+    'password_type' => select(S.current.passwordTypeHint),
+    'password_operation' => select(S.current.passwordOperationHint),
+    'password_current' => input([S.current.passwordCurrentHint]),
+    'password_value' => input([
+      S.current.passwordValueHint,
+      S.current.passwordNewHint,
     ]),
-    'password_serial' => input([l.passwordSerialHint]),
+    'password_confirmation' => input([
+      S.current.passwordConfirmationHint,
+      S.current.passwordNewConfirmationHint,
+    ]),
+    'password_serial' => input([S.current.passwordSerialHint]),
     'password_next' => find.byWidgetPredicate(
       (widget) =>
           widget is AppButton &&
           [
-            l.issuanceNext,
-            l.passwordStartKyc,
-            l.passwordSubmit,
-            l.passwordChangeSubmit,
+            S.current.issuanceNext,
+            S.current.passwordStartKyc,
+            S.current.passwordSubmit,
+            S.current.passwordChangeSubmit,
           ].contains(widget.label),
     ),
-    'password_retry' => button(l.dashboardRetry),
+    'password_retry' => button(S.current.dashboardRetry),
     'password_terms' => find.byWidgetPredicate(
       (widget) => widget is AppCheckbox && widget.label == null,
     ),
     'password_confirm_mock' => find.byWidgetPredicate(
       (widget) =>
-          widget is AppCheckbox && widget.label == l.passwordConfirmMock,
+          widget is AppCheckbox &&
+          widget.label == S.current.passwordConfirmMock,
     ),
     'password_tracking' => find.byType(SelectableText),
     'password_result_badge' => badge(AppAssets.passwordApproved),
@@ -127,11 +125,11 @@ Finder authControl(WidgetTester tester, String name) {
     'password_status_page' => find.byType(PasswordStatusContent),
     'password_record_dismiss' => find.descendant(
       of: find.byType(PasswordRecordSheet),
-      matching: button(l.passwordUnderstood),
+      matching: button(S.current.passwordUnderstood),
     ),
     'password_status_dismiss' => find.descendant(
       of: find.byType(PasswordFlowFooter),
-      matching: button(l.passwordUnderstood),
+      matching: button(S.current.passwordUnderstood),
     ),
     _ => throw ArgumentError('Unknown auth control: $name'),
   };

@@ -1,6 +1,5 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 enum AppTransactionType { discharge, charge, transfer, shopping }
@@ -52,7 +51,19 @@ class AppTransactionCard extends StatelessWidget {
       child: Row(
         textDirection: TextDirection.ltr,
         children: [
-          _amount(),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            textDirection: TextDirection.ltr,
+            children: [
+              Text('ریال', style: _currencyStyle),
+              const SizedBox(width: 2),
+              Text(
+                amount,
+                textDirection: TextDirection.ltr,
+                style: _amountStyle,
+              ),
+            ],
+          ),
           const SizedBox(width: 8),
           Expanded(
             child: Row(
@@ -89,7 +100,7 @@ class AppTransactionCard extends StatelessWidget {
                     color: AppPalette.white,
                     shape: BoxShape.circle,
                   ),
-                  child: SvgPicture.asset(_icon),
+                  child: AvpImage(image: _icon),
                 ),
               ],
             ),
@@ -112,16 +123,6 @@ class AppTransactionCard extends StatelessWidget {
             ),
     );
   }
-
-  Widget _amount() => Row(
-    mainAxisSize: MainAxisSize.min,
-    textDirection: TextDirection.ltr,
-    children: [
-      Text('ریال', style: _currencyStyle),
-      const SizedBox(width: 2),
-      Text(amount, textDirection: TextDirection.ltr, style: _amountStyle),
-    ],
-  );
 
   TextStyle get _currencyStyle => AppTypography.bodySmall.copyWith(
     color: AppPalette.gray700,

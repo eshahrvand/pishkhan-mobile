@@ -3,8 +3,11 @@ import '../../../../../support/auth_ui_finders.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pishkhan_mobile/main.dart';
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
 
 void main() {
+  setUp(configureDependencies);
+  tearDown(() => getIt.reset());
   testWidgets('auth flow changes between login and change-phone states', (
     tester,
   ) async {

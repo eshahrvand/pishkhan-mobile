@@ -1,5 +1,13 @@
-import 'package:pishkhan_mobile/l10n/l10n.dart';
+import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
+
+// Localization stays in Presentation; Cubits receive searchable text as data.
+Map<DashboardService, String> getDashboardServiceSearchLabels() {
+  return {
+    for (final service in DashboardService.values)
+      service: service.catalogLabel(),
+  };
+}
 
 enum DashboardService {
   assistant('assistant'),
@@ -117,64 +125,64 @@ enum DashboardService {
   ];
   static const requestServices = [requests];
 
-  String label(AppLocalizations l10n) => switch (this) {
-    assistant => l10n.dashboardAssistant,
-    statement => l10n.balanceAverageStatement,
-    certificate => l10n.financialCertificate,
-    representative => l10n.introduceRepresentative,
-    sms => l10n.smsSettings,
-    issue => l10n.issueResalatCard,
-    password => l10n.cardPasswordIssue,
-    forgotPassword => l10n.passwordForgot,
-    changePassword => l10n.passwordChange,
-    cardDeposit => l10n.changeCardDeposit,
-    block => l10n.blockCard,
-    estimate => l10n.loanEstimate,
-    introduce => l10n.introduceLoan,
-    consolidation => l10n.consolidateDepositCredit,
-    loanDeposit => l10n.changeInstallmentDeposit,
-    phoneBank => l10n.dashboardPhoneBank,
-    mobileBank => l10n.mobileBankSettings,
-    internetBank => l10n.internetBankSettings,
-    cardsList => l10n.dashboardCardsList,
-    virtualCard => l10n.dashboardVirtualCard,
-    unblockCard => l10n.dashboardUnblockCard,
-    expiredGift => l10n.dashboardExpiredGift,
-    issueCheque => l10n.issueChequeBook,
-    clearCheque => l10n.dashboardClearCheque,
-    cancelCheque => l10n.dashboardCancelCheque,
-    localTransfer => l10n.dashboardLocalTransfer,
-    myLoans => l10n.dashboardMyLoans,
-    loanReport => l10n.dashboardLoanReport,
-    correctInstallments => l10n.dashboardCorrectInstallments,
-    deferLoan => l10n.dashboardDeferLoan,
-    depositsList => l10n.dashboardDepositsList,
-    openCurrent => l10n.dashboardOpenCurrent,
-    closeExtras => l10n.dashboardCloseExtras,
-    representationSettings => l10n.dashboardRepresentationSettings,
-    proxy => l10n.proxyDeposit,
-    unblockDeposit => l10n.dashboardUnblockDeposit,
-    blockDeposit => l10n.dashboardBlockDeposit,
-    walletInfo => l10n.dashboardWalletInfo,
-    walletCharge => l10n.dashboardWalletCharge,
-    walletWithdraw => l10n.dashboardWalletWithdraw,
-    walletTransfer => l10n.dashboardWalletTransfer,
-    walletHistory => l10n.dashboardWalletHistory,
-    walletDeposit => l10n.dashboardWalletDeposit,
-    changeIdentity => l10n.dashboardChangeIdentity,
-    occupation => l10n.dashboardOccupation,
-    addresses => l10n.dashboardAddresses,
-    changePhone => l10n.dashboardChangePhone,
-    requests => l10n.dashboardRequests,
+  String label() => switch (this) {
+    assistant => S.current.dashboardAssistant,
+    statement => S.current.balanceAverageStatement,
+    certificate => S.current.financialCertificate,
+    representative => S.current.introduceRepresentative,
+    sms => S.current.smsSettings,
+    issue => S.current.issueResalatCard,
+    password => S.current.cardPasswordIssue,
+    forgotPassword => S.current.passwordForgot,
+    changePassword => S.current.passwordChange,
+    cardDeposit => S.current.changeCardDeposit,
+    block => S.current.blockCard,
+    estimate => S.current.loanEstimate,
+    introduce => S.current.introduceLoan,
+    consolidation => S.current.consolidateDepositCredit,
+    loanDeposit => S.current.changeInstallmentDeposit,
+    phoneBank => S.current.dashboardPhoneBank,
+    mobileBank => S.current.mobileBankSettings,
+    internetBank => S.current.internetBankSettings,
+    cardsList => S.current.dashboardCardsList,
+    virtualCard => S.current.dashboardVirtualCard,
+    unblockCard => S.current.dashboardUnblockCard,
+    expiredGift => S.current.dashboardExpiredGift,
+    issueCheque => S.current.issueChequeBook,
+    clearCheque => S.current.dashboardClearCheque,
+    cancelCheque => S.current.dashboardCancelCheque,
+    localTransfer => S.current.dashboardLocalTransfer,
+    myLoans => S.current.dashboardMyLoans,
+    loanReport => S.current.dashboardLoanReport,
+    correctInstallments => S.current.dashboardCorrectInstallments,
+    deferLoan => S.current.dashboardDeferLoan,
+    depositsList => S.current.dashboardDepositsList,
+    openCurrent => S.current.dashboardOpenCurrent,
+    closeExtras => S.current.dashboardCloseExtras,
+    representationSettings => S.current.dashboardRepresentationSettings,
+    proxy => S.current.proxyDeposit,
+    unblockDeposit => S.current.dashboardUnblockDeposit,
+    blockDeposit => S.current.dashboardBlockDeposit,
+    walletInfo => S.current.dashboardWalletInfo,
+    walletCharge => S.current.dashboardWalletCharge,
+    walletWithdraw => S.current.dashboardWalletWithdraw,
+    walletTransfer => S.current.dashboardWalletTransfer,
+    walletHistory => S.current.dashboardWalletHistory,
+    walletDeposit => S.current.dashboardWalletDeposit,
+    changeIdentity => S.current.dashboardChangeIdentity,
+    occupation => S.current.dashboardOccupation,
+    addresses => S.current.dashboardAddresses,
+    changePhone => S.current.dashboardChangePhone,
+    requests => S.current.dashboardRequests,
   };
 
-  String catalogLabel(AppLocalizations l10n) => switch (this) {
-    password => l10n.cardPasswordIssue.replaceAll(RegExp(r' *\/ *'), '/'),
-    mobileBank => l10n.mobileBank,
-    internetBank => l10n.internetBank,
-    loanDeposit => l10n.dashboardManageInstallments,
-    estimate => l10n.dashboardEstimateCredit,
-    _ => label(l10n),
+  String catalogLabel() => switch (this) {
+    password => S.current.cardPasswordIssue.replaceAll(RegExp(r' *\/ *'), '/'),
+    mobileBank => S.current.mobileBank,
+    internetBank => S.current.internetBank,
+    loanDeposit => S.current.dashboardManageInstallments,
+    estimate => S.current.dashboardEstimateCredit,
+    _ => label(),
   };
 
   String get catalogAsset => switch (this) {
@@ -266,16 +274,16 @@ enum DashboardCategory {
   identity,
   requests;
 
-  String label(AppLocalizations l10n) => switch (this) {
-    modern => l10n.dashboardModernBanking,
-    cards => l10n.cardServices,
-    cheque => l10n.dashboardChequeServices,
-    transfers => l10n.dashboardTransferServices,
-    loans => l10n.loanServices,
-    deposits => l10n.depositServices,
-    wallet => l10n.dashboardWalletServices,
-    identity => l10n.dashboardIdentityServices,
-    requests => l10n.dashboardRequestServices,
+  String label() => switch (this) {
+    modern => S.current.dashboardModernBanking,
+    cards => S.current.cardServices,
+    cheque => S.current.dashboardChequeServices,
+    transfers => S.current.dashboardTransferServices,
+    loans => S.current.loanServices,
+    deposits => S.current.depositServices,
+    wallet => S.current.dashboardWalletServices,
+    identity => S.current.dashboardIdentityServices,
+    requests => S.current.dashboardRequestServices,
   };
 
   List<DashboardService> get services => switch (this) {

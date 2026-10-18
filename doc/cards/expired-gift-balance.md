@@ -17,7 +17,7 @@ All references belong to the [Cards Figma design](https://www.figma.com/design/n
 | Filter sheet, all accounts | `27997:10576` |
 | Filter sheet, account selected | `27997:10610` |
 
-The authenticated route is `/cards/expired-gift-balance` (`CardsRoutes.expiredGiftBalance`). Service ID `card-expired-gift` now opens this workflow from the service catalog and the standalone Gift cards action. Explicit host callbacks retain precedence. The existing generic gift-balance action on dashboard cards is a separate service and retains its behavior.
+The authenticated route is `/cards/expired-gift-balance` (`AppRoutes.expiredGiftBalance`). Service ID `card-expired-gift` now opens this workflow from the service catalog and the standalone Gift cards action. Explicit host callbacks retain precedence. The existing generic gift-balance action on dashboard cards is a separate service and retains its behavior.
 
 ## Selection and review
 

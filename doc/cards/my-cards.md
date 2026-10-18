@@ -24,12 +24,30 @@ Copy actions preserve the original card number/IBAN and use the system clipboard
 
 Actions return `CardActionRequest`, including the selected `BankCard` and action.
 The selected card's `canSetSecondPin` determines whether the middle PIN operation is “Set second PIN” (single frame) or “Forgot second PIN” (multi frame).
+`HomeCubit` prepares `cardActions`, `pinActions` and `cardQuickActions` together
+with the selected card in one State update. `CardsTab` renders these lists
+directly; it does not decide which PIN operation applies or construct request
+payloads. `requestCardAction` validates the current loaded selection and action
+before returning a typed request for the UI's host callback. Loading, failure
+and empty data expose no operations. Reloading re-evaluates changed card
+capabilities, even when the selected card ID is unchanged.
 The more/menu actions have caller callbacks; additional menu/service screens are outside these two supplied frames.
 
-Supply `DashboardScreen.cards`, `onCardActionRequested` and `onCardMorePressed` for integration.
+Supply `DashboardScreen.repositories`, `onCardActionRequested` and `onCardMorePressed` for integration.
 The existing `onServiceRequested` remains a fallback for action IDs.
-`CardsTab` also exposes copy overrides and selected-card/tab/assistant callbacks.
-Default data come from DashboardMockData through MockDashboardCardsRepository. CardsTab requires DashboardCardsRepository; CardsCubit/CardsState own loading/error/empty/single/multiple states, selection and immutable per-card visibility. Inject live repositories through DashboardScreen.repositories; executing bank services still belongs to the host.
+`CardsTab` has only `const CardsTab({super.key})`. It reads an ancestor
+`HomeCubit` through BlocBuilder and sends interactions to Cubit actions.
+`DashboardScreen` creates and disposes that Cubit through BlocProvider and
+updates its repository when injected dependencies change. Default data come
+from DashboardMockData through MockDashboardCardsRepository.
+
+Typed `HomeEffect` values carry action, more, selection, copy, tab, menu and
+assistant requests. A monotonically increasing `effectId` lets BlocListener
+handle repeated identical interactions. DashboardScreen owns the listener that
+executes clipboard/navigation/menu effects and host callbacks. Cubit contains
+no BuildContext, platform clipboard calls or UI callback fields. Standalone
+tests/hosts supply the same Provider/Listener scope around `const CardsTab()`;
+the tab has no Repository or callback constructor parameters.
 
 Tab switching retains dashboard favorites and card state. Back from Cards returns to Dashboard.
 Deposits and Loans now open their retained feature tabs; see [Deposits development](../deposits/development.md) and [Loans development](../loans/development.md). Their menu fallbacks still open the respective service catalogs.
@@ -46,3 +64,11 @@ The [Dashboard architecture document](../dashboard/development.md) records the f
 ## Cubit/State coding convention
 
 Follow [architecture Section 12](../architecture-smart-virtual-counter-v2-en.md#12-state-management-with-cubit) for new work and refactors. State is a plain Freezed data class with defaults and independent request statuses. Cubits accept an initial State, compute UI data and eligibility, and emit immutable snapshots through `copyWith`. UI reads those fields directly; no custom State/Cubit getters or UI-facing rules facade is used. Dependencies remain injectable and lifecycle/duplicate-request safeguards stay in place.
+
+## Unified Home ownership (2026-10-16)
+
+All four dashboard tabs now share `HomeCubit`/`HomeState` at
+`presentation/home/cubit/home_cubit.dart` and `home_state.dart`.
+`DashboardScreen` provides the single scope and injects the repository bundle.
+The tab constructors accept only `super.key`; load, selection, operation lists
+and typed effects belong to Home. See [current state contract](../dashboard/development.md#12-state-management-with-cubit).

@@ -1,29 +1,24 @@
-import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:pishkhan_mobile/core/enums/request_status.dart';
-import 'package:pishkhan_mobile/core/result/failure.dart';
+part of 'change_card_deposit_cubit.dart';
 
-import '../../../domain/entities/card_service_data.dart';
-
-part 'change_card_deposit_state.freezed.dart';
-
-@freezed
+@Freezed(toStringOverride: false)
 abstract class ChangeCardDepositState with _$ChangeCardDepositState {
-  const factory ChangeCardDepositState({
-    @Default(RequestStatus.initial) RequestStatus status,
+  const factory ChangeCardDepositState.initial({
+    FlowNavigation? navigation,
+    @Default(0) int navigationId,
+    @Default(RequestStatus.initial) RequestStatus catalogStatus,
     @Default(RequestStatus.initial) RequestStatus submissionStatus,
     CardServiceCatalog? catalog,
-    String? cardId,
     ServiceBankCard? card,
     CardServiceDeposit? source,
     @Default(<CardServiceDeposit>[]) List<CardServiceDeposit> destinations,
     CardServiceDeposit? destination,
-    @Default(false) bool isEmpty,
-    @Default(false) bool editable,
-    @Default(false) bool walletSufficient,
+    @Default(false) bool isCatalogEmpty,
+    @Default(false) bool isEditable,
+    @Default(false) bool isWalletSufficient,
     @Default(false) bool canSubmit,
-    String? destinationId,
     @Default(false) bool termsAccepted,
-    Failure? failure,
+    Failure? catalogFailure,
+    Failure? submissionFailure,
     CardServiceReceipt? receipt,
   }) = _ChangeCardDepositState;
 }
