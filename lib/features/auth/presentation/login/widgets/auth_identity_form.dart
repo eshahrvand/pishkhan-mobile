@@ -3,11 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/login/cubit/auth_cubit.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/login/widgets/auth_form_shared.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/shared/auth_assets.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
+
+import 'auth_captcha_field.dart';
 
 class AuthIdentityForm extends StatelessWidget {
   const AuthIdentityForm({required this.changePhone, super.key});
@@ -73,15 +74,17 @@ class AuthIdentityForm extends StatelessWidget {
         const SizedBox(height: 20),
         BlocBuilder<AuthCubit, AuthState>(
           buildWhen: (previous, current) =>
-              previous.phone != current.phone ||
-              previous.isPhoneError != current.isPhoneError,
+              previous.phoneNumber != current.phoneNumber ||
+              previous.isPhoneNumberError != current.isPhoneNumberError,
           builder: (context, state) {
             return AppTextField(
-              value: state.phone,
+              value: state.phoneNumber,
               hintText: changePhone
                   ? S.current.changePhoneHint
                   : S.current.loginPhoneHint,
-              errorText: state.isPhoneError ? S.current.authInvalidPhone : null,
+              errorText: state.isPhoneNumberError
+                  ? S.current.authInvalidPhone
+                  : null,
               prefixIcon: SizedBox(
                 width: 48,
                 height: 44,
@@ -167,99 +170,21 @@ class AuthIdentityForm extends StatelessWidget {
             ),
           ),
         const SizedBox(height: 24),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: BlocBuilder<AuthCubit, AuthState>(
-                buildWhen: (previous, current) =>
-                    previous.captcha != current.captcha ||
-                    previous.isCaptchaError != current.isCaptchaError,
-                builder: (context, state) {
-                  return AppTextField(
-                    value: state.captcha,
-                    hintText: S.current.captchaHint,
-                    errorText: state.isCaptchaError
-                        ? S.current.authInvalidCaptcha
-                        : null,
-                    suffixIcon: SizedBox(
-                      width: 48,
-                      height: 44,
-                      child: AppButton(
-                        onPressed: () {
-                          context.read<AuthCubit>().refreshCaptcha();
-                        },
-                        icon: AvpImage(
-                          image: AuthAssets.refresh,
-                          width: 20,
-                          height: 20,
-                        ),
-                        tooltip: S.current.refreshCaptcha,
-                        semanticLabel: S.current.refreshCaptcha,
-                        variant: AppButtonVariant.text,
-                        size: AppButtonSize.lg,
-                      ),
-                    ),
-                    textDirection: TextDirection.rtl,
-                    textAlign: TextAlign.start,
-                    textStyle: Theme.of(context).textTheme.bodyMedium!
-                        .copyWith(height: 20 / 14, letterSpacing: 0),
-                    normalizeDigits: true,
-                    focusRing: AppTextFieldFocusRing.subtle,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    maxLength: 6,
-                    keyboardType: TextInputType.number,
-                    textInputAction: TextInputAction.done,
-                    onChanged: (value) {
-                      context.read<AuthCubit>().updateCaptcha(value);
-                    },
-                    onFocusLost: () {
-                      context.read<AuthCubit>().validateCaptcha();
-                    },
-                    onSubmitted: (_) {
-                      context.read<AuthCubit>().requestOtp();
-                    },
-                  );
-                },
-              ),
-            ),
-            const SizedBox(width: 7),
-            SizedBox(
-              width: 148,
-              child: Container(
-                height: 44,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: context.colors.surface,
-                  border: Border.all(color: context.colors.border),
-                  borderRadius: AppRadius.borderSm,
-                  boxShadow: AppShadows.xs,
-                ),
-                child: AvpImage(
-                  image: AuthAssets.captcha,
-                  width: 100,
-                  height: 34,
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-          ],
-        ),
+        const AuthCaptchaField(),
         const SizedBox(height: 24),
         BlocBuilder<AuthCubit, AuthState>(
           buildWhen: (previous, current) {
-            return previous.formValid != current.formValid ||
-                previous.status != current.status;
+            return previous.canRequestOtp != current.canRequestOtp;
           },
           builder: (context, state) {
             return AppButton(
               label: S.current.requestOtp,
               size: AppButtonSize.md,
-              isActive: state.formValid,
-              isLoading: state.status == RequestStatus.loading,
-              onPressed: () {
-                context.read<AuthCubit>().requestOtp();
-              },
+              onPressed: state.canRequestOtp
+                  ? () {
+                      context.read<AuthCubit>().submitOtpRequest();
+                    }
+                  : null,
             );
           },
         ),

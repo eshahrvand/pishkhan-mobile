@@ -195,7 +195,7 @@ void main() {
       cubit.updateNationalId('0081234562');
       cubit.updatePhoneNumber('09121234567');
       cubit.updateCaptcha('123456');
-      expect(cubit.requestOtp(), isTrue);
+      cubit.submitOtpRequest();
       cubit.updateOtp('1234');
       await tester.pumpAndSettle();
       await tester.tap(authControl(tester, 'submit_otp_button'));

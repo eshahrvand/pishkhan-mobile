@@ -104,7 +104,9 @@ class AuthScreen extends StatelessWidget {
                         return PopScope(
                           canPop: state.step == AuthStep.login,
                           onPopInvokedWithResult: (didPop, result) {
-                            if (!didPop) context.read<AuthCubit>().back();
+                            if (!didPop) {
+                              context.read<AuthCubit>().requestBack();
+                            }
                           },
                           child: Column(
                             children: [

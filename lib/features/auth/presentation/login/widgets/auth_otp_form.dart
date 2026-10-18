@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:pishkhan_mobile/features/auth/presentation/login/cubit/auth_cubit.dart';
+import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/login/widgets/auth_form_shared.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/shared/auth_assets.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
@@ -34,10 +35,19 @@ class AuthOtpForm extends StatelessWidget {
           children: [
             Expanded(
               child: BlocBuilder<AuthCubit, AuthState>(
-                buildWhen: (previous, current) => previous.otp != current.otp,
+                buildWhen: (previous, current) =>
+                    previous.otp != current.otp ||
+                    previous.canSubmitLogin != current.canSubmitLogin ||
+                    previous.loginStatus != current.loginStatus,
                 builder: (context, state) {
                   return AppTextField(
                     value: state.otp,
+                    enabled:
+                        state.loginStatus != RequestStatus.loading &&
+                        state.loginStatus != RequestStatus.success,
+                    autocorrect: false,
+                    enableSuggestions: false,
+                    enableIMEPersonalizedLearning: false,
                     hintText: S.current.otpHint,
                     prefixIcon: SizedBox(
                       width: 48,
@@ -63,9 +73,11 @@ class AuthOtpForm extends StatelessWidget {
                     onChanged: (value) {
                       context.read<AuthCubit>().updateOtp(value);
                     },
-                    onSubmitted: (_) {
-                      context.read<AuthCubit>().submitOtp();
-                    },
+                    onSubmitted: state.canSubmitLogin
+                        ? (_) {
+                            context.read<AuthCubit>().submitLogin();
+                          }
+                        : null,
                   );
                 },
               ),
@@ -75,19 +87,20 @@ class AuthOtpForm extends StatelessWidget {
               width: 148,
               child: BlocBuilder<AuthCubit, AuthState>(
                 buildWhen: (previous, current) =>
-                    previous.secondsRemaining != current.secondsRemaining,
+                    previous.remainingSeconds != current.remainingSeconds ||
+                    previous.canResendOtp != current.canResendOtp,
                 builder: (context, state) {
                   return SizedBox(
                     height: 44,
                     child: AppButton(
-                      onPressed: state.secondsRemaining == 0
+                      onPressed: state.canResendOtp
                           ? () {
-                              context.read<AuthCubit>().resendOtp();
+                              context.read<AuthCubit>().submitOtpResend();
                             }
-                          : () {},
-                      label: state.secondsRemaining == 0
+                          : null,
+                      label: state.remainingSeconds == 0
                           ? S.current.resendOtp
-                          : getOtpRemainingTime(state.secondsRemaining),
+                          : getOtpRemainingTime(state.remainingSeconds),
                       trailingIcon: AvpImage(
                         image: AuthAssets.clock,
                         width: 20,
@@ -106,12 +119,14 @@ class AuthOtpForm extends StatelessWidget {
         const SizedBox(height: 24),
         BlocBuilder<AuthCubit, AuthState>(
           buildWhen: (previous, current) =>
-              previous.otpValid != current.otpValid,
+              previous.canSubmitLogin != current.canSubmitLogin ||
+              previous.loginStatus != current.loginStatus,
           builder: (context, state) {
             return AppButton(
-              onPressed: state.otpValid
+              isLoading: state.loginStatus == RequestStatus.loading,
+              onPressed: state.canSubmitLogin
                   ? () {
-                      context.read<AuthCubit>().submitOtp();
+                      context.read<AuthCubit>().submitLogin();
                     }
                   : null,
               label: S.current.enterDashboard,
@@ -124,7 +139,7 @@ class AuthOtpForm extends StatelessWidget {
   }
 }
 
-String getOtpRemainingTime(int secondsRemaining) {
-  return '${(secondsRemaining ~/ 60).toString().padLeft(2, '0')}:'
-      '${(secondsRemaining % 60).toString().padLeft(2, '0')}';
+String getOtpRemainingTime(int remainingSeconds) {
+  return '${(remainingSeconds ~/ 60).toString().padLeft(2, '0')}:'
+      '${(remainingSeconds % 60).toString().padLeft(2, '0')}';
 }

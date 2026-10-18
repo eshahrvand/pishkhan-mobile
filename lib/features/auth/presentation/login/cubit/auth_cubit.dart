@@ -1,6 +1,3 @@
-import 'auth_effect.dart';
-export 'auth_effect.dart';
-
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,19 +5,21 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/validators/validators.dart';
 
-part 'auth_state.dart';
+import 'auth_effect.dart';
 
+export 'auth_effect.dart';
+
+part 'auth_state.dart';
 part 'auth_cubit.freezed.dart';
 
-/// UI state for the login prototype. Bank authentication is not connected yet.
+/// Login prototype only; bank OTP requests and verification are not connected.
 class AuthCubit extends Cubit<AuthState> {
   AuthCubit({AuthState initialState = const AuthState.initial()})
     : super(initialState);
 
-  Timer? _timer;
+  Timer? _otpTimer;
 
   void requestServices() {
-    if (isClosed) return;
     emit(
       state.copyWith(
         effect: const AuthServicesRequested(),
@@ -29,245 +28,226 @@ class AuthCubit extends Cubit<AuthState> {
     );
   }
 
+  /// A null sheet result is dismissal, rather than a selected service.
   void selectGuestService(String? id) {
-    if (isClosed || id == null) return;
-    if (id == 'identity.changePhone') {
-      openChangePhone();
-      return;
+    switch (id) {
+      case null:
+        break;
+      case 'identity.changePhone':
+        openChangePhone();
+      default:
+        emit(
+          state.copyWith(
+            effect: AuthGuestServiceRequested(id),
+            effectId: state.effectId + 1,
+          ),
+        );
     }
+  }
+
+  void updateNationalId(String value) {
+    final isValid = NationalCodeValidator.isValid(value);
     emit(
       state.copyWith(
-        effect: AuthGuestServiceRequested(id),
-        effectId: state.effectId + 1,
+        nationalId: value,
+        isNationalIdValid: isValid,
+        isNationalIdError: value.isNotEmpty && !isValid,
+        canRequestOtp:
+            isValid && state.isPhoneNumberValid && state.isCaptchaValid,
       ),
     );
   }
 
-  void submitOtp() {
-    if (isClosed ||
-        !state.isOtp ||
-        !checkOtpValid(state.otp, state.secondsRemaining) ||
-        state.status == RequestStatus.success) {
-      return;
-    }
-    _timer?.cancel();
+  void updatePhoneNumber(String value) {
+    final isValid = PhoneNumberValidator.isValid(value);
     emit(
       state.copyWith(
-        status: RequestStatus.success,
+        phoneNumber: value,
+        isPhoneNumberValid: isValid,
+        isPhoneNumberError: value.isNotEmpty && !isValid,
+        canRequestOtp:
+            isValid && state.isNationalIdValid && state.isCaptchaValid,
+      ),
+    );
+  }
+
+  void updateCaptcha(String value) {
+    final isValid = CodeValidator.isValid(value, length: 6);
+    emit(
+      state.copyWith(
+        captcha: value,
+        isCaptchaValid: isValid,
+        isCaptchaError: false,
+        canRequestOtp:
+            isValid && state.isNationalIdValid && state.isPhoneNumberValid,
+      ),
+    );
+  }
+
+  void validateNationalId() {
+    emit(state.copyWith(isNationalIdError: !state.isNationalIdValid));
+  }
+
+  void validatePhoneNumber() {
+    emit(state.copyWith(isPhoneNumberError: !state.isPhoneNumberValid));
+  }
+
+  void validateCaptcha() {
+    emit(state.copyWith(isCaptchaError: !state.isCaptchaValid));
+  }
+
+  void resetCaptcha() {
+    emit(
+      state.copyWith(
+        captcha: '',
+        isCaptchaValid: false,
+        isCaptchaError: false,
+        canRequestOtp: false,
+      ),
+    );
+  }
+
+  void submitOtpRequest() {
+    emit(
+      state.copyWith(
+        step: state.step == AuthStep.changePhone
+            ? AuthStep.changePhoneOtp
+            : AuthStep.loginOtp,
+        maskedPhone:
+            '${state.phoneNumber.substring(0, 4)}*******${state.phoneNumber.substring(9)}',
+        otp: '',
+        isOtpValid: false,
+        remainingSeconds: 60,
+        canSubmitLogin: false,
+        canResendOtp: false,
+        loginStatus: RequestStatus.initial,
+        effect: const AuthOtpRequested(),
+        effectId: state.effectId + 1,
+      ),
+    );
+    _startOtpTimer();
+  }
+
+  void updateOtp(String value) {
+    final isValid = CodeValidator.isValid(value, length: 4);
+    emit(
+      state.copyWith(
+        otp: value,
+        isOtpValid: isValid,
+        canSubmitLogin: isValid && state.remainingSeconds > 0,
+      ),
+    );
+  }
+
+  void submitOtpResend() {
+    emit(
+      state.copyWith(
+        otp: '',
+        isOtpValid: false,
+        remainingSeconds: 60,
+        canSubmitLogin: false,
+        canResendOtp: false,
+      ),
+    );
+    _startOtpTimer();
+  }
+
+  void submitLogin() {
+    _otpTimer?.cancel();
+    emit(
+      state.copyWith(
+        loginStatus: RequestStatus.success,
+        canSubmitLogin: false,
+        canResendOtp: false,
         effect: const AuthCompleted(),
         effectId: state.effectId + 1,
       ),
     );
   }
 
-  void updateNationalId(String value) {
-    emit(
-      state.copyWith(
-        nationalId: value,
-        isNationalIdError:
-            value.isNotEmpty && !NationalCodeValidator.isValid(value),
-        formValid: checkFormValid(value, state.phone, state.captcha),
-      ),
-    );
-  }
-
-  void updatePhoneNumber(String value) {
-    emit(
-      state.copyWith(
-        phone: value,
-        isPhoneError: value.isNotEmpty && !PhoneNumberValidator.isValid(value),
-        formValid: checkFormValid(state.nationalId, value, state.captcha),
-        maskedPhone: maskPhoneNumber(value),
-      ),
-    );
-  }
-
-  void updateCaptcha(String value) {
-    emit(
-      state.copyWith(
-        captcha: value,
-        isCaptchaError: false,
-        formValid: checkFormValid(state.nationalId, state.phone, value),
-      ),
-    );
-  }
-
-  void updateOtp(String value) {
-    emit(
-      state.copyWith(
-        otp: value,
-        otpValid: checkOtpValid(value, state.secondsRemaining),
-      ),
-    );
-  }
-
-  void validateNationalId() {
-    if (isClosed || state.isOtp) return;
-    emit(
-      state.copyWith(
-        isNationalIdError: !NationalCodeValidator.isValid(state.nationalId),
-      ),
-    );
-  }
-
-  void validatePhoneNumber() {
-    if (isClosed || state.isOtp) return;
-    emit(
-      state.copyWith(isPhoneError: !PhoneNumberValidator.isValid(state.phone)),
-    );
-  }
-
-  void validateCaptcha() {
-    if (isClosed || state.isOtp) return;
-    emit(
-      state.copyWith(
-        isCaptchaError: !CodeValidator.isValid(state.captcha, length: 6),
-      ),
-    );
-  }
-
-  bool requestOtp() {
-    if (state.isOtp || state.status == RequestStatus.loading) return false;
-    final nationalIdValid = NationalCodeValidator.isValid(state.nationalId);
-    final phoneValid = PhoneNumberValidator.isValid(state.phone);
-    final captchaValid = CodeValidator.isValid(state.captcha, length: 6);
-    if (!nationalIdValid || !phoneValid || !captchaValid) {
-      emit(
-        state.copyWith(
-          isNationalIdError: !nationalIdValid,
-          isPhoneError: !phoneValid,
-          isCaptchaError: !captchaValid,
-        ),
-      );
-      return false;
-    }
-    final changePhone = state.step == AuthStep.changePhone;
-    emit(
-      state.copyWith(
-        effect: const AuthOtpRequested(),
-        effectId: state.effectId + 1,
-        step: changePhone ? AuthStep.changePhoneOtp : AuthStep.loginOtp,
-        isLoginForm: false,
-        isOtp: true,
-        isChangePhone: changePhone,
-        otp: '',
-        otpValid: false,
-        secondsRemaining: 60,
-        isNationalIdError: false,
-        isPhoneError: false,
-        isCaptchaError: false,
-      ),
-    );
-    _startTimer();
-    return true;
-  }
-
-  void refreshCaptcha() {
-    emit(state.copyWith(captcha: '', isCaptchaError: false, formValid: false));
-  }
-
-  void resendOtp() {
-    if (!state.isOtp || state.secondsRemaining > 0) return;
-    emit(state.copyWith(otp: '', otpValid: false, secondsRemaining: 60));
-    _startTimer();
-  }
-
   void openChangePhone() {
-    _timer?.cancel();
-    emit(
-      const AuthState.initial(
-        step: AuthStep.changePhone,
-        isLoginForm: false,
-        isChangePhone: true,
-      ),
-    );
-  }
-
-  void closeChangePhone() {
-    _timer?.cancel();
-    emit(const AuthState.initial());
-  }
-
-  void backToChangePhoneForm() {
-    _timer?.cancel();
+    _otpTimer?.cancel();
     emit(
       state.copyWith(
         step: AuthStep.changePhone,
-        isLoginForm: false,
-        isOtp: false,
-        isChangePhone: true,
+        nationalId: '',
+        phoneNumber: '',
+        captcha: '',
         otp: '',
-        otpValid: false,
+        maskedPhone: '',
+        isNationalIdValid: false,
+        isPhoneNumberValid: false,
+        isCaptchaValid: false,
+        isOtpValid: false,
         isNationalIdError: false,
-        isPhoneError: false,
+        isPhoneNumberError: false,
         isCaptchaError: false,
+        canRequestOtp: false,
+        canSubmitLogin: false,
+        canResendOtp: false,
+        remainingSeconds: 0,
+        loginStatus: RequestStatus.initial,
       ),
     );
   }
 
-  void back() {
-    _timer?.cancel();
+  void requestBack() {
+    _otpTimer?.cancel();
     switch (state.step) {
       case AuthStep.login:
         break;
       case AuthStep.loginOtp:
+      case AuthStep.changePhoneOtp:
         emit(
           state.copyWith(
-            step: AuthStep.login,
-            isLoginForm: true,
-            isOtp: false,
-            isChangePhone: false,
+            step: state.step == AuthStep.loginOtp
+                ? AuthStep.login
+                : AuthStep.changePhone,
             otp: '',
-            otpValid: false,
-            isNationalIdError: false,
-            isPhoneError: false,
-            isCaptchaError: false,
+            isOtpValid: false,
+            canSubmitLogin: false,
+            canResendOtp: false,
+            remainingSeconds: 0,
           ),
         );
       case AuthStep.changePhone:
-        emit(const AuthState.initial());
-      case AuthStep.changePhoneOtp:
-        backToChangePhoneForm();
+        emit(
+          state.copyWith(
+            step: AuthStep.login,
+            nationalId: '',
+            phoneNumber: '',
+            captcha: '',
+            isNationalIdValid: false,
+            isPhoneNumberValid: false,
+            isCaptchaValid: false,
+            isNationalIdError: false,
+            isPhoneNumberError: false,
+            isCaptchaError: false,
+            canRequestOtp: false,
+          ),
+        );
     }
   }
 
-  void _startTimer() {
-    _timer?.cancel();
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (isClosed || !state.isOtp) {
-        timer.cancel();
-        return;
-      }
-      final remaining = state.secondsRemaining - 1;
-      if (remaining <= 0) timer.cancel();
+  void _startOtpTimer() {
+    _otpTimer?.cancel();
+    _otpTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      // tick counts elapsed periods, including periods skipped by a delayed callback.
+      final remainingSeconds = (60 - timer.tick).clamp(0, 60);
+      if (remainingSeconds == 0) timer.cancel();
       emit(
         state.copyWith(
-          secondsRemaining: remaining < 0 ? 0 : remaining,
-          otpValid: checkOtpValid(state.otp, remaining),
+          remainingSeconds: remainingSeconds,
+          canSubmitLogin: state.isOtpValid && remainingSeconds > 0,
+          canResendOtp: remainingSeconds == 0,
         ),
       );
     });
   }
 
-  bool checkFormValid(String nationalId, String phone, String captcha) {
-    return NationalCodeValidator.isValid(nationalId) &&
-        PhoneNumberValidator.isValid(phone) &&
-        CodeValidator.isValid(captcha, length: 6);
-  }
-
-  bool checkOtpValid(String otp, int remainingSeconds) {
-    return CodeValidator.isValid(otp, length: 4) && remainingSeconds > 0;
-  }
-
-  String maskPhoneNumber(String phone) {
-    return phone.length != 11
-        ? '0912*******42'
-        : '${phone.substring(0, 4)}*******${phone.substring(9)}';
-  }
-
   @override
   Future<void> close() {
-    _timer?.cancel();
+    _otpTimer?.cancel();
     return super.close();
   }
 }
