@@ -8,7 +8,8 @@ import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 class PasswordRecordingSection extends StatelessWidget {
-  const PasswordRecordingSection({super.key});
+  const PasswordRecordingSection({super.key, required this.state});
+  final SecondPasswordState state;
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<SecondPasswordCubit>();
@@ -58,7 +59,7 @@ class PasswordRecordingSection extends StatelessWidget {
           alignment: Alignment.centerLeft,
           child: IntrinsicWidth(
             child: AppButton(
-              onPressed: cubit.recordAgain,
+              onPressed: cubit.resetRecordingConfirmation,
               label: S.current.passwordRecordAgain,
               variant: AppButtonVariant.text,
               horizontalPadding: 4,
@@ -71,14 +72,10 @@ class PasswordRecordingSection extends StatelessWidget {
           style: Theme.of(context).textTheme.bodySmall!
               .copyWith(color: context.colors.textTertiary, height: 18 / 12),
         ),
-        BlocBuilder<SecondPasswordCubit, SecondPasswordState>(
-          buildWhen: (previous, current) =>
-              previous.recordingConfirmed != current.recordingConfirmed,
-          builder: (context, state) => AppCheckbox(
-            value: state.recordingConfirmed,
-            label: S.current.passwordConfirmMock,
-            onChanged: cubit.updateRecordingConfirmed,
-          ),
+        AppCheckbox(
+          value: state.isRecordingConfirmed,
+          label: S.current.passwordConfirmMock,
+          onChanged: cubit.updateRecordingConfirmation,
         ),
       ],
     );

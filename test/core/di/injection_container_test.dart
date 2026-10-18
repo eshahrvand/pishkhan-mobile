@@ -113,7 +113,7 @@ void main() {
             container<CardIssuanceRepository>(),
             () => CardIssuanceCubit(initialState: issuanceSeed),
           );
-      const passwordSeed = SecondPasswordState.initial(showPassword: true);
+      const passwordSeed = SecondPasswordState.initial(isPasswordVisible: true);
       final password =
           withRegisteredDependency<
             PasswordServicesRepository,

@@ -27,8 +27,8 @@ class PasswordFlowBody extends StatelessWidget {
   Widget build(BuildContext context) {
     final cubit = context.read<SecondPasswordCubit>();
 
-    if (state.status == RequestStatus.initial ||
-        state.status == RequestStatus.loading) {
+    if (state.catalogStatus == RequestStatus.initial ||
+        state.catalogStatus == RequestStatus.loading) {
       return Center(
         child: AppButton(
           onPressed: null,
@@ -38,7 +38,7 @@ class PasswordFlowBody extends StatelessWidget {
       );
     }
     if (state.catalog?.cards.isEmpty == true ||
-        state.status == RequestStatus.failure) {
+        state.catalogStatus == RequestStatus.failure) {
       return Column(
         children: [
           Text(
@@ -47,34 +47,44 @@ class PasswordFlowBody extends StatelessWidget {
                 : S.current.dashboardLoadError,
           ),
           const SizedBox(height: 16),
-          AppButton(onPressed: cubit.load, label: S.current.dashboardRetry),
+          AppButton(
+            onPressed: cubit.fetchCatalog,
+            label: S.current.dashboardRetry,
+          ),
         ],
       );
     }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        if (state.failure != null) ...[
-          Text(
-            S.current.dashboardLoadError,
-            style: passwordBody(context).copyWith(color: context.colors.error),
-          ),
-          const SizedBox(height: 12),
+    return AbsorbPointer(
+      absorbing: !state.isEditable,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (state.existingRequestFailure != null ||
+              state.submissionFailure != null) ...[
+            Text(
+              S.current.dashboardLoadError,
+              style: passwordBody(context)
+                  .copyWith(color: context.colors.error),
+            ),
+            const SizedBox(height: 12),
+          ],
+          switch (state.step) {
+            SecondPasswordStep.selection => PasswordSelectionSection(
+              state: state,
+              selectOperation: selectOperation,
+            ),
+            SecondPasswordStep.password => SecondPasswordForm(state: state),
+            SecondPasswordStep.serial => PasswordSerialForm(state: state),
+            SecondPasswordStep.instruction => PasswordInstructionSection(
+              video: video,
+              instructionVideoUrl: instructionVideoUrl,
+            ),
+            SecondPasswordStep.recording => PasswordRecordingSection(
+              state: state,
+            ),
+          },
         ],
-        switch (state.step) {
-          SecondPasswordStep.selection => PasswordSelectionSection(
-            state: state,
-            selectOperation: selectOperation,
-          ),
-          SecondPasswordStep.password => const SecondPasswordForm(),
-          SecondPasswordStep.serial => const PasswordSerialForm(),
-          SecondPasswordStep.instruction => PasswordInstructionSection(
-            video: video,
-            instructionVideoUrl: instructionVideoUrl,
-          ),
-          SecondPasswordStep.recording => const PasswordRecordingSection(),
-        },
-      ],
+      ),
     );
   }
 }

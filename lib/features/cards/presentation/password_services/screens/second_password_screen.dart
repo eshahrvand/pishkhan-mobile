@@ -71,6 +71,10 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
     SecondPasswordState state,
   ) async {
     switch (state.effect) {
+      case PasswordUnsupportedRequested():
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(S.current.passwordUnsupported)));
       case PasswordExitRequested():
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (context.mounted) NavigationActions.back(context);
@@ -80,7 +84,7 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
       case PasswordExitConfirmationRequested():
         final confirmed = await showPasswordExitDialog(context);
         if (context.mounted) {
-          context.read<SecondPasswordCubit>().exitConfirmationResult(confirmed);
+          context.read<SecondPasswordCubit>().applyExitConfirmation(confirmed);
         }
       case PasswordRecordRequested(
         :final record,
@@ -96,7 +100,7 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
           operation: operation,
         );
         if (context.mounted) {
-          context.read<SecondPasswordCubit>().recordPresentationClosed();
+          context.read<SecondPasswordCubit>().applyRecordDismissal();
         }
       case null:
         break;
@@ -109,7 +113,7 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
       create: (_) => SecondPasswordCubit(
         initialCardNumber: widget.initialCardNumber,
         selectOperation: widget.selectOperation,
-      )..load(),
+      )..fetchCatalog(),
       child: Directionality(
         textDirection: TextDirection.rtl,
         child: BlocListener<SecondPasswordCubit, SecondPasswordState>(
@@ -117,6 +121,11 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
               previous.effectId != current.effectId,
           listener: _handleEffect,
           child: BlocBuilder<SecondPasswordCubit, SecondPasswordState>(
+            buildWhen: (previous, current) =>
+                previous.isChange != current.isChange ||
+                previous.step != current.step ||
+                (previous.effect is PasswordExitRequested) !=
+                    (current.effect is PasswordExitRequested),
             builder: (context, state) {
               return PopScope<void>(
                 canPop: state.effect is PasswordExitRequested,

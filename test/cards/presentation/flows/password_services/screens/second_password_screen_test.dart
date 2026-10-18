@@ -1,3 +1,8 @@
+import 'dart:async';
+
+import 'package:pishkhan_mobile/core/result/result.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/password_services/widgets/password_flow_body.dart';
+
 import '../../../../../support/registered_dependency.dart';
 
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -208,7 +213,7 @@ void main() {
         select(controller);
         await t.pump();
         if (frame != 'selection-filled') {
-          await controller.next();
+          await controller.submitCurrentStep();
           await t.pumpAndSettle();
         }
         if ([
@@ -219,18 +224,18 @@ void main() {
           'recording',
           'submitted',
         ].contains(frame)) {
-          controller.passwordChanged('829164');
-          controller.confirmationChanged('829164');
-          controller.acceptTerms(true);
+          controller.updatePassword('829164');
+          controller.updateConfirmation('829164');
+          controller.updateTermsAcceptance(true);
           await t.pump();
           // Inputs hold actual editing controllers; remount the form after state seeding.
           if (frame == 'password-filled') {
-            controller.back();
+            controller.requestBack();
             await t.pump();
-            await controller.next();
+            await controller.submitCurrentStep();
             await t.pumpAndSettle();
           } else {
-            await controller.next();
+            await controller.submitCurrentStep();
             await t.pump();
           }
         }
@@ -240,25 +245,25 @@ void main() {
           'recording',
           'submitted',
         ].contains(frame)) {
-          controller.serialChanged('3R12345678');
+          controller.updateNationalCardSerial('3R12345678');
           await t.pump();
           if (frame == 'serial-filled') {
-            controller.back();
+            controller.requestBack();
             await t.pump();
-            await controller.next();
+            await controller.submitCurrentStep();
             await t.pump();
           } else {
-            await controller.next();
+            await controller.submitCurrentStep();
             await t.pumpAndSettle();
           }
         }
         if (['recording', 'submitted'].contains(frame)) {
-          await controller.next();
+          await controller.submitCurrentStep();
           await t.pumpAndSettle();
         }
         if (frame == 'submitted') {
           controller.confirmMockRecording();
-          await controller.submit();
+          await controller.submitCurrentStep();
           await t.pumpAndSettle();
         }
       }
@@ -360,6 +365,103 @@ void main() {
       expect(t.takeException(), isNull);
     },
   );
+  testWidgets(
+    'checking and submission disable controls and completion clears secrets',
+    (t) async {
+      final repository = ControlledPasswordRepository()
+        ..checking = Completer<Result<PasswordRequestRecord>>();
+      await mount(t, repository: repository, selectOperation: true);
+      final cubit = c(t);
+      select(cubit);
+      cubit.selectOperationType(PasswordOperation.changePassword);
+      await t.pumpAndSettle();
+      await t.tap(authControl(t, 'password_next'));
+      await t.pump();
+      expect(
+        t.widget<AppButton>(authControl(t, 'password_next')).onPressed,
+        isNull,
+      );
+      expect(
+        t
+            .widget<AbsorbPointer>(
+              find
+                  .descendant(
+                    of: find.byType(PasswordFlowBody),
+                    matching: find.byType(AbsorbPointer),
+                  )
+                  .first,
+            )
+            .absorbing,
+        isTrue,
+      );
+      expect(
+        t.widget<AppTopBar>(find.byType(AppTopBar)).onTrailingPressed,
+        isNotNull,
+      );
+      repository.checking!.complete(
+        const Success(
+          PasswordRequestRecord(status: PasswordRequestStatus.none),
+        ),
+      );
+      await t.pumpAndSettle();
+      for (final entry in [
+        ('password_current', '1234'),
+        ('password_value', '829164'),
+        ('password_confirmation', '829164'),
+      ]) {
+        await t.enterText(
+          find.descendant(
+            of: authControl(t, entry.$1),
+            matching: find.byType(TextField),
+          ),
+          entry.$2,
+        );
+      }
+      await tap(t, 'password_terms');
+      repository.submitting = Completer<Result<PasswordRequestRecord>>();
+      await t.tap(authControl(t, 'password_next'));
+      await t.pump();
+      expect(
+        t.widget<AppButton>(authControl(t, 'password_next')).onPressed,
+        isNull,
+      );
+      expect(
+        t.widget<AppCheckbox>(authControl(t, 'password_terms')).onChanged,
+        isNull,
+      );
+      expect(
+        t
+            .widget<AbsorbPointer>(
+              find
+                  .descendant(
+                    of: find.byType(PasswordFlowBody),
+                    matching: find.byType(AbsorbPointer),
+                  )
+                  .first,
+            )
+            .absorbing,
+        isTrue,
+      );
+      await t.tap(authControl(t, 'password_next'));
+      await t.pump();
+      expect(repository.requests, hasLength(1));
+      expect(repository.requests.single.currentPassword, '1234');
+      repository.submitting!.complete(
+        const Success(
+          PasswordRequestRecord(
+            status: PasswordRequestStatus.pending,
+            isMock: true,
+          ),
+        ),
+      );
+      await t.pumpAndSettle();
+      expect(cubit.state.password, isEmpty);
+      expect(cubit.state.currentPassword, isEmpty);
+      expect(cubit.state.confirmation, isEmpty);
+      expect(t.takeException(), isNull);
+    },
+  );
+
   testWidgets('retry, empty and system back are usable', (t) async {
     final r = ControlledPasswordRepository()
       ..catalog = PasswordCatalog(cards: []);
@@ -369,7 +471,7 @@ void main() {
     await t.tap(authControl(t, 'password_retry'));
     await t.pumpAndSettle();
     select(c(t));
-    await c(t).next();
+    await c(t).submitCurrentStep();
     await t.pumpAndSettle();
     await t.binding.handlePopRoute();
     await t.pumpAndSettle();
@@ -437,7 +539,7 @@ void main() {
         await tap(t, 'password_option_PasswordOperation.changePassword');
         expect(find.byType(AppInvoice), findsNothing);
         if (frame != 'change-selection-filled') {
-          await controller.next();
+          await controller.submitCurrentStep();
           await t.pumpAndSettle();
         }
       }
@@ -514,8 +616,8 @@ void main() {
         );
         final controller = c(t);
         select(controller);
-        controller.chooseOperation(PasswordOperation.changePassword);
-        await controller.next();
+        controller.selectOperationType(PasswordOperation.changePassword);
+        await controller.submitCurrentStep();
         await t.pumpAndSettle();
         expect(t.takeException(), isNull);
         await t.ensureVisible(authControl(t, 'password_confirmation'));
@@ -533,15 +635,15 @@ void main() {
           PasswordServicesRepository,
           SecondPasswordCubit
         >(r, () => SecondPasswordCubit(selectOperation: true));
-    await setup.load();
+    await setup.fetchCatalog();
     select(setup);
-    setup.chooseOperation(PasswordOperation.changePassword);
-    await setup.next();
-    setup.currentPasswordChanged('1234');
-    setup.passwordChanged('829164');
-    setup.confirmationChanged('829164');
-    setup.acceptTerms(true);
-    await setup.next();
+    setup.selectOperationType(PasswordOperation.changePassword);
+    await setup.submitCurrentStep();
+    setup.updateCurrentPassword('1234');
+    setup.updatePassword('829164');
+    setup.updateConfirmation('829164');
+    setup.updateTermsAcceptance(true);
+    await setup.submitCurrentStep();
     await setup.close();
     await t.pumpWidget(
       subject(
@@ -562,8 +664,8 @@ void main() {
     await t.pumpAndSettle();
     final controller = c(t);
     select(controller);
-    controller.chooseOperation(PasswordOperation.changePassword);
-    await controller.next();
+    controller.selectOperationType(PasswordOperation.changePassword);
+    await controller.submitCurrentStep();
     await t.pumpAndSettle();
     expect(authControl(t, 'password_status_page'), findsOneWidget);
     expect(authControl(t, 'password_record_dismiss'), findsNothing);
@@ -582,8 +684,8 @@ void main() {
       final controller = c(t);
       select(controller);
       await t.pumpAndSettle();
-      expect(controller.state.secondPasswordSelected, true);
-      expect(controller.state.cardId, 'password-card-1');
+      expect(controller.state.passwordType, PasswordType.second);
+      expect(controller.state.card?.id, 'password-card-1');
       expect(controller.state.canContinue, false);
       expect(find.byType(AppInvoice), findsNothing);
       expect(t.getTopLeft(authControl(t, 'password_operation')).dy, 434);
@@ -607,15 +709,15 @@ void main() {
       if (frame == 'operation-forgot') {
         await tap(t, 'password_next');
         expect(controller.state.step, SecondPasswordStep.password);
-        controller.passwordChanged('829164');
-        controller.confirmationChanged('829164');
-        controller.acceptTerms(true);
-        await controller.next();
-        controller.serialChanged('3R12345678');
-        await controller.next();
-        await controller.next();
+        controller.updatePassword('829164');
+        controller.updateConfirmation('829164');
+        controller.updateTermsAcceptance(true);
+        await controller.submitCurrentStep();
+        controller.updateNationalCardSerial('3R12345678');
+        await controller.submitCurrentStep();
+        await controller.submitCurrentStep();
         controller.confirmMockRecording();
-        await controller.submit();
+        await controller.submitCurrentStep();
         await t.pumpAndSettle();
         expect(r.requests.single.operation, PasswordOperation.forgotPassword);
         expect(controller.state.password, isEmpty);
@@ -644,7 +746,7 @@ void main() {
     await t.tap(find.text('Recover'));
     await t.pumpAndSettle();
     expect(find.byType(SecondPasswordScreen), findsOneWidget);
-    expect(c(t).state.cardId, 'password-card-1');
+    expect(c(t).state.card?.id, 'password-card-1');
     expect(c(t).selectOperation, true);
     expect(c(t).state.operation, isNull);
   });
@@ -670,7 +772,7 @@ void main() {
     await t.tap(find.text('Open'));
     await t.pumpAndSettle();
     expect(find.byType(SecondPasswordScreen), findsOneWidget);
-    expect(c(t).state.cardId, 'password-card-1');
+    expect(c(t).state.card?.id, 'password-card-1');
     expect(
       openCardFeaturesService(
         t.element(find.byType(SecondPasswordScreen)),

@@ -26,3 +26,7 @@ final class PasswordRecordRequested extends PasswordEffect {
   final PasswordOperation operation;
   final bool newlySubmitted;
 }
+
+final class PasswordUnsupportedRequested extends PasswordEffect {
+  const PasswordUnsupportedRequested();
+}

@@ -18,7 +18,7 @@ class PasswordFlowFooter extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<SecondPasswordCubit, SecondPasswordState>(
       builder: (context, state) {
-        if (state.showFullStatus) {
+        if (state.isFullStatusVisible) {
           return Padding(
             padding: const EdgeInsets.all(16),
             child: AppButton(
@@ -30,9 +30,9 @@ class PasswordFlowFooter extends StatelessWidget {
           );
         }
         if (state.record != null ||
-            state.status == RequestStatus.failure ||
+            state.catalogStatus == RequestStatus.failure ||
             state.catalog?.cards.isNotEmpty != true ||
-            state.status == RequestStatus.loading) {
+            state.catalogStatus == RequestStatus.loading) {
           return const SizedBox.shrink();
         }
         return Padding(
@@ -61,11 +61,13 @@ class PasswordFlowFooter extends StatelessWidget {
                   child: Row(
                     children: [
                       AppCheckbox(
-                        value: state.terms,
+                        value: state.termsAccepted,
                         size: AppCheckboxSize.md,
-                        onChanged: context
-                            .read<SecondPasswordCubit>()
-                            .acceptTerms,
+                        onChanged: state.isEditable
+                            ? context
+                                  .read<SecondPasswordCubit>()
+                                  .updateTermsAcceptance
+                            : null,
                       ),
                       const SizedBox(width: 8),
                       Expanded(
@@ -110,12 +112,12 @@ class PasswordFlowFooter extends StatelessWidget {
                 onPressed: state.canContinue
                     ? () {
                         FocusManager.instance.primaryFocus?.unfocus();
-                        context.read<SecondPasswordCubit>().next();
+                        context.read<SecondPasswordCubit>().submitCurrentStep();
                       }
                     : null,
                 label: getPasswordContinueTitle(state),
                 isLoading:
-                    state.checkStatus == RequestStatus.loading ||
+                    state.existingRequestStatus == RequestStatus.loading ||
                     state.submissionStatus == RequestStatus.loading,
                 size: AppButtonSize.lg,
                 constrainLabel: true,
@@ -130,17 +132,10 @@ class PasswordFlowFooter extends StatelessWidget {
 }
 
 String getPasswordContinueTitle(SecondPasswordState state) {
-  if (state.isChange &&
-      state.step == SecondPasswordStep.password &&
-      state.formComplete) {
-    return S.current.passwordChangeSubmit;
-  }
-  switch (state.step) {
-    case SecondPasswordStep.instruction:
-      return S.current.passwordStartKyc;
-    case SecondPasswordStep.recording:
-      return S.current.passwordSubmit;
-    default:
-      return S.current.issuanceNext;
-  }
+  return switch (state.primaryAction) {
+    PasswordPrimaryAction.changePassword => S.current.passwordChangeSubmit,
+    PasswordPrimaryAction.startKyc => S.current.passwordStartKyc,
+    PasswordPrimaryAction.submit => S.current.passwordSubmit,
+    PasswordPrimaryAction.continueFlow => S.current.issuanceNext,
+  };
 }

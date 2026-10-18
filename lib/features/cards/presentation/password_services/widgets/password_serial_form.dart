@@ -9,7 +9,8 @@ import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 class PasswordSerialForm extends StatefulWidget {
-  const PasswordSerialForm({super.key});
+  const PasswordSerialForm({super.key, required this.state});
+  final SecondPasswordState state;
   @override
   State<PasswordSerialForm> createState() => _SerialFormState();
 }
@@ -20,10 +21,7 @@ class _SerialFormState extends State<PasswordSerialForm> {
   @override
   void initState() {
     super.initState();
-    context.read<SecondPasswordCubit>().resetSerialValidation();
-    controller = TextEditingController(
-      text: context.read<SecondPasswordCubit>().state.serial,
-    );
+    controller = TextEditingController(text: widget.state.nationalCardSerial);
     focus.addListener(() {
       if (!focus.hasFocus && mounted) {
         context.read<SecondPasswordCubit>().validateSerial();
@@ -40,64 +38,57 @@ class _SerialFormState extends State<PasswordSerialForm> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SecondPasswordCubit, SecondPasswordState>(
-      buildWhen: (previous, current) =>
-          previous.isSerialError != current.isSerialError,
-      builder: (context, state) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          S.current.passwordSerialPrompt,
+          style: passwordBody(context).copyWith(fontWeight: FontWeight.w500),
+        ),
+        const SizedBox(height: 20),
+        AppTextField(
+          controller: controller,
+          focusNode: focus,
+          hintText: S.current.passwordSerialHint,
+          errorText: widget.state.isSerialError
+              ? S.current.passwordSerialError
+              : null,
+          textStyle: passwordBody(context),
+          textDirection: TextDirection.ltr,
+          textAlign: TextAlign.right,
+          normalizeDigits: true,
+          inputFormatters: [
+            FilteringTextInputFormatter.allow(RegExp('[A-Za-z0-9]')),
+            LengthLimitingTextInputFormatter(20),
+          ],
+          focusRing: AppTextFieldFocusRing.none,
+          autocorrect: false,
+          enableSuggestions: false,
+          enableIMEPersonalizedLearning: false,
+          onChanged: (v) {
+            context.read<SecondPasswordCubit>().updateNationalCardSerial(v);
+          },
+        ),
+        const SizedBox(height: 8),
+        Row(
           children: [
-            Text(
-              S.current.passwordSerialPrompt,
-              style: passwordBody(context)
-                  .copyWith(fontWeight: FontWeight.w500),
+            SizedBox.square(
+              dimension: 14,
+              child: AvpImage(image: AppAssets.passwordInfo),
             ),
-            const SizedBox(height: 20),
-            AppTextField(
-              controller: controller,
-              focusNode: focus,
-              hintText: S.current.passwordSerialHint,
-              errorText: state.isSerialError
-                  ? S.current.passwordSerialError
-                  : null,
-              textStyle: passwordBody(context),
-              textDirection: TextDirection.ltr,
-              textAlign: TextAlign.right,
-              normalizeDigits: true,
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp('[A-Za-z0-9]')),
-                LengthLimitingTextInputFormatter(20),
-              ],
-              focusRing: AppTextFieldFocusRing.none,
-              autocorrect: false,
-              enableSuggestions: false,
-              enableIMEPersonalizedLearning: false,
-              onChanged: (v) {
-                context.read<SecondPasswordCubit>().serialChanged(v);
-              },
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                SizedBox.square(
-                  dimension: 14,
-                  child: AvpImage(image: AppAssets.passwordInfo),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                S.current.passwordSerialHelper,
+                style: Theme.of(context).textTheme.bodySmall!.copyWith(
+                  color: context.colors.textSecondary,
+                  height: 18 / 12,
                 ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    S.current.passwordSerialHelper,
-                    style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                      color: context.colors.textSecondary,
-                      height: 18 / 12,
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
           ],
-        );
-      },
+        ),
+      ],
     );
   }
 }

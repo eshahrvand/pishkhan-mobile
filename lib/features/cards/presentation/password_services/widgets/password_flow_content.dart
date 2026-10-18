@@ -36,33 +36,35 @@ class _PasswordFlowContentState extends State<PasswordFlowContent> {
       listener: (context, state) {
         if (_scroll.hasClients) _scroll.jumpTo(0);
       },
-      builder: (context, state) => state.showFullStatus
-          ? SingleChildScrollView(
-              padding: const EdgeInsetsDirectional.fromSTEB(16, 36, 16, 20),
-              child: PasswordStatusContent(record: state.record!),
-            )
-          : state.record != null
-          ? const SizedBox.shrink()
-          : SingleChildScrollView(
-              controller: _scroll,
+      builder: (context, state) {
+        return state.isFullStatusVisible
+            ? SingleChildScrollView(
+                padding: const EdgeInsetsDirectional.fromSTEB(16, 36, 16, 20),
+                child: PasswordStatusContent(record: state.record!),
+              )
+            : state.record != null
+            ? const SizedBox.shrink()
+            : SingleChildScrollView(
+                controller: _scroll,
 
-              padding: EdgeInsetsDirectional.fromSTEB(
-                16,
-                (state.step == SecondPasswordStep.password &&
-                            !state.isChange) ||
-                        state.step == SecondPasswordStep.serial
-                    ? 14
-                    : 16,
-                16,
-                20,
-              ),
-              child: PasswordFlowBody(
-                state: state,
-                selectOperation: widget.selectOperation,
-                video: widget.video,
-                instructionVideoUrl: widget.instructionVideoUrl,
-              ),
-            ),
+                padding: EdgeInsetsDirectional.fromSTEB(
+                  16,
+                  (state.step == SecondPasswordStep.password &&
+                              !state.isChange) ||
+                          state.step == SecondPasswordStep.serial
+                      ? 14
+                      : 16,
+                  16,
+                  20,
+                ),
+                child: PasswordFlowBody(
+                  state: state,
+                  selectOperation: widget.selectOperation,
+                  video: widget.video,
+                  instructionVideoUrl: widget.instructionVideoUrl,
+                ),
+              );
+      },
     );
   }
 }
