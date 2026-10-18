@@ -17,7 +17,8 @@ abstract final class AppRoutes {
   static const depositList = '/deposits/list';
   static const averageBalance = '/deposits/average-balance';
   static const financialCertificate = '/deposits/financial-certificate';
-  static const introduceRepresentative = '/deposits/introduce-representative';
+  static const introduceAgent = '/deposits/introduce-representative';
+  static const agentSettings = '/deposits/representation-settings';
 
   static const messages = '/profile/messages';
   static const messageDetail = '/profile/messages/:messageId';

@@ -212,7 +212,7 @@ AppResalatCard, AppDepositCard, AppLoanCard, AppPrimaryNavigation, top bar, serv
 
 **Presentation/state:** DashboardCubit owns asynchronous Home content and transactional favorites; DashboardNavigationCubit owns primary-tab selection. CardsCubit, DepositsCubit and LoansCubit own loading outcomes and selected IDs. Common behavior is factored once in DashboardTabCubit; typed loaded classes carry each tab's entity and card visibility. All states use Equatable and immutable collection snapshots.
 
-**Domain:** Pure Dart entities, repository contracts and use cases have no Flutter imports. BankLoan derives footer and progress from one numeric count pair. LoadDashboardItems validates unique/nonblank IDs and detaches collection data before emitting it. These are dashboard summary/read models; formatted amounts and dates are still inherited prototype strings, not a complete banking domain representation.
+**Domain:** Pure Dart entities, repository contracts and use cases have no Flutter imports. BankLoan derives footer and progress from one numeric count pair. LoadDashboardItems validates unique/nonblank IDs and detaches collection data before emitting it. These are dashboard summary/read models; formatted amounts and dates are still inherited prototype strings, not a complete banking domain agent.
 
 **Data:** DashboardMockData holds samples; four mock repositories asynchronously return typed Result values. It is the only implemented data source. The dashboard's default composition explicitly creates mocks; passing DashboardRepositories replaces them. This is a small explicit composition root, not an installed get_it/injectable container.
 
@@ -235,7 +235,7 @@ future: API -> remote datasource -> DTO -> validated mapper
                                              implements the SAME interface
 ```
 
-Recommended new adapter paths are `lib/features/dashboard/data/datasources/`, `data/dto/`, `data/mappers/` and `data/repositories/`. These do not exist yet. Summary fetch mapping belongs in Dashboard data, not in the dedicated Loan/Deposit page folders. Prefer validated raw money/date values plus a consistent display mapper when the bank schema is known; the present formatted summaries can be produced at the repository boundary without changing views/Cubits. Broader domain representation changes should be reviewed separately.
+Recommended new adapter paths are `lib/features/dashboard/data/datasources/`, `data/dto/`, `data/mappers/` and `data/repositories/`. These do not exist yet. Summary fetch mapping belongs in Dashboard data, not in the dedicated Loan/Deposit page folders. Prefer validated raw money/date values plus a consistent display mapper when the bank schema is known; the present formatted summaries can be produced at the repository boundary without changing views/Cubits. Broader domain agent changes should be reviewed separately.
 
 ## 8. Service Flow Pattern and Suspended Requests
 
@@ -854,7 +854,7 @@ The feature does match the supplied page geometry at normal scale: top bar y24/h
 
 ### 13.7 avp_ui change audit against Figma (2026-10-09)
 
-**Scope and evidence.** The working package diff contains the earlier bankCard token addition and the progress repair. The recent integration commits also touched AppButton, AppTextField/AppSearchField, AppTypography, AppDashboardColors and AppLoginColors, so these are audited here rather than considering only today's dirty files. Package public exports, integration-guide edits and regression tests have no separate visual representation. No shared visual default is changed by the folder/Cubit migration.
+**Scope and evidence.** The working package diff contains the earlier bankCard token addition and the progress repair. The recent integration commits also touched AppButton, AppTextField/AppSearchField, AppTypography, AppDashboardColors and AppLoginColors, so these are audited here rather than considering only today's dirty files. Package public exports, integration-guide edits and regression tests have no separate visual agent. No shared visual default is changed by the folder/Cubit migration.
 
 The comparison uses freshly retrieved Figma design context and screenshots, then the actual package source, not names such as “Figma-aligned” in Dart comments. Button and input sets returned sparse metadata; individual variants were subsequently fetched. References below are all in [Pishkhan AI Mobile](https://www.figma.com/design/nYQNyZdSs98lwymCpt5Sag/Pishkhan-AI-Mobile). This is a source/token and rendered-frame review, not a claim of exhaustive pixel equality for every library variant.
 
@@ -884,9 +884,9 @@ The app installs AppTheme.light and forces RTL in the MaterialApp builder, inclu
 
 Loans adds loansOperations, loansEmpty, loansPayInstallments, loansRelationships, loansDefaultName and loansChangeDeposit in all three ARBs. It reuses dashboardMyLoans, dashboardDeferLoan, dashboardCorrectInstallments and consolidateDepositCredit. Loan title uses the caller string when supplied and localized loansDefaultName otherwise. Shared card labels/currency remain Persian because their API has no label parameters.
 
-New keys include depositsMyTitle, depositsOperations, depositsChequeOperations, depositsEmpty, depositsRepresentative, depositsLinkedCards, depositsLinkedLoans, depositsLocalTransfer, depositsMobileBank and depositsCopyNumber. Existing ARB keys cover statement, certificate, SMS, blocking, cheque actions, quick access and modern banking.
+New keys include depositsMyTitle, depositsOperations, depositsChequeOperations, depositsEmpty, depositsAgent, depositsLinkedCards, depositsLinkedLoans, depositsLocalTransfer, depositsMobileBank and depositsCopyNumber. Existing ARB keys cover statement, certificate, SMS, blocking, cheque actions, quick access and modern banking.
 
-Action order is expressed from the RTL start: statement/certificate/SMS/block; representative/virtual card/linked cards/linked loans. Quick actions start with card issuance, local transfer, estimate and introduce loan; next proxy/mobile/internet/phone. Numeric strings are passed unchanged; AppDepositCard sets LTR for numeric values and RTL for labels. Copy callbacks return original number/IBAN, not formatted numeric conversions.
+Action order is expressed from the RTL start: statement/certificate/SMS/block; agent/virtual card/linked cards/linked loans. Quick actions start with card issuance, local transfer, estimate and introduce loan; next proxy/mobile/internet/phone. Numeric strings are passed unchanged; AppDepositCard sets LTR for numeric values and RTL for labels. Copy callbacks return original number/IBAN, not formatted numeric conversions.
 
 BankDeposit.openingDate is currently preformatted display data. Server openedAt should be parsed as a date and converted in presentation, respecting the architecture's Gregorian/UTC domain rule and Jalali UI requirement. The static typeLabel default is Persian; server/caller should supply a localized label for another locale.
 

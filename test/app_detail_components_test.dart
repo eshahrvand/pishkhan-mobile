@@ -4,9 +4,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_bottom_sheet_header.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_confirmer_details_card.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_delete_address_sheet.dart';
-import 'package:pishkhan_mobile/shared/widgets/app_representative_cards.dart';
+import 'package:pishkhan_mobile/shared/widgets/app_agent_cards.dart';
+
+import 'deposits/certificate_test_support.dart' show loadCertificateFonts;
 
 void main() {
+  setUpAll(loadCertificateFonts);
   Widget subject(Widget child) => MaterialApp(
     theme: AppTheme.light(),
     home: Scaffold(body: Center(child: child)),
@@ -85,33 +88,33 @@ void main() {
     expect(find.text('در انتظار تایید'), findsOneWidget);
   });
 
-  testWidgets('representative cards render statuses and more action', (
+  testWidgets('agent cards render statuses and more action', (
     tester,
   ) async {
     var tapped = false;
     await tester.pumpWidget(
       subject(
-        AppMeAsRepresentativeCard(
-          status: AppRepresentativeStatus.expired,
+        AppMeAsAgentCard(
+          status: AppAgentStatus.expired,
           onMorePressed: () => tapped = true,
         ),
       ),
     );
     expect(
-      tester.getSize(find.byKey(const Key('app_me_as_representative_card'))),
+      tester.getSize(find.byKey(const Key('app_me_as_agent_card'))),
       const Size(343, 194),
     );
     expect(find.text('منقضی شده'), findsOneWidget);
-    await tester.tap(find.byKey(const Key('app_representative_more')));
+    await tester.tap(find.byKey(const Key('app_agent_more')));
     expect(tapped, isTrue);
 
     await tester.pumpWidget(
       subject(
-        const AppMyRepresentativeCard(status: AppRepresentativeStatus.waiting),
+        const AppMyAgentCard(status: AppAgentStatus.waiting),
       ),
     );
     expect(
-      tester.getSize(find.byKey(const Key('app_my_representative_card'))),
+      tester.getSize(find.byKey(const Key('app_my_agent_card'))),
       const Size(343, 194),
     );
     expect(find.text('در انتظار تایید'), findsOneWidget);

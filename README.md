@@ -46,6 +46,7 @@ Visual captures are not stored in `doc`; optional test captures use ignored
 - [Standalone deposit list and account sheets](doc/deposits/deposit-list.md)
 - [Statement / average balance request](doc/deposits/average-balance.md)
 - [Financial solvency certificate](doc/deposits/financial-certificate.md)
+- [Agent settings](doc/deposits/agent-settings.md)
 - [Loans](doc/loans/development.md)
 
 General architecture and design-system guidance remain in the top-level `doc`

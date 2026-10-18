@@ -1,6 +1,7 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+
 import 'intl/messages_all.dart';
 
 // **************************************************************************
@@ -18,8 +19,10 @@ class S {
   static S? _current;
 
   static S get current {
-    assert(_current != null,
-        'No instance of S was loaded. Try to initialize the S delegate before accessing S.current.');
+    assert(
+      _current != null,
+      'No instance of S was loaded. Try to initialize the S delegate before accessing S.current.',
+    );
     return _current!;
   }
 
@@ -41,8 +44,10 @@ class S {
 
   static S of(BuildContext context) {
     final instance = S.maybeOf(context);
-    assert(instance != null,
-        'No instance of S present in the widget tree. Did you add S.delegate in localizationsDelegates?');
+    assert(
+      instance != null,
+      'No instance of S present in the widget tree. Did you add S.delegate in localizationsDelegates?',
+    );
     return instance!;
   }
 
@@ -72,22 +77,12 @@ class S {
 
   /// `بازگشت`
   String get backLabel {
-    return Intl.message(
-      'بازگشت',
-      name: 'backLabel',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('بازگشت', name: 'backLabel', desc: '', args: []);
   }
 
   /// `بستن`
   String get closeLabel {
-    return Intl.message(
-      'بستن',
-      name: 'closeLabel',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('بستن', name: 'closeLabel', desc: '', args: []);
   }
 
   /// `فهرست خدمات`
@@ -222,12 +217,7 @@ class S {
 
   /// `وارد کردن رمز`
   String get otpHint {
-    return Intl.message(
-      'وارد کردن رمز',
-      name: 'otpHint',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('وارد کردن رمز', name: 'otpHint', desc: '', args: []);
   }
 
   /// `ثبت درخواست`
@@ -252,22 +242,12 @@ class S {
 
   /// `ارسال مجدد`
   String get resendOtp {
-    return Intl.message(
-      'ارسال مجدد',
-      name: 'resendOtp',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('ارسال مجدد', name: 'resendOtp', desc: '', args: []);
   }
 
   /// `لیست خدمات`
   String get servicesList {
-    return Intl.message(
-      'لیست خدمات',
-      name: 'servicesList',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('لیست خدمات', name: 'servicesList', desc: '', args: []);
   }
 
   /// `خدمات بدون نیاز به لاگین`
@@ -282,12 +262,7 @@ class S {
 
   /// `گزارش تمکن`
   String get assetReport {
-    return Intl.message(
-      'گزارش تمکن',
-      name: 'assetReport',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('گزارش تمکن', name: 'assetReport', desc: '', args: []);
   }
 
   /// `تغییر تلفن همراه`
@@ -332,12 +307,7 @@ class S {
 
   /// `همراه بانک`
   String get mobileBank {
-    return Intl.message(
-      'همراه بانک',
-      name: 'mobileBank',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('همراه بانک', name: 'mobileBank', desc: '', args: []);
   }
 
   /// `اینترنت بانک`
@@ -362,12 +332,7 @@ class S {
 
   /// `ام رسالت`
   String get resalatApp {
-    return Intl.message(
-      'ام رسالت',
-      name: 'resalatApp',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('ام رسالت', name: 'resalatApp', desc: '', args: []);
   }
 
   /// `نکات امنیتی`
@@ -422,12 +387,7 @@ class S {
 
   /// `ریال`
   String get rialCurrency {
-    return Intl.message(
-      'ریال',
-      name: 'rialCurrency',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('ریال', name: 'rialCurrency', desc: '', args: []);
   }
 
   /// `۱٬۲۰۰٬۰۰۰`
@@ -461,10 +421,10 @@ class S {
   }
 
   /// `معرفی نماینده`
-  String get introduceRepresentative {
+  String get introduceAgent {
     return Intl.message(
       'معرفی نماینده',
-      name: 'introduceRepresentative',
+      name: 'introduceAgent',
       desc: '',
       args: [],
     );
@@ -492,22 +452,12 @@ class S {
 
   /// `خدمات کارت`
   String get cardServices {
-    return Intl.message(
-      'خدمات کارت',
-      name: 'cardServices',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('خدمات کارت', name: 'cardServices', desc: '', args: []);
   }
 
   /// `مسدودی کارت`
   String get blockCard {
-    return Intl.message(
-      'مسدودی کارت',
-      name: 'blockCard',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('مسدودی کارت', name: 'blockCard', desc: '', args: []);
   }
 
   /// `تغییر سپرده متصل به کارت`
@@ -542,12 +492,7 @@ class S {
 
   /// `خدمات وام`
   String get loanServices {
-    return Intl.message(
-      'خدمات وام',
-      name: 'loanServices',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('خدمات وام', name: 'loanServices', desc: '', args: []);
   }
 
   /// `تغییر سپرده جهت کسر اقساط`
@@ -572,22 +517,12 @@ class S {
 
   /// `معرفی وام`
   String get introduceLoan {
-    return Intl.message(
-      'معرفی وام',
-      name: 'introduceLoan',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('معرفی وام', name: 'introduceLoan', desc: '', args: []);
   }
 
   /// `برآورد وام`
   String get loanEstimate {
-    return Intl.message(
-      'برآورد وام',
-      name: 'loanEstimate',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('برآورد وام', name: 'loanEstimate', desc: '', args: []);
   }
 
   /// `خدمات منتخب`
@@ -702,12 +637,7 @@ class S {
 
   /// `پروفایل`
   String get profileLabel {
-    return Intl.message(
-      'پروفایل',
-      name: 'profileLabel',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('پروفایل', name: 'profileLabel', desc: '', args: []);
   }
 
   /// `اعلان‌ها`
@@ -832,22 +762,12 @@ class S {
 
   /// `تایید`
   String get dashboardConfirm {
-    return Intl.message(
-      'تایید',
-      name: 'dashboardConfirm',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('تایید', name: 'dashboardConfirm', desc: '', args: []);
   }
 
   /// `انصراف`
   String get dashboardCancel {
-    return Intl.message(
-      'انصراف',
-      name: 'dashboardCancel',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('انصراف', name: 'dashboardCancel', desc: '', args: []);
   }
 
   /// `بازنشانی تنظیمات`
@@ -902,22 +822,12 @@ class S {
 
   /// `داشبورد`
   String get dashboardTab {
-    return Intl.message(
-      'داشبورد',
-      name: 'dashboardTab',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('داشبورد', name: 'dashboardTab', desc: '', args: []);
   }
 
   /// `کارت`
   String get dashboardCardsTab {
-    return Intl.message(
-      'کارت',
-      name: 'dashboardCardsTab',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('کارت', name: 'dashboardCardsTab', desc: '', args: []);
   }
 
   /// `سپرده`
@@ -932,12 +842,7 @@ class S {
 
   /// `وام`
   String get dashboardLoansTab {
-    return Intl.message(
-      'وام',
-      name: 'dashboardLoansTab',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('وام', name: 'dashboardLoansTab', desc: '', args: []);
   }
 
   /// `اعلانات`
@@ -1002,12 +907,7 @@ class S {
 
   /// `امروز`
   String get notificationToday {
-    return Intl.message(
-      'امروز',
-      name: 'notificationToday',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('امروز', name: 'notificationToday', desc: '', args: []);
   }
 
   /// `دیروز`
@@ -1312,12 +1212,7 @@ class S {
 
   /// `ویرایش`
   String get dashboardEdit {
-    return Intl.message(
-      'ویرایش',
-      name: 'dashboardEdit',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('ویرایش', name: 'dashboardEdit', desc: '', args: []);
   }
 
   /// `افزودن خدمات منتخب`
@@ -1521,10 +1416,10 @@ class S {
   }
 
   /// `تنظیمات نمایندگی`
-  String get dashboardRepresentationSettings {
+  String get dashboardAgentSettings {
     return Intl.message(
       'تنظیمات نمایندگی',
-      name: 'dashboardRepresentationSettings',
+      name: 'dashboardAgentSettings',
       desc: '',
       args: [],
     );
@@ -1772,12 +1667,7 @@ class S {
 
   /// `کارت مجازی`
   String get cardsVirtual {
-    return Intl.message(
-      'کارت مجازی',
-      name: 'cardsVirtual',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('کارت مجازی', name: 'cardsVirtual', desc: '', args: []);
   }
 
   /// `رسالت کارت (جاری)`
@@ -1802,12 +1692,7 @@ class S {
 
   /// `: انقضا`
   String get cardsExpiry {
-    return Intl.message(
-      ': انقضا',
-      name: 'cardsExpiry',
-      desc: '',
-      args: [],
-    );
+    return Intl.message(': انقضا', name: 'cardsExpiry', desc: '', args: []);
   }
 
   /// `کپی شماره کارت`
@@ -1911,10 +1796,10 @@ class S {
   }
 
   /// `تنظیمات نماینده`
-  String get depositsRepresentative {
+  String get depositsAgent {
     return Intl.message(
       'تنظیمات نماینده',
-      name: 'depositsRepresentative',
+      name: 'depositsAgent',
       desc: '',
       args: [],
     );
@@ -2172,22 +2057,12 @@ class S {
 
   /// `وضعیت`
   String get cardFeatureStatus {
-    return Intl.message(
-      'وضعیت',
-      name: 'cardFeatureStatus',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('وضعیت', name: 'cardFeatureStatus', desc: '', args: []);
   }
 
   /// `فعال`
   String get cardFeatureActive {
-    return Intl.message(
-      'فعال',
-      name: 'cardFeatureActive',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('فعال', name: 'cardFeatureActive', desc: '', args: []);
   }
 
   /// `مسدود`
@@ -2222,12 +2097,7 @@ class S {
 
   /// `فیلتر`
   String get cardFeatureFilter {
-    return Intl.message(
-      'فیلتر',
-      name: 'cardFeatureFilter',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('فیلتر', name: 'cardFeatureFilter', desc: '', args: []);
   }
 
   /// `حذف فیلتر`
@@ -2252,12 +2122,7 @@ class S {
 
   /// `همه`
   String get cardFeatureAll {
-    return Intl.message(
-      'همه',
-      name: 'cardFeatureAll',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('همه', name: 'cardFeatureAll', desc: '', args: []);
   }
 
   /// `کارتی با این مشخصات پیدا نشد`
@@ -2372,12 +2237,7 @@ class S {
 
   /// `پایان`
   String get issuanceEnd {
-    return Intl.message(
-      'پایان',
-      name: 'issuanceEnd',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('پایان', name: 'issuanceEnd', desc: '', args: []);
   }
 
   /// `انتخاب سپرده`
@@ -2472,22 +2332,12 @@ class S {
 
   /// `مرحله بعد`
   String get issuanceNext {
-    return Intl.message(
-      'مرحله بعد',
-      name: 'issuanceNext',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('مرحله بعد', name: 'issuanceNext', desc: '', args: []);
   }
 
   /// `آدرس`
   String get issuanceAddress {
-    return Intl.message(
-      'آدرس',
-      name: 'issuanceAddress',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('آدرس', name: 'issuanceAddress', desc: '', args: []);
   }
 
   /// `انتخاب آدرس`
@@ -2812,12 +2662,7 @@ class S {
 
   /// `بازگشت`
   String get issuanceDone {
-    return Intl.message(
-      'بازگشت',
-      name: 'issuanceDone',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('بازگشت', name: 'issuanceDone', desc: '', args: []);
   }
 
   /// `موجودی کیف پول کافی است`
@@ -2912,12 +2757,7 @@ class S {
 
   /// `نوع رمز`
   String get passwordType {
-    return Intl.message(
-      'نوع رمز',
-      name: 'passwordType',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('نوع رمز', name: 'passwordType', desc: '', args: []);
   }
 
   /// `نوع رمز را انتخاب کنید`
@@ -2932,22 +2772,12 @@ class S {
 
   /// `رمز اول`
   String get passwordFirst {
-    return Intl.message(
-      'رمز اول',
-      name: 'passwordFirst',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('رمز اول', name: 'passwordFirst', desc: '', args: []);
   }
 
   /// `رمز دوم`
   String get passwordSecond {
-    return Intl.message(
-      'رمز دوم',
-      name: 'passwordSecond',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('رمز دوم', name: 'passwordSecond', desc: '', args: []);
   }
 
   /// `این رمز برای انجام تراکنش‌های حضوری مانند برداشت وجه از خودپرداز و خرید از فروشگاه‌ها با دستگاه پوز استفاده می‌شود.`
@@ -3322,12 +3152,7 @@ class S {
 
   /// `نمایش رمز`
   String get passwordShow {
-    return Intl.message(
-      'نمایش رمز',
-      name: 'passwordShow',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('نمایش رمز', name: 'passwordShow', desc: '', args: []);
   }
 
   /// `پنهان کردن رمز`
@@ -3562,12 +3387,7 @@ class S {
 
   /// `پخش ویدئو`
   String get passwordPlay {
-    return Intl.message(
-      'پخش ویدئو',
-      name: 'passwordPlay',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('پخش ویدئو', name: 'passwordPlay', desc: '', args: []);
   }
 
   /// `توقف ویدئو`
@@ -3582,12 +3402,7 @@ class S {
 
   /// `موقعیت پخش`
   String get passwordSeek {
-    return Intl.message(
-      'موقعیت پخش',
-      name: 'passwordSeek',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('موقعیت پخش', name: 'passwordSeek', desc: '', args: []);
   }
 
   /// `ویدئو در دسترس نیست`
@@ -3632,12 +3447,7 @@ class S {
 
   /// `خروج`
   String get passwordExit {
-    return Intl.message(
-      'خروج',
-      name: 'passwordExit',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('خروج', name: 'passwordExit', desc: '', args: []);
   }
 
   /// `ادامه عملیات`
@@ -3672,12 +3482,7 @@ class S {
 
   /// `کارت`
   String get cardServiceCard {
-    return Intl.message(
-      'کارت',
-      name: 'cardServiceCard',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('کارت', name: 'cardServiceCard', desc: '', args: []);
   }
 
   /// `کارت مورد نظر خود را انتخاب کنید`
@@ -3932,12 +3737,7 @@ class S {
 
   /// `پایان`
   String get giftBalanceEnd {
-    return Intl.message(
-      'پایان',
-      name: 'giftBalanceEnd',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('پایان', name: 'giftBalanceEnd', desc: '', args: []);
   }
 
   /// `لیست کارت‌های انتخاب شده ({count})`
@@ -4002,12 +3802,7 @@ class S {
 
   /// `بسته`
   String get depositListClosed {
-    return Intl.message(
-      'بسته',
-      name: 'depositListClosed',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('بسته', name: 'depositListClosed', desc: '', args: []);
   }
 
   /// `جاری حقیقی`
@@ -4082,12 +3877,7 @@ class S {
 
   /// `باز`
   String get depositListOpen {
-    return Intl.message(
-      'باز',
-      name: 'depositListOpen',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('باز', name: 'depositListOpen', desc: '', args: []);
   }
 
   /// `صاحب سپرده`
@@ -4192,12 +3982,7 @@ class S {
 
   /// `وضعیت`
   String get depositListStatus {
-    return Intl.message(
-      'وضعیت',
-      name: 'depositListStatus',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('وضعیت', name: 'depositListStatus', desc: '', args: []);
   }
 
   /// `آدرس ارسال گواهی را انتخاب کنید`
@@ -4522,12 +4307,7 @@ class S {
 
   /// `مرجع`
   String get financialAuthority {
-    return Intl.message(
-      'مرجع',
-      name: 'financialAuthority',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('مرجع', name: 'financialAuthority', desc: '', args: []);
   }
 
   /// `نام دقیق مرجع را بنویسید`
@@ -4592,12 +4372,7 @@ class S {
 
   /// `سفارت`
   String get financialEmbassy {
-    return Intl.message(
-      'سفارت',
-      name: 'financialEmbassy',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('سفارت', name: 'financialEmbassy', desc: '', args: []);
   }
 
   /// `سفارت مورد نظر را انتخاب کنید`
@@ -4612,12 +4387,7 @@ class S {
 
   /// `یورو`
   String get financialEur {
-    return Intl.message(
-      'یورو',
-      name: 'financialEur',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('یورو', name: 'financialEur', desc: '', args: []);
   }
 
   /// `درج نرخ برابری روز`
@@ -4662,12 +4432,7 @@ class S {
 
   /// `ریال ایران`
   String get financialIrr {
-    return Intl.message(
-      'ریال ایران',
-      name: 'financialIrr',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('ریال ایران', name: 'financialIrr', desc: '', args: []);
   }
 
   /// `Address`
@@ -4722,12 +4487,7 @@ class S {
 
   /// `Name`
   String get financialLatinName {
-    return Intl.message(
-      'Name',
-      name: 'financialLatinName',
-      desc: '',
-      args: [],
-    );
+    return Intl.message('Name', name: 'financialLatinName', desc: '', args: []);
   }
 
   /// `Passport No`
@@ -4921,202 +4681,397 @@ class S {
   }
 
   /// `معرفی نماینده جدید`
-  String get representativeTitle {
+  String get agentTitle {
     return Intl.message(
       'معرفی نماینده جدید',
-      name: 'representativeTitle',
+      name: 'agentTitle',
       desc: '',
       args: [],
     );
   }
 
   /// `انتخاب سپرده`
-  String get representativeDeposit {
+  String get agentDeposit {
     return Intl.message(
       'انتخاب سپرده',
-      name: 'representativeDeposit',
+      name: 'agentDeposit',
       desc: '',
       args: [],
     );
   }
 
   /// `سپرده مورد نظر خود را انتخاب کنید`
-  String get representativeDepositHint {
+  String get agentDepositHint {
     return Intl.message(
       'سپرده مورد نظر خود را انتخاب کنید',
-      name: 'representativeDepositHint',
+      name: 'agentDepositHint',
       desc: '',
       args: [],
     );
   }
 
   /// `نوع عملیات`
-  String get representativeOperation {
+  String get agentOperation {
     return Intl.message(
       'نوع عملیات',
-      name: 'representativeOperation',
+      name: 'agentOperation',
       desc: '',
       args: [],
     );
   }
 
   /// `عملیات مجاز نماینده را انتخاب کنید`
-  String get representativeOperationHint {
+  String get agentOperationHint {
     return Intl.message(
       'عملیات مجاز نماینده را انتخاب کنید',
-      name: 'representativeOperationHint',
+      name: 'agentOperationHint',
       desc: '',
       args: [],
     );
   }
 
   /// `صدور دسته چک`
-  String get representativeChequeBook {
+  String get agentChequeBook {
     return Intl.message(
       'صدور دسته چک',
-      name: 'representativeChequeBook',
+      name: 'agentChequeBook',
       desc: '',
       args: [],
     );
   }
 
   /// `کد ملی نماینده`
-  String get representativeNationalId {
+  String get agentNationalId {
     return Intl.message(
       'کد ملی نماینده',
-      name: 'representativeNationalId',
+      name: 'agentNationalId',
       desc: '',
       args: [],
     );
   }
 
   /// `کد ملی نماینده را وارد کنید`
-  String get representativeNationalIdHint {
+  String get agentNationalIdHint {
     return Intl.message(
       'کد ملی نماینده را وارد کنید',
-      name: 'representativeNationalIdHint',
+      name: 'agentNationalIdHint',
       desc: '',
       args: [],
     );
   }
 
   /// `تاریخ اعتبار`
-  String get representativeValidity {
+  String get agentValidity {
     return Intl.message(
       'تاریخ اعتبار',
-      name: 'representativeValidity',
+      name: 'agentValidity',
       desc: '',
       args: [],
     );
   }
 
   /// `تاریخ انقضا را تعیین کنید`
-  String get representativeValidityHint {
+  String get agentValidityHint {
     return Intl.message(
       'تاریخ انقضا را تعیین کنید',
-      name: 'representativeValidityHint',
+      name: 'agentValidityHint',
       desc: '',
       args: [],
     );
   }
 
   /// `تاریخ معتبر از امروز به بعد با قالب ۱۴۰۵/۰۶/۳۰ وارد کنید.`
-  String get representativeValidityError {
+  String get agentValidityError {
     return Intl.message(
       'تاریخ معتبر از امروز به بعد با قالب ۱۴۰۵/۰۶/۳۰ وارد کنید.',
-      name: 'representativeValidityError',
+      name: 'agentValidityError',
       desc: '',
       args: [],
     );
   }
 
   /// `ثبت اولیه`
-  String get representativePreliminarySave {
+  String get agentPreliminarySave {
     return Intl.message(
       'ثبت اولیه',
-      name: 'representativePreliminarySave',
+      name: 'agentPreliminarySave',
       desc: '',
       args: [],
     );
   }
 
   /// `افزودن نماینده بعدی`
-  String get representativeAddNext {
+  String get agentAddNext {
     return Intl.message(
       'افزودن نماینده بعدی',
-      name: 'representativeAddNext',
+      name: 'agentAddNext',
       desc: '',
       args: [],
     );
   }
 
   /// `نماینده جدید`
-  String get representativeNewPerson {
+  String get agentNewPerson {
     return Intl.message(
       'نماینده جدید',
-      name: 'representativeNewPerson',
+      name: 'agentNewPerson',
       desc: '',
       args: [],
     );
   }
 
   /// `حذف نماینده`
-  String get representativeRemove {
-    return Intl.message(
-      'حذف نماینده',
-      name: 'representativeRemove',
-      desc: '',
-      args: [],
-    );
+  String get agentRemove {
+    return Intl.message('حذف نماینده', name: 'agentRemove', desc: '', args: []);
   }
 
   /// `نوع نمایندگی`
-  String get representativeKind {
-    return Intl.message(
-      'نوع نمایندگی',
-      name: 'representativeKind',
-      desc: '',
-      args: [],
-    );
+  String get agentKind {
+    return Intl.message('نوع نمایندگی', name: 'agentKind', desc: '', args: []);
   }
 
   /// `سپرده`
-  String get representativeDepositShort {
-    return Intl.message(
-      'سپرده',
-      name: 'representativeDepositShort',
-      desc: '',
-      args: [],
-    );
+  String get agentDepositShort {
+    return Intl.message('سپرده', name: 'agentDepositShort', desc: '', args: []);
   }
 
   /// `انصراف`
-  String get representativeCancel {
-    return Intl.message(
-      'انصراف',
-      name: 'representativeCancel',
-      desc: '',
-      args: [],
-    );
+  String get agentCancel {
+    return Intl.message('انصراف', name: 'agentCancel', desc: '', args: []);
   }
 
   /// `ثبت`
-  String get representativeSave {
+  String get agentSave {
+    return Intl.message('ثبت', name: 'agentSave', desc: '', args: []);
+  }
+
+  /// `درخواست آزمایشی ثبت شد؛ هیچ نمایندگی بانکی ایجاد نشده است.`
+  String get agentMockComplete {
     return Intl.message(
-      'ثبت',
-      name: 'representativeSave',
+      'درخواست آزمایشی ثبت شد؛ هیچ نمایندگی بانکی ایجاد نشده است.',
+      name: 'agentMockComplete',
       desc: '',
       args: [],
     );
   }
 
-  /// `درخواست آزمایشی ثبت شد؛ هیچ نمایندگی بانکی ایجاد نشده است.`
-  String get representativeMockComplete {
+  /// `نماینده‌های من`
+  String get agentSettingsMine {
     return Intl.message(
-      'درخواست آزمایشی ثبت شد؛ هیچ نمایندگی بانکی ایجاد نشده است.',
-      name: 'representativeMockComplete',
+      'نماینده‌های من',
+      name: 'agentSettingsMine',
       desc: '',
       args: [],
+    );
+  }
+
+  /// `من به عنوان نماینده`
+  String get agentSettingsDelegated {
+    return Intl.message(
+      'من به عنوان نماینده',
+      name: 'agentSettingsDelegated',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `افزودن نماینده`
+  String get agentSettingsAdd {
+    return Intl.message(
+      'افزودن نماینده',
+      name: 'agentSettingsAdd',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `جزئیات نمایندگی`
+  String get agentSettingsDetails {
+    return Intl.message(
+      'جزئیات نمایندگی',
+      name: 'agentSettingsDetails',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `لغو نمایندگی`
+  String get agentSettingsCancel {
+    return Intl.message(
+      'لغو نمایندگی',
+      name: 'agentSettingsCancel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `(انتخاب همه)`
+  String get agentSettingsSelectAll {
+    return Intl.message(
+      '(انتخاب همه)',
+      name: 'agentSettingsSelectAll',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `معرفی وام`
+  String get agentSettingsLoanReferral {
+    return Intl.message(
+      'معرفی وام',
+      name: 'agentSettingsLoanReferral',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `رفع سوء اثر چک`
+  String get agentSettingsClearChequeRecord {
+    return Intl.message(
+      'رفع سوء اثر چک',
+      name: 'agentSettingsClearChequeRecord',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `فعال`
+  String get agentSettingsActive {
+    return Intl.message(
+      'فعال',
+      name: 'agentSettingsActive',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `در انتظار تایید`
+  String get agentSettingsWaiting {
+    return Intl.message(
+      'در انتظار تایید',
+      name: 'agentSettingsWaiting',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `منقضی شده`
+  String get agentSettingsExpired {
+    return Intl.message(
+      'منقضی شده',
+      name: 'agentSettingsExpired',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `نمایندگی با این مشخصات وجود ندارد.`
+  String get agentSettingsEmpty {
+    return Intl.message(
+      'نمایندگی با این مشخصات وجود ندارد.',
+      name: 'agentSettingsEmpty',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `نام نماینده:`
+  String get agentSettingsNameLabel {
+    return Intl.message(
+      'نام نماینده:',
+      name: 'agentSettingsNameLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `کد ملی:`
+  String get agentSettingsNationalIdLabel {
+    return Intl.message(
+      'کد ملی:',
+      name: 'agentSettingsNationalIdLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `شماره سپرده:`
+  String get agentSettingsDepositLabel {
+    return Intl.message(
+      'شماره سپرده:',
+      name: 'agentSettingsDepositLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `نوع نمایندگی:`
+  String get agentSettingsKindLabel {
+    return Intl.message(
+      'نوع نمایندگی:',
+      name: 'agentSettingsKindLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `تاریخ معرفی:`
+  String get agentSettingsIntroducedLabel {
+    return Intl.message(
+      'تاریخ معرفی:',
+      name: 'agentSettingsIntroducedLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `تاریخ انقضا:`
+  String get agentSettingsExpiryLabel {
+    return Intl.message(
+      'تاریخ انقضا:',
+      name: 'agentSettingsExpiryLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `مشخصات تایید کنندگان`
+  String get agentSettingsConfirmers {
+    return Intl.message(
+      'مشخصات تایید کنندگان',
+      name: 'agentSettingsConfirmers',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `معرف`
+  String get agentSettingsIntroducer {
+    return Intl.message(
+      'معرف',
+      name: 'agentSettingsIntroducer',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `صاحب سپرده و امضا`
+  String get agentSettingsDepositRelation {
+    return Intl.message(
+      'صاحب سپرده و امضا',
+      name: 'agentSettingsDepositRelation',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `{percentage}٪`
+  String agentSettingsShare(String percentage) {
+    return Intl.message(
+      '$percentage٪',
+      name: 'agentSettingsShare',
+      desc: '',
+      args: [percentage],
     );
   }
 }

@@ -9,8 +9,8 @@ enum AppServiceGridCardType { service, quick }
 
 /// Figma SVG assets used by [AppServiceGridCard] previews.
 abstract final class AppServiceGridIcons {
-  static Widget representativePurple() =>
-      _svg(AppAssets.serviceGridRepresentativePurple);
+  static Widget agentPurple() =>
+      _svg(AppAssets.serviceGridAgentPurple);
   static Widget quickService() =>
       _svg(AppAssets.serviceGridQuickService, size: const Size(70, 70.5));
   static Widget quickAccess() =>

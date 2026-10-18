@@ -52,7 +52,7 @@ class DepositListCubit extends Cubit<DepositListState> {
               switch (action) {
                 DepositListAction.statement => 'deposit-statement',
                 DepositListAction.certificate => 'deposit-certificate',
-                DepositListAction.representative =>
+                DepositListAction.agent =>
                   'deposit-representation-settings',
                 _ => null,
               },

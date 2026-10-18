@@ -18,6 +18,8 @@ class AppConfirmerDetailsCard extends StatelessWidget {
     this.status = AppConfirmerStatus.approved,
     this.approvedLabel = 'در انتظار تایید',
     this.waitingLabel = 'در انتظار تایید',
+    this.bodyColor,
+    this.detailLabelColor,
   });
 
   final String name;
@@ -28,6 +30,8 @@ class AppConfirmerDetailsCard extends StatelessWidget {
   final AppConfirmerStatus status;
   final String approvedLabel;
   final String waitingLabel;
+  final Color? bodyColor;
+  final Color? detailLabelColor;
 
   @override
   Widget build(BuildContext context) {
@@ -47,10 +51,11 @@ class AppConfirmerDetailsCard extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              height: 76,
+              constraints: const BoxConstraints(minHeight: 76),
               padding: const EdgeInsets.fromLTRB(24, 16, 24, 12),
               color: AppPalette.gray25,
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(name, textAlign: TextAlign.right, style: _nameStyle),
@@ -81,21 +86,28 @@ class AppConfirmerDetailsCard extends StatelessWidget {
               ),
             ),
             Container(
-              height: 118,
+              constraints: const BoxConstraints(minHeight: 118),
               padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
-              color: context.colors.surfaceSubtle,
+              color: bodyColor ?? context.colors.surfaceSubtle,
               child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  AppConfirmerDetailsCardDetailRow(value: role, label: 'نقش'),
+                  AppConfirmerDetailsCardDetailRow(
+                    value: role,
+                    label: 'نقش',
+                    labelColor: detailLabelColor,
+                  ),
                   const SizedBox(height: 12),
                   AppConfirmerDetailsCardDetailRow(
                     value: depositRelation,
                     label: 'ارتباط با سپرده',
+                    labelColor: detailLabelColor,
                   ),
                   const SizedBox(height: 12),
                   AppConfirmerDetailsCardDetailRow(
                     value: sharePercentage,
                     label: 'درصد اشتراک',
+                    labelColor: detailLabelColor,
                   ),
                 ],
               ),

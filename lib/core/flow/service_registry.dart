@@ -14,10 +14,18 @@ abstract final class ServiceRegistry {
   }) {
     if (id == 'deposit-representation-settings') {
       context.push<void>(
-        AppRoutes.introduceRepresentative,
-        extra: RepresentativeRouteArguments(
+        AppRoutes.agentSettings,
+        extra: AgentSettingsRouteArguments(
           initialDepositNumber: initialDepositNumber,
+          onAssistantPressed: onAssistantPressed,
         ),
+      );
+      return true;
+    }
+    if (id == 'deposit-representative') {
+      context.push<void>(
+        AppRoutes.introduceAgent,
+        extra: AgentRouteArguments(initialDepositNumber: initialDepositNumber),
       );
       return true;
     }

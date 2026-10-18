@@ -13,7 +13,7 @@ enum DashboardService {
   assistant('assistant'),
   statement('deposit-statement'),
   certificate('deposit-certificate'),
-  representative('deposit-representative'),
+  agent('deposit-representative'),
   sms('deposit-sms'),
   issue('card-issue'),
   password('card-password'),
@@ -43,7 +43,7 @@ enum DashboardService {
   depositsList('deposit-list'),
   openCurrent('deposit-open-current'),
   closeExtras('deposit-close-extras'),
-  representationSettings('deposit-representation-settings'),
+  agentSettings('deposit-representation-settings'),
   proxy('deposit-proxy'),
   unblockDeposit('deposit-unblock'),
   blockDeposit('deposit-block'),
@@ -69,7 +69,7 @@ enum DashboardService {
     block,
     statement,
     certificate,
-    representative,
+    agent,
   ];
   static const modern = [mobileBank, internetBank, phoneBank];
   static const cards = [
@@ -101,8 +101,8 @@ enum DashboardService {
     openCurrent,
     statement,
     certificate,
-    representative,
-    representationSettings,
+    agent,
+    agentSettings,
     sms,
     closeExtras,
     blockDeposit,
@@ -129,7 +129,7 @@ enum DashboardService {
     assistant => S.current.dashboardAssistant,
     statement => S.current.balanceAverageStatement,
     certificate => S.current.financialCertificate,
-    representative => S.current.introduceRepresentative,
+    agent => S.current.introduceAgent,
     sms => S.current.smsSettings,
     issue => S.current.issueResalatCard,
     password => S.current.cardPasswordIssue,
@@ -159,7 +159,7 @@ enum DashboardService {
     depositsList => S.current.dashboardDepositsList,
     openCurrent => S.current.dashboardOpenCurrent,
     closeExtras => S.current.dashboardCloseExtras,
-    representationSettings => S.current.dashboardRepresentationSettings,
+    agentSettings => S.current.dashboardAgentSettings,
     proxy => S.current.proxyDeposit,
     unblockDeposit => S.current.dashboardUnblockDeposit,
     blockDeposit => S.current.dashboardBlockDeposit,
@@ -188,7 +188,7 @@ enum DashboardService {
   String get catalogAsset => switch (this) {
     statement => AppAssets.dashboardCatalogStatement,
     certificate => AppAssets.dashboardCatalogCertificate,
-    representative => AppAssets.dashboardCatalogRepresentative,
+    agent => AppAssets.dashboardCatalogAgent,
     issue => AppAssets.dashboardCatalogIssue,
     password ||
     forgotPassword ||
@@ -199,7 +199,7 @@ enum DashboardService {
     introduce => AppAssets.dashboardCatalogIntroduce,
     consolidation => AppAssets.dashboardCatalogConsolidation,
     loanDeposit => AppAssets.dashboardCatalogLoanDeposit,
-    blockDeposit => AppAssets.dashboardCatalogRepresentative,
+    blockDeposit => AppAssets.dashboardCatalogAgent,
     requests => AppAssets.dashboardCatalogRequests,
     assistant => AppAssets.dashboardAssistantStar,
     _ => AppAssets.dashboardCatalogMore,
@@ -221,7 +221,7 @@ enum DashboardService {
     password ||
     forgotPassword ||
     changePassword => AppAssets.dashboardFixedPassword,
-    representative => AppAssets.dashboardFixedRepresentative,
+    agent => AppAssets.dashboardFixedAgent,
     certificate => AppAssets.dashboardFixedCertificate,
     statement => AppAssets.dashboardFixedStatement,
     block => AppAssets.dashboardFixedBlock,

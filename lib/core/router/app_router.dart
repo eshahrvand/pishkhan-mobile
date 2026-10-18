@@ -18,7 +18,8 @@ import 'package:pishkhan_mobile/features/cards/presentation/expired_gift_balance
 import 'package:pishkhan_mobile/features/deposits/presentation/deposit_list/screens/deposit_list_screen.dart';
 import 'package:pishkhan_mobile/features/deposits/presentation/average_balance/screens/average_balance_screen.dart';
 import 'package:pishkhan_mobile/features/deposits/presentation/financial_certificate/screens/financial_certificate_screen.dart';
-import 'package:pishkhan_mobile/features/deposits/presentation/introduce_representative/screens/introduce_representative_screen.dart';
+import 'package:pishkhan_mobile/features/deposits/presentation/introduce_agent/screens/introduce_agent_screen.dart';
+import 'package:pishkhan_mobile/features/deposits/presentation/agent_settings/screens/agent_settings_screen.dart';
 import 'package:pishkhan_mobile/core/notifications/notification_message.dart';
 import 'package:pishkhan_mobile/features/profile/presentation/message_center/screens/notifications_screen.dart';
 import 'package:pishkhan_mobile/features/profile/presentation/message_center/screens/notification_detail_screen.dart';
@@ -153,11 +154,22 @@ GoRouter createAppRouter({
 
       // Deposits
       GoRoute(
-        path: AppRoutes.introduceRepresentative,
-        builder: (context, state) => IntroduceRepresentativeScreen(
-          initialDepositNumber: state.extra is RepresentativeRouteArguments
-              ? (state.extra as RepresentativeRouteArguments)
-                    .initialDepositNumber
+        path: AppRoutes.agentSettings,
+        builder: (context, state) {
+          final args = state.extra is AgentSettingsRouteArguments
+              ? state.extra as AgentSettingsRouteArguments
+              : null;
+          return AgentSettingsScreen(
+            initialDepositNumber: args?.initialDepositNumber,
+            onAssistantPressed: args?.onAssistantPressed,
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.introduceAgent,
+        builder: (context, state) => IntroduceAgentScreen(
+          initialDepositNumber: state.extra is AgentRouteArguments
+              ? (state.extra as AgentRouteArguments).initialDepositNumber
               : null,
         ),
       ),
@@ -225,6 +237,15 @@ class AllServicesRouteArguments {
   final ValueChanged<DashboardService>? onServiceRequested;
 }
 
+class AgentSettingsRouteArguments {
+  const AgentSettingsRouteArguments({
+    this.initialDepositNumber,
+    this.onAssistantPressed,
+  });
+  final String? initialDepositNumber;
+  final VoidCallback? onAssistantPressed;
+}
+
 class PasswordRouteArguments {
   const PasswordRouteArguments({
     this.initialCardNumber,
@@ -250,8 +271,8 @@ class CertificateRouteArguments {
   final String? initialDepositNumber;
 }
 
-class RepresentativeRouteArguments {
-  const RepresentativeRouteArguments({this.initialDepositNumber});
+class AgentRouteArguments {
+  const AgentRouteArguments({this.initialDepositNumber});
   final String? initialDepositNumber;
 }
 

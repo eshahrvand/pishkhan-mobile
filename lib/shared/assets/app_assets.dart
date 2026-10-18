@@ -4,6 +4,22 @@
 /// code. Feature-specific facades may alias these constants, but must not
 /// duplicate path strings.
 abstract final class AppAssets {
+  static const agentCancel = 'assets/images/agent_cancel.svg';
+  static const agentPlus = 'assets/images/agent_plus.svg';
+  static const agentNameDots =
+      'assets/images/agent_details_0.svg';
+  static const agentNationalIdDots =
+      'assets/images/agent_details_1.svg';
+  static const agentDepositDots =
+      'assets/images/agent_details_2.svg';
+  static const agentKindDots =
+      'assets/images/agent_details_3.svg';
+  static const agentIntroductionDots =
+      'assets/images/agent_details_4.svg';
+  static const agentExpiryDots =
+      'assets/images/agent_details_5.svg';
+  static const agentDivider =
+      'assets/images/agent_details_6.svg';
   static const financialCertificateOperation =
       'assets/images/certificate_financial_operation.svg';
   static const financialCertificateChevron =
@@ -40,8 +56,8 @@ abstract final class AppAssets {
   static const depositFeatureCertificate =
       'assets/images/deposit_list_certificate.svg';
   static const depositFeatureSms = 'assets/images/deposit_list_sms.svg';
-  static const depositFeatureRepresentative =
-      'assets/images/deposit_list_representative.svg';
+  static const depositFeatureAgent =
+      'assets/images/deposit_list_agent.svg';
   static const depositFeatureBlock = 'assets/images/deposit_list_block.svg';
   static const depositFeatureLoans = 'assets/images/deposit_list_loans.svg';
   static const depositFeatureScrim = 'assets/images/deposit_list_scrim.svg';
@@ -146,7 +162,7 @@ abstract final class AppAssets {
   static const depositsQuickPhone = '$_root/deposits_quick_phone.svg';
   static const depositsQuickProxy = '$_root/deposits_quick_proxy.svg';
   static const depositsQuickTransfer = '$_root/deposits_quick_transfer.svg';
-  static const depositsRepresentative = '$_root/deposits_representative.svg';
+  static const depositsAgent = '$_root/deposits_agent.svg';
   static const depositsSms = '$_root/deposits_sms.svg';
   static const depositsStatement = '$_root/deposits_statement.svg';
   static const depositsVirtual = '$_root/deposits_virtual.svg';
@@ -243,8 +259,8 @@ abstract final class AppAssets {
   static const iconMenuLeft24 = '$_root/icon_menu_left_24.svg';
   static const iconMoreVertical20Gray700 =
       '$_root/icon_more_vertical_20_gray700.svg';
-  static const iconRepresentative32Gray600 =
-      '$_root/icon_representative_32_gray600.svg';
+  static const iconAgent32Gray600 =
+      '$_root/icon_agent_32_gray600.svg';
   static const iconWallet20Gray600 = '$_root/icon_wallet_20_gray600.svg';
   static const invoiceChevronDown = '$_root/invoice_chevron_down.svg';
   static const invoiceChevronUp = '$_root/invoice_chevron_up.svg';
@@ -259,8 +275,8 @@ abstract final class AppAssets {
   static const loanCardDividerMulti = '$_root/loan_card_divider_multi.svg';
   static const loanCardDividerSingle = '$_root/loan_card_divider_single.svg';
   static const occupationCardBriefcase = '$_root/occupation_card_briefcase.svg';
-  static const representativeCardMoreVertical =
-      '$_root/representative_card_more_vertical.svg';
+  static const agentCardMoreVertical =
+      '$_root/agent_card_more_vertical.svg';
   static const resalatCardEye = '$_root/resalat_card_eye.svg';
   static const resalatCardEyeSlash = '$_root/resalat_card_eye_slash.svg';
   static const resalatCardMoreVertical =
@@ -270,16 +286,16 @@ abstract final class AppAssets {
       '$_root/service_grid_quick_service.svg';
   static const serviceGridQuickServiceBlueGray =
       '$_root/service_grid_quick_service_blue_gray.svg';
-  static const serviceGridRepresentative =
-      '$_root/service_grid_representative.svg';
-  static const serviceGridRepresentativeBlue =
-      '$_root/service_grid_representative_blue.svg';
-  static const serviceGridRepresentativeBlueGray =
-      '$_root/service_grid_representative_blue_gray.svg';
-  static const serviceGridRepresentativeGreen =
-      '$_root/service_grid_representative_green.svg';
-  static const serviceGridRepresentativePurple =
-      '$_root/service_grid_representative_purple.svg';
+  static const serviceGridAgent =
+      '$_root/service_grid_agent.svg';
+  static const serviceGridAgentBlue =
+      '$_root/service_grid_agent_blue.svg';
+  static const serviceGridAgentBlueGray =
+      '$_root/service_grid_agent_blue_gray.svg';
+  static const serviceGridAgentGreen =
+      '$_root/service_grid_agent_green.svg';
+  static const serviceGridAgentPurple =
+      '$_root/service_grid_agent_purple.svg';
   static const serviceGridSetting = '$_root/service_grid_setting.svg';
   static const transactionCardReceived = '$_root/transaction_card_received.svg';
   static const transactionCardSend = '$_root/transaction_card_send.svg';
@@ -330,8 +346,8 @@ abstract final class AppAssets {
       '$_root/dashboard_catalog_loan_deposit.svg';
   static const dashboardCatalogPassword =
       '$_root/dashboard_catalog_password.svg';
-  static const dashboardCatalogRepresentative =
-      '$_root/dashboard_catalog_representative.svg';
+  static const dashboardCatalogAgent =
+      '$_root/dashboard_catalog_agent.svg';
   static const dashboardCatalogStatement =
       '$_root/dashboard_catalog_statement.svg';
   static const dashboardDepositDivider = '$_root/dashboard_deposit_divider.svg';
@@ -377,8 +393,8 @@ abstract final class AppAssets {
   static const dashboardFixedSms = '$_root/dashboard_fixed_sms.svg';
   static const dashboardFixedEstimate = '$_root/dashboard_fixed_estimate.svg';
   static const dashboardFixedPassword = '$_root/dashboard_fixed_password.svg';
-  static const dashboardFixedRepresentative =
-      '$_root/dashboard_fixed_representative.svg';
+  static const dashboardFixedAgent =
+      '$_root/dashboard_fixed_agent.svg';
   static const dashboardFixedCertificate =
       '$_root/dashboard_fixed_certificate.svg';
   static const dashboardFixedStatement = '$_root/dashboard_fixed_statement.svg';
@@ -519,7 +535,7 @@ abstract final class AppAssets {
     depositFeatureStatement,
     depositFeatureCertificate,
     depositFeatureSms,
-    depositFeatureRepresentative,
+    depositFeatureAgent,
     depositFeatureBlock,
     depositFeatureLoans,
     depositFeatureScrim,
@@ -580,7 +596,7 @@ abstract final class AppAssets {
     depositsQuickPhone,
     depositsQuickProxy,
     depositsQuickTransfer,
-    depositsRepresentative,
+    depositsAgent,
     depositsSms,
     depositsStatement,
     depositsVirtual,
@@ -588,7 +604,7 @@ abstract final class AppAssets {
     dashboardFixedSms,
     dashboardFixedEstimate,
     dashboardFixedPassword,
-    dashboardFixedRepresentative,
+    dashboardFixedAgent,
     dashboardFixedCertificate,
     dashboardFixedStatement,
     dashboardFixedBlock,
@@ -685,7 +701,7 @@ abstract final class AppAssets {
     dashboardCatalogIssue,
     dashboardCatalogLoanDeposit,
     dashboardCatalogPassword,
-    dashboardCatalogRepresentative,
+    dashboardCatalogAgent,
     dashboardCatalogStatement,
     dashboardDepositDivider,
     dashboardEditDivider,
@@ -796,7 +812,7 @@ abstract final class AppAssets {
     iconCopy16White,
     iconMenuLeft24,
     iconMoreVertical20Gray700,
-    iconRepresentative32Gray600,
+    iconAgent32Gray600,
     iconWallet20Gray600,
     invoiceChevronDown,
     invoiceChevronUp,
@@ -811,18 +827,18 @@ abstract final class AppAssets {
     loanCardDividerMulti,
     loanCardDividerSingle,
     occupationCardBriefcase,
-    representativeCardMoreVertical,
+    agentCardMoreVertical,
     resalatCardEye,
     resalatCardEyeSlash,
     resalatCardMoreVertical,
     serviceGridQuickAccess,
     serviceGridQuickService,
     serviceGridQuickServiceBlueGray,
-    serviceGridRepresentative,
-    serviceGridRepresentativeBlue,
-    serviceGridRepresentativeBlueGray,
-    serviceGridRepresentativeGreen,
-    serviceGridRepresentativePurple,
+    serviceGridAgent,
+    serviceGridAgentBlue,
+    serviceGridAgentBlueGray,
+    serviceGridAgentGreen,
+    serviceGridAgentPurple,
     serviceGridSetting,
     transactionCardReceived,
     transactionCardSend,
