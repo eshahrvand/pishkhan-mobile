@@ -107,6 +107,11 @@ void main() {
       final effect = cubit.state.effect as DepositServiceRequested;
       expect(effect.serviceId, 'deposit-statement');
       expect(effect.request.deposit, deposit);
+      cubit.applyActionSelection(deposit, DepositListAction.block);
+      expect(
+        (cubit.state.effect as DepositServiceRequested).serviceId,
+        'deposit-block',
+      );
       await cubit.close();
     },
   );

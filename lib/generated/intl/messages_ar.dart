@@ -511,6 +511,12 @@ class MessageLookup extends MessageLookupByLibrary {
     "dashboardYourFavorites": MessageLookupByLibrary.simpleMessage(
       "خدماتك المفضلة",
     ),
+    "depositBlockIntro": MessageLookupByLibrary.simpleMessage(
+      "اختر الوديعة وسبب حظرها",
+    ),
+    "depositBlockTitle": MessageLookupByLibrary.simpleMessage("حظر الوديعة"),
+    "depositBlockedDate": MessageLookupByLibrary.simpleMessage("تاريخ الحظر"),
+    "depositBlockedReason": MessageLookupByLibrary.simpleMessage("سبب الحظر"),
     "depositListAccountDetails": MessageLookupByLibrary.simpleMessage(
       "تفاصيل الحساب",
     ),
@@ -559,7 +565,34 @@ class MessageLookup extends MessageLookupByLibrary {
       "كشف الحساب | متوسط الرصيد",
     ),
     "depositListStatus": MessageLookupByLibrary.simpleMessage("الحالة"),
+    "depositRestrictionDescription": MessageLookupByLibrary.simpleMessage(
+      "الوصف",
+    ),
+    "depositRestrictionDescriptionHint": MessageLookupByLibrary.simpleMessage(
+      "أدخل الوصف عند الحاجة",
+    ),
+    "depositRestrictionManagement": MessageLookupByLibrary.simpleMessage(
+      "إدارة الوديعة",
+    ),
+    "depositRestrictionMockComplete": MessageLookupByLibrary.simpleMessage(
+      "تمت محاكاة الطلب. لم تتغير أي وديعة أو محفظة حقيقية.",
+    ),
+    "depositRestrictionReason": MessageLookupByLibrary.simpleMessage(
+      "سبب الطلب",
+    ),
+    "depositRestrictionReasonHint": MessageLookupByLibrary.simpleMessage(
+      "اختر سبب الطلب",
+    ),
     "depositServices": MessageLookupByLibrary.simpleMessage("خدمات الودائع"),
+    "depositUnblockIntro": MessageLookupByLibrary.simpleMessage(
+      "اختر الوديعة وسبب رفع حظرها",
+    ),
+    "depositUnblockReason": MessageLookupByLibrary.simpleMessage(
+      "سبب رفع الحظر",
+    ),
+    "depositUnblockTitle": MessageLookupByLibrary.simpleMessage(
+      "رفع حظر الوديعة",
+    ),
     "depositsAgent": MessageLookupByLibrary.simpleMessage("إعدادات الممثل"),
     "depositsChequeOperations": MessageLookupByLibrary.simpleMessage(
       "عمليات الشيكات",

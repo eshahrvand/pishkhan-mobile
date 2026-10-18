@@ -533,5 +533,18 @@
   "surplusDepositsEmptyTitle": "لم يتم العثور على نتائج",
   "surplusDepositsEmptyBody": "ليس لديك ودائع توفير قرض حسن فردية فائضة.",
   "surplusDepositsReviewTitle": "ودائعك الفائضة",
-  "surplusDepositsMockComplete": "تمت محاكاة طلب إغلاق الودائع. لم تتغير أي وديعة أو رصيد حقيقي."
+  "surplusDepositsMockComplete": "تمت محاكاة طلب إغلاق الودائع. لم تتغير أي وديعة أو رصيد حقيقي.",
+  "depositBlockTitle": "حظر الوديعة",
+  "depositUnblockTitle": "رفع حظر الوديعة",
+  "depositBlockIntro": "اختر الوديعة وسبب حظرها",
+  "depositUnblockIntro": "اختر الوديعة وسبب رفع حظرها",
+  "depositRestrictionReason": "سبب الطلب",
+  "depositUnblockReason": "سبب رفع الحظر",
+  "depositRestrictionReasonHint": "اختر سبب الطلب",
+  "depositRestrictionDescription": "الوصف",
+  "depositRestrictionDescriptionHint": "أدخل الوصف عند الحاجة",
+  "depositRestrictionManagement": "إدارة الوديعة",
+  "depositBlockedReason": "سبب الحظر",
+  "depositBlockedDate": "تاريخ الحظر",
+  "depositRestrictionMockComplete": "تمت محاكاة الطلب. لم تتغير أي وديعة أو محفظة حقيقية."
 }

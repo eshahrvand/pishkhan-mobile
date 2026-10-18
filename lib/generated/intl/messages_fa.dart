@@ -528,6 +528,12 @@ class MessageLookup extends MessageLookupByLibrary {
       "به پیشخوان مجازی رسالت خوش آمدید",
     ),
     "dashboardYourFavorites": MessageLookupByLibrary.simpleMessage("منتخب شما"),
+    "depositBlockIntro": MessageLookupByLibrary.simpleMessage(
+      "سپرده مورد نظر و علت مسدودی را انتخاب کنید",
+    ),
+    "depositBlockTitle": MessageLookupByLibrary.simpleMessage("مسدودی سپرده"),
+    "depositBlockedDate": MessageLookupByLibrary.simpleMessage("تاریخ مسدودی"),
+    "depositBlockedReason": MessageLookupByLibrary.simpleMessage("علت مسدودی"),
     "depositListAccountDetails": MessageLookupByLibrary.simpleMessage(
       "جزئیات حساب",
     ),
@@ -572,7 +578,34 @@ class MessageLookup extends MessageLookupByLibrary {
       "صورت حساب | معدل موجودی",
     ),
     "depositListStatus": MessageLookupByLibrary.simpleMessage("وضعیت"),
+    "depositRestrictionDescription": MessageLookupByLibrary.simpleMessage(
+      "توضیحات",
+    ),
+    "depositRestrictionDescriptionHint": MessageLookupByLibrary.simpleMessage(
+      "در صورت نیاز توضیحات را وارد کنید",
+    ),
+    "depositRestrictionManagement": MessageLookupByLibrary.simpleMessage(
+      "مدیریت سپرده",
+    ),
+    "depositRestrictionMockComplete": MessageLookupByLibrary.simpleMessage(
+      "درخواست به صورت آزمایشی ثبت شد. هیچ سپرده یا کیف پول واقعی تغییر نکرده است.",
+    ),
+    "depositRestrictionReason": MessageLookupByLibrary.simpleMessage(
+      "علت درخواست",
+    ),
+    "depositRestrictionReasonHint": MessageLookupByLibrary.simpleMessage(
+      "علت درخواست را انتخاب کنید",
+    ),
     "depositServices": MessageLookupByLibrary.simpleMessage("خدمات سپرده"),
+    "depositUnblockIntro": MessageLookupByLibrary.simpleMessage(
+      "سپرده مورد نظر و علت رفع مسدودی را انتخاب کنید",
+    ),
+    "depositUnblockReason": MessageLookupByLibrary.simpleMessage(
+      "علت رفع مسدودی",
+    ),
+    "depositUnblockTitle": MessageLookupByLibrary.simpleMessage(
+      "رفع مسدودی سپرده",
+    ),
     "depositsAgent": MessageLookupByLibrary.simpleMessage("تنظیمات نماینده"),
     "depositsChequeOperations": MessageLookupByLibrary.simpleMessage(
       "عملیات چک",

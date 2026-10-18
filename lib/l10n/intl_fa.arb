@@ -574,5 +574,18 @@
   "surplusDepositsEmptyTitle": "نتیجه‌ای یافت نشد",
   "surplusDepositsEmptyBody": "شما دارای سپرده قرض الحسنه پس‌انداز حقیقی انفرادی مازاد نمی‌باشید",
   "surplusDepositsReviewTitle": "سپرده‌های مازاد شما",
-  "surplusDepositsMockComplete": "درخواست بستن سپرده‌ها به صورت آزمایشی ثبت شد. هیچ سپرده یا موجودی واقعی تغییر نکرده است."
+  "surplusDepositsMockComplete": "درخواست بستن سپرده‌ها به صورت آزمایشی ثبت شد. هیچ سپرده یا موجودی واقعی تغییر نکرده است.",
+  "depositBlockTitle": "مسدودی سپرده",
+  "depositUnblockTitle": "رفع مسدودی سپرده",
+  "depositBlockIntro": "سپرده مورد نظر و علت مسدودی را انتخاب کنید",
+  "depositUnblockIntro": "سپرده مورد نظر و علت رفع مسدودی را انتخاب کنید",
+  "depositRestrictionReason": "علت درخواست",
+  "depositUnblockReason": "علت رفع مسدودی",
+  "depositRestrictionReasonHint": "علت درخواست را انتخاب کنید",
+  "depositRestrictionDescription": "توضیحات",
+  "depositRestrictionDescriptionHint": "در صورت نیاز توضیحات را وارد کنید",
+  "depositRestrictionManagement": "مدیریت سپرده",
+  "depositBlockedReason": "علت مسدودی",
+  "depositBlockedDate": "تاریخ مسدودی",
+  "depositRestrictionMockComplete": "درخواست به صورت آزمایشی ثبت شد. هیچ سپرده یا کیف پول واقعی تغییر نکرده است."
 }

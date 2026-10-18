@@ -82,6 +82,8 @@ void main() {
         AppRoutes.introduceAgent,
         AppRoutes.agentSettings,
         AppRoutes.closeSurplusDeposits,
+        AppRoutes.blockDeposit,
+        AppRoutes.unblockDeposit,
       ],
     };
     final declaredPaths = modulePaths.values.expand((paths) => paths).toList();
@@ -104,6 +106,8 @@ void main() {
         AppRoutes.expiredGiftBalance,
         AppRoutes.depositList,
         '/cards/list?category=virtual',
+        AppRoutes.blockDeposit,
+        AppRoutes.unblockDeposit,
         AppRoutes.closeSurplusDeposits,
         AppRoutes.agentSettings,
         AppRoutes.introduceAgent,

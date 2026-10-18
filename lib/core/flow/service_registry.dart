@@ -12,6 +12,26 @@ abstract final class ServiceRegistry {
     String? initialDepositNumber,
     String? initialCardNumber,
   }) {
+    if (id == 'deposit-block') {
+      context.push<void>(
+        AppRoutes.blockDeposit,
+        extra: DepositRestrictionRouteArguments(
+          initialDepositNumber: initialDepositNumber,
+          onAssistantPressed: onAssistantPressed,
+        ),
+      );
+      return true;
+    }
+    if (id == 'deposit-unblock') {
+      context.push<void>(
+        AppRoutes.unblockDeposit,
+        extra: DepositRestrictionRouteArguments(
+          initialDepositNumber: initialDepositNumber,
+          onAssistantPressed: onAssistantPressed,
+        ),
+      );
+      return true;
+    }
     if (id == 'deposit-close-extras') {
       context.push<void>(
         AppRoutes.closeSurplusDeposits,

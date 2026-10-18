@@ -44,6 +44,7 @@ abstract final class AppAssets {
   static const certificateFeeDelivery =
       'assets/images/certificate_certFeeDelivery.svg';
   static const depositFeatureBack = 'assets/images/deposit_list_back.svg';
+  static const depositBlockDetailsDivider = 'assets/images/deposit_block_details_divider.svg';
   static const surplusDepositsEmpty = 'assets/images/surplus_deposits_empty.svg';
   static const depositFeatureDeposit =
       'assets/images/deposit_feature_deposit.svg';
@@ -527,6 +528,7 @@ abstract final class AppAssets {
     certificateFeePrint,
     certificateFeeDelivery,
     depositFeatureBack,
+    depositBlockDetailsDivider,
     surplusDepositsEmpty,
     depositFeatureDeposit,
     depositFeatureMore,

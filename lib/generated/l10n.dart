@@ -5164,6 +5164,136 @@ class S {
       args: [],
     );
   }
+
+  /// `مسدودی سپرده`
+  String get depositBlockTitle {
+    return Intl.message(
+      'مسدودی سپرده',
+      name: 'depositBlockTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `رفع مسدودی سپرده`
+  String get depositUnblockTitle {
+    return Intl.message(
+      'رفع مسدودی سپرده',
+      name: 'depositUnblockTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `سپرده مورد نظر و علت مسدودی را انتخاب کنید`
+  String get depositBlockIntro {
+    return Intl.message(
+      'سپرده مورد نظر و علت مسدودی را انتخاب کنید',
+      name: 'depositBlockIntro',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `سپرده مورد نظر و علت رفع مسدودی را انتخاب کنید`
+  String get depositUnblockIntro {
+    return Intl.message(
+      'سپرده مورد نظر و علت رفع مسدودی را انتخاب کنید',
+      name: 'depositUnblockIntro',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `علت درخواست`
+  String get depositRestrictionReason {
+    return Intl.message(
+      'علت درخواست',
+      name: 'depositRestrictionReason',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `علت رفع مسدودی`
+  String get depositUnblockReason {
+    return Intl.message(
+      'علت رفع مسدودی',
+      name: 'depositUnblockReason',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `علت درخواست را انتخاب کنید`
+  String get depositRestrictionReasonHint {
+    return Intl.message(
+      'علت درخواست را انتخاب کنید',
+      name: 'depositRestrictionReasonHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `توضیحات`
+  String get depositRestrictionDescription {
+    return Intl.message(
+      'توضیحات',
+      name: 'depositRestrictionDescription',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `در صورت نیاز توضیحات را وارد کنید`
+  String get depositRestrictionDescriptionHint {
+    return Intl.message(
+      'در صورت نیاز توضیحات را وارد کنید',
+      name: 'depositRestrictionDescriptionHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `مدیریت سپرده`
+  String get depositRestrictionManagement {
+    return Intl.message(
+      'مدیریت سپرده',
+      name: 'depositRestrictionManagement',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `علت مسدودی`
+  String get depositBlockedReason {
+    return Intl.message(
+      'علت مسدودی',
+      name: 'depositBlockedReason',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `تاریخ مسدودی`
+  String get depositBlockedDate {
+    return Intl.message(
+      'تاریخ مسدودی',
+      name: 'depositBlockedDate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `درخواست به صورت آزمایشی ثبت شد. هیچ سپرده یا کیف پول واقعی تغییر نکرده است.`
+  String get depositRestrictionMockComplete {
+    return Intl.message(
+      'درخواست به صورت آزمایشی ثبت شد. هیچ سپرده یا کیف پول واقعی تغییر نکرده است.',
+      name: 'depositRestrictionMockComplete',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

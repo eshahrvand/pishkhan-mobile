@@ -555,6 +555,14 @@ class MessageLookup extends MessageLookupByLibrary {
     "dashboardYourFavorites": MessageLookupByLibrary.simpleMessage(
       "Your favorites",
     ),
+    "depositBlockIntro": MessageLookupByLibrary.simpleMessage(
+      "Select a deposit and the reason for blocking it",
+    ),
+    "depositBlockTitle": MessageLookupByLibrary.simpleMessage("Block deposit"),
+    "depositBlockedDate": MessageLookupByLibrary.simpleMessage("Date blocked"),
+    "depositBlockedReason": MessageLookupByLibrary.simpleMessage(
+      "Blocking reason",
+    ),
     "depositListAccountDetails": MessageLookupByLibrary.simpleMessage(
       "Account details",
     ),
@@ -607,7 +615,34 @@ class MessageLookup extends MessageLookupByLibrary {
       "Statement | Average balance",
     ),
     "depositListStatus": MessageLookupByLibrary.simpleMessage("Status"),
+    "depositRestrictionDescription": MessageLookupByLibrary.simpleMessage(
+      "Description",
+    ),
+    "depositRestrictionDescriptionHint": MessageLookupByLibrary.simpleMessage(
+      "Enter a description if needed",
+    ),
+    "depositRestrictionManagement": MessageLookupByLibrary.simpleMessage(
+      "Deposit management",
+    ),
+    "depositRestrictionMockComplete": MessageLookupByLibrary.simpleMessage(
+      "The request was simulated. No real deposit or wallet has changed.",
+    ),
+    "depositRestrictionReason": MessageLookupByLibrary.simpleMessage(
+      "Request reason",
+    ),
+    "depositRestrictionReasonHint": MessageLookupByLibrary.simpleMessage(
+      "Select the request reason",
+    ),
     "depositServices": MessageLookupByLibrary.simpleMessage("Deposit services"),
+    "depositUnblockIntro": MessageLookupByLibrary.simpleMessage(
+      "Select a deposit and the reason for unblocking it",
+    ),
+    "depositUnblockReason": MessageLookupByLibrary.simpleMessage(
+      "Unblocking reason",
+    ),
+    "depositUnblockTitle": MessageLookupByLibrary.simpleMessage(
+      "Unblock deposit",
+    ),
     "depositsAgent": MessageLookupByLibrary.simpleMessage("Agent settings"),
     "depositsChequeOperations": MessageLookupByLibrary.simpleMessage(
       "Cheque operations",

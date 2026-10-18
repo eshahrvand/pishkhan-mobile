@@ -20,20 +20,22 @@ Widget depositIcon(String asset, {double size = 24}) => SizedBox.square(
   child: Center(child: AvpImage(image: asset)),
 );
 
-/// Zero-height layout slot, preserving the original half-pixel divider asset.
+/// Zero-height layout slot, preserving the source asset's stroke thickness.
 class DepositDivider extends StatelessWidget {
   const DepositDivider({
     super.key,
     this.asset = AppAssets.depositFeatureSheetDivider,
+    this.thickness = .5,
   });
   final String asset;
+  final double thickness;
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       height: 0,
       child: OverflowBox(
-        minHeight: .5,
-        maxHeight: .5,
+        minHeight: thickness,
+        maxHeight: thickness,
         child: AvpImage(image: asset, fit: BoxFit.fill),
       ),
     );
