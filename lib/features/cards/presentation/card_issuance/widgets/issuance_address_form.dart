@@ -54,16 +54,25 @@ class _IssuanceAddressFormState extends State<IssuanceAddressForm> {
                       children: [
                         AppTextField(
                           controller: title,
+                          onChanged: context
+                              .read<CardIssuanceCubit>()
+                              .updateAddressTitle,
                           label: S.current.issuanceAddressTitle,
                         ),
                         const SizedBox(height: 12),
                         AppTextArea(
                           controller: detail,
+                          onChanged: context
+                              .read<CardIssuanceCubit>()
+                              .updateAddressDetail,
                           label: S.current.issuanceAddressDetail,
                         ),
                         const SizedBox(height: 12),
                         AppTextField(
                           controller: postal,
+                          onChanged: context
+                              .read<CardIssuanceCubit>()
+                              .updateAddressPostalCode,
                           label: S.current.issuancePostalCode,
                           keyboardType: TextInputType.number,
                           normalizeDigits: true,
@@ -82,11 +91,7 @@ class _IssuanceAddressFormState extends State<IssuanceAddressForm> {
                           label: S.current.issuanceSaveAddress,
                           size: AppButtonSize.lg,
                           onPressed: () {
-                            context.read<CardIssuanceCubit>().addAddress(
-                              title: title.text,
-                              detail: detail.text,
-                              postalCode: postal.text,
-                            );
+                            context.read<CardIssuanceCubit>().submitAddress();
                           },
                         ),
                       ],

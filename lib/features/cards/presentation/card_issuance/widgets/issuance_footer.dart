@@ -12,12 +12,6 @@ class IssuanceFooter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<CardIssuanceCubit, CardIssuanceState>(
-      buildWhen: (previous, current) =>
-          previous.step != current.step ||
-          previous.draft != current.draft ||
-          previous.editable != current.editable ||
-          previous.submissionStatus != current.submissionStatus ||
-          previous.canContinue != current.canContinue,
       builder: (context, state) {
         return Container(
           color: context.colors.surfaceSubtle,
@@ -43,7 +37,7 @@ class IssuanceFooter extends StatelessWidget {
                         child: AppCheckbox(
                           value: state.draft.termsAccepted,
                           size: AppCheckboxSize.md,
-                          onChanged: state.editable
+                          onChanged: state.isEditable
                               ? context
                                     .read<CardIssuanceCubit>()
                                     .updateTermsAcceptance

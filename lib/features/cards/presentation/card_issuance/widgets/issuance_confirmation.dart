@@ -17,16 +17,6 @@ class IssuanceConfirmation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<CardIssuanceCubit, CardIssuanceState>(
-      buildWhen: (previous, current) =>
-          previous.summaryExpanded != current.summaryExpanded ||
-          previous.editable != current.editable ||
-          previous.deposit != current.deposit ||
-          previous.totalRial != current.totalRial ||
-          previous.catalog != current.catalog ||
-          previous.fees != current.fees ||
-          previous.invoiceExpanded != current.invoiceExpanded ||
-          previous.walletSufficient != current.walletSufficient ||
-          previous.failure != current.failure,
       builder: (context, state) {
         final small = AppTypography.bodySmall.copyWith(
           height: 18 / 12,
@@ -46,12 +36,12 @@ class IssuanceConfirmation extends StatelessWidget {
                 children: [
                   Semantics(
                     button: true,
-                    expanded: state.summaryExpanded,
+                    expanded: state.isSummaryExpanded,
                     child: InkWell(
-                      onTap: state.editable
+                      onTap: state.isEditable
                           ? () => context
                                 .read<CardIssuanceCubit>()
-                                .updateSummaryExpansion(!state.summaryExpanded)
+                                .toggleSummaryExpansion()
                           : null,
                       child: Row(
                         children: [
@@ -65,7 +55,7 @@ class IssuanceConfirmation extends StatelessWidget {
                             ),
                           ),
                           RotatedBox(
-                            quarterTurns: state.summaryExpanded ? 0 : 2,
+                            quarterTurns: state.isSummaryExpanded ? 0 : 2,
                             child: issuanceIcon(
                               AppAssets.issuanceSummaryChevron,
                             ),
@@ -74,11 +64,11 @@ class IssuanceConfirmation extends StatelessWidget {
                       ),
                     ),
                   ),
-                  if (state.summaryExpanded) ...[
+                  if (state.isSummaryExpanded) ...[
                     const SizedBox(height: 16),
                     IssuanceSummaryRow(
                       label: S.current.issuanceDepositNumber,
-                      value: state.deposit!.number,
+                      value: state.draft.deposit!.number,
                       asset: AppAssets.issuanceSummaryDivider,
                     ),
                     const SizedBox(height: 12),
@@ -121,15 +111,15 @@ class IssuanceConfirmation extends StatelessWidget {
                     },
                   ),
               ],
-              isExpanded: state.invoiceExpanded,
+              isExpanded: state.isInvoiceExpanded,
               onExpandedChanged: context
                   .read<CardIssuanceCubit>()
                   .updateInvoiceExpansion,
               walletSufficientLabel: S.current.issuanceWalletSufficient,
               walletInsufficientLabel: S.current.issuanceWalletInsufficient,
-              isWalletBalanceSufficient: state.walletSufficient,
+              isWalletBalanceSufficient: state.isWalletSufficient,
             ),
-            if (state.failure != null) ...[
+            if (state.submissionFailure != null) ...[
               const SizedBox(height: 12),
               Semantics(
                 liveRegion: true,

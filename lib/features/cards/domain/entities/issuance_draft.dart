@@ -4,9 +4,9 @@ import 'issuance_data.dart';
 
 class IssuanceDraft extends Equatable {
   const IssuanceDraft({
-    this.depositId,
+    this.deposit,
     this.type,
-    this.addressId,
+    this.address,
     this.noPhysicalCard = false,
     this.otherRecipient = false,
     this.includeAgent = false,
@@ -14,17 +14,16 @@ class IssuanceDraft extends Equatable {
     this.recipient = const DeliveryPerson(),
     this.agent = const BankAgent(),
   });
-  final String? depositId, addressId;
+  final IssuanceDeposit? deposit;
+  final IssuanceAddress? address;
   final IssuanceType? type;
   final bool noPhysicalCard, otherRecipient, includeAgent, termsAccepted;
   final DeliveryPerson recipient;
   final BankAgent agent;
   IssuanceDraft copyWith({
-    String? depositId,
-    bool clearDeposit = false,
+    IssuanceDeposit? deposit,
     IssuanceType? type,
-    bool clearType = false,
-    String? addressId,
+    IssuanceAddress? address,
     bool clearAddress = false,
     bool? noPhysicalCard,
     bool? otherRecipient,
@@ -33,9 +32,9 @@ class IssuanceDraft extends Equatable {
     DeliveryPerson? recipient,
     BankAgent? agent,
   }) => IssuanceDraft(
-    depositId: clearDeposit ? null : depositId ?? this.depositId,
-    type: clearType ? null : type ?? this.type,
-    addressId: clearAddress ? null : addressId ?? this.addressId,
+    deposit: deposit ?? this.deposit,
+    type: type ?? this.type,
+    address: clearAddress ? null : address ?? this.address,
     noPhysicalCard: noPhysicalCard ?? this.noPhysicalCard,
     otherRecipient: otherRecipient ?? this.otherRecipient,
     includeAgent: includeAgent ?? this.includeAgent,
@@ -45,9 +44,9 @@ class IssuanceDraft extends Equatable {
   );
   @override
   List<Object?> get props => [
-    depositId,
+    deposit,
     type,
-    addressId,
+    address,
     noPhysicalCard,
     otherRecipient,
     includeAgent,

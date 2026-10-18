@@ -1,4 +1,3 @@
-import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
@@ -20,16 +19,9 @@ class IssuanceContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<CardIssuanceCubit, CardIssuanceState>(
-      buildWhen: (previous, current) =>
-          previous.status != current.status ||
-          previous.catalog != current.catalog ||
-          previous.submissionStatus != current.submissionStatus ||
-          previous.receipt != current.receipt ||
-          previous.step != current.step ||
-          previous.editable != current.editable,
       builder: (context, state) {
-        if (state.status == RequestStatus.initial ||
-            state.status == RequestStatus.loading) {
+        if (state.catalogStatus == RequestStatus.initial ||
+            state.catalogStatus == RequestStatus.loading) {
           return Center(
             child: AppButton(
               onPressed: null,
@@ -38,9 +30,8 @@ class IssuanceContent extends StatelessWidget {
             ),
           );
         }
-        if (state.status == RequestStatus.failure ||
-            (state.catalog?.deposits.isEmpty == true ||
-                state.catalog?.types.isEmpty == true)) {
+        if (state.catalogStatus == RequestStatus.failure ||
+            state.isCatalogEmpty) {
           return Center(
             child: Padding(
               padding: const EdgeInsets.all(16),
@@ -48,8 +39,7 @@ class IssuanceContent extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    (state.catalog?.deposits.isEmpty == true ||
-                            state.catalog?.types.isEmpty == true)
+                    state.isCatalogEmpty
                         ? S.current.issuanceEmpty
                         : S.current.dashboardLoadError,
                   ),
@@ -82,7 +72,8 @@ class IssuanceContent extends StatelessWidget {
                   Text(state.receipt!.reference),
                   const SizedBox(height: 24),
                   AppButton(
-                    onPressed: () => NavigationActions.returnHome(context),
+                    onPressed: () =>
+                        context.read<CardIssuanceCubit>().requestHome(),
                     label: S.current.issuanceDone,
                   ),
                 ],
@@ -100,7 +91,7 @@ class IssuanceContent extends StatelessWidget {
             (state.step == IssuanceStep.confirmation) ? 196 : 136,
           ),
           child: AbsorbPointer(
-            absorbing: !state.editable,
+            absorbing: !state.isEditable,
             child: switch (state.step) {
               IssuanceStep.selection => IssuanceSelection(),
               IssuanceStep.delivery => IssuanceDelivery(

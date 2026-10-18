@@ -53,9 +53,7 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
       case FlowNavigation.confirmExit:
         final confirmed = await showFlowExitDialog(context);
         if (context.mounted) {
-          context.read<CardIssuanceCubit>().handleExitConfirmationResult(
-            confirmed,
-          );
+          context.read<CardIssuanceCubit>().applyExitConfirmation(confirmed);
         }
       case FlowNavigation.back:
         // Wait for PopScope to rebuild with the authorized exit intent.
@@ -109,11 +107,10 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
       case null:
         break;
     }
-    if (!context.mounted) return;
   }
 
   void _handleProgress(BuildContext context, CardIssuanceState state) {
-    if (scroll.hasClients && state.submissionStatus != RequestStatus.loading) {
+    if (scroll.hasClients) {
       scroll.jumpTo(0);
     }
     if (state.submissionStatus == RequestStatus.success &&
@@ -140,9 +137,7 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
             textDirection: TextDirection.rtl,
             child: BlocConsumer<CardIssuanceCubit, CardIssuanceState>(
               listenWhen: (previous, current) =>
-                  previous.step != current.step ||
-                  previous.status != current.status ||
-                  previous.submissionStatus != current.submissionStatus,
+                  previous.scrollId != current.scrollId,
               listener: _handleProgress,
               builder: (context, state) {
                 return PopScope<void>(
@@ -183,7 +178,7 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
                                         26,
                                       ),
                                       child: AppStepper(
-                                        currentStep: state.step.index + 1,
+                                        currentStep: state.stepNumber,
                                         totalSteps: 3,
                                         progress: switch (state.step) {
                                           IssuanceStep.selection => .3,
@@ -198,7 +193,7 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
                                             ),
                                         semanticLabel: S.current
                                             .issuanceStepSemantic(
-                                              state.step.index + 1,
+                                              state.stepNumber,
                                               3,
                                               getIssuanceStepTitle(state.step),
                                             ),
@@ -214,13 +209,11 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
                                     ),
                                   ],
                                 ),
-                                if (state.status == RequestStatus.success &&
+                                if (state.catalogStatus ==
+                                        RequestStatus.success &&
                                     state.submissionStatus !=
                                         RequestStatus.success &&
-                                    state.catalog?.deposits.isNotEmpty ==
-                                        true &&
-                                    state.catalog?.types.isNotEmpty ==
-                                        true) ...[
+                                    !state.isCatalogEmpty) ...[
                                   Positioned(
                                     left: 16,
                                     bottom:

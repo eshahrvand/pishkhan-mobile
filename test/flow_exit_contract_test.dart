@@ -22,14 +22,14 @@ void main() {
       await clean.close();
       final cubit = CardIssuanceCubit();
       await cubit.fetchIssuanceCatalog();
-      cubit.selectDeposit(cubit.state.catalog!.deposits.first.id);
+      cubit.selectDeposit(cubit.state.catalog!.deposits.first);
       cubit.requestBack();
       expect(cubit.state.navigation, FlowNavigation.confirmExit);
-      cubit.handleExitConfirmationResult(null);
+      cubit.applyExitConfirmation(null);
       expect(cubit.state.navigation, isNull);
-      expect(cubit.state.draft.depositId, isNotNull);
+      expect(cubit.state.draft.deposit?.id, isNotNull);
       cubit.requestBack();
-      cubit.handleExitConfirmationResult(true);
+      cubit.applyExitConfirmation(true);
       expect(cubit.state.navigation, FlowNavigation.back);
       await cubit.close();
     },

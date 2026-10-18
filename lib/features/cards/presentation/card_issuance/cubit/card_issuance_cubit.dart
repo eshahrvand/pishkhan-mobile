@@ -1,4 +1,3 @@
-import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
@@ -6,7 +5,7 @@ import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/flow/flow_navigation.dart';
 import 'package:pishkhan_mobile/core/result/failure.dart';
 import 'package:pishkhan_mobile/core/result/result.dart';
-import 'package:pishkhan_mobile/core/validators/postal_code_validator.dart';
+import 'package:pishkhan_mobile/core/validators/validators.dart';
 
 import '../../../domain/entities/issuance_data.dart';
 import '../../../domain/entities/issuance_draft.dart';
@@ -32,68 +31,58 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
   final _repository = getIt<CardIssuanceRepository>();
   late final _loadIssuanceCatalog = LoadIssuanceCatalog(_repository);
   late final _submitCardIssuance = SubmitCardIssuance(_repository);
-  int _catalogRequestId = 0;
-  int _submissionRequestId = 0;
   int _addressCounter = 0;
 
   Future<void> fetchIssuanceCatalog() {
-    final requestId = ++_catalogRequestId;
-
     emit(
       state.copyWith(
-        status: RequestStatus.loading,
-        submissionStatus: RequestStatus.initial,
+        catalogStatus: RequestStatus.loading,
+        catalogFailure: null,
         catalog: null,
-        draft: const IssuanceDraft(),
-        step: IssuanceStep.selection,
-        invoiceExpanded: true,
-        summaryExpanded: true,
-        receipt: null,
-        failure: null,
-        deposit: null,
-        address: null,
-        selectionComplete: false,
-        deliveryComplete: false,
-        fees: const [],
-        totalRial: 0,
-        walletSufficient: false,
-        editable: false,
-        canContinue: false,
-        request: null,
-        effect: null,
-        navigation: null,
-        isAddressFormError: false,
+        isCatalogEmpty: false,
       ),
     );
-
     return _loadIssuanceCatalog().then((result) {
-      if (isClosed || requestId != _catalogRequestId) return;
-
       switch (result) {
         case Err(:final failure):
-          emit(state.copyWith(status: RequestStatus.failure, failure: failure));
-        case Success(:final data):
-          final draft = _createInitialDraft(data, initialDepositNumber);
-          final fees = _getIssuanceFees(data, draft);
-          final totalRial = _calculateTotalRial(fees);
-
           emit(
             state.copyWith(
-              status: RequestStatus.success,
+              catalogStatus: RequestStatus.failure,
+              catalogFailure: failure,
+              scrollId: state.scrollId + 1,
+            ),
+          );
+        case Success(:final data):
+          final draft = _initialDraft(data);
+          final fees = _issuanceFees(data, draft.noPhysicalCard);
+          final total = _totalRial(fees);
+          final isSelectionComplete = _selectionComplete(draft);
+          final isDeliveryComplete = _deliveryComplete(draft, false, false);
+          final isCatalogEmpty = data.deposits.isEmpty || data.types.isEmpty;
+          emit(
+            state.copyWith(
+              catalogStatus: RequestStatus.success,
               catalog: data,
               draft: draft,
-              deposit: _findDeposit(data, draft.depositId),
-              address: _findAddress(data, draft.addressId),
-              selectionComplete: _isSelectionComplete(data, draft),
-              deliveryComplete: _isDeliveryComplete(data, draft),
+              step: IssuanceStep.selection,
+              stepNumber: 1,
+              isRecipientNameValid: false,
+              isRecipientNationalIdValid: false,
+              isRecipientMobileValid: false,
+              isRecipientValid: false,
+              isAgentNameValid: false,
+              isAgentCodeValid: false,
+              isAgentValid: false,
+              confirmedRequest: null,
               fees: fees,
-              totalRial: totalRial,
-              walletSufficient: data.walletBalanceRial >= totalRial,
-              editable: _isCatalogEditable(data),
-              canContinue:
-                  _isCatalogEditable(data) &&
-                  _canContinue(IssuanceStep.selection, data, draft),
-              request: _createIssuanceRequest(data, draft),
+              totalRial: total,
+              isWalletSufficient: data.walletBalanceRial >= total,
+              isSelectionComplete: isSelectionComplete,
+              isDeliveryComplete: isDeliveryComplete,
+              isCatalogEmpty: isCatalogEmpty,
+              isEditable: !isCatalogEmpty,
+              canContinue: isSelectionComplete,
+              scrollId: state.scrollId + 1,
             ),
           );
       }
@@ -112,6 +101,12 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
   void requestAddAddress() {
     emit(
       state.copyWith(
+        addressTitle: '',
+        addressDetail: '',
+        addressPostalCode: '',
+        isAddressTitleValid: false,
+        isAddressDetailValid: false,
+        isAddressPostalCodeValid: false,
         isAddressFormError: false,
         effect: const IssuanceAddressRequested(),
         effectId: state.effectId + 1,
@@ -132,39 +127,65 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
     if (state.step == IssuanceStep.confirmation) {
       return submitCardIssuance();
     }
-    advanceStep();
+    selectNextStep();
     return Future.value();
   }
 
   void requestBack() {
-    switch ((state.submissionStatus, state.step)) {
-      case (RequestStatus.success, _):
-        emit(
-          state.copyWith(
-            navigation: FlowNavigation.back,
-            navigationId: state.navigationId + 1,
-          ),
-        );
-      case (_, IssuanceStep.selection):
-        final needsConfirmation =
-            state.status == RequestStatus.success &&
-            state.draft !=
-                _createInitialDraft(state.catalog, initialDepositNumber);
-        emit(
-          state.copyWith(
-            navigation: needsConfirmation
-                ? FlowNavigation.confirmExit
-                : FlowNavigation.back,
-            navigationId: state.navigationId + 1,
-          ),
-        );
-      case (_, IssuanceStep.delivery):
-      case (_, IssuanceStep.confirmation):
-        _goToPreviousStep();
+    if (state.submissionStatus == RequestStatus.success ||
+        state.step == IssuanceStep.selection) {
+      final needsConfirmation =
+          state.submissionStatus != RequestStatus.success &&
+          state.catalogStatus == RequestStatus.success &&
+          state.draft != _initialDraft(state.catalog!);
+      emit(
+        state.copyWith(
+          navigation: needsConfirmation
+              ? FlowNavigation.confirmExit
+              : FlowNavigation.back,
+          navigationId: state.navigationId + 1,
+        ),
+      );
+    } else {
+      selectPreviousStep();
     }
   }
 
-  void handleExitConfirmationResult(bool? confirmed) {
+  void selectPreviousStep() {
+    final previousStep =
+        state.step == IssuanceStep.delivery || state.draft.noPhysicalCard
+        ? IssuanceStep.selection
+        : IssuanceStep.delivery;
+    final canContinue = _canContinue(
+      previousStep,
+      state.isSelectionComplete,
+      state.isDeliveryComplete,
+      state.draft.termsAccepted,
+      state.isWalletSufficient,
+    );
+    if (state.submissionStatus == RequestStatus.loading) {
+      emit(
+        state.copyWith(
+          step: previousStep,
+          stepNumber: previousStep.index + 1,
+          canContinue: canContinue,
+          submissionFailure: null,
+        ),
+      );
+    } else {
+      emit(
+        state.copyWith(
+          step: previousStep,
+          stepNumber: previousStep.index + 1,
+          canContinue: canContinue,
+          submissionFailure: null,
+          scrollId: state.scrollId + 1,
+        ),
+      );
+    }
+  }
+
+  void applyExitConfirmation(bool? confirmed) {
     emit(
       state.copyWith(
         navigation: confirmed == true ? FlowNavigation.back : null,
@@ -182,32 +203,42 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
     );
   }
 
-  void selectDeposit(String depositId) {
-    final draft = state.draft.copyWith(
-      depositId: depositId,
-      termsAccepted: false,
-    );
+  void selectDeposit(IssuanceDeposit deposit) {
+    final draft = state.draft.copyWith(deposit: deposit, termsAccepted: false);
+    final isSelectionComplete = _selectionComplete(draft);
     emit(
       state.copyWith(
         draft: draft,
-        deposit: _findDeposit(state.catalog, depositId),
-        selectionComplete: _isSelectionComplete(state.catalog, draft),
-        request: _createIssuanceRequest(state.catalog, draft),
-        canContinue: _canContinue(state.step, state.catalog, draft),
-        failure: null,
+        isSelectionComplete: isSelectionComplete,
+        confirmedRequest: null,
+        submissionFailure: null,
+        canContinue: _canContinue(
+          state.step,
+          isSelectionComplete,
+          state.isDeliveryComplete,
+          false,
+          state.isWalletSufficient,
+        ),
       ),
     );
   }
 
   void selectIssuanceType(IssuanceType type) {
     final draft = state.draft.copyWith(type: type, termsAccepted: false);
+    final isSelectionComplete = _selectionComplete(draft);
     emit(
       state.copyWith(
         draft: draft,
-        selectionComplete: _isSelectionComplete(state.catalog, draft),
-        request: _createIssuanceRequest(state.catalog, draft),
-        canContinue: _canContinue(state.step, state.catalog, draft),
-        failure: null,
+        isSelectionComplete: isSelectionComplete,
+        confirmedRequest: null,
+        submissionFailure: null,
+        canContinue: _canContinue(
+          state.step,
+          isSelectionComplete,
+          state.isDeliveryComplete,
+          false,
+          state.isWalletSufficient,
+        ),
       ),
     );
   }
@@ -217,98 +248,54 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
       noPhysicalCard: value,
       termsAccepted: false,
     );
-    final fees = _getIssuanceFees(state.catalog, draft);
-    final totalRial = _calculateTotalRial(fees);
+    final fees = _issuanceFees(state.catalog!, value);
+    final total = _totalRial(fees);
+    final isWalletSufficient = state.catalog!.walletBalanceRial >= total;
+    final isDeliveryComplete = _deliveryComplete(
+      draft,
+      state.isRecipientValid,
+      state.isAgentValid,
+    );
     emit(
       state.copyWith(
         draft: draft,
-        deliveryComplete: _isDeliveryComplete(state.catalog, draft),
         fees: fees,
-        totalRial: totalRial,
-        walletSufficient: state.catalog!.walletBalanceRial >= totalRial,
-        request: _createIssuanceRequest(state.catalog, draft),
-        canContinue: _canContinue(state.step, state.catalog, draft),
-        failure: null,
+        totalRial: total,
+        isWalletSufficient: isWalletSufficient,
+        isDeliveryComplete: isDeliveryComplete,
+        confirmedRequest: null,
+        submissionFailure: null,
+        canContinue: _canContinue(
+          state.step,
+          state.isSelectionComplete,
+          isDeliveryComplete,
+          false,
+          isWalletSufficient,
+        ),
       ),
     );
   }
 
-  void selectAddress(String addressId) {
-    final draft = state.draft.copyWith(
-      addressId: addressId,
-      termsAccepted: false,
+  void selectAddress(IssuanceAddress address) {
+    final draft = state.draft.copyWith(address: address, termsAccepted: false);
+    final isDeliveryComplete = _deliveryComplete(
+      draft,
+      state.isRecipientValid,
+      state.isAgentValid,
     );
     emit(
       state.copyWith(
         draft: draft,
-        address: _findAddress(state.catalog, addressId),
-        deliveryComplete: _isDeliveryComplete(state.catalog, draft),
-        request: _createIssuanceRequest(state.catalog, draft),
-        canContinue: _canContinue(state.step, state.catalog, draft),
-        failure: null,
-      ),
-    );
-  }
-
-  bool addAddress({
-    required String title,
-    required String detail,
-    required String postalCode,
-  }) {
-    final normalizedPostalCode = DigitNormalizer.normalize(postalCode).trim();
-    if (title.trim().isEmpty ||
-        detail.trim().isEmpty ||
-        !PostalCodeValidator.isValid(normalizedPostalCode)) {
-      emit(state.copyWith(isAddressFormError: true));
-      return false;
-    }
-    final address = IssuanceAddress(
-      id: 'local-address-${++_addressCounter}',
-      title: title.trim(),
-      detail: detail.trim(),
-      postalCode: normalizedPostalCode,
-    );
-    final catalog = state.catalog!.withAddresses([
-      ...state.catalog!.addresses,
-      address,
-    ]);
-    final draft = state.draft.copyWith(
-      addressId: address.id,
-      termsAccepted: false,
-    );
-    emit(
-      state.copyWith(
-        addressSavedId: state.addressSavedId + 1,
-        isAddressFormError: false,
-        catalog: catalog,
-        draft: draft,
-        address: address,
-        deliveryComplete: _isDeliveryComplete(catalog, draft),
-        request: _createIssuanceRequest(catalog, draft),
-        canContinue: _canContinue(state.step, catalog, draft),
-        failure: null,
-      ),
-    );
-    return true;
-  }
-
-  void removeAddress(String addressId) {
-    final catalog = state.catalog!.withAddresses(
-      state.catalog!.addresses.where((address) => address.id != addressId),
-    );
-    final draft = state.draft.copyWith(
-      clearAddress: state.draft.addressId == addressId,
-      termsAccepted: false,
-    );
-    emit(
-      state.copyWith(
-        catalog: catalog,
-        draft: draft,
-        address: _findAddress(catalog, draft.addressId),
-        deliveryComplete: _isDeliveryComplete(catalog, draft),
-        request: _createIssuanceRequest(catalog, draft),
-        canContinue: _canContinue(state.step, catalog, draft),
-        failure: null,
+        isDeliveryComplete: isDeliveryComplete,
+        confirmedRequest: null,
+        submissionFailure: null,
+        canContinue: _canContinue(
+          state.step,
+          state.isSelectionComplete,
+          isDeliveryComplete,
+          false,
+          state.isWalletSufficient,
+        ),
       ),
     );
   }
@@ -318,13 +305,24 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
       otherRecipient: value,
       termsAccepted: false,
     );
+    final isDeliveryComplete = _deliveryComplete(
+      draft,
+      state.isRecipientValid,
+      state.isAgentValid,
+    );
     emit(
       state.copyWith(
         draft: draft,
-        deliveryComplete: _isDeliveryComplete(state.catalog, draft),
-        request: _createIssuanceRequest(state.catalog, draft),
-        canContinue: _canContinue(state.step, state.catalog, draft),
-        failure: null,
+        isDeliveryComplete: isDeliveryComplete,
+        confirmedRequest: null,
+        submissionFailure: null,
+        canContinue: _canContinue(
+          state.step,
+          state.isSelectionComplete,
+          isDeliveryComplete,
+          false,
+          state.isWalletSufficient,
+        ),
       ),
     );
   }
@@ -334,121 +332,312 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
       includeAgent: value,
       termsAccepted: false,
     );
+    final isDeliveryComplete = _deliveryComplete(
+      draft,
+      state.isRecipientValid,
+      state.isAgentValid,
+    );
     emit(
       state.copyWith(
         draft: draft,
-        deliveryComplete: _isDeliveryComplete(state.catalog, draft),
-        request: _createIssuanceRequest(state.catalog, draft),
-        canContinue: _canContinue(state.step, state.catalog, draft),
-        failure: null,
+        isDeliveryComplete: isDeliveryComplete,
+        confirmedRequest: null,
+        submissionFailure: null,
+        canContinue: _canContinue(
+          state.step,
+          state.isSelectionComplete,
+          isDeliveryComplete,
+          false,
+          state.isWalletSufficient,
+        ),
       ),
     );
   }
 
   void updateRecipientName(String value) {
+    final isValid = value.trim().isNotEmpty;
+    final isRecipientValid =
+        isValid &&
+        state.isRecipientNationalIdValid &&
+        state.isRecipientMobileValid;
     final draft = state.draft.copyWith(
       recipient: state.draft.recipient.copyWith(name: value),
       termsAccepted: false,
     );
+    final isDeliveryComplete = _deliveryComplete(
+      draft,
+      isRecipientValid,
+      state.isAgentValid,
+    );
     emit(
       state.copyWith(
         draft: draft,
-        deliveryComplete: _isDeliveryComplete(state.catalog, draft),
-        request: _createIssuanceRequest(state.catalog, draft),
-        canContinue: _canContinue(state.step, state.catalog, draft),
-        failure: null,
+        isRecipientNameValid: isValid,
+        isRecipientValid: isRecipientValid,
+        isDeliveryComplete: isDeliveryComplete,
+        confirmedRequest: null,
+        submissionFailure: null,
+        canContinue: _canContinue(
+          state.step,
+          state.isSelectionComplete,
+          isDeliveryComplete,
+          false,
+          state.isWalletSufficient,
+        ),
       ),
     );
   }
 
   void updateRecipientNationalId(String value) {
+    final isValid = NationalCodeValidator.isValid(value);
+    final isRecipientValid =
+        isValid && state.isRecipientNameValid && state.isRecipientMobileValid;
     final draft = state.draft.copyWith(
-      recipient: state.draft.recipient.copyWith(
-        nationalId: DigitNormalizer.normalize(value),
-      ),
+      recipient: state.draft.recipient.copyWith(nationalId: value),
       termsAccepted: false,
+    );
+    final isDeliveryComplete = _deliveryComplete(
+      draft,
+      isRecipientValid,
+      state.isAgentValid,
     );
     emit(
       state.copyWith(
         draft: draft,
-        deliveryComplete: _isDeliveryComplete(state.catalog, draft),
-        request: _createIssuanceRequest(state.catalog, draft),
-        canContinue: _canContinue(state.step, state.catalog, draft),
-        failure: null,
+        isRecipientNationalIdValid: isValid,
+        isRecipientValid: isRecipientValid,
+        isDeliveryComplete: isDeliveryComplete,
+        confirmedRequest: null,
+        submissionFailure: null,
+        canContinue: _canContinue(
+          state.step,
+          state.isSelectionComplete,
+          isDeliveryComplete,
+          false,
+          state.isWalletSufficient,
+        ),
       ),
     );
   }
 
   void updateRecipientMobile(String value) {
+    final isValid = PhoneNumberValidator.isValid(value);
+    final isRecipientValid =
+        isValid &&
+        state.isRecipientNameValid &&
+        state.isRecipientNationalIdValid;
     final draft = state.draft.copyWith(
-      recipient: state.draft.recipient.copyWith(
-        mobile: DigitNormalizer.normalize(value),
-      ),
+      recipient: state.draft.recipient.copyWith(mobile: value),
       termsAccepted: false,
+    );
+    final isDeliveryComplete = _deliveryComplete(
+      draft,
+      isRecipientValid,
+      state.isAgentValid,
     );
     emit(
       state.copyWith(
         draft: draft,
-        deliveryComplete: _isDeliveryComplete(state.catalog, draft),
-        request: _createIssuanceRequest(state.catalog, draft),
-        canContinue: _canContinue(state.step, state.catalog, draft),
-        failure: null,
+        isRecipientMobileValid: isValid,
+        isRecipientValid: isRecipientValid,
+        isDeliveryComplete: isDeliveryComplete,
+        confirmedRequest: null,
+        submissionFailure: null,
+        canContinue: _canContinue(
+          state.step,
+          state.isSelectionComplete,
+          isDeliveryComplete,
+          false,
+          state.isWalletSufficient,
+        ),
       ),
     );
   }
 
   void updateAgentName(String value) {
+    final isValid = value.trim().isNotEmpty;
+    final isAgentValid = isValid && state.isAgentCodeValid;
     final draft = state.draft.copyWith(
       agent: state.draft.agent.copyWith(name: value),
       termsAccepted: false,
     );
+    final isDeliveryComplete = _deliveryComplete(
+      draft,
+      state.isRecipientValid,
+      isAgentValid,
+    );
     emit(
       state.copyWith(
         draft: draft,
-        deliveryComplete: _isDeliveryComplete(state.catalog, draft),
-        request: _createIssuanceRequest(state.catalog, draft),
-        canContinue: _canContinue(state.step, state.catalog, draft),
-        failure: null,
+        isAgentNameValid: isValid,
+        isAgentValid: isAgentValid,
+        isDeliveryComplete: isDeliveryComplete,
+        confirmedRequest: null,
+        submissionFailure: null,
+        canContinue: _canContinue(
+          state.step,
+          state.isSelectionComplete,
+          isDeliveryComplete,
+          false,
+          state.isWalletSufficient,
+        ),
       ),
     );
   }
 
   void updateAgentCode(String value) {
+    final isValid = value.trim().isNotEmpty;
+    final isAgentValid = isValid && state.isAgentNameValid;
     final draft = state.draft.copyWith(
-      agent: state.draft.agent.copyWith(code: DigitNormalizer.normalize(value)),
+      agent: state.draft.agent.copyWith(code: value),
       termsAccepted: false,
+    );
+    final isDeliveryComplete = _deliveryComplete(
+      draft,
+      state.isRecipientValid,
+      isAgentValid,
     );
     emit(
       state.copyWith(
         draft: draft,
-        deliveryComplete: _isDeliveryComplete(state.catalog, draft),
-        request: _createIssuanceRequest(state.catalog, draft),
-        canContinue: _canContinue(state.step, state.catalog, draft),
-        failure: null,
+        isAgentCodeValid: isValid,
+        isAgentValid: isAgentValid,
+        isDeliveryComplete: isDeliveryComplete,
+        confirmedRequest: null,
+        submissionFailure: null,
+        canContinue: _canContinue(
+          state.step,
+          state.isSelectionComplete,
+          isDeliveryComplete,
+          false,
+          state.isWalletSufficient,
+        ),
+      ),
+    );
+  }
+
+  void updateAddressTitle(String value) {
+    final isValid = value.trim().isNotEmpty;
+    emit(state.copyWith(addressTitle: value, isAddressTitleValid: isValid));
+  }
+
+  void updateAddressDetail(String value) {
+    final isValid = value.trim().isNotEmpty;
+    emit(state.copyWith(addressDetail: value, isAddressDetailValid: isValid));
+  }
+
+  void updateAddressPostalCode(String value) {
+    final isValid = PostalCodeValidator.isValid(value.trim());
+    emit(
+      state.copyWith(
+        addressPostalCode: value,
+        isAddressPostalCodeValid: isValid,
+      ),
+    );
+  }
+
+  void submitAddress() {
+    if (state.isAddressTitleValid &&
+        state.isAddressDetailValid &&
+        state.isAddressPostalCodeValid) {
+      final address = IssuanceAddress(
+        id: 'local-address-${++_addressCounter}',
+        title: state.addressTitle.trim(),
+        detail: state.addressDetail.trim(),
+        postalCode: state.addressPostalCode.trim(),
+      );
+      final catalog = state.catalog!.withAddresses([
+        ...state.catalog!.addresses,
+        address,
+      ]);
+      final draft = state.draft.copyWith(
+        address: address,
+        termsAccepted: false,
+      );
+      final isDeliveryComplete = _deliveryComplete(
+        draft,
+        state.isRecipientValid,
+        state.isAgentValid,
+      );
+      emit(
+        state.copyWith(
+          catalog: catalog,
+          draft: draft,
+          addressSavedId: state.addressSavedId + 1,
+          isAddressFormError: false,
+          isDeliveryComplete: isDeliveryComplete,
+          confirmedRequest: null,
+          submissionFailure: null,
+          canContinue: _canContinue(
+            state.step,
+            state.isSelectionComplete,
+            isDeliveryComplete,
+            false,
+            state.isWalletSufficient,
+          ),
+        ),
+      );
+    } else {
+      emit(state.copyWith(isAddressFormError: true));
+    }
+  }
+
+  void removeAddress(String addressId) {
+    final catalog = state.catalog!.withAddresses(
+      state.catalog!.addresses.where((address) => address.id != addressId),
+    );
+    final draft = state.draft.copyWith(
+      clearAddress: state.draft.address?.id == addressId,
+      termsAccepted: false,
+    );
+    final isDeliveryComplete = _deliveryComplete(
+      draft,
+      state.isRecipientValid,
+      state.isAgentValid,
+    );
+    emit(
+      state.copyWith(
+        catalog: catalog,
+        draft: draft,
+        isDeliveryComplete: isDeliveryComplete,
+        confirmedRequest: null,
+        submissionFailure: null,
+        canContinue: _canContinue(
+          state.step,
+          state.isSelectionComplete,
+          isDeliveryComplete,
+          false,
+          state.isWalletSufficient,
+        ),
       ),
     );
   }
 
   void updateTermsAcceptance(bool value) {
-    final draft = state.draft.copyWith(termsAccepted: value);
     emit(
       state.copyWith(
-        draft: draft,
-        canContinue: _canContinue(state.step, state.catalog, draft),
-        failure: null,
+        draft: state.draft.copyWith(termsAccepted: value),
+        submissionFailure: null,
+        canContinue: _canContinue(
+          state.step,
+          state.isSelectionComplete,
+          state.isDeliveryComplete,
+          value,
+          state.isWalletSufficient,
+        ),
       ),
     );
   }
 
   void updateInvoiceExpansion(bool value) {
-    emit(state.copyWith(invoiceExpanded: value));
+    emit(state.copyWith(isInvoiceExpanded: value));
   }
 
-  void updateSummaryExpansion(bool value) {
-    emit(state.copyWith(summaryExpanded: value));
+  void toggleSummaryExpansion() {
+    emit(state.copyWith(isSummaryExpanded: !state.isSummaryExpanded));
   }
 
-  void advanceStep() {
+  void selectNextStep() {
     final nextStep =
         state.step == IssuanceStep.delivery || state.draft.noPhysicalCard
         ? IssuanceStep.confirmation
@@ -456,50 +645,58 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
     emit(
       state.copyWith(
         step: nextStep,
-        canContinue: _canContinue(nextStep, state.catalog, state.draft),
-      ),
-    );
-  }
-
-  void _goToPreviousStep() {
-    final previousStep =
-        state.step == IssuanceStep.delivery || state.draft.noPhysicalCard
-        ? IssuanceStep.selection
-        : IssuanceStep.delivery;
-    emit(
-      state.copyWith(
-        step: previousStep,
-        failure: null,
-        canContinue: _canContinue(previousStep, state.catalog, state.draft),
+        stepNumber: nextStep.index + 1,
+        scrollId: state.scrollId + 1,
+        canContinue: _canContinue(
+          nextStep,
+          state.isSelectionComplete,
+          state.isDeliveryComplete,
+          state.draft.termsAccepted,
+          state.isWalletSufficient,
+        ),
       ),
     );
   }
 
   Future<void> submitCardIssuance() {
-    final request = state.request!;
-    final requestId = ++_submissionRequestId;
-    emit(
-      state.copyWith(
-        submissionStatus: RequestStatus.loading,
-        failure: null,
-        editable: false,
-        canContinue: false,
-      ),
-    );
-
+    final request =
+        state.confirmedRequest ?? _createIssuanceRequest(state.draft);
+    if (state.confirmedRequest == null) {
+      emit(
+        state.copyWith(
+          confirmedRequest: request,
+          submissionStatus: RequestStatus.loading,
+          submissionFailure: null,
+          isEditable: false,
+          canContinue: false,
+        ),
+      );
+    } else {
+      emit(
+        state.copyWith(
+          submissionStatus: RequestStatus.loading,
+          submissionFailure: null,
+          isEditable: false,
+          canContinue: false,
+        ),
+      );
+    }
     return _submitCardIssuance(request).then((result) {
-      if (isClosed || requestId != _submissionRequestId) return;
-
       switch (result) {
         case Err(:final failure):
           emit(
             state.copyWith(
               submissionStatus: RequestStatus.failure,
-              failure: failure,
-              editable: _isCatalogEditable(state.catalog),
-              canContinue:
-                  _isCatalogEditable(state.catalog) &&
-                  _canContinue(state.step, state.catalog, state.draft),
+              submissionFailure: failure,
+              isEditable: !state.isCatalogEmpty,
+              scrollId: state.scrollId + 1,
+              canContinue: _canContinue(
+                state.step,
+                state.isSelectionComplete,
+                state.isDeliveryComplete,
+                state.draft.termsAccepted,
+                state.isWalletSufficient,
+              ),
             ),
           );
         case Success(:final data):
@@ -507,118 +704,20 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
             state.copyWith(
               submissionStatus: RequestStatus.success,
               receipt: data,
-              editable: false,
               canContinue: false,
+              scrollId: state.scrollId + 1,
             ),
           );
       }
     });
   }
 
-  IssuanceDraft _createInitialDraft(
-    IssuanceCatalog? catalog,
-    String? depositNumber,
-  ) {
-    return IssuanceDraft(
-      depositId: _findInitialDepositId(catalog, depositNumber),
-    );
-  }
-
-  String? _findInitialDepositId(
-    IssuanceCatalog? catalog,
-    String? depositNumber,
-  ) {
-    if (depositNumber == null) return null;
-    final normalizedNumber = DigitNormalizer.normalize(depositNumber);
-    return catalog?.deposits
-        .where(
-          (deposit) =>
-              DigitNormalizer.normalize(deposit.number) == normalizedNumber,
-        )
-        .lastOrNull
-        ?.id;
-  }
-
-  IssuanceDeposit? _findDeposit(IssuanceCatalog? catalog, String? depositId) {
-    return catalog?.deposits
-        .where((deposit) => deposit.id == depositId)
-        .firstOrNull;
-  }
-
-  IssuanceAddress? _findAddress(IssuanceCatalog? catalog, String? addressId) {
-    return catalog?.addresses
-        .where((address) => address.id == addressId)
-        .firstOrNull;
-  }
-
-  bool _isSelectionComplete(IssuanceCatalog? catalog, IssuanceDraft draft) {
-    return _findDeposit(catalog, draft.depositId) != null &&
-        draft.type != null &&
-        (catalog?.types.contains(draft.type) ?? false);
-  }
-
-  bool _isDeliveryComplete(IssuanceCatalog? catalog, IssuanceDraft draft) {
-    return draft.noPhysicalCard ||
-        (_findAddress(catalog, draft.addressId) != null &&
-            (!draft.otherRecipient || draft.recipient.isComplete) &&
-            (!draft.includeAgent || draft.agent.isComplete));
-  }
-
-  List<IssuanceFee> _getIssuanceFees(
-    IssuanceCatalog? catalog,
-    IssuanceDraft draft,
-  ) {
-    return catalog?.fees
-            .where(
-              (fee) =>
-                  !draft.noPhysicalCard || fee.kind != IssuanceFeeKind.delivery,
-            )
-            .toList() ??
-        const [];
-  }
-
-  int _calculateTotalRial(List<IssuanceFee> fees) {
-    return fees.fold<int>(0, (total, fee) => total + fee.amountRial);
-  }
-
-  bool _isCatalogEditable(IssuanceCatalog? catalog) {
-    return catalog?.deposits.isNotEmpty == true &&
-        catalog?.types.isNotEmpty == true;
-  }
-
-  bool _canContinue(
-    IssuanceStep step,
-    IssuanceCatalog? catalog,
-    IssuanceDraft draft,
-  ) {
-    if (!_isSelectionComplete(catalog, draft)) return false;
-    return switch (step) {
-      IssuanceStep.selection => true,
-      IssuanceStep.delivery => _isDeliveryComplete(catalog, draft),
-      IssuanceStep.confirmation =>
-        _isDeliveryComplete(catalog, draft) &&
-            draft.termsAccepted &&
-            catalog != null &&
-            catalog.walletBalanceRial >=
-                _calculateTotalRial(_getIssuanceFees(catalog, draft)),
-    };
-  }
-
-  IssuanceRequest? _createIssuanceRequest(
-    IssuanceCatalog? catalog,
-    IssuanceDraft draft,
-  ) {
-    if (!_isSelectionComplete(catalog, draft) ||
-        !_isDeliveryComplete(catalog, draft)) {
-      return null;
-    }
+  IssuanceRequest _createIssuanceRequest(IssuanceDraft draft) {
     return IssuanceRequest(
-      depositId: draft.depositId!,
+      depositId: draft.deposit!.id,
       type: draft.type!,
       noPhysicalCard: draft.noPhysicalCard,
-      address: draft.noPhysicalCard
-          ? null
-          : _findAddress(catalog, draft.addressId),
+      address: draft.noPhysicalCard ? null : draft.address!,
       recipient: !draft.noPhysicalCard && draft.otherRecipient
           ? draft.recipient
           : null,
@@ -626,10 +725,73 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
     );
   }
 
-  @override
-  Future<void> close() {
-    _catalogRequestId++;
-    _submissionRequestId++;
-    return super.close();
+  IssuanceDraft _initialDraft(IssuanceCatalog catalog) {
+    return IssuanceDraft(
+      deposit: initialDepositNumber == null
+          ? null
+          : catalog.deposits
+                .where(
+                  (deposit) =>
+                      _normalizeDigits(deposit.number) ==
+                      _normalizeDigits(initialDepositNumber!),
+                )
+                .lastOrNull,
+    );
+  }
+
+  bool _selectionComplete(IssuanceDraft draft) {
+    return draft.deposit != null && draft.type != null;
+  }
+
+  bool _deliveryComplete(
+    IssuanceDraft draft,
+    bool isRecipientValid,
+    bool isAgentValid,
+  ) {
+    return draft.noPhysicalCard ||
+        (draft.address != null &&
+            (!draft.otherRecipient || isRecipientValid) &&
+            (!draft.includeAgent || isAgentValid));
+  }
+
+  bool _canContinue(
+    IssuanceStep step,
+    bool isSelectionComplete,
+    bool isDeliveryComplete,
+    bool termsAccepted,
+    bool isWalletSufficient,
+  ) {
+    return isSelectionComplete &&
+        switch (step) {
+          IssuanceStep.selection => true,
+          IssuanceStep.delivery => isDeliveryComplete,
+          IssuanceStep.confirmation =>
+            isDeliveryComplete && termsAccepted && isWalletSufficient,
+        };
+  }
+
+  List<IssuanceFee> _issuanceFees(
+    IssuanceCatalog catalog,
+    bool noPhysicalCard,
+  ) {
+    return catalog.fees
+        .where((fee) => !noPhysicalCard || fee.kind != IssuanceFeeKind.delivery)
+        .toList();
+  }
+
+  int _totalRial(List<IssuanceFee> fees) {
+    return fees.fold(0, (total, fee) => total + fee.amountRial);
+  }
+
+  String _normalizeDigits(String input) {
+    const persian = '۰۱۲۳۴۵۶۷۸۹';
+    const arabic = '٠١٢٣٤٥٦٧٨٩';
+    var value = input;
+    for (var digit = 0; digit < 10; digit++) {
+      value = value
+          .replaceAll(persian[digit], '$digit')
+          .replaceAll(arabic[digit], '$digit');
+    }
+    return value;
   }
 }

@@ -99,7 +99,7 @@ void main() {
       .element(find.byType(BlocConsumer<CardIssuanceCubit, CardIssuanceState>))
       .read<CardIssuanceCubit>();
   void selection(CardIssuanceCubit c) {
-    c.selectDeposit('deposit-1');
+    c.selectDeposit(c.state.catalog!.deposits.first);
     c.selectIssuanceType(IssuanceType.newNumber);
   }
 
@@ -114,16 +114,16 @@ void main() {
       await tester.pumpAndSettle();
       expect(identical(controller(tester), first), isTrue);
       await tester.pumpWidget(subject(const SizedBox.shrink()));
-      expect(first.isClosed, isTrue);
+      await expectLater(first.stream, emitsDone);
       await tester.pumpWidget(
         subject(CardIssuanceScreen(initialDepositNumber: '10.1234567.1')),
       );
       await tester.pumpAndSettle();
       final second = controller(tester);
       expect(identical(first, second), isFalse);
-      expect(second.state.deposit?.id, 'deposit-1');
+      expect(second.state.draft.deposit?.id, 'deposit-1');
       await tester.pumpWidget(const SizedBox.shrink());
-      expect(second.isClosed, isTrue);
+      await expectLater(second.stream, emitsDone);
     },
   );
 
@@ -237,13 +237,13 @@ void main() {
         if (frame == 'no-physical') c.updatePhysicalCardOmission(true);
         if (frame.startsWith('address') || frame.startsWith('confirmation')) {
           selection(c);
-          c.advanceStep();
+          c.selectNextStep();
         }
         if (frame == 'address-filled' || frame.startsWith('confirmation')) {
-          c.selectAddress('home');
+          c.selectAddress(c.state.catalog!.addresses.first);
         }
         if (frame.startsWith('confirmation')) {
-          c.advanceStep();
+          c.selectNextStep();
           c.updateTermsAcceptance(true);
         }
         if (frame == 'confirmation-closed') c.updateInvoiceExpansion(false);
@@ -305,44 +305,46 @@ void main() {
       }
     });
   }
-  testWidgets('loading UI disables repeat submission, editing and Back', (
-    tester,
-  ) async {
-    final repository = ControlledIssuanceRepository()..submitting = Completer();
-    await mount(tester, const CardIssuanceScreen(), repository: repository);
-    final cubit = controller(tester);
-    selection(cubit);
-    cubit.advanceStep();
-    cubit.selectAddress('home');
-    cubit.advanceStep();
-    cubit.updateTermsAcceptance(true);
-    await tester.pumpAndSettle();
+  testWidgets(
+    'loading UI disables repeat submission and editing while Back stays available',
+    (tester) async {
+      final repository = ControlledIssuanceRepository()
+        ..submitting = Completer();
+      await mount(tester, const CardIssuanceScreen(), repository: repository);
+      final cubit = controller(tester);
+      selection(cubit);
+      cubit.selectNextStep();
+      cubit.selectAddress(cubit.state.catalog!.addresses.first);
+      cubit.selectNextStep();
+      cubit.updateTermsAcceptance(true);
+      await tester.pumpAndSettle();
 
-    await tester.tap(cardControl(tester, 'issuance_continue'));
-    await tester.pump();
-    expect(repository.calls, 1);
-    final button = tester.widget<AppButton>(
-      cardControl(tester, 'issuance_continue'),
-    );
-    expect(button.isLoading, isTrue);
-    expect(button.onPressed, isNull);
-    expect(cubit.state.editable, isFalse);
-    expect(
-      tester.widget<AppTopBar>(find.byType(AppTopBar)).onTrailingPressed,
-      isNotNull,
-    );
-    await tester.tap(cardControl(tester, 'issuance_continue'));
-    await tester.binding.handlePopRoute();
-    await tester.pump();
-    expect(repository.calls, 1);
-    expect(cubit.state.step, IssuanceStep.confirmation);
-    expect(cubit.state.navigation, isNull);
+      await tester.tap(cardControl(tester, 'issuance_continue'));
+      await tester.pump();
+      expect(repository.calls, 1);
+      final button = tester.widget<AppButton>(
+        cardControl(tester, 'issuance_continue'),
+      );
+      expect(button.isLoading, isTrue);
+      expect(button.onPressed, isNull);
+      expect(cubit.state.isEditable, isFalse);
+      expect(
+        tester.widget<AppTopBar>(find.byType(AppTopBar)).onTrailingPressed,
+        isNotNull,
+      );
+      await tester.tap(cardControl(tester, 'issuance_continue'));
+      await tester.binding.handlePopRoute();
+      await tester.pump();
+      expect(repository.calls, 1);
+      expect(cubit.state.step, IssuanceStep.delivery);
+      expect(cubit.state.navigation, isNull);
 
-    repository.submitting!.complete(repository.submitResult);
-    await tester.pumpAndSettle();
-    expect(cubit.state.submissionStatus, RequestStatus.success);
-    expect(find.textContaining('پرداخت یا صدور واقعی'), findsOneWidget);
-  });
+      repository.submitting!.complete(repository.submitResult);
+      await tester.pumpAndSettle();
+      expect(cubit.state.submissionStatus, RequestStatus.success);
+      expect(find.textContaining('پرداخت یا صدور واقعی'), findsOneWidget);
+    },
+  );
   testWidgets(
     'selectors, no-physical switch, terms and submission are connected',
     (tester) async {
@@ -385,7 +387,7 @@ void main() {
     await mount(tester, const CardIssuanceScreen());
     final c = controller(tester);
     selection(c);
-    c.advanceStep();
+    c.selectNextStep();
     await tester.pumpAndSettle();
     await tap(tester, 'issuance_add_address');
     await tap(tester, 'issuance_save_address');
@@ -412,7 +414,7 @@ void main() {
       '۱۲۳۴۵۶۷۸۹۰',
     );
     await tap(tester, 'issuance_save_address');
-    expect(c.state.address!.postalCode, '1234567890');
+    expect(c.state.draft.address!.postalCode, '1234567890');
     expect(find.byType(AppAddressCard), findsOneWidget);
   });
   testWidgets('empty and load error states offer retry', (tester) async {
@@ -449,9 +451,9 @@ void main() {
         );
         final c = controller(tester);
         selection(c);
-        c.advanceStep();
-        c.selectAddress('home');
-        c.advanceStep();
+        c.selectNextStep();
+        c.selectAddress(c.state.catalog!.addresses.first);
+        c.selectNextStep();
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull);
         expect(cardControl(tester, 'issuance_continue'), findsOneWidget);
@@ -480,7 +482,7 @@ void main() {
       await tester.tap(find.text('open'));
       await tester.pumpAndSettle();
       expect(find.byType(CardIssuanceScreen), findsOneWidget);
-      expect(controller(tester).state.deposit!.id, 'deposit-1');
+      expect(controller(tester).state.draft.deposit!.id, 'deposit-1');
     },
   );
   testWidgets(
@@ -489,14 +491,14 @@ void main() {
       await mount(tester, const CardIssuanceScreen());
       final c = controller(tester);
       selection(c);
-      c.advanceStep();
-      c.selectAddress('home');
-      c.advanceStep();
+      c.selectNextStep();
+      c.selectAddress(c.state.catalog!.addresses.first);
+      c.selectNextStep();
       await tester.pumpAndSettle();
       await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
       expect(c.state.step, IssuanceStep.delivery);
-      expect(c.state.address!.id, 'home');
+      expect(c.state.draft.address!.id, 'home');
       final delete = find.descendant(
         of: cardControl(tester, 'issuance_address_card'),
         matching: find.byType(InkWell),
@@ -504,11 +506,11 @@ void main() {
       await tester.tap(delete);
       await tester.pumpAndSettle();
       await tap(tester, 'app_delete_address_cancel');
-      expect(c.state.address!.id, 'home');
+      expect(c.state.draft.address!.id, 'home');
       await tester.tap(delete);
       await tester.pumpAndSettle();
       await tap(tester, 'app_delete_address_confirm');
-      expect(c.state.address, isNull);
+      expect(c.state.draft.address, isNull);
       expect(c.state.canContinue, false);
       expect(cardControl(tester, 'issuance_add_address'), findsOneWidget);
     },

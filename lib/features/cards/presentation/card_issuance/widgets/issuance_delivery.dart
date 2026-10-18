@@ -67,20 +67,19 @@ class _IssuanceDeliveryState extends State<IssuanceDelivery> {
     return BlocBuilder<CardIssuanceCubit, CardIssuanceState>(
       buildWhen: (previous, current) =>
           previous.catalog != current.catalog ||
-          previous.draft != current.draft ||
-          previous.address != current.address,
+          previous.draft != current.draft,
       builder: (context, state) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            IssuanceSelect<String>(
+            IssuanceSelect<IssuanceAddress>(
               hintColor: context.colors.textDisabled,
               options: [
                 for (final a in state.catalog!.addresses)
-                  AppSelectOption(value: a.id, label: a.title),
+                  AppSelectOption(value: a, label: a.title),
               ],
-              value: state.draft.addressId,
-              label: state.address == null
+              value: state.draft.address,
+              label: state.draft.address == null
                   ? S.current.issuanceAddress
                   : S.current.issuanceSelectAddress,
               hint: S.current.issuanceAddressHint,
@@ -89,12 +88,12 @@ class _IssuanceDeliveryState extends State<IssuanceDelivery> {
               },
             ),
             const SizedBox(height: 12),
-            if (state.address != null)
+            if (state.draft.address != null)
               AppAddressCard(
                 variant: AppAddressCardVariant.delivery,
                 deleteLabel: S.current.issuanceDeleteAddress,
-                address: state.address!.detail,
-                onDeleteTap: () => widget.onDeleteAddress(state.address!),
+                address: state.draft.address!.detail,
+                onDeleteTap: () => widget.onDeleteAddress(state.draft.address!),
               )
             else
               Align(

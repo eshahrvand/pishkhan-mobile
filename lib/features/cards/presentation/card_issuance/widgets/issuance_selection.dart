@@ -20,25 +20,24 @@ class IssuanceSelection extends StatelessWidget {
     return BlocBuilder<CardIssuanceCubit, CardIssuanceState>(
       buildWhen: (previous, current) =>
           previous.catalog != current.catalog ||
-          previous.draft != current.draft ||
-          previous.deposit != current.deposit,
+          previous.draft != current.draft,
       builder: (context, state) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            IssuanceSelect<String>(
+            IssuanceSelect<IssuanceDeposit>(
               options: [
                 for (final d in state.catalog!.deposits)
-                  AppSelectOption(value: d.id, label: d.number),
+                  AppSelectOption(value: d, label: d.number),
               ],
-              value: state.draft.depositId,
+              value: state.draft.deposit,
               label: S.current.issuanceDeposit,
               hint: S.current.issuanceDepositHint,
               onChanged: (v) {
                 context.read<CardIssuanceCubit>().selectDeposit(v);
               },
             ),
-            if (state.deposit != null) ...[
+            if (state.draft.deposit != null) ...[
               const SizedBox(height: 12),
               Container(
                 padding: const EdgeInsets.all(16),
@@ -50,7 +49,7 @@ class IssuanceSelection extends StatelessWidget {
                   children: [
                     IssuanceCurrentCardRow(
                       label: S.current.issuanceCurrentCard,
-                      value: state.deposit!.cardNumber,
+                      value: state.draft.deposit!.cardNumber,
                       asset: AppAssets.issuanceCredit,
                     ),
                     const SizedBox(height: 12),
@@ -69,7 +68,7 @@ class IssuanceSelection extends StatelessWidget {
                     const SizedBox(height: 12),
                     IssuanceCurrentCardRow(
                       label: S.current.issuanceExpiry,
-                      value: state.deposit!.expiry,
+                      value: state.draft.deposit!.expiry,
                       asset: AppAssets.issuanceCalendar,
                     ),
                   ],
