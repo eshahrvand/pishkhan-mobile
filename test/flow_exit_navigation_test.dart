@@ -50,7 +50,7 @@ void main() {
         final cubit = tester
             .element(find.byType(VirtualCardContent))
             .read<VirtualCardCubit>();
-        await cubit.countChanged('1');
+        await cubit.updateCount('1');
         await tester.pumpAndSettle();
         Future<void> back() async {
           if (systemBack) {

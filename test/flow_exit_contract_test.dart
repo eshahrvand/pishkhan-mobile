@@ -70,19 +70,19 @@ void main() {
     'virtual count is discardable even before a quote; clean entry exits',
     () async {
       final clean = VirtualCardCubit();
-      await clean.load();
+      await clean.fetchCatalog();
       clean.requestBack();
       expect(clean.state.navigation, FlowNavigation.back);
       await clean.close();
       final cubit = VirtualCardCubit();
-      await cubit.load();
-      await cubit.countChanged('1');
+      await cubit.fetchCatalog();
+      await cubit.updateCount('1');
       cubit.requestBack();
       expect(cubit.state.navigation, FlowNavigation.confirmExit);
-      cubit.exitConfirmationResult(false);
+      cubit.applyExitConfirmation(false);
       expect(cubit.state.countText, '1');
       cubit.requestBack();
-      cubit.exitConfirmationResult(true);
+      cubit.applyExitConfirmation(true);
       expect(cubit.state.navigation, FlowNavigation.back);
       await cubit.close();
     },

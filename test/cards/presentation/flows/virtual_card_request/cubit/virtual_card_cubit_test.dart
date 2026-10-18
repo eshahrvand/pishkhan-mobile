@@ -12,7 +12,6 @@ import 'package:pishkhan_mobile/features/cards/presentation/virtual_card_request
 
 class TestVirtualRepository implements VirtualCardRepository {
   VirtualCardCatalog catalog = MockVirtualCardRepository.catalog;
-  Completer<Result<VirtualCardCatalog>>? loading;
   final pendingQuotes = <Completer<Result<VirtualCardQuote>>>[];
   bool holdQuotes = false, throwLoad = false, mockReceipt = true;
   Failure? quoteFailure, submitFailure;
@@ -22,7 +21,7 @@ class TestVirtualRepository implements VirtualCardRepository {
   @override
   Future<Result<VirtualCardCatalog>> load() async {
     if (throwLoad) throw StateError('transport');
-    return loading == null ? Success(catalog) : loading!.future;
+    return Success(catalog);
   }
 
   VirtualCardQuote value(String id, int count) => VirtualCardQuote(
@@ -62,9 +61,13 @@ class TestVirtualRepository implements VirtualCardRepository {
 }
 
 Future<void> fillVirtual(VirtualCardCubit c) async {
-  await c.selectDeposit('virtual-deposit-1');
-  await c.countChanged('۴');
-  c.acceptTerms(true);
+  await c.selectDeposit(
+    c.state.catalog!.deposits.firstWhere(
+      (deposit) => deposit.id == 'virtual-deposit-1',
+    ),
+  );
+  await c.updateCount('۴');
+  c.updateTermsAcceptance(true);
 }
 
 void main() {
@@ -77,57 +80,89 @@ void main() {
             r,
             () => VirtualCardCubit(),
           );
-      await c.load();
-      await c.selectDeposit('virtual-deposit-1');
+      await c.fetchCatalog();
+      await c.selectDeposit(
+        c.state.catalog!.deposits.firstWhere(
+          (deposit) => deposit.id == 'virtual-deposit-1',
+        ),
+      );
       for (final value in ['', '0', '1000', '4.5', '-1', 'abc']) {
-        await c.countChanged(value);
+        await c.updateCount(value);
         expect(c.state.canSubmit, false);
       }
-      await c.countChanged('٤');
+      await c.updateCount('٤');
       expect(c.state.count, 4);
       expect(c.state.quote!.totalRial, 1300000);
       expect(c.state.canSubmit, false);
-      c.acceptTerms(true);
+      c.updateTermsAcceptance(true);
       expect(c.state.canSubmit, true);
-      await c.countChanged('5');
-      expect(c.state.terms, false);
+      await c.updateCount('5');
+      expect(c.state.termsAccepted, false);
       expect(c.state.quote!.count, 5);
       r.wallet = 0;
-      await c.refreshQuote();
-      c.acceptTerms(true);
+      await c.fetchQuote();
+      c.updateTermsAcceptance(true);
       expect(c.state.canSubmit, false);
-      await c.submit();
       expect(r.requests, isEmpty);
       await c.close();
     },
   );
+  test(
+    'entering count before choosing a deposit starts quoting on selection',
+    () async {
+      final cubit =
+          withRegisteredDependency<VirtualCardRepository, VirtualCardCubit>(
+            TestVirtualRepository(),
+            () => VirtualCardCubit(),
+          );
+      addTearDown(cubit.close);
+      await cubit.fetchCatalog();
+      await cubit.updateCount('۴');
+      expect(cubit.state.isCountValid, isTrue);
+      expect(cubit.state.quote, isNull);
+      await cubit.selectDeposit(cubit.state.catalog!.deposits.first);
+      expect(cubit.state.quote?.count, 4);
+      expect(cubit.state.quoteStatus, RequestStatus.success);
+      cubit.updateTermsAcceptance(true);
+      expect(cubit.state.canSubmit, isTrue);
+    },
+  );
+
   test('late quotes cannot replace current selection; invalid quote bindings are rejected', () async {
     final r = TestVirtualRepository()..holdQuotes = true;
     final c = withRegisteredDependency<VirtualCardRepository, VirtualCardCubit>(
       r,
       () => VirtualCardCubit(),
     );
-    await c.load();
-    await c.selectDeposit('virtual-deposit-1');
-    final old = c.countChanged('3');
-    final latest = c.countChanged('4');
+    await c.fetchCatalog();
+    await c.selectDeposit(
+      c.state.catalog!.deposits.firstWhere(
+        (deposit) => deposit.id == 'virtual-deposit-1',
+      ),
+    );
+    final old = c.updateCount('3');
+    final latest = c.updateCount('4');
     r.pendingQuotes[1].complete(Success(r.value('virtual-deposit-1', 4)));
     await latest;
     r.pendingQuotes[0].complete(Success(r.value('virtual-deposit-1', 3)));
     await old;
     expect(c.state.quote!.count, 4);
     expect(c.state.quoteStatus, RequestStatus.success);
-    final bad = c.selectDeposit('virtual-deposit-2');
+    final bad = c.selectDeposit(
+      c.state.catalog!.deposits.firstWhere(
+        (deposit) => deposit.id == 'virtual-deposit-2',
+      ),
+    );
     r.pendingQuotes[2].complete(Success(r.value('virtual-deposit-1', 4)));
     await bad;
     expect(c.state.quote, isNull);
-    expect(c.state.failure!.code, 'virtual.quote.invalid');
+    expect(c.state.quoteFailure!.code, 'virtual.quote.invalid');
     expect(c.state.quoteStatus, RequestStatus.failure);
-    expect(c.state.status, RequestStatus.success);
+    expect(c.state.catalogStatus, RequestStatus.success);
     await c.close();
   });
   test(
-    'duplicate sends and edits lock; retry keeps key until request changes',
+    'submission disables editing and retry keeps key until request changes',
     () async {
       final r = TestVirtualRepository()
         ..submitFailure = const DataFailure('network');
@@ -136,21 +171,20 @@ void main() {
             r,
             () => VirtualCardCubit(),
           );
-      await c.load();
+      await c.fetchCatalog();
       await fillVirtual(c);
-      await c.submit();
-      await c.submit();
+      await c.submitVirtualCards();
+      await c.submitVirtualCards();
       expect(r.requests[0].idempotencyKey, r.requests[1].idempotencyKey);
-      await c.countChanged('2');
-      c.acceptTerms(true);
+      await c.updateCount('2');
+      c.updateTermsAcceptance(true);
       r.submitFailure = null;
       r.submitting = Completer();
-      final task = c.submit();
+      final task = c.submitVirtualCards();
       expect(c.state.submissionStatus, RequestStatus.loading);
       expect(c.state.quoteStatus, RequestStatus.success);
-      await c.submit();
-      await c.countChanged('3');
-      await c.selectDeposit('virtual-deposit-2');
+      expect(c.state.isEditable, isFalse);
+      expect(c.state.canSubmit, isFalse);
       expect(r.requests.length, 3);
       expect(c.state.count, 2);
       expect(
@@ -172,8 +206,8 @@ void main() {
       r,
       () => VirtualCardCubit(),
     );
-    await c.load();
-    expect(c.state.status, RequestStatus.success);
+    await c.fetchCatalog();
+    expect(c.state.catalogStatus, RequestStatus.success);
     expect(c.state.catalog!.deposits, isEmpty);
     r.catalog = VirtualCardCatalog(
       deposits: const [
@@ -182,51 +216,118 @@ void main() {
       ],
       indicativePerCardFeeRial: 0,
     );
-    await c.load();
-    expect(c.state.status, RequestStatus.failure);
+    await c.fetchCatalog();
+    expect(c.state.catalogStatus, RequestStatus.failure);
     r.catalog = MockVirtualCardRepository.catalog;
     r.throwLoad = true;
-    await c.load();
-    expect(c.state.status, RequestStatus.failure);
+    await c.fetchCatalog();
+    expect(c.state.catalogStatus, RequestStatus.failure);
     r.throwLoad = false;
-    await c.load();
+    await c.fetchCatalog();
     r.quoteFailure = const DataFailure('network');
     await fillVirtual(c);
     expect(c.state.canSubmit, false);
-    expect(c.state.failure, isNotNull);
+    expect(c.state.quoteFailure, isNotNull);
     r.quoteFailure = null;
-    await c.refreshQuote();
+    await c.fetchQuote();
     expect(c.state.quote, isNotNull);
-    expect(c.state.terms, false);
+    expect(c.state.termsAccepted, false);
     await c.close();
   });
   test(
-    'initial deposit normalization, disposal and latest load guard',
+    'initial deposit normalization and construction preserve a clean entry',
     () async {
-      final r = TestVirtualRepository();
-      final c =
+      final repository = TestVirtualRepository();
+      const initialState = VirtualCardState.initial(isInvoiceExpanded: false);
+      final cubit =
           withRegisteredDependency<VirtualCardRepository, VirtualCardCubit>(
-            r,
-            () => VirtualCardCubit(initialDepositNumber: '۱۰.۱۲۳۴۵۶۷.۱'),
+            repository,
+            () => VirtualCardCubit(
+              initialState: initialState,
+              initialDepositNumber: '۱۰.۱۲۳۴۵۶۷.۱',
+            ),
           );
-      await c.load();
-      expect(c.state.depositId, 'virtual-deposit-1');
-      r.loading = Completer();
-      final old = c.load();
-      final pending = r.loading!;
-      r.loading = null;
-      await c.load();
-      pending.complete(const Err(DataFailure('old')));
-      await old;
-      expect(c.state.status, RequestStatus.success);
-      r.holdQuotes = true;
-      final task = c.countChanged('4');
-      await c.close();
-      r.pendingQuotes.single.complete(Success(r.value('virtual-deposit-1', 4)));
-      await task;
-      expect(c.isClosed, true);
+      addTearDown(cubit.close);
+      expect(cubit.state, same(initialState));
+      await cubit.fetchCatalog();
+      expect(cubit.state.deposit?.id, 'virtual-deposit-1');
+      cubit.requestBack();
+      expect(cubit.state.navigation, FlowNavigation.back);
+      await cubit.updateCount('4');
+      cubit.requestBack();
+      expect(cubit.state.navigation, FlowNavigation.confirmExit);
+      cubit.applyExitConfirmation(null);
+      expect(cubit.state.navigation, isNull);
+      expect(cubit.state.countText, '4');
     },
   );
+
+  test(
+    'invalid count invalidates a pending quote before its response arrives',
+    () async {
+      final repository = TestVirtualRepository()..holdQuotes = true;
+      final cubit =
+          withRegisteredDependency<VirtualCardRepository, VirtualCardCubit>(
+            repository,
+            () => VirtualCardCubit(),
+          );
+      addTearDown(cubit.close);
+      await cubit.fetchCatalog();
+      await cubit.selectDeposit(cubit.state.catalog!.deposits.first);
+      final pending = cubit.updateCount('4');
+      await cubit.updateCount('0');
+      repository.pendingQuotes.single.complete(
+        Success(repository.value(cubit.state.deposit!.id, 4)),
+      );
+      await pending;
+      expect(cubit.state.isCountValid, isFalse);
+      expect(cubit.state.isCountError, isTrue);
+      expect(cubit.state.quote, isNull);
+      expect(cubit.state.quoteStatus, RequestStatus.initial);
+      expect(cubit.state.canSubmit, isFalse);
+    },
+  );
+
+  test(
+    'quote and submission failures retain independent retry contracts',
+    () async {
+      final repository = TestVirtualRepository()
+        ..quoteFailure = const DataFailure('quote-offline');
+      final cubit =
+          withRegisteredDependency<VirtualCardRepository, VirtualCardCubit>(
+            repository,
+            () => VirtualCardCubit(),
+          );
+      addTearDown(cubit.close);
+      await cubit.fetchCatalog();
+      await fillVirtual(cubit);
+      expect(cubit.state.quoteFailure?.code, 'quote-offline');
+      expect(cubit.state.catalogFailure, isNull);
+      expect(cubit.state.submissionFailure, isNull);
+      expect(cubit.state.retryAction, VirtualCardRetryAction.quote);
+      repository.quoteFailure = null;
+      await cubit.submitRetry();
+      expect(cubit.state.quoteFailure, isNull);
+      cubit.updateTermsAcceptance(true);
+      repository.submitFailure = const DataFailure('submit-offline');
+      await cubit.submitVirtualCards();
+      expect(cubit.state.submissionFailure?.code, 'submit-offline');
+      expect(cubit.state.quoteStatus, RequestStatus.success);
+      expect(cubit.state.retryAction, VirtualCardRetryAction.submission);
+      cubit.updateTermsAcceptance(false);
+      expect(cubit.state.canRetry, isFalse);
+      cubit.updateTermsAcceptance(true);
+      expect(cubit.state.canRetry, isTrue);
+      repository.submitFailure = null;
+      await cubit.submitRetry();
+      expect(
+        repository.requests.first.idempotencyKey,
+        repository.requests.last.idempotencyKey,
+      );
+      expect(cubit.state.navigation, FlowNavigation.home);
+    },
+  );
+
   test(
     'mock submit accepts only issued sufficient quotes and is idempotent',
     () async {

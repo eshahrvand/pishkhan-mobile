@@ -1,3 +1,10 @@
+import 'dart:async';
+
+import 'package:pishkhan_mobile/core/enums/request_status.dart';
+import 'package:pishkhan_mobile/core/result/failure.dart';
+import 'package:pishkhan_mobile/core/result/result.dart';
+import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
+
 import '../../../../../support/cards_ui_finders.dart';
 
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -69,6 +76,7 @@ void main() {
   Future<void> mount(
     WidgetTester t, {
     TestVirtualRepository? repository,
+    ValueChanged<VirtualCardReceipt>? onSubmitted,
     Size size = const Size(375, 812),
     Locale locale = const Locale('fa'),
     double scale = 1,
@@ -80,7 +88,11 @@ void main() {
     t.view.viewPadding = const FakeViewPadding(top: 24, bottom: 40);
     addTearDown(t.view.reset);
     await t.pumpWidget(
-      subject(const VirtualCardRequestScreen(), locale: locale, scale: scale),
+      subject(
+        VirtualCardRequestScreen(onSubmitted: onSubmitted),
+        locale: locale,
+        scale: scale,
+      ),
     );
     await t.pumpAndSettle();
   }
@@ -156,7 +168,7 @@ void main() {
       await capture(t, 'filled');
       await t.tap(cardControl(t, 'virtual_invoice'));
       await t.pumpAndSettle();
-      expect(cubit(t).state.expanded, false);
+      expect(cubit(t).state.isInvoiceExpanded, false);
       expect(t.getSize(find.byType(AppInvoice)).height, 130);
       await t.tap(cardControl(t, 'virtual_submit'));
       await t.pumpAndSettle();
@@ -180,10 +192,116 @@ void main() {
       '٠',
     );
     await t.pumpAndSettle();
-    expect(cubit(t).state.terms, false);
+    expect(cubit(t).state.termsAccepted, false);
     expect(cubit(t).state.quote, isNull);
     expect(t.takeException(), isNull);
   });
+  testWidgets(
+    'count remains editable during quoting and only its newest response is rendered',
+    (t) async {
+      final repository = TestVirtualRepository()..holdQuotes = true;
+      await mount(t, repository: repository);
+      await t.tap(cardControl(t, 'virtual_deposit'));
+      await t.pumpAndSettle();
+      await t.tap(find.text('10.1234567.1'));
+      await t.pumpAndSettle();
+      final input = find.descendant(
+        of: cardControl(t, 'virtual_count'),
+        matching: find.byType(TextField),
+      );
+      await t.enterText(input, '3');
+      await t.pump();
+      expect(
+        t.widget<AppTextField>(cardControl(t, 'virtual_count')).enabled,
+        isTrue,
+      );
+      expect(
+        t.widget<AppCheckbox>(cardControl(t, 'virtual_terms')).onChanged,
+        isNull,
+      );
+      await t.enterText(input, '4');
+      await t.pump();
+      FocusManager.instance.primaryFocus?.unfocus();
+      repository.pendingQuotes.last.complete(
+        Success(repository.value('virtual-deposit-1', 4)),
+      );
+      await t.pumpAndSettle();
+      repository.pendingQuotes.first.complete(const Err(DataFailure('old')));
+      await t.pumpAndSettle();
+      expect(cubit(t).state.quote?.count, 4);
+      expect(cubit(t).state.quoteFailure, isNull);
+      expect(find.byType(AppInvoice), findsOneWidget);
+      expect(t.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
+    'retry chooses the failed operation and submission disables controls',
+    (t) async {
+      final repository = TestVirtualRepository()..throwLoad = true;
+      var completions = 0;
+      await mount(t, repository: repository, onSubmitted: (_) => completions++);
+      final retry = find.byWidgetPredicate(
+        (widget) =>
+            widget is AppButton && widget.label == S.current.dashboardRetry,
+      );
+      repository.throwLoad = false;
+      await t.ensureVisible(retry);
+      await t.pumpAndSettle();
+      await t.tap(retry);
+      await t.pumpAndSettle();
+      repository.quoteFailure = const DataFailure('quote-offline');
+      await fill(t);
+      expect(cubit(t).state.quoteStatus, RequestStatus.failure);
+      repository.quoteFailure = null;
+      await t.ensureVisible(retry);
+      await t.pumpAndSettle();
+      await t.tap(retry);
+      await t.pumpAndSettle();
+      expect(cubit(t).state.quote, isNotNull);
+      expect(cubit(t).state.termsAccepted, isFalse);
+      await t.tap(cardControl(t, 'virtual_terms'));
+      await t.pumpAndSettle();
+      repository.submitFailure = const DataFailure('submit-offline');
+      await t.tap(cardControl(t, 'virtual_submit'));
+      await t.pumpAndSettle();
+      repository.submitting = Completer<Result<VirtualCardReceipt>>();
+      await t.ensureVisible(retry);
+      await t.pumpAndSettle();
+      await t.tap(retry);
+      await t.pump();
+      expect(
+        t.widget<AppTextField>(cardControl(t, 'virtual_count')).enabled,
+        isFalse,
+      );
+      expect(
+        t.widget<AppCheckbox>(cardControl(t, 'virtual_terms')).onChanged,
+        isNull,
+      );
+      expect(
+        t.widget<AppButton>(cardControl(t, 'virtual_submit')).onPressed,
+        isNull,
+      );
+      expect(
+        t.widget<AppTopBar>(find.byType(AppTopBar)).onTrailingPressed,
+        isNotNull,
+      );
+      await t.tap(cardControl(t, 'virtual_submit'));
+      await t.pump();
+      expect(repository.requests, hasLength(2));
+      expect(
+        repository.requests.first.idempotencyKey,
+        repository.requests.last.idempotencyKey,
+      );
+      repository.submitting!.complete(
+        const Success(VirtualCardReceipt(reference: 'done', isMock: true)),
+      );
+      await t.pumpAndSettle();
+      expect(completions, 1);
+      expect(t.takeException(), isNull);
+    },
+  );
+
   for (final locale in ['fa', 'en', 'ar']) {
     testWidgets('320px large text keeps form and footer reachable in $locale', (
       t,
@@ -223,7 +341,7 @@ void main() {
       await t.tap(find.text('Request'));
       await t.pumpAndSettle();
       expect(find.byType(VirtualCardRequestScreen), findsOneWidget);
-      expect(cubit(t).state.depositId, 'virtual-deposit-1');
+      expect(cubit(t).state.deposit?.id, 'virtual-deposit-1');
     },
   );
   testWidgets(
