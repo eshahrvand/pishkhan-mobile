@@ -1,18 +1,15 @@
+import '../widgets/deposit_list_content.dart';
 import '../widgets/deposit_sheet.dart';
 import '../widgets/deposit_filter_options.dart';
-
-import 'dart:math' as math;
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
 import 'package:pishkhan_mobile/core/flow/service_registry.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
-import 'package:pishkhan_mobile/shared/widgets/app_deposit_list.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
 
 import '../../../domain/entities/listed_deposit.dart';
@@ -38,7 +35,10 @@ class DepositListScreen extends StatelessWidget {
       case DepositActionsRequested(:final deposit):
         final action = await showDepositActionsSheet(context);
         if (context.mounted) {
-          context.read<DepositListCubit>().actionSelected(deposit, action);
+          context.read<DepositListCubit>().applyActionSelection(
+            deposit,
+            action,
+          );
         }
       case DepositDetailsRequested(:final deposit):
         await showDepositAccountDetailsSheet(context, deposit);
@@ -69,7 +69,7 @@ class DepositListScreen extends StatelessWidget {
           ),
         );
         if (context.mounted) {
-          context.read<DepositListCubit>().kindFilterResult(value);
+          context.read<DepositListCubit>().applyKindFilterSelection(value);
         }
       case DepositStatusFilterRequested():
         final value = await showDepositSheet<DepositStatus>(
@@ -85,7 +85,7 @@ class DepositListScreen extends StatelessWidget {
           ),
         );
         if (context.mounted) {
-          context.read<DepositListCubit>().statusFilterResult(value);
+          context.read<DepositListCubit>().applyStatusFilterSelection(value);
         }
       case null:
         break;
@@ -95,7 +95,7 @@ class DepositListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => DepositListCubit()..load(),
+      create: (_) => DepositListCubit()..fetchDeposits(),
       child: BlocListener<DepositListCubit, DepositListState>(
         listenWhen: (previous, current) =>
             previous.effectId != current.effectId,
@@ -136,102 +136,7 @@ class DepositListScreen extends StatelessWidget {
                                 ),
                               ),
                               const SizedBox(height: 16),
-                              BlocBuilder<DepositListCubit, DepositListState>(
-                                buildWhen: (previous, next) =>
-                                    previous.status != next.status ||
-                                    previous.visibleDeposits !=
-                                        next.visibleDeposits,
-                                builder: (context, state) {
-                                  if (state.status == RequestStatus.initial ||
-                                      state.status == RequestStatus.loading) {
-                                    return const Center(
-                                      child: CircularProgressIndicator(),
-                                    );
-                                  }
-                                  if (state.status == RequestStatus.failure) {
-                                    return Column(
-                                      children: [
-                                        Text(S.current.dashboardLoadError),
-                                        AppButton(
-                                          label: S.current.dashboardRetry,
-                                          onPressed: context
-                                              .read<DepositListCubit>()
-                                              .load,
-                                        ),
-                                      ],
-                                    );
-                                  }
-                                  if (state.visibleDeposits.isEmpty) {
-                                    return Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 24,
-                                      ),
-                                      child: Text(
-                                        state.deposits.isEmpty
-                                            ? S.current.depositsEmpty
-                                            : S.current.depositListNoMatches,
-                                        textAlign: TextAlign.center,
-                                      ),
-                                    );
-                                  }
-                                  return Column(
-                                    children: [
-                                      for (
-                                        var i = 0;
-                                        i < state.visibleDeposits.length;
-                                        i++
-                                      ) ...[
-                                        if (i > 0) const SizedBox(height: 10),
-                                        AppDepositList(
-                                          alignContentToEdges: true,
-                                          title: depositKindLabel(
-                                            state.visibleDeposits[i].kind,
-                                          ),
-                                          accountNumber:
-                                              state.visibleDeposits[i].number,
-                                          accountNumberLabel:
-                                              S.current.depositListNumber,
-                                          statusFieldLabel:
-                                              S.current.depositListStatus,
-                                          statusLabel: depositStatusLabel(
-                                            state.visibleDeposits[i].status,
-                                          ),
-                                          statusColor: switch (state
-                                              .visibleDeposits[i]
-                                              .status) {
-                                            DepositStatus.open =>
-                                              AppBadgeColor.success,
-                                            DepositStatus.closed =>
-                                              AppBadgeColor.warning,
-                                            DepositStatus.blocked =>
-                                              AppBadgeColor.error,
-                                          },
-                                          depositIcon: depositIcon(
-                                            AppAssets.depositFeatureDeposit,
-                                            size: 20,
-                                          ),
-                                          moreIcon: Transform.rotate(
-                                            angle: -math.pi / 2,
-                                            child: depositIcon(
-                                              AppAssets.depositFeatureMore,
-                                              size: 20,
-                                            ),
-                                          ),
-                                          divider: const DepositDivider(
-                                            asset:
-                                                AppAssets.depositFeatureDivider,
-                                          ),
-                                          onMoreTap: () => context
-                                              .read<DepositListCubit>()
-                                              .requestActions(
-                                                state.visibleDeposits[i].id,
-                                              ),
-                                        ),
-                                      ],
-                                    ],
-                                  );
-                                },
-                              ),
+                              const DepositListContent(),
                             ],
                           ),
                         ),

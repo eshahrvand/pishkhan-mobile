@@ -28,7 +28,7 @@ class FinancialConditionOption extends StatelessWidget {
             size: AppCheckboxSize.md,
             onChanged: (value) => context
                 .read<FinancialCertificateCubit>()
-                .toggleCondition(condition, value),
+                .toggleCondition(condition),
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -36,7 +36,7 @@ class FinancialConditionOption extends StatelessWidget {
               behavior: HitTestBehavior.opaque,
               onTap: () => context
                   .read<FinancialCertificateCubit>()
-                  .toggleConditionSelection(condition),
+                  .toggleCondition(condition),
               child: Text(
                 label,
                 style: certificateValueStyle(context).copyWith(

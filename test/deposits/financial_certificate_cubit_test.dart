@@ -35,28 +35,28 @@ class FinancialTestRepository implements FinancialCertificateRepository {
   }
 }
 
-void fillLatin(FinancialCertificateCubit cubit) => cubit.latinChanged(
-  name: 'Ali',
-  surname: 'Raad',
-  fatherName: 'Arash',
-  passportNumber: '۱۲۳۴۵۶۷۸۹۰',
-  expiry: '۲۰۲۶/۰۸/۱۲',
-  address: 'Unit 1, No 12, Tehran, Iran, 1234567890',
-);
+void fillLatin(FinancialCertificateCubit cubit) {
+  cubit.updateLatinName('Ali');
+  cubit.updateLatinSurname('Raad');
+  cubit.updateLatinFatherName('Arash');
+  cubit.updatePassportNumber('۱۲۳۴۵۶۷۸۹۰');
+  cubit.updatePassportExpiry('۲۰۲۶/۰۸/۱۲');
+  cubit.updateLatinAddress('Unit 1, No 12, Tehran, Iran, 1234567890');
+}
 
 Future<void> readyFinancial(FinancialCertificateCubit cubit) async {
-  await cubit.load();
-  cubit.selectDeposit('certificate-deposit-1');
-  cubit.toggleCondition(FinancialCertificateCondition.homeAddress, true);
-  cubit.next();
+  await cubit.fetchCatalog();
+  cubit.selectDeposit(cubit.state.catalog!.deposits.first);
+  cubit.toggleCondition(FinancialCertificateCondition.homeAddress);
+  await cubit.continueFlow();
   cubit.selectRecipient(FinancialCertificateRecipient.embassy);
-  cubit.selectEmbassy('demo-embassy');
+  cubit.selectEmbassy(cubit.state.catalog!.embassies.first);
   cubit.selectCurrency(CertificateCurrency.usd);
-  cubit.next();
+  await cubit.continueFlow();
   fillLatin(cubit);
-  cubit.next();
-  cubit.selectAddress('home');
-  cubit.next();
+  await cubit.continueFlow();
+  cubit.selectAddress(cubit.state.addresses.first);
+  await cubit.continueFlow();
 }
 
 void main() {
@@ -68,16 +68,16 @@ void main() {
             FinancialCertificateRepository,
             FinancialCertificateCubit
           >(FinancialTestRepository(), () => FinancialCertificateCubit());
-      await cubit.load();
-      cubit.selectDeposit('certificate-deposit-1');
-      cubit.next();
-      expect(cubit.state.step, FinancialCertificateStep.conditions);
-      cubit.toggleCondition(FinancialCertificateCondition.homeAddress, true);
-      expect(cubit.state.canContinue, isTrue);
-      cubit.toggleCondition(FinancialCertificateCondition.homeAddress, false);
+      await cubit.fetchCatalog();
+      cubit.selectDeposit(cubit.state.catalog!.deposits.first);
       expect(cubit.state.canContinue, isFalse);
-      cubit.toggleCondition(FinancialCertificateCondition.exchangeRate, true);
-      cubit.selectDeposit('certificate-deposit-2');
+      expect(cubit.state.step, FinancialCertificateStep.conditions);
+      cubit.toggleCondition(FinancialCertificateCondition.homeAddress);
+      expect(cubit.state.canContinue, isTrue);
+      cubit.toggleCondition(FinancialCertificateCondition.homeAddress);
+      expect(cubit.state.canContinue, isFalse);
+      cubit.toggleCondition(FinancialCertificateCondition.exchangeRate);
+      cubit.selectDeposit(cubit.state.catalog!.deposits[1]);
       expect(cubit.state.conditions, isEmpty);
       expect(cubit.state.canContinue, isFalse);
       await cubit.close();
@@ -93,20 +93,20 @@ void main() {
             FinancialCertificateCubit
           >(repo, () => FinancialCertificateCubit());
       await readyFinancial(cubit);
-      cubit.back();
-      cubit.back();
-      cubit.back();
+      cubit.requestBack();
+      cubit.requestBack();
+      cubit.requestBack();
       cubit.selectRecipient(FinancialCertificateRecipient.otherAuthority);
-      expect(cubit.state.embassyId, isNull);
+      expect(cubit.state.embassy, isNull);
       expect(cubit.state.currency, isNull);
-      cubit.authorityChanged('  ');
+      cubit.updateAuthorityName('  ');
       cubit.selectCurrency(CertificateCurrency.eur);
       expect(cubit.state.canContinue, isFalse);
-      cubit.authorityChanged('  University  ');
-      cubit.next();
-      cubit.next();
-      cubit.next();
-      await cubit.submit();
+      cubit.updateAuthorityName('  University  ');
+      await cubit.continueFlow();
+      await cubit.continueFlow();
+      await cubit.continueFlow();
+      await cubit.submitCertificate();
       expect(repo.requests.single.embassyId, isNull);
       expect(repo.requests.single.authorityName, 'University');
       expect(repo.requests.single.currency, CertificateCurrency.eur);
@@ -140,13 +140,14 @@ void main() {
             FinancialCertificateCubit
           >(FinancialTestRepository(), () => FinancialCertificateCubit());
       await readyFinancial(cubit);
-      cubit.back();
-      cubit.back();
-      cubit.latinChanged(name: 'علی');
+      cubit.requestBack();
+      cubit.requestBack();
+      cubit.updateLatinName('علی');
       expect(cubit.state.canContinue, isFalse);
-      cubit.latinChanged(name: 'Ali', expiry: '2026/02/30');
+      cubit.updateLatinName('Ali');
+      cubit.updatePassportExpiry('2026/02/30');
       expect(cubit.state.canContinue, isFalse);
-      cubit.latinChanged(expiry: '2026/08/12');
+      cubit.updatePassportExpiry('2026/08/12');
       expect(cubit.state.canContinue, isTrue);
       await cubit.close();
     },
@@ -159,15 +160,16 @@ void main() {
           FinancialCertificateCubit
         >(repo, () => FinancialCertificateCubit());
     await readyFinancial(cubit);
-    cubit.back();
-    cubit.setOtherRecipient(true);
+    cubit.requestBack();
+    cubit.updateOtherRecipient(true);
     expect(cubit.state.canContinue, isFalse);
-    cubit.deliveryRecipientChanged('گیرنده', '۰۰۸۱۲۳۴۵۶۷');
+    cubit.updateRecipientName('گیرنده');
+    cubit.updateRecipientNationalId('۰۰۸۱۲۳۴۵۶۲');
     expect(cubit.state.canContinue, isTrue);
-    cubit.setIncludeAgent(true);
-    cubit.next();
-    await cubit.submit();
-    expect(repo.requests.single.deliveryRecipientNationalId, '0081234567');
+    cubit.updateIncludeAgent(true);
+    await cubit.continueFlow();
+    await cubit.submitCertificate();
+    expect(repo.requests.single.deliveryRecipientNationalId, '0081234562');
     expect(repo.requests.single.agentIdentifier, isNull);
     await cubit.close();
     final poor =
@@ -186,60 +188,80 @@ void main() {
         );
     await readyFinancial(poor);
     expect(poor.state.canContinue, isFalse);
-    await poor.submit();
     expect(poor.state.receipt, isNull);
     await poor.close();
   });
-  test('duplicate submission and edits are locked; retry keeps the same request key', () async {
-    final repo = FinancialTestRepository();
-    final pending = Completer<Result<CertificateReceipt>>();
-    repo.submit = (_) => pending.future;
-    final cubit =
-        withRegisteredDependency<
-          FinancialCertificateRepository,
-          FinancialCertificateCubit
-        >(repo, () => FinancialCertificateCubit());
-    await readyFinancial(cubit);
-    final first = cubit.submit();
-    await cubit.submit();
-    cubit.latinChanged(name: 'Changed');
-    cubit.selectRecipient(FinancialCertificateRecipient.otherAuthority);
-    expect(cubit.state.name, 'Ali');
-    expect(cubit.state.recipient, FinancialCertificateRecipient.embassy);
-    expect(repo.requests, hasLength(1));
-    pending.complete(const Err(UnexpectedFailure()));
-    await first;
-    final key = repo.requests.single.idempotencyKey;
-    repo.submit = (_) async =>
-        const Success(CertificateReceipt(reference: 'OK'));
-    await cubit.submit();
-    await cubit.submit();
-    expect(repo.requests, hasLength(2));
-    expect(repo.requests.last.idempotencyKey, key);
-    expect(cubit.state.submissionStatus, RequestStatus.success);
-    await cubit.close();
-  });
-  test('stale loads and disposed submissions cannot emit', () async {
-    final repo = FinancialTestRepository();
-    final old = Completer<Result<CertificateCatalog>>();
-    repo.loader = () => old.future;
-    final cubit =
-        withRegisteredDependency<
-          FinancialCertificateRepository,
-          FinancialCertificateCubit
-        >(repo, () => FinancialCertificateCubit());
-    final first = cubit.load();
-    repo.loader = () async => Success(repo.catalog);
-    await cubit.load();
-    old.complete(const Err(UnexpectedFailure()));
-    await first;
-    expect(cubit.state.status, RequestStatus.success);
-    await readyFinancial(cubit);
-    final pending = Completer<Result<CertificateReceipt>>();
-    repo.submit = (_) => pending.future;
-    final sending = cubit.submit();
-    await cubit.close();
-    pending.complete(const Success(CertificateReceipt(reference: 'late')));
-    await sending;
-  });
+  test(
+    'unchanged retry keeps the request key and success disables continuation',
+    () async {
+      final repo = FinancialTestRepository();
+      final pending = Completer<Result<CertificateReceipt>>();
+      repo.submit = (_) => pending.future;
+      final cubit =
+          withRegisteredDependency<
+            FinancialCertificateRepository,
+            FinancialCertificateCubit
+          >(repo, () => FinancialCertificateCubit());
+      await readyFinancial(cubit);
+      final first = cubit.submitCertificate();
+      expect(cubit.state.submissionStatus, RequestStatus.loading);
+      expect(repo.requests, hasLength(1));
+      pending.complete(const Err(UnexpectedFailure()));
+      await first;
+      final key = repo.requests.single.idempotencyKey;
+      repo.submit = (_) async =>
+          const Success(CertificateReceipt(reference: 'OK'));
+      await cubit.submitCertificate();
+      expect(repo.requests, hasLength(2));
+      expect(repo.requests.last.idempotencyKey, key);
+      expect(cubit.state.submissionStatus, RequestStatus.success);
+      await cubit.close();
+    },
+  );
+  test(
+    'catalog errors are retryable and independent of submission errors',
+    () async {
+      final repo = FinancialTestRepository();
+      repo.loader = () async => const Err(UnexpectedFailure());
+      final cubit =
+          withRegisteredDependency<
+            FinancialCertificateRepository,
+            FinancialCertificateCubit
+          >(repo, () => FinancialCertificateCubit());
+      await cubit.fetchCatalog();
+      expect(cubit.state.catalogStatus, RequestStatus.failure);
+      expect(cubit.state.submissionFailure, isNull);
+      repo.loader = () async => Success(repo.catalog);
+      await cubit.fetchCatalog();
+      expect(cubit.state.catalogStatus, RequestStatus.success);
+      expect(cubit.state.catalogFailure, isNull);
+      await cubit.close();
+    },
+  );
+  test(
+    'editing a failed payload refreshes its key; unchanged retry preserves it',
+    () async {
+      final repository = FinancialTestRepository()
+        ..submit = (_) async => const Err(UnexpectedFailure());
+      final cubit =
+          withRegisteredDependency<
+            FinancialCertificateRepository,
+            FinancialCertificateCubit
+          >(repository, () => FinancialCertificateCubit());
+      await readyFinancial(cubit);
+      await cubit.submitCertificate();
+      final firstKey = repository.requests.single.idempotencyKey;
+      cubit.requestBack();
+      cubit.updateIncludeAgent(true);
+      cubit.updateAgentIdentifier('123');
+      await cubit.continueFlow();
+      await cubit.submitCertificate();
+      final changedKey = repository.requests.last.idempotencyKey;
+      expect(changedKey, isNot(firstKey));
+      expect(repository.requests.last.agentIdentifier, '123');
+      await cubit.submitCertificate();
+      expect(repository.requests.last.idempotencyKey, changedKey);
+      await cubit.close();
+    },
+  );
 }

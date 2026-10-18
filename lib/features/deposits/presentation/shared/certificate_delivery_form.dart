@@ -34,7 +34,8 @@ class CertificateDeliveryForm extends StatelessWidget {
   final CertificateAddress? address;
   final bool otherRecipient, includeAgent, canCheckAgent;
   final String recipientName, recipientNationalId, agentIdentifier;
-  final ValueChanged<String> onAddress, onAgent;
+  final ValueChanged<CertificateAddress> onAddress;
+  final ValueChanged<String> onAgent;
   final VoidCallback onAddAddress;
   final VoidCallback onDeleteAddress;
   final ValueChanged<bool> onOtherRecipient, onIncludeAgent;
@@ -45,15 +46,15 @@ class CertificateDeliveryForm extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        CertificateSelect<String>(
+        CertificateSelect<CertificateAddress>(
           label: address == null
               ? S.current.issuanceAddress
               : S.current.issuanceSelectAddress,
           hint: S.current.certificateAddressHint,
-          value: address?.id,
+          value: address,
           options: [
             for (final a in addresses)
-              AppSelectOption(value: a.id, label: a.title),
+              AppSelectOption(value: a, label: a.title),
           ],
           onChanged: onAddress,
         ),

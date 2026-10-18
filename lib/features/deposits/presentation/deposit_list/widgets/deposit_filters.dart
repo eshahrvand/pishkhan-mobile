@@ -13,51 +13,53 @@ class DepositFilters extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<DepositListCubit, DepositListState>(
-      buildWhen: (previous, next) =>
-          previous.kind != next.kind ||
-          previous.depositStatus != next.depositStatus ||
-          previous.status != next.status,
-      builder: (context, state) => SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(vertical: 4),
-        child: Row(
-          children: [
-            Directionality(
-              textDirection: TextDirection.ltr,
-              child: AppChips(
-                label: S.current.depositListAccountType,
-                selected: state.kind != null,
-                icon: depositIcon(
-                  state.kind == null
-                      ? AppAssets.depositFeatureChevron
-                      : AppAssets.depositFeatureClear,
-                  size: 20,
+      buildWhen: (previous, current) =>
+          previous.kind != current.kind ||
+          previous.depositStatus != current.depositStatus ||
+          previous.depositsStatus != current.depositsStatus,
+      builder: (context, state) {
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Row(
+            children: [
+              Directionality(
+                textDirection: TextDirection.ltr,
+                child: AppChips(
+                  label: S.current.depositListAccountType,
+                  selected: state.kind != null,
+                  icon: depositIcon(
+                    state.kind == null
+                        ? AppAssets.depositFeatureChevron
+                        : AppAssets.depositFeatureClear,
+                    size: 20,
+                  ),
+                  onPressed: state.depositsStatus != RequestStatus.success
+                      ? null
+                      : context.read<DepositListCubit>().requestKindFilter,
                 ),
-                onPressed: state.status != RequestStatus.success
-                    ? null
-                    : context.read<DepositListCubit>().requestKindFilter,
               ),
-            ),
-            const SizedBox(width: 12),
-            Directionality(
-              textDirection: TextDirection.ltr,
-              child: AppChips(
-                label: S.current.depositListStatus,
-                selected: state.depositStatus != null,
-                icon: depositIcon(
-                  state.depositStatus == null
-                      ? AppAssets.depositFeatureChevron
-                      : AppAssets.depositFeatureClear,
-                  size: 20,
+              const SizedBox(width: 12),
+              Directionality(
+                textDirection: TextDirection.ltr,
+                child: AppChips(
+                  label: S.current.depositListStatus,
+                  selected: state.depositStatus != null,
+                  icon: depositIcon(
+                    state.depositStatus == null
+                        ? AppAssets.depositFeatureChevron
+                        : AppAssets.depositFeatureClear,
+                    size: 20,
+                  ),
+                  onPressed: state.depositsStatus != RequestStatus.success
+                      ? null
+                      : context.read<DepositListCubit>().requestStatusFilter,
                 ),
-                onPressed: state.status != RequestStatus.success
-                    ? null
-                    : context.read<DepositListCubit>().requestStatusFilter,
               ),
-            ),
-          ],
-        ),
-      ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

@@ -32,8 +32,8 @@ void main() {
     'average-delivery-filled': conditions.copyWith(
       step: AverageBalanceStep.delivery,
       address: catalog.addresses.first,
-      otherRecipient: true,
-      includeAgent: true,
+      isOtherRecipient: true,
+      isIncludeAgent: true,
     ),
     'average-confirmation': conditions.copyWith(
       step: AverageBalanceStep.confirmation,
@@ -54,7 +54,10 @@ void main() {
       );
       expect(tester.getTopLeft(find.byType(AppStepper)).dy, 104);
       if (entry.value.step == AverageBalanceStep.conditions) {
-        expect(tester.getTopLeft(find.byType(AppSelect<String>).first).dy, 172);
+        expect(
+          tester.getTopLeft(find.byType(AppSelect<ListedDeposit>).first).dy,
+          172,
+        );
       }
       if (entry.value.step == AverageBalanceStep.confirmation) {
         expect(find.byType(AppInvoice), findsOneWidget);
@@ -76,7 +79,7 @@ void main() {
       );
       final context = tester.element(find.byType(AppStepper));
       final cubit = context.read<AverageBalanceCubit>();
-      await tester.tap(find.byType(AppSelect<String>).first);
+      await tester.tap(find.byType(AppSelect<ListedDeposit>).first);
       await tester.pumpAndSettle();
       await tester.tap(find.text('10.1234567.1').last);
       await tester.pumpAndSettle();
@@ -89,12 +92,12 @@ void main() {
       );
       await tester.tap(next);
       await tester.pumpAndSettle();
-      cubit.selectAddress('home');
+      cubit.selectAddress(cubit.state.addresses.first);
       await tester.pumpAndSettle();
       await tester.tap(next);
       await tester.pumpAndSettle();
       expect(find.byType(AppInvoice), findsOneWidget);
-      cubit.expandInvoice(false);
+      cubit.updateInvoiceExpanded(false);
       await tester.pumpAndSettle();
       expect(
         tester.widget<AppInvoice>(find.byType(AppInvoice)).isExpanded,

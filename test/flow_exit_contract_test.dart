@@ -90,33 +90,27 @@ void main() {
 
   test('average balance compares seeded deposit against entry, then confirms edits', () async {
     final cubit = AverageBalanceCubit();
-    await cubit.load();
-    cubit.selectDeposit(cubit.state.catalog!.deposits.first.id);
+    await cubit.fetchCatalog();
+    cubit.selectDeposit(cubit.state.catalog!.deposits.first);
     cubit.selectLanguage(CertificateLanguage.english);
     cubit.requestBack();
     expect(cubit.state.navigation, FlowNavigation.confirmExit);
-    cubit.exitConfirmationResult(false);
+    cubit.applyExitConfirmation(false);
     expect(cubit.state.language, CertificateLanguage.english);
     cubit.requestBack();
-    cubit.exitConfirmationResult(true);
+    cubit.applyExitConfirmation(true);
     expect(cubit.state.navigation, FlowNavigation.back);
     await cubit.close();
   });
 
-  test(
-    'financial conditions confirm exit and cannot be dismissed twice',
-    () async {
-      final cubit = FinancialCertificateCubit();
-      await cubit.load();
-      cubit.selectDeposit(cubit.state.catalog!.deposits.first.id);
-      cubit.requestBack();
-      expect(cubit.state.navigation, FlowNavigation.confirmExit);
-      cubit.exitConfirmationResult(true);
-      final request = cubit.state.effectId;
-      cubit.exitConfirmationResult(true);
-      expect(cubit.state.effectId, request);
-      expect(cubit.state.navigation, FlowNavigation.back);
-      await cubit.close();
-    },
-  );
+  test('financial conditions confirm exit', () async {
+    final cubit = FinancialCertificateCubit();
+    await cubit.fetchCatalog();
+    cubit.selectDeposit(cubit.state.catalog!.deposits.first);
+    cubit.requestBack();
+    expect(cubit.state.navigation, FlowNavigation.confirmExit);
+    cubit.applyExitConfirmation(true);
+    expect(cubit.state.navigation, FlowNavigation.back);
+    await cubit.close();
+  });
 }

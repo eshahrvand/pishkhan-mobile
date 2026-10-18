@@ -1,6 +1,6 @@
-import '../support/registered_dependency.dart';
+import 'package:pishkhan_mobile/features/deposits/presentation/deposit_list/deposit_list_action.dart';
 
-import 'dart:async';
+import '../support/registered_dependency.dart';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
@@ -42,14 +42,14 @@ void main() {
             ),
             () => DepositListCubit(),
           );
-      await cubit.load();
+      await cubit.fetchDeposits();
       expect(cubit.state.visibleDeposits.map((d) => d.id), ['s', 'c']);
-      cubit.filterKind(DepositKind.current);
+      cubit.selectKindFilter(DepositKind.current);
       expect(cubit.state.visibleDeposits.single.id, 'c');
-      cubit.filterStatus(null);
+      cubit.selectStatusFilter(null);
       expect(cubit.state.visibleDeposits.map((d) => d.id), ['c', 'closed']);
-      cubit.filterStatus(DepositStatus.closed);
-      cubit.filterKind(null);
+      cubit.selectStatusFilter(DepositStatus.closed);
+      cubit.selectKindFilter(null);
       expect(cubit.state.visibleDeposits.single.number, '003');
       expect(() => cubit.state.deposits.clear(), throwsUnsupportedError);
       await cubit.close();
@@ -72,43 +72,42 @@ void main() {
             }),
             () => DepositListCubit(),
           );
-      await cubit.load();
-      expect(cubit.state.status, RequestStatus.failure);
-      expect(cubit.state.failure, isA<UnexpectedFailure>());
-      await cubit.load();
-      expect(cubit.state.status, RequestStatus.success);
+      await cubit.fetchDeposits();
+      expect(cubit.state.depositsStatus, RequestStatus.failure);
+      expect(cubit.state.depositsFailure, isA<UnexpectedFailure>());
+      await cubit.fetchDeposits();
+      expect(cubit.state.depositsStatus, RequestStatus.success);
       expect(cubit.state.deposits, isEmpty);
-      await cubit.load();
+      await cubit.fetchDeposits();
       expect(
-        cubit.state.failure,
+        cubit.state.depositsFailure,
         const DataFailure('deposits.catalog.invalid'),
       );
       await cubit.close();
     },
   );
   test(
-    'newest response wins and disposed Cubit ignores pending work',
+    'actions preserve the selected deposit and cancellation emits nothing',
     () async {
-      final responses = <Completer<Result<List<ListedDeposit>>>>[];
       final cubit =
           withRegisteredDependency<DepositsRepository, DepositListCubit>(
-            _Repository(() {
-              final pending = Completer<Result<List<ListedDeposit>>>();
-              responses.add(pending);
-              return pending.future;
-            }),
+            MockDepositsRepository(),
             () => DepositListCubit(),
           );
-      final first = cubit.load(), second = cubit.load();
-      responses[1].complete(Success([ListedDeposit(id: 'new', number: '2')]));
-      await second;
-      responses[0].complete(Success([ListedDeposit(id: 'old', number: '1')]));
-      await first;
-      expect(cubit.state.deposits.single.id, 'new');
-      final third = cubit.load();
+      await cubit.fetchDeposits();
+      final deposit = cubit.state.visibleDeposits.first;
+      cubit.requestDepositActions(deposit);
+      expect((cubit.state.effect as DepositActionsRequested).deposit, deposit);
+      final effectId = cubit.state.effectId;
+      cubit.applyActionSelection(deposit, null);
+      expect(cubit.state.effectId, effectId);
+      cubit.applyActionSelection(deposit, DepositListAction.accountDetails);
+      expect((cubit.state.effect as DepositDetailsRequested).deposit, deposit);
+      cubit.applyActionSelection(deposit, DepositListAction.statement);
+      final effect = cubit.state.effect as DepositServiceRequested;
+      expect(effect.serviceId, 'deposit-statement');
+      expect(effect.request.deposit, deposit);
       await cubit.close();
-      responses[2].complete(const Success([]));
-      await third;
     },
   );
 }

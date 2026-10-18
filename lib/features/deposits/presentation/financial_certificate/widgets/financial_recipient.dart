@@ -11,86 +11,81 @@ import '../../deposit_list/widgets/deposit_ui.dart';
 import '../cubit/financial_certificate_cubit.dart';
 
 class FinancialRecipient extends StatelessWidget {
-  const FinancialRecipient({super.key});
+  const FinancialRecipient({super.key, required this.state});
+  final FinancialCertificateState state;
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<FinancialCertificateCubit, FinancialCertificateState>(
-      buildWhen: (a, b) =>
-          a.recipient != b.recipient ||
-          a.embassyId != b.embassyId ||
-          a.authorityName != b.authorityName ||
-          a.currency != b.currency,
-      builder: (context, state) {
-        final cubit = context.read<FinancialCertificateCubit>();
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              S.current.financialRecipientPrompt,
-              style: certificateValueStyle(context)
-                  .copyWith(fontWeight: FontWeight.w500),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          S.current.financialRecipientPrompt,
+          style: certificateValueStyle(context)
+              .copyWith(fontWeight: FontWeight.w500),
+        ),
+        const SizedBox(height: 20),
+        CertificateSelect<FinancialCertificateRecipient>(
+          label: S.current.financialRecipient,
+          hint: S.current.financialRecipientHint,
+          value: state.recipient,
+          options: [
+            AppSelectOption(
+              value: FinancialCertificateRecipient.embassy,
+              label: S.current.financialEmbassy,
             ),
-            const SizedBox(height: 20),
-            CertificateSelect<FinancialCertificateRecipient>(
-              label: S.current.financialRecipient,
-              hint: S.current.financialRecipientHint,
-              value: state.recipient,
-              options: [
-                AppSelectOption(
-                  value: FinancialCertificateRecipient.embassy,
-                  label: S.current.financialEmbassy,
-                ),
-                AppSelectOption(
-                  value: FinancialCertificateRecipient.otherAuthority,
-                  label: S.current.financialOtherAuthority,
-                ),
-              ],
-              onChanged: cubit.selectRecipient,
-            ),
-            if (state.recipient != null) ...[
-              const SizedBox(height: 20),
-              if (state.recipient == FinancialCertificateRecipient.embassy)
-                CertificateSelect<String>(
-                  label: S.current.financialEmbassy,
-                  hint: S.current.financialEmbassyHint,
-                  value: state.embassyId,
-                  options: [
-                    for (final embassy in state.catalog!.embassies)
-                      AppSelectOption(value: embassy.id, label: embassy.label),
-                  ],
-                  onChanged: cubit.selectEmbassy,
-                )
-              else
-                CertificateInput(
-                  label: S.current.financialAuthority,
-                  hint: S.current.financialAuthorityHint,
-                  value: state.authorityName,
-                  onChanged: cubit.authorityChanged,
-                ),
-            ],
-            const SizedBox(height: 20),
-            const DepositDivider(asset: AppAssets.certificateDivider),
-            const SizedBox(height: 20),
-            CertificateSelect<CertificateCurrency>(
-              label: S.current.financialCurrency,
-              hint: S.current.financialCurrencyHint,
-              value: state.currency,
-              options: [
-                for (final currency in state.catalog!.currencies)
-                  AppSelectOption(
-                    value: currency,
-                    label: switch (currency) {
-                      CertificateCurrency.usd => S.current.financialUsd,
-                      CertificateCurrency.eur => S.current.financialEur,
-                      CertificateCurrency.irr => S.current.financialIrr,
-                    },
-                  ),
-              ],
-              onChanged: cubit.selectCurrency,
+            AppSelectOption(
+              value: FinancialCertificateRecipient.otherAuthority,
+              label: S.current.financialOtherAuthority,
             ),
           ],
-        );
-      },
+          onChanged: context.read<FinancialCertificateCubit>().selectRecipient,
+        ),
+        if (state.recipient != null) ...[
+          const SizedBox(height: 20),
+          if (state.recipient == FinancialCertificateRecipient.embassy)
+            CertificateSelect<CertificateEmbassy>(
+              label: S.current.financialEmbassy,
+              hint: S.current.financialEmbassyHint,
+              value: state.embassy,
+              options: [
+                for (final embassy in state.catalog!.embassies)
+                  AppSelectOption(value: embassy, label: embassy.label),
+              ],
+              onChanged: context
+                  .read<FinancialCertificateCubit>()
+                  .selectEmbassy,
+            )
+          else
+            CertificateInput(
+              label: S.current.financialAuthority,
+              hint: S.current.financialAuthorityHint,
+              value: state.authorityName,
+              onChanged: context
+                  .read<FinancialCertificateCubit>()
+                  .updateAuthorityName,
+            ),
+        ],
+        const SizedBox(height: 20),
+        const DepositDivider(asset: AppAssets.certificateDivider),
+        const SizedBox(height: 20),
+        CertificateSelect<CertificateCurrency>(
+          label: S.current.financialCurrency,
+          hint: S.current.financialCurrencyHint,
+          value: state.currency,
+          options: [
+            for (final currency in state.catalog!.currencies)
+              AppSelectOption(
+                value: currency,
+                label: switch (currency) {
+                  CertificateCurrency.usd => S.current.financialUsd,
+                  CertificateCurrency.eur => S.current.financialEur,
+                  CertificateCurrency.irr => S.current.financialIrr,
+                },
+              ),
+          ],
+          onChanged: context.read<FinancialCertificateCubit>().selectCurrency,
+        ),
+      ],
     );
   }
 }

@@ -28,7 +28,7 @@ void main() {
   final latin = conditions.copyWith(
     step: FinancialCertificateStep.latinIdentity,
     recipient: FinancialCertificateRecipient.embassy,
-    embassyId: 'demo-embassy',
+    embassy: catalog.embassies.first,
     currency: CertificateCurrency.usd,
   );
   final filled = latin.copyWith(
@@ -86,7 +86,10 @@ void main() {
       );
       expect(tester.getTopLeft(find.byType(AppStepper)).dy, 104);
       if (entry.value.step == FinancialCertificateStep.conditions) {
-        expect(tester.getTopLeft(find.byType(AppSelect<String>).first).dy, 172);
+        expect(
+          tester.getTopLeft(find.byType(AppSelect<ListedDeposit>).first).dy,
+          172,
+        );
         expect(
           find.byType(AppCheckbox),
           entry.value.deposit == null ? findsNothing : findsNWidgets(8),
@@ -131,7 +134,7 @@ void main() {
     final cubit = tester
         .element(find.byType(AppStepper))
         .read<FinancialCertificateCubit>();
-    await tester.tap(find.byType(AppSelect<String>));
+    await tester.tap(find.byType(AppSelect<ListedDeposit>));
     await tester.pumpAndSettle();
     await tester.tap(find.text('10.1234567.1').last);
     await tester.pumpAndSettle();
@@ -146,7 +149,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('سفارت').last);
     await tester.pumpAndSettle();
-    cubit.selectEmbassy('demo-embassy');
+    cubit.selectEmbassy(cubit.state.catalog!.embassies.first);
     cubit.selectCurrency(CertificateCurrency.usd);
     await tester.pumpAndSettle();
     await tester.tap(next);
@@ -168,7 +171,7 @@ void main() {
     expect(cubit.state.canContinue, isTrue);
     await tester.tap(next);
     await tester.pumpAndSettle();
-    cubit.selectAddress('home');
+    cubit.selectAddress(cubit.state.addresses.first);
     await tester.pumpAndSettle();
     await tester.tap(next);
     await tester.pumpAndSettle();
@@ -188,10 +191,10 @@ void main() {
       final cubit = tester
           .element(find.byType(AppStepper))
           .read<FinancialCertificateCubit>();
-      expect(find.byType(AppSelect<String>), findsOneWidget);
+      expect(find.byType(AppSelect<CertificateEmbassy>), findsOneWidget);
       cubit.selectRecipient(FinancialCertificateRecipient.otherAuthority);
       await tester.pumpAndSettle();
-      expect(find.byType(AppSelect<String>), findsNothing);
+      expect(find.byType(AppSelect<CertificateEmbassy>), findsNothing);
       await tester.enterText(find.byType(TextField), 'University');
       cubit.selectCurrency(CertificateCurrency.eur);
       await tester.pumpAndSettle();

@@ -60,8 +60,8 @@ void main() {
             container<DepositsRepository>(),
             () => DepositListCubit(),
           );
-      await first.load();
-      first.filterStatus(null);
+      await first.fetchDeposits();
+      first.selectStatusFilter(null);
       final second =
           withRegisteredDependency<DepositsRepository, DepositListCubit>(
             container<DepositsRepository>(),
@@ -69,7 +69,7 @@ void main() {
           );
       expect(second.state, const DepositListState.initial());
       await first.close();
-      await second.load();
+      await second.fetchDeposits();
       expect(second.state.visibleDeposits, isNotEmpty);
       await second.close();
       final average =

@@ -1,3 +1,5 @@
+import '../../shared/certificate_receipt_dialog.dart';
+
 import 'package:pishkhan_mobile/shared/widgets/flow_exit_dialog.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_delete_address_sheet.dart';
@@ -16,10 +18,8 @@ import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
 
 import '../../../domain/entities/certificate_data.dart';
 import '../../deposit_list/widgets/deposit_ui.dart';
-import '../../shared/certificate_confirmation.dart';
-import '../../shared/certificate_delivery_form.dart';
 import '../cubit/average_balance_cubit.dart';
-import '../widgets/average_balance_conditions.dart';
+import '../widgets/average_balance_content.dart';
 
 class AverageBalanceScreen extends StatelessWidget {
   const AverageBalanceScreen({
@@ -39,10 +39,11 @@ class AverageBalanceScreen extends StatelessWidget {
       case CertificateAddressRequested():
         final address = await showCertificateAddressSheet(context);
         if (context.mounted) {
-          context.read<AverageBalanceCubit>().addressResult(address);
+          context.read<AverageBalanceCubit>().applyAddressSelection(address);
         }
       case CertificateAddressRemovalRequested(:final address):
-        final confirmed = await showModalBottomSheet<bool>(
+        final cubit = context.read<AverageBalanceCubit>();
+        await showModalBottomSheet<void>(
           context: context,
           isScrollControlled: true,
           useSafeArea: true,
@@ -53,16 +54,13 @@ class AverageBalanceScreen extends StatelessWidget {
             prompt: S.current.certificateDeleteAddressPrompt,
             confirmLabel: S.current.issuanceDeleteAddress,
             cancelLabel: S.current.backLabel,
-            onConfirm: () => sheetContext.pop(true),
-            onCancel: () => sheetContext.pop(false),
+            onConfirm: () {
+              cubit.removeAddress(address);
+              sheetContext.pop();
+            },
+            onCancel: () => sheetContext.pop(),
           ),
         );
-        if (context.mounted) {
-          context.read<AverageBalanceCubit>().addressRemovalResult(
-            address.id,
-            confirmed,
-          );
-        }
       case CertificateAgentUnavailable():
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(S.current.certificateAgentUnavailable)),
@@ -72,7 +70,7 @@ class AverageBalanceScreen extends StatelessWidget {
           case FlowNavigation.confirmExit:
             final confirmed = await showFlowExitDialog(context);
             if (context.mounted) {
-              context.read<AverageBalanceCubit>().exitConfirmationResult(
+              context.read<AverageBalanceCubit>().applyExitConfirmation(
                 confirmed,
               );
             }
@@ -93,24 +91,10 @@ class AverageBalanceScreen extends StatelessWidget {
     BuildContext context,
     AverageBalanceState state,
   ) async {
-    if (state.receipt == null) return;
     onCompleted?.call(state.receipt!);
-    await showDialog<void>(
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        content: Text(
-          '${state.receipt!.isMock ? S.current.certificateMockComplete : S.current.issuanceComplete}\n${state.receipt!.reference}',
-        ),
-        actions: [
-          AppButton(
-            label: S.current.backLabel,
-            onPressed: () => Navigator.of(dialogContext).pop(),
-          ),
-        ],
-      ),
-    );
+    await showCertificateReceiptDialog(context, state.receipt!);
     if (context.mounted) {
-      context.read<AverageBalanceCubit>().receiptPresentationClosed();
+      context.read<AverageBalanceCubit>().applyReceiptDismissal();
     }
   }
 
@@ -120,14 +104,15 @@ class AverageBalanceScreen extends StatelessWidget {
       create: (_) => AverageBalanceCubit(
         initialDepositNumber: initialDepositNumber,
         initialState: initialState,
-      )..load(),
+      )..fetchCatalog(),
       child: BlocListener<AverageBalanceCubit, AverageBalanceState>(
         listenWhen: (previous, current) =>
             previous.effectId != current.effectId,
         listener: _handleEffect,
         child: BlocConsumer<AverageBalanceCubit, AverageBalanceState>(
           listenWhen: (previous, current) =>
-              previous.submissionStatus != current.submissionStatus,
+              previous.submissionStatus != current.submissionStatus &&
+              current.submissionStatus == RequestStatus.success,
           listener: _handleReceipt,
           builder: (context, state) {
             return Directionality(
@@ -171,9 +156,9 @@ class AverageBalanceScreen extends StatelessWidget {
                                       CrossAxisAlignment.stretch,
                                   children: [
                                     AppStepper(
-                                      currentStep: state.step.index + 1,
+                                      currentStep: state.stepNumber,
                                       totalSteps: 3,
-                                      progress: [.3, .6, 1.0][state.step.index],
+                                      progress: state.progress,
                                       title: getAverageBalanceStepTitle(
                                         state.step,
                                       ),
@@ -184,101 +169,7 @@ class AverageBalanceScreen extends StatelessWidget {
                                           : '${S.current.certificateNextPrefix} ${getAverageBalanceNextStepTitle(state.step)}',
                                     ),
                                     const SizedBox(height: 26),
-                                    if (state.status != RequestStatus.success ||
-                                        state.catalog!.deposits.isEmpty)
-                                      Column(
-                                        children: [
-                                          Text(
-                                            state.status ==
-                                                    RequestStatus.failure
-                                                ? S.current.dashboardLoadError
-                                                : state.status ==
-                                                      RequestStatus.success
-                                                ? S.current.depositsEmpty
-                                                : S.current.dashboardLoading,
-                                          ),
-                                          if (state.status ==
-                                              RequestStatus.failure)
-                                            AppButton(
-                                              label: S.current.dashboardRetry,
-                                              onPressed: context
-                                                  .read<AverageBalanceCubit>()
-                                                  .load,
-                                            ),
-                                        ],
-                                      )
-                                    else if (state.step ==
-                                        AverageBalanceStep.conditions)
-                                      const AverageBalanceConditions()
-                                    else if (state.step ==
-                                        AverageBalanceStep.delivery)
-                                      CertificateDeliveryForm(
-                                        addresses: state.addresses,
-                                        address: state.address,
-                                        otherRecipient: state.otherRecipient,
-                                        recipientName: state.recipientName,
-                                        recipientNationalId:
-                                            state.recipientNationalId,
-                                        includeAgent: state.includeAgent,
-                                        agentIdentifier: state.agentIdentifier,
-                                        onAddress: context
-                                            .read<AverageBalanceCubit>()
-                                            .selectAddress,
-                                        onAddAddress: context
-                                            .read<AverageBalanceCubit>()
-                                            .requestAddAddress,
-                                        onDeleteAddress: context
-                                            .read<AverageBalanceCubit>()
-                                            .requestDeleteAddress,
-                                        onOtherRecipient: context
-                                            .read<AverageBalanceCubit>()
-                                            .setOtherRecipient,
-                                        onRecipientName: context
-                                            .read<AverageBalanceCubit>()
-                                            .updateRecipientName,
-                                        onRecipientNationalId: context
-                                            .read<AverageBalanceCubit>()
-                                            .updateRecipientNationalId,
-                                        canCheckAgent: state.canCheckAgent,
-                                        onAgentLookup: context
-                                            .read<AverageBalanceCubit>()
-                                            .requestAgentLookup,
-                                        onIncludeAgent: context
-                                            .read<AverageBalanceCubit>()
-                                            .setIncludeAgent,
-                                        onAgent: context
-                                            .read<AverageBalanceCubit>()
-                                            .agentChanged,
-                                      )
-                                    else
-                                      CertificateConfirmation(
-                                        depositNumber: state.deposit!.number,
-                                        operation:
-                                            S.current.balanceAverageStatement,
-                                        catalog: state.catalog!,
-                                        total: state.totalRial,
-                                        walletSufficient:
-                                            state.walletSufficient,
-                                        summaryExpanded: state.summaryExpanded,
-                                        invoiceExpanded: state.invoiceExpanded,
-                                        onSummary: context
-                                            .read<AverageBalanceCubit>()
-                                            .expandSummary,
-                                        onInvoice: context
-                                            .read<AverageBalanceCubit>()
-                                            .expandInvoice,
-                                      ),
-                                    if (state.failure != null &&
-                                        state.status == RequestStatus.success)
-                                      Text(
-                                        S.current.issuanceSubmitError,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodySmall!
-                                            .copyWith(
-                                              color: context.colors.error,
-                                            ),
-                                      ),
+                                    AverageBalanceContent(state: state),
                                   ],
                                 ),
                               ),
@@ -305,13 +196,7 @@ class AverageBalanceScreen extends StatelessWidget {
                                 AppButtonDisabledAppearance.service,
                             isLoading:
                                 state.submissionStatus == RequestStatus.loading,
-                            onPressed:
-                                state.canContinue &&
-                                    state.status == RequestStatus.success &&
-                                    state.submissionStatus !=
-                                        RequestStatus.loading &&
-                                    state.submissionStatus !=
-                                        RequestStatus.success
+                            onPressed: state.canContinue
                                 ? context
                                       .read<AverageBalanceCubit>()
                                       .continueFlow

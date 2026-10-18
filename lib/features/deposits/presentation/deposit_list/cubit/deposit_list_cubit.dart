@@ -1,4 +1,3 @@
-
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
@@ -24,11 +23,8 @@ class DepositListCubit extends Cubit<DepositListState> {
 
   final _repository = getIt<DepositsRepository>();
   late final LoadDeposits _loadDeposits = LoadDeposits(_repository);
-  int _generation = 0;
 
-  void requestActions(String id) {
-    final deposit = state.visibleDeposits.where((d) => d.id == id).firstOrNull;
-    if (deposit == null) return;
+  void requestDepositActions(ListedDeposit deposit) {
     emit(
       state.copyWith(
         effect: DepositActionsRequested(deposit),
@@ -37,131 +33,133 @@ class DepositListCubit extends Cubit<DepositListState> {
     );
   }
 
-  void actionSelected(ListedDeposit deposit, DepositListAction? action) {
-    if (action == null || !state.deposits.contains(deposit)) return;
-    if (action == DepositListAction.accountDetails) {
-      emit(
-        state.copyWith(
-          effect: DepositDetailsRequested(deposit),
-          effectId: state.effectId + 1,
-        ),
-      );
-      return;
+  void applyActionSelection(ListedDeposit deposit, DepositListAction? action) {
+    switch (action) {
+      case DepositListAction.accountDetails:
+        emit(
+          state.copyWith(
+            effect: DepositDetailsRequested(deposit),
+            effectId: state.effectId + 1,
+          ),
+        );
+      case null:
+        break;
+      default:
+        emit(
+          state.copyWith(
+            effect: DepositServiceRequested(
+              DepositListActionRequest(action: action, deposit: deposit),
+              switch (action) {
+                DepositListAction.statement => 'deposit-statement',
+                DepositListAction.certificate => 'deposit-certificate',
+                _ => null,
+              },
+            ),
+            effectId: state.effectId + 1,
+          ),
+        );
     }
-    emit(
-      state.copyWith(
-        effect: DepositServiceRequested(
-          DepositListActionRequest(action: action, deposit: deposit),
-          switch (action) {
-            DepositListAction.statement => 'deposit-statement',
-            DepositListAction.certificate => 'deposit-certificate',
-            _ => null,
-          },
-        ),
-        effectId: state.effectId + 1,
-      ),
-    );
   }
 
   void requestKindFilter() {
-    if (state.status != RequestStatus.success) return;
     if (state.kind != null) {
-      filterKind(null);
-      return;
+      selectKindFilter(null);
+    } else {
+      emit(
+        state.copyWith(
+          effect: const DepositKindFilterRequested(),
+          effectId: state.effectId + 1,
+        ),
+      );
     }
-    emit(
-      state.copyWith(
-        effect: const DepositKindFilterRequested(),
-        effectId: state.effectId + 1,
-      ),
-    );
   }
 
   void requestStatusFilter() {
-    if (state.status != RequestStatus.success) return;
     if (state.depositStatus != null) {
-      filterStatus(null);
-      return;
+      selectStatusFilter(null);
+    } else {
+      emit(
+        state.copyWith(
+          effect: const DepositStatusFilterRequested(),
+          effectId: state.effectId + 1,
+        ),
+      );
     }
+  }
+
+  void applyKindFilterSelection(DepositKind? value) {
+    if (value != null) selectKindFilter(value);
+  }
+
+  void applyStatusFilterSelection(DepositStatus? value) {
+    if (value != null) selectStatusFilter(value);
+  }
+
+  Future<void> fetchDeposits() {
     emit(
       state.copyWith(
-        effect: const DepositStatusFilterRequested(),
-        effectId: state.effectId + 1,
+        depositsStatus: RequestStatus.loading,
+        depositsFailure: null,
       ),
     );
-  }
-
-  void kindFilterResult(DepositKind? value) {
-    if (value != null) filterKind(value);
-  }
-
-  void statusFilterResult(DepositStatus? value) {
-    if (value != null) filterStatus(value);
-  }
-
-  Future<void> load() {
-    final generation = ++_generation;
-    emit(state.copyWith(status: RequestStatus.loading, failure: null));
     return _loadDeposits().then((result) {
-      if (isClosed || generation != _generation) return;
       switch (result) {
         case Err(:final failure):
-          emit(state.copyWith(status: RequestStatus.failure, failure: failure));
+          emit(
+            state.copyWith(
+              depositsStatus: RequestStatus.failure,
+              depositsFailure: failure,
+            ),
+          );
         case Success(:final data):
           emit(
             state.copyWith(
-              status: RequestStatus.success,
+              depositsStatus: RequestStatus.success,
               deposits: data,
-              visibleDeposits: data
-                  .where(
-                    (d) =>
-                        (state.kind == null || d.kind == state.kind) &&
-                        (state.depositStatus == null ||
-                            d.status == state.depositStatus),
-                  )
-                  .toList(),
+              visibleDeposits: _filterDeposits(
+                data,
+                state.kind,
+                state.depositStatus,
+              ),
             ),
           );
       }
     });
   }
 
-  void filterKind(DepositKind? kind) {
-    if (state.status != RequestStatus.success) return;
+  void selectKindFilter(DepositKind? kind) {
     emit(
       state.copyWith(
         kind: kind,
-        visibleDeposits: state.deposits
-            .where(
-              (d) =>
-                  (kind == null || d.kind == kind) &&
-                  (state.depositStatus == null ||
-                      d.status == state.depositStatus),
-            )
-            .toList(),
+        visibleDeposits: _filterDeposits(
+          state.deposits,
+          kind,
+          state.depositStatus,
+        ),
       ),
     );
   }
 
-  void filterStatus(DepositStatus? status) {
-    if (state.status != RequestStatus.success) return;
+  void selectStatusFilter(DepositStatus? status) {
     emit(
       state.copyWith(
         depositStatus: status,
-        visibleDeposits: state.deposits
-            .where(
-              (d) =>
-                  (state.kind == null || d.kind == state.kind) &&
-                  (status == null || d.status == status),
-            )
-            .toList(),
+        visibleDeposits: _filterDeposits(state.deposits, state.kind, status),
       ),
     );
   }
 
-  @override
-  Future<void> close() {
-    _generation++;
-    return super.close();
+  List<ListedDeposit> _filterDeposits(
+    List<ListedDeposit> deposits,
+    DepositKind? kind,
+    DepositStatus? status,
+  ) {
+    return deposits
+        .where(
+          (deposit) =>
+              (kind == null || deposit.kind == kind) &&
+              (status == null || deposit.status == status),
+        )
+        .toList();
   }
 }

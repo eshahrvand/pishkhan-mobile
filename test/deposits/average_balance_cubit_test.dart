@@ -33,8 +33,8 @@ class CertificateTestRepository implements DepositCertificatesRepository {
 }
 
 Future<void> readyAverage(AverageBalanceCubit cubit) async {
-  await cubit.load();
-  cubit.selectDeposit('certificate-deposit-1');
+  await cubit.fetchCatalog();
+  cubit.selectDeposit(cubit.state.catalog!.deposits.first);
   cubit.selectLanguage(CertificateLanguage.english);
   cubit.selectTurnover(StatementTurnover.depositsAndWithdrawals);
 }
@@ -50,16 +50,16 @@ void main() {
     expect(cubit.state.fromDate, isNull);
     expect(cubit.state.toDate, isNull);
     expect(cubit.state.canContinue, isTrue);
-    cubit.next();
+    await cubit.continueFlow();
     expect(cubit.state.step, AverageBalanceStep.delivery);
     expect(cubit.state.canContinue, isFalse);
-    cubit.selectAddress('home');
-    cubit.next();
+    cubit.selectAddress(cubit.state.addresses.first);
+    await cubit.continueFlow();
     expect(cubit.state.step, AverageBalanceStep.confirmation);
-    expect(cubit.back(), isTrue);
+    cubit.requestBack();
     expect(cubit.state.address!.id, 'home');
-    cubit.back();
-    cubit.selectDeposit('certificate-deposit-2');
+    cubit.requestBack();
+    cubit.selectDeposit(cubit.state.catalog!.deposits[1]);
     expect(cubit.state.language, isNull);
     expect(cubit.state.canContinue, isFalse);
     await cubit.close();
@@ -74,26 +74,27 @@ void main() {
             AverageBalanceCubit
           >(repository, () => AverageBalanceCubit());
       await readyAverage(cubit);
-      cubit.next();
-      cubit.selectAddress('home');
-      cubit.setOtherRecipient(true);
+      await cubit.continueFlow();
+      cubit.selectAddress(cubit.state.addresses.first);
+      cubit.updateOtherRecipient(true);
       expect(cubit.state.canContinue, isFalse);
-      cubit.recipientChanged('گیرنده', '۰۰۸۱۲۳۴۵۶۷');
+      cubit.updateRecipientName('گیرنده');
+      cubit.updateRecipientNationalId('۰۰۸۱۲۳۴۵۶۲');
       expect(cubit.state.canContinue, isTrue);
-      cubit.setIncludeAgent(true);
+      cubit.updateIncludeAgent(true);
       expect(cubit.state.canContinue, isTrue);
-      cubit.agentChanged('۰۹۱۲۱۲۳۴۵۶۷');
-      cubit.setOtherRecipient(false);
-      cubit.setIncludeAgent(false);
-      cubit.next();
-      await cubit.submit();
+      cubit.updateAgentIdentifier('۰۹۱۲۱۲۳۴۵۶۷');
+      cubit.updateOtherRecipient(false);
+      cubit.updateIncludeAgent(false);
+      await cubit.continueFlow();
+      await cubit.submitCertificate();
       expect(repository.requests.single.recipientName, isNull);
       expect(repository.requests.single.agentIdentifier, isNull);
       await cubit.close();
     },
   );
   test(
-    'submission locks edits and duplicate requests; unchanged retry keeps key',
+    'unchanged retry keeps key and successful submission disables continuation',
     () async {
       final repository = CertificateTestRepository();
       final pending = Completer<Result<CertificateReceipt>>();
@@ -104,28 +105,25 @@ void main() {
             AverageBalanceCubit
           >(repository, () => AverageBalanceCubit());
       await readyAverage(cubit);
-      cubit.next();
-      cubit.selectAddress('home');
-      cubit.next();
-      final first = cubit.submit();
-      await cubit.submit();
-      cubit.selectDeposit('certificate-deposit-2');
-      cubit.recipientChanged('changed', '1');
-      expect(cubit.state.deposit!.id, 'certificate-deposit-1');
+      await cubit.continueFlow();
+      cubit.selectAddress(cubit.state.addresses.first);
+      await cubit.continueFlow();
+      final first = cubit.submitCertificate();
+      expect(cubit.state.submissionStatus, RequestStatus.loading);
       expect(repository.requests, hasLength(1));
       pending.complete(const Err(UnexpectedFailure()));
       await first;
       final key = repository.requests.single.idempotencyKey;
       repository.submit = (_) async =>
           const Success(CertificateReceipt(reference: 'OK'));
-      await cubit.submit();
+      await cubit.submitCertificate();
       expect(repository.requests.last.idempotencyKey, key);
       expect(cubit.state.submissionStatus, RequestStatus.success);
       await cubit.close();
     },
   );
   test(
-    'wallet gates final submit; invalid catalog and stale loads are safe',
+    'wallet gates final action and catalog failure can be retried',
     () async {
       final poor = CertificateCatalog(
         deposits: MockDepositCertificatesRepository.examples.deposits,
@@ -141,26 +139,54 @@ void main() {
             () => AverageBalanceCubit(),
           );
       await readyAverage(cubit);
-      cubit.next();
-      cubit.selectAddress('home');
-      cubit.next();
+      await cubit.continueFlow();
+      cubit.selectAddress(cubit.state.addresses.first);
+      await cubit.continueFlow();
       expect(cubit.state.canContinue, isFalse);
-      await cubit.submit();
       await cubit.close();
       final repo = CertificateTestRepository();
-      final old = Completer<Result<CertificateCatalog>>();
-      repo.loader = () => old.future;
-      final guarded =
+      repo.loader = () async => const Err(UnexpectedFailure());
+      final retry =
           withRegisteredDependency<
             DepositCertificatesRepository,
             AverageBalanceCubit
           >(repo, () => AverageBalanceCubit());
-      final first = guarded.load();
+      await retry.fetchCatalog();
+      expect(retry.state.catalogStatus, RequestStatus.failure);
       repo.loader = () async => Success(repo.catalog);
-      await guarded.load();
-      await guarded.close();
-      old.complete(const Err(UnexpectedFailure()));
-      await first;
+      await retry.fetchCatalog();
+      expect(retry.state.catalogStatus, RequestStatus.success);
+      expect(retry.state.catalogFailure, isNull);
+      await retry.close();
+    },
+  );
+  test(
+    'editing a failed payload refreshes its key; unchanged retry preserves it',
+    () async {
+      final repository = CertificateTestRepository()
+        ..submit = (_) async => const Err(UnexpectedFailure());
+      final cubit =
+          withRegisteredDependency<
+            DepositCertificatesRepository,
+            AverageBalanceCubit
+          >(repository, () => AverageBalanceCubit());
+      await readyAverage(cubit);
+      await cubit.continueFlow();
+      cubit.selectAddress(cubit.state.addresses.first);
+      await cubit.continueFlow();
+      await cubit.submitCertificate();
+      final firstKey = repository.requests.single.idempotencyKey;
+      cubit.requestBack();
+      cubit.updateIncludeAgent(true);
+      cubit.updateAgentIdentifier('123');
+      await cubit.continueFlow();
+      await cubit.submitCertificate();
+      final changedKey = repository.requests.last.idempotencyKey;
+      expect(changedKey, isNot(firstKey));
+      expect(repository.requests.last.agentIdentifier, '123');
+      await cubit.submitCertificate();
+      expect(repository.requests.last.idempotencyKey, changedKey);
+      await cubit.close();
     },
   );
 }
