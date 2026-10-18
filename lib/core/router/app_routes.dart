@@ -19,6 +19,7 @@ abstract final class AppRoutes {
   static const financialCertificate = '/deposits/financial-certificate';
   static const introduceAgent = '/deposits/introduce-representative';
   static const agentSettings = '/deposits/representation-settings';
+  static const closeSurplusDeposits = '/deposits/close-surplus-deposits';
 
   static const messages = '/profile/messages';
   static const messageDetail = '/profile/messages/:messageId';

@@ -544,5 +544,14 @@
   "agentSettingsConfirmers": "Approver details",
   "agentSettingsIntroducer": "Introducer",
   "agentSettingsDepositRelation": "Deposit owner and signatory",
-  "agentSettingsShare": "{percentage}%"
+  "agentSettingsShare": "{percentage}%",
+  "surplusDepositsTitle": "Close surplus deposits",
+  "surplusDepositsDescription": "Select the deposit you want to keep as your primary deposit. Your surplus deposits will be closed, and their balances and associated items will be transferred to your selected deposit.",
+  "surplusPrimaryDeposit": "Primary deposit",
+  "surplusPrimaryDepositHint": "Select your primary deposit",
+  "surplusDepositsSubmit": "Confirm and submit request",
+  "surplusDepositsEmptyTitle": "No results found",
+  "surplusDepositsEmptyBody": "You have no surplus individual Qard al-Hasan savings deposits.",
+  "surplusDepositsReviewTitle": "Your surplus deposits",
+  "surplusDepositsMockComplete": "The deposit closure request was simulated. No real deposit or balance has changed."
 }

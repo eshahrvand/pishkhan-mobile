@@ -12,6 +12,16 @@ abstract final class ServiceRegistry {
     String? initialDepositNumber,
     String? initialCardNumber,
   }) {
+    if (id == 'deposit-close-extras') {
+      context.push<void>(
+        AppRoutes.closeSurplusDeposits,
+        extra: CloseSurplusDepositsRouteArguments(
+          initialDepositNumber: initialDepositNumber,
+          onAssistantPressed: onAssistantPressed,
+        ),
+      );
+      return true;
+    }
     if (id == 'deposit-representation-settings') {
       context.push<void>(
         AppRoutes.agentSettings,

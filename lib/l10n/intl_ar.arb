@@ -524,5 +524,14 @@
   "agentSettingsConfirmers": "بيانات الموافقين",
   "agentSettingsIntroducer": "المعرّف",
   "agentSettingsDepositRelation": "صاحب الوديعة والموقّع",
-  "agentSettingsShare": "{percentage}٪"
+  "agentSettingsShare": "{percentage}٪",
+  "surplusDepositsTitle": "إغلاق الودائع الفائضة",
+  "surplusDepositsDescription": "اختر الوديعة التي تريد الاحتفاظ بها كوديعتك الرئيسية. سيتم إغلاق ودائعك الفائضة وتحويل أرصدتها والعناصر المرتبطة بها إلى الوديعة المختارة.",
+  "surplusPrimaryDeposit": "الوديعة الرئيسية",
+  "surplusPrimaryDepositHint": "اختر وديعتك الرئيسية",
+  "surplusDepositsSubmit": "تأكيد وتقديم الطلب",
+  "surplusDepositsEmptyTitle": "لم يتم العثور على نتائج",
+  "surplusDepositsEmptyBody": "ليس لديك ودائع توفير قرض حسن فردية فائضة.",
+  "surplusDepositsReviewTitle": "ودائعك الفائضة",
+  "surplusDepositsMockComplete": "تمت محاكاة طلب إغلاق الودائع. لم تتغير أي وديعة أو رصيد حقيقي."
 }

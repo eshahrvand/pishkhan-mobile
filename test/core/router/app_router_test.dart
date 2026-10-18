@@ -81,6 +81,7 @@ void main() {
         AppRoutes.financialCertificate,
         AppRoutes.introduceAgent,
         AppRoutes.agentSettings,
+        AppRoutes.closeSurplusDeposits,
       ],
     };
     final declaredPaths = modulePaths.values.expand((paths) => paths).toList();
@@ -103,6 +104,7 @@ void main() {
         AppRoutes.expiredGiftBalance,
         AppRoutes.depositList,
         '/cards/list?category=virtual',
+        AppRoutes.closeSurplusDeposits,
         AppRoutes.agentSettings,
         AppRoutes.introduceAgent,
         '/profile/messages/security-id',

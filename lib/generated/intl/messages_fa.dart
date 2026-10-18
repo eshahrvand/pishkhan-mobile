@@ -1121,6 +1121,31 @@ class MessageLookup extends MessageLookupByLibrary {
     "servicesMenuLabel": MessageLookupByLibrary.simpleMessage("فهرست خدمات"),
     "smsSettings": MessageLookupByLibrary.simpleMessage("تنظیمات ارسال پیامک"),
     "submitRequest": MessageLookupByLibrary.simpleMessage("ثبت درخواست"),
+    "surplusDepositsDescription": MessageLookupByLibrary.simpleMessage(
+      "سپرده‌ای که می‌خواهید به عنوان سپرده اصلی شما باقی بماند را انتخاب کنید. سپرده‌های مازاد شما بسته و موجودی و سایر موارد مرتبط با آن‌ها به سپرده منتخب شما منتقل می‌گردد.",
+    ),
+    "surplusDepositsEmptyBody": MessageLookupByLibrary.simpleMessage(
+      "شما دارای سپرده قرض الحسنه پس‌انداز حقیقی انفرادی مازاد نمی‌باشید",
+    ),
+    "surplusDepositsEmptyTitle": MessageLookupByLibrary.simpleMessage(
+      "نتیجه‌ای یافت نشد",
+    ),
+    "surplusDepositsMockComplete": MessageLookupByLibrary.simpleMessage(
+      "درخواست بستن سپرده‌ها به صورت آزمایشی ثبت شد. هیچ سپرده یا موجودی واقعی تغییر نکرده است.",
+    ),
+    "surplusDepositsReviewTitle": MessageLookupByLibrary.simpleMessage(
+      "سپرده‌های مازاد شما",
+    ),
+    "surplusDepositsSubmit": MessageLookupByLibrary.simpleMessage(
+      "تایید و ثبت درخواست",
+    ),
+    "surplusDepositsTitle": MessageLookupByLibrary.simpleMessage(
+      "بستن سپرده مازاد",
+    ),
+    "surplusPrimaryDeposit": MessageLookupByLibrary.simpleMessage("سپرده اصلی"),
+    "surplusPrimaryDepositHint": MessageLookupByLibrary.simpleMessage(
+      "سپرده اصلی خود را انتخاب کنید",
+    ),
     "updateGuide": MessageLookupByLibrary.simpleMessage("راهنمای بروزرسانی"),
     "virtualRequestCount": MessageLookupByLibrary.simpleMessage(
       "تعداد کارت مجازی",

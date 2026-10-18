@@ -1134,6 +1134,33 @@ class MessageLookup extends MessageLookupByLibrary {
       "إعدادات الرسائل النصية",
     ),
     "submitRequest": MessageLookupByLibrary.simpleMessage("إرسال الطلب"),
+    "surplusDepositsDescription": MessageLookupByLibrary.simpleMessage(
+      "اختر الوديعة التي تريد الاحتفاظ بها كوديعتك الرئيسية. سيتم إغلاق ودائعك الفائضة وتحويل أرصدتها والعناصر المرتبطة بها إلى الوديعة المختارة.",
+    ),
+    "surplusDepositsEmptyBody": MessageLookupByLibrary.simpleMessage(
+      "ليس لديك ودائع توفير قرض حسن فردية فائضة.",
+    ),
+    "surplusDepositsEmptyTitle": MessageLookupByLibrary.simpleMessage(
+      "لم يتم العثور على نتائج",
+    ),
+    "surplusDepositsMockComplete": MessageLookupByLibrary.simpleMessage(
+      "تمت محاكاة طلب إغلاق الودائع. لم تتغير أي وديعة أو رصيد حقيقي.",
+    ),
+    "surplusDepositsReviewTitle": MessageLookupByLibrary.simpleMessage(
+      "ودائعك الفائضة",
+    ),
+    "surplusDepositsSubmit": MessageLookupByLibrary.simpleMessage(
+      "تأكيد وتقديم الطلب",
+    ),
+    "surplusDepositsTitle": MessageLookupByLibrary.simpleMessage(
+      "إغلاق الودائع الفائضة",
+    ),
+    "surplusPrimaryDeposit": MessageLookupByLibrary.simpleMessage(
+      "الوديعة الرئيسية",
+    ),
+    "surplusPrimaryDepositHint": MessageLookupByLibrary.simpleMessage(
+      "اختر وديعتك الرئيسية",
+    ),
     "updateGuide": MessageLookupByLibrary.simpleMessage("دليل التحديث"),
     "virtualRequestCount": MessageLookupByLibrary.simpleMessage(
       "عدد البطاقات الافتراضية",

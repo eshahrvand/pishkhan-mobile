@@ -20,6 +20,7 @@ import 'package:pishkhan_mobile/features/deposits/presentation/average_balance/s
 import 'package:pishkhan_mobile/features/deposits/presentation/financial_certificate/screens/financial_certificate_screen.dart';
 import 'package:pishkhan_mobile/features/deposits/presentation/introduce_agent/screens/introduce_agent_screen.dart';
 import 'package:pishkhan_mobile/features/deposits/presentation/agent_settings/screens/agent_settings_screen.dart';
+import 'package:pishkhan_mobile/features/deposits/presentation/close_surplus_deposits/screens/close_surplus_deposits_screen.dart';
 import 'package:pishkhan_mobile/core/notifications/notification_message.dart';
 import 'package:pishkhan_mobile/features/profile/presentation/message_center/screens/notifications_screen.dart';
 import 'package:pishkhan_mobile/features/profile/presentation/message_center/screens/notification_detail_screen.dart';
@@ -154,6 +155,18 @@ GoRouter createAppRouter({
 
       // Deposits
       GoRoute(
+        path: AppRoutes.closeSurplusDeposits,
+        builder: (context, state) {
+          final args = state.extra is CloseSurplusDepositsRouteArguments
+              ? state.extra as CloseSurplusDepositsRouteArguments
+              : null;
+          return CloseSurplusDepositsScreen(
+            initialDepositNumber: args?.initialDepositNumber,
+            onAssistantPressed: args?.onAssistantPressed,
+          );
+        },
+      ),
+      GoRoute(
         path: AppRoutes.agentSettings,
         builder: (context, state) {
           final args = state.extra is AgentSettingsRouteArguments
@@ -235,6 +248,15 @@ String? globalRedirect(RouterSession session, GoRouterState state) =>
 class AllServicesRouteArguments {
   const AllServicesRouteArguments(this.onServiceRequested);
   final ValueChanged<DashboardService>? onServiceRequested;
+}
+
+class CloseSurplusDepositsRouteArguments {
+  const CloseSurplusDepositsRouteArguments({
+    this.initialDepositNumber,
+    this.onAssistantPressed,
+  });
+  final String? initialDepositNumber;
+  final VoidCallback? onAssistantPressed;
 }
 
 class AgentSettingsRouteArguments {

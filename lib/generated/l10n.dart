@@ -5074,6 +5074,96 @@ class S {
       args: [percentage],
     );
   }
+
+  /// `بستن سپرده مازاد`
+  String get surplusDepositsTitle {
+    return Intl.message(
+      'بستن سپرده مازاد',
+      name: 'surplusDepositsTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `سپرده‌ای که می‌خواهید به عنوان سپرده اصلی شما باقی بماند را انتخاب کنید. سپرده‌های مازاد شما بسته و موجودی و سایر موارد مرتبط با آن‌ها به سپرده منتخب شما منتقل می‌گردد.`
+  String get surplusDepositsDescription {
+    return Intl.message(
+      'سپرده‌ای که می‌خواهید به عنوان سپرده اصلی شما باقی بماند را انتخاب کنید. سپرده‌های مازاد شما بسته و موجودی و سایر موارد مرتبط با آن‌ها به سپرده منتخب شما منتقل می‌گردد.',
+      name: 'surplusDepositsDescription',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `سپرده اصلی`
+  String get surplusPrimaryDeposit {
+    return Intl.message(
+      'سپرده اصلی',
+      name: 'surplusPrimaryDeposit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `سپرده اصلی خود را انتخاب کنید`
+  String get surplusPrimaryDepositHint {
+    return Intl.message(
+      'سپرده اصلی خود را انتخاب کنید',
+      name: 'surplusPrimaryDepositHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `تایید و ثبت درخواست`
+  String get surplusDepositsSubmit {
+    return Intl.message(
+      'تایید و ثبت درخواست',
+      name: 'surplusDepositsSubmit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `نتیجه‌ای یافت نشد`
+  String get surplusDepositsEmptyTitle {
+    return Intl.message(
+      'نتیجه‌ای یافت نشد',
+      name: 'surplusDepositsEmptyTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `شما دارای سپرده قرض الحسنه پس‌انداز حقیقی انفرادی مازاد نمی‌باشید`
+  String get surplusDepositsEmptyBody {
+    return Intl.message(
+      'شما دارای سپرده قرض الحسنه پس‌انداز حقیقی انفرادی مازاد نمی‌باشید',
+      name: 'surplusDepositsEmptyBody',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `سپرده‌های مازاد شما`
+  String get surplusDepositsReviewTitle {
+    return Intl.message(
+      'سپرده‌های مازاد شما',
+      name: 'surplusDepositsReviewTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `درخواست بستن سپرده‌ها به صورت آزمایشی ثبت شد. هیچ سپرده یا موجودی واقعی تغییر نکرده است.`
+  String get surplusDepositsMockComplete {
+    return Intl.message(
+      'درخواست بستن سپرده‌ها به صورت آزمایشی ثبت شد. هیچ سپرده یا موجودی واقعی تغییر نکرده است.',
+      name: 'surplusDepositsMockComplete',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

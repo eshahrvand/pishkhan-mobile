@@ -1194,6 +1194,33 @@ class MessageLookup extends MessageLookupByLibrary {
     "servicesMenuLabel": MessageLookupByLibrary.simpleMessage("Services menu"),
     "smsSettings": MessageLookupByLibrary.simpleMessage("SMS settings"),
     "submitRequest": MessageLookupByLibrary.simpleMessage("Submit request"),
+    "surplusDepositsDescription": MessageLookupByLibrary.simpleMessage(
+      "Select the deposit you want to keep as your primary deposit. Your surplus deposits will be closed, and their balances and associated items will be transferred to your selected deposit.",
+    ),
+    "surplusDepositsEmptyBody": MessageLookupByLibrary.simpleMessage(
+      "You have no surplus individual Qard al-Hasan savings deposits.",
+    ),
+    "surplusDepositsEmptyTitle": MessageLookupByLibrary.simpleMessage(
+      "No results found",
+    ),
+    "surplusDepositsMockComplete": MessageLookupByLibrary.simpleMessage(
+      "The deposit closure request was simulated. No real deposit or balance has changed.",
+    ),
+    "surplusDepositsReviewTitle": MessageLookupByLibrary.simpleMessage(
+      "Your surplus deposits",
+    ),
+    "surplusDepositsSubmit": MessageLookupByLibrary.simpleMessage(
+      "Confirm and submit request",
+    ),
+    "surplusDepositsTitle": MessageLookupByLibrary.simpleMessage(
+      "Close surplus deposits",
+    ),
+    "surplusPrimaryDeposit": MessageLookupByLibrary.simpleMessage(
+      "Primary deposit",
+    ),
+    "surplusPrimaryDepositHint": MessageLookupByLibrary.simpleMessage(
+      "Select your primary deposit",
+    ),
     "updateGuide": MessageLookupByLibrary.simpleMessage("Update guide"),
     "virtualRequestCount": MessageLookupByLibrary.simpleMessage(
       "Number of virtual cards",
