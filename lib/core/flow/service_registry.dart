@@ -18,6 +18,16 @@ abstract final class ServiceRegistry {
     String? initialDepositNumber,
     String? initialCardNumber,
   }) {
+    if (id == 'cheque-cancel') {
+      context.push<void>(
+        AppRoutes.chequeCancellation,
+        extra: ChequeCancellationRouteArguments(
+          initialDepositNumber: initialDepositNumber,
+          onAssistantPressed: onAssistantPressed,
+        ),
+      );
+      return true;
+    }
     if (id == 'cheque-issue') {
       context.push<void>(
         AppRoutes.chequeBook,

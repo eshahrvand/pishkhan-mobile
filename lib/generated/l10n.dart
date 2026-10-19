@@ -6269,6 +6269,316 @@ class S {
       args: [],
     );
   }
+
+  /// `ابطال چک`
+  String get chequeCancelTitle {
+    return Intl.message(
+      'ابطال چک',
+      name: 'chequeCancelTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `انتخاب سپرده و نوع چک`
+  String get chequeCancelSelectionStep {
+    return Intl.message(
+      'انتخاب سپرده و نوع چک',
+      name: 'chequeCancelSelectionStep',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `انتخاب چک‌ها`
+  String get chequeCancelChequesStep {
+    return Intl.message(
+      'انتخاب چک‌ها',
+      name: 'chequeCancelChequesStep',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `انتخاب علت ابطال`
+  String get chequeCancelReasonsStep {
+    return Intl.message(
+      'انتخاب علت ابطال',
+      name: 'chequeCancelReasonsStep',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `دانلود نامه و ثبت درخواست`
+  String get chequeCancelConfirmationStep {
+    return Intl.message(
+      'دانلود نامه و ثبت درخواست',
+      name: 'chequeCancelConfirmationStep',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `سپرده پشت چک‌ها و نوع چک‌های مورد نظر‌ جهت ابطال را انتخاب کنید.`
+  String get chequeCancelSelectionPrompt {
+    return Intl.message(
+      'سپرده پشت چک‌ها و نوع چک‌های مورد نظر‌ جهت ابطال را انتخاب کنید.',
+      name: 'chequeCancelSelectionPrompt',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `سپرده مورد نظر خود را انتخاب کنید`
+  String get chequeCancelDepositHint {
+    return Intl.message(
+      'سپرده مورد نظر خود را انتخاب کنید',
+      name: 'chequeCancelDepositHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `نوع چک`
+  String get chequeCancelType {
+    return Intl.message('نوع چک', name: 'chequeCancelType', desc: '', args: []);
+  }
+
+  /// `نوع چک را انتخاب کنید`
+  String get chequeCancelTypeHint {
+    return Intl.message(
+      'نوع چک را انتخاب کنید',
+      name: 'chequeCancelTypeHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `کاغذی`
+  String get chequeCancelPaper {
+    return Intl.message('کاغذی', name: 'chequeCancelPaper', desc: '', args: []);
+  }
+
+  /// `دیجیتال`
+  String get chequeCancelDigital {
+    return Intl.message(
+      'دیجیتال',
+      name: 'chequeCancelDigital',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `در هر درخواست فقط می‌توانید چک‌های مربوط به یک سپرده و از یک نوع (دیجیتال یا کاغذی) را انتخاب کنید.`
+  String get chequeCancelSelectionNotice {
+    return Intl.message(
+      'در هر درخواست فقط می‌توانید چک‌های مربوط به یک سپرده و از یک نوع (دیجیتال یا کاغذی) را انتخاب کنید.',
+      name: 'chequeCancelSelectionNotice',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `چک‌های مورد نظر‌ جهت ابطال را انتخاب کنید`
+  String get chequeCancelChequesPrompt {
+    return Intl.message(
+      'چک‌های مورد نظر‌ جهت ابطال را انتخاب کنید',
+      name: 'chequeCancelChequesPrompt',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `جستجو بر اساس شماره چک یا شناسه صیاد`
+  String get chequeCancelSearchHint {
+    return Intl.message(
+      'جستجو بر اساس شماره چک یا شناسه صیاد',
+      name: 'chequeCancelSearchHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `شماره چک`
+  String get chequeCancelNumber {
+    return Intl.message(
+      'شماره چک',
+      name: 'chequeCancelNumber',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `شناسه صیاد`
+  String get chequeCancelSayad {
+    return Intl.message(
+      'شناسه صیاد',
+      name: 'chequeCancelSayad',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `لیست چک‌های انتخاب شده`
+  String get chequeCancelReview {
+    return Intl.message(
+      'لیست چک‌های انتخاب شده',
+      name: 'chequeCancelReview',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `مطمئنید می‌خواید این چک رو از لیست چک‌های ابطالی حذف کنید؟`
+  String get chequeCancelRemovePrompt {
+    return Intl.message(
+      'مطمئنید می‌خواید این چک رو از لیست چک‌های ابطالی حذف کنید؟',
+      name: 'chequeCancelRemovePrompt',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `بله، حذف کن`
+  String get chequeCancelRemove {
+    return Intl.message(
+      'بله، حذف کن',
+      name: 'chequeCancelRemove',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `علت ابطال چک‌ها را انتخاب کنید`
+  String get chequeCancelReasonsPrompt {
+    return Intl.message(
+      'علت ابطال چک‌ها را انتخاب کنید',
+      name: 'chequeCancelReasonsPrompt',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `علت ابطال چک`
+  String get chequeCancelReason {
+    return Intl.message(
+      'علت ابطال چک',
+      name: 'chequeCancelReason',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `علت ابطال چک را انتخاب کنید`
+  String get chequeCancelReasonHint {
+    return Intl.message(
+      'علت ابطال چک را انتخاب کنید',
+      name: 'chequeCancelReasonHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `اعمال یک علت برای همه`
+  String get chequeCancelAllReasons {
+    return Intl.message(
+      'اعمال یک علت برای همه',
+      name: 'chequeCancelAllReasons',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `انتخاب علت برای همه`
+  String get chequeCancelAllReasonsTitle {
+    return Intl.message(
+      'انتخاب علت برای همه',
+      name: 'chequeCancelAllReasonsTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `مخدوش - استفاده نشده`
+  String get chequeCancelDamaged {
+    return Intl.message(
+      'مخدوش - استفاده نشده',
+      name: 'chequeCancelDamaged',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `دستور مرجع قضایی`
+  String get chequeCancelJudicial {
+    return Intl.message(
+      'دستور مرجع قضایی',
+      name: 'chequeCancelJudicial',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `انتخاب`
+  String get chequeCancelChoose {
+    return Intl.message(
+      'انتخاب',
+      name: 'chequeCancelChoose',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `جهت ابطال چک‌ها ابتدا نامه‌ی زیر را دانلود و سپس درخواست خود را ثبت نهایی کنید.`
+  String get chequeCancelLetterPrompt {
+    return Intl.message(
+      'جهت ابطال چک‌ها ابتدا نامه‌ی زیر را دانلود و سپس درخواست خود را ثبت نهایی کنید.',
+      name: 'chequeCancelLetterPrompt',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `ذخیره نامه جهت تحویل به پست`
+  String get chequeCancelDownload {
+    return Intl.message(
+      'ذخیره نامه جهت تحویل به پست',
+      name: 'chequeCancelDownload',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `نامه دانلود شده را چاپ و به همراه چک‌های ذکر شده در آن به یکی از دفاتر پستی مجاز جهت ابطال تحویل دهید.`
+  String get chequeCancelMailInstruction {
+    return Intl.message(
+      'نامه دانلود شده را چاپ و به همراه چک‌های ذکر شده در آن به یکی از دفاتر پستی مجاز جهت ابطال تحویل دهید.',
+      name: 'chequeCancelMailInstruction',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `نتیجه‌ای یافت نشد`
+  String get chequeCancelEmpty {
+    return Intl.message(
+      'نتیجه‌ای یافت نشد',
+      name: 'chequeCancelEmpty',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `درخواست ابطال چک به‌صورت آزمایشی ثبت شد؛ هیچ چکی در بانک باطل نشده است.`
+  String get chequeCancelMockComplete {
+    return Intl.message(
+      'درخواست ابطال چک به‌صورت آزمایشی ثبت شد؛ هیچ چکی در بانک باطل نشده است.',
+      name: 'chequeCancelMockComplete',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

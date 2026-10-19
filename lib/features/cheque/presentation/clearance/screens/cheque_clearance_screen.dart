@@ -1,9 +1,7 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
-import 'package:pishkhan_mobile/core/platform/platform_share.dart';
 import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
@@ -15,7 +13,7 @@ import '../cubit/cheque_clearance_cubit.dart';
 import '../widgets/cheque_clearance_form.dart';
 import '../widgets/cheque_clearance_footer.dart';
 import '../widgets/cheque_clearance_receipt_dialog.dart';
-import '../widgets/cheque_postal_sheet.dart';
+import '../../shared/postal/widgets/cheque_postal_sheet.dart';
 
 class ChequeClearanceScreen extends StatelessWidget {
   const ChequeClearanceScreen({super.key, this.onAssistantPressed});
@@ -46,22 +44,6 @@ class ChequeClearanceScreen extends StatelessWidget {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(S.current.chequeContentUnavailable)),
         );
-      case ChequeClearanceEffect.sharePostalOffices:
-        try {
-          await PlatformShare.shareText(state.postalShareText!);
-        } on PlatformException {
-          if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(S.current.chequeShareUnavailable)),
-            );
-          }
-        } on MissingPluginException {
-          if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(S.current.chequeShareUnavailable)),
-            );
-          }
-        }
       case null:
         break;
     }

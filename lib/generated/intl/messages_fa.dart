@@ -471,6 +471,84 @@ class MessageLookup extends MessageLookupByLibrary {
     "chequeBookUsedLeavesNotice": MessageLookupByLibrary.simpleMessage(
       "برای صدور دسته‌چک جدید، لازم است حداقل ۸۰٪ برگ‌های دسته چک قبلی به بانک برگشته باشند.",
     ),
+    "chequeCancelAllReasons": MessageLookupByLibrary.simpleMessage(
+      "اعمال یک علت برای همه",
+    ),
+    "chequeCancelAllReasonsTitle": MessageLookupByLibrary.simpleMessage(
+      "انتخاب علت برای همه",
+    ),
+    "chequeCancelChequesPrompt": MessageLookupByLibrary.simpleMessage(
+      "چک‌های مورد نظر‌ جهت ابطال را انتخاب کنید",
+    ),
+    "chequeCancelChequesStep": MessageLookupByLibrary.simpleMessage(
+      "انتخاب چک‌ها",
+    ),
+    "chequeCancelChoose": MessageLookupByLibrary.simpleMessage("انتخاب"),
+    "chequeCancelConfirmationStep": MessageLookupByLibrary.simpleMessage(
+      "دانلود نامه و ثبت درخواست",
+    ),
+    "chequeCancelDamaged": MessageLookupByLibrary.simpleMessage(
+      "مخدوش - استفاده نشده",
+    ),
+    "chequeCancelDepositHint": MessageLookupByLibrary.simpleMessage(
+      "سپرده مورد نظر خود را انتخاب کنید",
+    ),
+    "chequeCancelDigital": MessageLookupByLibrary.simpleMessage("دیجیتال"),
+    "chequeCancelDownload": MessageLookupByLibrary.simpleMessage(
+      "ذخیره نامه جهت تحویل به پست",
+    ),
+    "chequeCancelEmpty": MessageLookupByLibrary.simpleMessage(
+      "نتیجه‌ای یافت نشد",
+    ),
+    "chequeCancelJudicial": MessageLookupByLibrary.simpleMessage(
+      "دستور مرجع قضایی",
+    ),
+    "chequeCancelLetterPrompt": MessageLookupByLibrary.simpleMessage(
+      "جهت ابطال چک‌ها ابتدا نامه‌ی زیر را دانلود و سپس درخواست خود را ثبت نهایی کنید.",
+    ),
+    "chequeCancelMailInstruction": MessageLookupByLibrary.simpleMessage(
+      "نامه دانلود شده را چاپ و به همراه چک‌های ذکر شده در آن به یکی از دفاتر پستی مجاز جهت ابطال تحویل دهید.",
+    ),
+    "chequeCancelMockComplete": MessageLookupByLibrary.simpleMessage(
+      "درخواست ابطال چک به‌صورت آزمایشی ثبت شد؛ هیچ چکی در بانک باطل نشده است.",
+    ),
+    "chequeCancelNumber": MessageLookupByLibrary.simpleMessage("شماره چک"),
+    "chequeCancelPaper": MessageLookupByLibrary.simpleMessage("کاغذی"),
+    "chequeCancelReason": MessageLookupByLibrary.simpleMessage("علت ابطال چک"),
+    "chequeCancelReasonHint": MessageLookupByLibrary.simpleMessage(
+      "علت ابطال چک را انتخاب کنید",
+    ),
+    "chequeCancelReasonsPrompt": MessageLookupByLibrary.simpleMessage(
+      "علت ابطال چک‌ها را انتخاب کنید",
+    ),
+    "chequeCancelReasonsStep": MessageLookupByLibrary.simpleMessage(
+      "انتخاب علت ابطال",
+    ),
+    "chequeCancelRemove": MessageLookupByLibrary.simpleMessage("بله، حذف کن"),
+    "chequeCancelRemovePrompt": MessageLookupByLibrary.simpleMessage(
+      "مطمئنید می‌خواید این چک رو از لیست چک‌های ابطالی حذف کنید؟",
+    ),
+    "chequeCancelReview": MessageLookupByLibrary.simpleMessage(
+      "لیست چک‌های انتخاب شده",
+    ),
+    "chequeCancelSayad": MessageLookupByLibrary.simpleMessage("شناسه صیاد"),
+    "chequeCancelSearchHint": MessageLookupByLibrary.simpleMessage(
+      "جستجو بر اساس شماره چک یا شناسه صیاد",
+    ),
+    "chequeCancelSelectionNotice": MessageLookupByLibrary.simpleMessage(
+      "در هر درخواست فقط می‌توانید چک‌های مربوط به یک سپرده و از یک نوع (دیجیتال یا کاغذی) را انتخاب کنید.",
+    ),
+    "chequeCancelSelectionPrompt": MessageLookupByLibrary.simpleMessage(
+      "سپرده پشت چک‌ها و نوع چک‌های مورد نظر‌ جهت ابطال را انتخاب کنید.",
+    ),
+    "chequeCancelSelectionStep": MessageLookupByLibrary.simpleMessage(
+      "انتخاب سپرده و نوع چک",
+    ),
+    "chequeCancelTitle": MessageLookupByLibrary.simpleMessage("ابطال چک"),
+    "chequeCancelType": MessageLookupByLibrary.simpleMessage("نوع چک"),
+    "chequeCancelTypeHint": MessageLookupByLibrary.simpleMessage(
+      "نوع چک را انتخاب کنید",
+    ),
     "chequeCityHint": MessageLookupByLibrary.simpleMessage(
       "شهر مورد نظر را انتخاب کنید",
     ),

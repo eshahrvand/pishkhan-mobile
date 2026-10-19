@@ -1,59 +1,58 @@
 # Close surplus deposits
 
 Route: `/deposits/close-surplus-deposits`; service ID: `deposit-close-extras`.
-The central router accepts an optional initial deposit number. The Cubit resolves
-Persian/Arabic/Latin digits against the fetched eligible primary catalog.
+Cubit resolves the optional entry account against the fetched catalog, accepting
+Persian/Arabic digits and number separators.
 
-The initial form, selected form and empty result follow Figma nodes
-`28060:13952`, `28060:14157` and `28060:14179` in file
-`nYQNyZdSs98lwymCpt5Sag`. The owner explicitly requested a disabled bottom
-button for an empty surplus list. Positive mock results retain the same screen
-shell and reuse `AppDepositList`; no separate positive-list design was supplied.
+## Current owner-approved flow
 
-## Behavior
+The customer selects one retained primary. Every other eligible deposit is
+automatically surplus; the customer does not classify each account individually.
 
-- Select a primary deposit and accept the terms before requesting a review.
-  Changing the primary clears the old review and terms acceptance.
-- A nonempty review lists the proposed closure candidates, with the retained
-  primary shown above them. Confirm submits exactly that reviewed list.
-- Back from review returns to the primary selection. Leaving an edited form
-  requests confirmation. Back remains available during requests.
-- Catalog errors expose Retry. Review/submission errors remain inline; retrying
-  a failed submission keeps the same request and idempotency key.
-- The terms document currently displays the existing unavailable message.
+| Catalog | Screen |
+| --- | --- |
+| More than one deposit | Primary dropdown and terms; submit after selection and consent |
+| One deposit, or no deposits | Empty result and Back |
 
-## Mock scenarios and integration
+Figma file `nYQNyZdSs98lwymCpt5Sag`: `28060:13952` (unselected), `28060:14157`
+(selected), `28060:14179` (empty). The earlier experimental review/candidate-list
+UI is removed. No particular account number forces the empty state when the
+customer still has multiple accounts.
 
-`MockSurplusDepositsRepository` is registered as the repository dependency;
-Cubits are never registered. Primary `10.1234567.2` returns the designed empty
-result. Primaries ending in `.1` and `.3` initially return two surplus deposits
-ending in `.4` and `.5`. A successful simulated closure removes these candidates
-from subsequent reviews in that repository instance. The receipt explicitly
-states that no real deposit or balance changed. Restarting resets mock data.
+Changing the primary clears consent and prepares a new request identity. Loading
+disables edits; Back and discard confirmation remain available. Failure preserves
+the choice for retry. Official terms currently show unavailable-content feedback.
+The design describes transferring balances and associated items to the primary;
+actual transfers require bank integration.
 
-The repository supplies eligible primaries and reviewed candidates. The client
-does not infer banking eligibility from a generic account catalog. The mock
-boundary binds a review token to its primary and candidates, rejects altered or
-already-closed candidates, and caches identical idempotent requests. A real bank
-integration must replace this repository and enforce authorization, eligibility,
-atomic balance/associated-item transfers and idempotency on the server.
+## Data and ownership
 
-`CloseSurplusDepositsScreen` creates its Cubit directly in `BlocProvider.create`
-and calls the real catalog fetch. Plain Freezed State holds independent catalog,
-review and submission statuses. Cubit owns selection, eligibility for controls,
-request construction and modal-result interpretation. Named, filtered listeners
-execute navigation, dialogs and feedback. Application boundaries convert
-unexpected repository exceptions to the existing `UnexpectedFailure`.
+The screen directly creates `CloseSurplusDepositsCubit` in its Provider and calls
+`fetchPrimaryDeposits`. GetIt holds the repository only. Plain Freezed State owns
+catalog/submission status, selection, consent and effects.
 
-Reused components include `CertificateSelect`, `AppCheckbox`, `AppButton`,
-`AppTopBar`, `AppAssistantButton`, `AppDepositList` and the existing exit dialog.
-The empty-result glyph is the original Figma SVG.
+`CloseRemainingDeposits` fetches the surplus review/token and builds the request
+to close every reviewed account except the selected primary. This is an
+application operation, not an extra UI page. Its flow-scoped pending payload
+preserves the reviewed accounts and idempotency key after an uncertain response.
 
-## Verification
+The mock starts with `10.1234567.1`, `.2` and `.3`. Selecting any one retains it
+and closes the other two in that repository's in-memory simulation. Reopening
+with the remaining single account shows the empty state. Restarting resets the
+fixture. Tests supply a single-account catalog without adding debug widgets.
 
-`test/deposits/close_surplus_deposits_cubit_test.dart` covers entry resolution,
-empty and positive review, errors/retry, effects and mock idempotency safeguards.
-`test/deposits/close_surplus_deposits_screen_test.dart` covers the designed states,
-actual selection and terms interaction, mock list/receipt, central service entry,
-small viewports and larger text in fa/en/ar. Set `CAPTURE_CERTIFICATE_PREVIEWS=1`
-to save previews under `build/previews/certificates/surplus-deposits-*.png`.
+The mock rejects invalid/altered tokens, primary/candidate mismatches, duplicates,
+already-closed candidates and key conflicts. Identical retries return the same
+receipt. It changes no real account or balance; production ownership, eligibility,
+atomic transfer/closure and durable idempotency must be enforced by the bank.
+
+## Reuse and verification
+
+Uses `CertificateSelect`, `AppCheckbox`, `AppButton`, `AppTopBar`,
+`AppAssistantButton`, the exit dialog and original empty-state artwork.
+Tests: `test/deposits/close_surplus_deposits_cubit_test.dart` and
+`test/deposits/close_surplus_deposits_screen_test.dart`. Coverage includes catalog
+count branching, entry resolution, consent/reset, retry identity, mock review
+validation, receipt/exit behavior and compact layouts. Opt-in previews use
+`CAPTURE_CERTIFICATE_PREVIEWS=1` and write
+`build/previews/certificates/surplus-deposits-*.png`.

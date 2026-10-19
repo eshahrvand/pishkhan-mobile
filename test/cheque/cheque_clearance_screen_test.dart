@@ -2,6 +2,7 @@ import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pishkhan_mobile/features/cheque/presentation/shared/postal/cubit/cheque_postal_cubit.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
@@ -11,8 +12,8 @@ import 'package:pishkhan_mobile/features/cheque/presentation/clearance/cubit/che
 import 'package:pishkhan_mobile/features/cheque/presentation/clearance/screens/cheque_clearance_screen.dart';
 import 'package:pishkhan_mobile/features/cheque/presentation/clearance/widgets/cheque_clearance_form.dart';
 import 'package:pishkhan_mobile/features/cheque/presentation/clearance/widgets/cheque_clearance_receipt_dialog.dart';
-import 'package:pishkhan_mobile/features/cheque/presentation/clearance/widgets/cheque_postal_results.dart';
-import 'package:pishkhan_mobile/features/cheque/presentation/clearance/widgets/cheque_postal_sheet.dart';
+import 'package:pishkhan_mobile/features/cheque/presentation/shared/postal/widgets/cheque_postal_results.dart';
+import 'package:pishkhan_mobile/features/cheque/presentation/shared/postal/widgets/cheque_postal_sheet.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 
 import '../support/router_test_app.dart';
@@ -286,7 +287,14 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byType(ChequePostalResults), findsNothing);
       await choose<PostalProvince>(tester, 'اصفهان');
-      expect(cubit(tester).state.city, isNull);
+      expect(
+        tester
+            .element(find.byType(ChequePostalSheet))
+            .read<ChequePostalCubit>()
+            .state
+            .city,
+        isNull,
+      );
       expect(
         tester
             .widget<AppButton>(button(S.current.chequePostalSearch))

@@ -1,5 +1,8 @@
 import 'dart:ui' as ui;
 
+import 'package:flutter/services.dart';
+import 'package:pishkhan_mobile/core/platform/platform_share.dart';
+
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,13 +11,14 @@ import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_bottom_sheet_header.dart';
 
-import '../../../domain/entities/cheque_clearance.dart';
-import '../cubit/cheque_clearance_cubit.dart';
-import 'cheque_clearance_ui.dart';
+import '../../../../domain/entities/cheque_clearance.dart';
+import '../cubit/cheque_postal_cubit.dart';
+
+import 'package:pishkhan_mobile/shared/widgets/certificate_fields.dart';
+
 import 'cheque_postal_results.dart';
 
 Future<void> showChequePostalSheet(BuildContext context) {
-  final cubit = context.read<ChequeClearanceCubit>();
   FocusManager.instance.primaryFocus?.unfocus();
   return showModalBottomSheet<void>(
     context: context,
@@ -22,8 +26,8 @@ Future<void> showChequePostalSheet(BuildContext context) {
     useSafeArea: true,
     backgroundColor: Colors.transparent,
     barrierColor: context.colors.textPrimary.withValues(alpha: .4),
-    builder: (_) => BlocProvider.value(
-      value: cubit,
+    builder: (_) => BlocProvider(
+      create: (_) => ChequePostalCubit()..fetchProvinces(),
       child: BackdropFilter(
         filter: ui.ImageFilter.blur(sigmaX: 1, sigmaY: 1),
         child: const ChequePostalSheet(),
@@ -34,15 +38,32 @@ Future<void> showChequePostalSheet(BuildContext context) {
 
 class ChequePostalSheet extends StatelessWidget {
   const ChequePostalSheet({super.key});
+  Future<void> _handleEffect(
+    BuildContext context,
+    ChequePostalState state,
+  ) async {
+    try {
+      await PlatformShare.shareText(state.postalShareText!);
+    } on PlatformException {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(S.current.chequeShareUnavailable)),
+        );
+      }
+    } on MissingPluginException {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(S.current.chequeShareUnavailable)),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<ChequeClearanceCubit, ChequeClearanceState>(
-      buildWhen: (previous, current) =>
-          previous.postalStep != current.postalStep ||
-          previous.province != current.province ||
-          previous.city != current.city ||
-          previous.postalOfficesStatus != current.postalOfficesStatus ||
-          previous.catalog != current.catalog,
+    return BlocConsumer<ChequePostalCubit, ChequePostalState>(
+      listenWhen: (previous, current) => previous.effectId != current.effectId,
+      listener: _handleEffect,
       builder: (context, state) {
         return Directionality(
           textDirection: TextDirection.rtl,
@@ -50,7 +71,7 @@ class ChequePostalSheet extends StatelessWidget {
             canPop: state.postalStep == ChequePostalStep.location,
             onPopInvokedWithResult: (didPop, result) {
               if (!didPop) {
-                context.read<ChequeClearanceCubit>().requestPostalSearch();
+                context.read<ChequePostalCubit>().requestPostalSearch();
               }
             },
             child: Container(
@@ -71,7 +92,19 @@ class ChequePostalSheet extends StatelessWidget {
                       showRightIcon: false,
                       onLeftAction: () => Navigator.of(context).pop(),
                     ),
-                    if (state.postalStep == ChequePostalStep.results)
+                    if (state.provincesStatus == RequestStatus.loading)
+                      const Padding(
+                        padding: EdgeInsets.all(32),
+                        child: CircularProgressIndicator(),
+                      )
+                    else if (state.provincesStatus == RequestStatus.failure)
+                      AppButton(
+                        label: S.current.dashboardRetry,
+                        onPressed: context
+                            .read<ChequePostalCubit>()
+                            .fetchProvinces,
+                      )
+                    else if (state.postalStep == ChequePostalStep.results)
                       Flexible(child: ChequePostalResults(state: state))
                     else
                       Flexible(
@@ -87,14 +120,15 @@ class ChequePostalSheet extends StatelessWidget {
                             children: [
                               AppSelect<PostalProvince>(
                                 label: S.current.chequeProvinceLabel,
-                                labelStyle: chequeLabelStyle(context),
+                                labelStyle: certificateLabelStyle(context),
                                 labelSpacing: 8,
                                 hintText: S.current.chequeProvinceHint,
-                                textStyle: chequeValueStyle(context).copyWith(
-                                  color: state.province == null
-                                      ? context.colors.textDisabled
-                                      : context.colors.textPrimary,
-                                ),
+                                textStyle: certificateValueStyle(context)
+                                    .copyWith(
+                                      color: state.province == null
+                                          ? context.colors.textDisabled
+                                          : context.colors.textPrimary,
+                                    ),
                                 trailing: AvpImage(
                                   image: state.province == null
                                       ? AppAssets.issuanceSelectEmpty
@@ -107,28 +141,28 @@ class ChequePostalSheet extends StatelessWidget {
                                     state.postalOfficesStatus !=
                                     RequestStatus.loading,
                                 options: [
-                                  for (final province
-                                      in state.catalog!.provinces)
+                                  for (final province in state.provinces)
                                     AppSelectOption(
                                       value: province,
                                       label: province.name,
                                     ),
                                 ],
                                 onChanged: context
-                                    .read<ChequeClearanceCubit>()
+                                    .read<ChequePostalCubit>()
                                     .selectProvince,
                               ),
                               const SizedBox(height: 20),
                               AppSelect<PostalCity>(
                                 label: S.current.chequeCityLabel,
-                                labelStyle: chequeLabelStyle(context),
+                                labelStyle: certificateLabelStyle(context),
                                 labelSpacing: 8,
                                 hintText: S.current.chequeCityHint,
-                                textStyle: chequeValueStyle(context).copyWith(
-                                  color: state.city == null
-                                      ? context.colors.textDisabled
-                                      : context.colors.textPrimary,
-                                ),
+                                textStyle: certificateValueStyle(context)
+                                    .copyWith(
+                                      color: state.city == null
+                                          ? context.colors.textDisabled
+                                          : context.colors.textPrimary,
+                                    ),
                                 trailing: AvpImage(
                                   image: state.city == null
                                       ? AppAssets.issuanceSelectEmpty
@@ -149,7 +183,7 @@ class ChequePostalSheet extends StatelessWidget {
                                 ],
                                 onChanged: state.province != null
                                     ? context
-                                          .read<ChequeClearanceCubit>()
+                                          .read<ChequePostalCubit>()
                                           .selectCity
                                     : null,
                               ),
@@ -158,7 +192,7 @@ class ChequePostalSheet extends StatelessWidget {
                                   RequestStatus.failure) ...[
                                 Text(
                                   S.current.chequePostalFailure,
-                                  style: chequeLabelStyle(context)
+                                  style: certificateLabelStyle(context)
                                       .copyWith(color: context.colors.error),
                                 ),
                                 const SizedBox(height: 12),
@@ -173,7 +207,7 @@ class ChequePostalSheet extends StatelessWidget {
                                     RequestStatus.loading,
                                 onPressed: state.canSearchPostalOffices
                                     ? context
-                                          .read<ChequeClearanceCubit>()
+                                          .read<ChequePostalCubit>()
                                           .searchPostalOffices
                                     : null,
                               ),

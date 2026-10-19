@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/features/cheque/domain/repositories/cheque_cancellation_repository.dart';
+import 'package:pishkhan_mobile/features/cheque/data/repositories/mock_cheque_cancellation_repository.dart';
 import 'package:pishkhan_mobile/features/cheque/data/repositories/mock_cheque_book_repository.dart';
 import 'package:pishkhan_mobile/features/cheque/domain/repositories/cheque_book_repository.dart';
 import 'package:pishkhan_mobile/features/cheque/data/repositories/mock_cheque_clearance_repository.dart';
@@ -37,6 +39,9 @@ final getIt = GetIt.instance;
 /// Register once before runApp. Tests may supply an isolated container.
 void configureDependencies({GetIt? container}) {
   final dependencies = container ?? getIt;
+  dependencies.registerLazySingleton<ChequeCancellationRepository>(
+    MockChequeCancellationRepository.new,
+  );
   dependencies.registerLazySingleton<ChequeBookRepository>(
     MockChequeBookRepository.new,
   );

@@ -1,9 +1,6 @@
-
 part of 'cheque_clearance_cubit.dart';
 
 enum ChequeNumberError { invalid, notFound }
-
-enum ChequePostalStep { location, results }
 
 enum ChequeClearanceEffect {
   back,
@@ -12,7 +9,6 @@ enum ChequeClearanceEffect {
   home,
   postalOffices,
   contentUnavailable,
-  sharePostalOffices,
 }
 
 @Freezed(toStringOverride: false)
@@ -41,15 +37,6 @@ abstract class ChequeClearanceState with _$ChequeClearanceState {
     @Default(RequestStatus.initial) RequestStatus submissionStatus,
     Failure? submissionFailure,
     ChequeClearanceReceipt? receipt,
-    @Default(ChequePostalStep.location) ChequePostalStep postalStep,
-    PostalProvince? province,
-    PostalCity? city,
-    @Default(<PostalCity>[]) List<PostalCity> cities,
-    @Default(false) bool canSearchPostalOffices,
-    @Default(RequestStatus.initial) RequestStatus postalOfficesStatus,
-    Failure? postalOfficesFailure,
-    @Default(<PostalOffice>[]) List<PostalOffice> postalOffices,
-    String? postalShareText,
     ChequeClearanceEffect? effect,
     @Default(0) int effectId,
   }) = _ChequeClearanceState;

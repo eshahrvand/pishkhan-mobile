@@ -444,6 +444,86 @@ class MessageLookup extends MessageLookupByLibrary {
     "chequeBookUsedLeavesNotice": MessageLookupByLibrary.simpleMessage(
       "يجب إعادة ٨٠٪ على الأقل من أوراق دفتر الشيكات السابق إلى البنك.",
     ),
+    "chequeCancelAllReasons": MessageLookupByLibrary.simpleMessage(
+      "تطبيق سبب واحد على الجميع",
+    ),
+    "chequeCancelAllReasonsTitle": MessageLookupByLibrary.simpleMessage(
+      "اختيار سبب للجميع",
+    ),
+    "chequeCancelChequesPrompt": MessageLookupByLibrary.simpleMessage(
+      "اختر الشيكات المراد إلغاؤها",
+    ),
+    "chequeCancelChequesStep": MessageLookupByLibrary.simpleMessage(
+      "اختيار الشيكات",
+    ),
+    "chequeCancelChoose": MessageLookupByLibrary.simpleMessage("اختيار"),
+    "chequeCancelConfirmationStep": MessageLookupByLibrary.simpleMessage(
+      "تنزيل الخطاب وتقديم الطلب",
+    ),
+    "chequeCancelDamaged": MessageLookupByLibrary.simpleMessage(
+      "تالف - غير مستخدم",
+    ),
+    "chequeCancelDepositHint": MessageLookupByLibrary.simpleMessage(
+      "اختر الوديعة",
+    ),
+    "chequeCancelDigital": MessageLookupByLibrary.simpleMessage("رقمي"),
+    "chequeCancelDownload": MessageLookupByLibrary.simpleMessage(
+      "حفظ الخطاب لتسليمه إلى البريد",
+    ),
+    "chequeCancelEmpty": MessageLookupByLibrary.simpleMessage(
+      "لم يتم العثور على نتائج",
+    ),
+    "chequeCancelJudicial": MessageLookupByLibrary.simpleMessage(
+      "أمر جهة قضائية",
+    ),
+    "chequeCancelLetterPrompt": MessageLookupByLibrary.simpleMessage(
+      "لإلغاء الشيكات، نزّل الخطاب أدناه ثم قدّم طلبك.",
+    ),
+    "chequeCancelMailInstruction": MessageLookupByLibrary.simpleMessage(
+      "اطبع الخطاب المنزّل وسلّمه مع الشيكات المذكورة فيه إلى مكتب بريد معتمد للإلغاء.",
+    ),
+    "chequeCancelMockComplete": MessageLookupByLibrary.simpleMessage(
+      "تم تسجيل طلب إلغاء تجريبي؛ لم يتم إلغاء أي شيك في البنك.",
+    ),
+    "chequeCancelNumber": MessageLookupByLibrary.simpleMessage("رقم الشيك"),
+    "chequeCancelPaper": MessageLookupByLibrary.simpleMessage("ورقي"),
+    "chequeCancelReason": MessageLookupByLibrary.simpleMessage(
+      "سبب إلغاء الشيك",
+    ),
+    "chequeCancelReasonHint": MessageLookupByLibrary.simpleMessage(
+      "اختر سبب الإلغاء",
+    ),
+    "chequeCancelReasonsPrompt": MessageLookupByLibrary.simpleMessage(
+      "اختر أسباب إلغاء الشيكات",
+    ),
+    "chequeCancelReasonsStep": MessageLookupByLibrary.simpleMessage(
+      "اختيار أسباب الإلغاء",
+    ),
+    "chequeCancelRemove": MessageLookupByLibrary.simpleMessage("نعم، إزالة"),
+    "chequeCancelRemovePrompt": MessageLookupByLibrary.simpleMessage(
+      "هل تريد إزالة هذا الشيك من قائمة الإلغاء؟",
+    ),
+    "chequeCancelReview": MessageLookupByLibrary.simpleMessage(
+      "الشيكات المختارة",
+    ),
+    "chequeCancelSayad": MessageLookupByLibrary.simpleMessage("معرف صياد"),
+    "chequeCancelSearchHint": MessageLookupByLibrary.simpleMessage(
+      "ابحث برقم الشيك أو معرف صياد",
+    ),
+    "chequeCancelSelectionNotice": MessageLookupByLibrary.simpleMessage(
+      "يمكن لكل طلب أن يتضمن شيكات من وديعة واحدة ونوع واحد (رقمي أو ورقي).",
+    ),
+    "chequeCancelSelectionPrompt": MessageLookupByLibrary.simpleMessage(
+      "اختر الوديعة ونوع الشيكات المراد إلغاؤها.",
+    ),
+    "chequeCancelSelectionStep": MessageLookupByLibrary.simpleMessage(
+      "اختيار الوديعة ونوع الشيك",
+    ),
+    "chequeCancelTitle": MessageLookupByLibrary.simpleMessage("إلغاء الشيكات"),
+    "chequeCancelType": MessageLookupByLibrary.simpleMessage("نوع الشيك"),
+    "chequeCancelTypeHint": MessageLookupByLibrary.simpleMessage(
+      "اختر نوع الشيك",
+    ),
     "closeLabel": MessageLookupByLibrary.simpleMessage("إغلاق"),
     "consolidateDepositCredit": MessageLookupByLibrary.simpleMessage(
       "دمج رصيد الوديعة",

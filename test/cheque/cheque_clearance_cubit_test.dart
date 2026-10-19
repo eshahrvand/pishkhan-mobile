@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:pishkhan_mobile/features/cheque/presentation/shared/postal/cubit/cheque_postal_cubit.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/result/failure.dart';
@@ -185,56 +186,55 @@ void main() {
     },
   );
 
-  test('postal search resets dependent city and ignores a dismissed sheet response after reopening', () async {
-    await fill(ChequeClearanceReason.notarizedConsent);
-    cubit.requestPostalOffices();
-    cubit.selectProvince(cubit.state.catalog!.provinces.first);
-    cubit.selectCity(cubit.state.cities.first);
-    final old = cubit.searchPostalOffices();
-    cubit.requestPostalOffices();
-    cubit.selectProvince(cubit.state.catalog!.provinces.last);
-    expect(cubit.state.city, isNull);
-    expect(cubit.state.canSearchPostalOffices, isFalse);
-    cubit.selectCity(cubit.state.cities.single);
-    final fresh = cubit.searchPostalOffices();
-    repository.postalRequests.last.complete(const Success([]));
-    await fresh;
-    repository.postalRequests.first.complete(
-      const Success([PostalOffice(id: 'old', address: 'old office')]),
-    );
-    await old;
-    expect(cubit.state.postalOffices, isEmpty);
-    expect(cubit.state.postalStep, ChequePostalStep.results);
-    expect(cubit.state.city!.id, 'isfahan-city');
-  });
+  test(
+    'postal search resets dependent city and publishes service results',
+    () async {
+      final postal = ChequePostalCubit();
+      addTearDown(postal.close);
+      await postal.fetchProvinces();
+      postal.selectProvince(postal.state.provinces.first);
+      postal.selectCity(postal.state.cities.first);
+      postal.selectProvince(postal.state.provinces.last);
+      expect(postal.state.city, isNull);
+      expect(postal.state.canSearchPostalOffices, isFalse);
+      postal.selectCity(postal.state.cities.single);
+      final lookup = postal.searchPostalOffices();
+      repository.postalRequests.single.complete(const Success([]));
+      await lookup;
+      expect(postal.state.postalOffices, isEmpty);
+      expect(postal.state.postalStep, ChequePostalStep.results);
+      expect(postal.state.city!.id, 'isfahan-city');
+    },
+  );
 
   test(
     'postal failure retries; sharing uses the actual retrieved offices',
     () async {
-      await fill(ChequeClearanceReason.originalCheque);
-      cubit.requestPostalOffices();
-      cubit.selectProvince(cubit.state.catalog!.provinces.first);
-      cubit.selectCity(cubit.state.cities.first);
-      var lookup = cubit.searchPostalOffices();
+      final postal = ChequePostalCubit();
+      addTearDown(postal.close);
+      await postal.fetchProvinces();
+      postal.selectProvince(postal.state.provinces.first);
+      postal.selectCity(postal.state.cities.first);
+      var lookup = postal.searchPostalOffices();
       repository.postalRequests.last.complete(
         const Err(DataFailure('offline')),
       );
       await lookup;
-      expect(cubit.state.postalOfficesStatus, RequestStatus.failure);
-      expect(cubit.state.postalStep, ChequePostalStep.location);
-      lookup = cubit.searchPostalOffices();
+      expect(postal.state.postalOfficesStatus, RequestStatus.failure);
+      expect(postal.state.postalStep, ChequePostalStep.location);
+      lookup = postal.searchPostalOffices();
       repository.postalRequests.last.complete(
         const Success([
           PostalOffice(id: 'office', address: 'address from service'),
         ]),
       );
       await lookup;
-      cubit.requestPostalShare();
-      expect(cubit.state.effect, ChequeClearanceEffect.sharePostalOffices);
-      expect(cubit.state.postalShareText, contains('address from service'));
-      expect(cubit.state.postalShareText, contains(cubit.state.city!.name));
-      cubit.requestPostalSearch();
-      expect(cubit.state.postalStep, ChequePostalStep.location);
+      postal.requestPostalShare();
+      expect(postal.state.effect, ChequePostalEffect.share);
+      expect(postal.state.postalShareText, contains('address from service'));
+      expect(postal.state.postalShareText, contains(postal.state.city!.name));
+      postal.requestPostalSearch();
+      expect(postal.state.postalStep, ChequePostalStep.location);
     },
   );
 

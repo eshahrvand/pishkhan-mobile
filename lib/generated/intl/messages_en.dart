@@ -486,6 +486,86 @@ class MessageLookup extends MessageLookupByLibrary {
     "chequeBookUsedLeavesNotice": MessageLookupByLibrary.simpleMessage(
       "At least 80% of your previous cheque book leaves must have been returned to the bank.",
     ),
+    "chequeCancelAllReasons": MessageLookupByLibrary.simpleMessage(
+      "Apply one reason to all",
+    ),
+    "chequeCancelAllReasonsTitle": MessageLookupByLibrary.simpleMessage(
+      "Select a reason for all",
+    ),
+    "chequeCancelChequesPrompt": MessageLookupByLibrary.simpleMessage(
+      "Select the cheques to cancel",
+    ),
+    "chequeCancelChequesStep": MessageLookupByLibrary.simpleMessage(
+      "Select cheques",
+    ),
+    "chequeCancelChoose": MessageLookupByLibrary.simpleMessage("Select"),
+    "chequeCancelConfirmationStep": MessageLookupByLibrary.simpleMessage(
+      "Download letter and submit",
+    ),
+    "chequeCancelDamaged": MessageLookupByLibrary.simpleMessage(
+      "Damaged — unused",
+    ),
+    "chequeCancelDepositHint": MessageLookupByLibrary.simpleMessage(
+      "Select a deposit",
+    ),
+    "chequeCancelDigital": MessageLookupByLibrary.simpleMessage("Digital"),
+    "chequeCancelDownload": MessageLookupByLibrary.simpleMessage(
+      "Save letter for postal delivery",
+    ),
+    "chequeCancelEmpty": MessageLookupByLibrary.simpleMessage(
+      "No results found",
+    ),
+    "chequeCancelJudicial": MessageLookupByLibrary.simpleMessage(
+      "Judicial authority order",
+    ),
+    "chequeCancelLetterPrompt": MessageLookupByLibrary.simpleMessage(
+      "To cancel the cheques, download the letter below, then submit your request.",
+    ),
+    "chequeCancelMailInstruction": MessageLookupByLibrary.simpleMessage(
+      "Print the downloaded letter and deliver it with the listed cheques to an authorized post office for cancellation.",
+    ),
+    "chequeCancelMockComplete": MessageLookupByLibrary.simpleMessage(
+      "Demo cancellation request recorded. No bank cheque was cancelled.",
+    ),
+    "chequeCancelNumber": MessageLookupByLibrary.simpleMessage("Cheque number"),
+    "chequeCancelPaper": MessageLookupByLibrary.simpleMessage("Paper"),
+    "chequeCancelReason": MessageLookupByLibrary.simpleMessage(
+      "Cancellation reason",
+    ),
+    "chequeCancelReasonHint": MessageLookupByLibrary.simpleMessage(
+      "Select cancellation reason",
+    ),
+    "chequeCancelReasonsPrompt": MessageLookupByLibrary.simpleMessage(
+      "Select the cancellation reasons",
+    ),
+    "chequeCancelReasonsStep": MessageLookupByLibrary.simpleMessage(
+      "Select cancellation reasons",
+    ),
+    "chequeCancelRemove": MessageLookupByLibrary.simpleMessage("Yes, remove"),
+    "chequeCancelRemovePrompt": MessageLookupByLibrary.simpleMessage(
+      "Remove this cheque from the cancellation list?",
+    ),
+    "chequeCancelReview": MessageLookupByLibrary.simpleMessage(
+      "Selected cheques",
+    ),
+    "chequeCancelSayad": MessageLookupByLibrary.simpleMessage("Sayad ID"),
+    "chequeCancelSearchHint": MessageLookupByLibrary.simpleMessage(
+      "Search by cheque number or Sayad ID",
+    ),
+    "chequeCancelSelectionNotice": MessageLookupByLibrary.simpleMessage(
+      "Each request can include cheques from one deposit and one type (digital or paper).",
+    ),
+    "chequeCancelSelectionPrompt": MessageLookupByLibrary.simpleMessage(
+      "Select the deposit and type of cheques to cancel.",
+    ),
+    "chequeCancelSelectionStep": MessageLookupByLibrary.simpleMessage(
+      "Select deposit and cheque type",
+    ),
+    "chequeCancelTitle": MessageLookupByLibrary.simpleMessage("Cancel cheques"),
+    "chequeCancelType": MessageLookupByLibrary.simpleMessage("Cheque type"),
+    "chequeCancelTypeHint": MessageLookupByLibrary.simpleMessage(
+      "Select cheque type",
+    ),
     "chequeCityHint": MessageLookupByLibrary.simpleMessage("Select a city"),
     "chequeCityLabel": MessageLookupByLibrary.simpleMessage("City*"),
     "chequeCitySummary": MessageLookupByLibrary.simpleMessage("City"),

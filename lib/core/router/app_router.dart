@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/features/cheque/presentation/cancellation/screens/cheque_cancellation_screen.dart';
 import 'package:pishkhan_mobile/features/cheque/presentation/book_issuance/screens/cheque_book_screen.dart';
 import 'package:pishkhan_mobile/features/cheque/presentation/clearance/screens/cheque_clearance_screen.dart';
 import 'package:pishkhan_mobile/features/launch/presentation/shared/widgets/route_unavailable_screen.dart';
@@ -70,6 +71,18 @@ GoRouter createAppRouter({
         },
       ),
 
+      GoRoute(
+        path: AppRoutes.chequeCancellation,
+        builder: (context, state) {
+          final args = state.extra is ChequeCancellationRouteArguments
+              ? state.extra as ChequeCancellationRouteArguments
+              : null;
+          return ChequeCancellationScreen(
+            initialDepositNumber: args?.initialDepositNumber,
+            onAssistantPressed: args?.onAssistantPressed,
+          );
+        },
+      ),
       GoRoute(
         path: AppRoutes.chequeBook,
         builder: (context, state) {
@@ -401,6 +414,15 @@ class ChequeClearanceRouteArguments {
 
 class ChequeBookRouteArguments {
   const ChequeBookRouteArguments({
+    this.initialDepositNumber,
+    this.onAssistantPressed,
+  });
+  final String? initialDepositNumber;
+  final VoidCallback? onAssistantPressed;
+}
+
+class ChequeCancellationRouteArguments {
+  const ChequeCancellationRouteArguments({
     this.initialDepositNumber,
     this.onAssistantPressed,
   });

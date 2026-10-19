@@ -4,12 +4,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
-import '../cubit/cheque_clearance_cubit.dart';
-import 'cheque_clearance_ui.dart';
+import '../cubit/cheque_postal_cubit.dart';
+
+import 'package:pishkhan_mobile/shared/widgets/certificate_fields.dart';
 
 class ChequePostalResults extends StatelessWidget {
   const ChequePostalResults({super.key, required this.state});
-  final ChequeClearanceState state;
+  final ChequePostalState state;
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -30,13 +31,13 @@ class ChequePostalResults extends StatelessWidget {
                   children: [
                     Text(
                       S.current.chequeProvinceSummary,
-                      style: chequeLabelStyle(context),
+                      style: certificateLabelStyle(context),
                     ),
                     const Spacer(),
                     Expanded(
                       child: Text(
                         state.province!.name,
-                        style: chequeValueStyle(context),
+                        style: certificateValueStyle(context),
                         textAlign: TextAlign.end,
                       ),
                     ),
@@ -47,13 +48,13 @@ class ChequePostalResults extends StatelessWidget {
                   children: [
                     Text(
                       S.current.chequeCitySummary,
-                      style: chequeLabelStyle(context),
+                      style: certificateLabelStyle(context),
                     ),
                     const SizedBox(width: 16),
                     Expanded(
                       child: Text(
                         state.city!.name,
-                        style: chequeValueStyle(context),
+                        style: certificateValueStyle(context),
                         textAlign: TextAlign.end,
                       ),
                     ),
@@ -70,13 +71,14 @@ class ChequePostalResults extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           if (state.postalOffices.isEmpty) ...[
-            Text(S.current.chequePostalEmpty, style: chequeLabelStyle(context)),
+            Text(
+              S.current.chequePostalEmpty,
+              style: certificateLabelStyle(context),
+            ),
             const SizedBox(height: 24),
             AppButton(
               label: S.current.chequePostalSearchAgain,
-              onPressed: context
-                  .read<ChequeClearanceCubit>()
-                  .requestPostalSearch,
+              onPressed: context.read<ChequePostalCubit>().requestPostalSearch,
             ),
           ] else ...[
             Flexible(
@@ -87,7 +89,7 @@ class ChequePostalResults extends StatelessWidget {
                     const SizedBox(height: 12),
                 itemBuilder: (context, index) => Text(
                   '•  ${state.postalOffices[index].address}',
-                  style: chequeLabelStyle(context)
+                  style: certificateLabelStyle(context)
                       .copyWith(fontWeight: FontWeight.w400),
                 ),
               ),
@@ -101,9 +103,7 @@ class ChequePostalResults extends StatelessWidget {
                 height: 20,
               ),
               size: AppButtonSize.lg,
-              onPressed: context
-                  .read<ChequeClearanceCubit>()
-                  .requestPostalShare,
+              onPressed: context.read<ChequePostalCubit>().requestPostalShare,
             ),
           ],
         ],

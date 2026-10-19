@@ -22,10 +22,7 @@ class ChequeClearanceCubit extends Cubit<ChequeClearanceState> {
 
   final _repository = getIt<ChequeClearanceRepository>();
   late final _fetchCatalog = FetchChequeClearanceCatalog(_repository);
-  late final _fetchPostalOffices = FetchChequePostalOffices(_repository);
   late final _submitClearance = SubmitChequeClearance(_repository);
-
-  int _postalRequestId = 0;
 
   Future<void> fetchCatalog() {
     emit(
@@ -217,86 +214,9 @@ class ChequeClearanceCubit extends Cubit<ChequeClearanceState> {
   }
 
   void requestPostalOffices() {
-    // Reopening can overlap an earlier lookup whose sheet was dismissed.
-    _postalRequestId++;
     emit(
       state.copyWith(
-        postalStep: ChequePostalStep.location,
-        postalOfficesStatus: RequestStatus.initial,
-        postalOfficesFailure: null,
         effect: ChequeClearanceEffect.postalOffices,
-        effectId: state.effectId + 1,
-      ),
-    );
-  }
-
-  void selectProvince(PostalProvince province) {
-    emit(
-      state.copyWith(
-        province: province,
-        cities: province.cities,
-        city: null,
-        canSearchPostalOffices: false,
-        postalOffices: const [],
-        postalOfficesStatus: RequestStatus.initial,
-        postalOfficesFailure: null,
-      ),
-    );
-  }
-
-  void selectCity(PostalCity city) {
-    emit(
-      state.copyWith(
-        city: city,
-        canSearchPostalOffices: true,
-        postalOffices: const [],
-        postalOfficesStatus: RequestStatus.initial,
-        postalOfficesFailure: null,
-      ),
-    );
-  }
-
-  Future<void> searchPostalOffices() {
-    final requestId = ++_postalRequestId;
-    emit(
-      state.copyWith(
-        postalOfficesStatus: RequestStatus.loading,
-        postalOfficesFailure: null,
-      ),
-    );
-    return _fetchPostalOffices(state.city!.id).then((result) {
-      if (requestId != _postalRequestId) return;
-      switch (result) {
-        case Err(:final failure):
-          emit(
-            state.copyWith(
-              postalOfficesStatus: RequestStatus.failure,
-              postalOfficesFailure: failure,
-            ),
-          );
-        case Success(:final data):
-          emit(
-            state.copyWith(
-              postalOfficesStatus: RequestStatus.success,
-              postalOffices: data,
-              postalStep: ChequePostalStep.results,
-            ),
-          );
-      }
-    });
-  }
-
-  void requestPostalSearch() {
-    emit(state.copyWith(postalStep: ChequePostalStep.location));
-  }
-
-  void requestPostalShare() {
-    final text =
-        '${state.province!.name} - ${state.city!.name}\n${state.postalOffices.map((office) => '• ${office.address}').join('\n')}';
-    emit(
-      state.copyWith(
-        postalShareText: text,
-        effect: ChequeClearanceEffect.sharePostalOffices,
         effectId: state.effectId + 1,
       ),
     );

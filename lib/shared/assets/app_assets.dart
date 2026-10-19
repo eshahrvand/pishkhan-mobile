@@ -4,6 +4,15 @@
 /// code. Feature-specific facades may alias these constants, but must not
 /// duplicate path strings.
 abstract final class AppAssets {
+  static const chequeCancelFileListSelected = 'assets/images/cheque_cancel_file_list_selected.svg';
+  static const chequeCancelReviewDivider = 'assets/images/cheque_cancel_review_divider.svg';
+  static const chequeCancelFileList = 'assets/images/cheque_cancel_file_list.svg';
+  static const chequeCancelDivider = 'assets/images/cheque_cancel_divider.svg';
+  static const chequeCancelReasonDivider = 'assets/images/cheque_cancel_reason_divider.svg';
+  static const chequeCancelReasonRowDivider = 'assets/images/cheque_cancel_reason_row_divider.svg';
+  static const chequeCancelDownload = 'assets/images/cheque_cancel_download.svg';
+  static const chequeCancelCheck = 'assets/images/cheque_cancel_check.svg';
+  static const chequeCancelAngleDown = 'assets/images/cheque_cancel_angle_down.svg';
   static const chequeBookDelivery = 'assets/images/chequebook_delivery.svg';
   static const chequeBookCost = 'assets/images/chequebook_cost.svg';
   static const chequeBookOpeningInfo = 'assets/images/chequebook_opening_info.svg';
@@ -533,6 +542,15 @@ abstract final class AppAssets {
   static const notificationSecurity = '$_root/notification_security.png';
 
   static const all = <String>[
+    chequeCancelReviewDivider,
+    chequeCancelFileListSelected,
+    chequeCancelFileList,
+    chequeCancelDivider,
+    chequeCancelReasonDivider,
+    chequeCancelReasonRowDivider,
+    chequeCancelDownload,
+    chequeCancelCheck,
+    chequeCancelAngleDown,
     chequeBookDelivery,
     chequeBookCost,
     chequeBookOpeningInfo,

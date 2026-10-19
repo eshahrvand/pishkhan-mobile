@@ -1,5 +1,8 @@
 # Cheque book issuance prototype
 
+Updated: 2026-10-19. See the [cheque module overview](../cheque/development.md)
+for all three cheque flows and the distinction between address editing and postal-office lookup.
+
 Entry: dashboard cheque services → Issue cheque book (`cheque-issue`), also available from deposit actions. An incoming deposit number is resolved by Cubit after catalog loading.
 
 One Provider-owned flow covers selection, registry checking, delivery and fee confirmation. Applicant type, available accounts, per-account leaf counts, registration status and fees are repository data. The mock registry check takes two seconds; a real adapter can replace the dependency in DI.
@@ -39,3 +42,14 @@ CAPTURE_CERTIFICATE_PREVIEWS=1 flutter test test/cheque/cheque_book_screen_test.
 ```
 
 Images are written to `build/previews/certificates/chequebook-*.png` and are not product assets.
+
+## Design reference
+
+Figma file `nYQNyZdSs98lwymCpt5Sag`, node prefix `28060:`:
+`26436`, `26636` (selection); `26910` (checking); `26716`, `26730`
+(legal recipient); `26832`, `26858` (confirmation); `26744`, `26780`
+(individual delivery); `26932` (single unverified); `27040`, `27281`
+(mixed residences/deletion); `27115`, `27190`, `26986` (multiple unverified).
+
+The production bank/registry/document/payment adapters remain unconnected.
+A complete mock UI flow does not imply that actual bank issuance is available.

@@ -27,6 +27,7 @@ String validatedReturnLocation(String? location) {
     AppRoutes.messages,
     AppRoutes.chequeClearance,
     AppRoutes.chequeBook,
+    AppRoutes.chequeCancellation,
   };
   final messageSegments = Uri.parse(AppRoutes.messages).pathSegments;
   final detail =
