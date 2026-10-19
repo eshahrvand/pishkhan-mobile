@@ -290,8 +290,8 @@ void main() {
       }
       if (frame == 'card-types') {
         expect(
-          t.getTopLeft(find.byKey(const Key('app_bottom_sheet_header'))).dy,
-          440,
+          t.getTopLeft(find.byType(AppSelectMenu<PasswordCardKind>)).dy,
+          t.getBottomLeft(authControl(t, 'password_card_kind')).dy + 6,
         );
       }
       if (frame == 'instruction') {
@@ -694,8 +694,8 @@ void main() {
         expect(find.text('تغییر رمز عبور'), findsOneWidget);
         expect(find.text('فراموشی رمز عبور'), findsOneWidget);
         expect(
-          t.getTopLeft(find.byKey(const Key('app_bottom_sheet_header'))).dy,
-          552,
+          t.getTopLeft(find.byType(AppSelectMenu<PasswordOperation>)).dy,
+          t.getBottomLeft(authControl(t, 'password_operation')).dy + 6,
         );
       }
       if (frame == 'operation-forgot') {
