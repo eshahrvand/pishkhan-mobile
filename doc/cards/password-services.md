@@ -1,13 +1,13 @@
 # Password Services Development Document
 
-## Anchored dropdown correction (2026-10-19)
+## Password selector bottom sheets (2026-10-19)
 
-All password selectors now use the default shared AppSelect anchored menu,
-matching the Figma input/menu relationship with a 6px gap. The former
-PasswordOptionsSheet and showPasswordOptions override are removed. Request
-status/receipt sheets retain their existing presentation; earlier references to
-option sheets below describe the previous behavior. Selection values and Cubit
-actions are unchanged.
+Owner clarification: password-service selectors are intentional bottom sheets,
+including card type, card number, password type and operation selection. Keep
+the custom menuBuilder in PasswordServiceSelect, showPasswordOptions and
+PasswordOptionsSheet for these controls. Other application selects retain the shared AppSelect
+anchored dropdown. Selection values, Cubit actions and request/receipt sheets
+are unchanged.
 
 ## UI structure and feature ownership
 

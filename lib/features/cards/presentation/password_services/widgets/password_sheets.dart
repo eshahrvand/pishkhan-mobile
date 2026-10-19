@@ -7,6 +7,7 @@ import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pishkhan_mobile/features/cards/domain/entities/password_data.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/password_services/widgets/password_options_sheet.dart';
 import 'package:pishkhan_mobile/features/cards/presentation/password_services/widgets/password_request_status.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
@@ -51,6 +52,19 @@ Future<T?> passwordSheet<T>(
     ),
   );
 }
+
+Future<T?> showPasswordOptions<T>(
+  BuildContext context,
+  String title,
+  List<AppSelectOption<T>> options,
+  T? selected, {
+  String? scrimAsset,
+}) => passwordSheet<T>(
+  context,
+  (context) =>
+      PasswordOptionsSheet(title: title, options: options, selected: selected),
+  scrimAsset: scrimAsset,
+);
 
 class PasswordSheetLayout extends StatelessWidget {
   const PasswordSheetLayout({

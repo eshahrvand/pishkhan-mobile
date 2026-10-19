@@ -100,6 +100,7 @@ class PasswordSelectionSection extends StatelessWidget {
               title: S.current.passwordOperation,
               hint: S.current.passwordOperationHint,
               value: state.operation,
+              operationSelection: true,
               options: [
                 AppSelectOption(
                   value: PasswordOperation.changePassword,

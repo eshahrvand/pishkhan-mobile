@@ -312,6 +312,7 @@ The Figma name mapper registers Video player once and includes a poster-only pre
 Additive APIs retain existing defaults:
 - `AppTextField.obscureText`, `obscuringCharacter`, `autocorrect`, `enableSuggestions` and `enableIMEPersonalizedLearning` enable secure password fields. Optional hintTextDirection aligns localized placeholders independently of the surrounding RTL icon layout; the default remains unchanged. Password callers must disable suggestions, autocorrection and personalized learning.
 - `AppSelect.menuBuilder` optionally returns a selection from a custom menu. `null` cancels. By default the menu matches the input width with a 6px gap, opens above when space below is insufficient, and scrolls within a 320px maximum height. Outside taps and Back dismiss it without changing the value.
+  Password-service selectors intentionally override this default with their existing bottom sheets (card type, card number, password type and operation). Preserve this feature-specific presentation.
 - `AppButton.disabledAppearance: AppButtonDisabledAppearance.service` opts primary disabled buttons into Gray200 plus Shadow/xs. Standard/default and loading states remain unchanged.
 - `AppPasswordServiceColors` owns the password-instance title/body/hint/camera-notice/recording-scrim tokens.
 

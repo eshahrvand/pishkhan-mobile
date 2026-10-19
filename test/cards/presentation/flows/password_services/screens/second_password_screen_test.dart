@@ -288,10 +288,13 @@ void main() {
         expect(t.getTopLeft(find.byType(AppInvoice)).dy, 524);
         expect(t.getSize(find.byType(AppInvoice)).height, 130);
       }
+      if (['card-types', 'card-numbers', 'password-types'].contains(frame)) {
+        expect(find.byType(BottomSheet), findsOneWidget);
+      }
       if (frame == 'card-types') {
         expect(
-          t.getTopLeft(find.byType(AppSelectMenu<PasswordCardKind>)).dy,
-          t.getBottomLeft(authControl(t, 'password_card_kind')).dy + 6,
+          t.getTopLeft(find.byKey(const Key('app_bottom_sheet_header'))).dy,
+          440,
         );
       }
       if (frame == 'instruction') {
@@ -691,11 +694,12 @@ void main() {
       expect(t.getTopLeft(authControl(t, 'password_operation')).dy, 434);
       if (frame == 'operation-sheet') {
         await tap(t, 'password_operation');
+        expect(find.byType(BottomSheet), findsOneWidget);
         expect(find.text('تغییر رمز عبور'), findsOneWidget);
         expect(find.text('فراموشی رمز عبور'), findsOneWidget);
         expect(
-          t.getTopLeft(find.byType(AppSelectMenu<PasswordOperation>)).dy,
-          t.getBottomLeft(authControl(t, 'password_operation')).dy + 6,
+          t.getTopLeft(find.byKey(const Key('app_bottom_sheet_header'))).dy,
+          552,
         );
       }
       if (frame == 'operation-forgot') {
