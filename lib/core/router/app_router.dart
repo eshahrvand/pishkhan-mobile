@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/features/cheque/presentation/clearance/screens/cheque_clearance_screen.dart';
 import 'package:pishkhan_mobile/features/launch/presentation/shared/widgets/route_unavailable_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pishkhan_mobile/core/router/app_routes.dart';
@@ -64,6 +65,18 @@ GoRouter createAppRouter({
               : null;
           return DashboardAllServicesScreen(
             onServiceRequested: args?.onServiceRequested,
+          );
+        },
+      ),
+
+      GoRoute(
+        path: AppRoutes.chequeClearance,
+        builder: (context, state) {
+          final args = state.extra is ChequeClearanceRouteArguments
+              ? state.extra as ChequeClearanceRouteArguments
+              : null;
+          return ChequeClearanceScreen(
+            onAssistantPressed: args?.onAssistantPressed,
           );
         },
       ),
@@ -366,4 +379,9 @@ class MessageCenterRouteArguments {
   const MessageCenterRouteArguments({required this.messages, this.onChanged});
   final List<NotificationMessage> messages;
   final ValueChanged<List<NotificationMessage>>? onChanged;
+}
+
+class ChequeClearanceRouteArguments {
+  const ChequeClearanceRouteArguments({this.onAssistantPressed});
+  final VoidCallback? onAssistantPressed;
 }

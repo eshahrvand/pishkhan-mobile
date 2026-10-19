@@ -75,6 +75,7 @@ void main() {
         AppRoutes.expiredGiftBalance,
       ],
       '/profile/': [AppRoutes.messages, AppRoutes.messageDetail],
+      '/cheque/': [AppRoutes.chequeClearance],
       '/deposits/': [
         AppRoutes.depositList,
         AppRoutes.averageBalance,
@@ -110,6 +111,7 @@ void main() {
         AppRoutes.proxyDeposit,
         AppRoutes.blockDeposit,
         AppRoutes.unblockDeposit,
+        AppRoutes.chequeClearance,
         AppRoutes.closeSurplusDeposits,
         AppRoutes.agentSettings,
         AppRoutes.introduceAgent,

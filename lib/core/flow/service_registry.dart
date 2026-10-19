@@ -12,6 +12,15 @@ abstract final class ServiceRegistry {
     String? initialDepositNumber,
     String? initialCardNumber,
   }) {
+    if (id == 'cheque-clear') {
+      context.push<void>(
+        AppRoutes.chequeClearance,
+        extra: ChequeClearanceRouteArguments(
+          onAssistantPressed: onAssistantPressed,
+        ),
+      );
+      return true;
+    }
     if (id == 'deposit-list') {
       context.push<void>(
         AppRoutes.depositList,

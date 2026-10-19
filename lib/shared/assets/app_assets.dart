@@ -4,6 +4,18 @@
 /// code. Feature-specific facades may alias these constants, but must not
 /// duplicate path strings.
 abstract final class AppAssets {
+  static const chequeClearanceQuestion =
+      'assets/images/cheque_clearance_question.svg';
+  static const chequeClearanceDocument =
+      'assets/images/cheque_clearance_document.svg';
+  static const chequeClearanceEnvelopeEdit =
+      'assets/images/cheque_clearance_envelope_edit.svg';
+  static const chequeClearanceEnvelope =
+      'assets/images/cheque_clearance_envelope.svg';
+  static const chequeClearanceAddressDivider =
+      'assets/images/cheque_clearance_address_divider.svg';
+  static const chequeClearanceShare =
+      'assets/images/cheque_clearance_share.svg';
   static const agentCancel = 'assets/images/agent_cancel.svg';
   static const agentPlus = 'assets/images/agent_plus.svg';
   static const agentNameDots =
@@ -515,6 +527,12 @@ abstract final class AppAssets {
   static const notificationSecurity = '$_root/notification_security.png';
 
   static const all = <String>[
+    chequeClearanceQuestion,
+    chequeClearanceDocument,
+    chequeClearanceEnvelopeEdit,
+    chequeClearanceEnvelope,
+    chequeClearanceAddressDivider,
+    chequeClearanceShare,
     financialCertificateOperation,
     financialCertificateChevron,
     certificateChevronHint,
