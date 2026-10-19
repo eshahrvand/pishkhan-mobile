@@ -294,20 +294,24 @@ class HomeCubit extends Cubit<HomeState> {
   ];
 
   static const _cardActions = [
-    CardAction.reissue,
+    CardAction.list,
+    CardAction.virtualList,
     CardAction.changeDeposit,
+    CardAction.reissue,
     CardAction.block,
   ];
   static const _quickActions = [
     CardAction.issue,
     CardAction.virtualCard,
-    CardAction.giftPurchase,
     CardAction.giftBalance,
+    CardAction.giftPurchase,
   ];
 
   List<CardAction> _pinActions(BankCard card) => [
+    if (card.canSetSecondPin) CardAction.setSecondPin,
+    CardAction.changeSecondPin,
+    CardAction.forgotSecondPin,
     CardAction.changeFirstPin,
-    card.canSetSecondPin ? CardAction.setSecondPin : CardAction.forgotSecondPin,
     CardAction.forgotFirstPin,
   ];
 

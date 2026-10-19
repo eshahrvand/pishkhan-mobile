@@ -163,11 +163,11 @@ void main() {
           );
           expect(
             tester.getSize(dashboardGroup(S.current.cardsOperations)).height,
-            176,
+            284,
           );
           expect(
             tester.getSize(dashboardGroup(S.current.cardsPinOperations)).height,
-            160,
+            single ? 268 : 160,
           );
           expect(
             tester.getSize(dashboardGroup(S.current.cardsQuickAccess)).height,
@@ -187,19 +187,19 @@ void main() {
             single ? findsNothing : findsOneWidget,
           );
           final operations = dashboardGroup(S.current.cardsOperations);
-          final block = find.descendant(
-            of: operations,
-            matching: find.byKey(const Key('app_service_grid_icon_card-block')),
-          );
-          final reissue = find.descendant(
+          final virtualCards = find.descendant(
             of: operations,
             matching: find.byKey(
-              const Key('app_service_grid_icon_card-reissue'),
+              const Key('app_service_grid_icon_card-virtual-list'),
             ),
           );
+          final cards = find.descendant(
+            of: operations,
+            matching: find.byKey(const Key('app_service_grid_icon_card-list')),
+          );
           expect(
-            tester.getCenter(reissue).dx,
-            greaterThan(tester.getCenter(block).dx),
+            tester.getCenter(cards).dx,
+            greaterThan(tester.getCenter(virtualCards).dx),
           );
           if (Platform.environment['UPDATE_CARDS_PREVIEWS'] == '1') {
             await tester.runAsync(() async {
@@ -378,7 +378,7 @@ void main() {
     );
     await tap(
       tester,
-      find.byKey(Key('app_service_grid_icon_card-gift-balance')),
+      find.byKey(Key('app_service_grid_icon_card-expired-gift')),
     );
     expect(tester.takeException(), isNull);
   });

@@ -145,14 +145,16 @@ void main() {
                 ),
               )
               .dx;
-          final block = tester
+          final certificate = tester
               .getCenter(
                 find.byKey(
-                  const Key('app_service_grid_icon_deposits-deposit-block'),
+                  const Key(
+                    'app_service_grid_icon_deposits-deposit-certificate',
+                  ),
                 ),
               )
               .dx;
-          expect(statement, greaterThan(block));
+          expect(statement, greaterThan(certificate));
           if (Platform.environment['UPDATE_DEPOSITS_PREVIEWS'] == '1') {
             await tester.runAsync(() async {
               final boundary = tester.renderObject<RenderRepaintBoundary>(

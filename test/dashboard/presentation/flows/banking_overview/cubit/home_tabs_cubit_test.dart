@@ -214,10 +214,7 @@ void main() {
         (cubit.state.effect as HomeCardActionRequested).request.card.id,
         'setup',
       );
-      expect(
-        cubit.state.pinActions,
-        isNot(contains(CardAction.forgotSecondPin)),
-      );
+      expect(cubit.state.pinActions, contains(CardAction.forgotSecondPin));
       cubit.updateCardVisibility(cubit.state.visibleCards.first, true);
       cubit.selectCard(cubit.state.visibleCards[1]);
       expect(cubit.state.cardVisibility['setup'], isTrue);

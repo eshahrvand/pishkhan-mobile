@@ -72,13 +72,13 @@ GoRouter createAppRouter({
       GoRoute(
         path: AppRoutes.login,
         builder: (context, state) => AuthScreen(
-          onAuthenticated: () {
+          onAuthenticated: () async {
             final destination = validatedReturnLocation(
               state.uri.queryParameters['from'],
             );
             final extra = session.takePendingExtra();
-            session.signIn();
-            context.go(destination, extra: extra);
+            await session.signIn();
+            if (context.mounted) context.go(destination, extra: extra);
           },
         ),
       ),

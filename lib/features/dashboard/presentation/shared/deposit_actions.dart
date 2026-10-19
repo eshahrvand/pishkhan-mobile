@@ -4,11 +4,15 @@ import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 /// Supported UI actions. IDs are integration keys, not arbitrary routes.
 enum DepositAction {
+  list('deposit-list'),
   statement('deposit-statement'),
   certificate('deposit-certificate'),
   sms('deposit-sms'),
   block('deposit-block'),
   agent('deposit-representation-settings'),
+  introduceAgent('deposit-representative'),
+  unblock('deposit-unblock'),
+  closeExtras('deposit-close-extras'),
   virtualCard('card-virtual'),
   linkedCards('deposit-linked-cards'),
   linkedLoans('deposit-linked-loans'),
@@ -27,33 +31,41 @@ enum DepositAction {
   const DepositAction(this.id);
   final String id;
   static const operations = [
+    list,
     statement,
     certificate,
-    sms,
-    block,
+    introduceAgent,
     agent,
+    block,
+    unblock,
+    closeExtras,
     virtualCard,
+    sms,
     linkedCards,
     linkedLoans,
   ];
   static const cheques = [issueCheque, cancelCheque, clearCheque];
   static const quick = [
     issueCard,
+    proxy,
     localTransfer,
     estimateLoan,
     introduceLoan,
-    proxy,
     mobileBank,
     internetBank,
     phoneBank,
   ];
 
   String label() => switch (this) {
+    list => S.current.dashboardDepositsList,
     statement => S.current.balanceAverageStatement,
     certificate => S.current.financialCertificate,
     sms => S.current.smsSettings,
     block => S.current.dashboardBlockDeposit,
     agent => S.current.depositsAgent,
+    introduceAgent => S.current.introduceAgent,
+    unblock => S.current.dashboardUnblockDeposit,
+    closeExtras => S.current.dashboardCloseExtras,
     virtualCard => S.current.dashboardVirtualCard,
     linkedCards => S.current.depositsLinkedCards,
     linkedLoans => S.current.depositsLinkedLoans,
@@ -71,11 +83,15 @@ enum DepositAction {
   };
 
   String get asset => switch (this) {
+    list => AppAssets.depositsCards,
     statement => AppAssets.depositsStatement,
     certificate => AppAssets.depositsCertificate,
     sms => AppAssets.depositsSms,
     block => AppAssets.depositsBlock,
     agent => AppAssets.depositsAgent,
+    introduceAgent => AppAssets.depositsAgent,
+    unblock => AppAssets.depositsBlock,
+    closeExtras => AppAssets.depositsBlock,
     virtualCard => AppAssets.depositsVirtual,
     linkedCards => AppAssets.depositsCards,
     linkedLoans => AppAssets.depositsLoans,

@@ -1,5 +1,30 @@
 # Dashboard Development Document — Smart Virtual Counter
 
+## Test access to implemented services (2026-10-19)
+
+The existing tab grids now expose all implemented card and deposit flows. Their
+widgets, spacing, colors and navigation remain the same; additional items wrap
+onto additional rows using the existing grid behavior. Implemented entries come
+before the existing integration placeholders.
+
+- Cards: card list, virtual-card list, change linked deposit, reissue, second
+  password setup/change/recovery, issuance, virtual-card request and expired gift
+  balance. The second sample dashboard card permits second-password setup; the
+  first retains the existing recovery-only eligibility.
+- Deposits: deposit list, average balance, financial certificate, introduce
+  agent, agent settings, block/unblock, close surplus deposits and proxy deposit,
+  plus the existing card issuance and virtual-card shortcuts.
+- Loans: existing entries remain; there is no implemented standalone loan flow
+  to add at this stage.
+
+The lists remain local prototype data until service availability is supplied by
+the backend. All entries dispatch through the central route table and preserve
+the selected card/deposit input. The deposit-list service is now connected in
+ServiceRegistry as well.
+
+`test/dashboard/implemented_services_navigation_test.dart` exercises each
+implemented tab entry through the real DashboardScreen and router.
+
 **Project:** Pishkhan AI / Resalat Smart Virtual Counter mobile application
 
 **Framework:** Flutter / Dart
