@@ -353,6 +353,124 @@ class MessageLookup extends MessageLookupByLibrary {
     "changePhoneHint": MessageLookupByLibrary.simpleMessage(
       "شماره همراه جدید خود را وارد کنید",
     ),
+    "chequeBookAddressesNoticeEnd": MessageLookupByLibrary.simpleMessage(
+      " اقدام نمایید.",
+    ),
+    "chequeBookAddressesNoticeStart": MessageLookupByLibrary.simpleMessage(
+      "در صورت نیاز به تغییر آدرس، از بخش اطلاعات کاربری، ",
+    ),
+    "chequeBookChecking": MessageLookupByLibrary.simpleMessage(
+      "بررسی سامانه اسکان و املاک...",
+    ),
+    "chequeBookDeleteContinue": MessageLookupByLibrary.simpleMessage(
+      "حذف و ادامه فرآیند",
+    ),
+    "chequeBookDeletePrompt": MessageLookupByLibrary.simpleMessage(
+      "مطمئنید می‌خواهید آدرس زیر را حذف کنید؟",
+    ),
+    "chequeBookDeliveryStep": MessageLookupByLibrary.simpleMessage(
+      "اطلاعات دریافت",
+    ),
+    "chequeBookDepositHint": MessageLookupByLibrary.simpleMessage(
+      "سپرده مورد نظر خود را انتخاب کنید",
+    ),
+    "chequeBookFiftyLeavesNotice": MessageLookupByLibrary.simpleMessage(
+      "برای کاربران حقیقی، صدور دسته‌چک ۵۰ برگی پس از پایان سال سوم امکان‌پذیر است.",
+    ),
+    "chequeBookIssueFee": MessageLookupByLibrary.simpleMessage(
+      "هزینه صدور دسته چک",
+    ),
+    "chequeBookLeafCount": MessageLookupByLibrary.simpleMessage("تعداد برگ"),
+    "chequeBookLeafCountHint": MessageLookupByLibrary.simpleMessage(
+      "تعداد برگ دسته چک را انتخاب کنید",
+    ),
+    "chequeBookLegalRecipientPrompt": MessageLookupByLibrary.simpleMessage(
+      "مشخصات تحویل گیرنده دسته چک را وارد نمایید",
+    ),
+    "chequeBookLinkUnavailable": MessageLookupByLibrary.simpleMessage(
+      "باز کردن مرورگر در این دستگاه امکان‌پذیر نیست.",
+    ),
+    "chequeBookMissingNotice": MessageLookupByLibrary.simpleMessage(
+      "در صورت صحت آدرس، ابتدا آن را در سامانه اسکان و املاک ثبت کرده و سپس برای صدور دسته‌چک اقدام نمایید.",
+    ),
+    "chequeBookMockComplete": MessageLookupByLibrary.simpleMessage(
+      "درخواست به‌صورت آزمایشی ثبت شد؛ دسته‌چک واقعی صادر و مبلغی برداشت نشده است.",
+    ),
+    "chequeBookMultipleMissingNotice": MessageLookupByLibrary.simpleMessage(
+      "شما می‌توانید، آدرس مورد نظر را در سامانه‌ی اسکان و املاک کشور ثبت نموده و یا آدرس‌های اضافه خود را حذف نمایید.",
+    ),
+    "chequeBookMyAddresses": MessageLookupByLibrary.simpleMessage(
+      "آدرس‌های من",
+    ),
+    "chequeBookNextConfirmation": MessageLookupByLibrary.simpleMessage(
+      "بعدی: تایید اطلاعات و پرداخت کارمزد",
+    ),
+    "chequeBookNextDelivery": MessageLookupByLibrary.simpleMessage(
+      "بعدی: اطلاعات دریافت",
+    ),
+    "chequeBookNextResidency": MessageLookupByLibrary.simpleMessage(
+      "بعدی: بررسی اسکان و املاک",
+    ),
+    "chequeBookNotRegistered": MessageLookupByLibrary.simpleMessage(
+      "فاقد اسکان و املاک",
+    ),
+    "chequeBookOpenedAt": MessageLookupByLibrary.simpleMessage(
+      "تاریخ افتتاح حساب:",
+    ),
+    "chequeBookRecipientName": MessageLookupByLibrary.simpleMessage(
+      "نام و نام خانوادگی",
+    ),
+    "chequeBookRecipientNameHint": MessageLookupByLibrary.simpleMessage(
+      "نام و نام خانوادگی تحویل گیرنده را وارد کنید",
+    ),
+    "chequeBookRecipientNameInvalid": MessageLookupByLibrary.simpleMessage(
+      "نام و نام خانوادگی را وارد کنید.",
+    ),
+    "chequeBookRecipientNationalId": MessageLookupByLibrary.simpleMessage(
+      "کد ملی",
+    ),
+    "chequeBookRecipientNationalIdHint": MessageLookupByLibrary.simpleMessage(
+      "کد ملی تحویل گیرنده را وارد کنید",
+    ),
+    "chequeBookRegistered": MessageLookupByLibrary.simpleMessage(
+      "دارای اسکان و املاک",
+    ),
+    "chequeBookRegistryHost": MessageLookupByLibrary.simpleMessage(
+      "amlak.mrud.ir",
+    ),
+    "chequeBookRegistryName": MessageLookupByLibrary.simpleMessage(
+      "سامانه اسکان و املاک",
+    ),
+    "chequeBookRegistryUrlLabel": MessageLookupByLibrary.simpleMessage(
+      "آدرس سامانه اسکان و املاک:",
+    ),
+    "chequeBookResidence": MessageLookupByLibrary.simpleMessage(
+      "آدرس محل سکونت شما:",
+    ),
+    "chequeBookResidences": MessageLookupByLibrary.simpleMessage(
+      "آدرس‌های محل سکونت شما:",
+    ),
+    "chequeBookResidencyStep": MessageLookupByLibrary.simpleMessage(
+      "بررسی اسکان و املاک",
+    ),
+    "chequeBookResidencyWarningEnd": MessageLookupByLibrary.simpleMessage(
+      " تأیید نشده است.",
+    ),
+    "chequeBookResidencyWarningStart": MessageLookupByLibrary.simpleMessage(
+      "آدرس محل سکونت شما در ",
+    ),
+    "chequeBookSelectionPrompt": MessageLookupByLibrary.simpleMessage(
+      "شماره حساب جاری و تعداد برگ دسته چک را انتخاب کنید.",
+    ),
+    "chequeBookSelectionStep": MessageLookupByLibrary.simpleMessage(
+      "مشخصات دسته چک",
+    ),
+    "chequeBookTitle": MessageLookupByLibrary.simpleMessage(
+      "درخواست صدور دسته چک",
+    ),
+    "chequeBookUsedLeavesNotice": MessageLookupByLibrary.simpleMessage(
+      "برای صدور دسته‌چک جدید، لازم است حداقل ۸۰٪ برگ‌های دسته چک قبلی به بانک برگشته باشند.",
+    ),
     "chequeCityHint": MessageLookupByLibrary.simpleMessage(
       "شهر مورد نظر را انتخاب کنید",
     ),

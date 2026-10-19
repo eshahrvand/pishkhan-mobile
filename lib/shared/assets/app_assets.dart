@@ -4,6 +4,12 @@
 /// code. Feature-specific facades may alias these constants, but must not
 /// duplicate path strings.
 abstract final class AppAssets {
+  static const chequeBookDelivery = 'assets/images/chequebook_delivery.svg';
+  static const chequeBookCost = 'assets/images/chequebook_cost.svg';
+  static const chequeBookOpeningInfo = 'assets/images/chequebook_opening_info.svg';
+  static const chequeBookWarning = 'assets/images/chequebook_warning.svg';
+  static const chequeBookResidenceDivider = 'assets/images/chequebook_residence_divider.svg';
+  static const chequeBookSummaryOperation = 'assets/images/chequebook_summary_operation.svg';
   static const chequeClearanceQuestion =
       'assets/images/cheque_clearance_question.svg';
   static const chequeClearanceDocument =
@@ -527,6 +533,12 @@ abstract final class AppAssets {
   static const notificationSecurity = '$_root/notification_security.png';
 
   static const all = <String>[
+    chequeBookDelivery,
+    chequeBookCost,
+    chequeBookOpeningInfo,
+    chequeBookWarning,
+    chequeBookResidenceDivider,
+    chequeBookSummaryOperation,
     chequeClearanceQuestion,
     chequeClearanceDocument,
     chequeClearanceEnvelopeEdit,

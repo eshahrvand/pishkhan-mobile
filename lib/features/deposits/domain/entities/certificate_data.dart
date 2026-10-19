@@ -1,6 +1,9 @@
+import 'package:pishkhan_mobile/core/domain/entities/delivery_address.dart';
 import 'package:equatable/equatable.dart';
 
 import 'listed_deposit.dart';
+
+typedef CertificateAddress = DeliveryAddress;
 
 enum CertificateCurrency { usd, eur, irr }
 
@@ -18,18 +21,6 @@ enum StatementTurnover {
   deposits,
   withdrawals,
   averageBalance,
-}
-
-class CertificateAddress extends Equatable {
-  const CertificateAddress({
-    required this.id,
-    required this.title,
-    required this.detail,
-    required this.postalCode,
-  });
-  final String id, title, detail, postalCode;
-  @override
-  List<Object?> get props => [id, title, detail, postalCode];
 }
 
 class CertificateCatalog extends Equatable {

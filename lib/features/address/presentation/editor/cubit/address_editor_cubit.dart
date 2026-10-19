@@ -3,15 +3,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:pishkhan_mobile/core/validators/postal_code_validator.dart';
 
-import '../../../domain/entities/certificate_data.dart';
+import 'package:pishkhan_mobile/core/domain/entities/delivery_address.dart';
 
-part 'certificate_address_state.dart';
-part 'certificate_address_cubit.freezed.dart';
+part 'address_editor_state.dart';
+part 'address_editor_cubit.freezed.dart';
 
-class CertificateAddressCubit extends Cubit<CertificateAddressState> {
-  CertificateAddressCubit({
-    CertificateAddressState initialState =
-        const CertificateAddressState.initial(),
+class AddressEditorCubit extends Cubit<AddressEditorState> {
+  AddressEditorCubit({
+    AddressEditorState initialState = const AddressEditorState.initial(),
   }) : super(initialState);
 
   void updateTitle(String value) {
@@ -56,7 +55,7 @@ class CertificateAddressCubit extends Cubit<CertificateAddressState> {
 
   void submitAddress() {
     if (state.isTitleValid && state.isDetailValid && state.isPostalCodeValid) {
-      final address = CertificateAddress(
+      final address = DeliveryAddress(
         id: 'local',
         title: state.title.trim(),
         detail: state.detail.trim(),

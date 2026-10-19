@@ -372,6 +372,120 @@ class MessageLookup extends MessageLookupByLibrary {
     "changePhoneHint": MessageLookupByLibrary.simpleMessage(
       "Enter your new mobile number",
     ),
+    "chequeBookAddressesNoticeEnd": MessageLookupByLibrary.simpleMessage("."),
+    "chequeBookAddressesNoticeStart": MessageLookupByLibrary.simpleMessage(
+      "To change an address, open Profile, ",
+    ),
+    "chequeBookChecking": MessageLookupByLibrary.simpleMessage(
+      "Checking the housing registry…",
+    ),
+    "chequeBookDeleteContinue": MessageLookupByLibrary.simpleMessage(
+      "Delete and continue",
+    ),
+    "chequeBookDeletePrompt": MessageLookupByLibrary.simpleMessage(
+      "Are you sure you want to delete this address?",
+    ),
+    "chequeBookDeliveryStep": MessageLookupByLibrary.simpleMessage(
+      "Delivery details",
+    ),
+    "chequeBookDepositHint": MessageLookupByLibrary.simpleMessage(
+      "Select a deposit",
+    ),
+    "chequeBookFiftyLeavesNotice": MessageLookupByLibrary.simpleMessage(
+      "For individuals, a 50-leaf cheque book is available after the third year.",
+    ),
+    "chequeBookIssueFee": MessageLookupByLibrary.simpleMessage(
+      "Cheque book issuance fee",
+    ),
+    "chequeBookLeafCount": MessageLookupByLibrary.simpleMessage(
+      "Number of leaves",
+    ),
+    "chequeBookLeafCountHint": MessageLookupByLibrary.simpleMessage(
+      "Select the number of cheque leaves",
+    ),
+    "chequeBookLegalRecipientPrompt": MessageLookupByLibrary.simpleMessage(
+      "Enter the cheque book recipient’s details",
+    ),
+    "chequeBookLinkUnavailable": MessageLookupByLibrary.simpleMessage(
+      "A browser could not be opened on this device.",
+    ),
+    "chequeBookMissingNotice": MessageLookupByLibrary.simpleMessage(
+      "If this address is correct, register it in the housing registry before requesting a cheque book.",
+    ),
+    "chequeBookMockComplete": MessageLookupByLibrary.simpleMessage(
+      "Demo request recorded. No real cheque book was issued and no payment was taken.",
+    ),
+    "chequeBookMultipleMissingNotice": MessageLookupByLibrary.simpleMessage(
+      "Register your correct address in the housing registry or remove your extra addresses.",
+    ),
+    "chequeBookMyAddresses": MessageLookupByLibrary.simpleMessage(
+      "My addresses",
+    ),
+    "chequeBookNextConfirmation": MessageLookupByLibrary.simpleMessage(
+      "Next: Confirm details and pay fees",
+    ),
+    "chequeBookNextDelivery": MessageLookupByLibrary.simpleMessage(
+      "Next: Delivery details",
+    ),
+    "chequeBookNextResidency": MessageLookupByLibrary.simpleMessage(
+      "Next: Housing registry check",
+    ),
+    "chequeBookNotRegistered": MessageLookupByLibrary.simpleMessage(
+      "Not registered",
+    ),
+    "chequeBookOpenedAt": MessageLookupByLibrary.simpleMessage(
+      "Account opening date:",
+    ),
+    "chequeBookRecipientName": MessageLookupByLibrary.simpleMessage(
+      "Full name",
+    ),
+    "chequeBookRecipientNameHint": MessageLookupByLibrary.simpleMessage(
+      "Enter the recipient’s full name",
+    ),
+    "chequeBookRecipientNameInvalid": MessageLookupByLibrary.simpleMessage(
+      "Enter a full name.",
+    ),
+    "chequeBookRecipientNationalId": MessageLookupByLibrary.simpleMessage(
+      "National ID",
+    ),
+    "chequeBookRecipientNationalIdHint": MessageLookupByLibrary.simpleMessage(
+      "Enter the recipient’s national ID",
+    ),
+    "chequeBookRegistered": MessageLookupByLibrary.simpleMessage("Registered"),
+    "chequeBookRegistryHost": MessageLookupByLibrary.simpleMessage(
+      "amlak.mrud.ir",
+    ),
+    "chequeBookRegistryName": MessageLookupByLibrary.simpleMessage(
+      "housing registry",
+    ),
+    "chequeBookRegistryUrlLabel": MessageLookupByLibrary.simpleMessage(
+      "Housing registry website:",
+    ),
+    "chequeBookResidence": MessageLookupByLibrary.simpleMessage(
+      "Your residential address:",
+    ),
+    "chequeBookResidences": MessageLookupByLibrary.simpleMessage(
+      "Your residential addresses:",
+    ),
+    "chequeBookResidencyStep": MessageLookupByLibrary.simpleMessage(
+      "Housing registry check",
+    ),
+    "chequeBookResidencyWarningEnd": MessageLookupByLibrary.simpleMessage("."),
+    "chequeBookResidencyWarningStart": MessageLookupByLibrary.simpleMessage(
+      "Your residential address is not verified in the ",
+    ),
+    "chequeBookSelectionPrompt": MessageLookupByLibrary.simpleMessage(
+      "Select your current account and number of cheque leaves.",
+    ),
+    "chequeBookSelectionStep": MessageLookupByLibrary.simpleMessage(
+      "Cheque book details",
+    ),
+    "chequeBookTitle": MessageLookupByLibrary.simpleMessage(
+      "Request a cheque book",
+    ),
+    "chequeBookUsedLeavesNotice": MessageLookupByLibrary.simpleMessage(
+      "At least 80% of your previous cheque book leaves must have been returned to the bank.",
+    ),
     "chequeCityHint": MessageLookupByLibrary.simpleMessage("Select a city"),
     "chequeCityLabel": MessageLookupByLibrary.simpleMessage("City*"),
     "chequeCitySummary": MessageLookupByLibrary.simpleMessage("City"),

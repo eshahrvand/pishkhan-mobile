@@ -59,6 +59,12 @@ void main() {
     );
     await tester.tap(find.byKey(const Key('app_deposit_card_copy_iban')));
     expect(copied, isTrue);
+    for (final label in ['شماره سپرده:', 'شماره شبا:']) {
+      expect(
+        tester.getTopRight(find.text('تاریخ افتتاح:')).dx,
+        closeTo(tester.getTopRight(find.text(label)).dx, .01),
+      );
+    }
 
     await tester.pumpWidget(
       subject(const AppDepositCard(size: AppDepositCardSize.multi)),
@@ -67,6 +73,12 @@ void main() {
       tester.getSize(find.byKey(const Key('app_deposit_card'))),
       const Size(316, 191),
     );
+    for (final label in ['شماره سپرده:', 'شماره شبا:']) {
+      expect(
+        tester.getTopRight(find.text('تاریخ افتتاح:')).dx,
+        closeTo(tester.getTopRight(find.text(label)).dx, .01),
+      );
+    }
   });
 
   testWidgets('renders loan geometry and reports arrow action', (tester) async {

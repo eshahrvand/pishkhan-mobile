@@ -4,6 +4,8 @@ import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_bottom_sheet_header.dart';
 
+enum AppDeleteAddressSheetVariant { standard, compact }
+
 /// Delete-address confirmation content from the Figma bottom sheet.
 class AppDeleteAddressSheet extends StatelessWidget {
   const AppDeleteAddressSheet({
@@ -12,12 +14,15 @@ class AppDeleteAddressSheet extends StatelessWidget {
     required this.postalCode,
     required this.onConfirm,
     required this.onCancel,
+    this.variant = AppDeleteAddressSheetVariant.standard,
     this.title = 'حذف آدرس',
     this.prompt = 'مطمئنید می‌خواید آدرس زیر رو حذف کنید؟',
     this.confirmLabel = 'حذف و ادامه فرآیند',
     this.cancelLabel = 'انصراف',
+    this.postalCodeLabel = 'کد پستی',
   });
 
+  final AppDeleteAddressSheetVariant variant;
   final String address;
   final String postalCode;
   final VoidCallback? onConfirm;
@@ -26,6 +31,7 @@ class AppDeleteAddressSheet extends StatelessWidget {
   final String prompt;
   final String confirmLabel;
   final String cancelLabel;
+  final String postalCodeLabel;
 
   @override
   Widget build(BuildContext context) {
@@ -46,32 +52,54 @@ class AppDeleteAddressSheet extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             AppBottomSheetHeader(
+              type: variant == AppDeleteAddressSheetVariant.compact
+                  ? AppBottomSheetHeaderType.handleOnly
+                  : AppBottomSheetHeaderType.withHeader,
               title: title,
               showLeftAction: false,
               showRightIcon: false,
             ),
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 36),
+              padding: variant == AppDeleteAddressSheetVariant.compact
+                  ? const EdgeInsets.fromLTRB(20, 20, 20, 32)
+                  : const EdgeInsets.fromLTRB(20, 20, 20, 36),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Text(
                     prompt,
                     textAlign: TextAlign.right,
-                    style: bodyStyle.copyWith(fontWeight: FontWeight.w500),
+                    style: bodyStyle.copyWith(
+                      fontWeight:
+                          variant == AppDeleteAddressSheetVariant.compact
+                          ? FontWeight.w600
+                          : FontWeight.w500,
+                    ),
                   ),
-                  const SizedBox(height: 10),
+                  SizedBox(
+                    height: variant == AppDeleteAddressSheetVariant.compact
+                        ? 12
+                        : 10,
+                  ),
                   DecoratedBox(
                     decoration: BoxDecoration(
                       color: const Color(0xFFF8F8FA),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 20),
+                      padding: variant == AppDeleteAddressSheetVariant.compact
+                          ? EdgeInsets.zero
+                          : const EdgeInsets.symmetric(vertical: 20),
                       child: Text(
-                        '$address\n\nکد پستی: $postalCode',
+                        variant == AppDeleteAddressSheetVariant.compact
+                            ? '$address - $postalCodeLabel: $postalCode'
+                            : '$address\n\n$postalCodeLabel: $postalCode',
                         textAlign: TextAlign.right,
-                        style: bodyStyle,
+                        style: variant == AppDeleteAddressSheetVariant.compact
+                            ? bodyStyle.copyWith(
+                                color: context.colors.textSecondary,
+                              )
+                            : bodyStyle,
                       ),
                     ),
                   ),

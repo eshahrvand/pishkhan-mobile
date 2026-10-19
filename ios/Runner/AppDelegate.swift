@@ -12,6 +12,23 @@ import UIKit
 
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
+    let linksChannel = FlutterMethodChannel(
+      name: "pishkhan/external_links",
+      binaryMessenger: engineBridge.applicationRegistrar.messenger()
+    )
+    linksChannel.setMethodCallHandler { call, result in
+      guard call.method == "openRegistry" else {
+        result(FlutterMethodNotImplemented)
+        return
+      }
+      guard let url = URL(string: "https://amlak.mrud.ir") else {
+        result(FlutterError(code: "browser-unavailable", message: nil, details: nil))
+        return
+      }
+      UIApplication.shared.open(url) { opened in
+        result(opened ? nil : FlutterError(code: "browser-unavailable", message: nil, details: nil))
+      }
+    }
     let channel = FlutterMethodChannel(
       name: "pishkhan/platform_share",
       binaryMessenger: engineBridge.applicationRegistrar.messenger()

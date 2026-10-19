@@ -1,10 +1,10 @@
+import 'package:pishkhan_mobile/core/flow/service_registry.dart';
+
 import '../../shared/certificate_receipt_dialog.dart';
 
 import 'package:pishkhan_mobile/shared/widgets/flow_exit_dialog.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_delete_address_sheet.dart';
-
-import '../../shared/certificate_address_sheet.dart';
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
@@ -37,7 +37,7 @@ class AverageBalanceScreen extends StatelessWidget {
   ) async {
     switch (state.effect) {
       case CertificateAddressRequested():
-        final address = await showCertificateAddressSheet(context);
+        final address = await ServiceRegistry.openAddressEditor(context);
         if (context.mounted) {
           context.read<AverageBalanceCubit>().applyAddressSelection(address);
         }

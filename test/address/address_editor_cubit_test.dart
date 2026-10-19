@@ -1,11 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:pishkhan_mobile/features/deposits/presentation/shared/cubit/certificate_address_cubit.dart';
+import 'package:pishkhan_mobile/features/address/presentation/editor/cubit/address_editor_cubit.dart';
 
 void main() {
   test(
     'address validation follows edits and clears the failed-submit message',
     () async {
-      final cubit = CertificateAddressCubit();
+      final cubit = AddressEditorCubit();
       addTearDown(cubit.close);
       cubit.submitAddress();
       expect(cubit.state.isInvalid, isTrue);
@@ -26,7 +26,7 @@ void main() {
   test(
     'correcting one field retains the other field validity outcomes',
     () async {
-      final cubit = CertificateAddressCubit();
+      final cubit = AddressEditorCubit();
       addTearDown(cubit.close);
       cubit.updateTitle('Home');
       cubit.updateDetail('Address');

@@ -1,4 +1,4 @@
-import 'certificate_summary_row.dart';
+import 'package:pishkhan_mobile/shared/widgets/app_request_summary.dart';
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
@@ -35,50 +35,14 @@ class CertificateConfirmation extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: AppCardIssuanceColors.summarySurface,
-            borderRadius: BorderRadius.circular(10),
-            boxShadow: AppShadows.cardList,
-          ),
-          child: Column(
-            children: [
-              GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: () => onSummary(!summaryExpanded),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        S.current.issuanceSummary,
-                        style: Theme.of(context).textTheme.bodySmall!
-                            .copyWith(fontWeight: FontWeight.w700),
-                      ),
-                    ),
-                    RotatedBox(
-                      quarterTurns: summaryExpanded ? 0 : 2,
-                      child: depositIcon(summaryChevron, size: 20),
-                    ),
-                  ],
-                ),
-              ),
-              if (summaryExpanded) ...[
-                const SizedBox(height: 16),
-                CertificateSummaryRow(
-                  label: S.current.depositListNumber,
-                  value: depositNumber,
-                  asset: AppAssets.certificateSummaryDeposit,
-                ),
-                const SizedBox(height: 12),
-                CertificateSummaryRow(
-                  label: S.current.issuanceOperation,
-                  value: operation,
-                  asset: operationDivider,
-                ),
-              ],
-            ],
-          ),
+        AppRequestSummary(
+          depositNumber: depositNumber,
+          operation: operation,
+          isExpanded: summaryExpanded,
+          onExpandedChanged: onSummary,
+          depositDivider: AppAssets.certificateSummaryDeposit,
+          operationDivider: operationDivider,
+          chevron: summaryChevron,
         ),
         const SizedBox(height: 20),
         const DepositDivider(asset: AppAssets.certificateDivider),

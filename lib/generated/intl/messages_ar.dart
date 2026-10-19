@@ -332,6 +332,118 @@ class MessageLookup extends MessageLookupByLibrary {
     "changePhoneHint": MessageLookupByLibrary.simpleMessage(
       "أدخل رقم هاتفك المحمول الجديد",
     ),
+    "chequeBookAddressesNoticeEnd": MessageLookupByLibrary.simpleMessage("."),
+    "chequeBookAddressesNoticeStart": MessageLookupByLibrary.simpleMessage(
+      "لتغيير العنوان، انتقل إلى معلومات المستخدم، ",
+    ),
+    "chequeBookChecking": MessageLookupByLibrary.simpleMessage(
+      "جارٍ التحقق من سجل السكن…",
+    ),
+    "chequeBookDeleteContinue": MessageLookupByLibrary.simpleMessage(
+      "حذف ومتابعة",
+    ),
+    "chequeBookDeletePrompt": MessageLookupByLibrary.simpleMessage(
+      "هل تريد حذف هذا العنوان؟",
+    ),
+    "chequeBookDeliveryStep": MessageLookupByLibrary.simpleMessage(
+      "معلومات الاستلام",
+    ),
+    "chequeBookDepositHint": MessageLookupByLibrary.simpleMessage(
+      "اختر الوديعة",
+    ),
+    "chequeBookFiftyLeavesNotice": MessageLookupByLibrary.simpleMessage(
+      "للأفراد، يتاح دفتر من ٥٠ ورقة بعد نهاية السنة الثالثة.",
+    ),
+    "chequeBookIssueFee": MessageLookupByLibrary.simpleMessage(
+      "رسوم إصدار دفتر الشيكات",
+    ),
+    "chequeBookLeafCount": MessageLookupByLibrary.simpleMessage("عدد الأوراق"),
+    "chequeBookLeafCountHint": MessageLookupByLibrary.simpleMessage(
+      "اختر عدد أوراق دفتر الشيكات",
+    ),
+    "chequeBookLegalRecipientPrompt": MessageLookupByLibrary.simpleMessage(
+      "أدخل بيانات مستلم دفتر الشيكات",
+    ),
+    "chequeBookLinkUnavailable": MessageLookupByLibrary.simpleMessage(
+      "تعذر فتح المتصفح على هذا الجهاز.",
+    ),
+    "chequeBookMissingNotice": MessageLookupByLibrary.simpleMessage(
+      "إذا كان العنوان صحيحاً، سجله في نظام السكن والعقارات قبل طلب دفتر شيكات.",
+    ),
+    "chequeBookMockComplete": MessageLookupByLibrary.simpleMessage(
+      "تم تسجيل طلب تجريبي؛ لم يتم إصدار دفتر شيكات حقيقي أو خصم أي مبلغ.",
+    ),
+    "chequeBookMultipleMissingNotice": MessageLookupByLibrary.simpleMessage(
+      "يمكنك تسجيل العنوان المطلوب في نظام السكن والعقارات أو حذف العناوين الإضافية.",
+    ),
+    "chequeBookMyAddresses": MessageLookupByLibrary.simpleMessage("عناويني"),
+    "chequeBookNextConfirmation": MessageLookupByLibrary.simpleMessage(
+      "التالي: تأكيد المعلومات ودفع الرسوم",
+    ),
+    "chequeBookNextDelivery": MessageLookupByLibrary.simpleMessage(
+      "التالي: معلومات الاستلام",
+    ),
+    "chequeBookNextResidency": MessageLookupByLibrary.simpleMessage(
+      "التالي: التحقق من سجل السكن",
+    ),
+    "chequeBookNotRegistered": MessageLookupByLibrary.simpleMessage(
+      "غير مسجل في نظام السكن",
+    ),
+    "chequeBookOpenedAt": MessageLookupByLibrary.simpleMessage(
+      "تاريخ فتح الحساب:",
+    ),
+    "chequeBookRecipientName": MessageLookupByLibrary.simpleMessage(
+      "الاسم الكامل",
+    ),
+    "chequeBookRecipientNameHint": MessageLookupByLibrary.simpleMessage(
+      "أدخل الاسم الكامل للمستلم",
+    ),
+    "chequeBookRecipientNameInvalid": MessageLookupByLibrary.simpleMessage(
+      "أدخل الاسم الكامل.",
+    ),
+    "chequeBookRecipientNationalId": MessageLookupByLibrary.simpleMessage(
+      "الرقم الوطني",
+    ),
+    "chequeBookRecipientNationalIdHint": MessageLookupByLibrary.simpleMessage(
+      "أدخل الرقم الوطني للمستلم",
+    ),
+    "chequeBookRegistered": MessageLookupByLibrary.simpleMessage(
+      "مسجل في نظام السكن",
+    ),
+    "chequeBookRegistryHost": MessageLookupByLibrary.simpleMessage(
+      "amlak.mrud.ir",
+    ),
+    "chequeBookRegistryName": MessageLookupByLibrary.simpleMessage(
+      "نظام السكن والعقارات",
+    ),
+    "chequeBookRegistryUrlLabel": MessageLookupByLibrary.simpleMessage(
+      "موقع نظام السكن والعقارات:",
+    ),
+    "chequeBookResidence": MessageLookupByLibrary.simpleMessage(
+      "عنوان إقامتك:",
+    ),
+    "chequeBookResidences": MessageLookupByLibrary.simpleMessage(
+      "عناوين إقامتك:",
+    ),
+    "chequeBookResidencyStep": MessageLookupByLibrary.simpleMessage(
+      "التحقق من سجل السكن",
+    ),
+    "chequeBookResidencyWarningEnd": MessageLookupByLibrary.simpleMessage("."),
+    "chequeBookResidencyWarningStart": MessageLookupByLibrary.simpleMessage(
+      "عنوان إقامتك غير موثق في ",
+    ),
+    "chequeBookSelectionPrompt": MessageLookupByLibrary.simpleMessage(
+      "اختر الحساب الجاري وعدد أوراق دفتر الشيكات.",
+    ),
+    "chequeBookSelectionStep": MessageLookupByLibrary.simpleMessage(
+      "تفاصيل دفتر الشيكات",
+    ),
+    "chequeBookTitle": MessageLookupByLibrary.simpleMessage(
+      "طلب إصدار دفتر شيكات",
+    ),
+    "chequeBookUsedLeavesNotice": MessageLookupByLibrary.simpleMessage(
+      "يجب إعادة ٨٠٪ على الأقل من أوراق دفتر الشيكات السابق إلى البنك.",
+    ),
     "closeLabel": MessageLookupByLibrary.simpleMessage("إغلاق"),
     "consolidateDepositCredit": MessageLookupByLibrary.simpleMessage(
       "دمج رصيد الوديعة",

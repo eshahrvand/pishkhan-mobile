@@ -24,6 +24,7 @@ abstract final class AppRoutes {
   static const unblockDeposit = '/deposits/unblock';
   static const proxyDeposit = '/deposits/proxy';
 
+  static const chequeBook = '/cheque/book-issuance';
   static const chequeClearance = '/cheque/clearance';
 
   static const messages = '/profile/messages';

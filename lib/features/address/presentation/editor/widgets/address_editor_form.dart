@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'cubit/certificate_address_cubit.dart';
+import '../cubit/address_editor_cubit.dart';
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
@@ -8,16 +8,16 @@ import 'package:go_router/go_router.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_bottom_sheet_header.dart';
 
-class CertificateAddressForm extends StatefulWidget {
-  const CertificateAddressForm({super.key});
+class AddressEditorForm extends StatefulWidget {
+  const AddressEditorForm({super.key});
   @override
-  State<CertificateAddressForm> createState() => _CertificateAddressFormState();
+  State<AddressEditorForm> createState() => _AddressEditorFormState();
 }
 
-class _CertificateAddressFormState extends State<CertificateAddressForm> {
-  final title = TextEditingController(),
-      detail = TextEditingController(),
-      postal = TextEditingController();
+class _AddressEditorFormState extends State<AddressEditorForm> {
+  final title = TextEditingController();
+  final detail = TextEditingController();
+  final postal = TextEditingController();
   @override
   void dispose() {
     title.dispose();
@@ -28,9 +28,9 @@ class _CertificateAddressFormState extends State<CertificateAddressForm> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<CertificateAddressCubit>(
-      create: (_) => CertificateAddressCubit(),
-      child: BlocConsumer<CertificateAddressCubit, CertificateAddressState>(
+    return BlocProvider<AddressEditorCubit>(
+      create: (_) => AddressEditorCubit(),
+      child: BlocConsumer<AddressEditorCubit, AddressEditorState>(
         listenWhen: (previous, current) => previous.saveId != current.saveId,
         listener: (context, state) => context.pop(state.savedAddress),
         buildWhen: (previous, current) =>
@@ -59,7 +59,7 @@ class _CertificateAddressFormState extends State<CertificateAddressForm> {
                           AppTextField(
                             controller: title,
                             onChanged: (value) => context
-                                .read<CertificateAddressCubit>()
+                                .read<AddressEditorCubit>()
                                 .updateTitle(value),
                             label: S.current.issuanceAddressTitle,
                           ),
@@ -67,7 +67,7 @@ class _CertificateAddressFormState extends State<CertificateAddressForm> {
                           AppTextArea(
                             controller: detail,
                             onChanged: (value) => context
-                                .read<CertificateAddressCubit>()
+                                .read<AddressEditorCubit>()
                                 .updateDetail(value),
                             label: S.current.issuanceAddressDetail,
                           ),
@@ -75,7 +75,7 @@ class _CertificateAddressFormState extends State<CertificateAddressForm> {
                           AppTextField(
                             controller: postal,
                             onChanged: (value) => context
-                                .read<CertificateAddressCubit>()
+                                .read<AddressEditorCubit>()
                                 .updatePostalCode(value),
                             label: S.current.issuancePostalCode,
                             keyboardType: TextInputType.number,
@@ -89,7 +89,7 @@ class _CertificateAddressFormState extends State<CertificateAddressForm> {
                             label: S.current.issuanceSaveAddress,
                             size: AppButtonSize.lg,
                             onPressed: context
-                                .read<CertificateAddressCubit>()
+                                .read<AddressEditorCubit>()
                                 .submitAddress,
                           ),
                         ],

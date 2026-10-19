@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/core/domain/entities/delivery_address.dart';
+import 'package:pishkhan_mobile/features/address/address.dart';
 import 'package:pishkhan_mobile/core/router/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -5,6 +7,10 @@ import 'package:pishkhan_mobile/core/router/app_router.dart';
 import 'package:pishkhan_mobile/features/cards/domain/entities/listed_card.dart';
 
 abstract final class ServiceRegistry {
+  static Future<DeliveryAddress?> openAddressEditor(BuildContext context) {
+    return showAddressEditorSheet(context);
+  }
+
   static bool openCardService(
     BuildContext context,
     String id, {
@@ -12,6 +18,16 @@ abstract final class ServiceRegistry {
     String? initialDepositNumber,
     String? initialCardNumber,
   }) {
+    if (id == 'cheque-issue') {
+      context.push<void>(
+        AppRoutes.chequeBook,
+        extra: ChequeBookRouteArguments(
+          initialDepositNumber: initialDepositNumber,
+          onAssistantPressed: onAssistantPressed,
+        ),
+      );
+      return true;
+    }
     if (id == 'cheque-clear') {
       context.push<void>(
         AppRoutes.chequeClearance,

@@ -5869,6 +5869,406 @@ class S {
       args: [],
     );
   }
+
+  /// `درخواست صدور دسته چک`
+  String get chequeBookTitle {
+    return Intl.message(
+      'درخواست صدور دسته چک',
+      name: 'chequeBookTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `مشخصات دسته چک`
+  String get chequeBookSelectionStep {
+    return Intl.message(
+      'مشخصات دسته چک',
+      name: 'chequeBookSelectionStep',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `بررسی اسکان و املاک`
+  String get chequeBookResidencyStep {
+    return Intl.message(
+      'بررسی اسکان و املاک',
+      name: 'chequeBookResidencyStep',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `اطلاعات دریافت`
+  String get chequeBookDeliveryStep {
+    return Intl.message(
+      'اطلاعات دریافت',
+      name: 'chequeBookDeliveryStep',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `بعدی: بررسی اسکان و املاک`
+  String get chequeBookNextResidency {
+    return Intl.message(
+      'بعدی: بررسی اسکان و املاک',
+      name: 'chequeBookNextResidency',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `بعدی: اطلاعات دریافت`
+  String get chequeBookNextDelivery {
+    return Intl.message(
+      'بعدی: اطلاعات دریافت',
+      name: 'chequeBookNextDelivery',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `بعدی: تایید اطلاعات و پرداخت کارمزد`
+  String get chequeBookNextConfirmation {
+    return Intl.message(
+      'بعدی: تایید اطلاعات و پرداخت کارمزد',
+      name: 'chequeBookNextConfirmation',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `شماره حساب جاری و تعداد برگ دسته چک را انتخاب کنید.`
+  String get chequeBookSelectionPrompt {
+    return Intl.message(
+      'شماره حساب جاری و تعداد برگ دسته چک را انتخاب کنید.',
+      name: 'chequeBookSelectionPrompt',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `سپرده مورد نظر خود را انتخاب کنید`
+  String get chequeBookDepositHint {
+    return Intl.message(
+      'سپرده مورد نظر خود را انتخاب کنید',
+      name: 'chequeBookDepositHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `تعداد برگ`
+  String get chequeBookLeafCount {
+    return Intl.message(
+      'تعداد برگ',
+      name: 'chequeBookLeafCount',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `تعداد برگ دسته چک را انتخاب کنید`
+  String get chequeBookLeafCountHint {
+    return Intl.message(
+      'تعداد برگ دسته چک را انتخاب کنید',
+      name: 'chequeBookLeafCountHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `برای صدور دسته‌چک جدید، لازم است حداقل ۸۰٪ برگ‌های دسته چک قبلی به بانک برگشته باشند.`
+  String get chequeBookUsedLeavesNotice {
+    return Intl.message(
+      'برای صدور دسته‌چک جدید، لازم است حداقل ۸۰٪ برگ‌های دسته چک قبلی به بانک برگشته باشند.',
+      name: 'chequeBookUsedLeavesNotice',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `تاریخ افتتاح حساب:`
+  String get chequeBookOpenedAt {
+    return Intl.message(
+      'تاریخ افتتاح حساب:',
+      name: 'chequeBookOpenedAt',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `برای کاربران حقیقی، صدور دسته‌چک ۵۰ برگی پس از پایان سال سوم امکان‌پذیر است.`
+  String get chequeBookFiftyLeavesNotice {
+    return Intl.message(
+      'برای کاربران حقیقی، صدور دسته‌چک ۵۰ برگی پس از پایان سال سوم امکان‌پذیر است.',
+      name: 'chequeBookFiftyLeavesNotice',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `بررسی سامانه اسکان و املاک...`
+  String get chequeBookChecking {
+    return Intl.message(
+      'بررسی سامانه اسکان و املاک...',
+      name: 'chequeBookChecking',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `آدرس محل سکونت شما در `
+  String get chequeBookResidencyWarningStart {
+    return Intl.message(
+      'آدرس محل سکونت شما در ',
+      name: 'chequeBookResidencyWarningStart',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `سامانه اسکان و املاک`
+  String get chequeBookRegistryName {
+    return Intl.message(
+      'سامانه اسکان و املاک',
+      name: 'chequeBookRegistryName',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// ` تأیید نشده است.`
+  String get chequeBookResidencyWarningEnd {
+    return Intl.message(
+      ' تأیید نشده است.',
+      name: 'chequeBookResidencyWarningEnd',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `در صورت صحت آدرس، ابتدا آن را در سامانه اسکان و املاک ثبت کرده و سپس برای صدور دسته‌چک اقدام نمایید.`
+  String get chequeBookMissingNotice {
+    return Intl.message(
+      'در صورت صحت آدرس، ابتدا آن را در سامانه اسکان و املاک ثبت کرده و سپس برای صدور دسته‌چک اقدام نمایید.',
+      name: 'chequeBookMissingNotice',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `شما می‌توانید، آدرس مورد نظر را در سامانه‌ی اسکان و املاک کشور ثبت نموده و یا آدرس‌های اضافه خود را حذف نمایید.`
+  String get chequeBookMultipleMissingNotice {
+    return Intl.message(
+      'شما می‌توانید، آدرس مورد نظر را در سامانه‌ی اسکان و املاک کشور ثبت نموده و یا آدرس‌های اضافه خود را حذف نمایید.',
+      name: 'chequeBookMultipleMissingNotice',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `آدرس سامانه اسکان و املاک:`
+  String get chequeBookRegistryUrlLabel {
+    return Intl.message(
+      'آدرس سامانه اسکان و املاک:',
+      name: 'chequeBookRegistryUrlLabel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `amlak.mrud.ir`
+  String get chequeBookRegistryHost {
+    return Intl.message(
+      'amlak.mrud.ir',
+      name: 'chequeBookRegistryHost',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `در صورت نیاز به تغییر آدرس، از بخش اطلاعات کاربری، `
+  String get chequeBookAddressesNoticeStart {
+    return Intl.message(
+      'در صورت نیاز به تغییر آدرس، از بخش اطلاعات کاربری، ',
+      name: 'chequeBookAddressesNoticeStart',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `آدرس‌های من`
+  String get chequeBookMyAddresses {
+    return Intl.message(
+      'آدرس‌های من',
+      name: 'chequeBookMyAddresses',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// ` اقدام نمایید.`
+  String get chequeBookAddressesNoticeEnd {
+    return Intl.message(
+      ' اقدام نمایید.',
+      name: 'chequeBookAddressesNoticeEnd',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `آدرس‌های محل سکونت شما:`
+  String get chequeBookResidences {
+    return Intl.message(
+      'آدرس‌های محل سکونت شما:',
+      name: 'chequeBookResidences',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `آدرس محل سکونت شما:`
+  String get chequeBookResidence {
+    return Intl.message(
+      'آدرس محل سکونت شما:',
+      name: 'chequeBookResidence',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `دارای اسکان و املاک`
+  String get chequeBookRegistered {
+    return Intl.message(
+      'دارای اسکان و املاک',
+      name: 'chequeBookRegistered',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `فاقد اسکان و املاک`
+  String get chequeBookNotRegistered {
+    return Intl.message(
+      'فاقد اسکان و املاک',
+      name: 'chequeBookNotRegistered',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `مشخصات تحویل گیرنده دسته چک را وارد نمایید`
+  String get chequeBookLegalRecipientPrompt {
+    return Intl.message(
+      'مشخصات تحویل گیرنده دسته چک را وارد نمایید',
+      name: 'chequeBookLegalRecipientPrompt',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `نام و نام خانوادگی`
+  String get chequeBookRecipientName {
+    return Intl.message(
+      'نام و نام خانوادگی',
+      name: 'chequeBookRecipientName',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `نام و نام خانوادگی تحویل گیرنده را وارد کنید`
+  String get chequeBookRecipientNameHint {
+    return Intl.message(
+      'نام و نام خانوادگی تحویل گیرنده را وارد کنید',
+      name: 'chequeBookRecipientNameHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `نام و نام خانوادگی را وارد کنید.`
+  String get chequeBookRecipientNameInvalid {
+    return Intl.message(
+      'نام و نام خانوادگی را وارد کنید.',
+      name: 'chequeBookRecipientNameInvalid',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `کد ملی`
+  String get chequeBookRecipientNationalId {
+    return Intl.message(
+      'کد ملی',
+      name: 'chequeBookRecipientNationalId',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `کد ملی تحویل گیرنده را وارد کنید`
+  String get chequeBookRecipientNationalIdHint {
+    return Intl.message(
+      'کد ملی تحویل گیرنده را وارد کنید',
+      name: 'chequeBookRecipientNationalIdHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `هزینه صدور دسته چک`
+  String get chequeBookIssueFee {
+    return Intl.message(
+      'هزینه صدور دسته چک',
+      name: 'chequeBookIssueFee',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `مطمئنید می‌خواهید آدرس زیر را حذف کنید؟`
+  String get chequeBookDeletePrompt {
+    return Intl.message(
+      'مطمئنید می‌خواهید آدرس زیر را حذف کنید؟',
+      name: 'chequeBookDeletePrompt',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `حذف و ادامه فرآیند`
+  String get chequeBookDeleteContinue {
+    return Intl.message(
+      'حذف و ادامه فرآیند',
+      name: 'chequeBookDeleteContinue',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `درخواست به‌صورت آزمایشی ثبت شد؛ دسته‌چک واقعی صادر و مبلغی برداشت نشده است.`
+  String get chequeBookMockComplete {
+    return Intl.message(
+      'درخواست به‌صورت آزمایشی ثبت شد؛ دسته‌چک واقعی صادر و مبلغی برداشت نشده است.',
+      name: 'chequeBookMockComplete',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `باز کردن مرورگر در این دستگاه امکان‌پذیر نیست.`
+  String get chequeBookLinkUnavailable {
+    return Intl.message(
+      'باز کردن مرورگر در این دستگاه امکان‌پذیر نیست.',
+      name: 'chequeBookLinkUnavailable',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

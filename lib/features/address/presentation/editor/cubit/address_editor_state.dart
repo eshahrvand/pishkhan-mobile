@@ -1,9 +1,9 @@
-part of 'certificate_address_cubit.dart';
+part of 'address_editor_cubit.dart';
 
 @Freezed(toStringOverride: false)
-abstract class CertificateAddressState with _$CertificateAddressState {
-  const factory CertificateAddressState.initial({
-    CertificateAddress? savedAddress,
+abstract class AddressEditorState with _$AddressEditorState {
+  const factory AddressEditorState.initial({
+    DeliveryAddress? savedAddress,
     @Default(0) int saveId,
     @Default('') String title,
     @Default('') String detail,
@@ -12,5 +12,5 @@ abstract class CertificateAddressState with _$CertificateAddressState {
     @Default(false) bool isDetailValid,
     @Default(false) bool isPostalCodeValid,
     @Default(false) bool isInvalid,
-  }) = _CertificateAddressState;
+  }) = _AddressEditorState;
 }
