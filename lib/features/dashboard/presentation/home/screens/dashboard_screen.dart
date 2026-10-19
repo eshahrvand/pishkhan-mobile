@@ -11,6 +11,7 @@ import 'package:pishkhan_mobile/core/router/dashboard_notifications_navigation.d
 import '../cubit/home_cubit.dart';
 import '../cubit/home_effect.dart';
 import '../widgets/dashboard_home_panel.dart';
+import '../widgets/dashboard_drawer.dart';
 import '../../shared/dashboard_tab.dart';
 import '../../shared/widgets/dashboard_services_sheet.dart';
 import '../../shared/widgets/dashboard_reset_sheet.dart';
@@ -28,13 +29,18 @@ class DashboardScreen extends StatelessWidget {
     String? cardNumber,
   }) {
     final home = context.read<HomeCubit>();
-    openCardFeaturesService(
+    final opened = openCardFeaturesService(
       context,
       id,
       initialDepositNumber: depositNumber,
       initialCardNumber: cardNumber,
       onAssistantPressed: home.requestAssistant,
     );
+    if (!opened) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(S.current.cardFeatureUnavailable)));
+    }
   }
 
   Future<void> _handleHomeEffect(BuildContext context, HomeState state) async {
@@ -72,13 +78,10 @@ class DashboardScreen extends StatelessWidget {
         Clipboard.setData(ClipboardData(text: iban));
       case HomeLoanNumberCopyRequested(:final number):
         Clipboard.setData(ClipboardData(text: number));
-      case HomeMenuRequested(:final category):
-        final service = await showDashboardServicesSheet(
-          context,
-          category: category,
-        );
+      case HomeMenuRequested():
+        final selection = await showDashboardDrawer(context);
         if (context.mounted) {
-          context.read<HomeCubit>().applyMenuSelection(service);
+          context.read<HomeCubit>().applyDrawerSelection(selection);
         }
       case HomeFavoritePickerRequested(:final excluded):
         final service = await showDashboardServicesSheet(
@@ -116,7 +119,10 @@ class DashboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<HomeCubit>(
-      create: (_) => HomeCubit()..fetchDashboard(),
+      create: (_) => HomeCubit(
+        drawerSectionLabels: dashboardDrawerSectionLabels(),
+        drawerServiceLabels: dashboardDrawerServiceLabels(),
+      )..fetchDashboard(),
       child: BlocListener<HomeCubit, HomeState>(
         listenWhen: (previous, current) =>
             previous.effectId != current.effectId &&
@@ -127,26 +133,42 @@ class DashboardScreen extends StatelessWidget {
           buildWhen: (previous, current) =>
               previous.selectedTab != current.selectedTab,
           builder: (context, state) {
-            return IndexedStack(
-              index: state.selectedTab.index,
-              children: [
-                TickerMode(
-                  enabled: state.selectedTab == AppPrimaryTab.dashboard,
-                  child: const DashboardHomePanel(),
-                ),
-                TickerMode(
-                  enabled: state.selectedTab == AppPrimaryTab.cards,
-                  child: const CardsTab(),
-                ),
-                TickerMode(
-                  enabled: state.selectedTab == AppPrimaryTab.deposits,
-                  child: const DepositsTab(),
-                ),
-                TickerMode(
-                  enabled: state.selectedTab == AppPrimaryTab.loans,
-                  child: const LoansTab(),
-                ),
-              ],
+            // Inactive tabs must not duplicate snackbar Heroes during navigation.
+            return TooltipVisibility(
+              visible: false,
+              child: IndexedStack(
+                index: state.selectedTab.index,
+                children: [
+                  TickerMode(
+                    enabled: state.selectedTab == AppPrimaryTab.dashboard,
+                    child: HeroMode(
+                      enabled: state.selectedTab == AppPrimaryTab.dashboard,
+                      child: const DashboardHomePanel(),
+                    ),
+                  ),
+                  TickerMode(
+                    enabled: state.selectedTab == AppPrimaryTab.cards,
+                    child: HeroMode(
+                      enabled: state.selectedTab == AppPrimaryTab.cards,
+                      child: const CardsTab(),
+                    ),
+                  ),
+                  TickerMode(
+                    enabled: state.selectedTab == AppPrimaryTab.deposits,
+                    child: HeroMode(
+                      enabled: state.selectedTab == AppPrimaryTab.deposits,
+                      child: const DepositsTab(),
+                    ),
+                  ),
+                  TickerMode(
+                    enabled: state.selectedTab == AppPrimaryTab.loans,
+                    child: HeroMode(
+                      enabled: state.selectedTab == AppPrimaryTab.loans,
+                      child: const LoansTab(),
+                    ),
+                  ),
+                ],
+              ),
             );
           },
         ),

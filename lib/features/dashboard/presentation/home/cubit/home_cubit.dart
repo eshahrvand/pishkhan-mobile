@@ -16,6 +16,7 @@ import '../../../domain/entities/dashboard_home_data.dart';
 import '../../../domain/repositories/dashboard_repositories.dart';
 import '../../../domain/usecases/home.dart';
 import '../../shared/card_actions.dart';
+import '../../shared/dashboard_drawer_group.dart';
 import '../../shared/deposit_actions.dart';
 import '../../shared/loan_actions.dart';
 import '../../shared/dashboard_services.dart';
@@ -27,8 +28,14 @@ part 'home_state.dart';
 part 'home_cubit.freezed.dart';
 
 class HomeCubit extends Cubit<HomeState> {
-  HomeCubit({HomeState initialState = const HomeState.initial()})
-    : super(initialState);
+  HomeCubit({
+    HomeState initialState = const HomeState.initial(),
+    this.drawerSectionLabels = const {},
+    this.drawerServiceLabels = const {},
+  }) : super(initialState);
+
+  final Map<DashboardDrawerSection, String> drawerSectionLabels;
+  final Map<DashboardService, String> drawerServiceLabels;
 
   final _repositories = getIt<DashboardRepositories>();
   late final _loadHome = LoadDashboardHome(_repositories.home);
@@ -59,19 +66,110 @@ class HomeCubit extends Cubit<HomeState> {
     );
   }
 
-  void requestMenu([AppPrimaryTab tab = AppPrimaryTab.dashboard]) {
+  void requestMenu() {
     emit(
       state.copyWith(
-        effect: HomeMenuRequested(
-          category: switch (tab) {
-            AppPrimaryTab.deposits => DashboardService.deposits,
-            AppPrimaryTab.loans => DashboardService.loans,
-            _ => null,
-          },
-        ),
+        drawerQuery: '',
+        drawerGroups: dashboardDrawerGroups,
+        expandedDrawerSection: null,
+        selectedDrawerSection: DashboardDrawerSection.home,
+        drawerSelection: null,
+        effect: const HomeMenuRequested(),
         effectId: state.effectId + 1,
       ),
     );
+  }
+
+  void updateDrawerSearchQuery(String query) {
+    final groups = _filterDrawerGroups(query);
+    emit(
+      state.copyWith(
+        drawerQuery: query,
+        drawerGroups: groups,
+        expandedDrawerSection: groups
+            .where((group) => group.services.isNotEmpty)
+            .firstOrNull
+            ?.section,
+      ),
+    );
+  }
+
+  List<DashboardDrawerGroup> _filterDrawerGroups(String query) {
+    final normalized = _normalizeDrawerQuery(query);
+    if (normalized.isEmpty) return dashboardDrawerGroups;
+    return List.unmodifiable(
+      dashboardDrawerGroups.expand((group) {
+        if (_normalizeDrawerQuery(drawerSectionLabels[group.section] ?? '')
+            .contains(normalized)) {
+          return [group];
+        }
+        final services = group.services
+            .where(
+              (service) =>
+                  _normalizeDrawerQuery(drawerServiceLabels[service] ?? '')
+                      .contains(normalized),
+            )
+            .toList(growable: false);
+        return services.isEmpty
+            ? <DashboardDrawerGroup>[]
+            : [
+                DashboardDrawerGroup(
+                  group.section,
+                  List.unmodifiable(services),
+                ),
+              ];
+      }),
+    );
+  }
+
+  String _normalizeDrawerQuery(String query) => query
+      .toLowerCase()
+      .replaceAll('ي', 'ی')
+      .replaceAll('ك', 'ک')
+      .replaceAll('\u200c', ' ')
+      .trim();
+
+  void selectDrawerSection(DashboardDrawerSection section) {
+    switch (section) {
+      case DashboardDrawerSection.home:
+        emit(
+          state.copyWith(drawerSelection: const DashboardDrawerHomeSelected()),
+        );
+      case DashboardDrawerSection.requests:
+        emit(
+          state.copyWith(
+            drawerSelection: const DashboardDrawerServiceSelected(
+              DashboardService.requests,
+            ),
+          ),
+        );
+      default:
+        emit(
+          state.copyWith(
+            selectedDrawerSection: section,
+            expandedDrawerSection: state.expandedDrawerSection == section
+                ? null
+                : section,
+          ),
+        );
+    }
+  }
+
+  void selectDrawerService(DashboardService service) {
+    emit(
+      state.copyWith(drawerSelection: DashboardDrawerServiceSelected(service)),
+    );
+  }
+
+  void applyDrawerSelection(DashboardDrawerSelection? selection) {
+    switch (selection) {
+      case DashboardDrawerHomeSelected():
+        selectTab(AppPrimaryTab.dashboard);
+      case DashboardDrawerServiceSelected(:final service):
+        requestService(service);
+      case null:
+        break;
+    }
   }
 
   void requestAssistant() {
@@ -149,10 +247,6 @@ class HomeCubit extends Cubit<HomeState> {
         effectId: state.effectId + 1,
       ),
     );
-  }
-
-  void applyMenuSelection(DashboardService? service) {
-    if (service != null) requestService(service);
   }
 
   void applyFavoriteSelection(DashboardService? service) {

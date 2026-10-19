@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/features/dashboard/presentation/shared/dashboard_drawer_group.dart';
+
 import '../../../../../support/registered_dependency.dart';
 
 import 'package:pishkhan_mobile/features/dashboard/domain/repositories/dashboard_repositories.dart';
@@ -79,6 +81,63 @@ void selectItem(HomeCubit cubit, String tab, int index) {
 }
 
 void main() {
+  test('drawer expansion, search normalization and selection preserve flow ordering', () async {
+    final cubit = withRegisteredDependency<DashboardRepositories, HomeCubit>(
+      defaultDashboardTestRepositories,
+      () => HomeCubit(
+        drawerSectionLabels: {DashboardDrawerSection.cards: 'کارت'},
+        drawerServiceLabels: {
+          DashboardService.issue: 'صدور رسالت کارت',
+          DashboardService.cardDeposit: 'تغییر سپرده متصل به کارت',
+        },
+      ),
+    );
+    addTearDown(cubit.close);
+    cubit.requestMenu();
+    expect(cubit.state.drawerGroups.length, 10);
+    expect(cubit.state.expandedDrawerSection, isNull);
+    cubit.selectDrawerSection(DashboardDrawerSection.cards);
+    expect(cubit.state.expandedDrawerSection, DashboardDrawerSection.cards);
+    cubit.selectDrawerSection(DashboardDrawerSection.cards);
+    expect(cubit.state.expandedDrawerSection, isNull);
+    cubit.selectDrawerSection(DashboardDrawerSection.deposits);
+    expect(cubit.state.expandedDrawerSection, DashboardDrawerSection.deposits);
+    cubit.updateDrawerSearchQuery('تغيير سپرده');
+    expect(cubit.state.drawerGroups.single.services, [
+      DashboardService.cardDeposit,
+    ]);
+    expect(cubit.state.expandedDrawerSection, DashboardDrawerSection.cards);
+    cubit.updateDrawerSearchQuery('ناموجود');
+    expect(cubit.state.drawerGroups, isEmpty);
+    cubit.updateDrawerSearchQuery('');
+    expect(cubit.state.drawerGroups.length, 10);
+    final effectId = cubit.state.effectId;
+    cubit.selectDrawerService(DashboardService.issue);
+    expect(cubit.state.effectId, effectId);
+    cubit.applyDrawerSelection(cubit.state.drawerSelection);
+    expect(
+      (cubit.state.effect as HomeServiceRequested).serviceId,
+      'card-issue',
+    );
+    cubit.requestMenu();
+    expect(cubit.state.drawerSelection, isNull);
+    final menuEffectId = cubit.state.effectId;
+    cubit.applyDrawerSelection(null);
+    expect(cubit.state.effectId, menuEffectId);
+    cubit.selectTab(AppPrimaryTab.loans);
+    cubit.requestMenu();
+    cubit.selectDrawerSection(DashboardDrawerSection.home);
+    cubit.applyDrawerSelection(cubit.state.drawerSelection);
+    expect(cubit.state.selectedTab, AppPrimaryTab.dashboard);
+    cubit.requestMenu();
+    cubit.selectDrawerSection(DashboardDrawerSection.requests);
+    cubit.applyDrawerSelection(cubit.state.drawerSelection);
+    expect(
+      (cubit.state.effect as HomeServiceRequested).serviceId,
+      'requests-list',
+    );
+  });
+
   for (final tab in ['cards', 'deposits', 'loans']) {
     test(
       '$tab retains selection on reorder and supports empty/error/retry independently',
@@ -281,8 +340,9 @@ void main() {
         cubit.state.effect,
         HomeLoanDetailsRequested(cubit.state.selectedLoan!),
       );
-      cubit.requestMenu(AppPrimaryTab.deposits);
-      expect((cubit.state.effect as HomeMenuRequested).category, isNotEmpty);
+      cubit.requestMenu();
+      expect(cubit.state.effect, isA<HomeMenuRequested>());
+      expect(cubit.state.expandedDrawerSection, isNull);
       cubit.requestAssistant();
       expect(cubit.state.selectedTab, AppPrimaryTab.dashboard);
     },

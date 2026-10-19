@@ -4,7 +4,6 @@ import '../../../domain/entities/bank_card.dart';
 import '../../../domain/entities/bank_loan.dart';
 import '../../shared/deposit_actions.dart';
 import '../../shared/loan_actions.dart';
-import '../../shared/dashboard_services.dart';
 import '../../shared/card_actions.dart';
 import '../../shared/dashboard_tab.dart';
 
@@ -56,10 +55,7 @@ final class HomeTabRequested extends HomeEffect {
 }
 
 final class HomeMenuRequested extends HomeEffect {
-  const HomeMenuRequested({this.category});
-  final List<DashboardService>? category;
-  @override
-  List<Object?> get props => [category];
+  const HomeMenuRequested();
 }
 
 final class HomeAssistantRequested extends HomeEffect {

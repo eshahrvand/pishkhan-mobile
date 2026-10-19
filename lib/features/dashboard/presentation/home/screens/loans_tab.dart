@@ -34,9 +34,7 @@ class LoansTab extends StatelessWidget {
                     title: S.current.dashboardMyLoans,
                     showLeadingActions: false,
                     onMenuPressed: () {
-                      context.read<HomeCubit>().requestMenu(
-                        AppPrimaryTab.loans,
-                      );
+                      context.read<HomeCubit>().requestMenu();
                     },
                   ),
                   if (state.visibleLoans.isNotEmpty)
