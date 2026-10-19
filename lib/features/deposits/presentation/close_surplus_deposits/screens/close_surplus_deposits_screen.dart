@@ -88,7 +88,7 @@ class CloseSurplusDepositsScreen extends StatelessWidget {
                   child: PopScope(
                     canPop: state.effect == CloseSurplusDepositsEffect.back,
                     onPopInvokedWithResult: (didPop, _) {
-                      if (!didPop) {
+                      if (!didPop && state.isEditable) {
                         context.read<CloseSurplusDepositsCubit>().requestBack();
                       }
                     },
@@ -105,9 +105,11 @@ class CloseSurplusDepositsScreen extends StatelessWidget {
                                 AppAssets.depositFeatureBack,
                               ),
                               trailingTooltip: S.current.backLabel,
-                              onTrailingPressed: context
-                                  .read<CloseSurplusDepositsCubit>()
-                                  .requestBack,
+                              onTrailingPressed: state.isEditable
+                                  ? context
+                                        .read<CloseSurplusDepositsCubit>()
+                                        .requestBack
+                                  : null,
                             ),
                             Expanded(
                               child: Stack(
@@ -117,14 +119,17 @@ class CloseSurplusDepositsScreen extends StatelessWidget {
                                       CloseSurplusDepositsStep.primaryDeposit)
                                     CloseSurplusDepositsForm(state: state)
                                   else
-                                    SurplusDepositsResult(state: state),
+                                    const SurplusDepositsResult(),
                                   Positioned(
                                     left: 16,
                                     bottom: 16,
-                                    child: AppAssistantButton(
-                                      onPressed: context
-                                          .read<CloseSurplusDepositsCubit>()
-                                          .requestAssistant,
+                                    child: IgnorePointer(
+                                      ignoring: !state.isEditable,
+                                      child: AppAssistantButton(
+                                        onPressed: context
+                                            .read<CloseSurplusDepositsCubit>()
+                                            .requestAssistant,
+                                      ),
                                     ),
                                   ),
                                 ],

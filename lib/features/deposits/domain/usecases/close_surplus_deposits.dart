@@ -50,3 +50,33 @@ class SubmitCloseSurplusDeposits {
     }
   }
 }
+
+/// One confirmed closure operation, scoped to its feature flow.
+class CloseRemainingDeposits {
+  CloseRemainingDeposits(this.repository);
+  final SurplusDepositsRepository repository;
+
+  // An uncertain response must retry the same reviewed payload and key.
+  CloseSurplusDepositsRequest? _pendingRequest;
+
+  Future<Result<SurplusDepositClosureReceipt>> call(
+    ListedDeposit primaryDeposit, {
+    required String idempotencyKey,
+  }) async {
+    if (_pendingRequest?.idempotencyKey != idempotencyKey) {
+      final result = await FetchSurplusDeposits(repository)(primaryDeposit);
+      switch (result) {
+        case Err(:final failure):
+          return Err(failure);
+        case Success(:final data):
+          _pendingRequest = CloseSurplusDepositsRequest(
+            primaryDepositId: primaryDeposit.id,
+            reviewToken: data.token,
+            depositIds: data.deposits.map((deposit) => deposit.id),
+            idempotencyKey: idempotencyKey,
+          );
+      }
+    }
+    return SubmitCloseSurplusDeposits(repository)(_pendingRequest!);
+  }
+}

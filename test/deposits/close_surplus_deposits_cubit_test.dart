@@ -68,43 +68,51 @@ void main() {
       expect(cubit.state.canContinue, isFalse);
       cubit.updateTermsAcceptance(true);
       expect(cubit.state.canContinue, isTrue);
-      await cubit.continueFlow();
-      expect(cubit.state.step, CloseSurplusDepositsStep.review);
-      expect(cubit.state.review!.deposits, isEmpty);
-      expect(cubit.state.canContinue, isFalse);
-      cubit.requestBack();
-      expect(cubit.state.step, CloseSurplusDepositsStep.primaryDeposit);
-      expect(cubit.state.canContinue, isTrue);
       cubit.selectPrimaryDeposit(cubit.state.deposits.first);
       expect(cubit.state.termsAccepted, isFalse);
-      expect(cubit.state.review, isNull);
+      expect(cubit.state.canContinue, isFalse);
     },
   );
 
   test(
-    'positive review excludes retained primary and completes a mock closure',
+    'one confirmation closes every deposit except the selected primary',
     () async {
       final cubit = createCubit();
       await cubit.fetchPrimaryDeposits();
       cubit.selectPrimaryDeposit(cubit.state.deposits.first);
       cubit.updateTermsAcceptance(true);
       await cubit.continueFlow();
-      expect(cubit.state.review!.deposits.length, 2);
-      expect(
-        cubit.state.review!.deposits.any(
-          (deposit) => deposit.id == cubit.state.deposit!.id,
-        ),
-        isFalse,
-      );
-      await cubit.continueFlow();
       expect(cubit.state.submissionStatus, RequestStatus.success);
       expect(cubit.state.receipt!.isMock, isTrue);
       expect(cubit.state.canContinue, isFalse);
-      final review = await getIt<SurplusDepositsRepository>()
-          .fetchSurplusDeposits(cubit.state.deposit!);
-      expect((review as Success<SurplusDepositReview>).data.deposits, isEmpty);
+      final remaining = await getIt<SurplusDepositsRepository>()
+          .fetchPrimaryDeposits();
+      expect((remaining as Success<List<ListedDeposit>>).data, [
+        cubit.state.deposit!,
+      ]);
+      final nextVisit = createCubit();
+      await nextVisit.fetchPrimaryDeposits();
+      expect(nextVisit.state.step, CloseSurplusDepositsStep.empty);
+      expect(nextVisit.state.deposit, isNull);
+      await nextVisit.continueFlow();
+      expect(nextVisit.state.effect, CloseSurplusDepositsEffect.back);
     },
   );
+
+  test('every primary choice has all other deposits as surplus', () async {
+    for (final primary in MockSurplusDepositsRepository.primaryDeposits) {
+      final result = await getIt<SurplusDepositsRepository>()
+          .fetchSurplusDeposits(primary);
+      final review = (result as Success<SurplusDepositReview>).data;
+      expect(
+        review.deposits.map((deposit) => deposit.id).toSet(),
+        MockSurplusDepositsRepository.primaryDeposits
+            .where((deposit) => deposit.id != primary.id)
+            .map((deposit) => deposit.id)
+            .toSet(),
+      );
+    }
+  });
 
   test(
     'independent errors recover; retry keeps the reviewed request and key',
@@ -121,17 +129,16 @@ void main() {
       cubit.updateTermsAcceptance(true);
       repository.throwsReview = true;
       await cubit.continueFlow();
-      expect(cubit.state.reviewStatus, RequestStatus.failure);
+      expect(cubit.state.submissionStatus, RequestStatus.failure);
       expect(cubit.state.depositsStatus, RequestStatus.success);
       repository.throwsReview = false;
-      await cubit.continueFlow();
       final submission = cubit.continueFlow();
+      await Future<void>.delayed(Duration.zero);
       expect(cubit.state.submissionStatus, RequestStatus.loading);
       expect(cubit.state.isEditable, isFalse);
       repository.pending.complete(const Err(DataFailure('timeout')));
       await submission;
       expect(cubit.state.submissionStatus, RequestStatus.failure);
-      expect(cubit.state.reviewStatus, RequestStatus.success);
       await cubit.continueFlow();
       expect(repository.requests[0], repository.requests[1]);
       expect(cubit.state.submissionStatus, RequestStatus.success);

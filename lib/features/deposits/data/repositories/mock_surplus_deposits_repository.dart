@@ -12,10 +12,6 @@ class MockSurplusDepositsRepository implements SurplusDepositsRepository {
     ListedDeposit(id: 'primary-2', number: '10.1234567.2'),
     ListedDeposit(id: 'primary-3', number: '10.1234567.3'),
   ]);
-  static final _surplusDeposits = List<ListedDeposit>.unmodifiable([
-    ListedDeposit(id: 'surplus-1', number: '10.1234567.4'),
-    ListedDeposit(id: 'surplus-2', number: '10.1234567.5'),
-  ]);
 
   final _reviews = <String, SurplusDepositReview>{};
   final _requests = <String, CloseSurplusDepositsRequest>{};
@@ -25,25 +21,31 @@ class MockSurplusDepositsRepository implements SurplusDepositsRepository {
 
   @override
   Future<Result<List<ListedDeposit>>> fetchPrimaryDeposits() async {
-    return Success(primaryDeposits);
+    return Success(
+      List.unmodifiable(
+        primaryDeposits.where(
+          (deposit) => !_closedDepositIds.contains(deposit.id),
+        ),
+      ),
+    );
   }
 
   @override
   Future<Result<SurplusDepositReview>> fetchSurplusDeposits(
     ListedDeposit primaryDeposit,
   ) async {
-    if (!primaryDeposits.any((deposit) => deposit.id == primaryDeposit.id)) {
+    if (_closedDepositIds.contains(primaryDeposit.id) ||
+        !primaryDeposits.any((deposit) => deposit.id == primaryDeposit.id)) {
       return const Err(DataFailure('surplus.primary.unavailable'));
     }
     final review = SurplusDepositReview(
       primaryDepositId: primaryDeposit.id,
       token: 'mock-review-${++_reviewSequence}',
-      // The second primary deposit reproduces the supplied empty-state frame.
-      deposits: primaryDeposit.id == 'primary-2'
-          ? const <ListedDeposit>[]
-          : _surplusDeposits.where(
-              (deposit) => !_closedDepositIds.contains(deposit.id),
-            ),
+      deposits: primaryDeposits.where(
+        (deposit) =>
+            deposit.id != primaryDeposit.id &&
+            !_closedDepositIds.contains(deposit.id),
+      ),
     );
     _reviews[review.token] = review;
     return Success(review);
@@ -61,6 +63,7 @@ class MockSurplusDepositsRepository implements SurplusDepositsRepository {
     final review = _reviews[request.reviewToken];
     if (review == null ||
         review.primaryDepositId != request.primaryDepositId ||
+        _closedDepositIds.contains(request.primaryDepositId) ||
         request.depositIds.isEmpty ||
         request.depositIds.contains(request.primaryDepositId) ||
         request.depositIds.toSet().length != request.depositIds.length ||

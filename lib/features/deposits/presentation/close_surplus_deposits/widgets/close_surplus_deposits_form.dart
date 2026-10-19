@@ -56,11 +56,6 @@ class CloseSurplusDepositsForm extends StatelessWidget {
                   .fetchPrimaryDeposits,
             ),
           ],
-          if (state.depositsStatus == RequestStatus.success &&
-              state.deposits.isEmpty) ...[
-            const SizedBox(height: 16),
-            Text(S.current.depositsEmpty),
-          ],
         ],
       ),
     );

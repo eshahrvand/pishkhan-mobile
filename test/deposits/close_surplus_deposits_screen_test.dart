@@ -8,12 +8,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
 import 'package:pishkhan_mobile/core/flow/service_registry.dart';
 import 'package:pishkhan_mobile/features/deposits/domain/entities/listed_deposit.dart';
+import 'package:pishkhan_mobile/features/deposits/data/repositories/mock_surplus_deposits_repository.dart';
+import 'package:pishkhan_mobile/features/deposits/domain/repositories/surplus_deposits_repository.dart';
+import 'package:pishkhan_mobile/core/result/result.dart';
+import 'package:pishkhan_mobile/features/deposits/domain/entities/surplus_deposit_closure.dart';
 import 'package:pishkhan_mobile/features/deposits/presentation/close_surplus_deposits/cubit/close_surplus_deposits_cubit.dart';
 import 'package:pishkhan_mobile/features/deposits/presentation/close_surplus_deposits/screens/close_surplus_deposits_screen.dart';
 import 'package:pishkhan_mobile/features/deposits/presentation/close_surplus_deposits/widgets/close_surplus_deposits_form.dart';
 import 'package:pishkhan_mobile/features/deposits/presentation/close_surplus_deposits/widgets/surplus_deposit_receipt_dialog.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/widgets/app_deposit_list.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
 
 import 'certificate_test_support.dart';
@@ -48,7 +51,7 @@ void main() {
   setUpAll(loadCertificateFonts);
 
   testWidgets(
-    'designed initial, selected and empty states disable empty submission',
+    'multiple deposits show primary selector and one confirmation closes extras',
     (tester) async {
       await mountCertificate(tester, const CloseSurplusDepositsScreen());
       expect(tester.widget<AppButton>(submitButton()).onPressed, isNull);
@@ -65,45 +68,38 @@ void main() {
       expect(tester.widget<AppButton>(submitButton()).onPressed, isNotNull);
       await tester.tap(submitButton());
       await tester.pumpAndSettle();
-      expect(find.text(S.current.surplusDepositsEmptyTitle), findsOneWidget);
-      expect(find.byType(AppCheckbox), findsNothing);
-      expect(tester.widget<AppButton>(submitButton()).onPressed, isNull);
-      await captureSurplus(tester, 'empty');
-      await tester.tap(find.byTooltip(S.current.backLabel));
-      await tester.pumpAndSettle();
-      expect(find.byType(AppSelect<ListedDeposit>), findsOneWidget);
-      expect(
-        tester.widget<AppCheckbox>(find.byType(AppCheckbox)).value,
-        isTrue,
-      );
+      expect(find.byType(SurplusDepositReceiptDialog), findsOneWidget);
       expect(tester.takeException(), isNull);
     },
   );
 
-  testWidgets(
-    'mock surplus list reuses deposit cards and reports simulated closure',
-    (tester) async {
-      await mountCertificate(
-        tester,
-        const CloseSurplusDepositsScreen(initialDepositNumber: '10.1234567.1'),
-      );
-      await tester.tap(find.byType(AppCheckbox));
-      await tester.pumpAndSettle();
-      await tester.tap(submitButton());
-      await tester.pumpAndSettle();
-      expect(find.byType(AppDepositList), findsNWidgets(2));
-      expect(find.text('10.1234567.4'), findsOneWidget);
-      await captureSurplus(tester, 'list');
-      await tester.tap(submitButton());
-      await tester.pumpAndSettle();
-      expect(find.byType(SurplusDepositReceiptDialog), findsOneWidget);
-      expect(
-        find.textContaining(S.current.surplusDepositsMockComplete),
-        findsOneWidget,
-      );
-      expect(tester.takeException(), isNull);
-    },
-  );
+  testWidgets('one remaining deposit opens the empty state directly', (
+    tester,
+  ) async {
+    final repository = getIt<SurplusDepositsRepository>();
+    final primary = MockSurplusDepositsRepository.primaryDeposits.first;
+    final review = (await repository.fetchSurplusDeposits(
+      primary,
+    ) as Success<SurplusDepositReview>).data;
+    await repository.closeSurplusDeposits(
+      CloseSurplusDepositsRequest(
+        primaryDepositId: primary.id,
+        reviewToken: review.token,
+        depositIds: review.deposits.map((deposit) => deposit.id),
+        idempotencyKey: 'single-deposit-fixture',
+      ),
+    );
+    await mountCertificate(
+      tester,
+      const CloseSurplusDepositsScreen(initialDepositNumber: '10.1234567.1'),
+    );
+    expect(find.text(S.current.surplusDepositsEmptyTitle), findsOneWidget);
+    expect(find.byType(AppSelect<ListedDeposit>), findsNothing);
+    expect(find.byType(AppCheckbox), findsNothing);
+    expect(tester.widget<AppButton>(submitButton()).onPressed, isNotNull);
+    await captureSurplus(tester, 'empty');
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets('service entry uses central route and preserves primary number', (
     tester,

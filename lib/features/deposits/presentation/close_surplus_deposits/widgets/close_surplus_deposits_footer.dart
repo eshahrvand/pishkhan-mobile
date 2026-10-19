@@ -69,8 +69,7 @@ class CloseSurplusDepositsFooter extends StatelessWidget {
             ),
             const SizedBox(height: 16),
           ],
-          if (state.reviewFailure != null ||
-              state.submissionFailure != null) ...[
+          if (state.submissionFailure != null) ...[
             Text(
               S.current.issuanceSubmitError,
               style: certificateLabelStyle(context)
@@ -83,9 +82,7 @@ class CloseSurplusDepositsFooter extends StatelessWidget {
             label: S.current.surplusDepositsSubmit,
             size: AppButtonSize.lg,
             disabledAppearance: AppButtonDisabledAppearance.service,
-            isLoading:
-                state.reviewStatus == RequestStatus.loading ||
-                state.submissionStatus == RequestStatus.loading,
+            isLoading: state.submissionStatus == RequestStatus.loading,
             onPressed: state.canContinue
                 ? context.read<CloseSurplusDepositsCubit>().continueFlow
                 : null,

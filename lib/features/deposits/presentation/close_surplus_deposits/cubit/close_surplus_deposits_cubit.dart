@@ -26,8 +26,7 @@ class CloseSurplusDepositsCubit extends Cubit<CloseSurplusDepositsState> {
   final String? initialDepositNumber;
   final _repository = getIt<SurplusDepositsRepository>();
   late final _fetchPrimaryDeposits = FetchPrimaryDeposits(_repository);
-  late final _fetchSurplusDeposits = FetchSurplusDeposits(_repository);
-  late final _submitClosure = SubmitCloseSurplusDeposits(_repository);
+  late final _closeRemainingDeposits = CloseRemainingDeposits(_repository);
 
   Future<void> fetchPrimaryDeposits() {
     emit(
@@ -44,28 +43,36 @@ class CloseSurplusDepositsCubit extends Cubit<CloseSurplusDepositsState> {
             state.copyWith(
               depositsStatus: RequestStatus.failure,
               depositsFailure: failure,
+              isEditable: true,
             ),
           );
         case Success(:final data):
           final number = DigitNormalizer.normalize(initialDepositNumber ?? '')
               .replaceAll(RegExp(r'[^0-9]'), '');
-          final deposit =
-              state.deposit ??
-              data
-                  .where(
-                    (deposit) =>
-                        DigitNormalizer.normalize(deposit.number)
-                            .replaceAll(RegExp(r'[^0-9]'), '') ==
-                        number,
-                  )
-                  .firstOrNull;
+          final deposit = data.length > 1
+              ? state.deposit ??
+                    data
+                        .where(
+                          (deposit) =>
+                              DigitNormalizer.normalize(deposit.number)
+                                  .replaceAll(RegExp(r'[^0-9]'), '') ==
+                              number,
+                        )
+                        .firstOrNull
+              : null;
           emit(
             state.copyWith(
               depositsStatus: RequestStatus.success,
               deposits: data,
               deposit: deposit,
               isEditable: true,
-              canContinue: deposit != null && state.termsAccepted,
+              step: data.length > 1
+                  ? CloseSurplusDepositsStep.primaryDeposit
+                  : CloseSurplusDepositsStep.empty,
+              canContinue:
+                  data.length <= 1 || (deposit != null && state.termsAccepted),
+              idempotencyKey:
+                  'close-surplus-${DateTime.now().microsecondsSinceEpoch}-${Random.secure().nextInt(1 << 32)}',
             ),
           );
       }
@@ -79,12 +86,10 @@ class CloseSurplusDepositsCubit extends Cubit<CloseSurplusDepositsState> {
         termsAccepted: false,
         canContinue: false,
         hasChanges: true,
-        review: null,
-        reviewStatus: RequestStatus.initial,
-        reviewFailure: null,
         submissionStatus: RequestStatus.initial,
         submissionFailure: null,
-        idempotencyKey: null,
+        idempotencyKey:
+            'close-surplus-${DateTime.now().microsecondsSinceEpoch}-${Random.secure().nextInt(1 << 32)}',
       ),
     );
   }
@@ -100,53 +105,21 @@ class CloseSurplusDepositsCubit extends Cubit<CloseSurplusDepositsState> {
   }
 
   Future<void> continueFlow() {
-    return switch (state.step) {
-      CloseSurplusDepositsStep.primaryDeposit => fetchSurplusDeposits(),
-      CloseSurplusDepositsStep.review => submitClosure(),
-    };
-  }
-
-  Future<void> fetchSurplusDeposits() {
-    emit(
-      state.copyWith(
-        reviewStatus: RequestStatus.loading,
-        reviewFailure: null,
-        isEditable: false,
-      ),
-    );
-    return _fetchSurplusDeposits(state.deposit!).then((result) {
-      switch (result) {
-        case Err(:final failure):
-          emit(
-            state.copyWith(
-              reviewStatus: RequestStatus.failure,
-              reviewFailure: failure,
-              isEditable: true,
-            ),
-          );
-        case Success(:final data):
-          emit(
-            state.copyWith(
-              reviewStatus: RequestStatus.success,
-              review: data,
-              step: CloseSurplusDepositsStep.review,
-              canContinue: data.deposits.isNotEmpty,
-              isEditable: true,
-              idempotencyKey:
-                  'close-surplus-${DateTime.now().microsecondsSinceEpoch}-${Random.secure().nextInt(1 << 32)}',
-            ),
-          );
-      }
-    });
+    switch (state.step) {
+      case CloseSurplusDepositsStep.primaryDeposit:
+        return submitClosure();
+      case CloseSurplusDepositsStep.empty:
+        emit(
+          state.copyWith(
+            effect: CloseSurplusDepositsEffect.back,
+            effectId: state.effectId + 1,
+          ),
+        );
+        return Future.value();
+    }
   }
 
   Future<void> submitClosure() {
-    final request = CloseSurplusDepositsRequest(
-      primaryDepositId: state.deposit!.id,
-      reviewToken: state.review!.token,
-      depositIds: state.review!.deposits.map((deposit) => deposit.id),
-      idempotencyKey: state.idempotencyKey!,
-    );
     emit(
       state.copyWith(
         submissionStatus: RequestStatus.loading,
@@ -154,7 +127,10 @@ class CloseSurplusDepositsCubit extends Cubit<CloseSurplusDepositsState> {
         isEditable: false,
       ),
     );
-    return _submitClosure(request).then((result) {
+    return _closeRemainingDeposits(
+      state.deposit!,
+      idempotencyKey: state.idempotencyKey!,
+    ).then((result) {
       switch (result) {
         case Err(:final failure):
           emit(
@@ -187,24 +163,15 @@ class CloseSurplusDepositsCubit extends Cubit<CloseSurplusDepositsState> {
   }
 
   void requestBack() {
-    if (state.step == CloseSurplusDepositsStep.review) {
-      emit(
-        state.copyWith(
-          step: CloseSurplusDepositsStep.primaryDeposit,
-          canContinue: state.deposit != null && state.termsAccepted,
-        ),
-      );
-    } else {
-      emit(
-        state.copyWith(
-          effect: state.hasChanges
-              ? CloseSurplusDepositsEffect.confirmExit
-              : CloseSurplusDepositsEffect.back,
-          isExitToAssistant: false,
-          effectId: state.effectId + 1,
-        ),
-      );
-    }
+    emit(
+      state.copyWith(
+        effect: state.hasChanges
+            ? CloseSurplusDepositsEffect.confirmExit
+            : CloseSurplusDepositsEffect.back,
+        isExitToAssistant: false,
+        effectId: state.effectId + 1,
+      ),
+    );
   }
 
   void requestAssistant() {
