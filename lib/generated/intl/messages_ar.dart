@@ -1403,6 +1403,124 @@ class MessageLookup extends MessageLookupByLibrary {
     "surplusPrimaryDepositHint": MessageLookupByLibrary.simpleMessage(
       "اختر وديعتك الرئيسية",
     ),
+    "transferAddDestination": MessageLookupByLibrary.simpleMessage(
+      "إضافة وجهة",
+    ),
+    "transferAddManual": MessageLookupByLibrary.simpleMessage(
+      "إضافة وجهة يدوياً",
+    ),
+    "transferAddNext": MessageLookupByLibrary.simpleMessage("إضافة وجهة أخرى"),
+    "transferAddressHint": MessageLookupByLibrary.simpleMessage(
+      "اختر عنوان زيارة المختص",
+    ),
+    "transferAmount": MessageLookupByLibrary.simpleMessage("المبلغ"),
+    "transferAmountError": MessageLookupByLibrary.simpleMessage(
+      "أدخل مبلغاً صالحاً أكبر من الصفر.",
+    ),
+    "transferAmountHint": MessageLookupByLibrary.simpleMessage("أدخل المبلغ"),
+    "transferAmountRial": MessageLookupByLibrary.simpleMessage("المبلغ (ريال)"),
+    "transferConfirmNext": MessageLookupByLibrary.simpleMessage(
+      "تأكيد ومتابعة",
+    ),
+    "transferConfirmationStep": MessageLookupByLibrary.simpleMessage(
+      "التأكيد النهائي ورسوم الخدمة",
+    ),
+    "transferCutoffNotice": MessageLookupByLibrary.simpleMessage(
+      "يمكن اختيار اليوم الحالي قبل الساعة ١٠ صباحاً فقط.",
+    ),
+    "transferDate": MessageLookupByLibrary.simpleMessage("تاريخ التحويل"),
+    "transferDateError": MessageLookupByLibrary.simpleMessage(
+      "أدخل تاريخاً صالحاً؛ اليوم متاح قبل الساعة ١٠ صباحاً.",
+    ),
+    "transferDateHint": MessageLookupByLibrary.simpleMessage(
+      "أدخل التاريخ الشمسي: YYYY/MM/DD",
+    ),
+    "transferDeleteDestination": MessageLookupByLibrary.simpleMessage(
+      "حذف الوجهة",
+    ),
+    "transferDeleteFile": MessageLookupByLibrary.simpleMessage("حذف الملف"),
+    "transferDescription": MessageLookupByLibrary.simpleMessage(
+      "مرجع الإيداع / الوصف",
+    ),
+    "transferDescriptionHint": MessageLookupByLibrary.simpleMessage(
+      "أدخل المرجع أو الوصف",
+    ),
+    "transferDestinationPrompt": MessageLookupByLibrary.simpleMessage(
+      "أدخل معلومات الوجهة.",
+    ),
+    "transferDestinationsStep": MessageLookupByLibrary.simpleMessage(
+      "إدخال الوجهات",
+    ),
+    "transferFileAccepted": MessageLookupByLibrary.simpleMessage(
+      "تم قبول ملف الوجهات؛ مراجعة المحتوى مؤجلة.",
+    ),
+    "transferFileInvalid": MessageLookupByLibrary.simpleMessage(
+      "اختر ملف XLS غير فارغ بحجم أقصى ١٠٠ كيلوبايت.",
+    ),
+    "transferFileRequirements": MessageLookupByLibrary.simpleMessage(
+      "الصيغة: XLS  |  الحجم الأقصى: ١٠٠ كيلوبايت",
+    ),
+    "transferHolidayNotice": MessageLookupByLibrary.simpleMessage(
+      "يجب ألا يكون التاريخ المحدد عطلة رسمية.",
+    ),
+    "transferIbanError": MessageLookupByLibrary.simpleMessage(
+      "أدخل رقم آيبان إيراني صالح.",
+    ),
+    "transferIbanHint": MessageLookupByLibrary.simpleMessage(
+      "أدخل أرقام الآيبان",
+    ),
+    "transferIdentifier": MessageLookupByLibrary.simpleMessage("مرجع الإيداع"),
+    "transferInternal": MessageLookupByLibrary.simpleMessage("داخلي"),
+    "transferMethod": MessageLookupByLibrary.simpleMessage("نوع التحويل"),
+    "transferMethodHint": MessageLookupByLibrary.simpleMessage(
+      "اختر نوع التحويل",
+    ),
+    "transferMethodRow": MessageLookupByLibrary.simpleMessage("طريقة التحويل"),
+    "transferMockComplete": MessageLookupByLibrary.simpleMessage(
+      "تم تسجيل طلب تجريبي. لم يُحوّل أي مبلغ أو رسوم في البنك.",
+    ),
+    "transferPaya": MessageLookupByLibrary.simpleMessage("بايا"),
+    "transferPurpose": MessageLookupByLibrary.simpleMessage("الغرض"),
+    "transferPurposeHint": MessageLookupByLibrary.simpleMessage(
+      "اختر سبب التحويل",
+    ),
+    "transferReview": MessageLookupByLibrary.simpleMessage("مراجعة"),
+    "transferSalary": MessageLookupByLibrary.simpleMessage("دفع الراتب"),
+    "transferSampleLink": MessageLookupByLibrary.simpleMessage("النموذج"),
+    "transferSamplePrefix": MessageLookupByLibrary.simpleMessage(
+      "يجب أن يطابق ملف إكسل ",
+    ),
+    "transferSampleSuffix": MessageLookupByLibrary.simpleMessage("."),
+    "transferSatna": MessageLookupByLibrary.simpleMessage("ساتنا"),
+    "transferSave": MessageLookupByLibrary.simpleMessage("حفظ"),
+    "transferServiceFee": MessageLookupByLibrary.simpleMessage(
+      "رسوم الخدمة في الموقع",
+    ),
+    "transferSourcePrompt": MessageLookupByLibrary.simpleMessage(
+      "اختر الحساب وتاريخ التحويل",
+    ),
+    "transferSourceStep": MessageLookupByLibrary.simpleMessage(
+      "الحساب وشروط الطلب",
+    ),
+    "transferUploadAction": MessageLookupByLibrary.simpleMessage(
+      "رفع ملف، انقر هنا",
+    ),
+    "transferUploadAfter": MessageLookupByLibrary.simpleMessage(""),
+    "transferUploadBefore": MessageLookupByLibrary.simpleMessage("من أجل"),
+    "transferUploadExcel": MessageLookupByLibrary.simpleMessage("رفع ملف إكسل"),
+    "transferVisitDate": MessageLookupByLibrary.simpleMessage("تاريخ الزيارة"),
+    "transferVisitDateError": MessageLookupByLibrary.simpleMessage(
+      "يجب أن تكون الزيارة في يوم عمل بين اليوم وتاريخ التحويل.",
+    ),
+    "transferVisitDateHint": MessageLookupByLibrary.simpleMessage(
+      "أدخل تاريخ الزيارة: YYYY/MM/DD",
+    ),
+    "transferVisitPrompt": MessageLookupByLibrary.simpleMessage(
+      "اختر عنوان وتاريخ زيارة المختص.",
+    ),
+    "transferVisitStep": MessageLookupByLibrary.simpleMessage(
+      "عنوان وتاريخ زيارة المختص",
+    ),
     "updateGuide": MessageLookupByLibrary.simpleMessage("دليل التحديث"),
     "virtualRequestCount": MessageLookupByLibrary.simpleMessage(
       "عدد البطاقات الافتراضية",

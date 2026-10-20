@@ -16,6 +16,10 @@ class AppFileUploadBase extends StatelessWidget {
     this.progress = .4,
     this.onSelect,
     this.onDelete,
+    this.emptyPrompt,
+    this.emptyAction,
+    this.emptySuffix,
+    this.fileRequirements,
   }) : assert(progress >= 0 && progress <= 1);
 
   final AppFileUploadState state;
@@ -24,43 +28,53 @@ class AppFileUploadBase extends StatelessWidget {
   final double progress;
   final VoidCallback? onSelect;
   final VoidCallback? onDelete;
+  final String? emptyPrompt;
+  final String? emptyAction;
+  final String? emptySuffix;
+  final String? fileRequirements;
 
   @override
   Widget build(BuildContext context) {
-    final empty = state == AppFileUploadState.empty;
-    final content = Container(
-      key: const Key('app_file_upload_base'),
-      width: 343,
-      padding: empty
-          ? const EdgeInsets.symmetric(horizontal: 24, vertical: 16)
-          : const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppPalette.white,
-        border: Border.all(color: AppPalette.gray200),
-        borderRadius: AppRadius.borderSm,
-      ),
-      child: empty
-          ? AppFileUploadBaseEmptyContent()
-          : AppFileUploadBaseFileContent(
-              fileName: fileName,
-              fileSize: fileSize,
-              onDelete: onDelete,
-              progress: progress,
-              state: state,
-            ),
-    );
     return Directionality(
       textDirection: TextDirection.rtl,
-      child: empty && onSelect != null
-          ? Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: onSelect,
-                borderRadius: AppRadius.borderSm,
-                child: content,
-              ),
-            )
-          : content,
+      child: Material(
+        color: context.colors.surface,
+        borderRadius: AppRadius.borderSm,
+        child: Container(
+          width: 343,
+          decoration: BoxDecoration(
+            border: Border.all(color: context.colors.borderSubtle),
+            borderRadius: AppRadius.borderSm,
+          ),
+          child: state == AppFileUploadState.empty
+              ? InkWell(
+                  onTap: onSelect,
+                  borderRadius: AppRadius.borderSm,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 16,
+                    ),
+                    child: AppFileUploadBaseEmptyContent(
+                      prompt: emptyPrompt,
+                      action: emptyAction,
+                      suffix: emptySuffix,
+                      requirements: fileRequirements,
+                    ),
+                  ),
+                )
+              : Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: AppFileUploadBaseFileContent(
+                    fileName: fileName,
+                    fileSize: fileSize,
+                    onDelete: onDelete,
+                    progress: progress,
+                    state: state,
+                  ),
+                ),
+        ),
+      ),
     );
   }
 }

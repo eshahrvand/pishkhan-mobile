@@ -6579,6 +6579,511 @@ class S {
       args: [],
     );
   }
+
+  /// `انتخاب سپرده و شرایط درخواست`
+  String get transferSourceStep {
+    return Intl.message(
+      'انتخاب سپرده و شرایط درخواست',
+      name: 'transferSourceStep',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `آدرس و زمان مراجعه کارشناس`
+  String get transferVisitStep {
+    return Intl.message(
+      'آدرس و زمان مراجعه کارشناس',
+      name: 'transferVisitStep',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `وارد کردن مقصدها`
+  String get transferDestinationsStep {
+    return Intl.message(
+      'وارد کردن مقصدها',
+      name: 'transferDestinationsStep',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `تایید نهایی و پرداخت کارمزد`
+  String get transferConfirmationStep {
+    return Intl.message(
+      'تایید نهایی و پرداخت کارمزد',
+      name: 'transferConfirmationStep',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `سپرده مورد نظر و تاریخ انتقال وجه را انتخاب کنید`
+  String get transferSourcePrompt {
+    return Intl.message(
+      'سپرده مورد نظر و تاریخ انتقال وجه را انتخاب کنید',
+      name: 'transferSourcePrompt',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `تاریخ انتقال وجه`
+  String get transferDate {
+    return Intl.message(
+      'تاریخ انتقال وجه',
+      name: 'transferDate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `تاریخ انتقال وجه را تعیین کنید`
+  String get transferDateHint {
+    return Intl.message(
+      'تاریخ انتقال وجه را تعیین کنید',
+      name: 'transferDateHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `تاریخ انتخابی نمی‌تواند جزء تعطیلات رسمی باشد.`
+  String get transferHolidayNotice {
+    return Intl.message(
+      'تاریخ انتخابی نمی‌تواند جزء تعطیلات رسمی باشد.',
+      name: 'transferHolidayNotice',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `انتخاب روز جاری فقط تا ساعت ۱۰ صبح امکان پذیر است.`
+  String get transferCutoffNotice {
+    return Intl.message(
+      'انتخاب روز جاری فقط تا ساعت ۱۰ صبح امکان پذیر است.',
+      name: 'transferCutoffNotice',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `تاریخ معتبر و غیرتعطیل وارد کنید؛ انتخاب امروز فقط قبل از ساعت ۱۰ امکان دارد.`
+  String get transferDateError {
+    return Intl.message(
+      'تاریخ معتبر و غیرتعطیل وارد کنید؛ انتخاب امروز فقط قبل از ساعت ۱۰ امکان دارد.',
+      name: 'transferDateError',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `آدرس و زمان مراجعه کارشناس را انتخاب کنید.`
+  String get transferVisitPrompt {
+    return Intl.message(
+      'آدرس و زمان مراجعه کارشناس را انتخاب کنید.',
+      name: 'transferVisitPrompt',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `تاریخ مراجعه`
+  String get transferVisitDate {
+    return Intl.message(
+      'تاریخ مراجعه',
+      name: 'transferVisitDate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `تاریخ مراجعه را تعیین کنید`
+  String get transferVisitDateHint {
+    return Intl.message(
+      'تاریخ مراجعه را تعیین کنید',
+      name: 'transferVisitDateHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `تاریخ مراجعه باید روز کاری و بین امروز و تاریخ انتقال وجه باشد.`
+  String get transferVisitDateError {
+    return Intl.message(
+      'تاریخ مراجعه باید روز کاری و بین امروز و تاریخ انتقال وجه باشد.',
+      name: 'transferVisitDateError',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `اطلاعات مقصد را وارد کنید.`
+  String get transferDestinationPrompt {
+    return Intl.message(
+      'اطلاعات مقصد را وارد کنید.',
+      name: 'transferDestinationPrompt',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `افزودن دستی مقصد`
+  String get transferAddManual {
+    return Intl.message(
+      'افزودن دستی مقصد',
+      name: 'transferAddManual',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `افزودن مقصد بعدی`
+  String get transferAddNext {
+    return Intl.message(
+      'افزودن مقصد بعدی',
+      name: 'transferAddNext',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `افزودن مقصد`
+  String get transferAddDestination {
+    return Intl.message(
+      'افزودن مقصد',
+      name: 'transferAddDestination',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `آپلود فایل اکسل`
+  String get transferUploadExcel {
+    return Intl.message(
+      'آپلود فایل اکسل',
+      name: 'transferUploadExcel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `مبلغ`
+  String get transferAmount {
+    return Intl.message('مبلغ', name: 'transferAmount', desc: '', args: []);
+  }
+
+  /// `مبلغ (ریال)`
+  String get transferAmountRial {
+    return Intl.message(
+      'مبلغ (ریال)',
+      name: 'transferAmountRial',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `مبلغ مورد نظر را وارد کنید`
+  String get transferAmountHint {
+    return Intl.message(
+      'مبلغ مورد نظر را وارد کنید',
+      name: 'transferAmountHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `مبلغ معتبر و بزرگ‌تر از صفر وارد کنید.`
+  String get transferAmountError {
+    return Intl.message(
+      'مبلغ معتبر و بزرگ‌تر از صفر وارد کنید.',
+      name: 'transferAmountError',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `نوع انتقال`
+  String get transferMethod {
+    return Intl.message(
+      'نوع انتقال',
+      name: 'transferMethod',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `روش انتقال`
+  String get transferMethodRow {
+    return Intl.message(
+      'روش انتقال',
+      name: 'transferMethodRow',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `نوع انتقال وجه را انتخاب کنید`
+  String get transferMethodHint {
+    return Intl.message(
+      'نوع انتقال وجه را انتخاب کنید',
+      name: 'transferMethodHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `ساتنا`
+  String get transferSatna {
+    return Intl.message('ساتنا', name: 'transferSatna', desc: '', args: []);
+  }
+
+  /// `شماره شبا را وارد کنید`
+  String get transferIbanHint {
+    return Intl.message(
+      'شماره شبا را وارد کنید',
+      name: 'transferIbanHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `شماره شبای معتبر وارد کنید.`
+  String get transferIbanError {
+    return Intl.message(
+      'شماره شبای معتبر وارد کنید.',
+      name: 'transferIbanError',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `بابت`
+  String get transferPurpose {
+    return Intl.message('بابت', name: 'transferPurpose', desc: '', args: []);
+  }
+
+  /// `علت انتقال را انتخاب کنید`
+  String get transferPurposeHint {
+    return Intl.message(
+      'علت انتقال را انتخاب کنید',
+      name: 'transferPurposeHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `واریز حقوق`
+  String get transferSalary {
+    return Intl.message(
+      'واریز حقوق',
+      name: 'transferSalary',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `شناسه واریز / توضیحات`
+  String get transferDescription {
+    return Intl.message(
+      'شناسه واریز / توضیحات',
+      name: 'transferDescription',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `شناسه واریز / توضیحات را وارد کنید`
+  String get transferDescriptionHint {
+    return Intl.message(
+      'شناسه واریز / توضیحات را وارد کنید',
+      name: 'transferDescriptionHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `شناسه واریز`
+  String get transferIdentifier {
+    return Intl.message(
+      'شناسه واریز',
+      name: 'transferIdentifier',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `ثبت`
+  String get transferSave {
+    return Intl.message('ثبت', name: 'transferSave', desc: '', args: []);
+  }
+
+  /// `بررسی`
+  String get transferReview {
+    return Intl.message('بررسی', name: 'transferReview', desc: '', args: []);
+  }
+
+  /// `تایید و مرحله بعد`
+  String get transferConfirmNext {
+    return Intl.message(
+      'تایید و مرحله بعد',
+      name: 'transferConfirmNext',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `فایل XLS غیرخالی با حداکثر حجم ۱۰۰ کیلوبایت انتخاب کنید.`
+  String get transferFileInvalid {
+    return Intl.message(
+      'فایل XLS غیرخالی با حداکثر حجم ۱۰۰ کیلوبایت انتخاب کنید.',
+      name: 'transferFileInvalid',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `برای`
+  String get transferUploadBefore {
+    return Intl.message(
+      'برای',
+      name: 'transferUploadBefore',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `بارگذاری فایل اینجا`
+  String get transferUploadAction {
+    return Intl.message(
+      'بارگذاری فایل اینجا',
+      name: 'transferUploadAction',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `را کلیک کنید.`
+  String get transferUploadAfter {
+    return Intl.message(
+      'را کلیک کنید.',
+      name: 'transferUploadAfter',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `فرمت فایل: XLS  |  حداکثر حجم: ۱۰۰ KB`
+  String get transferFileRequirements {
+    return Intl.message(
+      'فرمت فایل: XLS  |  حداکثر حجم: ۱۰۰ KB',
+      name: 'transferFileRequirements',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `حذف مقصد`
+  String get transferDeleteDestination {
+    return Intl.message(
+      'حذف مقصد',
+      name: 'transferDeleteDestination',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `کارمزد خدمت در محل`
+  String get transferServiceFee {
+    return Intl.message(
+      'کارمزد خدمت در محل',
+      name: 'transferServiceFee',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `درخواست به‌صورت آزمایشی ثبت شد؛ هیچ وجه یا کارمزدی در بانک جابه‌جا نشده است.`
+  String get transferMockComplete {
+    return Intl.message(
+      'درخواست به‌صورت آزمایشی ثبت شد؛ هیچ وجه یا کارمزدی در بانک جابه‌جا نشده است.',
+      name: 'transferMockComplete',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `فایل مقصدها تایید شد؛ بررسی محتوای اکسل در نسخه بعد انجام می‌شود.`
+  String get transferFileAccepted {
+    return Intl.message(
+      'فایل مقصدها تایید شد؛ بررسی محتوای اکسل در نسخه بعد انجام می‌شود.',
+      name: 'transferFileAccepted',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `آدرس مراجعه کارشناس را انتخاب کنید`
+  String get transferAddressHint {
+    return Intl.message(
+      'آدرس مراجعه کارشناس را انتخاب کنید',
+      name: 'transferAddressHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `فایل اکسل باید `
+  String get transferSamplePrefix {
+    return Intl.message(
+      'فایل اکسل باید ',
+      name: 'transferSamplePrefix',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `مطابق نمونه`
+  String get transferSampleLink {
+    return Intl.message(
+      'مطابق نمونه',
+      name: 'transferSampleLink',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// ` باشد.`
+  String get transferSampleSuffix {
+    return Intl.message(
+      ' باشد.',
+      name: 'transferSampleSuffix',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `داخلی`
+  String get transferInternal {
+    return Intl.message('داخلی', name: 'transferInternal', desc: '', args: []);
+  }
+
+  /// `پایا`
+  String get transferPaya {
+    return Intl.message('پایا', name: 'transferPaya', desc: '', args: []);
+  }
+
+  /// `حذف فایل`
+  String get transferDeleteFile {
+    return Intl.message(
+      'حذف فایل',
+      name: 'transferDeleteFile',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

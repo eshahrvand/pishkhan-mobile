@@ -2,6 +2,7 @@ import 'app_transfer_destination_card_row.dart';
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 enum AppTransferMethod { internal, satna, paya }
@@ -17,6 +18,14 @@ class AppTransferDestinationCard extends StatelessWidget {
     this.purpose = 'واریز حقوق',
     this.depositIdentifier = '۱۲۳۴۵۶۷۸۹',
     this.onDelete,
+    this.numberLabel,
+    this.wrapNumber = false,
+    this.methodTitle,
+    this.methodLabel,
+    this.amountLabel,
+    this.purposeLabel,
+    this.identifierLabel,
+    this.deleteLabel,
   });
 
   final AppTransferMethod method;
@@ -26,6 +35,14 @@ class AppTransferDestinationCard extends StatelessWidget {
   final String purpose;
   final String depositIdentifier;
   final VoidCallback? onDelete;
+  final String? numberLabel;
+  final bool wrapNumber;
+  final String? methodTitle;
+  final String? methodLabel;
+  final String? amountLabel;
+  final String? purposeLabel;
+  final String? identifierLabel;
+  final String? deleteLabel;
 
   bool get _isExternal => method != AppTransferMethod.internal;
 
@@ -34,9 +51,9 @@ class AppTransferDestinationCard extends StatelessWidget {
       (method == AppTransferMethod.satna ? '۲,000,000,000' : '1,000,000,000');
 
   String get _methodLabel => switch (method) {
-    AppTransferMethod.internal => 'داخلی',
-    AppTransferMethod.satna => 'ساتنا',
-    AppTransferMethod.paya => 'پایا',
+    AppTransferMethod.internal => S.current.transferInternal,
+    AppTransferMethod.satna => S.current.transferSatna,
+    AppTransferMethod.paya => S.current.transferPaya,
   };
 
   @override
@@ -44,7 +61,6 @@ class AppTransferDestinationCard extends StatelessWidget {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Container(
-        key: const Key('app_transfer_destination_card'),
         width: 343,
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
@@ -61,13 +77,16 @@ class AppTransferDestinationCard extends StatelessWidget {
               child: Row(
                 textDirection: TextDirection.ltr,
                 children: [
-                  InkWell(
-                    key: const Key('app_transfer_destination_delete'),
-                    onTap: onDelete,
-                    child: AvpImage(
-                      image: AppAssets.transferDestinationCardTrash,
-                      width: 20,
-                      height: 20,
+                  Semantics(
+                    button: true,
+                    label: deleteLabel,
+                    child: InkWell(
+                      onTap: onDelete,
+                      child: AvpImage(
+                        image: AppAssets.transferDestinationCardTrash,
+                        width: 20,
+                        height: 20,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -93,21 +112,22 @@ class AppTransferDestinationCard extends StatelessWidget {
                 children: [
                   AppTransferDestinationCardRow(
                     value: depositNumber,
-                    label: 'شماره سپرده',
+                    wrapValue: wrapNumber,
+                    label: numberLabel ?? S.current.depositListNumber,
                     divider: AppAssets.transferDestinationCardDivider1,
                   ),
                   const SizedBox(height: 10),
                   AppTransferDestinationCardRow(
                     value: _amount,
-                    label: 'مبلغ (ریال)',
+                    label: amountLabel ?? S.current.transferAmountRial,
                     divider: method == AppTransferMethod.satna
                         ? AppAssets.transferDestinationCardDivider5
                         : AppAssets.transferDestinationCardDivider2,
                   ),
                   const SizedBox(height: 10),
                   AppTransferDestinationCardRow(
-                    value: _methodLabel,
-                    label: 'روش انتقال',
+                    value: methodTitle ?? _methodLabel,
+                    label: methodLabel ?? S.current.transferMethodRow,
                     divider: method == AppTransferMethod.paya
                         ? AppAssets.transferDestinationCardDivider8
                         : method == AppTransferMethod.satna
@@ -117,7 +137,9 @@ class AppTransferDestinationCard extends StatelessWidget {
                   const SizedBox(height: 10),
                   AppTransferDestinationCardRow(
                     value: _isExternal ? purpose : depositIdentifier,
-                    label: _isExternal ? 'بابت' : 'شناسه واریز',
+                    label: _isExternal
+                        ? (purposeLabel ?? S.current.transferPurpose)
+                        : (identifierLabel ?? S.current.transferIdentifier),
                     divider: _isExternal
                         ? AppAssets.transferDestinationCardDivider7
                         : AppAssets.transferDestinationCardDivider4,
@@ -126,7 +148,7 @@ class AppTransferDestinationCard extends StatelessWidget {
                     const SizedBox(height: 10),
                     AppTransferDestinationCardRow(
                       value: depositIdentifier,
-                      label: 'شناسه واریز',
+                      label: identifierLabel ?? S.current.transferIdentifier,
                       divider: AppAssets.transferDestinationCardDivider4,
                     ),
                   ],

@@ -1522,6 +1522,130 @@ class MessageLookup extends MessageLookupByLibrary {
     "surplusPrimaryDepositHint": MessageLookupByLibrary.simpleMessage(
       "سپرده اصلی خود را انتخاب کنید",
     ),
+    "transferAddDestination": MessageLookupByLibrary.simpleMessage(
+      "افزودن مقصد",
+    ),
+    "transferAddManual": MessageLookupByLibrary.simpleMessage(
+      "افزودن دستی مقصد",
+    ),
+    "transferAddNext": MessageLookupByLibrary.simpleMessage("افزودن مقصد بعدی"),
+    "transferAddressHint": MessageLookupByLibrary.simpleMessage(
+      "آدرس مراجعه کارشناس را انتخاب کنید",
+    ),
+    "transferAmount": MessageLookupByLibrary.simpleMessage("مبلغ"),
+    "transferAmountError": MessageLookupByLibrary.simpleMessage(
+      "مبلغ معتبر و بزرگ‌تر از صفر وارد کنید.",
+    ),
+    "transferAmountHint": MessageLookupByLibrary.simpleMessage(
+      "مبلغ مورد نظر را وارد کنید",
+    ),
+    "transferAmountRial": MessageLookupByLibrary.simpleMessage("مبلغ (ریال)"),
+    "transferConfirmNext": MessageLookupByLibrary.simpleMessage(
+      "تایید و مرحله بعد",
+    ),
+    "transferConfirmationStep": MessageLookupByLibrary.simpleMessage(
+      "تایید نهایی و پرداخت کارمزد",
+    ),
+    "transferCutoffNotice": MessageLookupByLibrary.simpleMessage(
+      "انتخاب روز جاری فقط تا ساعت ۱۰ صبح امکان پذیر است.",
+    ),
+    "transferDate": MessageLookupByLibrary.simpleMessage("تاریخ انتقال وجه"),
+    "transferDateError": MessageLookupByLibrary.simpleMessage(
+      "تاریخ معتبر و غیرتعطیل وارد کنید؛ انتخاب امروز فقط قبل از ساعت ۱۰ امکان دارد.",
+    ),
+    "transferDateHint": MessageLookupByLibrary.simpleMessage(
+      "تاریخ انتقال وجه را تعیین کنید",
+    ),
+    "transferDeleteDestination": MessageLookupByLibrary.simpleMessage(
+      "حذف مقصد",
+    ),
+    "transferDeleteFile": MessageLookupByLibrary.simpleMessage("حذف فایل"),
+    "transferDescription": MessageLookupByLibrary.simpleMessage(
+      "شناسه واریز / توضیحات",
+    ),
+    "transferDescriptionHint": MessageLookupByLibrary.simpleMessage(
+      "شناسه واریز / توضیحات را وارد کنید",
+    ),
+    "transferDestinationPrompt": MessageLookupByLibrary.simpleMessage(
+      "اطلاعات مقصد را وارد کنید.",
+    ),
+    "transferDestinationsStep": MessageLookupByLibrary.simpleMessage(
+      "وارد کردن مقصدها",
+    ),
+    "transferFileAccepted": MessageLookupByLibrary.simpleMessage(
+      "فایل مقصدها تایید شد؛ بررسی محتوای اکسل در نسخه بعد انجام می‌شود.",
+    ),
+    "transferFileInvalid": MessageLookupByLibrary.simpleMessage(
+      "فایل XLS غیرخالی با حداکثر حجم ۱۰۰ کیلوبایت انتخاب کنید.",
+    ),
+    "transferFileRequirements": MessageLookupByLibrary.simpleMessage(
+      "فرمت فایل: XLS  |  حداکثر حجم: ۱۰۰ KB",
+    ),
+    "transferHolidayNotice": MessageLookupByLibrary.simpleMessage(
+      "تاریخ انتخابی نمی‌تواند جزء تعطیلات رسمی باشد.",
+    ),
+    "transferIbanError": MessageLookupByLibrary.simpleMessage(
+      "شماره شبای معتبر وارد کنید.",
+    ),
+    "transferIbanHint": MessageLookupByLibrary.simpleMessage(
+      "شماره شبا را وارد کنید",
+    ),
+    "transferIdentifier": MessageLookupByLibrary.simpleMessage("شناسه واریز"),
+    "transferInternal": MessageLookupByLibrary.simpleMessage("داخلی"),
+    "transferMethod": MessageLookupByLibrary.simpleMessage("نوع انتقال"),
+    "transferMethodHint": MessageLookupByLibrary.simpleMessage(
+      "نوع انتقال وجه را انتخاب کنید",
+    ),
+    "transferMethodRow": MessageLookupByLibrary.simpleMessage("روش انتقال"),
+    "transferMockComplete": MessageLookupByLibrary.simpleMessage(
+      "درخواست به‌صورت آزمایشی ثبت شد؛ هیچ وجه یا کارمزدی در بانک جابه‌جا نشده است.",
+    ),
+    "transferPaya": MessageLookupByLibrary.simpleMessage("پایا"),
+    "transferPurpose": MessageLookupByLibrary.simpleMessage("بابت"),
+    "transferPurposeHint": MessageLookupByLibrary.simpleMessage(
+      "علت انتقال را انتخاب کنید",
+    ),
+    "transferReview": MessageLookupByLibrary.simpleMessage("بررسی"),
+    "transferSalary": MessageLookupByLibrary.simpleMessage("واریز حقوق"),
+    "transferSampleLink": MessageLookupByLibrary.simpleMessage("مطابق نمونه"),
+    "transferSamplePrefix": MessageLookupByLibrary.simpleMessage(
+      "فایل اکسل باید ",
+    ),
+    "transferSampleSuffix": MessageLookupByLibrary.simpleMessage(" باشد."),
+    "transferSatna": MessageLookupByLibrary.simpleMessage("ساتنا"),
+    "transferSave": MessageLookupByLibrary.simpleMessage("ثبت"),
+    "transferServiceFee": MessageLookupByLibrary.simpleMessage(
+      "کارمزد خدمت در محل",
+    ),
+    "transferSourcePrompt": MessageLookupByLibrary.simpleMessage(
+      "سپرده مورد نظر و تاریخ انتقال وجه را انتخاب کنید",
+    ),
+    "transferSourceStep": MessageLookupByLibrary.simpleMessage(
+      "انتخاب سپرده و شرایط درخواست",
+    ),
+    "transferUploadAction": MessageLookupByLibrary.simpleMessage(
+      "بارگذاری فایل اینجا",
+    ),
+    "transferUploadAfter": MessageLookupByLibrary.simpleMessage(
+      "را کلیک کنید.",
+    ),
+    "transferUploadBefore": MessageLookupByLibrary.simpleMessage("برای"),
+    "transferUploadExcel": MessageLookupByLibrary.simpleMessage(
+      "آپلود فایل اکسل",
+    ),
+    "transferVisitDate": MessageLookupByLibrary.simpleMessage("تاریخ مراجعه"),
+    "transferVisitDateError": MessageLookupByLibrary.simpleMessage(
+      "تاریخ مراجعه باید روز کاری و بین امروز و تاریخ انتقال وجه باشد.",
+    ),
+    "transferVisitDateHint": MessageLookupByLibrary.simpleMessage(
+      "تاریخ مراجعه را تعیین کنید",
+    ),
+    "transferVisitPrompt": MessageLookupByLibrary.simpleMessage(
+      "آدرس و زمان مراجعه کارشناس را انتخاب کنید.",
+    ),
+    "transferVisitStep": MessageLookupByLibrary.simpleMessage(
+      "آدرس و زمان مراجعه کارشناس",
+    ),
     "updateGuide": MessageLookupByLibrary.simpleMessage("راهنمای بروزرسانی"),
     "virtualRequestCount": MessageLookupByLibrary.simpleMessage(
       "تعداد کارت مجازی",

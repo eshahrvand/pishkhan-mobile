@@ -18,6 +18,16 @@ abstract final class ServiceRegistry {
     String? initialDepositNumber,
     String? initialCardNumber,
   }) {
+    if (id == 'transfer-local') {
+      context.push<void>(
+        AppRoutes.onSiteTransfer,
+        extra: OnSiteTransferRouteArguments(
+          initialDepositNumber: initialDepositNumber,
+          onAssistantPressed: onAssistantPressed,
+        ),
+      );
+      return true;
+    }
     if (id == 'cheque-cancel') {
       context.push<void>(
         AppRoutes.chequeCancellation,

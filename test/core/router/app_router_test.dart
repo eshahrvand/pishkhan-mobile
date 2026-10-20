@@ -65,6 +65,7 @@ void main() {
     const modulePaths = {
       '/launch/': [AppRoutes.splash],
       '/dashboard/': [AppRoutes.home, AppRoutes.allServices],
+      '/transfers/': [AppRoutes.onSiteTransfer],
       '/auth/': [AppRoutes.login],
       '/cards/': [
         AppRoutes.cardPasswords,

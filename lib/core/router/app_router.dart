@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/features/transfers/presentation/on_site_transfer/screens/on_site_transfer_screen.dart';
 import 'package:pishkhan_mobile/features/cheque/presentation/cancellation/screens/cheque_cancellation_screen.dart';
 import 'package:pishkhan_mobile/features/cheque/presentation/book_issuance/screens/cheque_book_screen.dart';
 import 'package:pishkhan_mobile/features/cheque/presentation/clearance/screens/cheque_clearance_screen.dart';
@@ -102,6 +103,20 @@ GoRouter createAppRouter({
               ? state.extra as ChequeClearanceRouteArguments
               : null;
           return ChequeClearanceScreen(
+            onAssistantPressed: args?.onAssistantPressed,
+          );
+        },
+      ),
+
+      // On-site transfers (independent from cheque services).
+      GoRoute(
+        path: AppRoutes.onSiteTransfer,
+        builder: (context, state) {
+          final args = state.extra is OnSiteTransferRouteArguments
+              ? state.extra as OnSiteTransferRouteArguments
+              : null;
+          return OnSiteTransferScreen(
+            initialDepositNumber: args?.initialDepositNumber,
             onAssistantPressed: args?.onAssistantPressed,
           );
         },
@@ -423,6 +438,15 @@ class ChequeBookRouteArguments {
 
 class ChequeCancellationRouteArguments {
   const ChequeCancellationRouteArguments({
+    this.initialDepositNumber,
+    this.onAssistantPressed,
+  });
+  final String? initialDepositNumber;
+  final VoidCallback? onAssistantPressed;
+}
+
+class OnSiteTransferRouteArguments {
+  const OnSiteTransferRouteArguments({
     this.initialDepositNumber,
     this.onAssistantPressed,
   });

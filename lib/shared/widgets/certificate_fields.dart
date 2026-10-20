@@ -26,6 +26,7 @@ class CertificateSelect<T> extends StatelessWidget {
     required this.options,
     required this.onChanged,
     this.value,
+    this.trailing,
     this.enabled = true,
   });
   final String label;
@@ -33,6 +34,7 @@ class CertificateSelect<T> extends StatelessWidget {
   final List<AppSelectOption<T>> options;
   final ValueChanged<T> onChanged;
   final T? value;
+  final Widget? trailing;
   final bool enabled;
   @override
   Widget build(BuildContext context) {
@@ -50,16 +52,18 @@ class CertificateSelect<T> extends StatelessWidget {
             ? context.colors.textDisabled
             : context.colors.textPrimary,
       ),
-      trailing: SizedBox.square(
-        dimension: 20,
-        child: Center(
-          child: AvpImage(
-            image: value == null
-                ? AppAssets.certificateChevronHint
-                : AppAssets.certificateChevron,
+      trailing:
+          trailing ??
+          SizedBox.square(
+            dimension: 20,
+            child: Center(
+              child: AvpImage(
+                image: value == null
+                    ? AppAssets.certificateChevronHint
+                    : AppAssets.certificateChevron,
+              ),
+            ),
           ),
-        ),
-      ),
     );
   }
 }

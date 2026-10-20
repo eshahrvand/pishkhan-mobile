@@ -1601,6 +1601,134 @@ class MessageLookup extends MessageLookupByLibrary {
     "surplusPrimaryDepositHint": MessageLookupByLibrary.simpleMessage(
       "Select your primary deposit",
     ),
+    "transferAddDestination": MessageLookupByLibrary.simpleMessage(
+      "Add destination",
+    ),
+    "transferAddManual": MessageLookupByLibrary.simpleMessage(
+      "Add destination manually",
+    ),
+    "transferAddNext": MessageLookupByLibrary.simpleMessage(
+      "Add another destination",
+    ),
+    "transferAddressHint": MessageLookupByLibrary.simpleMessage(
+      "Select the expert visit address",
+    ),
+    "transferAmount": MessageLookupByLibrary.simpleMessage("Amount"),
+    "transferAmountError": MessageLookupByLibrary.simpleMessage(
+      "Enter a valid positive amount.",
+    ),
+    "transferAmountHint": MessageLookupByLibrary.simpleMessage(
+      "Enter the amount",
+    ),
+    "transferAmountRial": MessageLookupByLibrary.simpleMessage("Amount (rial)"),
+    "transferConfirmNext": MessageLookupByLibrary.simpleMessage(
+      "Confirm and continue",
+    ),
+    "transferConfirmationStep": MessageLookupByLibrary.simpleMessage(
+      "Final confirmation and service fee",
+    ),
+    "transferCutoffNotice": MessageLookupByLibrary.simpleMessage(
+      "Today can only be selected before 10 am.",
+    ),
+    "transferDate": MessageLookupByLibrary.simpleMessage("Transfer date"),
+    "transferDateError": MessageLookupByLibrary.simpleMessage(
+      "Enter an eligible date; today is available before 10 am.",
+    ),
+    "transferDateHint": MessageLookupByLibrary.simpleMessage(
+      "Enter a Solar Hijri date: YYYY/MM/DD",
+    ),
+    "transferDeleteDestination": MessageLookupByLibrary.simpleMessage(
+      "Remove destination",
+    ),
+    "transferDeleteFile": MessageLookupByLibrary.simpleMessage("Remove file"),
+    "transferDescription": MessageLookupByLibrary.simpleMessage(
+      "Deposit reference / description",
+    ),
+    "transferDescriptionHint": MessageLookupByLibrary.simpleMessage(
+      "Enter a reference or description",
+    ),
+    "transferDestinationPrompt": MessageLookupByLibrary.simpleMessage(
+      "Enter destination details.",
+    ),
+    "transferDestinationsStep": MessageLookupByLibrary.simpleMessage(
+      "Enter destinations",
+    ),
+    "transferFileAccepted": MessageLookupByLibrary.simpleMessage(
+      "Destination file accepted; spreadsheet content review is deferred.",
+    ),
+    "transferFileInvalid": MessageLookupByLibrary.simpleMessage(
+      "Choose a nonempty XLS file up to 100 KB.",
+    ),
+    "transferFileRequirements": MessageLookupByLibrary.simpleMessage(
+      "Format: XLS  |  Maximum size: 100 KB",
+    ),
+    "transferHolidayNotice": MessageLookupByLibrary.simpleMessage(
+      "The selected date must not be a public holiday.",
+    ),
+    "transferIbanError": MessageLookupByLibrary.simpleMessage(
+      "Enter a valid Iranian IBAN.",
+    ),
+    "transferIbanHint": MessageLookupByLibrary.simpleMessage(
+      "Enter IBAN digits",
+    ),
+    "transferIdentifier": MessageLookupByLibrary.simpleMessage(
+      "Deposit reference",
+    ),
+    "transferInternal": MessageLookupByLibrary.simpleMessage("Internal"),
+    "transferMethod": MessageLookupByLibrary.simpleMessage("Transfer type"),
+    "transferMethodHint": MessageLookupByLibrary.simpleMessage(
+      "Select transfer type",
+    ),
+    "transferMethodRow": MessageLookupByLibrary.simpleMessage(
+      "Transfer method",
+    ),
+    "transferMockComplete": MessageLookupByLibrary.simpleMessage(
+      "Demo request recorded. No money or service fee was transferred at the bank.",
+    ),
+    "transferPaya": MessageLookupByLibrary.simpleMessage("PAYA"),
+    "transferPurpose": MessageLookupByLibrary.simpleMessage("Purpose"),
+    "transferPurposeHint": MessageLookupByLibrary.simpleMessage(
+      "Select the transfer purpose",
+    ),
+    "transferReview": MessageLookupByLibrary.simpleMessage("Review"),
+    "transferSalary": MessageLookupByLibrary.simpleMessage("Salary payment"),
+    "transferSampleLink": MessageLookupByLibrary.simpleMessage("the template"),
+    "transferSamplePrefix": MessageLookupByLibrary.simpleMessage(
+      "The Excel file must match ",
+    ),
+    "transferSampleSuffix": MessageLookupByLibrary.simpleMessage("."),
+    "transferSatna": MessageLookupByLibrary.simpleMessage("SATNA"),
+    "transferSave": MessageLookupByLibrary.simpleMessage("Save"),
+    "transferServiceFee": MessageLookupByLibrary.simpleMessage(
+      "On-site service fee",
+    ),
+    "transferSourcePrompt": MessageLookupByLibrary.simpleMessage(
+      "Select the source deposit and transfer date",
+    ),
+    "transferSourceStep": MessageLookupByLibrary.simpleMessage(
+      "Deposit and request conditions",
+    ),
+    "transferUploadAction": MessageLookupByLibrary.simpleMessage(
+      "upload a file, click here",
+    ),
+    "transferUploadAfter": MessageLookupByLibrary.simpleMessage(""),
+    "transferUploadBefore": MessageLookupByLibrary.simpleMessage("To"),
+    "transferUploadExcel": MessageLookupByLibrary.simpleMessage(
+      "Upload Excel file",
+    ),
+    "transferVisitDate": MessageLookupByLibrary.simpleMessage("Visit date"),
+    "transferVisitDateError": MessageLookupByLibrary.simpleMessage(
+      "The visit must be on a working day between today and the transfer date.",
+    ),
+    "transferVisitDateHint": MessageLookupByLibrary.simpleMessage(
+      "Enter the visit date: YYYY/MM/DD",
+    ),
+    "transferVisitPrompt": MessageLookupByLibrary.simpleMessage(
+      "Select the expert visit address and date.",
+    ),
+    "transferVisitStep": MessageLookupByLibrary.simpleMessage(
+      "Expert visit address and date",
+    ),
     "updateGuide": MessageLookupByLibrary.simpleMessage("Update guide"),
     "virtualRequestCount": MessageLookupByLibrary.simpleMessage(
       "Number of virtual cards",

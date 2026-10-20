@@ -7,29 +7,38 @@ class AppTransferDestinationCardRow extends StatelessWidget {
     required this.value,
     required this.label,
     required this.divider,
+    this.wrapValue = false,
   });
   final String value;
   final String label;
   final String divider;
+  final bool wrapValue;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 18,
+      height: wrapValue ? 36 : 18,
       child: Row(
         textDirection: TextDirection.ltr,
         children: [
           Flexible(
             fit: FlexFit.loose,
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: Alignment.centerLeft,
-              child: Text(
-                value,
-                textDirection: TextDirection.ltr,
-                style: _valueStyle,
-              ),
-            ),
+            child: wrapValue
+                ? Text(
+                    value,
+                    textDirection: TextDirection.ltr,
+                    maxLines: 2,
+                    style: _valueStyle,
+                  )
+                : FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      value,
+                      textDirection: TextDirection.ltr,
+                      style: _valueStyle,
+                    ),
+                  ),
           ),
           const SizedBox(width: 8),
           Expanded(

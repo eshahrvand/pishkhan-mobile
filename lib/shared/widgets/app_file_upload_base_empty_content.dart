@@ -1,9 +1,20 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 class AppFileUploadBaseEmptyContent extends StatelessWidget {
-  const AppFileUploadBaseEmptyContent({super.key});
+  const AppFileUploadBaseEmptyContent({
+    super.key,
+    this.prompt,
+    this.action,
+    this.suffix,
+    this.requirements,
+  });
+  final String? prompt;
+  final String? action;
+  final String? suffix;
+  final String? requirements;
 
   @override
   Widget build(BuildContext context) {
@@ -35,11 +46,20 @@ class AppFileUploadBaseEmptyContent extends StatelessWidget {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text('برای', style: _bodyStyle),
+                Text(
+                  prompt ?? S.current.transferUploadBefore,
+                  style: _bodyStyle,
+                ),
                 const SizedBox(width: 4),
-                Text('بارگذاری فایل اینجا', style: _actionStyle),
+                Text(
+                  action ?? S.current.transferUploadAction,
+                  style: _actionStyle,
+                ),
                 const SizedBox(width: 4),
-                Text('را کلیک کنید.', style: _bodyStyle),
+                Text(
+                  suffix ?? S.current.transferUploadAfter,
+                  style: _bodyStyle,
+                ),
               ],
             ),
           ),
@@ -51,7 +71,7 @@ class AppFileUploadBaseEmptyContent extends StatelessWidget {
           child: FittedBox(
             fit: BoxFit.scaleDown,
             child: Text(
-              'فرمت فایل: XLS  |  حداکثر حجم: ۱۰۰ KB',
+              requirements ?? S.current.transferFileRequirements,
               textAlign: TextAlign.center,
               style: _supportingStyle,
             ),

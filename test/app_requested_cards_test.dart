@@ -1,5 +1,7 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_address_card.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_cards_list.dart';
@@ -10,6 +12,14 @@ import 'package:pishkhan_mobile/shared/widgets/app_transfer_destination_card.dar
 void main() {
   Widget subject(Widget child) => MaterialApp(
     theme: AppTheme.light(),
+    locale: const Locale('fa'),
+    supportedLocales: S.delegate.supportedLocales,
+    localizationsDelegates: const [
+      S.delegate,
+      GlobalMaterialLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+    ],
     home: Scaffold(body: Center(child: child)),
   );
 
@@ -45,6 +55,7 @@ void main() {
   testWidgets('file upload renders all states and delete action', (
     tester,
   ) async {
+    final semantics = tester.ensureSemantics();
     await tester.pumpWidget(subject(const AppFileUploadBase()));
     expect(find.text('بارگذاری فایل اینجا'), findsOneWidget);
     expect(find.textContaining('فرمت فایل'), findsOneWidget);
@@ -59,13 +70,14 @@ void main() {
       ),
     );
     expect(find.text('40%'), findsOneWidget);
-    await tester.tap(find.byKey(const Key('app_file_upload_delete')));
+    await tester.tap(find.bySemanticsLabel(S.current.transferDeleteFile));
     expect(deleted, isTrue);
 
     await tester.pumpWidget(
       subject(const AppFileUploadBase(state: AppFileUploadState.uploaded)),
     );
     expect(find.text('100%'), findsOneWidget);
+    semantics.dispose();
   });
 
   testWidgets('transfer card follows internal and Paya rows', (tester) async {

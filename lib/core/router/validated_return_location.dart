@@ -8,6 +8,7 @@ String validatedReturnLocation(String? location) {
   }
   const paths = {
     AppRoutes.home,
+    AppRoutes.onSiteTransfer,
     AppRoutes.allServices,
     AppRoutes.cardList,
     AppRoutes.depositList,

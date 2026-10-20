@@ -1,5 +1,6 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 import 'app_file_upload_base.dart';
@@ -74,6 +75,7 @@ class AppFileUploadBaseFileContent extends StatelessWidget {
                           ? 1
                           : progress,
                       width: 191,
+                      fillAlignment: Alignment.centerLeft,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -89,13 +91,17 @@ class AppFileUploadBaseFileContent extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 4),
-        InkWell(
-          key: const Key('app_file_upload_delete'),
-          onTap: onDelete,
-          child: AvpImage(
-            image: AppAssets.fileUploadTrash,
-            width: 20,
-            height: 20,
+        Semantics(
+          container: true,
+          button: true,
+          label: S.current.transferDeleteFile,
+          child: InkWell(
+            onTap: onDelete,
+            child: AvpImage(
+              image: AppAssets.fileUploadTrash,
+              width: 20,
+              height: 20,
+            ),
           ),
         ),
       ],

@@ -52,6 +52,7 @@ void main() {
       'deposit-unblock': AppRoutes.unblockDeposit,
       'deposit-close-extras': AppRoutes.closeSurplusDeposits,
       'deposit-proxy': AppRoutes.proxyDeposit,
+      'transfer-local': AppRoutes.onSiteTransfer,
       'card-issue': AppRoutes.cardIssuance,
       'card-virtual': AppRoutes.virtualCardRequest,
     },
