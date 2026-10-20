@@ -1,3 +1,6 @@
+import 'package:pishkhan_mobile/features/profile/presentation/change_phone/screens/change_phone_screen.dart';
+import 'package:pishkhan_mobile/features/profile/presentation/addresses/screens/addresses_screen.dart';
+import 'package:pishkhan_mobile/features/profile/presentation/occupations/screens/occupations_screen.dart';
 import 'package:pishkhan_mobile/features/transfers/presentation/on_site_transfer/screens/on_site_transfer_screen.dart';
 import 'package:pishkhan_mobile/features/cheque/presentation/cancellation/screens/cheque_cancellation_screen.dart';
 import 'package:pishkhan_mobile/features/cheque/presentation/book_issuance/screens/cheque_book_screen.dart';
@@ -321,6 +324,33 @@ GoRouter createAppRouter({
 
       // Profile
       GoRoute(
+        path: AppRoutes.changePhone,
+        builder: (context, state) => ChangePhoneScreen(
+          onAssistantPressed: state.extra is PersonalInformationRouteArguments
+              ? (state.extra as PersonalInformationRouteArguments)
+                    .onAssistantPressed
+              : null,
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.addresses,
+        builder: (context, state) => AddressesScreen(
+          onAssistantPressed: state.extra is PersonalInformationRouteArguments
+              ? (state.extra as PersonalInformationRouteArguments)
+                    .onAssistantPressed
+              : null,
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.occupations,
+        builder: (context, state) => OccupationsScreen(
+          onAssistantPressed: state.extra is PersonalInformationRouteArguments
+              ? (state.extra as PersonalInformationRouteArguments)
+                    .onAssistantPressed
+              : null,
+        ),
+      ),
+      GoRoute(
         path: AppRoutes.messages,
         builder: (context, state) {
           final args = state.extra is MessageCenterRouteArguments
@@ -469,5 +499,10 @@ class OnSiteTransferRouteArguments {
 
 class RequestReportsRouteArguments {
   const RequestReportsRouteArguments({this.onAssistantPressed});
+  final VoidCallback? onAssistantPressed;
+}
+
+class PersonalInformationRouteArguments {
+  const PersonalInformationRouteArguments({this.onAssistantPressed});
   final VoidCallback? onAssistantPressed;
 }

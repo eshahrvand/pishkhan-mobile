@@ -329,8 +329,20 @@
   "virtualRequestSubmitted": "درخواست ثبت شد",
   "virtualRequestMockReceipt": "درخواست آزمایشی ثبت شد؛ کارت مجازی ایجاد نشده و مبلغی پرداخت نمی‌شود.",
   "virtualRequestReceipt": "کد پیگیری درخواست:",
-  "@virtualRequestFeeNotice": {"placeholders": {"amount": {"type": "String"}}},
-  "@virtualRequestCountError": {"placeholders": {"max": {"type": "int"}}},
+  "@virtualRequestFeeNotice": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@virtualRequestCountError": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
   "passwordChangePrompt": "رمز عبور فعلی و رمز جدید دلخواه خود را وارد کنید.",
   "passwordCurrentHint": "رمز عبور فعلی",
   "passwordNewHint": "رمز عبور جدید",
@@ -502,7 +514,7 @@
   "financialLatinAddressHint": "Unit, No, Alley, St, City, Province, Country, Postal code",
   "financialLatinAddressPrompt": "آدرس انگلیسی جهت درج در گواهی تمکن مالی را طبق فرمت نمونه وارد نمایید.",
   "financialLatinExpiry": "Date of Expiry",
-  "financialLatinFather": "Father\u0027s name",
+  "financialLatinFather": "Father's name",
   "financialLatinName": "Name",
   "financialLatinPassport": "Passport No",
   "financialLatinStep": "اطلاعات فردی لاتین",
@@ -565,7 +577,13 @@
   "agentSettingsIntroducer": "معرف",
   "agentSettingsDepositRelation": "صاحب سپرده و امضا",
   "agentSettingsShare": "{percentage}٪",
-  "@agentSettingsShare": {"placeholders": {"percentage": {"type": "String"}}},
+  "@agentSettingsShare": {
+    "placeholders": {
+      "percentage": {
+        "type": "String"
+      }
+    }
+  },
   "surplusDepositsTitle": "بستن سپرده مازاد",
   "surplusDepositsDescription": "سپرده‌ای که می‌خواهید به عنوان سپرده اصلی شما باقی بماند را انتخاب کنید. سپرده‌های مازاد شما بسته و موجودی و سایر موارد مرتبط با آن‌ها به سپرده منتخب شما منتقل می‌گردد.",
   "surplusPrimaryDeposit": "سپرده اصلی",
@@ -597,7 +615,13 @@
   "proxyAmount": "مبلغ",
   "proxyAmountToman": "{amount} تومان",
   "proxyDepositMockComplete": "درخواست سپرده وکالتی به صورت آزمایشی ثبت شد. هیچ وکالت یا مسدودی مبلغ واقعی ایجاد نشده است.",
-  "@proxyAmountToman": {"placeholders":{"amount":{"type":"String"}}},
+  "@proxyAmountToman": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "chequeClearanceTitle": "رفع سوء اثر چک",
   "chequeClearanceIntro": "شماره چک، سپرده متصل به آن و علت درخواست را وارد کنید.",
   "chequeDepositLabel": "سپرده",
@@ -815,5 +839,86 @@
   "reportTypeChequeClearance": "رفع سوء اثر چک",
   "reportTypeOnSiteTransfer": "انتقال وجه در محل",
   "reportStatusProcessingError": "خطا در پردازش",
-  "reportStatusAwaitingReview": "در انتظار بررسی"
+  "reportStatusAwaitingReview": "در انتظار بررسی",
+  "profileChangePhone": "تغییر شماره تلفن همراه",
+  "profilePhoneNotice": "شماره باید با کد ملی دارنده حساب مطابقت داشته باشد",
+  "profileCurrentPhone": "شماره فعلی",
+  "profileNewPhone": "شماره جدید",
+  "profileNewPhoneHint": "شماره جدید خود را وارد کنید",
+  "profileSecondPassword": "رمز دوم",
+  "profileOtpHint": "وارد کردن رمز",
+  "profileRequestOtp": "درخواست رمز پویا",
+  "profileOtpInvalid": "رمز وارد شده صحیح نیست",
+  "profileOtpExpired": "اعتبار رمز به پایان رسیده است؛ دوباره درخواست دهید",
+  "profileShahkarFee": "هزینه استعلام شاهکار",
+  "profilePhoneSubmitted": "درخواست تغییر شماره همراه ثبت شد.",
+  "profileAddAddress": "افزودن آدرس جدید",
+  "profileEditAddress": "ویرایش آدرس",
+  "profileDeleteAddress": "حذف آدرس",
+  "profileAddressType": "نوع آدرس",
+  "profileHome": "خانه",
+  "profileWork": "محل کار",
+  "profileTelephone": "شماره تلفن:",
+  "profilePostalAddress": "آدرس پستی:",
+  "profileResidenceStatus": "وضعیت اسکان و املاک",
+  "profileReview": "بررسی",
+  "profileQuerying": "در حال استعلام ...",
+  "profileValid": "معتبر",
+  "profileMissingResidence": "فاقد اسکان و املاک",
+  "profileResidenceNotice": "برای انجام درخواست‌های (صدور دسته چک، افتتاح حساب جاری،...) آدرس‌های محل سکونت باید در",
+  "profileAddressesEmpty": "آدرسی ثبت نشده است",
+  "profileReviewError": "استعلام انجام نشد؛ دوباره بررسی کنید",
+  "profileOperationError": "عملیات انجام نشد؛ دوباره تلاش کنید",
+  "profileAddOccupation": "افزودن شغل جدید",
+  "profileEditOccupation": "ویرایش شغل",
+  "profileDeleteOccupation": "حذف شغل",
+  "profileOccupation": "شغل",
+  "profileOccupationHint": "شغل خود را انتخاب کنید",
+  "profileOccupationDescription": "شرح شغل",
+  "profileOccupationDescriptionHint": "شرح شغل خود را وارد کنید",
+  "profileDescriptionRequired": "شرح شغل را وارد کنید",
+  "profileOccupationNotice": "حداکثر تا ۳ ساعت پس از ثبت درخواست شغل جدید قابل مشاهده خواهد بود",
+  "profileOccupationConflict": "عنوان شغلی انتخاب شده ({selected}) از گروه فاقدین شغل است و با شغل قبلی شما ({existing}) نمی‌تواند به صورت همزمان انتخاب شود.",
+  "@profileOccupationConflict": {
+    "placeholders": {
+      "selected": {
+        "type": "String"
+      },
+      "existing": {
+        "type": "String"
+      }
+    }
+  },
+  "profileOccupationReview": "برای تغییر از عنوان شغلی {previous} به {selected} نیاز به بررسی اپراتور است که پس از تایید تغییرات در پنل کاربری شما قابل مشاهده خواهد بود.",
+  "@profileOccupationReview": {
+    "placeholders": {
+      "previous": {
+        "type": "String"
+      },
+      "selected": {
+        "type": "String"
+      }
+    }
+  },
+  "profileOccupationQueued": "درخواست شغل ثبت شد و پس از بررسی قابل مشاهده خواهد بود.",
+  "profileOccupationsEmpty": "شغلی ثبت نشده است",
+  "profileTitle": "عنوان",
+  "profileDescription": "شرح",
+  "profileDesigner": "طراح",
+  "profileTeacher": "مدرس",
+  "profileProfessor": "استاد",
+  "profileHomemaker": "خانه‌دار",
+  "profileSubmit": "ثبت درخواست",
+  "profileResidenceRegistry": " سامانه اسکان و املاک",
+  "profileResidenceRegistered": " ثبت شده باشند.",
+  "profileDeleteOccupationPrompt": "از حذف شغل خود ({occupation}) مطمئن هستید؟",
+  "@profileDeleteOccupationPrompt": {
+    "placeholders": {
+      "occupation": {
+        "type": "String"
+      }
+    }
+  },
+  "profileMinimumOccupation": "وجود حداقل یک شغل ثبت شده در پیشخوان الزامی‌است. شما می‌توانید بجای حذف این شغل آن را ویرایش کنید.",
+  "profileMinimumAddress": "وجود حداقل یک آدرس خانه در پیشخوان الزامی‌است. لطفا ابتدا آدرس خانه خود را ثبت کرده سپس اقدام به ویرایش یا حذف این آدرس کنید."
 }

@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/features/profile/domain/repositories/personal_information_repository.dart';
+import 'package:pishkhan_mobile/features/profile/data/repositories/mock_personal_information_repository.dart';
 import 'package:pishkhan_mobile/features/transfers/domain/repositories/on_site_transfer_repository.dart';
 import 'package:pishkhan_mobile/features/transfers/data/repositories/mock_on_site_transfer_repository.dart';
 import 'package:pishkhan_mobile/features/cheque/domain/repositories/cheque_cancellation_repository.dart';
@@ -44,6 +46,9 @@ final getIt = GetIt.instance;
 /// Register once before runApp. Tests may supply an isolated container.
 void configureDependencies({GetIt? container}) {
   final dependencies = container ?? getIt;
+  dependencies.registerLazySingleton<PersonalInformationRepository>(
+    MockPersonalInformationRepository.new,
+  );
   dependencies.registerLazySingleton<RequestReportsRepository>(
     MockRequestReportsRepository.new,
   );

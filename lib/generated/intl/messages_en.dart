@@ -31,11 +31,20 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m4(phone) => "Enter the dynamic code sent to ${phone}.";
 
-  static String m5(amount) => "${amount} tomans";
+  static String m5(occupation) =>
+      "Are you sure you want to delete your occupation (${occupation})?";
 
-  static String m6(max) => "The card count must be between 1 and ${max}.";
+  static String m6(selected, existing) =>
+      "The selected occupation (${selected}) is incompatible with your existing occupation (${existing}).";
 
-  static String m7(amount) => "The issuance fee per card is ${amount}";
+  static String m7(previous, selected) =>
+      "Changing from ${previous} to ${selected} requires operator review. Changes will be visible after approval.";
+
+  static String m8(amount) => "${amount} tomans";
+
+  static String m9(max) => "The card count must be between 1 and ${max}.";
+
+  static String m10(amount) => "The issuance fee per card is ${amount}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -1530,9 +1539,125 @@ class MessageLookup extends MessageLookupByLibrary {
     "phoneOwnershipNotice": MessageLookupByLibrary.simpleMessage(
       "The number must match the account holder\'s national ID",
     ),
+    "profileAddAddress": MessageLookupByLibrary.simpleMessage(
+      "Add new address",
+    ),
+    "profileAddOccupation": MessageLookupByLibrary.simpleMessage(
+      "Add new occupation",
+    ),
+    "profileAddressType": MessageLookupByLibrary.simpleMessage("Address type"),
+    "profileAddressesEmpty": MessageLookupByLibrary.simpleMessage(
+      "No addresses yet",
+    ),
+    "profileChangePhone": MessageLookupByLibrary.simpleMessage(
+      "Change mobile number",
+    ),
+    "profileCurrentPhone": MessageLookupByLibrary.simpleMessage(
+      "Current number",
+    ),
+    "profileDeleteAddress": MessageLookupByLibrary.simpleMessage(
+      "Delete address",
+    ),
+    "profileDeleteOccupation": MessageLookupByLibrary.simpleMessage(
+      "Delete occupation",
+    ),
+    "profileDeleteOccupationPrompt": m5,
+    "profileDescription": MessageLookupByLibrary.simpleMessage("Description"),
+    "profileDescriptionRequired": MessageLookupByLibrary.simpleMessage(
+      "Enter an occupation description",
+    ),
+    "profileDesigner": MessageLookupByLibrary.simpleMessage("Designer"),
+    "profileEditAddress": MessageLookupByLibrary.simpleMessage("Edit address"),
+    "profileEditOccupation": MessageLookupByLibrary.simpleMessage(
+      "Edit occupation",
+    ),
+    "profileHome": MessageLookupByLibrary.simpleMessage("Home"),
+    "profileHomemaker": MessageLookupByLibrary.simpleMessage("Homemaker"),
     "profileLabel": MessageLookupByLibrary.simpleMessage("Profile"),
+    "profileMinimumAddress": MessageLookupByLibrary.simpleMessage(
+      "At least one home address is required. Register another home address before changing this address to work or deleting it.",
+    ),
+    "profileMinimumOccupation": MessageLookupByLibrary.simpleMessage(
+      "At least one registered occupation is required. You can edit this occupation instead of deleting it.",
+    ),
+    "profileMissingResidence": MessageLookupByLibrary.simpleMessage(
+      "Not in residence registry",
+    ),
+    "profileNewPhone": MessageLookupByLibrary.simpleMessage("New number"),
+    "profileNewPhoneHint": MessageLookupByLibrary.simpleMessage(
+      "Enter your new mobile number",
+    ),
+    "profileOccupation": MessageLookupByLibrary.simpleMessage("Occupation"),
+    "profileOccupationConflict": m6,
+    "profileOccupationDescription": MessageLookupByLibrary.simpleMessage(
+      "Occupation description",
+    ),
+    "profileOccupationDescriptionHint": MessageLookupByLibrary.simpleMessage(
+      "Enter your occupation description",
+    ),
+    "profileOccupationHint": MessageLookupByLibrary.simpleMessage(
+      "Select your occupation",
+    ),
+    "profileOccupationNotice": MessageLookupByLibrary.simpleMessage(
+      "Your new occupation will be visible within 3 hours after submitting the request.",
+    ),
+    "profileOccupationQueued": MessageLookupByLibrary.simpleMessage(
+      "Your occupation request was submitted and will appear after review.",
+    ),
+    "profileOccupationReview": m7,
+    "profileOccupationsEmpty": MessageLookupByLibrary.simpleMessage(
+      "No occupations yet",
+    ),
+    "profileOperationError": MessageLookupByLibrary.simpleMessage(
+      "The operation failed. Please try again.",
+    ),
+    "profileOtpExpired": MessageLookupByLibrary.simpleMessage(
+      "The code has expired. Request another code.",
+    ),
+    "profileOtpHint": MessageLookupByLibrary.simpleMessage("Enter code"),
+    "profileOtpInvalid": MessageLookupByLibrary.simpleMessage(
+      "The code is incorrect.",
+    ),
+    "profilePhoneNotice": MessageLookupByLibrary.simpleMessage(
+      "The number must belong to the account holder’s national ID.",
+    ),
+    "profilePhoneSubmitted": MessageLookupByLibrary.simpleMessage(
+      "Your mobile number change request was submitted.",
+    ),
+    "profilePostalAddress": MessageLookupByLibrary.simpleMessage(
+      "Postal code:",
+    ),
+    "profileProfessor": MessageLookupByLibrary.simpleMessage("Professor"),
+    "profileQuerying": MessageLookupByLibrary.simpleMessage("Checking…"),
+    "profileRequestOtp": MessageLookupByLibrary.simpleMessage("Request OTP"),
+    "profileResidenceNotice": MessageLookupByLibrary.simpleMessage(
+      "To request services such as a cheque book or current account, your residential address must be registered in the",
+    ),
+    "profileResidenceRegistered": MessageLookupByLibrary.simpleMessage("."),
+    "profileResidenceRegistry": MessageLookupByLibrary.simpleMessage(
+      " residence and property registry",
+    ),
+    "profileResidenceStatus": MessageLookupByLibrary.simpleMessage(
+      "Residence registry status",
+    ),
+    "profileReview": MessageLookupByLibrary.simpleMessage("Review"),
+    "profileReviewError": MessageLookupByLibrary.simpleMessage(
+      "The inquiry failed. Please retry.",
+    ),
+    "profileSecondPassword": MessageLookupByLibrary.simpleMessage(
+      "Second password",
+    ),
+    "profileShahkarFee": MessageLookupByLibrary.simpleMessage(
+      "Shahkar inquiry fee",
+    ),
+    "profileSubmit": MessageLookupByLibrary.simpleMessage("Submit request"),
+    "profileTeacher": MessageLookupByLibrary.simpleMessage("Teacher"),
+    "profileTelephone": MessageLookupByLibrary.simpleMessage("Telephone:"),
+    "profileTitle": MessageLookupByLibrary.simpleMessage("Title"),
+    "profileValid": MessageLookupByLibrary.simpleMessage("Valid"),
+    "profileWork": MessageLookupByLibrary.simpleMessage("Work"),
     "proxyAmount": MessageLookupByLibrary.simpleMessage("Amount"),
-    "proxyAmountToman": m5,
+    "proxyAmountToman": m8,
     "proxyBroker": MessageLookupByLibrary.simpleMessage("Broker"),
     "proxyCompany": MessageLookupByLibrary.simpleMessage("Company"),
     "proxyCompanyHint": MessageLookupByLibrary.simpleMessage(
@@ -1823,7 +1948,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "virtualRequestCount": MessageLookupByLibrary.simpleMessage(
       "Number of virtual cards",
     ),
-    "virtualRequestCountError": m6,
+    "virtualRequestCountError": m9,
     "virtualRequestCountHint": MessageLookupByLibrary.simpleMessage(
       "Enter the number of virtual cards you need",
     ),
@@ -1836,7 +1961,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "virtualRequestEmpty": MessageLookupByLibrary.simpleMessage(
       "No deposits are available for virtual card issuance.",
     ),
-    "virtualRequestFeeNotice": m7,
+    "virtualRequestFeeNotice": m10,
     "virtualRequestMockReceipt": MessageLookupByLibrary.simpleMessage(
       "Demo request registered. No virtual cards were created and no payment was made.",
     ),

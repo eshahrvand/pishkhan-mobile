@@ -309,8 +309,20 @@
   "virtualRequestSubmitted": "تم تسجيل الطلب",
   "virtualRequestMockReceipt": "تم تسجيل طلب تجريبي. لم تُنشأ بطاقات افتراضية ولم تُدفع أي مبالغ.",
   "virtualRequestReceipt": "مرجع الطلب:",
-  "@virtualRequestFeeNotice": {"placeholders": {"amount": {"type": "String"}}},
-  "@virtualRequestCountError": {"placeholders": {"max": {"type": "int"}}},
+  "@virtualRequestFeeNotice": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@virtualRequestCountError": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
   "passwordChangePrompt": "أدخل كلمة المرور الحالية وكلمة المرور الجديدة التي تريدها.",
   "passwordCurrentHint": "كلمة المرور الحالية",
   "passwordNewHint": "كلمة المرور الجديدة",
@@ -482,7 +494,7 @@
   "financialLatinAddressHint": "Unit, No, Alley, St, City, Province, Country, Postal code",
   "financialLatinAddressPrompt": "أدخل عنوانك بالإنجليزية لشهادة الملاءة المالية وفق تنسيق المثال.",
   "financialLatinExpiry": "Date of Expiry",
-  "financialLatinFather": "Father\u0027s name",
+  "financialLatinFather": "Father's name",
   "financialLatinName": "Name",
   "financialLatinPassport": "Passport No",
   "financialLatinStep": "المعلومات الشخصية بالأحرف اللاتينية",
@@ -556,7 +568,13 @@
   "proxyAmount": "المبلغ",
   "proxyAmountToman": "{amount} تومان",
   "proxyDepositMockComplete": "تمت محاكاة طلب الوديعة بالتوكيل. لم يتم إنشاء توكيل أو حجز رصيد حقيقي.",
-  "@proxyAmountToman": {"placeholders":{"amount":{"type":"String"}}},
+  "@proxyAmountToman": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "chequeBookTitle": "طلب إصدار دفتر شيكات",
   "chequeBookSelectionStep": "تفاصيل دفتر الشيكات",
   "chequeBookResidencyStep": "التحقق من سجل السكن",
@@ -722,5 +740,86 @@
   "reportTypeChequeClearance": "إزالة أثر الشيك",
   "reportTypeOnSiteTransfer": "تحويل الأموال في الموقع",
   "reportStatusProcessingError": "خطأ في المعالجة",
-  "reportStatusAwaitingReview": "بانتظار المراجعة"
+  "reportStatusAwaitingReview": "بانتظار المراجعة",
+  "profileChangePhone": "تغيير رقم الهاتف المحمول",
+  "profilePhoneNotice": "يجب أن يتطابق الرقم مع الهوية الوطنية لصاحب الحساب",
+  "profileCurrentPhone": "الرقم الحالي",
+  "profileNewPhone": "الرقم الجديد",
+  "profileNewPhoneHint": "أدخل رقم الهاتف الجديد",
+  "profileSecondPassword": "كلمة المرور الثانية",
+  "profileOtpHint": "أدخل الرمز",
+  "profileRequestOtp": "طلب رمز مؤقت",
+  "profileOtpInvalid": "الرمز غير صحيح",
+  "profileOtpExpired": "انتهت صلاحية الرمز؛ اطلب رمزاً آخر",
+  "profileShahkarFee": "رسوم استعلام شاهكار",
+  "profilePhoneSubmitted": "تم تسجيل طلب تغيير رقم الهاتف",
+  "profileAddAddress": "إضافة عنوان جديد",
+  "profileEditAddress": "تعديل العنوان",
+  "profileDeleteAddress": "حذف العنوان",
+  "profileAddressType": "نوع العنوان",
+  "profileHome": "المنزل",
+  "profileWork": "العمل",
+  "profileTelephone": "رقم الهاتف:",
+  "profilePostalAddress": "الرمز البريدي:",
+  "profileResidenceStatus": "حالة سجل الإقامة والعقارات",
+  "profileReview": "تحقق",
+  "profileQuerying": "جارٍ الاستعلام...",
+  "profileValid": "صالح",
+  "profileMissingResidence": "غير مسجل في سجل الإقامة",
+  "profileResidenceNotice": "لطلب خدمات مثل دفتر الشيكات أو الحساب الجاري، يجب تسجيل عنوان السكن في",
+  "profileAddressesEmpty": "لا توجد عناوين",
+  "profileReviewError": "تعذر الاستعلام؛ حاول مجدداً",
+  "profileOperationError": "تعذرت العملية؛ حاول مجدداً",
+  "profileAddOccupation": "إضافة مهنة جديدة",
+  "profileEditOccupation": "تعديل المهنة",
+  "profileDeleteOccupation": "حذف المهنة",
+  "profileOccupation": "المهنة",
+  "profileOccupationHint": "اختر مهنتك",
+  "profileOccupationDescription": "وصف المهنة",
+  "profileOccupationDescriptionHint": "أدخل وصف مهنتك",
+  "profileDescriptionRequired": "أدخل وصف المهنة",
+  "profileOccupationNotice": "ستظهر المهنة الجديدة خلال ٣ ساعات من تسجيل الطلب.",
+  "profileOccupationConflict": "المهنة المختارة ({selected}) غير متوافقة مع مهنتك الحالية ({existing}).",
+  "@profileOccupationConflict": {
+    "placeholders": {
+      "selected": {
+        "type": "String"
+      },
+      "existing": {
+        "type": "String"
+      }
+    }
+  },
+  "profileOccupationReview": "يتطلب التغيير من {previous} إلى {selected} مراجعة الموظف وستظهر التغييرات بعد الموافقة.",
+  "@profileOccupationReview": {
+    "placeholders": {
+      "previous": {
+        "type": "String"
+      },
+      "selected": {
+        "type": "String"
+      }
+    }
+  },
+  "profileOccupationQueued": "تم تسجيل طلب المهنة وسيظهر بعد المراجعة.",
+  "profileOccupationsEmpty": "لا توجد مهن مسجلة",
+  "profileTitle": "العنوان",
+  "profileDescription": "الوصف",
+  "profileDesigner": "مصمم",
+  "profileTeacher": "مدرس",
+  "profileProfessor": "أستاذ",
+  "profileHomemaker": "ربة منزل",
+  "profileSubmit": "تسجيل الطلب",
+  "profileResidenceRegistry": " نظام الإقامة والعقارات",
+  "profileResidenceRegistered": ".",
+  "profileDeleteOccupationPrompt": "هل أنت متأكد من حذف مهنتك ({occupation})؟",
+  "@profileDeleteOccupationPrompt": {
+    "placeholders": {
+      "occupation": {
+        "type": "String"
+      }
+    }
+  },
+  "profileMinimumOccupation": "يجب وجود مهنة مسجلة واحدة على الأقل. يمكنك تعديل هذه المهنة بدلاً من حذفها.",
+  "profileMinimumAddress": "يجب وجود عنوان منزل واحد على الأقل. سجّل عنوان منزل آخر قبل تغيير هذا العنوان إلى عنوان عمل أو حذفه."
 }

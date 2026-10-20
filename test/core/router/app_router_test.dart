@@ -76,7 +76,13 @@ void main() {
         AppRoutes.changeCardDeposit,
         AppRoutes.expiredGiftBalance,
       ],
-      '/profile/': [AppRoutes.messages, AppRoutes.messageDetail],
+      '/profile/': [
+        AppRoutes.messages,
+        AppRoutes.messageDetail,
+        AppRoutes.changePhone,
+        AppRoutes.addresses,
+        AppRoutes.occupations,
+      ],
       '/cheque/': [
         AppRoutes.chequeClearance,
         AppRoutes.chequeBook,
@@ -125,6 +131,9 @@ void main() {
         AppRoutes.introduceAgent,
         '/profile/messages/security-id',
         AppRoutes.allServices,
+        AppRoutes.changePhone,
+        AppRoutes.addresses,
+        AppRoutes.occupations,
       ]) {
         expect(validatedReturnLocation(value), value);
       }

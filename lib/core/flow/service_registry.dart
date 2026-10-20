@@ -7,8 +7,18 @@ import 'package:pishkhan_mobile/core/router/app_router.dart';
 import 'package:pishkhan_mobile/features/cards/domain/entities/listed_card.dart';
 
 abstract final class ServiceRegistry {
-  static Future<DeliveryAddress?> openAddressEditor(BuildContext context) {
-    return showAddressEditorSheet(context);
+  static Future<DeliveryAddress?> openAddressEditor(
+    BuildContext context, {
+    DeliveryAddress? initialAddress,
+    bool includeContact = false,
+    bool retainHomeAddress = false,
+  }) {
+    return showAddressEditorSheet(
+      context,
+      initialAddress: initialAddress,
+      includeContact: includeContact,
+      retainHomeAddress: retainHomeAddress,
+    );
   }
 
   static bool openCardService(
@@ -18,6 +28,21 @@ abstract final class ServiceRegistry {
     String? initialDepositNumber,
     String? initialCardNumber,
   }) {
+    if (id == 'identity-phone' ||
+        id == 'identity-addresses' ||
+        id == 'identity-occupation') {
+      context.push<void>(
+        switch (id) {
+          'identity-phone' => AppRoutes.changePhone,
+          'identity-addresses' => AppRoutes.addresses,
+          _ => AppRoutes.occupations,
+        },
+        extra: PersonalInformationRouteArguments(
+          onAssistantPressed: onAssistantPressed,
+        ),
+      );
+      return true;
+    }
     if (id == 'requests-list') {
       context.push<void>(
         AppRoutes.requestReports,

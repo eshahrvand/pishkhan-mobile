@@ -7459,6 +7459,496 @@ class S {
       args: [],
     );
   }
+
+  /// `تغییر شماره تلفن همراه`
+  String get profileChangePhone {
+    return Intl.message(
+      'تغییر شماره تلفن همراه',
+      name: 'profileChangePhone',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `شماره باید با کد ملی دارنده حساب مطابقت داشته باشد`
+  String get profilePhoneNotice {
+    return Intl.message(
+      'شماره باید با کد ملی دارنده حساب مطابقت داشته باشد',
+      name: 'profilePhoneNotice',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `شماره فعلی`
+  String get profileCurrentPhone {
+    return Intl.message(
+      'شماره فعلی',
+      name: 'profileCurrentPhone',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `شماره جدید`
+  String get profileNewPhone {
+    return Intl.message(
+      'شماره جدید',
+      name: 'profileNewPhone',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `شماره جدید خود را وارد کنید`
+  String get profileNewPhoneHint {
+    return Intl.message(
+      'شماره جدید خود را وارد کنید',
+      name: 'profileNewPhoneHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `رمز دوم`
+  String get profileSecondPassword {
+    return Intl.message(
+      'رمز دوم',
+      name: 'profileSecondPassword',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `وارد کردن رمز`
+  String get profileOtpHint {
+    return Intl.message(
+      'وارد کردن رمز',
+      name: 'profileOtpHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `درخواست رمز پویا`
+  String get profileRequestOtp {
+    return Intl.message(
+      'درخواست رمز پویا',
+      name: 'profileRequestOtp',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `رمز وارد شده صحیح نیست`
+  String get profileOtpInvalid {
+    return Intl.message(
+      'رمز وارد شده صحیح نیست',
+      name: 'profileOtpInvalid',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `اعتبار رمز به پایان رسیده است؛ دوباره درخواست دهید`
+  String get profileOtpExpired {
+    return Intl.message(
+      'اعتبار رمز به پایان رسیده است؛ دوباره درخواست دهید',
+      name: 'profileOtpExpired',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `هزینه استعلام شاهکار`
+  String get profileShahkarFee {
+    return Intl.message(
+      'هزینه استعلام شاهکار',
+      name: 'profileShahkarFee',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `درخواست تغییر شماره همراه ثبت شد.`
+  String get profilePhoneSubmitted {
+    return Intl.message(
+      'درخواست تغییر شماره همراه ثبت شد.',
+      name: 'profilePhoneSubmitted',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `افزودن آدرس جدید`
+  String get profileAddAddress {
+    return Intl.message(
+      'افزودن آدرس جدید',
+      name: 'profileAddAddress',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `ویرایش آدرس`
+  String get profileEditAddress {
+    return Intl.message(
+      'ویرایش آدرس',
+      name: 'profileEditAddress',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `حذف آدرس`
+  String get profileDeleteAddress {
+    return Intl.message(
+      'حذف آدرس',
+      name: 'profileDeleteAddress',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `نوع آدرس`
+  String get profileAddressType {
+    return Intl.message(
+      'نوع آدرس',
+      name: 'profileAddressType',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `خانه`
+  String get profileHome {
+    return Intl.message('خانه', name: 'profileHome', desc: '', args: []);
+  }
+
+  /// `محل کار`
+  String get profileWork {
+    return Intl.message('محل کار', name: 'profileWork', desc: '', args: []);
+  }
+
+  /// `شماره تلفن:`
+  String get profileTelephone {
+    return Intl.message(
+      'شماره تلفن:',
+      name: 'profileTelephone',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `آدرس پستی:`
+  String get profilePostalAddress {
+    return Intl.message(
+      'آدرس پستی:',
+      name: 'profilePostalAddress',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `وضعیت اسکان و املاک`
+  String get profileResidenceStatus {
+    return Intl.message(
+      'وضعیت اسکان و املاک',
+      name: 'profileResidenceStatus',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `بررسی`
+  String get profileReview {
+    return Intl.message('بررسی', name: 'profileReview', desc: '', args: []);
+  }
+
+  /// `در حال استعلام ...`
+  String get profileQuerying {
+    return Intl.message(
+      'در حال استعلام ...',
+      name: 'profileQuerying',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `معتبر`
+  String get profileValid {
+    return Intl.message('معتبر', name: 'profileValid', desc: '', args: []);
+  }
+
+  /// `فاقد اسکان و املاک`
+  String get profileMissingResidence {
+    return Intl.message(
+      'فاقد اسکان و املاک',
+      name: 'profileMissingResidence',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `برای انجام درخواست‌های (صدور دسته چک، افتتاح حساب جاری،...) آدرس‌های محل سکونت باید در`
+  String get profileResidenceNotice {
+    return Intl.message(
+      'برای انجام درخواست‌های (صدور دسته چک، افتتاح حساب جاری،...) آدرس‌های محل سکونت باید در',
+      name: 'profileResidenceNotice',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `آدرسی ثبت نشده است`
+  String get profileAddressesEmpty {
+    return Intl.message(
+      'آدرسی ثبت نشده است',
+      name: 'profileAddressesEmpty',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `استعلام انجام نشد؛ دوباره بررسی کنید`
+  String get profileReviewError {
+    return Intl.message(
+      'استعلام انجام نشد؛ دوباره بررسی کنید',
+      name: 'profileReviewError',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `عملیات انجام نشد؛ دوباره تلاش کنید`
+  String get profileOperationError {
+    return Intl.message(
+      'عملیات انجام نشد؛ دوباره تلاش کنید',
+      name: 'profileOperationError',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `افزودن شغل جدید`
+  String get profileAddOccupation {
+    return Intl.message(
+      'افزودن شغل جدید',
+      name: 'profileAddOccupation',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `ویرایش شغل`
+  String get profileEditOccupation {
+    return Intl.message(
+      'ویرایش شغل',
+      name: 'profileEditOccupation',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `حذف شغل`
+  String get profileDeleteOccupation {
+    return Intl.message(
+      'حذف شغل',
+      name: 'profileDeleteOccupation',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `شغل`
+  String get profileOccupation {
+    return Intl.message('شغل', name: 'profileOccupation', desc: '', args: []);
+  }
+
+  /// `شغل خود را انتخاب کنید`
+  String get profileOccupationHint {
+    return Intl.message(
+      'شغل خود را انتخاب کنید',
+      name: 'profileOccupationHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `شرح شغل`
+  String get profileOccupationDescription {
+    return Intl.message(
+      'شرح شغل',
+      name: 'profileOccupationDescription',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `شرح شغل خود را وارد کنید`
+  String get profileOccupationDescriptionHint {
+    return Intl.message(
+      'شرح شغل خود را وارد کنید',
+      name: 'profileOccupationDescriptionHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `شرح شغل را وارد کنید`
+  String get profileDescriptionRequired {
+    return Intl.message(
+      'شرح شغل را وارد کنید',
+      name: 'profileDescriptionRequired',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `حداکثر تا ۳ ساعت پس از ثبت درخواست شغل جدید قابل مشاهده خواهد بود`
+  String get profileOccupationNotice {
+    return Intl.message(
+      'حداکثر تا ۳ ساعت پس از ثبت درخواست شغل جدید قابل مشاهده خواهد بود',
+      name: 'profileOccupationNotice',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `عنوان شغلی انتخاب شده ({selected}) از گروه فاقدین شغل است و با شغل قبلی شما ({existing}) نمی‌تواند به صورت همزمان انتخاب شود.`
+  String profileOccupationConflict(String selected, String existing) {
+    return Intl.message(
+      'عنوان شغلی انتخاب شده ($selected) از گروه فاقدین شغل است و با شغل قبلی شما ($existing) نمی‌تواند به صورت همزمان انتخاب شود.',
+      name: 'profileOccupationConflict',
+      desc: '',
+      args: [selected, existing],
+    );
+  }
+
+  /// `برای تغییر از عنوان شغلی {previous} به {selected} نیاز به بررسی اپراتور است که پس از تایید تغییرات در پنل کاربری شما قابل مشاهده خواهد بود.`
+  String profileOccupationReview(String previous, String selected) {
+    return Intl.message(
+      'برای تغییر از عنوان شغلی $previous به $selected نیاز به بررسی اپراتور است که پس از تایید تغییرات در پنل کاربری شما قابل مشاهده خواهد بود.',
+      name: 'profileOccupationReview',
+      desc: '',
+      args: [previous, selected],
+    );
+  }
+
+  /// `درخواست شغل ثبت شد و پس از بررسی قابل مشاهده خواهد بود.`
+  String get profileOccupationQueued {
+    return Intl.message(
+      'درخواست شغل ثبت شد و پس از بررسی قابل مشاهده خواهد بود.',
+      name: 'profileOccupationQueued',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `شغلی ثبت نشده است`
+  String get profileOccupationsEmpty {
+    return Intl.message(
+      'شغلی ثبت نشده است',
+      name: 'profileOccupationsEmpty',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `عنوان`
+  String get profileTitle {
+    return Intl.message('عنوان', name: 'profileTitle', desc: '', args: []);
+  }
+
+  /// `شرح`
+  String get profileDescription {
+    return Intl.message('شرح', name: 'profileDescription', desc: '', args: []);
+  }
+
+  /// `طراح`
+  String get profileDesigner {
+    return Intl.message('طراح', name: 'profileDesigner', desc: '', args: []);
+  }
+
+  /// `مدرس`
+  String get profileTeacher {
+    return Intl.message('مدرس', name: 'profileTeacher', desc: '', args: []);
+  }
+
+  /// `استاد`
+  String get profileProfessor {
+    return Intl.message('استاد', name: 'profileProfessor', desc: '', args: []);
+  }
+
+  /// `خانه‌دار`
+  String get profileHomemaker {
+    return Intl.message(
+      'خانه‌دار',
+      name: 'profileHomemaker',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `ثبت درخواست`
+  String get profileSubmit {
+    return Intl.message(
+      'ثبت درخواست',
+      name: 'profileSubmit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// ` سامانه اسکان و املاک`
+  String get profileResidenceRegistry {
+    return Intl.message(
+      ' سامانه اسکان و املاک',
+      name: 'profileResidenceRegistry',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// ` ثبت شده باشند.`
+  String get profileResidenceRegistered {
+    return Intl.message(
+      ' ثبت شده باشند.',
+      name: 'profileResidenceRegistered',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `از حذف شغل خود ({occupation}) مطمئن هستید؟`
+  String profileDeleteOccupationPrompt(String occupation) {
+    return Intl.message(
+      'از حذف شغل خود ($occupation) مطمئن هستید؟',
+      name: 'profileDeleteOccupationPrompt',
+      desc: '',
+      args: [occupation],
+    );
+  }
+
+  /// `وجود حداقل یک شغل ثبت شده در پیشخوان الزامی‌است. شما می‌توانید بجای حذف این شغل آن را ویرایش کنید.`
+  String get profileMinimumOccupation {
+    return Intl.message(
+      'وجود حداقل یک شغل ثبت شده در پیشخوان الزامی‌است. شما می‌توانید بجای حذف این شغل آن را ویرایش کنید.',
+      name: 'profileMinimumOccupation',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `وجود حداقل یک آدرس خانه در پیشخوان الزامی‌است. لطفا ابتدا آدرس خانه خود را ثبت کرده سپس اقدام به ویرایش یا حذف این آدرس کنید.`
+  String get profileMinimumAddress {
+    return Intl.message(
+      'وجود حداقل یک آدرس خانه در پیشخوان الزامی‌است. لطفا ابتدا آدرس خانه خود را ثبت کرده سپس اقدام به ویرایش یا حذف این آدرس کنید.',
+      name: 'profileMinimumAddress',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

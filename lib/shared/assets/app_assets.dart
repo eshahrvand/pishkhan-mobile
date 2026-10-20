@@ -4,6 +4,14 @@
 /// code. Feature-specific facades may alias these constants, but must not
 /// duplicate path strings.
 abstract final class AppAssets {
+  static const profileAddressValid = 'assets/images/profile_address_valid.svg';
+  static const profileAddressMissing =
+      'assets/images/profile_address_missing.svg';
+  static const profileTrash = 'assets/images/profile_trash.svg';
+  static const profileLock = 'assets/images/profile_lock.svg';
+  static const profileActionsDivider =
+      'assets/images/profile_actions_divider.svg';
+  static const profileEdit = 'assets/images/profile_edit.svg';
   static const onSiteTransferSummaryOperation =
       'assets/images/onsite_transfer_summary_operation.svg';
   static const onSiteTransferUpload =
@@ -542,6 +550,12 @@ abstract final class AppAssets {
   static const notificationSecurity = '$_root/notification_security.png';
 
   static const all = <String>[
+    profileAddressValid,
+    profileAddressMissing,
+    profileTrash,
+    profileLock,
+    profileEdit,
+    profileActionsDivider,
     chequeCancelReviewDivider,
     chequeCancelFileListSelected,
     chequeCancelFileList,

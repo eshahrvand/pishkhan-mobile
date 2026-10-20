@@ -309,8 +309,20 @@
   "virtualRequestSubmitted": "Request registered",
   "virtualRequestMockReceipt": "Demo request registered. No virtual cards were created and no payment was made.",
   "virtualRequestReceipt": "Request reference:",
-  "@virtualRequestFeeNotice": {"placeholders": {"amount": {"type": "String"}}},
-  "@virtualRequestCountError": {"placeholders": {"max": {"type": "int"}}},
+  "@virtualRequestFeeNotice": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@virtualRequestCountError": {
+    "placeholders": {
+      "max": {
+        "type": "int"
+      }
+    }
+  },
   "passwordChangePrompt": "Enter your current password and your chosen new password.",
   "passwordCurrentHint": "Current password",
   "passwordNewHint": "New password",
@@ -475,14 +487,14 @@
   "financialEur": "Euro",
   "financialExchangeRate": "Include current exchange rate",
   "financialExpiryHint": "Passport expiry date (YYYY/MM/DD)",
-  "financialFatherHint": "Father\u0027s name in English as shown on passport",
+  "financialFatherHint": "Father's name in English as shown on passport",
   "financialHomeAddress": "Home address",
   "financialIrr": "Iranian rial",
   "financialLatinAddress": "Address",
   "financialLatinAddressHint": "Unit, No, Alley, St, City, Province, Country, Postal code",
   "financialLatinAddressPrompt": "Enter your address in English for the solvency certificate, following the sample format.",
   "financialLatinExpiry": "Date of Expiry",
-  "financialLatinFather": "Father\u0027s name",
+  "financialLatinFather": "Father's name",
   "financialLatinName": "Name",
   "financialLatinPassport": "Passport No",
   "financialLatinStep": "Personal information in Latin letters",
@@ -576,7 +588,13 @@
   "proxyAmount": "Amount",
   "proxyAmountToman": "{amount} tomans",
   "proxyDepositMockComplete": "The proxy deposit request was simulated. No real mandate or balance reservation was created.",
-  "@proxyAmountToman": {"placeholders":{"amount":{"type":"String"}}},
+  "@proxyAmountToman": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "chequeClearanceTitle": "Clear cheque record",
   "chequeClearanceIntro": "Enter the cheque number, linked deposit and request reason.",
   "chequeDepositLabel": "Deposit",
@@ -794,5 +812,86 @@
   "reportTypeChequeClearance": "Cheque record clearance",
   "reportTypeOnSiteTransfer": "On-site transfer",
   "reportStatusProcessingError": "Processing error",
-  "reportStatusAwaitingReview": "Awaiting review"
+  "reportStatusAwaitingReview": "Awaiting review",
+  "profileChangePhone": "Change mobile number",
+  "profilePhoneNotice": "The number must belong to the account holder’s national ID.",
+  "profileCurrentPhone": "Current number",
+  "profileNewPhone": "New number",
+  "profileNewPhoneHint": "Enter your new mobile number",
+  "profileSecondPassword": "Second password",
+  "profileOtpHint": "Enter code",
+  "profileRequestOtp": "Request OTP",
+  "profileOtpInvalid": "The code is incorrect.",
+  "profileOtpExpired": "The code has expired. Request another code.",
+  "profileShahkarFee": "Shahkar inquiry fee",
+  "profilePhoneSubmitted": "Your mobile number change request was submitted.",
+  "profileAddAddress": "Add new address",
+  "profileEditAddress": "Edit address",
+  "profileDeleteAddress": "Delete address",
+  "profileAddressType": "Address type",
+  "profileHome": "Home",
+  "profileWork": "Work",
+  "profileTelephone": "Telephone:",
+  "profilePostalAddress": "Postal code:",
+  "profileResidenceStatus": "Residence registry status",
+  "profileReview": "Review",
+  "profileQuerying": "Checking…",
+  "profileValid": "Valid",
+  "profileMissingResidence": "Not in residence registry",
+  "profileResidenceNotice": "To request services such as a cheque book or current account, your residential address must be registered in the",
+  "profileAddressesEmpty": "No addresses yet",
+  "profileReviewError": "The inquiry failed. Please retry.",
+  "profileOperationError": "The operation failed. Please try again.",
+  "profileAddOccupation": "Add new occupation",
+  "profileEditOccupation": "Edit occupation",
+  "profileDeleteOccupation": "Delete occupation",
+  "profileOccupation": "Occupation",
+  "profileOccupationHint": "Select your occupation",
+  "profileOccupationDescription": "Occupation description",
+  "profileOccupationDescriptionHint": "Enter your occupation description",
+  "profileDescriptionRequired": "Enter an occupation description",
+  "profileOccupationNotice": "Your new occupation will be visible within 3 hours after submitting the request.",
+  "profileOccupationConflict": "The selected occupation ({selected}) is incompatible with your existing occupation ({existing}).",
+  "@profileOccupationConflict": {
+    "placeholders": {
+      "selected": {
+        "type": "String"
+      },
+      "existing": {
+        "type": "String"
+      }
+    }
+  },
+  "profileOccupationReview": "Changing from {previous} to {selected} requires operator review. Changes will be visible after approval.",
+  "@profileOccupationReview": {
+    "placeholders": {
+      "previous": {
+        "type": "String"
+      },
+      "selected": {
+        "type": "String"
+      }
+    }
+  },
+  "profileOccupationQueued": "Your occupation request was submitted and will appear after review.",
+  "profileOccupationsEmpty": "No occupations yet",
+  "profileTitle": "Title",
+  "profileDescription": "Description",
+  "profileDesigner": "Designer",
+  "profileTeacher": "Teacher",
+  "profileProfessor": "Professor",
+  "profileHomemaker": "Homemaker",
+  "profileSubmit": "Submit request",
+  "profileResidenceRegistry": " residence and property registry",
+  "profileResidenceRegistered": ".",
+  "profileDeleteOccupationPrompt": "Are you sure you want to delete your occupation ({occupation})?",
+  "@profileDeleteOccupationPrompt": {
+    "placeholders": {
+      "occupation": {
+        "type": "String"
+      }
+    }
+  },
+  "profileMinimumOccupation": "At least one registered occupation is required. You can edit this occupation instead of deleting it.",
+  "profileMinimumAddress": "At least one home address is required. Register another home address before changing this address to work or deleting it."
 }

@@ -32,11 +32,19 @@ class MessageLookup extends MessageLookupByLibrary {
   static String m4(phone) =>
       "رمز پویای ارسال شده به شماره ${phone} را وارد کنید.";
 
-  static String m5(amount) => "${amount} تومان";
+  static String m5(occupation) => "از حذف شغل خود (${occupation}) مطمئن هستید؟";
 
-  static String m6(max) => "تعداد کارت باید بین ۱ و ${max} باشد.";
+  static String m6(selected, existing) =>
+      "عنوان شغلی انتخاب شده (${selected}) از گروه فاقدین شغل است و با شغل قبلی شما (${existing}) نمی‌تواند به صورت همزمان انتخاب شود.";
 
-  static String m7(amount) => "کارمزد صدور هر کارت ${amount} است";
+  static String m7(previous, selected) =>
+      "برای تغییر از عنوان شغلی ${previous} به ${selected} نیاز به بررسی اپراتور است که پس از تایید تغییرات در پنل کاربری شما قابل مشاهده خواهد بود.";
+
+  static String m8(amount) => "${amount} تومان";
+
+  static String m9(max) => "تعداد کارت باید بین ۱ و ${max} باشد.";
+
+  static String m10(amount) => "کارمزد صدور هر کارت ${amount} است";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -1459,9 +1467,119 @@ class MessageLookup extends MessageLookupByLibrary {
     "phoneOwnershipNotice": MessageLookupByLibrary.simpleMessage(
       "شماره باید با کد ملی دارنده حساب مطابقت داشته باشد",
     ),
+    "profileAddAddress": MessageLookupByLibrary.simpleMessage(
+      "افزودن آدرس جدید",
+    ),
+    "profileAddOccupation": MessageLookupByLibrary.simpleMessage(
+      "افزودن شغل جدید",
+    ),
+    "profileAddressType": MessageLookupByLibrary.simpleMessage("نوع آدرس"),
+    "profileAddressesEmpty": MessageLookupByLibrary.simpleMessage(
+      "آدرسی ثبت نشده است",
+    ),
+    "profileChangePhone": MessageLookupByLibrary.simpleMessage(
+      "تغییر شماره تلفن همراه",
+    ),
+    "profileCurrentPhone": MessageLookupByLibrary.simpleMessage("شماره فعلی"),
+    "profileDeleteAddress": MessageLookupByLibrary.simpleMessage("حذف آدرس"),
+    "profileDeleteOccupation": MessageLookupByLibrary.simpleMessage("حذف شغل"),
+    "profileDeleteOccupationPrompt": m5,
+    "profileDescription": MessageLookupByLibrary.simpleMessage("شرح"),
+    "profileDescriptionRequired": MessageLookupByLibrary.simpleMessage(
+      "شرح شغل را وارد کنید",
+    ),
+    "profileDesigner": MessageLookupByLibrary.simpleMessage("طراح"),
+    "profileEditAddress": MessageLookupByLibrary.simpleMessage("ویرایش آدرس"),
+    "profileEditOccupation": MessageLookupByLibrary.simpleMessage("ویرایش شغل"),
+    "profileHome": MessageLookupByLibrary.simpleMessage("خانه"),
+    "profileHomemaker": MessageLookupByLibrary.simpleMessage("خانه‌دار"),
     "profileLabel": MessageLookupByLibrary.simpleMessage("پروفایل"),
+    "profileMinimumAddress": MessageLookupByLibrary.simpleMessage(
+      "وجود حداقل یک آدرس خانه در پیشخوان الزامی‌است. لطفا ابتدا آدرس خانه خود را ثبت کرده سپس اقدام به ویرایش یا حذف این آدرس کنید.",
+    ),
+    "profileMinimumOccupation": MessageLookupByLibrary.simpleMessage(
+      "وجود حداقل یک شغل ثبت شده در پیشخوان الزامی‌است. شما می‌توانید بجای حذف این شغل آن را ویرایش کنید.",
+    ),
+    "profileMissingResidence": MessageLookupByLibrary.simpleMessage(
+      "فاقد اسکان و املاک",
+    ),
+    "profileNewPhone": MessageLookupByLibrary.simpleMessage("شماره جدید"),
+    "profileNewPhoneHint": MessageLookupByLibrary.simpleMessage(
+      "شماره جدید خود را وارد کنید",
+    ),
+    "profileOccupation": MessageLookupByLibrary.simpleMessage("شغل"),
+    "profileOccupationConflict": m6,
+    "profileOccupationDescription": MessageLookupByLibrary.simpleMessage(
+      "شرح شغل",
+    ),
+    "profileOccupationDescriptionHint": MessageLookupByLibrary.simpleMessage(
+      "شرح شغل خود را وارد کنید",
+    ),
+    "profileOccupationHint": MessageLookupByLibrary.simpleMessage(
+      "شغل خود را انتخاب کنید",
+    ),
+    "profileOccupationNotice": MessageLookupByLibrary.simpleMessage(
+      "حداکثر تا ۳ ساعت پس از ثبت درخواست شغل جدید قابل مشاهده خواهد بود",
+    ),
+    "profileOccupationQueued": MessageLookupByLibrary.simpleMessage(
+      "درخواست شغل ثبت شد و پس از بررسی قابل مشاهده خواهد بود.",
+    ),
+    "profileOccupationReview": m7,
+    "profileOccupationsEmpty": MessageLookupByLibrary.simpleMessage(
+      "شغلی ثبت نشده است",
+    ),
+    "profileOperationError": MessageLookupByLibrary.simpleMessage(
+      "عملیات انجام نشد؛ دوباره تلاش کنید",
+    ),
+    "profileOtpExpired": MessageLookupByLibrary.simpleMessage(
+      "اعتبار رمز به پایان رسیده است؛ دوباره درخواست دهید",
+    ),
+    "profileOtpHint": MessageLookupByLibrary.simpleMessage("وارد کردن رمز"),
+    "profileOtpInvalid": MessageLookupByLibrary.simpleMessage(
+      "رمز وارد شده صحیح نیست",
+    ),
+    "profilePhoneNotice": MessageLookupByLibrary.simpleMessage(
+      "شماره باید با کد ملی دارنده حساب مطابقت داشته باشد",
+    ),
+    "profilePhoneSubmitted": MessageLookupByLibrary.simpleMessage(
+      "درخواست تغییر شماره همراه ثبت شد.",
+    ),
+    "profilePostalAddress": MessageLookupByLibrary.simpleMessage("آدرس پستی:"),
+    "profileProfessor": MessageLookupByLibrary.simpleMessage("استاد"),
+    "profileQuerying": MessageLookupByLibrary.simpleMessage(
+      "در حال استعلام ...",
+    ),
+    "profileRequestOtp": MessageLookupByLibrary.simpleMessage(
+      "درخواست رمز پویا",
+    ),
+    "profileResidenceNotice": MessageLookupByLibrary.simpleMessage(
+      "برای انجام درخواست‌های (صدور دسته چک، افتتاح حساب جاری،...) آدرس‌های محل سکونت باید در",
+    ),
+    "profileResidenceRegistered": MessageLookupByLibrary.simpleMessage(
+      " ثبت شده باشند.",
+    ),
+    "profileResidenceRegistry": MessageLookupByLibrary.simpleMessage(
+      " سامانه اسکان و املاک",
+    ),
+    "profileResidenceStatus": MessageLookupByLibrary.simpleMessage(
+      "وضعیت اسکان و املاک",
+    ),
+    "profileReview": MessageLookupByLibrary.simpleMessage("بررسی"),
+    "profileReviewError": MessageLookupByLibrary.simpleMessage(
+      "استعلام انجام نشد؛ دوباره بررسی کنید",
+    ),
+    "profileSecondPassword": MessageLookupByLibrary.simpleMessage("رمز دوم"),
+    "profileShahkarFee": MessageLookupByLibrary.simpleMessage(
+      "هزینه استعلام شاهکار",
+    ),
+    "profileSubmit": MessageLookupByLibrary.simpleMessage("ثبت درخواست"),
+    "profileTeacher": MessageLookupByLibrary.simpleMessage("مدرس"),
+    "profileTelephone": MessageLookupByLibrary.simpleMessage("شماره تلفن:"),
+    "profileTitle": MessageLookupByLibrary.simpleMessage("عنوان"),
+    "profileValid": MessageLookupByLibrary.simpleMessage("معتبر"),
+    "profileWork": MessageLookupByLibrary.simpleMessage("محل کار"),
     "proxyAmount": MessageLookupByLibrary.simpleMessage("مبلغ"),
-    "proxyAmountToman": m5,
+    "proxyAmountToman": m8,
     "proxyBroker": MessageLookupByLibrary.simpleMessage("کارگزار"),
     "proxyCompany": MessageLookupByLibrary.simpleMessage("شرکت"),
     "proxyCompanyHint": MessageLookupByLibrary.simpleMessage(
@@ -1738,7 +1856,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "virtualRequestCount": MessageLookupByLibrary.simpleMessage(
       "تعداد کارت مجازی",
     ),
-    "virtualRequestCountError": m6,
+    "virtualRequestCountError": m9,
     "virtualRequestCountHint": MessageLookupByLibrary.simpleMessage(
       "تعداد کارت مجازی مورد نیاز خود را وارد کنید",
     ),
@@ -1749,7 +1867,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "virtualRequestEmpty": MessageLookupByLibrary.simpleMessage(
       "هیچ سپرده‌ای برای صدور کارت مجازی موجود نیست.",
     ),
-    "virtualRequestFeeNotice": m7,
+    "virtualRequestFeeNotice": m10,
     "virtualRequestMockReceipt": MessageLookupByLibrary.simpleMessage(
       "درخواست آزمایشی ثبت شد؛ کارت مجازی ایجاد نشده و مبلغی پرداخت نمی‌شود.",
     ),

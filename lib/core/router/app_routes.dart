@@ -31,6 +31,9 @@ abstract final class AppRoutes {
   static const chequeBook = '/cheque/book-issuance';
   static const chequeClearance = '/cheque/clearance';
 
+  static const changePhone = '/profile/change-phone';
+  static const addresses = '/profile/addresses';
+  static const occupations = '/profile/occupations';
   static const messages = '/profile/messages';
   static const messageDetail = '/profile/messages/:messageId';
 

@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:pishkhan_mobile/core/domain/entities/delivery_address.dart';
 import 'package:pishkhan_mobile/features/address/presentation/editor/cubit/address_editor_cubit.dart';
 
 void main() {
@@ -40,6 +41,50 @@ void main() {
       expect(cubit.state.isInvalid, isFalse);
       cubit.submitAddress();
       expect(cubit.state.savedAddress!.title, 'Updated home');
+    },
+  );
+  test('last-home restriction keeps the existing type and draft and can show the notice repeatedly', () async {
+    const address = DeliveryAddress(
+      id: 'home',
+      title: 'Home',
+      detail: 'old',
+      postalCode: '1234567890',
+      phoneNumber: '02112345678',
+    );
+    final cubit = AddressEditorCubit(
+      initialAddress: address,
+      includeContact: true,
+      retainHomeAddress: true,
+    );
+    addTearDown(cubit.close);
+    cubit.fetchAddress();
+    cubit.updateDetail('new detail');
+    cubit.selectType(DeliveryAddressType.work);
+    expect(cubit.state.type, DeliveryAddressType.home);
+    expect(cubit.state.detail, 'new detail');
+    expect(cubit.state.minimumHomeNoticeId, 1);
+    expect(cubit.state.savedAddress, isNull);
+    cubit.selectType(DeliveryAddressType.work);
+    expect(cubit.state.minimumHomeNoticeId, 2);
+    cubit.submitAddress();
+    expect(cubit.state.savedAddress!.type, DeliveryAddressType.home);
+    expect(cubit.state.savedAddress!.detail, 'new detail');
+  });
+  test(
+    'correcting the contact telephone clears a failed-submit error',
+    () async {
+      final cubit = AddressEditorCubit(includeContact: true);
+      addTearDown(cubit.close);
+      cubit.updateTitle('Home');
+      cubit.updateDetail('Address');
+      cubit.updatePostalCode('1234567890');
+      cubit.updatePhoneNumber('021');
+      cubit.submitAddress();
+      expect(cubit.state.isInvalid, isTrue);
+      cubit.updatePhoneNumber('۰۲۱۱۲۳۴۵۶۷۸');
+      expect(cubit.state.isInvalid, isFalse);
+      cubit.submitAddress();
+      expect(cubit.state.savedAddress!.phoneNumber, '02112345678');
     },
   );
 }

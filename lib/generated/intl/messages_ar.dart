@@ -31,11 +31,19 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m4(phone) => "أدخل الرمز الديناميكي المرسل إلى ${phone}.";
 
-  static String m5(amount) => "${amount} تومان";
+  static String m5(occupation) => "هل أنت متأكد من حذف مهنتك (${occupation})؟";
 
-  static String m6(max) => "يجب أن يكون عدد البطاقات بين 1 و${max}.";
+  static String m6(selected, existing) =>
+      "المهنة المختارة (${selected}) غير متوافقة مع مهنتك الحالية (${existing}).";
 
-  static String m7(amount) => "رسوم إصدار كل بطاقة هي ${amount}";
+  static String m7(previous, selected) =>
+      "يتطلب التغيير من ${previous} إلى ${selected} مراجعة الموظف وستظهر التغييرات بعد الموافقة.";
+
+  static String m8(amount) => "${amount} تومان";
+
+  static String m9(max) => "يجب أن يكون عدد البطاقات بين 1 و${max}.";
+
+  static String m10(amount) => "رسوم إصدار كل بطاقة هي ${amount}";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -1338,9 +1346,119 @@ class MessageLookup extends MessageLookupByLibrary {
     "phoneOwnershipNotice": MessageLookupByLibrary.simpleMessage(
       "يجب أن يتطابق الرقم مع الرقم الوطني لصاحب الحساب",
     ),
+    "profileAddAddress": MessageLookupByLibrary.simpleMessage(
+      "إضافة عنوان جديد",
+    ),
+    "profileAddOccupation": MessageLookupByLibrary.simpleMessage(
+      "إضافة مهنة جديدة",
+    ),
+    "profileAddressType": MessageLookupByLibrary.simpleMessage("نوع العنوان"),
+    "profileAddressesEmpty": MessageLookupByLibrary.simpleMessage(
+      "لا توجد عناوين",
+    ),
+    "profileChangePhone": MessageLookupByLibrary.simpleMessage(
+      "تغيير رقم الهاتف المحمول",
+    ),
+    "profileCurrentPhone": MessageLookupByLibrary.simpleMessage("الرقم الحالي"),
+    "profileDeleteAddress": MessageLookupByLibrary.simpleMessage("حذف العنوان"),
+    "profileDeleteOccupation": MessageLookupByLibrary.simpleMessage(
+      "حذف المهنة",
+    ),
+    "profileDeleteOccupationPrompt": m5,
+    "profileDescription": MessageLookupByLibrary.simpleMessage("الوصف"),
+    "profileDescriptionRequired": MessageLookupByLibrary.simpleMessage(
+      "أدخل وصف المهنة",
+    ),
+    "profileDesigner": MessageLookupByLibrary.simpleMessage("مصمم"),
+    "profileEditAddress": MessageLookupByLibrary.simpleMessage("تعديل العنوان"),
+    "profileEditOccupation": MessageLookupByLibrary.simpleMessage(
+      "تعديل المهنة",
+    ),
+    "profileHome": MessageLookupByLibrary.simpleMessage("المنزل"),
+    "profileHomemaker": MessageLookupByLibrary.simpleMessage("ربة منزل"),
     "profileLabel": MessageLookupByLibrary.simpleMessage("الملف الشخصي"),
+    "profileMinimumAddress": MessageLookupByLibrary.simpleMessage(
+      "يجب وجود عنوان منزل واحد على الأقل. سجّل عنوان منزل آخر قبل تغيير هذا العنوان إلى عنوان عمل أو حذفه.",
+    ),
+    "profileMinimumOccupation": MessageLookupByLibrary.simpleMessage(
+      "يجب وجود مهنة مسجلة واحدة على الأقل. يمكنك تعديل هذه المهنة بدلاً من حذفها.",
+    ),
+    "profileMissingResidence": MessageLookupByLibrary.simpleMessage(
+      "غير مسجل في سجل الإقامة",
+    ),
+    "profileNewPhone": MessageLookupByLibrary.simpleMessage("الرقم الجديد"),
+    "profileNewPhoneHint": MessageLookupByLibrary.simpleMessage(
+      "أدخل رقم الهاتف الجديد",
+    ),
+    "profileOccupation": MessageLookupByLibrary.simpleMessage("المهنة"),
+    "profileOccupationConflict": m6,
+    "profileOccupationDescription": MessageLookupByLibrary.simpleMessage(
+      "وصف المهنة",
+    ),
+    "profileOccupationDescriptionHint": MessageLookupByLibrary.simpleMessage(
+      "أدخل وصف مهنتك",
+    ),
+    "profileOccupationHint": MessageLookupByLibrary.simpleMessage("اختر مهنتك"),
+    "profileOccupationNotice": MessageLookupByLibrary.simpleMessage(
+      "ستظهر المهنة الجديدة خلال ٣ ساعات من تسجيل الطلب.",
+    ),
+    "profileOccupationQueued": MessageLookupByLibrary.simpleMessage(
+      "تم تسجيل طلب المهنة وسيظهر بعد المراجعة.",
+    ),
+    "profileOccupationReview": m7,
+    "profileOccupationsEmpty": MessageLookupByLibrary.simpleMessage(
+      "لا توجد مهن مسجلة",
+    ),
+    "profileOperationError": MessageLookupByLibrary.simpleMessage(
+      "تعذرت العملية؛ حاول مجدداً",
+    ),
+    "profileOtpExpired": MessageLookupByLibrary.simpleMessage(
+      "انتهت صلاحية الرمز؛ اطلب رمزاً آخر",
+    ),
+    "profileOtpHint": MessageLookupByLibrary.simpleMessage("أدخل الرمز"),
+    "profileOtpInvalid": MessageLookupByLibrary.simpleMessage("الرمز غير صحيح"),
+    "profilePhoneNotice": MessageLookupByLibrary.simpleMessage(
+      "يجب أن يتطابق الرقم مع الهوية الوطنية لصاحب الحساب",
+    ),
+    "profilePhoneSubmitted": MessageLookupByLibrary.simpleMessage(
+      "تم تسجيل طلب تغيير رقم الهاتف",
+    ),
+    "profilePostalAddress": MessageLookupByLibrary.simpleMessage(
+      "الرمز البريدي:",
+    ),
+    "profileProfessor": MessageLookupByLibrary.simpleMessage("أستاذ"),
+    "profileQuerying": MessageLookupByLibrary.simpleMessage(
+      "جارٍ الاستعلام...",
+    ),
+    "profileRequestOtp": MessageLookupByLibrary.simpleMessage("طلب رمز مؤقت"),
+    "profileResidenceNotice": MessageLookupByLibrary.simpleMessage(
+      "لطلب خدمات مثل دفتر الشيكات أو الحساب الجاري، يجب تسجيل عنوان السكن في",
+    ),
+    "profileResidenceRegistered": MessageLookupByLibrary.simpleMessage("."),
+    "profileResidenceRegistry": MessageLookupByLibrary.simpleMessage(
+      " نظام الإقامة والعقارات",
+    ),
+    "profileResidenceStatus": MessageLookupByLibrary.simpleMessage(
+      "حالة سجل الإقامة والعقارات",
+    ),
+    "profileReview": MessageLookupByLibrary.simpleMessage("تحقق"),
+    "profileReviewError": MessageLookupByLibrary.simpleMessage(
+      "تعذر الاستعلام؛ حاول مجدداً",
+    ),
+    "profileSecondPassword": MessageLookupByLibrary.simpleMessage(
+      "كلمة المرور الثانية",
+    ),
+    "profileShahkarFee": MessageLookupByLibrary.simpleMessage(
+      "رسوم استعلام شاهكار",
+    ),
+    "profileSubmit": MessageLookupByLibrary.simpleMessage("تسجيل الطلب"),
+    "profileTeacher": MessageLookupByLibrary.simpleMessage("مدرس"),
+    "profileTelephone": MessageLookupByLibrary.simpleMessage("رقم الهاتف:"),
+    "profileTitle": MessageLookupByLibrary.simpleMessage("العنوان"),
+    "profileValid": MessageLookupByLibrary.simpleMessage("صالح"),
+    "profileWork": MessageLookupByLibrary.simpleMessage("العمل"),
     "proxyAmount": MessageLookupByLibrary.simpleMessage("المبلغ"),
-    "proxyAmountToman": m5,
+    "proxyAmountToman": m8,
     "proxyBroker": MessageLookupByLibrary.simpleMessage("الوسيط"),
     "proxyCompany": MessageLookupByLibrary.simpleMessage("الشركة"),
     "proxyCompanyHint": MessageLookupByLibrary.simpleMessage(
@@ -1611,7 +1729,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "virtualRequestCount": MessageLookupByLibrary.simpleMessage(
       "عدد البطاقات الافتراضية",
     ),
-    "virtualRequestCountError": m6,
+    "virtualRequestCountError": m9,
     "virtualRequestCountHint": MessageLookupByLibrary.simpleMessage(
       "أدخل عدد البطاقات الافتراضية المطلوبة",
     ),
@@ -1624,7 +1742,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "virtualRequestEmpty": MessageLookupByLibrary.simpleMessage(
       "لا توجد ودائع متاحة لإصدار بطاقة افتراضية.",
     ),
-    "virtualRequestFeeNotice": m7,
+    "virtualRequestFeeNotice": m10,
     "virtualRequestMockReceipt": MessageLookupByLibrary.simpleMessage(
       "تم تسجيل طلب تجريبي. لم تُنشأ بطاقات افتراضية ولم تُدفع أي مبالغ.",
     ),
