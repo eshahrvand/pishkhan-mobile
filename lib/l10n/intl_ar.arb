@@ -695,7 +695,6 @@
   "reportSearchTypes": "البحث عن نوع الطلب",
   "reportSelectAll": "(تحديد الكل)",
   "reportApplyFilter": "تطبيق التصفية",
-  "reportResetFilters": "مسح عوامل التصفية",
   "reportNoTypes": "لم يتم العثور على أنواع طلبات.",
   "reportNoResults": "لم يتم العثور على طلبات مطابقة.",
   "reportLoadError": "تعذر تحميل تقارير الطلبات.",
@@ -709,7 +708,6 @@
   "reportStatusRejected": "مرفوض",
   "reportStatusSystemError": "خطأ في النظام",
   "reportStatusCancelled": "ملغى",
-  "reportDateAll": "كل التواريخ",
   "reportDateToday": "اليوم",
   "reportDateLastWeek": "الأسبوع الماضي",
   "reportDateLastMonth": "الشهر الماضي",
@@ -722,5 +720,7 @@
   "reportTypeInstallmentDeposit": "تغيير وديعة سداد الأقساط",
   "reportTypeChequeBook": "إصدار دفتر شيكات",
   "reportTypeChequeClearance": "إزالة أثر الشيك",
-  "reportTypeOnSiteTransfer": "تحويل الأموال في الموقع"
+  "reportTypeOnSiteTransfer": "تحويل الأموال في الموقع",
+  "reportStatusProcessingError": "خطأ في المعالجة",
+  "reportStatusAwaitingReview": "بانتظار المراجعة"
 }

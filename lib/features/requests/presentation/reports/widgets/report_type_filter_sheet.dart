@@ -65,6 +65,7 @@ class ReportTypeFilterSheet extends StatelessWidget {
                                 ?.copyWith(
                                   height: 20 / 14,
                                   fontWeight: FontWeight.w400,
+                                  letterSpacing: 0,
                                 ),
                             prefixIcon: const SizedBox(
                               width: 48,

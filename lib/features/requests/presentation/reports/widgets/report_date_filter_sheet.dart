@@ -42,7 +42,12 @@ class ReportDateFilterSheet extends StatelessWidget {
             builder: (context, state) {
               return Column(
                 children: [
-                  for (final period in ReportDatePeriod.values)
+                  for (final period in const [
+                    ReportDatePeriod.today,
+                    ReportDatePeriod.lastWeek,
+                    ReportDatePeriod.lastMonth,
+                    ReportDatePeriod.lastThreeMonths,
+                  ])
                     SizedBox(
                       height: 56,
                       child: Semantics(
@@ -90,6 +95,8 @@ class ReportDateFilterSheet extends StatelessWidget {
                                       ?.copyWith(
                                         color: context.colors.textSecondary,
                                         fontWeight: FontWeight.w500,
+                                        height: 20 / 14,
+                                        letterSpacing: 0,
                                       ),
                                 ),
                               ),

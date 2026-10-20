@@ -7185,16 +7185,6 @@ class S {
     );
   }
 
-  /// `حذف فیلترها`
-  String get reportResetFilters {
-    return Intl.message(
-      'حذف فیلترها',
-      name: 'reportResetFilters',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `نوع درخواستی پیدا نشد.`
   String get reportNoTypes {
     return Intl.message(
@@ -7325,16 +7315,6 @@ class S {
     );
   }
 
-  /// `همه تاریخ‌ها`
-  String get reportDateAll {
-    return Intl.message(
-      'همه تاریخ‌ها',
-      name: 'reportDateAll',
-      desc: '',
-      args: [],
-    );
-  }
-
   /// `امروز`
   String get reportDateToday {
     return Intl.message('امروز', name: 'reportDateToday', desc: '', args: []);
@@ -7455,6 +7435,26 @@ class S {
     return Intl.message(
       'انتقال وجه در محل',
       name: 'reportTypeOnSiteTransfer',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `خطا در پردازش`
+  String get reportStatusProcessingError {
+    return Intl.message(
+      'خطا در پردازش',
+      name: 'reportStatusProcessingError',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `در انتظار بررسی`
+  String get reportStatusAwaitingReview {
+    return Intl.message(
+      'در انتظار بررسی',
+      name: 'reportStatusAwaitingReview',
       desc: '',
       args: [],
     );

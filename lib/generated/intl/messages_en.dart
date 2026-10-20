@@ -1565,7 +1565,6 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "reportConfirmCancel": MessageLookupByLibrary.simpleMessage("Yes, cancel"),
     "reportDate": MessageLookupByLibrary.simpleMessage("Date"),
-    "reportDateAll": MessageLookupByLibrary.simpleMessage("All dates"),
     "reportDateLastMonth": MessageLookupByLibrary.simpleMessage("Last month"),
     "reportDateLastThreeMonths": MessageLookupByLibrary.simpleMessage(
       "Last 3 months",
@@ -1591,7 +1590,6 @@ class MessageLookup extends MessageLookupByLibrary {
       "Request status",
     ),
     "reportRequestType": MessageLookupByLibrary.simpleMessage("Request type"),
-    "reportResetFilters": MessageLookupByLibrary.simpleMessage("Clear filters"),
     "reportSearchIdentifier": MessageLookupByLibrary.simpleMessage(
       "Payment identifier",
     ),
@@ -1603,9 +1601,15 @@ class MessageLookup extends MessageLookupByLibrary {
     "reportStatusAwaitingApproval": MessageLookupByLibrary.simpleMessage(
       "Awaiting approval",
     ),
+    "reportStatusAwaitingReview": MessageLookupByLibrary.simpleMessage(
+      "Awaiting review",
+    ),
     "reportStatusCancelled": MessageLookupByLibrary.simpleMessage("Cancelled"),
     "reportStatusCompleted": MessageLookupByLibrary.simpleMessage(
       "Completed automatically",
+    ),
+    "reportStatusProcessingError": MessageLookupByLibrary.simpleMessage(
+      "Processing error",
     ),
     "reportStatusRejected": MessageLookupByLibrary.simpleMessage("Rejected"),
     "reportStatusSystemError": MessageLookupByLibrary.simpleMessage(

@@ -37,6 +37,7 @@ class ReportFilterOption extends StatelessWidget {
                   color: context.colors.textSecondary,
                   fontWeight: FontWeight.w500,
                   height: 20 / 14,
+                  letterSpacing: 0,
                 ),
               ),
             ),

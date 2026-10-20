@@ -58,7 +58,7 @@ class ReportStatusFilterSheet extends StatelessWidget {
                     ReportRequestStatus.cancelled,
                   ])
                     ReportFilterOption(
-                      label: reportStatusLabel(status),
+                      label: reportFilterStatusLabel(status),
                       selected:
                           state.draftFilter?.statuses?.contains(status) ?? true,
                       onPressed: () {

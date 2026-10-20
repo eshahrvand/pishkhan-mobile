@@ -67,36 +67,90 @@ class RequestReportsCubit extends Cubit<RequestReportsState> {
     );
   }
 
-  void openTypeFilter() {
-    emit(
-      state.copyWith(
-        draftFilter: state.filter,
-        typeQuery: '',
-        visibleTypes: ReportRequestType.values,
-        effect: RequestReportsEffect.typeFilter,
-        effectId: state.effectId + 1,
-      ),
-    );
+  void requestTypeFilter() {
+    if (state.filter.types != null) {
+      final filter = RequestReportFilter(
+        statuses: state.filter.statuses,
+        period: state.filter.period,
+      );
+      emit(
+        state.copyWith(
+          filter: filter,
+          visibleReports: filterRequestReports(
+            reports: state.reports,
+            filter: filter,
+            query: state.trackingQuery,
+            bankTime: state.bankTime!,
+          ),
+        ),
+      );
+    } else {
+      emit(
+        state.copyWith(
+          draftFilter: state.filter,
+          typeQuery: '',
+          visibleTypes: ReportRequestType.values,
+          effect: RequestReportsEffect.typeFilter,
+          effectId: state.effectId + 1,
+        ),
+      );
+    }
   }
 
-  void openStatusFilter() {
-    emit(
-      state.copyWith(
-        draftFilter: state.filter,
-        effect: RequestReportsEffect.statusFilter,
-        effectId: state.effectId + 1,
-      ),
-    );
+  void requestStatusFilter() {
+    if (state.filter.statuses != null) {
+      final filter = RequestReportFilter(
+        types: state.filter.types,
+        period: state.filter.period,
+      );
+      emit(
+        state.copyWith(
+          filter: filter,
+          visibleReports: filterRequestReports(
+            reports: state.reports,
+            filter: filter,
+            query: state.trackingQuery,
+            bankTime: state.bankTime!,
+          ),
+        ),
+      );
+    } else {
+      emit(
+        state.copyWith(
+          draftFilter: state.filter,
+          effect: RequestReportsEffect.statusFilter,
+          effectId: state.effectId + 1,
+        ),
+      );
+    }
   }
 
-  void openDateFilter() {
-    emit(
-      state.copyWith(
-        draftFilter: state.filter,
-        effect: RequestReportsEffect.dateFilter,
-        effectId: state.effectId + 1,
-      ),
-    );
+  void requestDateFilter() {
+    if (state.filter.period != ReportDatePeriod.all) {
+      final filter = RequestReportFilter(
+        types: state.filter.types,
+        statuses: state.filter.statuses,
+      );
+      emit(
+        state.copyWith(
+          filter: filter,
+          visibleReports: filterRequestReports(
+            reports: state.reports,
+            filter: filter,
+            query: state.trackingQuery,
+            bankTime: state.bankTime!,
+          ),
+        ),
+      );
+    } else {
+      emit(
+        state.copyWith(
+          draftFilter: state.filter,
+          effect: RequestReportsEffect.dateFilter,
+          effectId: state.effectId + 1,
+        ),
+      );
+    }
   }
 
   void updateTypeQuery(String value) {
@@ -199,20 +253,6 @@ class RequestReportsCubit extends Cubit<RequestReportsState> {
 
   void cancelDraftFilter() {
     emit(state.copyWith(draftFilter: null));
-  }
-
-  void resetFilters() {
-    emit(
-      state.copyWith(
-        filter: const RequestReportFilter(),
-        visibleReports: filterRequestReports(
-          reports: state.reports,
-          filter: const RequestReportFilter(),
-          query: state.trackingQuery,
-          bankTime: state.bankTime!,
-        ),
-      ),
-    );
   }
 
   void requestDetails(RequestReport report) {

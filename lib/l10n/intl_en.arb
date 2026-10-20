@@ -767,7 +767,6 @@
   "reportSearchTypes": "Search request types",
   "reportSelectAll": "(Select all)",
   "reportApplyFilter": "Apply filter",
-  "reportResetFilters": "Clear filters",
   "reportNoTypes": "No request types found.",
   "reportNoResults": "No matching requests found.",
   "reportLoadError": "Unable to load request reports.",
@@ -781,7 +780,6 @@
   "reportStatusRejected": "Rejected",
   "reportStatusSystemError": "System error",
   "reportStatusCancelled": "Cancelled",
-  "reportDateAll": "All dates",
   "reportDateToday": "Today",
   "reportDateLastWeek": "Last week",
   "reportDateLastMonth": "Last month",
@@ -794,5 +792,7 @@
   "reportTypeInstallmentDeposit": "Change installment repayment deposit",
   "reportTypeChequeBook": "Issue cheque book",
   "reportTypeChequeClearance": "Cheque record clearance",
-  "reportTypeOnSiteTransfer": "On-site transfer"
+  "reportTypeOnSiteTransfer": "On-site transfer",
+  "reportStatusProcessingError": "Processing error",
+  "reportStatusAwaitingReview": "Awaiting review"
 }

@@ -29,14 +29,19 @@ class ReportFilters extends StatelessWidget {
                 child: SingleChildScrollView(
                   reverse: true,
                   scrollDirection: Axis.horizontal,
+                  // Leave room for shadows without narrowing the chip row.
+                  clipBehavior: Clip.none,
+                  padding: const EdgeInsets.symmetric(vertical: 6),
                   child: Row(
                     textDirection: TextDirection.rtl,
                     children: [
                       AppChips(
                         label: S.current.reportRequestType,
                         selected: state.filter.types != null,
-                        icon: const AvpImage(
-                          image: AppAssets.depositFeatureChevron,
+                        icon: AvpImage(
+                          image: state.filter.types == null
+                              ? AppAssets.depositFeatureChevron
+                              : AppAssets.depositFeatureClear,
                           width: 20,
                           height: 20,
                         ),
@@ -44,7 +49,7 @@ class ReportFilters extends StatelessWidget {
                             ? () {
                                 context
                                     .read<RequestReportsCubit>()
-                                    .openTypeFilter();
+                                    .requestTypeFilter();
                               }
                             : null,
                       ),
@@ -52,8 +57,10 @@ class ReportFilters extends StatelessWidget {
                       AppChips(
                         label: S.current.reportDate,
                         selected: state.filter.period != ReportDatePeriod.all,
-                        icon: const AvpImage(
-                          image: AppAssets.depositFeatureChevron,
+                        icon: AvpImage(
+                          image: state.filter.period == ReportDatePeriod.all
+                              ? AppAssets.depositFeatureChevron
+                              : AppAssets.depositFeatureClear,
                           width: 20,
                           height: 20,
                         ),
@@ -61,7 +68,7 @@ class ReportFilters extends StatelessWidget {
                             ? () {
                                 context
                                     .read<RequestReportsCubit>()
-                                    .openDateFilter();
+                                    .requestDateFilter();
                               }
                             : null,
                       ),
@@ -69,8 +76,10 @@ class ReportFilters extends StatelessWidget {
                       AppChips(
                         label: S.current.reportStatus,
                         selected: state.filter.statuses != null,
-                        icon: const AvpImage(
-                          image: AppAssets.depositFeatureChevron,
+                        icon: AvpImage(
+                          image: state.filter.statuses == null
+                              ? AppAssets.depositFeatureChevron
+                              : AppAssets.depositFeatureClear,
                           width: 20,
                           height: 20,
                         ),
@@ -78,7 +87,7 @@ class ReportFilters extends StatelessWidget {
                             ? () {
                                 context
                                     .read<RequestReportsCubit>()
-                                    .openStatusFilter();
+                                    .requestStatusFilter();
                               }
                             : null,
                       ),
@@ -97,8 +106,11 @@ class ReportFilters extends StatelessWidget {
               AppTextField(
                 value: state.trackingQuery,
                 hintText: S.current.reportSearchIdentifier,
-                textStyle: Theme.of(context).textTheme.bodyMedium
-                    ?.copyWith(height: 20 / 14, fontWeight: FontWeight.w400),
+                textStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  height: 20 / 14,
+                  fontWeight: FontWeight.w400,
+                  letterSpacing: 0,
+                ),
                 normalizeDigits: true,
                 prefixIcon: const SizedBox(
                   width: 48,
@@ -118,19 +130,6 @@ class ReportFilters extends StatelessWidget {
                   );
                 },
               ),
-              if (state.filter != const RequestReportFilter())
-                Align(
-                  alignment: AlignmentDirectional.centerEnd,
-                  child: AppButton(
-                    label: S.current.reportResetFilters,
-                    variant: AppButtonVariant.text,
-                    onPressed: state.reportsStatus == RequestStatus.success
-                        ? () {
-                            context.read<RequestReportsCubit>().resetFilters();
-                          }
-                        : null,
-                  ),
-                ),
             ],
           ),
         );

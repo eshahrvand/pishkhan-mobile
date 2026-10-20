@@ -49,8 +49,11 @@ class ReportCancellationSheet extends StatelessWidget {
                 children: [
                   Text(
                     S.current.reportCancelPrompt,
-                    style: Theme.of(context).textTheme.titleSmall
-                        ?.copyWith(fontWeight: FontWeight.w600),
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      height: 20 / 14,
+                      letterSpacing: 0,
+                    ),
                   ),
                   if (state.cancellationStatus == RequestStatus.failure) ...[
                     const SizedBox(height: 12),

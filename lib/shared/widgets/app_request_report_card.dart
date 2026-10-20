@@ -94,6 +94,8 @@ class AppRequestReportCard extends StatelessWidget {
                       angle: math.pi / 2,
                       child: AvpImage(
                         image: AppAssets.iconMoreVertical20Gray700,
+                        width: 20,
+                        height: 20,
                       ),
                     ),
                   ),

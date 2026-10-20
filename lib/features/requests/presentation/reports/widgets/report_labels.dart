@@ -21,8 +21,14 @@ String reportStatusLabel(ReportRequestStatus status) => switch (status) {
     S.current.reportStatusAwaitingApproval,
   ReportRequestStatus.completed => S.current.reportStatusCompleted,
   ReportRequestStatus.rejected => S.current.reportStatusRejected,
-  ReportRequestStatus.systemError => S.current.reportStatusSystemError,
+  ReportRequestStatus.systemError => S.current.reportStatusProcessingError,
   ReportRequestStatus.cancelled => S.current.reportStatusCancelled,
+};
+
+String reportFilterStatusLabel(ReportRequestStatus status) => switch (status) {
+  ReportRequestStatus.awaitingApproval => S.current.reportStatusAwaitingReview,
+  ReportRequestStatus.systemError => S.current.reportStatusSystemError,
+  _ => reportStatusLabel(status),
 };
 
 AppBadgeColor reportStatusColor(ReportRequestStatus status) => switch (status) {
@@ -34,7 +40,7 @@ AppBadgeColor reportStatusColor(ReportRequestStatus status) => switch (status) {
 };
 
 String reportPeriodLabel(ReportDatePeriod period) => switch (period) {
-  ReportDatePeriod.all => S.current.reportDateAll,
+  ReportDatePeriod.all => S.current.reportDate,
   ReportDatePeriod.today => S.current.reportDateToday,
   ReportDatePeriod.lastWeek => S.current.reportDateLastWeek,
   ReportDatePeriod.lastMonth => S.current.reportDateLastMonth,

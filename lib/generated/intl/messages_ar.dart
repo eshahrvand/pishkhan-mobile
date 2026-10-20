@@ -1367,7 +1367,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "reportCancelRequest": MessageLookupByLibrary.simpleMessage("إلغاء الطلب"),
     "reportConfirmCancel": MessageLookupByLibrary.simpleMessage("نعم، إلغاء"),
     "reportDate": MessageLookupByLibrary.simpleMessage("التاريخ"),
-    "reportDateAll": MessageLookupByLibrary.simpleMessage("كل التواريخ"),
     "reportDateLastMonth": MessageLookupByLibrary.simpleMessage("الشهر الماضي"),
     "reportDateLastThreeMonths": MessageLookupByLibrary.simpleMessage(
       "آخر ٣ أشهر",
@@ -1391,9 +1390,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "reportRequestDate": MessageLookupByLibrary.simpleMessage("تاريخ الطلب"),
     "reportRequestStatus": MessageLookupByLibrary.simpleMessage("حالة الطلب"),
     "reportRequestType": MessageLookupByLibrary.simpleMessage("نوع الطلب"),
-    "reportResetFilters": MessageLookupByLibrary.simpleMessage(
-      "مسح عوامل التصفية",
-    ),
     "reportSearchIdentifier": MessageLookupByLibrary.simpleMessage(
       "معرّف الدفع",
     ),
@@ -1405,9 +1401,15 @@ class MessageLookup extends MessageLookupByLibrary {
     "reportStatusAwaitingApproval": MessageLookupByLibrary.simpleMessage(
       "بانتظار الموافقة",
     ),
+    "reportStatusAwaitingReview": MessageLookupByLibrary.simpleMessage(
+      "بانتظار المراجعة",
+    ),
     "reportStatusCancelled": MessageLookupByLibrary.simpleMessage("ملغى"),
     "reportStatusCompleted": MessageLookupByLibrary.simpleMessage(
       "تم التنفيذ تلقائيًا",
+    ),
+    "reportStatusProcessingError": MessageLookupByLibrary.simpleMessage(
+      "خطأ في المعالجة",
     ),
     "reportStatusRejected": MessageLookupByLibrary.simpleMessage("مرفوض"),
     "reportStatusSystemError": MessageLookupByLibrary.simpleMessage(

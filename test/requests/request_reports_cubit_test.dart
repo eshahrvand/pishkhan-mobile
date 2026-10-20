@@ -40,17 +40,17 @@ void main() {
     'type, status, date and identifier filters compose; refresh preserves them',
     () async {
       await cubit.fetchReports();
-      cubit.openTypeFilter();
+      cubit.requestTypeFilter();
       cubit.toggleAllDraftTypes();
       cubit.toggleDraftType(ReportRequestType.installmentDeposit);
       cubit.applyFilter();
       cubit.cancelDraftFilter();
-      cubit.openStatusFilter();
+      cubit.requestStatusFilter();
       cubit.toggleAllDraftStatuses();
       cubit.toggleDraftStatus(ReportRequestStatus.awaitingApproval);
       cubit.applyFilter();
       cubit.cancelDraftFilter();
-      cubit.openDateFilter();
+      cubit.requestDateFilter();
       cubit.selectDraftPeriod(ReportDatePeriod.lastWeek);
       cubit.applyFilter();
       cubit.cancelDraftFilter();
@@ -70,23 +70,66 @@ void main() {
   test('discarding a draft keeps committed results; empty selection means no results', () async {
     await cubit.fetchReports();
     final reports = cubit.state.visibleReports;
-    cubit.openStatusFilter();
+    cubit.requestStatusFilter();
     cubit.toggleAllDraftStatuses();
     expect(cubit.state.visibleReports, reports);
     cubit.cancelDraftFilter();
     expect(cubit.state.filter.statuses, isNull);
-    cubit.openStatusFilter();
+    cubit.requestStatusFilter();
     cubit.toggleAllDraftStatuses();
     cubit.applyFilter();
     expect(cubit.state.visibleReports, isEmpty);
     cubit.cancelDraftFilter();
-    cubit.resetFilters();
+    cubit.requestStatusFilter();
     expect(cubit.state.visibleReports, reports);
+  });
+
+  test('active chips clear only their own filter and preserve the identifier search', () async {
+    await cubit.fetchReports();
+    cubit.requestTypeFilter();
+    cubit.toggleAllDraftTypes();
+    cubit.toggleDraftType(ReportRequestType.installmentDeposit);
+    cubit.applyFilter();
+    cubit.cancelDraftFilter();
+    cubit.requestStatusFilter();
+    cubit.toggleAllDraftStatuses();
+    cubit.toggleDraftStatus(ReportRequestStatus.awaitingApproval);
+    cubit.applyFilter();
+    cubit.cancelDraftFilter();
+    cubit.requestDateFilter();
+    cubit.selectDraftPeriod(ReportDatePeriod.lastWeek);
+    cubit.applyFilter();
+    cubit.cancelDraftFilter();
+    cubit.updateTrackingQuery('487567');
+    final effectId = cubit.state.effectId;
+
+    cubit.requestTypeFilter();
+    expect(cubit.state.filter.types, isNull);
+    expect(cubit.state.filter.statuses, {ReportRequestStatus.awaitingApproval});
+    expect(cubit.state.filter.period, ReportDatePeriod.lastWeek);
+    expect(cubit.state.effectId, effectId);
+
+    cubit.requestStatusFilter();
+    expect(cubit.state.filter.statuses, isNull);
+    expect(cubit.state.filter.period, ReportDatePeriod.lastWeek);
+    expect(cubit.state.effectId, effectId);
+
+    cubit.requestDateFilter();
+    expect(cubit.state.filter, const RequestReportFilter());
+    expect(cubit.state.trackingQuery, '487567');
+    expect(cubit.state.visibleReports.map((report) => report.trackingId), [
+      '137/487567',
+    ]);
+    expect(cubit.state.effectId, effectId);
+
+    cubit.requestTypeFilter();
+    expect(cubit.state.effect, RequestReportsEffect.typeFilter);
+    expect(cubit.state.effectId, effectId + 1);
   });
 
   test('type search does not lose hidden selections; all individual choices restore all', () async {
     await cubit.fetchReports();
-    cubit.openTypeFilter();
+    cubit.requestTypeFilter();
     cubit.toggleAllDraftTypes();
     cubit.toggleDraftType(ReportRequestType.chequeBook);
     cubit.updateTypeQuery('اقساط');
@@ -121,7 +164,7 @@ void main() {
 
   test('failure preserves request identity for retry; success updates active filters', () async {
     await cubit.fetchReports();
-    cubit.openStatusFilter();
+    cubit.requestStatusFilter();
     cubit.toggleAllDraftStatuses();
     cubit.toggleDraftStatus(ReportRequestStatus.awaitingApproval);
     cubit.applyFilter();

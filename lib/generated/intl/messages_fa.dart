@@ -1492,7 +1492,6 @@ class MessageLookup extends MessageLookupByLibrary {
     "reportCancelRequest": MessageLookupByLibrary.simpleMessage("لغو درخواست"),
     "reportConfirmCancel": MessageLookupByLibrary.simpleMessage("بله، لغو کن"),
     "reportDate": MessageLookupByLibrary.simpleMessage("تاریخ"),
-    "reportDateAll": MessageLookupByLibrary.simpleMessage("همه تاریخ‌ها"),
     "reportDateLastMonth": MessageLookupByLibrary.simpleMessage("ماه گذشته"),
     "reportDateLastThreeMonths": MessageLookupByLibrary.simpleMessage(
       "۳ ماه گذشته",
@@ -1518,7 +1517,6 @@ class MessageLookup extends MessageLookupByLibrary {
       "وضعیت درخواست",
     ),
     "reportRequestType": MessageLookupByLibrary.simpleMessage("نوع درخواست"),
-    "reportResetFilters": MessageLookupByLibrary.simpleMessage("حذف فیلترها"),
     "reportSearchIdentifier": MessageLookupByLibrary.simpleMessage(
       "شناسه پرداخت",
     ),
@@ -1530,9 +1528,15 @@ class MessageLookup extends MessageLookupByLibrary {
     "reportStatusAwaitingApproval": MessageLookupByLibrary.simpleMessage(
       "در انتظار تایید",
     ),
+    "reportStatusAwaitingReview": MessageLookupByLibrary.simpleMessage(
+      "در انتظار بررسی",
+    ),
     "reportStatusCancelled": MessageLookupByLibrary.simpleMessage("لغو شده"),
     "reportStatusCompleted": MessageLookupByLibrary.simpleMessage(
       "انجام شده خودکار",
+    ),
+    "reportStatusProcessingError": MessageLookupByLibrary.simpleMessage(
+      "خطا در پردازش",
     ),
     "reportStatusRejected": MessageLookupByLibrary.simpleMessage("رد شده"),
     "reportStatusSystemError": MessageLookupByLibrary.simpleMessage(

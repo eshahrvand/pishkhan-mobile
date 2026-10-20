@@ -1,21 +1,29 @@
+import 'dart:async';
+
+import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
 import 'package:pishkhan_mobile/core/router/app_routes.dart';
+import 'package:pishkhan_mobile/core/result/result.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/home/screens/dashboard_screen.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/home/widgets/dashboard_home_panel.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/home/cubit/home_cubit.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/dashboard_services.dart';
 import 'package:pishkhan_mobile/features/requests/data/repositories/mock_request_reports_repository.dart';
 import 'package:pishkhan_mobile/features/requests/domain/repositories/request_reports_repository.dart';
+import 'package:pishkhan_mobile/features/requests/domain/entities/request_report.dart';
+import 'package:pishkhan_mobile/features/requests/presentation/reports/widgets/report_date_filter_sheet.dart';
+import 'package:pishkhan_mobile/features/requests/presentation/reports/widgets/report_filters.dart';
 import 'package:pishkhan_mobile/features/requests/presentation/reports/screens/request_reports_screen.dart';
 import 'package:pishkhan_mobile/features/requests/presentation/reports/widgets/report_type_filter_sheet.dart';
 import 'package:pishkhan_mobile/features/requests/presentation/reports/widgets/report_status_filter_sheet.dart';
 import 'package:pishkhan_mobile/features/requests/presentation/reports/widgets/report_details_sheet.dart';
 import 'package:pishkhan_mobile/features/requests/presentation/reports/widgets/report_cancellation_sheet.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
+import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_request_report_card.dart';
 
 import '../deposits/certificate_test_support.dart';
@@ -109,6 +117,17 @@ void main() {
     'type search and draft dismissal, status and date filters, normalized identifier',
     (tester) async {
       await mountCertificate(tester, const RequestReportsScreen());
+      expect(
+        tester
+            .widgetList<AppChips>(find.byType(AppChips))
+            .every(
+              (chip) =>
+                  !chip.selected &&
+                  (chip.icon as AvpImage).image ==
+                      AppAssets.depositFeatureChevron,
+            ),
+        isTrue,
+      );
       await tester.tap(find.text(S.current.reportRequestType));
       await tester.pumpAndSettle();
       await capture(tester, 'type-filter');
@@ -149,7 +168,7 @@ void main() {
       await tester.tap(
         find.descendant(
           of: find.byType(ReportStatusFilterSheet),
-          matching: find.text(S.current.reportStatusAwaitingApproval),
+          matching: find.text(S.current.reportStatusAwaitingReview),
         ),
       );
       await tester.tap(find.text(S.current.reportApplyFilter));
@@ -164,6 +183,95 @@ void main() {
       await tester.enterText(find.byType(TextField), '۱۳۷/۴۸۷۵۶۷');
       await tester.pumpAndSettle();
       expect(find.byType(AppRequestReportCard), findsOneWidget);
+      expect(
+        tester
+            .widgetList<AppChips>(find.byType(AppChips))
+            .every(
+              (chip) =>
+                  chip.selected &&
+                  (chip.icon as AvpImage).image ==
+                      AppAssets.depositFeatureClear,
+            ),
+        isTrue,
+      );
+      expect(
+        find.descendant(
+          of: find.byType(ReportFilters),
+          matching: find.byType(AppButton),
+        ),
+        findsNothing,
+      );
+      await capture(tester, 'active-filters');
+
+      await tester.tap(find.text(S.current.reportRequestType));
+      await tester.pumpAndSettle();
+      expect(find.byType(ReportTypeFilterSheet), findsNothing);
+      expect(
+        tester
+            .widget<AppChips>(
+              find.byWidgetPredicate(
+                (widget) =>
+                    widget is AppChips &&
+                    widget.label == S.current.reportRequestType,
+              ),
+            )
+            .selected,
+        isFalse,
+      );
+      expect(
+        tester
+            .widget<AppChips>(
+              find.byWidgetPredicate(
+                (widget) =>
+                    widget is AppChips &&
+                    widget.label == S.current.reportStatus,
+              ),
+            )
+            .selected,
+        isTrue,
+      );
+      expect(
+        tester
+            .widget<AppChips>(
+              find.byWidgetPredicate(
+                (widget) =>
+                    widget is AppChips && widget.label == S.current.reportDate,
+              ),
+            )
+            .selected,
+        isTrue,
+      );
+      await capture(tester, 'type-filter-cleared');
+
+      await tester.tap(find.text(S.current.reportDate));
+      await tester.pumpAndSettle();
+      expect(find.byType(ReportDateFilterSheet), findsNothing);
+      expect(
+        tester
+            .widget<AppChips>(
+              find.byWidgetPredicate(
+                (widget) =>
+                    widget is AppChips &&
+                    widget.label == S.current.reportStatus,
+              ),
+            )
+            .selected,
+        isTrue,
+      );
+      await tester.tap(find.text(S.current.reportStatus));
+      await tester.pumpAndSettle();
+      expect(find.byType(ReportStatusFilterSheet), findsNothing);
+      expect(
+        tester
+            .widgetList<AppChips>(find.byType(AppChips))
+            .every((chip) => !chip.selected),
+        isTrue,
+      );
+      expect(
+        tester.widget<EditableText>(find.byType(EditableText)).controller.text,
+        '137/487567',
+      );
+      await capture(tester, 'filters-cleared');
       await tester.enterText(find.byType(TextField), '9999');
       await tester.pumpAndSettle();
       expect(find.text(S.current.reportNoResults), findsOneWidget);
@@ -188,6 +296,14 @@ void main() {
           find.text(S.current.reportApplyFilter).hitTestable(),
           findsOneWidget,
         );
+        tester.view.viewInsets = const FakeViewPadding(bottom: 280);
+        await tester.pumpAndSettle();
+        expect(
+          find.text(S.current.reportApplyFilter).hitTestable(),
+          findsOneWidget,
+        );
+        tester.view.resetViewInsets();
+        await tester.pumpAndSettle();
         await tester.tap(find.text(S.current.dashboardCancel));
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull);
@@ -228,4 +344,76 @@ void main() {
       await tester.pumpWidget(const SizedBox.shrink());
     },
   );
+
+  testWidgets(
+    'dismissing a pending cancellation does not close a later filter sheet',
+    (tester) async {
+      await getIt.reset();
+      final repository = DeferredCancellationRepository();
+      getIt.registerSingleton<RequestReportsRepository>(repository);
+      await mountCertificate(tester, const RequestReportsScreen());
+      await openFirstDetails(tester);
+      await tester.tap(find.text(S.current.reportCancelRequest));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(S.current.reportConfirmCancel));
+      await tester.pump();
+      final confirm = find.byWidgetPredicate(
+        (widget) =>
+            widget is AppButton &&
+            widget.label == S.current.reportConfirmCancel,
+      );
+      expect(tester.widget<AppButton>(confirm).isLoading, isTrue);
+      await tester.tap(confirm);
+      expect(repository.cancellationCount, 1);
+      await tester.tap(find.text(S.current.dashboardCancel));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(S.current.reportStatus));
+      await tester.pumpAndSettle();
+      repository.cancellation.complete(
+        Success(
+          repository.pendingReport!.withStatus(ReportRequestStatus.cancelled),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byType(ReportStatusFilterSheet), findsOneWidget);
+      await tester.tap(find.text(S.current.dashboardCancel));
+      await tester.pumpAndSettle();
+      expect(
+        tester
+            .widget<AppRequestReportCard>(
+              find.byType(AppRequestReportCard).first,
+            )
+            .statusLabel,
+        S.current.reportStatusCancelled,
+      );
+      expect(tester.takeException(), isNull);
+    },
+  );
+}
+
+class DeferredCancellationRepository implements RequestReportsRepository {
+  final adapter = MockRequestReportsRepository(
+    now: () => DateTime.utc(2026, 10, 20, 4, 42),
+  );
+  final cancellation = Completer<Result<RequestReport>>();
+  RequestReport? pendingReport;
+  int cancellationCount = 0;
+
+  @override
+  Future<Result<RequestReportCatalog>> fetchReports() async {
+    final result = await adapter.fetchReports();
+    if (result case Success(:final data)) {
+      pendingReport = data.reports.first;
+    }
+    return result;
+  }
+
+  @override
+  Future<Result<RequestReport>> cancelRequest({
+    required String trackingId,
+    required String idempotencyKey,
+  }) {
+    cancellationCount++;
+    return cancellation.future;
+  }
 }

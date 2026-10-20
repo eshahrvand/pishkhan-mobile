@@ -788,7 +788,6 @@
   "reportSearchTypes": "جستجوی نوع درخواست",
   "reportSelectAll": "(انتخاب همه)",
   "reportApplyFilter": "اعمال فیلتر",
-  "reportResetFilters": "حذف فیلترها",
   "reportNoTypes": "نوع درخواستی پیدا نشد.",
   "reportNoResults": "درخواستی با این مشخصات پیدا نشد.",
   "reportLoadError": "دریافت گزارش درخواست‌ها ناموفق بود.",
@@ -802,7 +801,6 @@
   "reportStatusRejected": "رد شده",
   "reportStatusSystemError": "خطای سیستم",
   "reportStatusCancelled": "لغو شده",
-  "reportDateAll": "همه تاریخ‌ها",
   "reportDateToday": "امروز",
   "reportDateLastWeek": "هفته گذشته",
   "reportDateLastMonth": "ماه گذشته",
@@ -815,5 +813,7 @@
   "reportTypeInstallmentDeposit": "تغییر سپرده جهت کسر اقساط",
   "reportTypeChequeBook": "صدور دسته چک",
   "reportTypeChequeClearance": "رفع سوء اثر چک",
-  "reportTypeOnSiteTransfer": "انتقال وجه در محل"
+  "reportTypeOnSiteTransfer": "انتقال وجه در محل",
+  "reportStatusProcessingError": "خطا در پردازش",
+  "reportStatusAwaitingReview": "در انتظار بررسی"
 }
