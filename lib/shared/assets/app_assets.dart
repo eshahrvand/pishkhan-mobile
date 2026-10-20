@@ -4,6 +4,26 @@
 /// code. Feature-specific facades may alias these constants, but must not
 /// duplicate path strings.
 abstract final class AppAssets {
+  static const modernGuide1 = 'assets/images/modern_guide_1.png';
+  static const modernGuide2 = 'assets/images/modern_guide_2.png';
+  static const modernGuide3 = 'assets/images/modern_guide_3.png';
+  static const modernGuide4 = 'assets/images/modern_guide_4.png';
+  static const modernIntro = 'assets/images/modern_intro.png';
+  static const modernIntroTitle = 'assets/images/modern_intro_title.svg';
+  static const modernKycInstruction =
+      'assets/images/modern_kyc_instruction.png';
+  static const modernKycPreview = 'assets/images/modern_kyc_preview.png';
+  static const modernSuccess = 'assets/images/modern_success.svg';
+  static const modernNotice = 'assets/images/modern_notice.png';
+  static const modernService = 'assets/images/modern_service.svg';
+  static const modernServiceForgot = 'assets/images/modern_service_forgot.svg';
+  static const modernRegistryFee = 'assets/images/modern_registry_fee.svg';
+  static const modernPasswordFee = 'assets/images/modern_password_fee.svg';
+  static const modernVideoPlay = 'assets/images/modern_video_play.svg';
+  static const modernStatusCheck = 'assets/images/modern_status_check.svg';
+  static const modernDivider = 'assets/images/modern_divider.svg';
+  static const modernStatusWait = 'assets/images/modern_status_wait.svg';
+  static const modernActivateArrow = 'assets/images/modern_activate_arrow.svg';
   static const profileAddressValid = 'assets/images/profile_address_valid.svg';
   static const profileAddressMissing =
       'assets/images/profile_address_missing.svg';
@@ -550,6 +570,25 @@ abstract final class AppAssets {
   static const notificationSecurity = '$_root/notification_security.png';
 
   static const all = <String>[
+    modernDivider,
+    modernStatusCheck,
+    modernStatusWait,
+    modernActivateArrow,
+    modernGuide1,
+    modernGuide2,
+    modernGuide3,
+    modernGuide4,
+    modernIntro,
+    modernIntroTitle,
+    modernKycInstruction,
+    modernKycPreview,
+    modernSuccess,
+    modernNotice,
+    modernService,
+    modernServiceForgot,
+    modernRegistryFee,
+    modernPasswordFee,
+    modernVideoPlay,
     profileAddressValid,
     profileAddressMissing,
     profileTrash,

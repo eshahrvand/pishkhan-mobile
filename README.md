@@ -54,6 +54,7 @@ Visual captures are not stored in `doc`; optional test captures use ignored
 - [On-site transfer requests](doc/transfers/on-site-transfer.md)
 - [Request reports and cancellation](doc/requests/request-reports.md)
 - [Personal information: phone, addresses and occupations](doc/profile/personal-information.md)
+- [Modern banking: mobile activation, passwords, limits and deactivation](doc/modern-banking/mobile-bank.md)
 
 General architecture and design-system guidance remain in the top-level `doc`
 files. Existing Persian documents are retained unchanged.

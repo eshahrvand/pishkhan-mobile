@@ -38,6 +38,13 @@ import 'package:pishkhan_mobile/features/profile/presentation/message_center/scr
 import 'package:pishkhan_mobile/features/requests/presentation/reports/screens/request_reports_screen.dart';
 
 import 'router_session.dart';
+
+import 'package:pishkhan_mobile/features/modern_banking/domain/entities/mobile_bank.dart';
+import 'package:pishkhan_mobile/features/modern_banking/presentation/mobile_bank/screens/mobile_bank_screen.dart';
+import 'package:pishkhan_mobile/features/modern_banking/presentation/password_guide/screens/mobile_bank_guide_screen.dart';
+import 'package:pishkhan_mobile/features/modern_banking/presentation/transfer_limits/screens/mobile_bank_limits_screen.dart';
+import 'package:pishkhan_mobile/features/modern_banking/presentation/deactivation/screens/mobile_bank_deactivation_screen.dart';
+
 import 'guards/auth_guard.dart';
 import 'validated_return_location.dart';
 
@@ -53,6 +60,29 @@ GoRouter createAppRouter({
     refreshListenable: session,
     redirect: (context, state) => globalRedirect(session, state),
     routes: [
+      // Modern banking: feature screens own their Providers and dependencies.
+      GoRoute(
+        path: AppRoutes.mobileBank,
+        builder: (context, state) => const MobileBankScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.mobileBankPasswordRecovery,
+        builder: (context, state) => const MobileBankScreen(
+          operation: MobileBankOperation.passwordRecovery,
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.mobileBankPasswordGuide,
+        builder: (context, state) => const MobileBankGuideScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.mobileBankTransferLimits,
+        builder: (context, state) => const MobileBankLimitsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.mobileBankDeactivation,
+        builder: (context, state) => const MobileBankDeactivationScreen(),
+      ),
       // Launch
       GoRoute(
         path: AppRoutes.splash,

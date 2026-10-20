@@ -7,6 +7,11 @@ String validatedReturnLocation(String? location) {
     return AppRoutes.home;
   }
   const paths = {
+    AppRoutes.mobileBank,
+    AppRoutes.mobileBankPasswordRecovery,
+    AppRoutes.mobileBankPasswordGuide,
+    AppRoutes.mobileBankTransferLimits,
+    AppRoutes.mobileBankDeactivation,
     AppRoutes.home,
     AppRoutes.requestReports,
     AppRoutes.onSiteTransfer,

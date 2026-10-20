@@ -20,6 +20,7 @@ class AppCreditCardMockup extends StatelessWidget {
     this.linkedDeposit = '10.12003456.1',
     this.onActivate,
     this.onRefresh,
+    this.isCompact = false,
   });
 
   final AppCreditCardMockupState state;
@@ -29,6 +30,9 @@ class AppCreditCardMockup extends StatelessWidget {
   final String linkedDeposit;
   final VoidCallback? onActivate;
   final VoidCallback? onRefresh;
+
+  /// The active mobile-bank frame uses the existing card in a 104px slot.
+  final bool isCompact;
 
   bool get _isWallet => state == AppCreditCardMockupState.wallet;
 
@@ -45,7 +49,7 @@ class AppCreditCardMockup extends StatelessWidget {
       child: Container(
         key: const Key('app_credit_card_mockup'),
         width: 343,
-        height: 136,
+        height: isCompact ? 104 : 136,
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
           border: Border.all(color: AppPalette.white),
@@ -64,13 +68,13 @@ class AppCreditCardMockup extends StatelessWidget {
               left: -2,
               top: -1,
               width: 272,
-              height: 136,
+              height: isCompact ? 104 : 136,
               child: ColoredBox(
                 color: AppPalette.white,
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(
+                  padding: EdgeInsets.symmetric(
                     horizontal: 16,
-                    vertical: 24,
+                    vertical: isCompact ? 20 : 24,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -85,7 +89,7 @@ class AppCreditCardMockup extends StatelessWidget {
                           walletBalance: walletBalance,
                         ),
                       ),
-                      const SizedBox(height: 24),
+                      SizedBox(height: isCompact ? 12 : 24),
                       SizedBox(
                         height: 1,
                         child: AvpImage(
@@ -93,7 +97,7 @@ class AppCreditCardMockup extends StatelessWidget {
                           fit: BoxFit.fill,
                         ),
                       ),
-                      const SizedBox(height: 23),
+                      SizedBox(height: isCompact ? 11 : 23),
                       SizedBox(
                         height: 20,
                         child: AppCreditCardMockupFooter(
@@ -109,7 +113,7 @@ class AppCreditCardMockup extends StatelessWidget {
             ),
             Positioned(
               left: 286,
-              top: 47,
+              top: isCompact ? 31 : 47,
               width: 40,
               height: 40,
               child: AvpImage(

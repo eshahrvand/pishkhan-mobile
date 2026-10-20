@@ -8,6 +8,15 @@ abstract final class AppRoutes {
 
   static const login = '/auth/login';
 
+  static const mobileBank = '/modern-banking/mobile';
+  static const mobileBankPasswordRecovery =
+      '/modern-banking/mobile/password-recovery';
+  static const mobileBankPasswordGuide =
+      '/modern-banking/mobile/password-guide';
+  static const mobileBankTransferLimits =
+      '/modern-banking/mobile/transfer-limits';
+  static const mobileBankDeactivation = '/modern-banking/mobile/deactivation';
+
   static const cardPasswords = '/cards/password-services';
   static const cardList = '/cards/list';
   static const cardIssuance = '/cards/issuance';

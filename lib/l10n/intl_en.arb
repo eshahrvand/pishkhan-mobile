@@ -893,5 +893,67 @@
     }
   },
   "profileMinimumOccupation": "At least one registered occupation is required. You can edit this occupation instead of deleting it.",
-  "profileMinimumAddress": "At least one home address is required. Register another home address before changing this address to work or deleting it."
+  "profileMinimumAddress": "At least one home address is required. Register another home address before changing this address to work or deleting it.",
+  "modernActivate": "Activate mobile banking",
+  "modernActivationIntro": "Activate Resalat mobile banking before signing in.",
+  "modernUsernameNotice": "Your default username is your customer number, printed above your bank card number.",
+  "modernIdentityNotice": "Your national ID and mobile number must match for identity verification.",
+  "modernRegistryFee": "Civil registry fee",
+  "modernPasswordFee": "Password issuance fee",
+  "modernPaymentStep": "Service fee",
+  "modernOperations": "Mobile banking services",
+  "modernRecoveryTitle": "Recover mobile banking password",
+  "modernRequestStatus": "Request status",
+  "modernAwaitingIdentity": "Awaiting identity verification",
+  "modernRefundNotice": "If identity verification fails, the deducted fee will be returned to your wallet within 72 hours.",
+  "modernRejected": "Identity verification was declined. You can submit a new request.",
+  "modernPreviewNotice": "This is a sample of the post-recording screen. No video is currently recorded or uploaded.",
+  "modernTermsUnavailable": "The terms for this service have not been provided yet.",
+  "modernLimitsTitle": "Change transfer limits",
+  "modernLimitsIntro": "Your current daily mobile banking transfer limits are shown below.",
+  "modernLimitsEditIntro": "Set the daily limits for each mobile banking transfer type.",
+  "modernInternal": "Within the bank",
+  "modernPaya": "Interbank PAYA",
+  "modernSatna": "Interbank SATNA",
+  "modernEdit": "Edit",
+  "modernLimitError": "Enter an amount greater than zero and within the allowed limit.",
+  "modernMaximumLimit": "Maximum daily transfer: {amount} rials",
+  "@modernMaximumLimit": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "modernToman": "{amount} tomans",
+  "@modernToman": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "modernLimitsSaved": "Transfer limits were saved in the prototype. No bank account was changed.",
+  "modernDeactivate": "Deactivate",
+  "modernDeactivationTitle": "Deactivate mobile banking",
+  "modernDeactivationIntro": "Select the reason for deactivating mobile banking.",
+  "modernUsername": "Username",
+  "modernReason": "Request reason",
+  "modernReasonHint": "Select a reason",
+  "modernCompromised": "Suspected compromise",
+  "modernOtherReason": "Other",
+  "modernDeactivationSaved": "Deactivation was recorded in the prototype. No real banking service was changed.",
+  "modernGuideLogin": "To change your password, first sign in to mobile banking.",
+  "modernGuideOther": "Select Change password under Other.",
+  "modernGuidePassword": "Enter your current password, then enter and repeat your new password.",
+  "modernGuidePage": "Step {page} of 4",
+  "@modernGuidePage": {
+    "placeholders": {
+      "page": {
+        "type": "int"
+      }
+    }
+  },
+  "modernSerialStep": "National ID card serial",
+  "modernKycStep": "Identity verification"
 }

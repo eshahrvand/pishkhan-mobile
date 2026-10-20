@@ -28,6 +28,10 @@ abstract final class ServiceRegistry {
     String? initialDepositNumber,
     String? initialCardNumber,
   }) {
+    if (id == 'modern-mobile') {
+      context.push<void>(AppRoutes.mobileBank);
+      return true;
+    }
     if (id == 'identity-phone' ||
         id == 'identity-addresses' ||
         id == 'identity-occupation') {

@@ -821,5 +821,67 @@
     }
   },
   "profileMinimumOccupation": "يجب وجود مهنة مسجلة واحدة على الأقل. يمكنك تعديل هذه المهنة بدلاً من حذفها.",
-  "profileMinimumAddress": "يجب وجود عنوان منزل واحد على الأقل. سجّل عنوان منزل آخر قبل تغيير هذا العنوان إلى عنوان عمل أو حذفه."
+  "profileMinimumAddress": "يجب وجود عنوان منزل واحد على الأقل. سجّل عنوان منزل آخر قبل تغيير هذا العنوان إلى عنوان عمل أو حذفه.",
+  "modernActivate": "تفعيل الخدمات المصرفية عبر الهاتف",
+  "modernActivationIntro": "يلزم تفعيل الخدمات المصرفية عبر الهاتف قبل تسجيل الدخول.",
+  "modernUsernameNotice": "اسم المستخدم الافتراضي هو رقم العميل المطبوع أعلى رقم بطاقتك المصرفية.",
+  "modernIdentityNotice": "يتطلب التحقق تطابق الرقم الوطني ورقم الهاتف.",
+  "modernRegistryFee": "رسوم السجل المدني",
+  "modernPasswordFee": "رسوم إصدار كلمة المرور",
+  "modernPaymentStep": "دفع الرسوم",
+  "modernOperations": "خدمات المصرف عبر الهاتف",
+  "modernRecoveryTitle": "استعادة كلمة مرور المصرف عبر الهاتف",
+  "modernRequestStatus": "حالة الطلب",
+  "modernAwaitingIdentity": "بانتظار نتيجة التحقق من الهوية",
+  "modernRefundNotice": "إذا فشل التحقق من الهوية، تُعاد الرسوم المخصومة إلى محفظتك خلال 72 ساعة.",
+  "modernRejected": "لم تتم الموافقة على التحقق. يمكنك تقديم طلب جديد.",
+  "modernPreviewNotice": "هذه معاينة لمرحلة ما بعد التسجيل. لا يتم حالياً تسجيل أي فيديو أو رفعه.",
+  "modernTermsUnavailable": "لم يتم توفير شروط هذه الخدمة بعد.",
+  "modernLimitsTitle": "تغيير حدود التحويل",
+  "modernLimitsIntro": "حدود التحويل اليومية الحالية في المصرف عبر الهاتف موضحة أدناه.",
+  "modernLimitsEditIntro": "حدد الحدود اليومية لكل نوع من التحويلات.",
+  "modernInternal": "داخل البنك",
+  "modernPaya": "تحويل بايا بين البنوك",
+  "modernSatna": "ساتنا بين البنوك",
+  "modernEdit": "تعديل",
+  "modernLimitError": "أدخل مبلغاً أكبر من صفر وضمن الحد المسموح.",
+  "modernMaximumLimit": "الحد الأقصى للتحويل اليومي: {amount} ريال",
+  "@modernMaximumLimit": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "modernToman": "{amount} تومان",
+  "@modernToman": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "modernLimitsSaved": "تم حفظ حدود التحويل في النسخة التجريبية. لم يتم تغيير الحساب المصرفي.",
+  "modernDeactivate": "إلغاء التفعيل",
+  "modernDeactivationTitle": "إلغاء تفعيل المصرف عبر الهاتف",
+  "modernDeactivationIntro": "اختر سبب إلغاء تفعيل المصرف عبر الهاتف.",
+  "modernUsername": "اسم المستخدم",
+  "modernReason": "سبب الطلب",
+  "modernReasonHint": "اختر السبب",
+  "modernCompromised": "اشتباه اختراق",
+  "modernOtherReason": "أخرى",
+  "modernDeactivationSaved": "تم تسجيل إلغاء التفعيل في النسخة التجريبية. لم تتغير أي خدمة مصرفية فعلية.",
+  "modernGuideLogin": "لتغيير كلمة المرور، سجل الدخول أولاً إلى المصرف عبر الهاتف.",
+  "modernGuideOther": "اختر تغيير كلمة المرور من قسم أخرى.",
+  "modernGuidePassword": "أدخل كلمة المرور الحالية، ثم أدخل كلمة المرور الجديدة وكررها.",
+  "modernGuidePage": "الخطوة {page} من 4",
+  "@modernGuidePage": {
+    "placeholders": {
+      "page": {
+        "type": "int"
+      }
+    }
+  },
+  "modernSerialStep": "الرقم التسلسلي للبطاقة الوطنية",
+  "modernKycStep": "التحقق من الهوية"
 }

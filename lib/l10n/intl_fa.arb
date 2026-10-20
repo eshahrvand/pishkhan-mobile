@@ -920,5 +920,67 @@
     }
   },
   "profileMinimumOccupation": "وجود حداقل یک شغل ثبت شده در پیشخوان الزامی‌است. شما می‌توانید بجای حذف این شغل آن را ویرایش کنید.",
-  "profileMinimumAddress": "وجود حداقل یک آدرس خانه در پیشخوان الزامی‌است. لطفا ابتدا آدرس خانه خود را ثبت کرده سپس اقدام به ویرایش یا حذف این آدرس کنید."
+  "profileMinimumAddress": "وجود حداقل یک آدرس خانه در پیشخوان الزامی‌است. لطفا ابتدا آدرس خانه خود را ثبت کرده سپس اقدام به ویرایش یا حذف این آدرس کنید.",
+  "modernActivate": "فعالسازی موبایل بانک",
+  "modernActivationIntro": "برای ورود به همراه بانک رسالت نیاز به فعالسازی آن دارید.",
+  "modernUsernameNotice": "نام کاربری شما به صورت پیش‌فرض، شماره مشتری می‌باشد. شماره مشتری روی کارت بانکی شما، درست بالای شماره کارت ثبت شده است.",
+  "modernIdentityNotice": "احراز هویت مشروط به تطابق کد ملی و شماره همراه است.",
+  "modernRegistryFee": "کارمزد ثبت احوال",
+  "modernPasswordFee": "کارمزد دریافت رمز",
+  "modernPaymentStep": "پرداخت کارمزد",
+  "modernOperations": "عملیات همراه بانک",
+  "modernRecoveryTitle": "فراموشی رمز موبایل بانک",
+  "modernRequestStatus": "وضعیت درخواست",
+  "modernAwaitingIdentity": "در انتظار نتیجه تایید هویت",
+  "modernRefundNotice": "درصورتی که فرآیند احراز هویت با خطا روبرو شود مبلغ کارمزد کسر شده تا ۷۲ ساعت به کیف پول شما باز خواهد گشت.",
+  "modernRejected": "احراز هویت تأیید نشده است. می‌توانید درخواست جدیدی ثبت کنید.",
+  "modernPreviewNotice": "این تصویر نمونهٔ مرحلهٔ پس از ضبط است؛ فعلاً ویدئویی ضبط یا ارسال نمی‌شود.",
+  "modernTermsUnavailable": "متن قوانین این خدمت هنوز ارائه نشده است.",
+  "modernLimitsTitle": "تغییر سقف انتقال وجه",
+  "modernLimitsIntro": "سقف مجاز انتقال وجه روزانه در موبایل بانک شما به شرح زیر است.",
+  "modernLimitsEditIntro": "سقف مجاز روزانه هر یک از انتقال وجه‌های زیر را برای موبایل بانک خود مشخص و ثبت کنید.",
+  "modernInternal": "درون بانکی",
+  "modernPaya": "حواله پایا بین بانکی",
+  "modernSatna": "ساتنا بین بانکی",
+  "modernEdit": "ویرایش",
+  "modernLimitError": "مبلغی بیشتر از صفر و حداکثر تا سقف مجاز وارد کنید.",
+  "modernMaximumLimit": "حداکثر مبلغ مجاز انتقال وجه روزانه: {amount} ریال",
+  "@modernMaximumLimit": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "modernToman": "{amount} تومان",
+  "@modernToman": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "modernLimitsSaved": "سقف انتقال وجه در نسخهٔ آزمایشی ذخیره شد؛ تغییری در حساب بانکی انجام نشده است.",
+  "modernDeactivate": "غیرفعالسازی",
+  "modernDeactivationTitle": "غیرفعالسازی موبایل بانک",
+  "modernDeactivationIntro": "علت درخواست غیرفعالسازی موبایل بانک خود را انتخاب کنید.",
+  "modernUsername": "نام کاربری",
+  "modernReason": "علت درخواست",
+  "modernReasonHint": "علت درخواست خود را انتخاب کنید",
+  "modernCompromised": "احتمال هک شدن",
+  "modernOtherReason": "سایر",
+  "modernDeactivationSaved": "درخواست غیرفعالسازی در نسخهٔ آزمایشی ثبت شد؛ سرویس بانکی واقعی تغییر نکرده است.",
+  "modernGuideLogin": "برای تغییر رمز موبایل بانک ابتدا وارد موبایل بانک خود شوید.",
+  "modernGuideOther": "از بخش سایر، گزینه تغییر رمز عبور را انتخاب کنید.",
+  "modernGuidePassword": "رمز عبور فعلی خود و رمز جدید خود را وارد و تکرار کنید.",
+  "modernGuidePage": "مرحله {page} از ۴",
+  "@modernGuidePage": {
+    "placeholders": {
+      "page": {
+        "type": "int"
+      }
+    }
+  },
+  "modernSerialStep": "وارد کردن سریال پشت کارت ملی",
+  "modernKycStep": "احراز هویت"
 }
