@@ -62,7 +62,13 @@ void main() {
   }
 
   Future<void> openList(WidgetTester tester) async {
-    await tester.tap(find.byTooltip('اعلان‌ها'));
+    await tester.tap(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is AppButton &&
+            widget.tooltip == S.current.notificationsLabel,
+      ),
+    );
     await tester.pumpAndSettle();
   }
 

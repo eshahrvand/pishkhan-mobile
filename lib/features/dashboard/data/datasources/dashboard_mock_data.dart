@@ -6,7 +6,7 @@ abstract final class DashboardMockData {
   static const singleCard = BankCard(id: 'current');
   static const cards = [
     BankCard(id: 'qarz-1', kind: BankCardKind.qarz, canSetSecondPin: false),
-    BankCard(id: 'qarz-2', kind: BankCardKind.qarz, canSetSecondPin: false),
+    BankCard(id: 'qarz-2', kind: BankCardKind.qarz),
   ];
   static const singleDeposit = BankDeposit(
     id: 'current-single',

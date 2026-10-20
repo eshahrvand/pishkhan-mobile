@@ -20,859 +20,1985 @@ typedef String MessageIfAbsent(String messageStr, List<dynamic> args);
 class MessageLookup extends MessageLookupByLibrary {
   String get localeName => 'fa';
 
-  static String m0(number) => "حذف کارت ${number}";
+  static String m0(percentage) => "${percentage}٪";
 
-  static String m1(count) => "لیست کارت‌های انتخاب شده (${count})";
+  static String m1(number) => "حذف کارت ${number}";
 
-  static String m2(current, total, title) =>
+  static String m2(count) => "لیست کارت‌های انتخاب شده (${count})";
+
+  static String m3(current, total, title) =>
       "مرحله ${current} از ${total}، ${title}";
 
-  static String m3(phone) =>
+  static String m4(page) => "مرحله ${page} از ۴";
+
+  static String m5(amount) =>
+      "حداکثر مبلغ مجاز انتقال وجه روزانه: ${amount} ریال";
+
+  static String m6(amount) => "${amount} تومان";
+
+  static String m7(phone) =>
       "رمز پویای ارسال شده به شماره ${phone} را وارد کنید.";
 
-  static String m4(max) => "تعداد کارت باید بین ۱ و ${max} باشد.";
+  static String m8(occupation) => "از حذف شغل خود (${occupation}) مطمئن هستید؟";
 
-  static String m5(amount) => "کارمزد صدور هر کارت ${amount} است";
+  static String m9(selected, existing) =>
+      "عنوان شغلی انتخاب شده (${selected}) از گروه فاقدین شغل است و با شغل قبلی شما (${existing}) نمی‌تواند به صورت همزمان انتخاب شود.";
+
+  static String m10(previous, selected) =>
+      "برای تغییر از عنوان شغلی ${previous} به ${selected} نیاز به بررسی اپراتور است که پس از تایید تغییرات در پنل کاربری شما قابل مشاهده خواهد بود.";
+
+  static String m11(amount) => "${amount} تومان";
+
+  static String m12(max) => "تعداد کارت باید بین ۱ و ${max} باشد.";
+
+  static String m13(amount) => "کارمزد صدور هر کارت ${amount} است";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
-        "appTitle": MessageLookupByLibrary.simpleMessage("پیشخوان مجازی رسالت"),
-        "assetReport": MessageLookupByLibrary.simpleMessage("گزارش تمکن"),
-        "authInvalidCaptcha": MessageLookupByLibrary.simpleMessage(
-            "کد امنیتی ۶ رقمی را وارد کنید"),
-        "authInvalidNationalId":
-            MessageLookupByLibrary.simpleMessage("کد ملی ۱۰ رقمی را وارد کنید"),
-        "authInvalidPhone": MessageLookupByLibrary.simpleMessage(
-            "شماره همراه ۱۱ رقمی با ۰۹ را وارد کنید"),
-        "automaticCompleted":
-            MessageLookupByLibrary.simpleMessage("انجام شده خودکار"),
-        "backLabel": MessageLookupByLibrary.simpleMessage("بازگشت"),
-        "balanceAverageStatement":
-            MessageLookupByLibrary.simpleMessage("صورتحساب، معدل موجودی"),
-        "blockCard": MessageLookupByLibrary.simpleMessage("مسدودی کارت"),
-        "captchaHint":
-            MessageLookupByLibrary.simpleMessage("کد روبرو را وارد کنید"),
-        "cardFeatureActive": MessageLookupByLibrary.simpleMessage("فعال"),
-        "cardFeatureAll": MessageLookupByLibrary.simpleMessage("همه"),
-        "cardFeatureApplyFilter":
-            MessageLookupByLibrary.simpleMessage("اعمال فیلتر"),
-        "cardFeatureBlocked": MessageLookupByLibrary.simpleMessage("مسدود"),
-        "cardFeatureCardStatus":
-            MessageLookupByLibrary.simpleMessage("وضعیت کارت"),
-        "cardFeatureCoupon": MessageLookupByLibrary.simpleMessage("بن کارت"),
-        "cardFeatureDeposit":
-            MessageLookupByLibrary.simpleMessage("سپرده متصل"),
-        "cardFeatureDepositType":
-            MessageLookupByLibrary.simpleMessage("نوع سپرده"),
-        "cardFeatureDetails":
-            MessageLookupByLibrary.simpleMessage("جزئیات کارت"),
-        "cardFeatureExpired": MessageLookupByLibrary.simpleMessage("منقضی"),
-        "cardFeatureExpiry":
-            MessageLookupByLibrary.simpleMessage("تاریخ انقضا"),
-        "cardFeatureFamily":
-            MessageLookupByLibrary.simpleMessage("کارت خانواده"),
-        "cardFeatureFilter": MessageLookupByLibrary.simpleMessage("فیلتر"),
-        "cardFeatureGift": MessageLookupByLibrary.simpleMessage("کارت هدیه"),
-        "cardFeatureGiftTransfer":
-            MessageLookupByLibrary.simpleMessage("واریز مانده کارت هدیه منقضی"),
-        "cardFeatureIban": MessageLookupByLibrary.simpleMessage("شماره شبا"),
-        "cardFeatureNoResults": MessageLookupByLibrary.simpleMessage(
-            "کارتی با این مشخصات پیدا نشد"),
-        "cardFeatureNumber": MessageLookupByLibrary.simpleMessage("شماره کارت"),
-        "cardFeatureQarz": MessageLookupByLibrary.simpleMessage("قرض الحسنه"),
-        "cardFeatureRemoveFilter":
-            MessageLookupByLibrary.simpleMessage("حذف فیلتر"),
-        "cardFeatureResalat":
-            MessageLookupByLibrary.simpleMessage("رسالت کارت"),
-        "cardFeatureStatus": MessageLookupByLibrary.simpleMessage("وضعیت"),
-        "cardFeatureUnavailable": MessageLookupByLibrary.simpleMessage(
-            "این خدمت در حال حاضر در دسترس نیست."),
-        "cardFeatureVirtualRequest":
-            MessageLookupByLibrary.simpleMessage("درخواست کارت مجازی"),
-        "cardPasswordIssue":
-            MessageLookupByLibrary.simpleMessage("صدور رمز اول /دوم کارت"),
-        "cardServiceCard": MessageLookupByLibrary.simpleMessage("کارت"),
-        "cardServiceCardHint": MessageLookupByLibrary.simpleMessage(
-            "کارت مورد نظر خود را انتخاب کنید"),
-        "cardServiceComplete":
-            MessageLookupByLibrary.simpleMessage("درخواست با موفقیت ثبت شد."),
-        "cardServiceCurrentDeposit":
-            MessageLookupByLibrary.simpleMessage("سپرده جاری"),
-        "cardServiceEmpty": MessageLookupByLibrary.simpleMessage(
-            "موردی برای نمایش وجود ندارد."),
-        "cardServiceFromDeposit":
-            MessageLookupByLibrary.simpleMessage("از سپرده"),
-        "cardServiceMockComplete": MessageLookupByLibrary.simpleMessage(
-            "درخواست آزمایشی ثبت شد؛ عملیات بانکی انجام نشده است."),
-        "cardServiceQarzDeposit":
-            MessageLookupByLibrary.simpleMessage("سپرده قرض الحسنه"),
-        "cardServiceSubmit":
-            MessageLookupByLibrary.simpleMessage("تایید و ثبت درخواست"),
-        "cardServiceSubmitError": MessageLookupByLibrary.simpleMessage(
-            "ثبت درخواست انجام نشد. دوباره تلاش کنید."),
-        "cardServiceToDeposit":
-            MessageLookupByLibrary.simpleMessage("به سپرده"),
-        "cardServiceToDepositHint": MessageLookupByLibrary.simpleMessage(
-            "سپرده‌ای که مایل هستید متصل به کارت باشد"),
-        "cardServices": MessageLookupByLibrary.simpleMessage("خدمات کارت"),
-        "cardsBuyGift": MessageLookupByLibrary.simpleMessage("خرید کارت هدیه"),
-        "cardsChangeFirst":
-            MessageLookupByLibrary.simpleMessage("تغییر رمز اول"),
-        "cardsCopyIban": MessageLookupByLibrary.simpleMessage("کپی شماره شبا"),
-        "cardsCopyNumber":
-            MessageLookupByLibrary.simpleMessage("کپی شماره کارت"),
-        "cardsCurrent":
-            MessageLookupByLibrary.simpleMessage("رسالت کارت (جاری)"),
-        "cardsEmpty": MessageLookupByLibrary.simpleMessage("هنوز کارتی ندارید"),
-        "cardsExpiry": MessageLookupByLibrary.simpleMessage(": انقضا"),
-        "cardsForgotFirst":
-            MessageLookupByLibrary.simpleMessage("فراموشی رمز اول"),
-        "cardsForgotSecond":
-            MessageLookupByLibrary.simpleMessage("فراموشی رمز دوم"),
-        "cardsGiftBalance":
-            MessageLookupByLibrary.simpleMessage("واریز مانده کارت هدیه"),
-        "cardsHideDetails":
-            MessageLookupByLibrary.simpleMessage("پنهان کردن اطلاعات کارت"),
-        "cardsMore": MessageLookupByLibrary.simpleMessage("گزینه‌های کارت"),
-        "cardsMyTitle": MessageLookupByLibrary.simpleMessage("کارت‌های من"),
-        "cardsOperations": MessageLookupByLibrary.simpleMessage("عملیات کارت"),
-        "cardsPinOperations":
-            MessageLookupByLibrary.simpleMessage("عملیات رمز"),
-        "cardsQarz":
-            MessageLookupByLibrary.simpleMessage("رسالت کارت (قرض الحسنه)"),
-        "cardsQuickAccess": MessageLookupByLibrary.simpleMessage("دسترسی سریع"),
-        "cardsReissue": MessageLookupByLibrary.simpleMessage("صدور مجدد کارت"),
-        "cardsSetSecond": MessageLookupByLibrary.simpleMessage("تعیین رمز دوم"),
-        "cardsShowDetails":
-            MessageLookupByLibrary.simpleMessage("نمایش اطلاعات کارت"),
-        "cardsVirtual": MessageLookupByLibrary.simpleMessage("کارت مجازی"),
-        "certificateAddressHint": MessageLookupByLibrary.simpleMessage(
-            "آدرس ارسال گواهی را انتخاب کنید"),
-        "certificateAgentIdentifier":
-            MessageLookupByLibrary.simpleMessage("کد ملی یا تلفن کارشناس"),
-        "certificateAgentNotice": MessageLookupByLibrary.simpleMessage(
-            "چنانچه کارشناس بانکی جهت احراز می‌شناسید، با وارد کردن کد ملی یا شماره تلفن کارشناس مد نظر خود را انتخاب کنید."),
-        "certificateAgentUnavailable": MessageLookupByLibrary.simpleMessage(
-            "استعلام کارشناس پس از اتصال به سامانه بانک فعال می‌شود."),
-        "certificateAverageBalance":
-            MessageLookupByLibrary.simpleMessage("معدل موجودی"),
-        "certificateAverageTitle": MessageLookupByLibrary.simpleMessage(
-            "درخواست صورت‌حساب | معدل موجودی"),
-        "certificateBothTurnovers":
-            MessageLookupByLibrary.simpleMessage("واریز | برداشت"),
-        "certificateCheckAgent": MessageLookupByLibrary.simpleMessage("بررسی"),
-        "certificateConditionsPrompt": MessageLookupByLibrary.simpleMessage(
-            "شرایط درخواست جهت درج روی گواهی را انتخاب کنید."),
-        "certificateConditionsStep": MessageLookupByLibrary.simpleMessage(
-            "انتخاب سپرده و شرایط درخواست"),
-        "certificateDeleteAddressPrompt": MessageLookupByLibrary.simpleMessage(
-            "از حذف این آدرس مطمئن هستید؟"),
-        "certificateDeliveryStep":
-            MessageLookupByLibrary.simpleMessage("اطلاعات نحوه دریافت گواهی"),
-        "certificateDepositsOnly":
-            MessageLookupByLibrary.simpleMessage("واریز"),
-        "certificateEnglish": MessageLookupByLibrary.simpleMessage("انگلیسی"),
-        "certificateFromDate": MessageLookupByLibrary.simpleMessage("از تاریخ"),
-        "certificateFromDateHint":
-            MessageLookupByLibrary.simpleMessage("تاریخ شروع را مشخص کنید"),
-        "certificateLanguage": MessageLookupByLibrary.simpleMessage("زبان"),
-        "certificateMockComplete": MessageLookupByLibrary.simpleMessage(
-            "درخواست آزمایشی ثبت شد؛ گواهی صادر نشده و مبلغی برداشت نشده است."),
-        "certificateNextPrefix": MessageLookupByLibrary.simpleMessage("بعدی:"),
-        "certificateOptional": MessageLookupByLibrary.simpleMessage("اختیاری"),
-        "certificatePersian": MessageLookupByLibrary.simpleMessage("فارسی"),
-        "certificatePrintingNotice": MessageLookupByLibrary.simpleMessage(
-            "هزینه چاپ گزارش بر اساس تعداد صفحات محاسبه می‌شود."),
-        "certificateRecipientName":
-            MessageLookupByLibrary.simpleMessage("نام و نام خانوادگی"),
-        "certificateRecipientNameHint": MessageLookupByLibrary.simpleMessage(
-            "نام و نام خانوادگی گیرنده را وارد کنید"),
-        "certificateRecipientNationalIdHint":
-            MessageLookupByLibrary.simpleMessage("کد ملی گیرنده را وارد کنید"),
-        "certificateRecipientNotice": MessageLookupByLibrary.simpleMessage(
-            "بسته فقط به شما تحویل داده می‌شود. در صورت عدم حضور، مشخصات تحویل گیرنده دوم را وارد کنید."),
-        "certificateStatementLanguageHint":
-            MessageLookupByLibrary.simpleMessage(
-                "زبان صورتحساب را انتخاب کنید"),
-        "certificateToDate": MessageLookupByLibrary.simpleMessage("تا تاریخ"),
-        "certificateToDateHint":
-            MessageLookupByLibrary.simpleMessage("تاریخ پایان را مشخص کنید"),
-        "certificateTurnover": MessageLookupByLibrary.simpleMessage("نوع گردش"),
-        "certificateTurnoverHint": MessageLookupByLibrary.simpleMessage(
-            "نوع گردش سپرده را انتخاب نمایید"),
-        "certificateWithdrawalsOnly":
-            MessageLookupByLibrary.simpleMessage("برداشت"),
-        "changeCardDeposit":
-            MessageLookupByLibrary.simpleMessage("تغییر سپرده متصل به کارت"),
-        "changeCardDepositIntro": MessageLookupByLibrary.simpleMessage(
-            "ابتدا کارت را انتخاب کنید، سپس سپرده‌ای که می‌خواهید به آن وصل شود را انتخاب کنید."),
-        "changeCardDepositTitle":
-            MessageLookupByLibrary.simpleMessage("تغییر سپرده متصل به کارت"),
-        "changeInstallmentDeposit":
-            MessageLookupByLibrary.simpleMessage("تغییر سپرده جهت کسر اقساط"),
-        "changeMobileDescription": MessageLookupByLibrary.simpleMessage(
-            "برای تغییر شماره همراه ورود به پیشخوان اطلاعات زیر را وارد کنید"),
-        "changeMobileService":
-            MessageLookupByLibrary.simpleMessage("تغییر تلفن همراه"),
-        "changeMobileTitle":
-            MessageLookupByLibrary.simpleMessage("تغییر شماره همراه"),
-        "changeNationalIdHint": MessageLookupByLibrary.simpleMessage(
-            "کد ملی | شماره ملی خود را وارد کنید"),
-        "changePhoneAction":
-            MessageLookupByLibrary.simpleMessage("تغییر شماره همراه"),
-        "changePhoneHint": MessageLookupByLibrary.simpleMessage(
-            "شماره همراه جدید خود را وارد کنید"),
-        "closeLabel": MessageLookupByLibrary.simpleMessage("بستن"),
-        "consolidateDepositCredit":
-            MessageLookupByLibrary.simpleMessage("تجمیع اعتبار سپرده"),
-        "dashboardAddFavorites":
-            MessageLookupByLibrary.simpleMessage("افزودن خدمات منتخب"),
-        "dashboardAddService":
-            MessageLookupByLibrary.simpleMessage("افزودن مورد جدید"),
-        "dashboardAddresses":
-            MessageLookupByLibrary.simpleMessage("مدیریت آدرس"),
-        "dashboardAllServices":
-            MessageLookupByLibrary.simpleMessage("همه خدمات"),
-        "dashboardAssistant":
-            MessageLookupByLibrary.simpleMessage("دستیار هوشمند"),
-        "dashboardBankServices":
-            MessageLookupByLibrary.simpleMessage("خدمات بانک رسالت"),
-        "dashboardBlockDeposit":
-            MessageLookupByLibrary.simpleMessage("مسدودی سپرده"),
-        "dashboardCancel": MessageLookupByLibrary.simpleMessage("انصراف"),
-        "dashboardCancelCheque":
-            MessageLookupByLibrary.simpleMessage("ابطال چک"),
-        "dashboardCardsList":
-            MessageLookupByLibrary.simpleMessage("لیست کارت‌ها"),
-        "dashboardCardsTab": MessageLookupByLibrary.simpleMessage("کارت"),
-        "dashboardChangeIdentity":
-            MessageLookupByLibrary.simpleMessage("تغییر مشخصات هویتی"),
-        "dashboardChangePhone":
-            MessageLookupByLibrary.simpleMessage("تغییر شماره تلفن همراه"),
-        "dashboardChequeServices": MessageLookupByLibrary.simpleMessage("چک"),
-        "dashboardClearCheque":
-            MessageLookupByLibrary.simpleMessage("رفع سوء اثر چک"),
-        "dashboardCloseExtras":
-            MessageLookupByLibrary.simpleMessage("بستن سپرده‌های مازاد"),
-        "dashboardConfirm": MessageLookupByLibrary.simpleMessage("تایید"),
-        "dashboardCorrectInstallments":
-            MessageLookupByLibrary.simpleMessage("اصلاح اقساط پرداختی"),
-        "dashboardCustomize":
-            MessageLookupByLibrary.simpleMessage("تنظیم خدمات منتخب"),
-        "dashboardDeferLoan": MessageLookupByLibrary.simpleMessage("امهال وام"),
-        "dashboardDepositsList":
-            MessageLookupByLibrary.simpleMessage("لیست سپرده‌ها"),
-        "dashboardDepositsTab": MessageLookupByLibrary.simpleMessage("سپرده"),
-        "dashboardEdit": MessageLookupByLibrary.simpleMessage("ویرایش"),
-        "dashboardEmpty": MessageLookupByLibrary.simpleMessage(
-            "اطلاعاتی برای نمایش وجود ندارد"),
-        "dashboardEstimateCredit":
-            MessageLookupByLibrary.simpleMessage("برآورد اعتبار وام"),
-        "dashboardExpiredGift":
-            MessageLookupByLibrary.simpleMessage("واریز مانده کارت هدیه منقضی"),
-        "dashboardFavoritesLimit": MessageLookupByLibrary.simpleMessage(
-            "حداکثر ۸ تا مورد رو می‌تونی انتخاب کنی."),
-        "dashboardGreeting":
-            MessageLookupByLibrary.simpleMessage("مانی عزیز، صبح بخیر"),
-        "dashboardIdentityServices":
-            MessageLookupByLibrary.simpleMessage("اطلاعات فردی"),
-        "dashboardLoadError":
-            MessageLookupByLibrary.simpleMessage("دریافت اطلاعات انجام نشد"),
-        "dashboardLoading":
-            MessageLookupByLibrary.simpleMessage("در حال دریافت اطلاعات…"),
-        "dashboardLoanReport":
-            MessageLookupByLibrary.simpleMessage("گزارش معرفی وام"),
-        "dashboardLoansTab": MessageLookupByLibrary.simpleMessage("وام"),
-        "dashboardLocalTransfer":
-            MessageLookupByLibrary.simpleMessage("انتقال وجه خدمت در محل"),
-        "dashboardManageInstallments":
-            MessageLookupByLibrary.simpleMessage("مدیریت کسر اقساط"),
-        "dashboardModernBanking":
-            MessageLookupByLibrary.simpleMessage("بانکداری مدرن"),
-        "dashboardMyLoans": MessageLookupByLibrary.simpleMessage("وام‌های من"),
-        "dashboardNoServices":
-            MessageLookupByLibrary.simpleMessage("خدمتی پیدا نشد"),
-        "dashboardOccupation":
-            MessageLookupByLibrary.simpleMessage("مدیریت شغل"),
-        "dashboardOpenCurrent":
-            MessageLookupByLibrary.simpleMessage("افتتاح سپرده جاری"),
-        "dashboardPhoneBank": MessageLookupByLibrary.simpleMessage("تلفن بانک"),
-        "dashboardPromptCard":
-            MessageLookupByLibrary.simpleMessage("چطور کارت رسالت بگیرم؟"),
-        "dashboardPromptCertificate":
-            MessageLookupByLibrary.simpleMessage("گواهی تمکن مالی می‌خوام..."),
-        "dashboardPromptHint":
-            MessageLookupByLibrary.simpleMessage("سوالت رو بنویس..."),
-        "dashboardRemoveService": MessageLookupByLibrary.simpleMessage("حذف"),
-        "dashboardRepresentationSettings":
-            MessageLookupByLibrary.simpleMessage("تنظیمات نمایندگی"),
-        "dashboardRequestDate":
-            MessageLookupByLibrary.simpleMessage("2024/09/16 | ۱۲:۴۵"),
-        "dashboardRequestNumber":
-            MessageLookupByLibrary.simpleMessage("۱۳۷/۴۸۷۵۶۷"),
-        "dashboardRequestServices":
-            MessageLookupByLibrary.simpleMessage("درخواست‌های من"),
-        "dashboardRequestTitle": MessageLookupByLibrary.simpleMessage(
-            "درخواست تغییر سپرده جهت کسر اقساط"),
-        "dashboardRequests":
-            MessageLookupByLibrary.simpleMessage("درخواست‌های من"),
-        "dashboardResetConfirm":
-            MessageLookupByLibrary.simpleMessage("بازنشانی تنظیمات"),
-        "dashboardResetDescription": MessageLookupByLibrary.simpleMessage(
-            "با بازنشانی تنظیمات، همه تغییراتت از بین می‌ره و به حالت اولیه برمی‌گرده.\nمطمئنی می‌خوای به تنظیمات اولیه برگردی؟"),
-        "dashboardResetTitle":
-            MessageLookupByLibrary.simpleMessage("بازنشانی تنظیمات"),
-        "dashboardResoDescription": MessageLookupByLibrary.simpleMessage(
-            "رِسو فقط جواب نمی‌ده؛ خودش دست‌به‌کار می‌شه."),
-        "dashboardResoTitle":
-            MessageLookupByLibrary.simpleMessage("به رِسو بسپار!"),
-        "dashboardRetry": MessageLookupByLibrary.simpleMessage("تلاش دوباره"),
-        "dashboardSearchHint": MessageLookupByLibrary.simpleMessage("جستجو"),
-        "dashboardSendPrompt":
-            MessageLookupByLibrary.simpleMessage("ارسال سوال"),
-        "dashboardTab": MessageLookupByLibrary.simpleMessage("داشبورد"),
-        "dashboardTransferServices":
-            MessageLookupByLibrary.simpleMessage("انتقال وجه"),
-        "dashboardUnblockCard":
-            MessageLookupByLibrary.simpleMessage("رفع مسدودی کارت"),
-        "dashboardUnblockDeposit":
-            MessageLookupByLibrary.simpleMessage("رفع مسدودی سپرده"),
-        "dashboardViewAll": MessageLookupByLibrary.simpleMessage("مشاهده همه"),
-        "dashboardVirtualCard":
-            MessageLookupByLibrary.simpleMessage("درخواست کارت مجازی"),
-        "dashboardWalletBalance":
-            MessageLookupByLibrary.simpleMessage("۱٬۲۰۰٬۰۰۰"),
-        "dashboardWalletCharge":
-            MessageLookupByLibrary.simpleMessage("افزایش موجودی"),
-        "dashboardWalletDeposit":
-            MessageLookupByLibrary.simpleMessage("تغییر سپرده متصل به کیف"),
-        "dashboardWalletHistory":
-            MessageLookupByLibrary.simpleMessage("گردش کیف پول"),
-        "dashboardWalletInfo":
-            MessageLookupByLibrary.simpleMessage("اطلاعات کیف پول"),
-        "dashboardWalletServices":
-            MessageLookupByLibrary.simpleMessage("کیف پول"),
-        "dashboardWalletTransfer":
-            MessageLookupByLibrary.simpleMessage("واریز کیف به کیف"),
-        "dashboardWalletWithdraw":
-            MessageLookupByLibrary.simpleMessage("برداشت موجودی"),
-        "dashboardWelcomeMessage": MessageLookupByLibrary.simpleMessage(
-            "به پیشخوان مجازی رسالت خوش آمدید"),
-        "dashboardYourFavorites":
-            MessageLookupByLibrary.simpleMessage("منتخب شما"),
-        "depositListAccountDetails":
-            MessageLookupByLibrary.simpleMessage("جزئیات حساب"),
-        "depositListAccountType":
-            MessageLookupByLibrary.simpleMessage("نوع حساب"),
-        "depositListBlock":
-            MessageLookupByLibrary.simpleMessage("مسدودی سپرده"),
-        "depositListBlocked": MessageLookupByLibrary.simpleMessage("مسدود"),
-        "depositListClosed": MessageLookupByLibrary.simpleMessage("بسته"),
-        "depositListCurrent":
-            MessageLookupByLibrary.simpleMessage("جاری حقیقی"),
-        "depositListCustomerInformation":
-            MessageLookupByLibrary.simpleMessage("اطلاعات مشتری"),
-        "depositListLinkedCards":
-            MessageLookupByLibrary.simpleMessage("کارت‌های متصل به حساب"),
-        "depositListNationalId": MessageLookupByLibrary.simpleMessage("کدملی"),
-        "depositListNoMatches": MessageLookupByLibrary.simpleMessage(
-            "سپرده‌ای با این فیلترها پیدا نشد."),
-        "depositListNoOwners": MessageLookupByLibrary.simpleMessage(
-            "اطلاعات صاحبان حساب در دسترس نیست."),
-        "depositListNumber":
-            MessageLookupByLibrary.simpleMessage("شماره سپرده"),
-        "depositListOpen": MessageLookupByLibrary.simpleMessage("باز"),
-        "depositListOwner": MessageLookupByLibrary.simpleMessage("صاحب سپرده"),
-        "depositListOwnerAndSignatory":
-            MessageLookupByLibrary.simpleMessage("صاحب سپرده و امضا"),
-        "depositListOwnerName": MessageLookupByLibrary.simpleMessage("نام"),
-        "depositListOwnerPercent": MessageLookupByLibrary.simpleMessage("درصد"),
-        "depositListOwnerRole": MessageLookupByLibrary.simpleMessage("نقش"),
-        "depositListSavings":
-            MessageLookupByLibrary.simpleMessage("پس انداز حقیقی"),
-        "depositListServiceUnavailable": MessageLookupByLibrary.simpleMessage(
-            "این خدمت پس از اتصال به سامانه بانک در دسترس خواهد بود."),
-        "depositListSignatory":
-            MessageLookupByLibrary.simpleMessage("صاحب امضا"),
-        "depositListSms":
-            MessageLookupByLibrary.simpleMessage("تنظیمات ارسال پیامک"),
-        "depositListStatement":
-            MessageLookupByLibrary.simpleMessage("صورت حساب | معدل موجودی"),
-        "depositListStatus": MessageLookupByLibrary.simpleMessage("وضعیت"),
-        "depositServices": MessageLookupByLibrary.simpleMessage("خدمات سپرده"),
-        "depositsChequeOperations":
-            MessageLookupByLibrary.simpleMessage("عملیات چک"),
-        "depositsCopyNumber":
-            MessageLookupByLibrary.simpleMessage("کپی شماره سپرده"),
-        "depositsEmpty":
-            MessageLookupByLibrary.simpleMessage("هنوز سپرده‌ای ندارید"),
-        "depositsLinkedCards":
-            MessageLookupByLibrary.simpleMessage("کارت‌های متصل به سپرده"),
-        "depositsLinkedLoans":
-            MessageLookupByLibrary.simpleMessage("وضعیت وام‌های متصل"),
-        "depositsLocalTransfer":
-            MessageLookupByLibrary.simpleMessage("انتقال وجه خدمت در محل"),
-        "depositsMobileBank":
-            MessageLookupByLibrary.simpleMessage("موبایل بانک"),
-        "depositsMyTitle": MessageLookupByLibrary.simpleMessage("سپرده‌های من"),
-        "depositsOperations":
-            MessageLookupByLibrary.simpleMessage("عملیات سپرده"),
-        "depositsRepresentative":
-            MessageLookupByLibrary.simpleMessage("تنظیمات نماینده"),
-        "enterDashboard":
-            MessageLookupByLibrary.simpleMessage("ورود به پیشخوان"),
-        "financialAuthority": MessageLookupByLibrary.simpleMessage("مرجع"),
-        "financialAuthorityHint":
-            MessageLookupByLibrary.simpleMessage("نام دقیق مرجع را بنویسید"),
-        "financialAverageBalanceCondition":
-            MessageLookupByLibrary.simpleMessage("درج میانگین موجودی"),
-        "financialCertificate":
-            MessageLookupByLibrary.simpleMessage("گواهی تمکن مالی"),
-        "financialCertificateTitle":
-            MessageLookupByLibrary.simpleMessage("درخواست گواهی تمکن مالی"),
-        "financialCurrency": MessageLookupByLibrary.simpleMessage("ارز معادل"),
-        "financialCurrencyHint": MessageLookupByLibrary.simpleMessage(
-            "نوع ارز را جهت ارائه تمکن مالی انتخاب کنید"),
-        "financialDebitCredit": MessageLookupByLibrary.simpleMessage(
-            "درج مبلغ گردش بدهکار بستانکار"),
-        "financialDeliveryStep":
-            MessageLookupByLibrary.simpleMessage("اطلاعات دریافت گواهی"),
-        "financialEmbassy": MessageLookupByLibrary.simpleMessage("سفارت"),
-        "financialEmbassyHint": MessageLookupByLibrary.simpleMessage(
-            "سفارت مورد نظر را انتخاب کنید"),
-        "financialEur": MessageLookupByLibrary.simpleMessage("یورو"),
-        "financialExchangeRate":
-            MessageLookupByLibrary.simpleMessage("درج نرخ برابری روز"),
-        "financialExpiryHint": MessageLookupByLibrary.simpleMessage(
-            "تاریخ لاتین انقضای گذرنامه، درج شده در گذرنامه"),
-        "financialFatherHint": MessageLookupByLibrary.simpleMessage(
-            "نام پدر به انگلیسی مطابق گذرنامه"),
-        "financialHomeAddress":
-            MessageLookupByLibrary.simpleMessage("آدرس محل سکونت"),
-        "financialIrr": MessageLookupByLibrary.simpleMessage("ریال ایران"),
-        "financialLatinAddress":
-            MessageLookupByLibrary.simpleMessage("Address"),
-        "financialLatinAddressHint": MessageLookupByLibrary.simpleMessage(
-            "Unit, No, Alley, St, City, Province, Country, Postal code"),
-        "financialLatinAddressPrompt": MessageLookupByLibrary.simpleMessage(
-            "آدرس انگلیسی جهت درج در گواهی تمکن مالی را طبق فرمت نمونه وارد نمایید."),
-        "financialLatinExpiry":
-            MessageLookupByLibrary.simpleMessage("Date of Expiry"),
-        "financialLatinFather":
-            MessageLookupByLibrary.simpleMessage("Father\'s name"),
-        "financialLatinName": MessageLookupByLibrary.simpleMessage("Name"),
-        "financialLatinPassport":
-            MessageLookupByLibrary.simpleMessage("Passport No"),
-        "financialLatinStep":
-            MessageLookupByLibrary.simpleMessage("اطلاعات فردی لاتین"),
-        "financialLatinSurname":
-            MessageLookupByLibrary.simpleMessage("Surname"),
-        "financialMaturityDate":
-            MessageLookupByLibrary.simpleMessage("تاریخ سررسید سپرده"),
-        "financialNameHint": MessageLookupByLibrary.simpleMessage(
-            "نام به انگلیسی مطابق گذرنامه"),
-        "financialOpenedAt": MessageLookupByLibrary.simpleMessage(
-            "درج تاریخ اولیه افتتاح سپرده"),
-        "financialOtherAuthority":
-            MessageLookupByLibrary.simpleMessage("دیگر مراجع"),
-        "financialPassportHint":
-            MessageLookupByLibrary.simpleMessage("شماره گذرنامه به انگلیسی"),
-        "financialPassportNumberCondition":
-            MessageLookupByLibrary.simpleMessage("شماره گذرنامه / شماره ثبت"),
-        "financialPassportPrompt": MessageLookupByLibrary.simpleMessage(
-            "اطلاعات زیر را مطابق با گذرنامه خود وارد نمایید."),
-        "financialRecipient": MessageLookupByLibrary.simpleMessage("گیرنده"),
-        "financialRecipientHint":
-            MessageLookupByLibrary.simpleMessage("گیرنده گواهی را انتخاب کنید"),
-        "financialRecipientPrompt": MessageLookupByLibrary.simpleMessage(
-            "گیرنده گواهی و ارز معادل را انتخاب کنید"),
-        "financialRecipientStep":
-            MessageLookupByLibrary.simpleMessage("گیرنده گواهی و نوع ارز"),
-        "financialSurnameHint": MessageLookupByLibrary.simpleMessage(
-            "نام خانوادگی به انگلیسی مطابق گذرنامه"),
-        "financialUsd": MessageLookupByLibrary.simpleMessage("دلار آمریکا"),
-        "financialWithdrawalRules": MessageLookupByLibrary.simpleMessage(
-            "شرایط برداشت از سپرده‌های مشترک / حقوقی"),
-        "flowExitTitle":
-            MessageLookupByLibrary.simpleMessage("خروج از عملیات؟"),
-        "giftBalanceCount":
-            MessageLookupByLibrary.simpleMessage("تعداد کارت هدیه منقضی"),
-        "giftBalanceDepositHint": MessageLookupByLibrary.simpleMessage(
-            "سپرده مورد نظر خود را انتخاب کنید"),
-        "giftBalanceDestination":
-            MessageLookupByLibrary.simpleMessage("انتخاب سپرده جهت واریز"),
-        "giftBalanceEnd": MessageLookupByLibrary.simpleMessage("پایان"),
-        "giftBalanceIntro": MessageLookupByLibrary.simpleMessage(
-            "کارت‌های هدیه منقضی شده را انتخاب کنید"),
-        "giftBalanceNext": MessageLookupByLibrary.simpleMessage("مرحله بعد"),
-        "giftBalanceNextDestination": MessageLookupByLibrary.simpleMessage(
-            "بعدی: انتخاب سپرده جهت واریز"),
-        "giftBalanceRemaining":
-            MessageLookupByLibrary.simpleMessage("مانده موجودی (ریال)"),
-        "giftBalanceRemoveCard": m0,
-        "giftBalanceSearch":
-            MessageLookupByLibrary.simpleMessage("جستجو بر اساس شماره کارت"),
-        "giftBalanceSelectAll":
-            MessageLookupByLibrary.simpleMessage("انتخاب همه"),
-        "giftBalanceSelectedList": m1,
-        "giftBalanceSelection":
-            MessageLookupByLibrary.simpleMessage("انتخاب کارت‌ها"),
-        "giftBalanceSubmit":
-            MessageLookupByLibrary.simpleMessage("ثبت درخواست"),
-        "giftBalanceTitle":
-            MessageLookupByLibrary.simpleMessage("واریز مانده کارت هدیه منقضی"),
-        "giftBalanceTotal":
-            MessageLookupByLibrary.simpleMessage("مجموع مبلغ (ریال)"),
-        "giftBalanceTransferTo":
-            MessageLookupByLibrary.simpleMessage("انتقال به"),
-        "guestServices":
-            MessageLookupByLibrary.simpleMessage("خدمات بدون نیاز به لاگین"),
-        "inheritance": MessageLookupByLibrary.simpleMessage("انحصار وراثت"),
-        "internetBank": MessageLookupByLibrary.simpleMessage("اینترنت بانک"),
-        "internetBankSettings":
-            MessageLookupByLibrary.simpleMessage("تنظیمات اینترنت بانک"),
-        "introduceLoan": MessageLookupByLibrary.simpleMessage("معرفی وام"),
-        "introduceRepresentative":
-            MessageLookupByLibrary.simpleMessage("معرفی نماینده"),
-        "issuanceAddAddress":
-            MessageLookupByLibrary.simpleMessage("افزودن آدرس جدید"),
-        "issuanceAddress": MessageLookupByLibrary.simpleMessage("آدرس"),
-        "issuanceAddressDetail":
-            MessageLookupByLibrary.simpleMessage("نشانی کامل"),
-        "issuanceAddressHint": MessageLookupByLibrary.simpleMessage(
-            "آدرس دریافت کارت را انتخاب کنید"),
-        "issuanceAddressInvalid": MessageLookupByLibrary.simpleMessage(
-            "عنوان، نشانی کامل و کد پستی ۱۰ رقمی را وارد کنید."),
-        "issuanceAddressTitle":
-            MessageLookupByLibrary.simpleMessage("عنوان آدرس"),
-        "issuanceAgentCode": MessageLookupByLibrary.simpleMessage("کد کارشناس"),
-        "issuanceAgentName":
-            MessageLookupByLibrary.simpleMessage("نام و نام خانوادگی کارشناس"),
-        "issuanceComplete":
-            MessageLookupByLibrary.simpleMessage("درخواست ثبت شد."),
-        "issuanceConfirmTitle": MessageLookupByLibrary.simpleMessage(
-            "تایید اطلاعات و پرداخت کارمزد"),
-        "issuanceCurrentCard":
-            MessageLookupByLibrary.simpleMessage("شماره کارت فعلی"),
-        "issuanceDeleteAddress":
-            MessageLookupByLibrary.simpleMessage("حذف آدرس"),
-        "issuanceDeliveryFee":
-            MessageLookupByLibrary.simpleMessage("هزینه ارسال"),
-        "issuanceDeliveryTitle":
-            MessageLookupByLibrary.simpleMessage("اطلاعات دریافت کارت"),
-        "issuanceDeposit": MessageLookupByLibrary.simpleMessage("انتخاب سپرده"),
-        "issuanceDepositHint": MessageLookupByLibrary.simpleMessage(
-            "سپرده مورد نظر خود را انتخاب کنید"),
-        "issuanceDepositNumber":
-            MessageLookupByLibrary.simpleMessage("شماره سپرده"),
-        "issuanceDone": MessageLookupByLibrary.simpleMessage("بازگشت"),
-        "issuanceEmpty": MessageLookupByLibrary.simpleMessage(
-            "سپرده‌ای برای صدور کارت در دسترس نیست."),
-        "issuanceEnd": MessageLookupByLibrary.simpleMessage("پایان"),
-        "issuanceExistingNumber":
-            MessageLookupByLibrary.simpleMessage("صدور کارت با شماره فعلی"),
-        "issuanceExpiry": MessageLookupByLibrary.simpleMessage("تاریخ انقضا"),
-        "issuanceIdentityFee":
-            MessageLookupByLibrary.simpleMessage("کارمزد احراز هویت"),
-        "issuanceIncludeAgent": MessageLookupByLibrary.simpleMessage(
-            "وارد کردن مشخصات کارشناس بانکی"),
-        "issuanceMockComplete": MessageLookupByLibrary.simpleMessage(
-            "پیش‌نمایش درخواست تکمیل شد؛ پرداخت یا صدور واقعی انجام نشده است."),
-        "issuanceNationalId":
-            MessageLookupByLibrary.simpleMessage("کد ملی گیرنده"),
-        "issuanceNewNumber":
-            MessageLookupByLibrary.simpleMessage("صدور کارت با شماره جدید"),
-        "issuanceNext": MessageLookupByLibrary.simpleMessage("مرحله بعد"),
-        "issuanceNextConfirm": MessageLookupByLibrary.simpleMessage(
-            "بعدی: تایید اطلاعات و پرداخت کارمزد"),
-        "issuanceNextDelivery":
-            MessageLookupByLibrary.simpleMessage("بعدی: اطلاعات دریافت کارت"),
-        "issuanceNoPhysical": MessageLookupByLibrary.simpleMessage(
-            "نیازی به دریافت کارت فیزیکی ندارم"),
-        "issuanceOperation": MessageLookupByLibrary.simpleMessage("نوع عملیات"),
-        "issuanceOtherRecipient":
-            MessageLookupByLibrary.simpleMessage("دریافت توسط شخص دیگر"),
-        "issuancePayable":
-            MessageLookupByLibrary.simpleMessage("هزینه قابل پرداخت"),
-        "issuancePostalCode": MessageLookupByLibrary.simpleMessage("کد پستی"),
-        "issuancePrintFee":
-            MessageLookupByLibrary.simpleMessage("هزینه چاپ گزارش"),
-        "issuanceRecipientMobile":
-            MessageLookupByLibrary.simpleMessage("شماره همراه گیرنده"),
-        "issuanceRecipientName":
-            MessageLookupByLibrary.simpleMessage("نام و نام خانوادگی گیرنده"),
-        "issuanceSaveAddress": MessageLookupByLibrary.simpleMessage("ثبت آدرس"),
-        "issuanceSelectAddress":
-            MessageLookupByLibrary.simpleMessage("انتخاب آدرس"),
-        "issuanceSelectionTitle": MessageLookupByLibrary.simpleMessage(
-            "انتخاب سپرده و نوع صدور کارت"),
-        "issuanceStepSemantic": m2,
-        "issuanceSubmit":
-            MessageLookupByLibrary.simpleMessage("تایید و ثبت درخواست"),
-        "issuanceSubmitError": MessageLookupByLibrary.simpleMessage(
-            "ثبت درخواست انجام نشد. دوباره تلاش کنید."),
-        "issuanceSummary":
-            MessageLookupByLibrary.simpleMessage("خلاصه اطلاعات"),
-        "issuanceTerms":
-            MessageLookupByLibrary.simpleMessage("قوانین و مقررات"),
-        "issuanceTermsPrompt": MessageLookupByLibrary.simpleMessage(
-            "درخواست را مطالعه و تایید می‌نمایم."),
-        "issuanceTermsUnavailable": MessageLookupByLibrary.simpleMessage(
-            "متن رسمی قوانین پس از اتصال به سرویس نمایش داده می‌شود."),
-        "issuanceTitle":
-            MessageLookupByLibrary.simpleMessage("صدور رسالت کارت"),
-        "issuanceType": MessageLookupByLibrary.simpleMessage("نوع صدور کارت"),
-        "issuanceTypeHint":
-            MessageLookupByLibrary.simpleMessage("نوع صدور کارت را مشخص کنید"),
-        "issuanceWallet":
-            MessageLookupByLibrary.simpleMessage("موجودی کیف پول"),
-        "issuanceWalletInsufficient":
-            MessageLookupByLibrary.simpleMessage("موجودی کیف پول کافی نیست"),
-        "issuanceWalletSufficient":
-            MessageLookupByLibrary.simpleMessage("موجودی کیف پول کافی است"),
-        "issueChequeBook": MessageLookupByLibrary.simpleMessage("صدور دسته چک"),
-        "issueResalatCard":
-            MessageLookupByLibrary.simpleMessage("صدور رسالت کارت"),
-        "latestUpdatedRequests":
-            MessageLookupByLibrary.simpleMessage("آخرین درخواست‌های بروز شده"),
-        "loanEstimate": MessageLookupByLibrary.simpleMessage("برآورد وام"),
-        "loanServices": MessageLookupByLibrary.simpleMessage("خدمات وام"),
-        "loansChangeDeposit":
-            MessageLookupByLibrary.simpleMessage("تغییر سپرده کسر اقساط"),
-        "loansDefaultName": MessageLookupByLibrary.simpleMessage(
-            "تسهیلات قرض الحسنه عادی (بدون کارمزد)"),
-        "loansEmpty": MessageLookupByLibrary.simpleMessage("هنوز وامی ندارید"),
-        "loansOperations": MessageLookupByLibrary.simpleMessage("عملیات وام"),
-        "loansPayInstallments":
-            MessageLookupByLibrary.simpleMessage("پرداخت اقساط"),
-        "loansRelationships":
-            MessageLookupByLibrary.simpleMessage("روابط سببی نسبی"),
-        "loginDescription": MessageLookupByLibrary.simpleMessage(
-            "برای ورود به حساب کاربری اطلاعات زیر را وارد کنید"),
-        "loginNationalIdHint": MessageLookupByLibrary.simpleMessage(
-            "کد ملی | شماره ملی | کد اتباع"),
-        "loginPhoneHint": MessageLookupByLibrary.simpleMessage(
-            "شماره همراه خود را وارد کنید"),
-        "loginTitle": MessageLookupByLibrary.simpleMessage("ورود با کد ملی"),
-        "memberContactCenter":
-            MessageLookupByLibrary.simpleMessage("مرکز ارتباط با اعضاء"),
-        "mobileBank": MessageLookupByLibrary.simpleMessage("همراه بانک"),
-        "mobileBankSettings":
-            MessageLookupByLibrary.simpleMessage("تنظیمات موبایل بانک"),
-        "notificationEmpty":
-            MessageLookupByLibrary.simpleMessage("پیامی ندارید"),
-        "notificationFiveDays":
-            MessageLookupByLibrary.simpleMessage("۵ روز پیش"),
-        "notificationInvestmentSubtitle": MessageLookupByLibrary.simpleMessage(
-            "معامله راحت و سریع طلا با تسویه آنی"),
-        "notificationInvestmentTitle":
-            MessageLookupByLibrary.simpleMessage("سرمایه گداری تمام عیار"),
-        "notificationLoanSubtitle":
-            MessageLookupByLibrary.simpleMessage("وام با وثیقه"),
-        "notificationLoanTitle":
-            MessageLookupByLibrary.simpleMessage("با سرمایه خودت وام بگیر"),
-        "notificationNew":
-            MessageLookupByLibrary.simpleMessage("پیام‌های جدید"),
-        "notificationRead":
-            MessageLookupByLibrary.simpleMessage("پیام‌های خوانده شده"),
-        "notificationReadAll":
-            MessageLookupByLibrary.simpleMessage("خواندن همه"),
-        "notificationSampleDate":
-            MessageLookupByLibrary.simpleMessage("۱۶ شهريور ۱۴۰۵"),
-        "notificationSecurityAdvice": MessageLookupByLibrary.simpleMessage(
-            "برای اینکه گیر کلاهبردارها نیفتی و حسابت همیشه امن بمونه، حواست به این چند تا مورد باشه:"),
-        "notificationSecurityClosing": MessageLookupByLibrary.simpleMessage(
-            "اگه با مورد مشکوکی برخورد کردی، همون لحظه به ما خبر بده تا سریع چکش کنیم."),
-        "notificationSecurityCode": MessageLookupByLibrary.simpleMessage(
-            "کد ورودت رو به کسی نده: ما تو تیم پشتیبانی هیچ‌وقت رمز یا کد تاییدی که برات پیامک می‌شه رو ازت نمی‌خوایم."),
-        "notificationSecurityIntro": MessageLookupByLibrary.simpleMessage(
-            "سلام! این روزا ممکنه پیام‌هایی از طرف آدمای سودجو به دستتون برسه که خودشون رو جای تیم پشتیبانی جا می‌زنن. برای اینکه حسابتون همیشه امن بمونه، حواستون به این چند تا نکته باشه:"),
-        "notificationSecurityLinks": MessageLookupByLibrary.simpleMessage(
-            "لینک‌های مشکوک رو باز نکن: اگه پیامی با یه لینک ناشناس برات اومد که می‌گفت «حسابت مسدود شده» یا «برنده شدی»، اصلاً روش کلیک نکن."),
-        "notificationSecurityOfficial": MessageLookupByLibrary.simpleMessage(
-            "فقط از راه‌های رسمی در ارتباط باش: همیشه مطمئن شو پیامی که می‌گیری از طرف شماره‌ها یا اکانت‌های رسمی خودمون باشه."),
-        "notificationSecuritySubtitle": MessageLookupByLibrary.simpleMessage(
-            "نکاتی برای افزایش امنیت حساب"),
-        "notificationSecurityTitle":
-            MessageLookupByLibrary.simpleMessage("مراقب کلاهبرداران باشید⚠️"),
-        "notificationSevenDays":
-            MessageLookupByLibrary.simpleMessage("۷ روز پیش"),
-        "notificationSubject": MessageLookupByLibrary.simpleMessage("عنوان"),
-        "notificationTitle": MessageLookupByLibrary.simpleMessage("اعلانات"),
-        "notificationToday": MessageLookupByLibrary.simpleMessage("امروز"),
-        "notificationYesterday": MessageLookupByLibrary.simpleMessage("دیروز"),
-        "notificationsLabel": MessageLookupByLibrary.simpleMessage("اعلان‌ها"),
-        "otpHint": MessageLookupByLibrary.simpleMessage("وارد کردن رمز"),
-        "otpSentMessage": m3,
-        "otpSentTitle": MessageLookupByLibrary.simpleMessage("کد ارسال شد."),
-        "passwordApprovedBody": MessageLookupByLibrary.simpleMessage(
-            "پیامک حاوی نام کاربری و رمز ورود به موبایل بانک برای شما ارسال می‌شود. پس از دریافت پیامک شما قادر خواهید بود با نام کاربری و رمزی دریافتی در پیامک به موبایل بانک خود وارد شوید."),
-        "passwordApprovedTitle": MessageLookupByLibrary.simpleMessage(
-            "درخواست شما با موفقیت انجام شد"),
-        "passwordCameraNotice": MessageLookupByLibrary.simpleMessage(
-            "این مرحله نیازمند دوربین و میکروفون است."),
-        "passwordCardNumber":
-            MessageLookupByLibrary.simpleMessage("شماره کارت"),
-        "passwordCardNumberHint": MessageLookupByLibrary.simpleMessage(
-            "شماره کارت مورد نظر خود را انتخاب کنید"),
-        "passwordCardType": MessageLookupByLibrary.simpleMessage("نوع کارت"),
-        "passwordCardTypeHint":
-            MessageLookupByLibrary.simpleMessage("نوع کارت خود را انتخاب کنید"),
-        "passwordChange":
-            MessageLookupByLibrary.simpleMessage("تغییر رمز عبور"),
-        "passwordChangePrompt": MessageLookupByLibrary.simpleMessage(
-            "رمز عبور فعلی و رمز جدید دلخواه خود را وارد کنید."),
-        "passwordChangeSubmit":
-            MessageLookupByLibrary.simpleMessage("ثبت درخواست"),
-        "passwordChangeSuccessBody": MessageLookupByLibrary.simpleMessage(
-            "تغییر رمز شما با موفقیت انجام شد."),
-        "passwordConfirmMock":
-            MessageLookupByLibrary.simpleMessage("تایید نمونه آزمایشی"),
-        "passwordConfirmationHint":
-            MessageLookupByLibrary.simpleMessage("تکرار رمز عبور"),
-        "passwordCurrentHint":
-            MessageLookupByLibrary.simpleMessage("رمز عبور فعلی"),
-        "passwordDateRule": MessageLookupByLibrary.simpleMessage(
-            "تاریخ معنادار نباشد (تاریخ تولد، تاریخ انقضای کارت)"),
-        "passwordDemoVideo": MessageLookupByLibrary.simpleMessage(
-            "ویدئوی نمونه: Big Buck Bunny — Blender Foundation (CC BY 3.0)"),
-        "passwordExit": MessageLookupByLibrary.simpleMessage("خروج"),
-        "passwordExitBody":
-            MessageLookupByLibrary.simpleMessage("اطلاعات واردشده پاک می‌شود."),
-        "passwordExitTitle":
-            MessageLookupByLibrary.simpleMessage("خروج از عملیات رمز؟"),
-        "passwordFirst": MessageLookupByLibrary.simpleMessage("رمز اول"),
-        "passwordFirstDescription": MessageLookupByLibrary.simpleMessage(
-            "این رمز برای انجام تراکنش‌های حضوری مانند برداشت وجه از خودپرداز و خرید از فروشگاه‌ها با دستگاه پوز استفاده می‌شود."),
-        "passwordForgot":
-            MessageLookupByLibrary.simpleMessage("فراموشی رمز عبور"),
-        "passwordHide": MessageLookupByLibrary.simpleMessage("پنهان کردن رمز"),
-        "passwordInstructionPrompt": MessageLookupByLibrary.simpleMessage(
-            "پس از دیدن ویدئو آموزشی مراحل احراز هویت شما شروع می‌شود."),
-        "passwordLengthRule":
-            MessageLookupByLibrary.simpleMessage("شامل ۴ تا ۶ عدد باشد"),
-        "passwordMismatch": MessageLookupByLibrary.simpleMessage(
-            "رمز عبور و تکرار آن یکسان نیست."),
-        "passwordMockKyc": MessageLookupByLibrary.simpleMessage(
-            "ضبط و احراز هویت آزمایشی است؛ هیچ ویدئویی از شما ثبت نمی‌شود."),
-        "passwordMockReceipt": MessageLookupByLibrary.simpleMessage(
-            "این نتیجه آزمایشی است؛ رمز بانکی تنظیم نشده و پیامکی ارسال نمی‌شود."),
-        "passwordNewConfirmationHint":
-            MessageLookupByLibrary.simpleMessage("تکرار رمز عبور جدید"),
-        "passwordNewHint":
-            MessageLookupByLibrary.simpleMessage("رمز عبور جدید"),
-        "passwordOperation": MessageLookupByLibrary.simpleMessage("نوع عملیات"),
-        "passwordOperationHint":
-            MessageLookupByLibrary.simpleMessage("نوع عملیات را مشخص کنید"),
-        "passwordPatternRule": MessageLookupByLibrary.simpleMessage(
-            "شامل اعداد متوالی یا تکراری نباشد"),
-        "passwordPause": MessageLookupByLibrary.simpleMessage("توقف ویدئو"),
-        "passwordPendingBody": MessageLookupByLibrary.simpleMessage(
-            "• پس از مشخص شدن نتیجه اعتبارسنجی، در صورت تایید هویت پیامک حاوی اطلاعات رمز برای شما ارسال می‌شود.\n• در صورت تایید اعتبارسنجی شما می‌توانید در همین مدت، از سایر خدمات پیشخوان که مستلزم احراز هویت هستند بدون پرداخت مجدد استفاده کنید."),
-        "passwordPendingTitle": MessageLookupByLibrary.simpleMessage(
-            "شما یک درخواست اعتبارسنجی باز دارید"),
-        "passwordPlay": MessageLookupByLibrary.simpleMessage("پخش ویدئو"),
-        "passwordPrompt": MessageLookupByLibrary.simpleMessage(
-            "رمز دوم دلخواه خود را وارد کنید."),
-        "passwordRecordAgain": MessageLookupByLibrary.simpleMessage("ضبط مجدد"),
-        "passwordRecordingPrompt": MessageLookupByLibrary.simpleMessage(
-            "در صورت تایید ویدئو درخواست خود را ثبت کنید."),
-        "passwordSecond": MessageLookupByLibrary.simpleMessage("رمز دوم"),
-        "passwordSecondDescription": MessageLookupByLibrary.simpleMessage(
-            "این رمز برای انجام تراکنش‌های آنلاین و اینترنتی زیر ۱۰۰ هزار تومان به کار می‌رود."),
-        "passwordSeek": MessageLookupByLibrary.simpleMessage("موقعیت پخش"),
-        "passwordSelectionPrompt": MessageLookupByLibrary.simpleMessage(
-            "کارت مورد نظر و نوع رمز را انتخاب کنید"),
-        "passwordSerialError": MessageLookupByLibrary.simpleMessage(
-            "سریال معتبر شامل عدد و یک حرف لاتین وارد کنید."),
-        "passwordSerialHelper": MessageLookupByLibrary.simpleMessage(
-            "شامل عدد و یک حرف لاتین می‌باشد"),
-        "passwordSerialHint": MessageLookupByLibrary.simpleMessage(
-            "سریال پشت کارت ملی | کد پیگیری رسید کارت ملی"),
-        "passwordSerialPrompt": MessageLookupByLibrary.simpleMessage(
-            "سریال درج شده پشت کارت ملی یا کد پیگیری رسید کارت ملی خود را وارد کنید."),
-        "passwordSetSecond":
-            MessageLookupByLibrary.simpleMessage("تعیین رمز دوم"),
-        "passwordShow": MessageLookupByLibrary.simpleMessage("نمایش رمز"),
-        "passwordStartKyc":
-            MessageLookupByLibrary.simpleMessage("شروع احراز هویت"),
-        "passwordStatusRegisteredTitle": MessageLookupByLibrary.simpleMessage(
-            "درخواست شما با موفقیت ثبت شد."),
-        "passwordStay": MessageLookupByLibrary.simpleMessage("ادامه عملیات"),
-        "passwordSubmit":
-            MessageLookupByLibrary.simpleMessage("ارسال و ثبت درخواست"),
-        "passwordSubmittedBody": MessageLookupByLibrary.simpleMessage(
-            "پس از مشخص شدن نتیجه اعتبارسنجی، در صورت تایید هویت پیامک حاوی نام کاربری و رمز ورود به موبایل بانک برای شما ارسال می‌شود. پس از دریافت پیامک شما قادر خواهید بود با نام کاربری و رمزی دریافتی در پیامک به موبایل بانک خود وارد شوید."),
-        "passwordSubmittedTitle":
-            MessageLookupByLibrary.simpleMessage("درخواست شما ارسال شد"),
-        "passwordTitle": MessageLookupByLibrary.simpleMessage("عملیات رمز"),
-        "passwordTracking": MessageLookupByLibrary.simpleMessage("کد پیگیری"),
-        "passwordType": MessageLookupByLibrary.simpleMessage("نوع رمز"),
-        "passwordTypeHint":
-            MessageLookupByLibrary.simpleMessage("نوع رمز را انتخاب کنید"),
-        "passwordUnderstood": MessageLookupByLibrary.simpleMessage("متوجه شدم"),
-        "passwordUnsupported": MessageLookupByLibrary.simpleMessage(
-            "این عملیات برای کارت انتخاب‌شده در دسترس نیست."),
-        "passwordValueHint": MessageLookupByLibrary.simpleMessage("رمز عبور"),
-        "passwordVideoUnavailable":
-            MessageLookupByLibrary.simpleMessage("ویدئو در دسترس نیست"),
-        "phoneOwnershipNotice": MessageLookupByLibrary.simpleMessage(
-            "شماره باید با کد ملی دارنده حساب مطابقت داشته باشد"),
-        "profileLabel": MessageLookupByLibrary.simpleMessage("پروفایل"),
-        "proxyDeposit": MessageLookupByLibrary.simpleMessage("سپرده وکالتی"),
-        "refreshCaptcha":
-            MessageLookupByLibrary.simpleMessage("تازه‌سازی کد امنیتی"),
-        "relatedLinks": MessageLookupByLibrary.simpleMessage("لینک‌های مرتبط"),
-        "requestIdentifier":
-            MessageLookupByLibrary.simpleMessage("شناسه درخواست"),
-        "requestOtp": MessageLookupByLibrary.simpleMessage("درخواست ارسال رمز"),
-        "requestStatus": MessageLookupByLibrary.simpleMessage("وضعیت درخواست"),
-        "requestTwoFactorCode":
-            MessageLookupByLibrary.simpleMessage("درخواست کد دو عاملی"),
-        "resalatApp": MessageLookupByLibrary.simpleMessage("ام رسالت"),
-        "resendOtp": MessageLookupByLibrary.simpleMessage("ارسال مجدد"),
-        "rialCurrency": MessageLookupByLibrary.simpleMessage("ریال"),
-        "securityTips": MessageLookupByLibrary.simpleMessage("نکات امنیتی"),
-        "selectedServices": MessageLookupByLibrary.simpleMessage("خدمات منتخب"),
-        "servicesList": MessageLookupByLibrary.simpleMessage("لیست خدمات"),
-        "servicesMenuLabel":
-            MessageLookupByLibrary.simpleMessage("فهرست خدمات"),
-        "smsSettings":
-            MessageLookupByLibrary.simpleMessage("تنظیمات ارسال پیامک"),
-        "submitRequest": MessageLookupByLibrary.simpleMessage("ثبت درخواست"),
-        "updateGuide":
-            MessageLookupByLibrary.simpleMessage("راهنمای بروزرسانی"),
-        "virtualRequestCount":
-            MessageLookupByLibrary.simpleMessage("تعداد کارت مجازی"),
-        "virtualRequestCountError": m4,
-        "virtualRequestCountHint": MessageLookupByLibrary.simpleMessage(
-            "تعداد کارت مجازی مورد نیاز خود را وارد کنید"),
-        "virtualRequestDepositHint": MessageLookupByLibrary.simpleMessage(
-            "سپرده مورد نظر خود را انتخاب کنید"),
-        "virtualRequestDepositLabel":
-            MessageLookupByLibrary.simpleMessage("سپرده"),
-        "virtualRequestEmpty": MessageLookupByLibrary.simpleMessage(
-            "هیچ سپرده‌ای برای صدور کارت مجازی موجود نیست."),
-        "virtualRequestFeeNotice": m5,
-        "virtualRequestMockReceipt": MessageLookupByLibrary.simpleMessage(
-            "درخواست آزمایشی ثبت شد؛ کارت مجازی ایجاد نشده و مبلغی پرداخت نمی‌شود."),
-        "virtualRequestNotice": MessageLookupByLibrary.simpleMessage(
-            "کارت مجازی فاقد فیزیک بوده و تنها یک شماره می باشد که می توان به آن شماره فقط واریز وجه انجام داد و برداشت یا خرید با این کارت امکان پذیر نمیباشد."),
-        "virtualRequestPrompt": MessageLookupByLibrary.simpleMessage(
-            "سپرده‌ی موردنظر برای صدور کارت مجازی و تعداد کارت مجازی را انتخاب کنید و مراحل را ادامه دهید."),
-        "virtualRequestQuoting": MessageLookupByLibrary.simpleMessage(
-            "در حال دریافت هزینه درخواست…"),
-        "virtualRequestReceipt":
-            MessageLookupByLibrary.simpleMessage("کد پیگیری درخواست:"),
-        "virtualRequestSubmit":
-            MessageLookupByLibrary.simpleMessage("تایید و ثبت درخواست"),
-        "virtualRequestSubmitted":
-            MessageLookupByLibrary.simpleMessage("درخواست ثبت شد"),
-        "virtualRequestTitle":
-            MessageLookupByLibrary.simpleMessage("درخواست کارت مجازی"),
-        "virtualRequestUnitFee":
-            MessageLookupByLibrary.simpleMessage("کارمزد صدور هر کارت"),
-        "walletBalanceTitle":
-            MessageLookupByLibrary.simpleMessage("موجودی کیف پول")
-      };
+    "agentAddNext": MessageLookupByLibrary.simpleMessage("افزودن نماینده بعدی"),
+    "agentCancel": MessageLookupByLibrary.simpleMessage("انصراف"),
+    "agentChequeBook": MessageLookupByLibrary.simpleMessage("صدور دسته چک"),
+    "agentDeposit": MessageLookupByLibrary.simpleMessage("انتخاب سپرده"),
+    "agentDepositHint": MessageLookupByLibrary.simpleMessage(
+      "سپرده مورد نظر خود را انتخاب کنید",
+    ),
+    "agentDepositShort": MessageLookupByLibrary.simpleMessage("سپرده"),
+    "agentKind": MessageLookupByLibrary.simpleMessage("نوع نمایندگی"),
+    "agentMockComplete": MessageLookupByLibrary.simpleMessage(
+      "درخواست آزمایشی ثبت شد؛ هیچ نمایندگی بانکی ایجاد نشده است.",
+    ),
+    "agentNationalId": MessageLookupByLibrary.simpleMessage("کد ملی نماینده"),
+    "agentNationalIdHint": MessageLookupByLibrary.simpleMessage(
+      "کد ملی نماینده را وارد کنید",
+    ),
+    "agentNewPerson": MessageLookupByLibrary.simpleMessage("نماینده جدید"),
+    "agentOperation": MessageLookupByLibrary.simpleMessage("نوع عملیات"),
+    "agentOperationHint": MessageLookupByLibrary.simpleMessage(
+      "عملیات مجاز نماینده را انتخاب کنید",
+    ),
+    "agentPreliminarySave": MessageLookupByLibrary.simpleMessage("ثبت اولیه"),
+    "agentRemove": MessageLookupByLibrary.simpleMessage("حذف نماینده"),
+    "agentSave": MessageLookupByLibrary.simpleMessage("ثبت"),
+    "agentSettingsActive": MessageLookupByLibrary.simpleMessage("فعال"),
+    "agentSettingsAdd": MessageLookupByLibrary.simpleMessage("افزودن نماینده"),
+    "agentSettingsCancel": MessageLookupByLibrary.simpleMessage("لغو نمایندگی"),
+    "agentSettingsClearChequeRecord": MessageLookupByLibrary.simpleMessage(
+      "رفع سوء اثر چک",
+    ),
+    "agentSettingsConfirmers": MessageLookupByLibrary.simpleMessage(
+      "مشخصات تایید کنندگان",
+    ),
+    "agentSettingsDelegated": MessageLookupByLibrary.simpleMessage(
+      "من به عنوان نماینده",
+    ),
+    "agentSettingsDepositLabel": MessageLookupByLibrary.simpleMessage(
+      "شماره سپرده:",
+    ),
+    "agentSettingsDepositRelation": MessageLookupByLibrary.simpleMessage(
+      "صاحب سپرده و امضا",
+    ),
+    "agentSettingsDetails": MessageLookupByLibrary.simpleMessage(
+      "جزئیات نمایندگی",
+    ),
+    "agentSettingsEmpty": MessageLookupByLibrary.simpleMessage(
+      "نمایندگی با این مشخصات وجود ندارد.",
+    ),
+    "agentSettingsExpired": MessageLookupByLibrary.simpleMessage("منقضی شده"),
+    "agentSettingsExpiryLabel": MessageLookupByLibrary.simpleMessage(
+      "تاریخ انقضا:",
+    ),
+    "agentSettingsIntroducedLabel": MessageLookupByLibrary.simpleMessage(
+      "تاریخ معرفی:",
+    ),
+    "agentSettingsIntroducer": MessageLookupByLibrary.simpleMessage("معرف"),
+    "agentSettingsKindLabel": MessageLookupByLibrary.simpleMessage(
+      "نوع نمایندگی:",
+    ),
+    "agentSettingsLoanReferral": MessageLookupByLibrary.simpleMessage(
+      "معرفی وام",
+    ),
+    "agentSettingsMine": MessageLookupByLibrary.simpleMessage("نماینده‌های من"),
+    "agentSettingsNameLabel": MessageLookupByLibrary.simpleMessage(
+      "نام نماینده:",
+    ),
+    "agentSettingsNationalIdLabel": MessageLookupByLibrary.simpleMessage(
+      "کد ملی:",
+    ),
+    "agentSettingsSelectAll": MessageLookupByLibrary.simpleMessage(
+      "(انتخاب همه)",
+    ),
+    "agentSettingsShare": m0,
+    "agentSettingsWaiting": MessageLookupByLibrary.simpleMessage(
+      "در انتظار تایید",
+    ),
+    "agentTitle": MessageLookupByLibrary.simpleMessage("معرفی نماینده جدید"),
+    "agentValidity": MessageLookupByLibrary.simpleMessage("تاریخ اعتبار"),
+    "agentValidityError": MessageLookupByLibrary.simpleMessage(
+      "تاریخ معتبر از امروز به بعد با قالب ۱۴۰۵/۰۶/۳۰ وارد کنید.",
+    ),
+    "agentValidityHint": MessageLookupByLibrary.simpleMessage(
+      "تاریخ انقضا را تعیین کنید",
+    ),
+    "appTitle": MessageLookupByLibrary.simpleMessage("پیشخوان مجازی رسالت"),
+    "assetReport": MessageLookupByLibrary.simpleMessage("گزارش تمکن"),
+    "authInvalidCaptcha": MessageLookupByLibrary.simpleMessage(
+      "کد امنیتی ۶ رقمی را وارد کنید",
+    ),
+    "authInvalidNationalId": MessageLookupByLibrary.simpleMessage(
+      "کد ملی ۱۰ رقمی را وارد کنید",
+    ),
+    "authInvalidPhone": MessageLookupByLibrary.simpleMessage(
+      "شماره همراه ۱۱ رقمی با ۰۹ را وارد کنید",
+    ),
+    "automaticCompleted": MessageLookupByLibrary.simpleMessage(
+      "انجام شده خودکار",
+    ),
+    "backLabel": MessageLookupByLibrary.simpleMessage("بازگشت"),
+    "balanceAverageStatement": MessageLookupByLibrary.simpleMessage(
+      "صورتحساب، معدل موجودی",
+    ),
+    "blockCard": MessageLookupByLibrary.simpleMessage("مسدودی کارت"),
+    "captchaHint": MessageLookupByLibrary.simpleMessage(
+      "کد روبرو را وارد کنید",
+    ),
+    "cardFeatureActive": MessageLookupByLibrary.simpleMessage("فعال"),
+    "cardFeatureAll": MessageLookupByLibrary.simpleMessage("همه"),
+    "cardFeatureApplyFilter": MessageLookupByLibrary.simpleMessage(
+      "اعمال فیلتر",
+    ),
+    "cardFeatureBlocked": MessageLookupByLibrary.simpleMessage("مسدود"),
+    "cardFeatureCardStatus": MessageLookupByLibrary.simpleMessage("وضعیت کارت"),
+    "cardFeatureCoupon": MessageLookupByLibrary.simpleMessage("بن کارت"),
+    "cardFeatureDeposit": MessageLookupByLibrary.simpleMessage("سپرده متصل"),
+    "cardFeatureDepositType": MessageLookupByLibrary.simpleMessage("نوع سپرده"),
+    "cardFeatureDetails": MessageLookupByLibrary.simpleMessage("جزئیات کارت"),
+    "cardFeatureExpired": MessageLookupByLibrary.simpleMessage("منقضی"),
+    "cardFeatureExpiry": MessageLookupByLibrary.simpleMessage("تاریخ انقضا"),
+    "cardFeatureFamily": MessageLookupByLibrary.simpleMessage("کارت خانواده"),
+    "cardFeatureFilter": MessageLookupByLibrary.simpleMessage("فیلتر"),
+    "cardFeatureGift": MessageLookupByLibrary.simpleMessage("کارت هدیه"),
+    "cardFeatureGiftTransfer": MessageLookupByLibrary.simpleMessage(
+      "واریز مانده کارت هدیه منقضی",
+    ),
+    "cardFeatureIban": MessageLookupByLibrary.simpleMessage("شماره شبا"),
+    "cardFeatureNoResults": MessageLookupByLibrary.simpleMessage(
+      "کارتی با این مشخصات پیدا نشد",
+    ),
+    "cardFeatureNumber": MessageLookupByLibrary.simpleMessage("شماره کارت"),
+    "cardFeatureQarz": MessageLookupByLibrary.simpleMessage("قرض الحسنه"),
+    "cardFeatureRemoveFilter": MessageLookupByLibrary.simpleMessage(
+      "حذف فیلتر",
+    ),
+    "cardFeatureResalat": MessageLookupByLibrary.simpleMessage("رسالت کارت"),
+    "cardFeatureStatus": MessageLookupByLibrary.simpleMessage("وضعیت"),
+    "cardFeatureUnavailable": MessageLookupByLibrary.simpleMessage(
+      "این خدمت در حال حاضر در دسترس نیست.",
+    ),
+    "cardFeatureVirtualRequest": MessageLookupByLibrary.simpleMessage(
+      "درخواست کارت مجازی",
+    ),
+    "cardPasswordIssue": MessageLookupByLibrary.simpleMessage(
+      "صدور رمز اول /دوم کارت",
+    ),
+    "cardServiceCard": MessageLookupByLibrary.simpleMessage("کارت"),
+    "cardServiceCardHint": MessageLookupByLibrary.simpleMessage(
+      "کارت مورد نظر خود را انتخاب کنید",
+    ),
+    "cardServiceComplete": MessageLookupByLibrary.simpleMessage(
+      "درخواست با موفقیت ثبت شد.",
+    ),
+    "cardServiceCurrentDeposit": MessageLookupByLibrary.simpleMessage(
+      "سپرده جاری",
+    ),
+    "cardServiceEmpty": MessageLookupByLibrary.simpleMessage(
+      "موردی برای نمایش وجود ندارد.",
+    ),
+    "cardServiceFromDeposit": MessageLookupByLibrary.simpleMessage("از سپرده"),
+    "cardServiceMockComplete": MessageLookupByLibrary.simpleMessage(
+      "درخواست آزمایشی ثبت شد؛ عملیات بانکی انجام نشده است.",
+    ),
+    "cardServiceQarzDeposit": MessageLookupByLibrary.simpleMessage(
+      "سپرده قرض الحسنه",
+    ),
+    "cardServiceSubmit": MessageLookupByLibrary.simpleMessage(
+      "تایید و ثبت درخواست",
+    ),
+    "cardServiceSubmitError": MessageLookupByLibrary.simpleMessage(
+      "ثبت درخواست انجام نشد. دوباره تلاش کنید.",
+    ),
+    "cardServiceToDeposit": MessageLookupByLibrary.simpleMessage("به سپرده"),
+    "cardServiceToDepositHint": MessageLookupByLibrary.simpleMessage(
+      "سپرده‌ای که مایل هستید متصل به کارت باشد",
+    ),
+    "cardServices": MessageLookupByLibrary.simpleMessage("خدمات کارت"),
+    "cardsBuyGift": MessageLookupByLibrary.simpleMessage("خرید کارت هدیه"),
+    "cardsChangeFirst": MessageLookupByLibrary.simpleMessage("تغییر رمز اول"),
+    "cardsCopyIban": MessageLookupByLibrary.simpleMessage("کپی شماره شبا"),
+    "cardsCopyNumber": MessageLookupByLibrary.simpleMessage("کپی شماره کارت"),
+    "cardsCurrent": MessageLookupByLibrary.simpleMessage("رسالت کارت (جاری)"),
+    "cardsEmpty": MessageLookupByLibrary.simpleMessage("هنوز کارتی ندارید"),
+    "cardsExpiry": MessageLookupByLibrary.simpleMessage(": انقضا"),
+    "cardsForgotFirst": MessageLookupByLibrary.simpleMessage("فراموشی رمز اول"),
+    "cardsForgotSecond": MessageLookupByLibrary.simpleMessage(
+      "فراموشی رمز دوم",
+    ),
+    "cardsGiftBalance": MessageLookupByLibrary.simpleMessage(
+      "واریز مانده کارت هدیه",
+    ),
+    "cardsHideDetails": MessageLookupByLibrary.simpleMessage(
+      "پنهان کردن اطلاعات کارت",
+    ),
+    "cardsMore": MessageLookupByLibrary.simpleMessage("گزینه‌های کارت"),
+    "cardsMyTitle": MessageLookupByLibrary.simpleMessage("کارت‌های من"),
+    "cardsOperations": MessageLookupByLibrary.simpleMessage("عملیات کارت"),
+    "cardsPinOperations": MessageLookupByLibrary.simpleMessage("عملیات رمز"),
+    "cardsQarz": MessageLookupByLibrary.simpleMessage(
+      "رسالت کارت (قرض الحسنه)",
+    ),
+    "cardsQuickAccess": MessageLookupByLibrary.simpleMessage("دسترسی سریع"),
+    "cardsReissue": MessageLookupByLibrary.simpleMessage("صدور مجدد کارت"),
+    "cardsSetSecond": MessageLookupByLibrary.simpleMessage("تعیین رمز دوم"),
+    "cardsShowDetails": MessageLookupByLibrary.simpleMessage(
+      "نمایش اطلاعات کارت",
+    ),
+    "cardsVirtual": MessageLookupByLibrary.simpleMessage("کارت مجازی"),
+    "certificateAddressHint": MessageLookupByLibrary.simpleMessage(
+      "آدرس ارسال گواهی را انتخاب کنید",
+    ),
+    "certificateAgentIdentifier": MessageLookupByLibrary.simpleMessage(
+      "کد ملی یا تلفن کارشناس",
+    ),
+    "certificateAgentNotice": MessageLookupByLibrary.simpleMessage(
+      "چنانچه کارشناس بانکی جهت احراز می‌شناسید، با وارد کردن کد ملی یا شماره تلفن کارشناس مد نظر خود را انتخاب کنید.",
+    ),
+    "certificateAgentUnavailable": MessageLookupByLibrary.simpleMessage(
+      "استعلام کارشناس پس از اتصال به سامانه بانک فعال می‌شود.",
+    ),
+    "certificateAverageBalance": MessageLookupByLibrary.simpleMessage(
+      "معدل موجودی",
+    ),
+    "certificateAverageTitle": MessageLookupByLibrary.simpleMessage(
+      "درخواست صورت‌حساب | معدل موجودی",
+    ),
+    "certificateBothTurnovers": MessageLookupByLibrary.simpleMessage(
+      "واریز | برداشت",
+    ),
+    "certificateCheckAgent": MessageLookupByLibrary.simpleMessage("بررسی"),
+    "certificateConditionsPrompt": MessageLookupByLibrary.simpleMessage(
+      "شرایط درخواست جهت درج روی گواهی را انتخاب کنید.",
+    ),
+    "certificateConditionsStep": MessageLookupByLibrary.simpleMessage(
+      "انتخاب سپرده و شرایط درخواست",
+    ),
+    "certificateDeleteAddressPrompt": MessageLookupByLibrary.simpleMessage(
+      "از حذف این آدرس مطمئن هستید؟",
+    ),
+    "certificateDeliveryStep": MessageLookupByLibrary.simpleMessage(
+      "اطلاعات نحوه دریافت گواهی",
+    ),
+    "certificateDepositsOnly": MessageLookupByLibrary.simpleMessage("واریز"),
+    "certificateEnglish": MessageLookupByLibrary.simpleMessage("انگلیسی"),
+    "certificateFromDate": MessageLookupByLibrary.simpleMessage("از تاریخ"),
+    "certificateFromDateHint": MessageLookupByLibrary.simpleMessage(
+      "تاریخ شروع را مشخص کنید",
+    ),
+    "certificateLanguage": MessageLookupByLibrary.simpleMessage("زبان"),
+    "certificateMockComplete": MessageLookupByLibrary.simpleMessage(
+      "درخواست آزمایشی ثبت شد؛ گواهی صادر نشده و مبلغی برداشت نشده است.",
+    ),
+    "certificateNextPrefix": MessageLookupByLibrary.simpleMessage("بعدی:"),
+    "certificateOptional": MessageLookupByLibrary.simpleMessage("اختیاری"),
+    "certificatePersian": MessageLookupByLibrary.simpleMessage("فارسی"),
+    "certificatePrintingNotice": MessageLookupByLibrary.simpleMessage(
+      "هزینه چاپ گزارش بر اساس تعداد صفحات محاسبه می‌شود.",
+    ),
+    "certificateRecipientName": MessageLookupByLibrary.simpleMessage(
+      "نام و نام خانوادگی",
+    ),
+    "certificateRecipientNameHint": MessageLookupByLibrary.simpleMessage(
+      "نام و نام خانوادگی گیرنده را وارد کنید",
+    ),
+    "certificateRecipientNationalIdHint": MessageLookupByLibrary.simpleMessage(
+      "کد ملی گیرنده را وارد کنید",
+    ),
+    "certificateRecipientNotice": MessageLookupByLibrary.simpleMessage(
+      "بسته فقط به شما تحویل داده می‌شود. در صورت عدم حضور، مشخصات تحویل گیرنده دوم را وارد کنید.",
+    ),
+    "certificateStatementLanguageHint": MessageLookupByLibrary.simpleMessage(
+      "زبان صورتحساب را انتخاب کنید",
+    ),
+    "certificateToDate": MessageLookupByLibrary.simpleMessage("تا تاریخ"),
+    "certificateToDateHint": MessageLookupByLibrary.simpleMessage(
+      "تاریخ پایان را مشخص کنید",
+    ),
+    "certificateTurnover": MessageLookupByLibrary.simpleMessage("نوع گردش"),
+    "certificateTurnoverHint": MessageLookupByLibrary.simpleMessage(
+      "نوع گردش سپرده را انتخاب نمایید",
+    ),
+    "certificateWithdrawalsOnly": MessageLookupByLibrary.simpleMessage(
+      "برداشت",
+    ),
+    "changeCardDeposit": MessageLookupByLibrary.simpleMessage(
+      "تغییر سپرده متصل به کارت",
+    ),
+    "changeCardDepositIntro": MessageLookupByLibrary.simpleMessage(
+      "ابتدا کارت را انتخاب کنید، سپس سپرده‌ای که می‌خواهید به آن وصل شود را انتخاب کنید.",
+    ),
+    "changeCardDepositTitle": MessageLookupByLibrary.simpleMessage(
+      "تغییر سپرده متصل به کارت",
+    ),
+    "changeInstallmentDeposit": MessageLookupByLibrary.simpleMessage(
+      "تغییر سپرده جهت کسر اقساط",
+    ),
+    "changeMobileDescription": MessageLookupByLibrary.simpleMessage(
+      "برای تغییر شماره همراه ورود به پیشخوان اطلاعات زیر را وارد کنید",
+    ),
+    "changeMobileService": MessageLookupByLibrary.simpleMessage(
+      "تغییر تلفن همراه",
+    ),
+    "changeMobileTitle": MessageLookupByLibrary.simpleMessage(
+      "تغییر شماره همراه",
+    ),
+    "changeNationalIdHint": MessageLookupByLibrary.simpleMessage(
+      "کد ملی | شماره ملی خود را وارد کنید",
+    ),
+    "changePhoneAction": MessageLookupByLibrary.simpleMessage(
+      "تغییر شماره همراه",
+    ),
+    "changePhoneHint": MessageLookupByLibrary.simpleMessage(
+      "شماره همراه جدید خود را وارد کنید",
+    ),
+    "chequeBookAddressesNoticeEnd": MessageLookupByLibrary.simpleMessage(
+      " اقدام نمایید.",
+    ),
+    "chequeBookAddressesNoticeStart": MessageLookupByLibrary.simpleMessage(
+      "در صورت نیاز به تغییر آدرس، از بخش اطلاعات کاربری، ",
+    ),
+    "chequeBookChecking": MessageLookupByLibrary.simpleMessage(
+      "بررسی سامانه اسکان و املاک...",
+    ),
+    "chequeBookDeleteContinue": MessageLookupByLibrary.simpleMessage(
+      "حذف و ادامه فرآیند",
+    ),
+    "chequeBookDeletePrompt": MessageLookupByLibrary.simpleMessage(
+      "مطمئنید می‌خواهید آدرس زیر را حذف کنید؟",
+    ),
+    "chequeBookDeliveryStep": MessageLookupByLibrary.simpleMessage(
+      "اطلاعات دریافت",
+    ),
+    "chequeBookDepositHint": MessageLookupByLibrary.simpleMessage(
+      "سپرده مورد نظر خود را انتخاب کنید",
+    ),
+    "chequeBookFiftyLeavesNotice": MessageLookupByLibrary.simpleMessage(
+      "برای کاربران حقیقی، صدور دسته‌چک ۵۰ برگی پس از پایان سال سوم امکان‌پذیر است.",
+    ),
+    "chequeBookIssueFee": MessageLookupByLibrary.simpleMessage(
+      "هزینه صدور دسته چک",
+    ),
+    "chequeBookLeafCount": MessageLookupByLibrary.simpleMessage("تعداد برگ"),
+    "chequeBookLeafCountHint": MessageLookupByLibrary.simpleMessage(
+      "تعداد برگ دسته چک را انتخاب کنید",
+    ),
+    "chequeBookLegalRecipientPrompt": MessageLookupByLibrary.simpleMessage(
+      "مشخصات تحویل گیرنده دسته چک را وارد نمایید",
+    ),
+    "chequeBookLinkUnavailable": MessageLookupByLibrary.simpleMessage(
+      "باز کردن مرورگر در این دستگاه امکان‌پذیر نیست.",
+    ),
+    "chequeBookMissingNotice": MessageLookupByLibrary.simpleMessage(
+      "در صورت صحت آدرس، ابتدا آن را در سامانه اسکان و املاک ثبت کرده و سپس برای صدور دسته‌چک اقدام نمایید.",
+    ),
+    "chequeBookMockComplete": MessageLookupByLibrary.simpleMessage(
+      "درخواست به‌صورت آزمایشی ثبت شد؛ دسته‌چک واقعی صادر و مبلغی برداشت نشده است.",
+    ),
+    "chequeBookMultipleMissingNotice": MessageLookupByLibrary.simpleMessage(
+      "شما می‌توانید، آدرس مورد نظر را در سامانه‌ی اسکان و املاک کشور ثبت نموده و یا آدرس‌های اضافه خود را حذف نمایید.",
+    ),
+    "chequeBookMyAddresses": MessageLookupByLibrary.simpleMessage(
+      "آدرس‌های من",
+    ),
+    "chequeBookNextConfirmation": MessageLookupByLibrary.simpleMessage(
+      "بعدی: تایید اطلاعات و پرداخت کارمزد",
+    ),
+    "chequeBookNextDelivery": MessageLookupByLibrary.simpleMessage(
+      "بعدی: اطلاعات دریافت",
+    ),
+    "chequeBookNextResidency": MessageLookupByLibrary.simpleMessage(
+      "بعدی: بررسی اسکان و املاک",
+    ),
+    "chequeBookNotRegistered": MessageLookupByLibrary.simpleMessage(
+      "فاقد اسکان و املاک",
+    ),
+    "chequeBookOpenedAt": MessageLookupByLibrary.simpleMessage(
+      "تاریخ افتتاح حساب:",
+    ),
+    "chequeBookRecipientName": MessageLookupByLibrary.simpleMessage(
+      "نام و نام خانوادگی",
+    ),
+    "chequeBookRecipientNameHint": MessageLookupByLibrary.simpleMessage(
+      "نام و نام خانوادگی تحویل گیرنده را وارد کنید",
+    ),
+    "chequeBookRecipientNameInvalid": MessageLookupByLibrary.simpleMessage(
+      "نام و نام خانوادگی را وارد کنید.",
+    ),
+    "chequeBookRecipientNationalId": MessageLookupByLibrary.simpleMessage(
+      "کد ملی",
+    ),
+    "chequeBookRecipientNationalIdHint": MessageLookupByLibrary.simpleMessage(
+      "کد ملی تحویل گیرنده را وارد کنید",
+    ),
+    "chequeBookRegistered": MessageLookupByLibrary.simpleMessage(
+      "دارای اسکان و املاک",
+    ),
+    "chequeBookRegistryHost": MessageLookupByLibrary.simpleMessage(
+      "amlak.mrud.ir",
+    ),
+    "chequeBookRegistryName": MessageLookupByLibrary.simpleMessage(
+      "سامانه اسکان و املاک",
+    ),
+    "chequeBookRegistryUrlLabel": MessageLookupByLibrary.simpleMessage(
+      "آدرس سامانه اسکان و املاک:",
+    ),
+    "chequeBookResidence": MessageLookupByLibrary.simpleMessage(
+      "آدرس محل سکونت شما:",
+    ),
+    "chequeBookResidences": MessageLookupByLibrary.simpleMessage(
+      "آدرس‌های محل سکونت شما:",
+    ),
+    "chequeBookResidencyStep": MessageLookupByLibrary.simpleMessage(
+      "بررسی اسکان و املاک",
+    ),
+    "chequeBookResidencyWarningEnd": MessageLookupByLibrary.simpleMessage(
+      " تأیید نشده است.",
+    ),
+    "chequeBookResidencyWarningStart": MessageLookupByLibrary.simpleMessage(
+      "آدرس محل سکونت شما در ",
+    ),
+    "chequeBookSelectionPrompt": MessageLookupByLibrary.simpleMessage(
+      "شماره حساب جاری و تعداد برگ دسته چک را انتخاب کنید.",
+    ),
+    "chequeBookSelectionStep": MessageLookupByLibrary.simpleMessage(
+      "مشخصات دسته چک",
+    ),
+    "chequeBookTitle": MessageLookupByLibrary.simpleMessage(
+      "درخواست صدور دسته چک",
+    ),
+    "chequeBookUsedLeavesNotice": MessageLookupByLibrary.simpleMessage(
+      "برای صدور دسته‌چک جدید، لازم است حداقل ۸۰٪ برگ‌های دسته چک قبلی به بانک برگشته باشند.",
+    ),
+    "chequeCancelAllReasons": MessageLookupByLibrary.simpleMessage(
+      "اعمال یک علت برای همه",
+    ),
+    "chequeCancelAllReasonsTitle": MessageLookupByLibrary.simpleMessage(
+      "انتخاب علت برای همه",
+    ),
+    "chequeCancelChequesPrompt": MessageLookupByLibrary.simpleMessage(
+      "چک‌های مورد نظر‌ جهت ابطال را انتخاب کنید",
+    ),
+    "chequeCancelChequesStep": MessageLookupByLibrary.simpleMessage(
+      "انتخاب چک‌ها",
+    ),
+    "chequeCancelChoose": MessageLookupByLibrary.simpleMessage("انتخاب"),
+    "chequeCancelConfirmationStep": MessageLookupByLibrary.simpleMessage(
+      "دانلود نامه و ثبت درخواست",
+    ),
+    "chequeCancelDamaged": MessageLookupByLibrary.simpleMessage(
+      "مخدوش - استفاده نشده",
+    ),
+    "chequeCancelDepositHint": MessageLookupByLibrary.simpleMessage(
+      "سپرده مورد نظر خود را انتخاب کنید",
+    ),
+    "chequeCancelDigital": MessageLookupByLibrary.simpleMessage("دیجیتال"),
+    "chequeCancelDownload": MessageLookupByLibrary.simpleMessage(
+      "ذخیره نامه جهت تحویل به پست",
+    ),
+    "chequeCancelEmpty": MessageLookupByLibrary.simpleMessage(
+      "نتیجه‌ای یافت نشد",
+    ),
+    "chequeCancelJudicial": MessageLookupByLibrary.simpleMessage(
+      "دستور مرجع قضایی",
+    ),
+    "chequeCancelLetterPrompt": MessageLookupByLibrary.simpleMessage(
+      "جهت ابطال چک‌ها ابتدا نامه‌ی زیر را دانلود و سپس درخواست خود را ثبت نهایی کنید.",
+    ),
+    "chequeCancelMailInstruction": MessageLookupByLibrary.simpleMessage(
+      "نامه دانلود شده را چاپ و به همراه چک‌های ذکر شده در آن به یکی از دفاتر پستی مجاز جهت ابطال تحویل دهید.",
+    ),
+    "chequeCancelMockComplete": MessageLookupByLibrary.simpleMessage(
+      "درخواست ابطال چک به‌صورت آزمایشی ثبت شد؛ هیچ چکی در بانک باطل نشده است.",
+    ),
+    "chequeCancelNumber": MessageLookupByLibrary.simpleMessage("شماره چک"),
+    "chequeCancelPaper": MessageLookupByLibrary.simpleMessage("کاغذی"),
+    "chequeCancelReason": MessageLookupByLibrary.simpleMessage("علت ابطال چک"),
+    "chequeCancelReasonHint": MessageLookupByLibrary.simpleMessage(
+      "علت ابطال چک را انتخاب کنید",
+    ),
+    "chequeCancelReasonsPrompt": MessageLookupByLibrary.simpleMessage(
+      "علت ابطال چک‌ها را انتخاب کنید",
+    ),
+    "chequeCancelReasonsStep": MessageLookupByLibrary.simpleMessage(
+      "انتخاب علت ابطال",
+    ),
+    "chequeCancelRemove": MessageLookupByLibrary.simpleMessage("بله، حذف کن"),
+    "chequeCancelRemovePrompt": MessageLookupByLibrary.simpleMessage(
+      "مطمئنید می‌خواید این چک رو از لیست چک‌های ابطالی حذف کنید؟",
+    ),
+    "chequeCancelReview": MessageLookupByLibrary.simpleMessage(
+      "لیست چک‌های انتخاب شده",
+    ),
+    "chequeCancelSayad": MessageLookupByLibrary.simpleMessage("شناسه صیاد"),
+    "chequeCancelSearchHint": MessageLookupByLibrary.simpleMessage(
+      "جستجو بر اساس شماره چک یا شناسه صیاد",
+    ),
+    "chequeCancelSelectionNotice": MessageLookupByLibrary.simpleMessage(
+      "در هر درخواست فقط می‌توانید چک‌های مربوط به یک سپرده و از یک نوع (دیجیتال یا کاغذی) را انتخاب کنید.",
+    ),
+    "chequeCancelSelectionPrompt": MessageLookupByLibrary.simpleMessage(
+      "سپرده پشت چک‌ها و نوع چک‌های مورد نظر‌ جهت ابطال را انتخاب کنید.",
+    ),
+    "chequeCancelSelectionStep": MessageLookupByLibrary.simpleMessage(
+      "انتخاب سپرده و نوع چک",
+    ),
+    "chequeCancelTitle": MessageLookupByLibrary.simpleMessage("ابطال چک"),
+    "chequeCancelType": MessageLookupByLibrary.simpleMessage("نوع چک"),
+    "chequeCancelTypeHint": MessageLookupByLibrary.simpleMessage(
+      "نوع چک را انتخاب کنید",
+    ),
+    "chequeCityHint": MessageLookupByLibrary.simpleMessage(
+      "شهر مورد نظر را انتخاب کنید",
+    ),
+    "chequeCityLabel": MessageLookupByLibrary.simpleMessage("شهر*"),
+    "chequeCitySummary": MessageLookupByLibrary.simpleMessage("شهر"),
+    "chequeClearanceIntro": MessageLookupByLibrary.simpleMessage(
+      "شماره چک، سپرده متصل به آن و علت درخواست را وارد کنید.",
+    ),
+    "chequeClearanceTitle": MessageLookupByLibrary.simpleMessage(
+      "رفع سوء اثر چک",
+    ),
+    "chequeConsentConditions": MessageLookupByLibrary.simpleMessage(
+      "مشاهده شرایط",
+    ),
+    "chequeConsentNotes": MessageLookupByLibrary.simpleMessage("نکات"),
+    "chequeConsentNotice": MessageLookupByLibrary.simpleMessage(
+      "متن تنظیمی جهت رضایت نامه محضری در دفترخانه باید کاملاً مطابق با شرایط پیوست شده باشد در غیر این صورت قابل پذیرش نمی‌باشد.",
+    ),
+    "chequeConsentSample": MessageLookupByLibrary.simpleMessage(
+      "نمونه متن رضایت نامه محضری:",
+    ),
+    "chequeContentUnavailable": MessageLookupByLibrary.simpleMessage(
+      "محتوا هنوز آماده نشده است.",
+    ),
+    "chequeDepositHint": MessageLookupByLibrary.simpleMessage(
+      "سپرده پشت چک را انتخاب کنید",
+    ),
+    "chequeDepositLabel": MessageLookupByLibrary.simpleMessage("سپرده"),
+    "chequeDocumentConsent": MessageLookupByLibrary.simpleMessage(
+      "اصل رضایت نامه محضری",
+    ),
+    "chequeDocumentJudicial": MessageLookupByLibrary.simpleMessage(
+      "اصل نامه قضایی",
+    ),
+    "chequeDocumentOriginal": MessageLookupByLibrary.simpleMessage("لاشه چک"),
+    "chequeDocumentsTitle": MessageLookupByLibrary.simpleMessage(
+      "مدارک لازم جهت تحویل به پست:",
+    ),
+    "chequeDownloadSample": MessageLookupByLibrary.simpleMessage(
+      "دانلود نمونه",
+    ),
+    "chequeJudicialNumber": MessageLookupByLibrary.simpleMessage(
+      "شماره نامه قضایی",
+    ),
+    "chequeJudicialNumberHint": MessageLookupByLibrary.simpleMessage(
+      "شماره نامه قضایی را وارد کنید",
+    ),
+    "chequeJudicialNumberInvalid": MessageLookupByLibrary.simpleMessage(
+      "شماره نامه قضایی را با ارقام وارد کنید.",
+    ),
+    "chequeMailingAddressTitle": MessageLookupByLibrary.simpleMessage(
+      "آدرس ارسالی روی پاکت جهت تحویل به پست:",
+    ),
+    "chequeMailingInstruction": MessageLookupByLibrary.simpleMessage(
+      "هنگام تحویل مدارک پاکت گذاری توسط اداره پست انجام خواهد شد",
+    ),
+    "chequeMockComplete": MessageLookupByLibrary.simpleMessage(
+      "درخواست به صورت آزمایشی ثبت شد؛ سوءاثر هیچ چک واقعی رفع نشده است.",
+    ),
+    "chequeNoPostRequired": MessageLookupByLibrary.simpleMessage(
+      "نیاز به ارسال پست نیست.",
+    ),
+    "chequeNumberHint": MessageLookupByLibrary.simpleMessage(
+      "شماره چک را انتخاب کنید",
+    ),
+    "chequeNumberInvalid": MessageLookupByLibrary.simpleMessage(
+      "شماره چک را با ارقام و در صورت نیاز / وارد کنید.",
+    ),
+    "chequeNumberLabel": MessageLookupByLibrary.simpleMessage("شماره چک"),
+    "chequeNumberNotFound": MessageLookupByLibrary.simpleMessage(
+      "شماره وارد شده در لیست چک‌های شما نیست",
+    ),
+    "chequePostalAction": MessageLookupByLibrary.simpleMessage(
+      "معرفی نزدیک‌ترین دفتر پستی مجاز",
+    ),
+    "chequePostalEmpty": MessageLookupByLibrary.simpleMessage(
+      "دفتر پستی برای این شهر در داده‌های آزمایشی ثبت نشده است.",
+    ),
+    "chequePostalFailure": MessageLookupByLibrary.simpleMessage(
+      "دریافت لیست دفاتر پستی انجام نشد. دوباره تلاش کنید.",
+    ),
+    "chequePostalSearch": MessageLookupByLibrary.simpleMessage("جستجو"),
+    "chequePostalSearchAgain": MessageLookupByLibrary.simpleMessage(
+      "جستجوی دوباره",
+    ),
+    "chequePostalShare": MessageLookupByLibrary.simpleMessage("اشتراک‌گذاری"),
+    "chequePostalTitle": MessageLookupByLibrary.simpleMessage(
+      "نزدیک‌ترین دفتر پستی مجاز",
+    ),
+    "chequeProvinceHint": MessageLookupByLibrary.simpleMessage(
+      "استان مورد نظر را انتخاب کنید",
+    ),
+    "chequeProvinceLabel": MessageLookupByLibrary.simpleMessage("استان*"),
+    "chequeProvinceSummary": MessageLookupByLibrary.simpleMessage("استان"),
+    "chequeReasonConsent": MessageLookupByLibrary.simpleMessage(
+      "رضایت نامه محضری",
+    ),
+    "chequeReasonDepositAndBlock": MessageLookupByLibrary.simpleMessage(
+      "واریز مبلغ و مسدودی",
+    ),
+    "chequeReasonHint": MessageLookupByLibrary.simpleMessage(
+      "علت درخواست را انتخاب کنید",
+    ),
+    "chequeReasonJudicial": MessageLookupByLibrary.simpleMessage("نامه قضایی"),
+    "chequeReasonLabel": MessageLookupByLibrary.simpleMessage("علت درخواست"),
+    "chequeReasonOlderThanThreeYears": MessageLookupByLibrary.simpleMessage(
+      "رفع سوءاثر چک بیش از ۳ سال",
+    ),
+    "chequeReasonOriginal": MessageLookupByLibrary.simpleMessage(
+      "ارائه لاشه چک",
+    ),
+    "chequeReasonPartialPayment": MessageLookupByLibrary.simpleMessage(
+      "گواهی عدم پرداخت قسمتی از وجه چک",
+    ),
+    "chequeRequestComplete": MessageLookupByLibrary.simpleMessage(
+      "درخواست ثبت شد.",
+    ),
+    "chequeShareUnavailable": MessageLookupByLibrary.simpleMessage(
+      "اشتراک‌گذاری در این دستگاه در دسترس نیست.",
+    ),
+    "chequeSubmit": MessageLookupByLibrary.simpleMessage("تایید و ثبت درخواست"),
+    "chequeSubmitFailure": MessageLookupByLibrary.simpleMessage(
+      "ثبت درخواست انجام نشد. دوباره تلاش کنید.",
+    ),
+    "chequeTerms": MessageLookupByLibrary.simpleMessage("قوانین و مقررات"),
+    "chequeTermsPrompt": MessageLookupByLibrary.simpleMessage(
+      "درخواست را مطالعه و تایید می‌نمایم.",
+    ),
+    "closeLabel": MessageLookupByLibrary.simpleMessage("بستن"),
+    "consolidateDepositCredit": MessageLookupByLibrary.simpleMessage(
+      "تجمیع اعتبار سپرده",
+    ),
+    "dashboardAddFavorites": MessageLookupByLibrary.simpleMessage(
+      "افزودن خدمات منتخب",
+    ),
+    "dashboardAddService": MessageLookupByLibrary.simpleMessage(
+      "افزودن مورد جدید",
+    ),
+    "dashboardAddresses": MessageLookupByLibrary.simpleMessage("مدیریت آدرس"),
+    "dashboardAgentSettings": MessageLookupByLibrary.simpleMessage(
+      "تنظیمات نمایندگی",
+    ),
+    "dashboardAllServices": MessageLookupByLibrary.simpleMessage("همه خدمات"),
+    "dashboardAssistant": MessageLookupByLibrary.simpleMessage("دستیار هوشمند"),
+    "dashboardBankServices": MessageLookupByLibrary.simpleMessage(
+      "خدمات بانک رسالت",
+    ),
+    "dashboardBlockDeposit": MessageLookupByLibrary.simpleMessage(
+      "مسدودی سپرده",
+    ),
+    "dashboardCancel": MessageLookupByLibrary.simpleMessage("انصراف"),
+    "dashboardCancelCheque": MessageLookupByLibrary.simpleMessage("ابطال چک"),
+    "dashboardCardsList": MessageLookupByLibrary.simpleMessage("لیست کارت‌ها"),
+    "dashboardCardsTab": MessageLookupByLibrary.simpleMessage("کارت"),
+    "dashboardChangeIdentity": MessageLookupByLibrary.simpleMessage(
+      "تغییر مشخصات هویتی",
+    ),
+    "dashboardChangePhone": MessageLookupByLibrary.simpleMessage(
+      "تغییر شماره تلفن همراه",
+    ),
+    "dashboardChequeServices": MessageLookupByLibrary.simpleMessage("چک"),
+    "dashboardClearCheque": MessageLookupByLibrary.simpleMessage(
+      "رفع سوء اثر چک",
+    ),
+    "dashboardCloseExtras": MessageLookupByLibrary.simpleMessage(
+      "بستن سپرده‌های مازاد",
+    ),
+    "dashboardConfirm": MessageLookupByLibrary.simpleMessage("تایید"),
+    "dashboardCorrectInstallments": MessageLookupByLibrary.simpleMessage(
+      "اصلاح اقساط پرداختی",
+    ),
+    "dashboardCustomize": MessageLookupByLibrary.simpleMessage(
+      "تنظیم خدمات منتخب",
+    ),
+    "dashboardDeferLoan": MessageLookupByLibrary.simpleMessage("امهال وام"),
+    "dashboardDepositsList": MessageLookupByLibrary.simpleMessage(
+      "لیست سپرده‌ها",
+    ),
+    "dashboardDepositsTab": MessageLookupByLibrary.simpleMessage("سپرده"),
+    "dashboardEdit": MessageLookupByLibrary.simpleMessage("ویرایش"),
+    "dashboardEmpty": MessageLookupByLibrary.simpleMessage(
+      "اطلاعاتی برای نمایش وجود ندارد",
+    ),
+    "dashboardEstimateCredit": MessageLookupByLibrary.simpleMessage(
+      "برآورد اعتبار وام",
+    ),
+    "dashboardExpiredGift": MessageLookupByLibrary.simpleMessage(
+      "واریز مانده کارت هدیه منقضی",
+    ),
+    "dashboardFavoritesLimit": MessageLookupByLibrary.simpleMessage(
+      "حداکثر ۸ تا مورد رو می‌تونی انتخاب کنی.",
+    ),
+    "dashboardGreeting": MessageLookupByLibrary.simpleMessage(
+      "مانی عزیز، صبح بخیر",
+    ),
+    "dashboardIdentityServices": MessageLookupByLibrary.simpleMessage(
+      "اطلاعات فردی",
+    ),
+    "dashboardLoadError": MessageLookupByLibrary.simpleMessage(
+      "دریافت اطلاعات انجام نشد",
+    ),
+    "dashboardLoading": MessageLookupByLibrary.simpleMessage(
+      "در حال دریافت اطلاعات…",
+    ),
+    "dashboardLoanReport": MessageLookupByLibrary.simpleMessage(
+      "گزارش معرفی وام",
+    ),
+    "dashboardLoansTab": MessageLookupByLibrary.simpleMessage("وام"),
+    "dashboardLocalTransfer": MessageLookupByLibrary.simpleMessage(
+      "انتقال وجه خدمت در محل",
+    ),
+    "dashboardManageInstallments": MessageLookupByLibrary.simpleMessage(
+      "مدیریت کسر اقساط",
+    ),
+    "dashboardModernBanking": MessageLookupByLibrary.simpleMessage(
+      "بانکداری مدرن",
+    ),
+    "dashboardMyLoans": MessageLookupByLibrary.simpleMessage("وام‌های من"),
+    "dashboardNoServices": MessageLookupByLibrary.simpleMessage(
+      "خدمتی پیدا نشد",
+    ),
+    "dashboardOccupation": MessageLookupByLibrary.simpleMessage("مدیریت شغل"),
+    "dashboardOpenCurrent": MessageLookupByLibrary.simpleMessage(
+      "افتتاح سپرده جاری",
+    ),
+    "dashboardPhoneBank": MessageLookupByLibrary.simpleMessage("تلفن بانک"),
+    "dashboardPromptCard": MessageLookupByLibrary.simpleMessage(
+      "چطور کارت رسالت بگیرم؟",
+    ),
+    "dashboardPromptCertificate": MessageLookupByLibrary.simpleMessage(
+      "گواهی تمکن مالی می‌خوام...",
+    ),
+    "dashboardPromptHint": MessageLookupByLibrary.simpleMessage(
+      "سوالت رو بنویس...",
+    ),
+    "dashboardRemoveService": MessageLookupByLibrary.simpleMessage("حذف"),
+    "dashboardRequestDate": MessageLookupByLibrary.simpleMessage(
+      "2024/09/16 | ۱۲:۴۵",
+    ),
+    "dashboardRequestNumber": MessageLookupByLibrary.simpleMessage(
+      "۱۳۷/۴۸۷۵۶۷",
+    ),
+    "dashboardRequestServices": MessageLookupByLibrary.simpleMessage(
+      "درخواست‌های من",
+    ),
+    "dashboardRequestTitle": MessageLookupByLibrary.simpleMessage(
+      "درخواست تغییر سپرده جهت کسر اقساط",
+    ),
+    "dashboardRequests": MessageLookupByLibrary.simpleMessage("درخواست‌های من"),
+    "dashboardResetConfirm": MessageLookupByLibrary.simpleMessage(
+      "بازنشانی تنظیمات",
+    ),
+    "dashboardResetDescription": MessageLookupByLibrary.simpleMessage(
+      "با بازنشانی تنظیمات، همه تغییراتت از بین می‌ره و به حالت اولیه برمی‌گرده.\nمطمئنی می‌خوای به تنظیمات اولیه برگردی؟",
+    ),
+    "dashboardResetTitle": MessageLookupByLibrary.simpleMessage(
+      "بازنشانی تنظیمات",
+    ),
+    "dashboardResoDescription": MessageLookupByLibrary.simpleMessage(
+      "رِسو فقط جواب نمی‌ده؛ خودش دست‌به‌کار می‌شه.",
+    ),
+    "dashboardResoTitle": MessageLookupByLibrary.simpleMessage(
+      "به رِسو بسپار!",
+    ),
+    "dashboardRetry": MessageLookupByLibrary.simpleMessage("تلاش دوباره"),
+    "dashboardSearchHint": MessageLookupByLibrary.simpleMessage("جستجو"),
+    "dashboardSendPrompt": MessageLookupByLibrary.simpleMessage("ارسال سوال"),
+    "dashboardTab": MessageLookupByLibrary.simpleMessage("داشبورد"),
+    "dashboardTransferServices": MessageLookupByLibrary.simpleMessage(
+      "انتقال وجه",
+    ),
+    "dashboardUnblockCard": MessageLookupByLibrary.simpleMessage(
+      "رفع مسدودی کارت",
+    ),
+    "dashboardUnblockDeposit": MessageLookupByLibrary.simpleMessage(
+      "رفع مسدودی سپرده",
+    ),
+    "dashboardViewAll": MessageLookupByLibrary.simpleMessage("مشاهده همه"),
+    "dashboardVirtualCard": MessageLookupByLibrary.simpleMessage(
+      "درخواست کارت مجازی",
+    ),
+    "dashboardWalletBalance": MessageLookupByLibrary.simpleMessage("۱٬۲۰۰٬۰۰۰"),
+    "dashboardWalletCharge": MessageLookupByLibrary.simpleMessage(
+      "افزایش موجودی",
+    ),
+    "dashboardWalletDeposit": MessageLookupByLibrary.simpleMessage(
+      "تغییر سپرده متصل به کیف",
+    ),
+    "dashboardWalletHistory": MessageLookupByLibrary.simpleMessage(
+      "گردش کیف پول",
+    ),
+    "dashboardWalletInfo": MessageLookupByLibrary.simpleMessage(
+      "اطلاعات کیف پول",
+    ),
+    "dashboardWalletServices": MessageLookupByLibrary.simpleMessage("کیف پول"),
+    "dashboardWalletTransfer": MessageLookupByLibrary.simpleMessage(
+      "واریز کیف به کیف",
+    ),
+    "dashboardWalletWithdraw": MessageLookupByLibrary.simpleMessage(
+      "برداشت موجودی",
+    ),
+    "dashboardWelcomeMessage": MessageLookupByLibrary.simpleMessage(
+      "به پیشخوان مجازی رسالت خوش آمدید",
+    ),
+    "dashboardYourFavorites": MessageLookupByLibrary.simpleMessage("منتخب شما"),
+    "depositBlockIntro": MessageLookupByLibrary.simpleMessage(
+      "سپرده مورد نظر و علت مسدودی را انتخاب کنید",
+    ),
+    "depositBlockTitle": MessageLookupByLibrary.simpleMessage("مسدودی سپرده"),
+    "depositBlockedDate": MessageLookupByLibrary.simpleMessage("تاریخ مسدودی"),
+    "depositBlockedReason": MessageLookupByLibrary.simpleMessage("علت مسدودی"),
+    "depositListAccountDetails": MessageLookupByLibrary.simpleMessage(
+      "جزئیات حساب",
+    ),
+    "depositListAccountType": MessageLookupByLibrary.simpleMessage("نوع حساب"),
+    "depositListBlock": MessageLookupByLibrary.simpleMessage("مسدودی سپرده"),
+    "depositListBlocked": MessageLookupByLibrary.simpleMessage("مسدود"),
+    "depositListClosed": MessageLookupByLibrary.simpleMessage("بسته"),
+    "depositListCurrent": MessageLookupByLibrary.simpleMessage("جاری حقیقی"),
+    "depositListCustomerInformation": MessageLookupByLibrary.simpleMessage(
+      "اطلاعات مشتری",
+    ),
+    "depositListLinkedCards": MessageLookupByLibrary.simpleMessage(
+      "کارت‌های متصل به حساب",
+    ),
+    "depositListNationalId": MessageLookupByLibrary.simpleMessage("کدملی"),
+    "depositListNoMatches": MessageLookupByLibrary.simpleMessage(
+      "سپرده‌ای با این فیلترها پیدا نشد.",
+    ),
+    "depositListNoOwners": MessageLookupByLibrary.simpleMessage(
+      "اطلاعات صاحبان حساب در دسترس نیست.",
+    ),
+    "depositListNumber": MessageLookupByLibrary.simpleMessage("شماره سپرده"),
+    "depositListOpen": MessageLookupByLibrary.simpleMessage("باز"),
+    "depositListOwner": MessageLookupByLibrary.simpleMessage("صاحب سپرده"),
+    "depositListOwnerAndSignatory": MessageLookupByLibrary.simpleMessage(
+      "صاحب سپرده و امضا",
+    ),
+    "depositListOwnerName": MessageLookupByLibrary.simpleMessage("نام"),
+    "depositListOwnerPercent": MessageLookupByLibrary.simpleMessage("درصد"),
+    "depositListOwnerRole": MessageLookupByLibrary.simpleMessage("نقش"),
+    "depositListSavings": MessageLookupByLibrary.simpleMessage(
+      "پس انداز حقیقی",
+    ),
+    "depositListServiceUnavailable": MessageLookupByLibrary.simpleMessage(
+      "این خدمت پس از اتصال به سامانه بانک در دسترس خواهد بود.",
+    ),
+    "depositListSignatory": MessageLookupByLibrary.simpleMessage("صاحب امضا"),
+    "depositListSms": MessageLookupByLibrary.simpleMessage(
+      "تنظیمات ارسال پیامک",
+    ),
+    "depositListStatement": MessageLookupByLibrary.simpleMessage(
+      "صورت حساب | معدل موجودی",
+    ),
+    "depositListStatus": MessageLookupByLibrary.simpleMessage("وضعیت"),
+    "depositRestrictionDescription": MessageLookupByLibrary.simpleMessage(
+      "توضیحات",
+    ),
+    "depositRestrictionDescriptionHint": MessageLookupByLibrary.simpleMessage(
+      "در صورت نیاز توضیحات را وارد کنید",
+    ),
+    "depositRestrictionManagement": MessageLookupByLibrary.simpleMessage(
+      "مدیریت سپرده",
+    ),
+    "depositRestrictionMockComplete": MessageLookupByLibrary.simpleMessage(
+      "درخواست به صورت آزمایشی ثبت شد. هیچ سپرده یا کیف پول واقعی تغییر نکرده است.",
+    ),
+    "depositRestrictionReason": MessageLookupByLibrary.simpleMessage(
+      "علت درخواست",
+    ),
+    "depositRestrictionReasonHint": MessageLookupByLibrary.simpleMessage(
+      "علت درخواست را انتخاب کنید",
+    ),
+    "depositServices": MessageLookupByLibrary.simpleMessage("خدمات سپرده"),
+    "depositUnblockIntro": MessageLookupByLibrary.simpleMessage(
+      "سپرده مورد نظر و علت رفع مسدودی را انتخاب کنید",
+    ),
+    "depositUnblockReason": MessageLookupByLibrary.simpleMessage(
+      "علت رفع مسدودی",
+    ),
+    "depositUnblockTitle": MessageLookupByLibrary.simpleMessage(
+      "رفع مسدودی سپرده",
+    ),
+    "depositsAgent": MessageLookupByLibrary.simpleMessage("تنظیمات نماینده"),
+    "depositsChequeOperations": MessageLookupByLibrary.simpleMessage(
+      "عملیات چک",
+    ),
+    "depositsCopyNumber": MessageLookupByLibrary.simpleMessage(
+      "کپی شماره سپرده",
+    ),
+    "depositsEmpty": MessageLookupByLibrary.simpleMessage(
+      "هنوز سپرده‌ای ندارید",
+    ),
+    "depositsLinkedCards": MessageLookupByLibrary.simpleMessage(
+      "کارت‌های متصل به سپرده",
+    ),
+    "depositsLinkedLoans": MessageLookupByLibrary.simpleMessage(
+      "وضعیت وام‌های متصل",
+    ),
+    "depositsLocalTransfer": MessageLookupByLibrary.simpleMessage(
+      "انتقال وجه خدمت در محل",
+    ),
+    "depositsMobileBank": MessageLookupByLibrary.simpleMessage("موبایل بانک"),
+    "depositsMyTitle": MessageLookupByLibrary.simpleMessage("سپرده‌های من"),
+    "depositsOperations": MessageLookupByLibrary.simpleMessage("عملیات سپرده"),
+    "enterDashboard": MessageLookupByLibrary.simpleMessage("ورود به پیشخوان"),
+    "financialAuthority": MessageLookupByLibrary.simpleMessage("مرجع"),
+    "financialAuthorityHint": MessageLookupByLibrary.simpleMessage(
+      "نام دقیق مرجع را بنویسید",
+    ),
+    "financialAverageBalanceCondition": MessageLookupByLibrary.simpleMessage(
+      "درج میانگین موجودی",
+    ),
+    "financialCertificate": MessageLookupByLibrary.simpleMessage(
+      "گواهی تمکن مالی",
+    ),
+    "financialCertificateTitle": MessageLookupByLibrary.simpleMessage(
+      "درخواست گواهی تمکن مالی",
+    ),
+    "financialCurrency": MessageLookupByLibrary.simpleMessage("ارز معادل"),
+    "financialCurrencyHint": MessageLookupByLibrary.simpleMessage(
+      "نوع ارز را جهت ارائه تمکن مالی انتخاب کنید",
+    ),
+    "financialDebitCredit": MessageLookupByLibrary.simpleMessage(
+      "درج مبلغ گردش بدهکار بستانکار",
+    ),
+    "financialDeliveryStep": MessageLookupByLibrary.simpleMessage(
+      "اطلاعات دریافت گواهی",
+    ),
+    "financialEmbassy": MessageLookupByLibrary.simpleMessage("سفارت"),
+    "financialEmbassyHint": MessageLookupByLibrary.simpleMessage(
+      "سفارت مورد نظر را انتخاب کنید",
+    ),
+    "financialEur": MessageLookupByLibrary.simpleMessage("یورو"),
+    "financialExchangeRate": MessageLookupByLibrary.simpleMessage(
+      "درج نرخ برابری روز",
+    ),
+    "financialExpiryHint": MessageLookupByLibrary.simpleMessage(
+      "تاریخ لاتین انقضای گذرنامه، درج شده در گذرنامه",
+    ),
+    "financialFatherHint": MessageLookupByLibrary.simpleMessage(
+      "نام پدر به انگلیسی مطابق گذرنامه",
+    ),
+    "financialHomeAddress": MessageLookupByLibrary.simpleMessage(
+      "آدرس محل سکونت",
+    ),
+    "financialIrr": MessageLookupByLibrary.simpleMessage("ریال ایران"),
+    "financialLatinAddress": MessageLookupByLibrary.simpleMessage("Address"),
+    "financialLatinAddressHint": MessageLookupByLibrary.simpleMessage(
+      "Unit, No, Alley, St, City, Province, Country, Postal code",
+    ),
+    "financialLatinAddressPrompt": MessageLookupByLibrary.simpleMessage(
+      "آدرس انگلیسی جهت درج در گواهی تمکن مالی را طبق فرمت نمونه وارد نمایید.",
+    ),
+    "financialLatinExpiry": MessageLookupByLibrary.simpleMessage(
+      "Date of Expiry",
+    ),
+    "financialLatinFather": MessageLookupByLibrary.simpleMessage(
+      "Father\'s name",
+    ),
+    "financialLatinName": MessageLookupByLibrary.simpleMessage("Name"),
+    "financialLatinPassport": MessageLookupByLibrary.simpleMessage(
+      "Passport No",
+    ),
+    "financialLatinStep": MessageLookupByLibrary.simpleMessage(
+      "اطلاعات فردی لاتین",
+    ),
+    "financialLatinSurname": MessageLookupByLibrary.simpleMessage("Surname"),
+    "financialMaturityDate": MessageLookupByLibrary.simpleMessage(
+      "تاریخ سررسید سپرده",
+    ),
+    "financialNameHint": MessageLookupByLibrary.simpleMessage(
+      "نام به انگلیسی مطابق گذرنامه",
+    ),
+    "financialOpenedAt": MessageLookupByLibrary.simpleMessage(
+      "درج تاریخ اولیه افتتاح سپرده",
+    ),
+    "financialOtherAuthority": MessageLookupByLibrary.simpleMessage(
+      "دیگر مراجع",
+    ),
+    "financialPassportHint": MessageLookupByLibrary.simpleMessage(
+      "شماره گذرنامه به انگلیسی",
+    ),
+    "financialPassportNumberCondition": MessageLookupByLibrary.simpleMessage(
+      "شماره گذرنامه / شماره ثبت",
+    ),
+    "financialPassportPrompt": MessageLookupByLibrary.simpleMessage(
+      "اطلاعات زیر را مطابق با گذرنامه خود وارد نمایید.",
+    ),
+    "financialRecipient": MessageLookupByLibrary.simpleMessage("گیرنده"),
+    "financialRecipientHint": MessageLookupByLibrary.simpleMessage(
+      "گیرنده گواهی را انتخاب کنید",
+    ),
+    "financialRecipientPrompt": MessageLookupByLibrary.simpleMessage(
+      "گیرنده گواهی و ارز معادل را انتخاب کنید",
+    ),
+    "financialRecipientStep": MessageLookupByLibrary.simpleMessage(
+      "گیرنده گواهی و نوع ارز",
+    ),
+    "financialSurnameHint": MessageLookupByLibrary.simpleMessage(
+      "نام خانوادگی به انگلیسی مطابق گذرنامه",
+    ),
+    "financialUsd": MessageLookupByLibrary.simpleMessage("دلار آمریکا"),
+    "financialWithdrawalRules": MessageLookupByLibrary.simpleMessage(
+      "شرایط برداشت از سپرده‌های مشترک / حقوقی",
+    ),
+    "flowExitTitle": MessageLookupByLibrary.simpleMessage("خروج از عملیات؟"),
+    "giftBalanceCount": MessageLookupByLibrary.simpleMessage(
+      "تعداد کارت هدیه منقضی",
+    ),
+    "giftBalanceDepositHint": MessageLookupByLibrary.simpleMessage(
+      "سپرده مورد نظر خود را انتخاب کنید",
+    ),
+    "giftBalanceDestination": MessageLookupByLibrary.simpleMessage(
+      "انتخاب سپرده جهت واریز",
+    ),
+    "giftBalanceEnd": MessageLookupByLibrary.simpleMessage("پایان"),
+    "giftBalanceIntro": MessageLookupByLibrary.simpleMessage(
+      "کارت‌های هدیه منقضی شده را انتخاب کنید",
+    ),
+    "giftBalanceNext": MessageLookupByLibrary.simpleMessage("مرحله بعد"),
+    "giftBalanceNextDestination": MessageLookupByLibrary.simpleMessage(
+      "بعدی: انتخاب سپرده جهت واریز",
+    ),
+    "giftBalanceRemaining": MessageLookupByLibrary.simpleMessage(
+      "مانده موجودی (ریال)",
+    ),
+    "giftBalanceRemoveCard": m1,
+    "giftBalanceSearch": MessageLookupByLibrary.simpleMessage(
+      "جستجو بر اساس شماره کارت",
+    ),
+    "giftBalanceSelectAll": MessageLookupByLibrary.simpleMessage("انتخاب همه"),
+    "giftBalanceSelectedList": m2,
+    "giftBalanceSelection": MessageLookupByLibrary.simpleMessage(
+      "انتخاب کارت‌ها",
+    ),
+    "giftBalanceSubmit": MessageLookupByLibrary.simpleMessage("ثبت درخواست"),
+    "giftBalanceTitle": MessageLookupByLibrary.simpleMessage(
+      "واریز مانده کارت هدیه منقضی",
+    ),
+    "giftBalanceTotal": MessageLookupByLibrary.simpleMessage(
+      "مجموع مبلغ (ریال)",
+    ),
+    "giftBalanceTransferTo": MessageLookupByLibrary.simpleMessage("انتقال به"),
+    "guestServices": MessageLookupByLibrary.simpleMessage(
+      "خدمات بدون نیاز به لاگین",
+    ),
+    "inheritance": MessageLookupByLibrary.simpleMessage("انحصار وراثت"),
+    "internetBank": MessageLookupByLibrary.simpleMessage("اینترنت بانک"),
+    "internetBankSettings": MessageLookupByLibrary.simpleMessage(
+      "تنظیمات اینترنت بانک",
+    ),
+    "introduceAgent": MessageLookupByLibrary.simpleMessage("معرفی نماینده"),
+    "introduceLoan": MessageLookupByLibrary.simpleMessage("معرفی وام"),
+    "issuanceAddAddress": MessageLookupByLibrary.simpleMessage(
+      "افزودن آدرس جدید",
+    ),
+    "issuanceAddress": MessageLookupByLibrary.simpleMessage("آدرس"),
+    "issuanceAddressDetail": MessageLookupByLibrary.simpleMessage("نشانی کامل"),
+    "issuanceAddressHint": MessageLookupByLibrary.simpleMessage(
+      "آدرس دریافت کارت را انتخاب کنید",
+    ),
+    "issuanceAddressInvalid": MessageLookupByLibrary.simpleMessage(
+      "عنوان، نشانی کامل و کد پستی ۱۰ رقمی را وارد کنید.",
+    ),
+    "issuanceAddressTitle": MessageLookupByLibrary.simpleMessage("عنوان آدرس"),
+    "issuanceAgentCode": MessageLookupByLibrary.simpleMessage("کد کارشناس"),
+    "issuanceAgentName": MessageLookupByLibrary.simpleMessage(
+      "نام و نام خانوادگی کارشناس",
+    ),
+    "issuanceComplete": MessageLookupByLibrary.simpleMessage("درخواست ثبت شد."),
+    "issuanceConfirmTitle": MessageLookupByLibrary.simpleMessage(
+      "تایید اطلاعات و پرداخت کارمزد",
+    ),
+    "issuanceCurrentCard": MessageLookupByLibrary.simpleMessage(
+      "شماره کارت فعلی",
+    ),
+    "issuanceDeleteAddress": MessageLookupByLibrary.simpleMessage("حذف آدرس"),
+    "issuanceDeliveryFee": MessageLookupByLibrary.simpleMessage("هزینه ارسال"),
+    "issuanceDeliveryTitle": MessageLookupByLibrary.simpleMessage(
+      "اطلاعات دریافت کارت",
+    ),
+    "issuanceDeposit": MessageLookupByLibrary.simpleMessage("انتخاب سپرده"),
+    "issuanceDepositHint": MessageLookupByLibrary.simpleMessage(
+      "سپرده مورد نظر خود را انتخاب کنید",
+    ),
+    "issuanceDepositNumber": MessageLookupByLibrary.simpleMessage(
+      "شماره سپرده",
+    ),
+    "issuanceDone": MessageLookupByLibrary.simpleMessage("بازگشت"),
+    "issuanceEmpty": MessageLookupByLibrary.simpleMessage(
+      "سپرده‌ای برای صدور کارت در دسترس نیست.",
+    ),
+    "issuanceEnd": MessageLookupByLibrary.simpleMessage("پایان"),
+    "issuanceExistingNumber": MessageLookupByLibrary.simpleMessage(
+      "صدور کارت با شماره فعلی",
+    ),
+    "issuanceExpiry": MessageLookupByLibrary.simpleMessage("تاریخ انقضا"),
+    "issuanceIdentityFee": MessageLookupByLibrary.simpleMessage(
+      "کارمزد احراز هویت",
+    ),
+    "issuanceIncludeAgent": MessageLookupByLibrary.simpleMessage(
+      "وارد کردن مشخصات کارشناس بانکی",
+    ),
+    "issuanceMockComplete": MessageLookupByLibrary.simpleMessage(
+      "پیش‌نمایش درخواست تکمیل شد؛ پرداخت یا صدور واقعی انجام نشده است.",
+    ),
+    "issuanceNationalId": MessageLookupByLibrary.simpleMessage("کد ملی گیرنده"),
+    "issuanceNewNumber": MessageLookupByLibrary.simpleMessage(
+      "صدور کارت با شماره جدید",
+    ),
+    "issuanceNext": MessageLookupByLibrary.simpleMessage("مرحله بعد"),
+    "issuanceNextConfirm": MessageLookupByLibrary.simpleMessage(
+      "بعدی: تایید اطلاعات و پرداخت کارمزد",
+    ),
+    "issuanceNextDelivery": MessageLookupByLibrary.simpleMessage(
+      "بعدی: اطلاعات دریافت کارت",
+    ),
+    "issuanceNoPhysical": MessageLookupByLibrary.simpleMessage(
+      "نیازی به دریافت کارت فیزیکی ندارم",
+    ),
+    "issuanceOperation": MessageLookupByLibrary.simpleMessage("نوع عملیات"),
+    "issuanceOtherRecipient": MessageLookupByLibrary.simpleMessage(
+      "دریافت توسط شخص دیگر",
+    ),
+    "issuancePayable": MessageLookupByLibrary.simpleMessage(
+      "هزینه قابل پرداخت",
+    ),
+    "issuancePostalCode": MessageLookupByLibrary.simpleMessage("کد پستی"),
+    "issuancePrintFee": MessageLookupByLibrary.simpleMessage("هزینه چاپ گزارش"),
+    "issuanceRecipientMobile": MessageLookupByLibrary.simpleMessage(
+      "شماره همراه گیرنده",
+    ),
+    "issuanceRecipientName": MessageLookupByLibrary.simpleMessage(
+      "نام و نام خانوادگی گیرنده",
+    ),
+    "issuanceSaveAddress": MessageLookupByLibrary.simpleMessage("ثبت آدرس"),
+    "issuanceSelectAddress": MessageLookupByLibrary.simpleMessage(
+      "انتخاب آدرس",
+    ),
+    "issuanceSelectionTitle": MessageLookupByLibrary.simpleMessage(
+      "انتخاب سپرده و نوع صدور کارت",
+    ),
+    "issuanceStepSemantic": m3,
+    "issuanceSubmit": MessageLookupByLibrary.simpleMessage(
+      "تایید و ثبت درخواست",
+    ),
+    "issuanceSubmitError": MessageLookupByLibrary.simpleMessage(
+      "ثبت درخواست انجام نشد. دوباره تلاش کنید.",
+    ),
+    "issuanceSummary": MessageLookupByLibrary.simpleMessage("خلاصه اطلاعات"),
+    "issuanceTerms": MessageLookupByLibrary.simpleMessage("قوانین و مقررات"),
+    "issuanceTermsPrompt": MessageLookupByLibrary.simpleMessage(
+      "درخواست را مطالعه و تایید می‌نمایم.",
+    ),
+    "issuanceTermsUnavailable": MessageLookupByLibrary.simpleMessage(
+      "متن رسمی قوانین پس از اتصال به سرویس نمایش داده می‌شود.",
+    ),
+    "issuanceTitle": MessageLookupByLibrary.simpleMessage("صدور رسالت کارت"),
+    "issuanceType": MessageLookupByLibrary.simpleMessage("نوع صدور کارت"),
+    "issuanceTypeHint": MessageLookupByLibrary.simpleMessage(
+      "نوع صدور کارت را مشخص کنید",
+    ),
+    "issuanceWallet": MessageLookupByLibrary.simpleMessage("موجودی کیف پول"),
+    "issuanceWalletInsufficient": MessageLookupByLibrary.simpleMessage(
+      "موجودی کیف پول کافی نیست",
+    ),
+    "issuanceWalletSufficient": MessageLookupByLibrary.simpleMessage(
+      "موجودی کیف پول کافی است",
+    ),
+    "issueChequeBook": MessageLookupByLibrary.simpleMessage("صدور دسته چک"),
+    "issueResalatCard": MessageLookupByLibrary.simpleMessage("صدور رسالت کارت"),
+    "latestUpdatedRequests": MessageLookupByLibrary.simpleMessage(
+      "آخرین درخواست‌های بروز شده",
+    ),
+    "loanEstimate": MessageLookupByLibrary.simpleMessage("برآورد وام"),
+    "loanServices": MessageLookupByLibrary.simpleMessage("خدمات وام"),
+    "loansChangeDeposit": MessageLookupByLibrary.simpleMessage(
+      "تغییر سپرده کسر اقساط",
+    ),
+    "loansDefaultName": MessageLookupByLibrary.simpleMessage(
+      "تسهیلات قرض الحسنه عادی (بدون کارمزد)",
+    ),
+    "loansEmpty": MessageLookupByLibrary.simpleMessage("هنوز وامی ندارید"),
+    "loansOperations": MessageLookupByLibrary.simpleMessage("عملیات وام"),
+    "loansPayInstallments": MessageLookupByLibrary.simpleMessage(
+      "پرداخت اقساط",
+    ),
+    "loansRelationships": MessageLookupByLibrary.simpleMessage(
+      "روابط سببی نسبی",
+    ),
+    "loginDescription": MessageLookupByLibrary.simpleMessage(
+      "برای ورود به حساب کاربری اطلاعات زیر را وارد کنید",
+    ),
+    "loginNationalIdHint": MessageLookupByLibrary.simpleMessage(
+      "کد ملی | شماره ملی | کد اتباع",
+    ),
+    "loginPhoneHint": MessageLookupByLibrary.simpleMessage(
+      "شماره همراه خود را وارد کنید",
+    ),
+    "loginTitle": MessageLookupByLibrary.simpleMessage("ورود با کد ملی"),
+    "memberContactCenter": MessageLookupByLibrary.simpleMessage(
+      "مرکز ارتباط با اعضاء",
+    ),
+    "mobileBank": MessageLookupByLibrary.simpleMessage("همراه بانک"),
+    "mobileBankSettings": MessageLookupByLibrary.simpleMessage(
+      "تنظیمات موبایل بانک",
+    ),
+    "modernActivate": MessageLookupByLibrary.simpleMessage(
+      "فعالسازی موبایل بانک",
+    ),
+    "modernActivationIntro": MessageLookupByLibrary.simpleMessage(
+      "برای ورود به همراه بانک رسالت نیاز به فعالسازی آن دارید.",
+    ),
+    "modernAwaitingIdentity": MessageLookupByLibrary.simpleMessage(
+      "در انتظار نتیجه تایید هویت",
+    ),
+    "modernCompromised": MessageLookupByLibrary.simpleMessage("احتمال هک شدن"),
+    "modernDeactivate": MessageLookupByLibrary.simpleMessage("غیرفعالسازی"),
+    "modernDeactivationIntro": MessageLookupByLibrary.simpleMessage(
+      "علت درخواست غیرفعالسازی موبایل بانک خود را انتخاب کنید.",
+    ),
+    "modernDeactivationSaved": MessageLookupByLibrary.simpleMessage(
+      "درخواست غیرفعالسازی در نسخهٔ آزمایشی ثبت شد؛ سرویس بانکی واقعی تغییر نکرده است.",
+    ),
+    "modernDeactivationTitle": MessageLookupByLibrary.simpleMessage(
+      "غیرفعالسازی موبایل بانک",
+    ),
+    "modernEdit": MessageLookupByLibrary.simpleMessage("ویرایش"),
+    "modernGuideLogin": MessageLookupByLibrary.simpleMessage(
+      "برای تغییر رمز موبایل بانک ابتدا وارد موبایل بانک خود شوید.",
+    ),
+    "modernGuideOther": MessageLookupByLibrary.simpleMessage(
+      "از بخش سایر، گزینه تغییر رمز عبور را انتخاب کنید.",
+    ),
+    "modernGuidePage": m4,
+    "modernGuidePassword": MessageLookupByLibrary.simpleMessage(
+      "رمز عبور فعلی خود و رمز جدید خود را وارد و تکرار کنید.",
+    ),
+    "modernIdentityNotice": MessageLookupByLibrary.simpleMessage(
+      "احراز هویت مشروط به تطابق کد ملی و شماره همراه است.",
+    ),
+    "modernInternal": MessageLookupByLibrary.simpleMessage("درون بانکی"),
+    "modernKycStep": MessageLookupByLibrary.simpleMessage("احراز هویت"),
+    "modernLimitError": MessageLookupByLibrary.simpleMessage(
+      "مبلغی بیشتر از صفر و حداکثر تا سقف مجاز وارد کنید.",
+    ),
+    "modernLimitsEditIntro": MessageLookupByLibrary.simpleMessage(
+      "سقف مجاز روزانه هر یک از انتقال وجه‌های زیر را برای موبایل بانک خود مشخص و ثبت کنید.",
+    ),
+    "modernLimitsIntro": MessageLookupByLibrary.simpleMessage(
+      "سقف مجاز انتقال وجه روزانه در موبایل بانک شما به شرح زیر است.",
+    ),
+    "modernLimitsSaved": MessageLookupByLibrary.simpleMessage(
+      "سقف انتقال وجه در نسخهٔ آزمایشی ذخیره شد؛ تغییری در حساب بانکی انجام نشده است.",
+    ),
+    "modernLimitsTitle": MessageLookupByLibrary.simpleMessage(
+      "تغییر سقف انتقال وجه",
+    ),
+    "modernMaximumLimit": m5,
+    "modernOperations": MessageLookupByLibrary.simpleMessage(
+      "عملیات همراه بانک",
+    ),
+    "modernOtherReason": MessageLookupByLibrary.simpleMessage("سایر"),
+    "modernPasswordFee": MessageLookupByLibrary.simpleMessage(
+      "کارمزد دریافت رمز",
+    ),
+    "modernPaya": MessageLookupByLibrary.simpleMessage("حواله پایا بین بانکی"),
+    "modernPaymentStep": MessageLookupByLibrary.simpleMessage("پرداخت کارمزد"),
+    "modernPreviewNotice": MessageLookupByLibrary.simpleMessage(
+      "این تصویر نمونهٔ مرحلهٔ پس از ضبط است؛ فعلاً ویدئویی ضبط یا ارسال نمی‌شود.",
+    ),
+    "modernReason": MessageLookupByLibrary.simpleMessage("علت درخواست"),
+    "modernReasonHint": MessageLookupByLibrary.simpleMessage(
+      "علت درخواست خود را انتخاب کنید",
+    ),
+    "modernRecoveryTitle": MessageLookupByLibrary.simpleMessage(
+      "فراموشی رمز موبایل بانک",
+    ),
+    "modernRefundNotice": MessageLookupByLibrary.simpleMessage(
+      "درصورتی که فرآیند احراز هویت با خطا روبرو شود مبلغ کارمزد کسر شده تا ۷۲ ساعت به کیف پول شما باز خواهد گشت.",
+    ),
+    "modernRegistryFee": MessageLookupByLibrary.simpleMessage(
+      "کارمزد ثبت احوال",
+    ),
+    "modernRejected": MessageLookupByLibrary.simpleMessage(
+      "احراز هویت تأیید نشده است. می‌توانید درخواست جدیدی ثبت کنید.",
+    ),
+    "modernRequestStatus": MessageLookupByLibrary.simpleMessage(
+      "وضعیت درخواست",
+    ),
+    "modernSatna": MessageLookupByLibrary.simpleMessage("ساتنا بین بانکی"),
+    "modernSerialStep": MessageLookupByLibrary.simpleMessage(
+      "وارد کردن سریال پشت کارت ملی",
+    ),
+    "modernTermsUnavailable": MessageLookupByLibrary.simpleMessage(
+      "متن قوانین این خدمت هنوز ارائه نشده است.",
+    ),
+    "modernToman": m6,
+    "modernUsername": MessageLookupByLibrary.simpleMessage("نام کاربری"),
+    "modernUsernameNotice": MessageLookupByLibrary.simpleMessage(
+      "نام کاربری شما به صورت پیش‌فرض، شماره مشتری می‌باشد. شماره مشتری روی کارت بانکی شما، درست بالای شماره کارت ثبت شده است.",
+    ),
+    "notificationEmpty": MessageLookupByLibrary.simpleMessage("پیامی ندارید"),
+    "notificationFiveDays": MessageLookupByLibrary.simpleMessage("۵ روز پیش"),
+    "notificationInvestmentSubtitle": MessageLookupByLibrary.simpleMessage(
+      "معامله راحت و سریع طلا با تسویه آنی",
+    ),
+    "notificationInvestmentTitle": MessageLookupByLibrary.simpleMessage(
+      "سرمایه گداری تمام عیار",
+    ),
+    "notificationLoanSubtitle": MessageLookupByLibrary.simpleMessage(
+      "وام با وثیقه",
+    ),
+    "notificationLoanTitle": MessageLookupByLibrary.simpleMessage(
+      "با سرمایه خودت وام بگیر",
+    ),
+    "notificationNew": MessageLookupByLibrary.simpleMessage("پیام‌های جدید"),
+    "notificationRead": MessageLookupByLibrary.simpleMessage(
+      "پیام‌های خوانده شده",
+    ),
+    "notificationReadAll": MessageLookupByLibrary.simpleMessage("خواندن همه"),
+    "notificationSampleDate": MessageLookupByLibrary.simpleMessage(
+      "۱۶ شهريور ۱۴۰۵",
+    ),
+    "notificationSecurityAdvice": MessageLookupByLibrary.simpleMessage(
+      "برای اینکه گیر کلاهبردارها نیفتی و حسابت همیشه امن بمونه، حواست به این چند تا مورد باشه:",
+    ),
+    "notificationSecurityClosing": MessageLookupByLibrary.simpleMessage(
+      "اگه با مورد مشکوکی برخورد کردی، همون لحظه به ما خبر بده تا سریع چکش کنیم.",
+    ),
+    "notificationSecurityCode": MessageLookupByLibrary.simpleMessage(
+      "کد ورودت رو به کسی نده: ما تو تیم پشتیبانی هیچ‌وقت رمز یا کد تاییدی که برات پیامک می‌شه رو ازت نمی‌خوایم.",
+    ),
+    "notificationSecurityIntro": MessageLookupByLibrary.simpleMessage(
+      "سلام! این روزا ممکنه پیام‌هایی از طرف آدمای سودجو به دستتون برسه که خودشون رو جای تیم پشتیبانی جا می‌زنن. برای اینکه حسابتون همیشه امن بمونه، حواستون به این چند تا نکته باشه:",
+    ),
+    "notificationSecurityLinks": MessageLookupByLibrary.simpleMessage(
+      "لینک‌های مشکوک رو باز نکن: اگه پیامی با یه لینک ناشناس برات اومد که می‌گفت «حسابت مسدود شده» یا «برنده شدی»، اصلاً روش کلیک نکن.",
+    ),
+    "notificationSecurityOfficial": MessageLookupByLibrary.simpleMessage(
+      "فقط از راه‌های رسمی در ارتباط باش: همیشه مطمئن شو پیامی که می‌گیری از طرف شماره‌ها یا اکانت‌های رسمی خودمون باشه.",
+    ),
+    "notificationSecuritySubtitle": MessageLookupByLibrary.simpleMessage(
+      "نکاتی برای افزایش امنیت حساب",
+    ),
+    "notificationSecurityTitle": MessageLookupByLibrary.simpleMessage(
+      "مراقب کلاهبرداران باشید⚠️",
+    ),
+    "notificationSevenDays": MessageLookupByLibrary.simpleMessage("۷ روز پیش"),
+    "notificationSubject": MessageLookupByLibrary.simpleMessage("عنوان"),
+    "notificationTitle": MessageLookupByLibrary.simpleMessage("اعلانات"),
+    "notificationToday": MessageLookupByLibrary.simpleMessage("امروز"),
+    "notificationYesterday": MessageLookupByLibrary.simpleMessage("دیروز"),
+    "notificationsLabel": MessageLookupByLibrary.simpleMessage("اعلان‌ها"),
+    "otpHint": MessageLookupByLibrary.simpleMessage("وارد کردن رمز"),
+    "otpSentMessage": m7,
+    "otpSentTitle": MessageLookupByLibrary.simpleMessage("کد ارسال شد."),
+    "passwordApprovedBody": MessageLookupByLibrary.simpleMessage(
+      "پیامک حاوی نام کاربری و رمز ورود به موبایل بانک برای شما ارسال می‌شود. پس از دریافت پیامک شما قادر خواهید بود با نام کاربری و رمزی دریافتی در پیامک به موبایل بانک خود وارد شوید.",
+    ),
+    "passwordApprovedTitle": MessageLookupByLibrary.simpleMessage(
+      "درخواست شما با موفقیت انجام شد",
+    ),
+    "passwordCameraNotice": MessageLookupByLibrary.simpleMessage(
+      "این مرحله نیازمند دوربین و میکروفون است.",
+    ),
+    "passwordCardNumber": MessageLookupByLibrary.simpleMessage("شماره کارت"),
+    "passwordCardNumberHint": MessageLookupByLibrary.simpleMessage(
+      "شماره کارت مورد نظر خود را انتخاب کنید",
+    ),
+    "passwordCardType": MessageLookupByLibrary.simpleMessage("نوع کارت"),
+    "passwordCardTypeHint": MessageLookupByLibrary.simpleMessage(
+      "نوع کارت خود را انتخاب کنید",
+    ),
+    "passwordChange": MessageLookupByLibrary.simpleMessage("تغییر رمز عبور"),
+    "passwordChangePrompt": MessageLookupByLibrary.simpleMessage(
+      "رمز عبور فعلی و رمز جدید دلخواه خود را وارد کنید.",
+    ),
+    "passwordChangeSubmit": MessageLookupByLibrary.simpleMessage("ثبت درخواست"),
+    "passwordChangeSuccessBody": MessageLookupByLibrary.simpleMessage(
+      "تغییر رمز شما با موفقیت انجام شد.",
+    ),
+    "passwordConfirmMock": MessageLookupByLibrary.simpleMessage(
+      "تایید نمونه آزمایشی",
+    ),
+    "passwordConfirmationHint": MessageLookupByLibrary.simpleMessage(
+      "تکرار رمز عبور",
+    ),
+    "passwordCurrentHint": MessageLookupByLibrary.simpleMessage(
+      "رمز عبور فعلی",
+    ),
+    "passwordDateRule": MessageLookupByLibrary.simpleMessage(
+      "تاریخ معنادار نباشد (تاریخ تولد، تاریخ انقضای کارت)",
+    ),
+    "passwordDemoVideo": MessageLookupByLibrary.simpleMessage(
+      "ویدئوی نمونه: Big Buck Bunny — Blender Foundation (CC BY 3.0)",
+    ),
+    "passwordExit": MessageLookupByLibrary.simpleMessage("خروج"),
+    "passwordExitBody": MessageLookupByLibrary.simpleMessage(
+      "اطلاعات واردشده پاک می‌شود.",
+    ),
+    "passwordExitTitle": MessageLookupByLibrary.simpleMessage(
+      "خروج از عملیات رمز؟",
+    ),
+    "passwordFirst": MessageLookupByLibrary.simpleMessage("رمز اول"),
+    "passwordFirstDescription": MessageLookupByLibrary.simpleMessage(
+      "این رمز برای انجام تراکنش‌های حضوری مانند برداشت وجه از خودپرداز و خرید از فروشگاه‌ها با دستگاه پوز استفاده می‌شود.",
+    ),
+    "passwordForgot": MessageLookupByLibrary.simpleMessage("فراموشی رمز عبور"),
+    "passwordHide": MessageLookupByLibrary.simpleMessage("پنهان کردن رمز"),
+    "passwordInstructionPrompt": MessageLookupByLibrary.simpleMessage(
+      "پس از دیدن ویدئو آموزشی مراحل احراز هویت شما شروع می‌شود.",
+    ),
+    "passwordLengthRule": MessageLookupByLibrary.simpleMessage(
+      "شامل ۴ تا ۶ عدد باشد",
+    ),
+    "passwordMismatch": MessageLookupByLibrary.simpleMessage(
+      "رمز عبور و تکرار آن یکسان نیست.",
+    ),
+    "passwordMockKyc": MessageLookupByLibrary.simpleMessage(
+      "ضبط و احراز هویت آزمایشی است؛ هیچ ویدئویی از شما ثبت نمی‌شود.",
+    ),
+    "passwordMockReceipt": MessageLookupByLibrary.simpleMessage(
+      "این نتیجه آزمایشی است؛ رمز بانکی تنظیم نشده و پیامکی ارسال نمی‌شود.",
+    ),
+    "passwordNewConfirmationHint": MessageLookupByLibrary.simpleMessage(
+      "تکرار رمز عبور جدید",
+    ),
+    "passwordNewHint": MessageLookupByLibrary.simpleMessage("رمز عبور جدید"),
+    "passwordOperation": MessageLookupByLibrary.simpleMessage("نوع عملیات"),
+    "passwordOperationHint": MessageLookupByLibrary.simpleMessage(
+      "نوع عملیات را مشخص کنید",
+    ),
+    "passwordPatternRule": MessageLookupByLibrary.simpleMessage(
+      "شامل اعداد متوالی یا تکراری نباشد",
+    ),
+    "passwordPause": MessageLookupByLibrary.simpleMessage("توقف ویدئو"),
+    "passwordPendingBody": MessageLookupByLibrary.simpleMessage(
+      "• پس از مشخص شدن نتیجه اعتبارسنجی، در صورت تایید هویت پیامک حاوی اطلاعات رمز برای شما ارسال می‌شود.\n• در صورت تایید اعتبارسنجی شما می‌توانید در همین مدت، از سایر خدمات پیشخوان که مستلزم احراز هویت هستند بدون پرداخت مجدد استفاده کنید.",
+    ),
+    "passwordPendingTitle": MessageLookupByLibrary.simpleMessage(
+      "شما یک درخواست اعتبارسنجی باز دارید",
+    ),
+    "passwordPlay": MessageLookupByLibrary.simpleMessage("پخش ویدئو"),
+    "passwordPrompt": MessageLookupByLibrary.simpleMessage(
+      "رمز دوم دلخواه خود را وارد کنید.",
+    ),
+    "passwordRecordAgain": MessageLookupByLibrary.simpleMessage("ضبط مجدد"),
+    "passwordRecordingPrompt": MessageLookupByLibrary.simpleMessage(
+      "در صورت تایید ویدئو درخواست خود را ثبت کنید.",
+    ),
+    "passwordSecond": MessageLookupByLibrary.simpleMessage("رمز دوم"),
+    "passwordSecondDescription": MessageLookupByLibrary.simpleMessage(
+      "این رمز برای انجام تراکنش‌های آنلاین و اینترنتی زیر ۱۰۰ هزار تومان به کار می‌رود.",
+    ),
+    "passwordSeek": MessageLookupByLibrary.simpleMessage("موقعیت پخش"),
+    "passwordSelectionPrompt": MessageLookupByLibrary.simpleMessage(
+      "کارت مورد نظر و نوع رمز را انتخاب کنید",
+    ),
+    "passwordSerialError": MessageLookupByLibrary.simpleMessage(
+      "سریال معتبر شامل عدد و یک حرف لاتین وارد کنید.",
+    ),
+    "passwordSerialHelper": MessageLookupByLibrary.simpleMessage(
+      "شامل عدد و یک حرف لاتین می‌باشد",
+    ),
+    "passwordSerialHint": MessageLookupByLibrary.simpleMessage(
+      "سریال پشت کارت ملی | کد پیگیری رسید کارت ملی",
+    ),
+    "passwordSerialPrompt": MessageLookupByLibrary.simpleMessage(
+      "سریال درج شده پشت کارت ملی یا کد پیگیری رسید کارت ملی خود را وارد کنید.",
+    ),
+    "passwordSetSecond": MessageLookupByLibrary.simpleMessage("تعیین رمز دوم"),
+    "passwordShow": MessageLookupByLibrary.simpleMessage("نمایش رمز"),
+    "passwordStartKyc": MessageLookupByLibrary.simpleMessage("شروع احراز هویت"),
+    "passwordStatusRegisteredTitle": MessageLookupByLibrary.simpleMessage(
+      "درخواست شما با موفقیت ثبت شد.",
+    ),
+    "passwordStay": MessageLookupByLibrary.simpleMessage("ادامه عملیات"),
+    "passwordSubmit": MessageLookupByLibrary.simpleMessage(
+      "ارسال و ثبت درخواست",
+    ),
+    "passwordSubmittedBody": MessageLookupByLibrary.simpleMessage(
+      "پس از مشخص شدن نتیجه اعتبارسنجی، در صورت تایید هویت پیامک حاوی نام کاربری و رمز ورود به موبایل بانک برای شما ارسال می‌شود. پس از دریافت پیامک شما قادر خواهید بود با نام کاربری و رمزی دریافتی در پیامک به موبایل بانک خود وارد شوید.",
+    ),
+    "passwordSubmittedTitle": MessageLookupByLibrary.simpleMessage(
+      "درخواست شما ارسال شد",
+    ),
+    "passwordTitle": MessageLookupByLibrary.simpleMessage("عملیات رمز"),
+    "passwordTracking": MessageLookupByLibrary.simpleMessage("کد پیگیری"),
+    "passwordType": MessageLookupByLibrary.simpleMessage("نوع رمز"),
+    "passwordTypeHint": MessageLookupByLibrary.simpleMessage(
+      "نوع رمز را انتخاب کنید",
+    ),
+    "passwordUnderstood": MessageLookupByLibrary.simpleMessage("متوجه شدم"),
+    "passwordUnsupported": MessageLookupByLibrary.simpleMessage(
+      "این عملیات برای کارت انتخاب‌شده در دسترس نیست.",
+    ),
+    "passwordValueHint": MessageLookupByLibrary.simpleMessage("رمز عبور"),
+    "passwordVideoUnavailable": MessageLookupByLibrary.simpleMessage(
+      "ویدئو در دسترس نیست",
+    ),
+    "phoneOwnershipNotice": MessageLookupByLibrary.simpleMessage(
+      "شماره باید با کد ملی دارنده حساب مطابقت داشته باشد",
+    ),
+    "profileAddAddress": MessageLookupByLibrary.simpleMessage(
+      "افزودن آدرس جدید",
+    ),
+    "profileAddOccupation": MessageLookupByLibrary.simpleMessage(
+      "افزودن شغل جدید",
+    ),
+    "profileAddressType": MessageLookupByLibrary.simpleMessage("نوع آدرس"),
+    "profileAddressesEmpty": MessageLookupByLibrary.simpleMessage(
+      "آدرسی ثبت نشده است",
+    ),
+    "profileChangePhone": MessageLookupByLibrary.simpleMessage(
+      "تغییر شماره تلفن همراه",
+    ),
+    "profileCurrentPhone": MessageLookupByLibrary.simpleMessage("شماره فعلی"),
+    "profileDeleteAddress": MessageLookupByLibrary.simpleMessage("حذف آدرس"),
+    "profileDeleteOccupation": MessageLookupByLibrary.simpleMessage("حذف شغل"),
+    "profileDeleteOccupationPrompt": m8,
+    "profileDescription": MessageLookupByLibrary.simpleMessage("شرح"),
+    "profileDescriptionRequired": MessageLookupByLibrary.simpleMessage(
+      "شرح شغل را وارد کنید",
+    ),
+    "profileDesigner": MessageLookupByLibrary.simpleMessage("طراح"),
+    "profileEditAddress": MessageLookupByLibrary.simpleMessage("ویرایش آدرس"),
+    "profileEditOccupation": MessageLookupByLibrary.simpleMessage("ویرایش شغل"),
+    "profileHome": MessageLookupByLibrary.simpleMessage("خانه"),
+    "profileHomemaker": MessageLookupByLibrary.simpleMessage("خانه‌دار"),
+    "profileLabel": MessageLookupByLibrary.simpleMessage("پروفایل"),
+    "profileMinimumAddress": MessageLookupByLibrary.simpleMessage(
+      "وجود حداقل یک آدرس خانه در پیشخوان الزامی‌است. لطفا ابتدا آدرس خانه خود را ثبت کرده سپس اقدام به ویرایش یا حذف این آدرس کنید.",
+    ),
+    "profileMinimumOccupation": MessageLookupByLibrary.simpleMessage(
+      "وجود حداقل یک شغل ثبت شده در پیشخوان الزامی‌است. شما می‌توانید بجای حذف این شغل آن را ویرایش کنید.",
+    ),
+    "profileMissingResidence": MessageLookupByLibrary.simpleMessage(
+      "فاقد اسکان و املاک",
+    ),
+    "profileNewPhone": MessageLookupByLibrary.simpleMessage("شماره جدید"),
+    "profileNewPhoneHint": MessageLookupByLibrary.simpleMessage(
+      "شماره جدید خود را وارد کنید",
+    ),
+    "profileOccupation": MessageLookupByLibrary.simpleMessage("شغل"),
+    "profileOccupationConflict": m9,
+    "profileOccupationDescription": MessageLookupByLibrary.simpleMessage(
+      "شرح شغل",
+    ),
+    "profileOccupationDescriptionHint": MessageLookupByLibrary.simpleMessage(
+      "شرح شغل خود را وارد کنید",
+    ),
+    "profileOccupationHint": MessageLookupByLibrary.simpleMessage(
+      "شغل خود را انتخاب کنید",
+    ),
+    "profileOccupationNotice": MessageLookupByLibrary.simpleMessage(
+      "حداکثر تا ۳ ساعت پس از ثبت درخواست شغل جدید قابل مشاهده خواهد بود",
+    ),
+    "profileOccupationQueued": MessageLookupByLibrary.simpleMessage(
+      "درخواست شغل ثبت شد و پس از بررسی قابل مشاهده خواهد بود.",
+    ),
+    "profileOccupationReview": m10,
+    "profileOccupationsEmpty": MessageLookupByLibrary.simpleMessage(
+      "شغلی ثبت نشده است",
+    ),
+    "profileOperationError": MessageLookupByLibrary.simpleMessage(
+      "عملیات انجام نشد؛ دوباره تلاش کنید",
+    ),
+    "profileOtpExpired": MessageLookupByLibrary.simpleMessage(
+      "اعتبار رمز به پایان رسیده است؛ دوباره درخواست دهید",
+    ),
+    "profileOtpHint": MessageLookupByLibrary.simpleMessage("وارد کردن رمز"),
+    "profileOtpInvalid": MessageLookupByLibrary.simpleMessage(
+      "رمز وارد شده صحیح نیست",
+    ),
+    "profilePhoneNotice": MessageLookupByLibrary.simpleMessage(
+      "شماره باید با کد ملی دارنده حساب مطابقت داشته باشد",
+    ),
+    "profilePhoneSubmitted": MessageLookupByLibrary.simpleMessage(
+      "درخواست تغییر شماره همراه ثبت شد.",
+    ),
+    "profilePostalAddress": MessageLookupByLibrary.simpleMessage("آدرس پستی:"),
+    "profileProfessor": MessageLookupByLibrary.simpleMessage("استاد"),
+    "profileQuerying": MessageLookupByLibrary.simpleMessage(
+      "در حال استعلام ...",
+    ),
+    "profileRequestOtp": MessageLookupByLibrary.simpleMessage(
+      "درخواست رمز پویا",
+    ),
+    "profileResidenceNotice": MessageLookupByLibrary.simpleMessage(
+      "برای انجام درخواست‌های (صدور دسته چک، افتتاح حساب جاری،...) آدرس‌های محل سکونت باید در",
+    ),
+    "profileResidenceRegistered": MessageLookupByLibrary.simpleMessage(
+      " ثبت شده باشند.",
+    ),
+    "profileResidenceRegistry": MessageLookupByLibrary.simpleMessage(
+      " سامانه اسکان و املاک",
+    ),
+    "profileResidenceStatus": MessageLookupByLibrary.simpleMessage(
+      "وضعیت اسکان و املاک",
+    ),
+    "profileReview": MessageLookupByLibrary.simpleMessage("بررسی"),
+    "profileReviewError": MessageLookupByLibrary.simpleMessage(
+      "استعلام انجام نشد؛ دوباره بررسی کنید",
+    ),
+    "profileSecondPassword": MessageLookupByLibrary.simpleMessage("رمز دوم"),
+    "profileShahkarFee": MessageLookupByLibrary.simpleMessage(
+      "هزینه استعلام شاهکار",
+    ),
+    "profileSubmit": MessageLookupByLibrary.simpleMessage("ثبت درخواست"),
+    "profileTeacher": MessageLookupByLibrary.simpleMessage("مدرس"),
+    "profileTelephone": MessageLookupByLibrary.simpleMessage("شماره تلفن:"),
+    "profileTitle": MessageLookupByLibrary.simpleMessage("عنوان"),
+    "profileValid": MessageLookupByLibrary.simpleMessage("معتبر"),
+    "profileWork": MessageLookupByLibrary.simpleMessage("محل کار"),
+    "proxyAmount": MessageLookupByLibrary.simpleMessage("مبلغ"),
+    "proxyAmountToman": m11,
+    "proxyBroker": MessageLookupByLibrary.simpleMessage("کارگزار"),
+    "proxyCompany": MessageLookupByLibrary.simpleMessage("شرکت"),
+    "proxyCompanyHint": MessageLookupByLibrary.simpleMessage(
+      "شرکت مورد نظر را انتخاب کنید",
+    ),
+    "proxyDeposit": MessageLookupByLibrary.simpleMessage("سپرده وکالتی"),
+    "proxyDepositHint": MessageLookupByLibrary.simpleMessage(
+      "سپرده خود را انتخاب کنید",
+    ),
+    "proxyDepositMockComplete": MessageLookupByLibrary.simpleMessage(
+      "درخواست سپرده وکالتی به صورت آزمایشی ثبت شد. هیچ وکالت یا مسدودی مبلغ واقعی ایجاد نشده است.",
+    ),
+    "proxySubject": MessageLookupByLibrary.simpleMessage("موضوع"),
+    "proxySubjectHint": MessageLookupByLibrary.simpleMessage(
+      "موضوع سپرده وکالتی را انتخاب کنید",
+    ),
+    "refreshCaptcha": MessageLookupByLibrary.simpleMessage(
+      "تازه‌سازی کد امنیتی",
+    ),
+    "relatedLinks": MessageLookupByLibrary.simpleMessage("لینک‌های مرتبط"),
+    "reportApplyFilter": MessageLookupByLibrary.simpleMessage("اعمال فیلتر"),
+    "reportCancelError": MessageLookupByLibrary.simpleMessage(
+      "لغو درخواست انجام نشد. دوباره تلاش کنید یا گزارش را به‌روز کنید.",
+    ),
+    "reportCancelPrompt": MessageLookupByLibrary.simpleMessage(
+      "مطمئنید می‌خواید این درخواست رو لغو کنید؟",
+    ),
+    "reportCancelRequest": MessageLookupByLibrary.simpleMessage("لغو درخواست"),
+    "reportConfirmCancel": MessageLookupByLibrary.simpleMessage("بله، لغو کن"),
+    "reportDate": MessageLookupByLibrary.simpleMessage("تاریخ"),
+    "reportDateLastMonth": MessageLookupByLibrary.simpleMessage("ماه گذشته"),
+    "reportDateLastThreeMonths": MessageLookupByLibrary.simpleMessage(
+      "۳ ماه گذشته",
+    ),
+    "reportDateLastWeek": MessageLookupByLibrary.simpleMessage("هفته گذشته"),
+    "reportDateToday": MessageLookupByLibrary.simpleMessage("امروز"),
+    "reportDetails": MessageLookupByLibrary.simpleMessage("جزئیات"),
+    "reportDetailsTitle": MessageLookupByLibrary.simpleMessage(
+      "جزئیات درخواست",
+    ),
+    "reportIdentifier": MessageLookupByLibrary.simpleMessage("شناسه"),
+    "reportLoadError": MessageLookupByLibrary.simpleMessage(
+      "دریافت گزارش درخواست‌ها ناموفق بود.",
+    ),
+    "reportNoResults": MessageLookupByLibrary.simpleMessage(
+      "درخواستی با این مشخصات پیدا نشد.",
+    ),
+    "reportNoTypes": MessageLookupByLibrary.simpleMessage(
+      "نوع درخواستی پیدا نشد.",
+    ),
+    "reportRequestDate": MessageLookupByLibrary.simpleMessage("تاریخ درخواست"),
+    "reportRequestStatus": MessageLookupByLibrary.simpleMessage(
+      "وضعیت درخواست",
+    ),
+    "reportRequestType": MessageLookupByLibrary.simpleMessage("نوع درخواست"),
+    "reportSearchIdentifier": MessageLookupByLibrary.simpleMessage(
+      "شناسه پرداخت",
+    ),
+    "reportSearchTypes": MessageLookupByLibrary.simpleMessage(
+      "جستجوی نوع درخواست",
+    ),
+    "reportSelectAll": MessageLookupByLibrary.simpleMessage("(انتخاب همه)"),
+    "reportStatus": MessageLookupByLibrary.simpleMessage("وضعیت"),
+    "reportStatusAwaitingApproval": MessageLookupByLibrary.simpleMessage(
+      "در انتظار تایید",
+    ),
+    "reportStatusAwaitingReview": MessageLookupByLibrary.simpleMessage(
+      "در انتظار بررسی",
+    ),
+    "reportStatusCancelled": MessageLookupByLibrary.simpleMessage("لغو شده"),
+    "reportStatusCompleted": MessageLookupByLibrary.simpleMessage(
+      "انجام شده خودکار",
+    ),
+    "reportStatusProcessingError": MessageLookupByLibrary.simpleMessage(
+      "خطا در پردازش",
+    ),
+    "reportStatusRejected": MessageLookupByLibrary.simpleMessage("رد شده"),
+    "reportStatusSystemError": MessageLookupByLibrary.simpleMessage(
+      "خطای سیستم",
+    ),
+    "reportTitle": MessageLookupByLibrary.simpleMessage("گزارش درخواست‌ها"),
+    "reportTypeBlockDeposit": MessageLookupByLibrary.simpleMessage(
+      "مسدودی سپرده",
+    ),
+    "reportTypeChequeBook": MessageLookupByLibrary.simpleMessage(
+      "صدور دسته چک",
+    ),
+    "reportTypeChequeClearance": MessageLookupByLibrary.simpleMessage(
+      "رفع سوء اثر چک",
+    ),
+    "reportTypeCurrentDeposit": MessageLookupByLibrary.simpleMessage(
+      "افتتاح سپرده جاری",
+    ),
+    "reportTypeInstallmentDeposit": MessageLookupByLibrary.simpleMessage(
+      "تغییر سپرده جهت کسر اقساط",
+    ),
+    "reportTypeInternetPassword": MessageLookupByLibrary.simpleMessage(
+      "تغییر گذرواژه اینترنت بانک",
+    ),
+    "reportTypeMobilePassword": MessageLookupByLibrary.simpleMessage(
+      "تغییر گذرواژه موبایل بانک",
+    ),
+    "reportTypeOnSiteTransfer": MessageLookupByLibrary.simpleMessage(
+      "انتقال وجه در محل",
+    ),
+    "reportTypeUnblockDeposit": MessageLookupByLibrary.simpleMessage(
+      "رفع مسدودی سپرده",
+    ),
+    "requestIdentifier": MessageLookupByLibrary.simpleMessage("شناسه درخواست"),
+    "requestOtp": MessageLookupByLibrary.simpleMessage("درخواست ارسال رمز"),
+    "requestStatus": MessageLookupByLibrary.simpleMessage("وضعیت درخواست"),
+    "requestTwoFactorCode": MessageLookupByLibrary.simpleMessage(
+      "درخواست کد دو عاملی",
+    ),
+    "resalatApp": MessageLookupByLibrary.simpleMessage("ام رسالت"),
+    "resendOtp": MessageLookupByLibrary.simpleMessage("ارسال مجدد"),
+    "rialCurrency": MessageLookupByLibrary.simpleMessage("ریال"),
+    "securityTips": MessageLookupByLibrary.simpleMessage("نکات امنیتی"),
+    "selectedServices": MessageLookupByLibrary.simpleMessage("خدمات منتخب"),
+    "servicesList": MessageLookupByLibrary.simpleMessage("لیست خدمات"),
+    "servicesMenuLabel": MessageLookupByLibrary.simpleMessage("فهرست خدمات"),
+    "smsSettings": MessageLookupByLibrary.simpleMessage("تنظیمات ارسال پیامک"),
+    "submitRequest": MessageLookupByLibrary.simpleMessage("ثبت درخواست"),
+    "surplusDepositsDescription": MessageLookupByLibrary.simpleMessage(
+      "سپرده‌ای که می‌خواهید به عنوان سپرده اصلی شما باقی بماند را انتخاب کنید. سپرده‌های مازاد شما بسته و موجودی و سایر موارد مرتبط با آن‌ها به سپرده منتخب شما منتقل می‌گردد.",
+    ),
+    "surplusDepositsEmptyBody": MessageLookupByLibrary.simpleMessage(
+      "شما دارای سپرده قرض الحسنه پس‌انداز حقیقی انفرادی مازاد نمی‌باشید",
+    ),
+    "surplusDepositsEmptyTitle": MessageLookupByLibrary.simpleMessage(
+      "نتیجه‌ای یافت نشد",
+    ),
+    "surplusDepositsMockComplete": MessageLookupByLibrary.simpleMessage(
+      "درخواست بستن سپرده‌ها به صورت آزمایشی ثبت شد. هیچ سپرده یا موجودی واقعی تغییر نکرده است.",
+    ),
+    "surplusDepositsReviewTitle": MessageLookupByLibrary.simpleMessage(
+      "سپرده‌های مازاد شما",
+    ),
+    "surplusDepositsSubmit": MessageLookupByLibrary.simpleMessage(
+      "تایید و ثبت درخواست",
+    ),
+    "surplusDepositsTitle": MessageLookupByLibrary.simpleMessage(
+      "بستن سپرده مازاد",
+    ),
+    "surplusPrimaryDeposit": MessageLookupByLibrary.simpleMessage("سپرده اصلی"),
+    "surplusPrimaryDepositHint": MessageLookupByLibrary.simpleMessage(
+      "سپرده اصلی خود را انتخاب کنید",
+    ),
+    "transferAddDestination": MessageLookupByLibrary.simpleMessage(
+      "افزودن مقصد",
+    ),
+    "transferAddManual": MessageLookupByLibrary.simpleMessage(
+      "افزودن دستی مقصد",
+    ),
+    "transferAddNext": MessageLookupByLibrary.simpleMessage("افزودن مقصد بعدی"),
+    "transferAddressHint": MessageLookupByLibrary.simpleMessage(
+      "آدرس مراجعه کارشناس را انتخاب کنید",
+    ),
+    "transferAmount": MessageLookupByLibrary.simpleMessage("مبلغ"),
+    "transferAmountError": MessageLookupByLibrary.simpleMessage(
+      "مبلغ معتبر و بزرگ‌تر از صفر وارد کنید.",
+    ),
+    "transferAmountHint": MessageLookupByLibrary.simpleMessage(
+      "مبلغ مورد نظر را وارد کنید",
+    ),
+    "transferAmountRial": MessageLookupByLibrary.simpleMessage("مبلغ (ریال)"),
+    "transferConfirmNext": MessageLookupByLibrary.simpleMessage(
+      "تایید و مرحله بعد",
+    ),
+    "transferConfirmationStep": MessageLookupByLibrary.simpleMessage(
+      "تایید نهایی و پرداخت کارمزد",
+    ),
+    "transferCutoffNotice": MessageLookupByLibrary.simpleMessage(
+      "انتخاب روز جاری فقط تا ساعت ۱۰ صبح امکان پذیر است.",
+    ),
+    "transferDate": MessageLookupByLibrary.simpleMessage("تاریخ انتقال وجه"),
+    "transferDateError": MessageLookupByLibrary.simpleMessage(
+      "تاریخ معتبر و غیرتعطیل وارد کنید؛ انتخاب امروز فقط قبل از ساعت ۱۰ امکان دارد.",
+    ),
+    "transferDateHint": MessageLookupByLibrary.simpleMessage(
+      "تاریخ انتقال وجه را تعیین کنید",
+    ),
+    "transferDeleteDestination": MessageLookupByLibrary.simpleMessage(
+      "حذف مقصد",
+    ),
+    "transferDeleteFile": MessageLookupByLibrary.simpleMessage("حذف فایل"),
+    "transferDescription": MessageLookupByLibrary.simpleMessage(
+      "شناسه واریز / توضیحات",
+    ),
+    "transferDescriptionHint": MessageLookupByLibrary.simpleMessage(
+      "شناسه واریز / توضیحات را وارد کنید",
+    ),
+    "transferDestinationPrompt": MessageLookupByLibrary.simpleMessage(
+      "اطلاعات مقصد را وارد کنید.",
+    ),
+    "transferDestinationsStep": MessageLookupByLibrary.simpleMessage(
+      "وارد کردن مقصدها",
+    ),
+    "transferFileAccepted": MessageLookupByLibrary.simpleMessage(
+      "فایل مقصدها تایید شد؛ بررسی محتوای اکسل در نسخه بعد انجام می‌شود.",
+    ),
+    "transferFileInvalid": MessageLookupByLibrary.simpleMessage(
+      "فایل XLS غیرخالی با حداکثر حجم ۱۰۰ کیلوبایت انتخاب کنید.",
+    ),
+    "transferFileRequirements": MessageLookupByLibrary.simpleMessage(
+      "فرمت فایل: XLS  |  حداکثر حجم: ۱۰۰ KB",
+    ),
+    "transferHolidayNotice": MessageLookupByLibrary.simpleMessage(
+      "تاریخ انتخابی نمی‌تواند جزء تعطیلات رسمی باشد.",
+    ),
+    "transferIbanError": MessageLookupByLibrary.simpleMessage(
+      "شماره شبای معتبر وارد کنید.",
+    ),
+    "transferIbanHint": MessageLookupByLibrary.simpleMessage(
+      "شماره شبا را وارد کنید",
+    ),
+    "transferIdentifier": MessageLookupByLibrary.simpleMessage("شناسه واریز"),
+    "transferInternal": MessageLookupByLibrary.simpleMessage("داخلی"),
+    "transferMethod": MessageLookupByLibrary.simpleMessage("نوع انتقال"),
+    "transferMethodHint": MessageLookupByLibrary.simpleMessage(
+      "نوع انتقال وجه را انتخاب کنید",
+    ),
+    "transferMethodRow": MessageLookupByLibrary.simpleMessage("روش انتقال"),
+    "transferMockComplete": MessageLookupByLibrary.simpleMessage(
+      "درخواست به‌صورت آزمایشی ثبت شد؛ هیچ وجه یا کارمزدی در بانک جابه‌جا نشده است.",
+    ),
+    "transferPaya": MessageLookupByLibrary.simpleMessage("پایا"),
+    "transferPurpose": MessageLookupByLibrary.simpleMessage("بابت"),
+    "transferPurposeHint": MessageLookupByLibrary.simpleMessage(
+      "علت انتقال را انتخاب کنید",
+    ),
+    "transferReview": MessageLookupByLibrary.simpleMessage("بررسی"),
+    "transferSalary": MessageLookupByLibrary.simpleMessage("واریز حقوق"),
+    "transferSampleLink": MessageLookupByLibrary.simpleMessage("مطابق نمونه"),
+    "transferSamplePrefix": MessageLookupByLibrary.simpleMessage(
+      "فایل اکسل باید ",
+    ),
+    "transferSampleSuffix": MessageLookupByLibrary.simpleMessage(" باشد."),
+    "transferSatna": MessageLookupByLibrary.simpleMessage("ساتنا"),
+    "transferSave": MessageLookupByLibrary.simpleMessage("ثبت"),
+    "transferServiceFee": MessageLookupByLibrary.simpleMessage(
+      "کارمزد خدمت در محل",
+    ),
+    "transferSourcePrompt": MessageLookupByLibrary.simpleMessage(
+      "سپرده مورد نظر و تاریخ انتقال وجه را انتخاب کنید",
+    ),
+    "transferSourceStep": MessageLookupByLibrary.simpleMessage(
+      "انتخاب سپرده و شرایط درخواست",
+    ),
+    "transferUploadAction": MessageLookupByLibrary.simpleMessage(
+      "بارگذاری فایل اینجا",
+    ),
+    "transferUploadAfter": MessageLookupByLibrary.simpleMessage(
+      "را کلیک کنید.",
+    ),
+    "transferUploadBefore": MessageLookupByLibrary.simpleMessage("برای"),
+    "transferUploadExcel": MessageLookupByLibrary.simpleMessage(
+      "آپلود فایل اکسل",
+    ),
+    "transferVisitDate": MessageLookupByLibrary.simpleMessage("تاریخ مراجعه"),
+    "transferVisitDateError": MessageLookupByLibrary.simpleMessage(
+      "تاریخ مراجعه باید روز کاری و بین امروز و تاریخ انتقال وجه باشد.",
+    ),
+    "transferVisitDateHint": MessageLookupByLibrary.simpleMessage(
+      "تاریخ مراجعه را تعیین کنید",
+    ),
+    "transferVisitPrompt": MessageLookupByLibrary.simpleMessage(
+      "آدرس و زمان مراجعه کارشناس را انتخاب کنید.",
+    ),
+    "transferVisitStep": MessageLookupByLibrary.simpleMessage(
+      "آدرس و زمان مراجعه کارشناس",
+    ),
+    "updateGuide": MessageLookupByLibrary.simpleMessage("راهنمای بروزرسانی"),
+    "virtualRequestCount": MessageLookupByLibrary.simpleMessage(
+      "تعداد کارت مجازی",
+    ),
+    "virtualRequestCountError": m12,
+    "virtualRequestCountHint": MessageLookupByLibrary.simpleMessage(
+      "تعداد کارت مجازی مورد نیاز خود را وارد کنید",
+    ),
+    "virtualRequestDepositHint": MessageLookupByLibrary.simpleMessage(
+      "سپرده مورد نظر خود را انتخاب کنید",
+    ),
+    "virtualRequestDepositLabel": MessageLookupByLibrary.simpleMessage("سپرده"),
+    "virtualRequestEmpty": MessageLookupByLibrary.simpleMessage(
+      "هیچ سپرده‌ای برای صدور کارت مجازی موجود نیست.",
+    ),
+    "virtualRequestFeeNotice": m13,
+    "virtualRequestMockReceipt": MessageLookupByLibrary.simpleMessage(
+      "درخواست آزمایشی ثبت شد؛ کارت مجازی ایجاد نشده و مبلغی پرداخت نمی‌شود.",
+    ),
+    "virtualRequestNotice": MessageLookupByLibrary.simpleMessage(
+      "کارت مجازی فاقد فیزیک بوده و تنها یک شماره می باشد که می توان به آن شماره فقط واریز وجه انجام داد و برداشت یا خرید با این کارت امکان پذیر نمیباشد.",
+    ),
+    "virtualRequestPrompt": MessageLookupByLibrary.simpleMessage(
+      "سپرده‌ی موردنظر برای صدور کارت مجازی و تعداد کارت مجازی را انتخاب کنید و مراحل را ادامه دهید.",
+    ),
+    "virtualRequestQuoting": MessageLookupByLibrary.simpleMessage(
+      "در حال دریافت هزینه درخواست…",
+    ),
+    "virtualRequestReceipt": MessageLookupByLibrary.simpleMessage(
+      "کد پیگیری درخواست:",
+    ),
+    "virtualRequestSubmit": MessageLookupByLibrary.simpleMessage(
+      "تایید و ثبت درخواست",
+    ),
+    "virtualRequestSubmitted": MessageLookupByLibrary.simpleMessage(
+      "درخواست ثبت شد",
+    ),
+    "virtualRequestTitle": MessageLookupByLibrary.simpleMessage(
+      "درخواست کارت مجازی",
+    ),
+    "virtualRequestUnitFee": MessageLookupByLibrary.simpleMessage(
+      "کارمزد صدور هر کارت",
+    ),
+    "walletBalanceTitle": MessageLookupByLibrary.simpleMessage(
+      "موجودی کیف پول",
+    ),
+  };
 }

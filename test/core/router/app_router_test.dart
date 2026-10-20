@@ -63,8 +63,17 @@ void main() {
     final routes = router.configuration.routes.cast<GoRoute>();
     final paths = routes.map((r) => r.path).toList();
     const modulePaths = {
+      '/modern-banking/': [
+        AppRoutes.mobileBank,
+        AppRoutes.mobileBankPasswordRecovery,
+        AppRoutes.mobileBankPasswordGuide,
+        AppRoutes.mobileBankTransferLimits,
+        AppRoutes.mobileBankDeactivation,
+      ],
       '/launch/': [AppRoutes.splash],
       '/dashboard/': [AppRoutes.home, AppRoutes.allServices],
+      '/transfers/': [AppRoutes.onSiteTransfer],
+      '/requests/': [AppRoutes.requestReports],
       '/auth/': [AppRoutes.login],
       '/cards/': [
         AppRoutes.cardPasswords,
@@ -74,11 +83,28 @@ void main() {
         AppRoutes.changeCardDeposit,
         AppRoutes.expiredGiftBalance,
       ],
-      '/profile/': [AppRoutes.messages, AppRoutes.messageDetail],
+      '/profile/': [
+        AppRoutes.messages,
+        AppRoutes.messageDetail,
+        AppRoutes.changePhone,
+        AppRoutes.addresses,
+        AppRoutes.occupations,
+      ],
+      '/cheque/': [
+        AppRoutes.chequeClearance,
+        AppRoutes.chequeBook,
+        AppRoutes.chequeCancellation,
+      ],
       '/deposits/': [
         AppRoutes.depositList,
         AppRoutes.averageBalance,
         AppRoutes.financialCertificate,
+        AppRoutes.introduceAgent,
+        AppRoutes.agentSettings,
+        AppRoutes.closeSurplusDeposits,
+        AppRoutes.proxyDeposit,
+        AppRoutes.blockDeposit,
+        AppRoutes.unblockDeposit,
       ],
     };
     final declaredPaths = modulePaths.values.expand((paths) => paths).toList();
@@ -95,14 +121,31 @@ void main() {
     'return destination accepts implemented local routes and rejects tampering',
     () {
       for (final value in [
+        AppRoutes.mobileBank,
+        AppRoutes.mobileBankPasswordRecovery,
+        AppRoutes.mobileBankPasswordGuide,
+        AppRoutes.mobileBankTransferLimits,
+        AppRoutes.mobileBankDeactivation,
         AppRoutes.virtualCardRequest,
         AppRoutes.cardPasswords,
         AppRoutes.changeCardDeposit,
         AppRoutes.expiredGiftBalance,
         AppRoutes.depositList,
         '/cards/list?category=virtual',
+        AppRoutes.proxyDeposit,
+        AppRoutes.blockDeposit,
+        AppRoutes.unblockDeposit,
+        AppRoutes.chequeClearance,
+        AppRoutes.chequeBook,
+        AppRoutes.chequeCancellation,
+        AppRoutes.closeSurplusDeposits,
+        AppRoutes.agentSettings,
+        AppRoutes.introduceAgent,
         '/profile/messages/security-id',
         AppRoutes.allServices,
+        AppRoutes.changePhone,
+        AppRoutes.addresses,
+        AppRoutes.occupations,
       ]) {
         expect(validatedReturnLocation(value), value);
       }

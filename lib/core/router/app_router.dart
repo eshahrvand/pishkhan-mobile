@@ -1,3 +1,10 @@
+import 'package:pishkhan_mobile/features/profile/presentation/change_phone/screens/change_phone_screen.dart';
+import 'package:pishkhan_mobile/features/profile/presentation/addresses/screens/addresses_screen.dart';
+import 'package:pishkhan_mobile/features/profile/presentation/occupations/screens/occupations_screen.dart';
+import 'package:pishkhan_mobile/features/transfers/presentation/on_site_transfer/screens/on_site_transfer_screen.dart';
+import 'package:pishkhan_mobile/features/cheque/presentation/cancellation/screens/cheque_cancellation_screen.dart';
+import 'package:pishkhan_mobile/features/cheque/presentation/book_issuance/screens/cheque_book_screen.dart';
+import 'package:pishkhan_mobile/features/cheque/presentation/clearance/screens/cheque_clearance_screen.dart';
 import 'package:pishkhan_mobile/features/launch/presentation/shared/widgets/route_unavailable_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pishkhan_mobile/core/router/app_routes.dart';
@@ -18,11 +25,26 @@ import 'package:pishkhan_mobile/features/cards/presentation/expired_gift_balance
 import 'package:pishkhan_mobile/features/deposits/presentation/deposit_list/screens/deposit_list_screen.dart';
 import 'package:pishkhan_mobile/features/deposits/presentation/average_balance/screens/average_balance_screen.dart';
 import 'package:pishkhan_mobile/features/deposits/presentation/financial_certificate/screens/financial_certificate_screen.dart';
+import 'package:pishkhan_mobile/features/deposits/presentation/introduce_agent/screens/introduce_agent_screen.dart';
+import 'package:pishkhan_mobile/features/deposits/presentation/agent_settings/screens/agent_settings_screen.dart';
+import 'package:pishkhan_mobile/features/deposits/presentation/close_surplus_deposits/screens/close_surplus_deposits_screen.dart';
+import 'package:pishkhan_mobile/features/deposits/presentation/deposit_restriction/screens/deposit_restriction_screen.dart';
+import 'package:pishkhan_mobile/features/deposits/presentation/proxy_deposit/screens/proxy_deposit_screen.dart';
+import 'package:pishkhan_mobile/features/deposits/domain/entities/deposit_restriction.dart';
 import 'package:pishkhan_mobile/core/notifications/notification_message.dart';
 import 'package:pishkhan_mobile/features/profile/presentation/message_center/screens/notifications_screen.dart';
 import 'package:pishkhan_mobile/features/profile/presentation/message_center/screens/notification_detail_screen.dart';
 
+import 'package:pishkhan_mobile/features/requests/presentation/reports/screens/request_reports_screen.dart';
+
 import 'router_session.dart';
+
+import 'package:pishkhan_mobile/features/modern_banking/domain/entities/mobile_bank.dart';
+import 'package:pishkhan_mobile/features/modern_banking/presentation/mobile_bank/screens/mobile_bank_screen.dart';
+import 'package:pishkhan_mobile/features/modern_banking/presentation/password_guide/screens/mobile_bank_guide_screen.dart';
+import 'package:pishkhan_mobile/features/modern_banking/presentation/transfer_limits/screens/mobile_bank_limits_screen.dart';
+import 'package:pishkhan_mobile/features/modern_banking/presentation/deactivation/screens/mobile_bank_deactivation_screen.dart';
+
 import 'guards/auth_guard.dart';
 import 'validated_return_location.dart';
 
@@ -38,6 +60,29 @@ GoRouter createAppRouter({
     refreshListenable: session,
     redirect: (context, state) => globalRedirect(session, state),
     routes: [
+      // Modern banking: feature screens own their Providers and dependencies.
+      GoRoute(
+        path: AppRoutes.mobileBank,
+        builder: (context, state) => const MobileBankScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.mobileBankPasswordRecovery,
+        builder: (context, state) => const MobileBankScreen(
+          operation: MobileBankOperation.passwordRecovery,
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.mobileBankPasswordGuide,
+        builder: (context, state) => const MobileBankGuideScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.mobileBankTransferLimits,
+        builder: (context, state) => const MobileBankLimitsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.mobileBankDeactivation,
+        builder: (context, state) => const MobileBankDeactivationScreen(),
+      ),
       // Launch
       GoRoute(
         path: AppRoutes.splash,
@@ -45,6 +90,17 @@ GoRouter createAppRouter({
       ),
 
       // Dashboard
+      GoRoute(
+        path: AppRoutes.requestReports,
+        builder: (context, state) {
+          final args = state.extra is RequestReportsRouteArguments
+              ? state.extra as RequestReportsRouteArguments
+              : null;
+          return RequestReportsScreen(
+            onAssistantPressed: args?.onAssistantPressed,
+          );
+        },
+      ),
       GoRoute(
         path: AppRoutes.home,
         builder: (context, state) =>
@@ -62,17 +118,67 @@ GoRouter createAppRouter({
         },
       ),
 
+      GoRoute(
+        path: AppRoutes.chequeCancellation,
+        builder: (context, state) {
+          final args = state.extra is ChequeCancellationRouteArguments
+              ? state.extra as ChequeCancellationRouteArguments
+              : null;
+          return ChequeCancellationScreen(
+            initialDepositNumber: args?.initialDepositNumber,
+            onAssistantPressed: args?.onAssistantPressed,
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.chequeBook,
+        builder: (context, state) {
+          final args = state.extra is ChequeBookRouteArguments
+              ? state.extra as ChequeBookRouteArguments
+              : null;
+          return ChequeBookScreen(
+            initialDepositNumber: args?.initialDepositNumber,
+            onAssistantPressed: args?.onAssistantPressed,
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.chequeClearance,
+        builder: (context, state) {
+          final args = state.extra is ChequeClearanceRouteArguments
+              ? state.extra as ChequeClearanceRouteArguments
+              : null;
+          return ChequeClearanceScreen(
+            onAssistantPressed: args?.onAssistantPressed,
+          );
+        },
+      ),
+
+      // On-site transfers (independent from cheque services).
+      GoRoute(
+        path: AppRoutes.onSiteTransfer,
+        builder: (context, state) {
+          final args = state.extra is OnSiteTransferRouteArguments
+              ? state.extra as OnSiteTransferRouteArguments
+              : null;
+          return OnSiteTransferScreen(
+            initialDepositNumber: args?.initialDepositNumber,
+            onAssistantPressed: args?.onAssistantPressed,
+          );
+        },
+      ),
+
       // Auth
       GoRoute(
         path: AppRoutes.login,
         builder: (context, state) => AuthScreen(
-          onAuthenticated: () {
+          onAuthenticated: () async {
             final destination = validatedReturnLocation(
               state.uri.queryParameters['from'],
             );
             final extra = session.takePendingExtra();
-            session.signIn();
-            context.go(destination, extra: extra);
+            await session.signIn();
+            if (context.mounted) context.go(destination, extra: extra);
           },
         ),
       ),
@@ -152,6 +258,76 @@ GoRouter createAppRouter({
 
       // Deposits
       GoRoute(
+        path: AppRoutes.proxyDeposit,
+        builder: (context, state) {
+          final args = state.extra is ProxyDepositRouteArguments
+              ? state.extra as ProxyDepositRouteArguments
+              : null;
+          return ProxyDepositScreen(
+            initialDepositNumber: args?.initialDepositNumber,
+            onAssistantPressed: args?.onAssistantPressed,
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.blockDeposit,
+        builder: (context, state) {
+          final args = state.extra is DepositRestrictionRouteArguments
+              ? state.extra as DepositRestrictionRouteArguments
+              : null;
+          return DepositRestrictionScreen(
+            operation: DepositRestrictionOperation.block,
+            initialDepositNumber: args?.initialDepositNumber,
+            onAssistantPressed: args?.onAssistantPressed,
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.unblockDeposit,
+        builder: (context, state) {
+          final args = state.extra is DepositRestrictionRouteArguments
+              ? state.extra as DepositRestrictionRouteArguments
+              : null;
+          return DepositRestrictionScreen(
+            operation: DepositRestrictionOperation.unblock,
+            initialDepositNumber: args?.initialDepositNumber,
+            onAssistantPressed: args?.onAssistantPressed,
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.closeSurplusDeposits,
+        builder: (context, state) {
+          final args = state.extra is CloseSurplusDepositsRouteArguments
+              ? state.extra as CloseSurplusDepositsRouteArguments
+              : null;
+          return CloseSurplusDepositsScreen(
+            initialDepositNumber: args?.initialDepositNumber,
+            onAssistantPressed: args?.onAssistantPressed,
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.agentSettings,
+        builder: (context, state) {
+          final args = state.extra is AgentSettingsRouteArguments
+              ? state.extra as AgentSettingsRouteArguments
+              : null;
+          return AgentSettingsScreen(
+            initialDepositNumber: args?.initialDepositNumber,
+            onAssistantPressed: args?.onAssistantPressed,
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.introduceAgent,
+        builder: (context, state) => IntroduceAgentScreen(
+          initialDepositNumber: state.extra is AgentRouteArguments
+              ? (state.extra as AgentRouteArguments).initialDepositNumber
+              : null,
+        ),
+      ),
+      GoRoute(
         path: AppRoutes.financialCertificate,
         builder: (context, state) => FinancialCertificateScreen(
           initialDepositNumber: state.extra is CertificateRouteArguments
@@ -177,6 +353,33 @@ GoRouter createAppRouter({
       ),
 
       // Profile
+      GoRoute(
+        path: AppRoutes.changePhone,
+        builder: (context, state) => ChangePhoneScreen(
+          onAssistantPressed: state.extra is PersonalInformationRouteArguments
+              ? (state.extra as PersonalInformationRouteArguments)
+                    .onAssistantPressed
+              : null,
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.addresses,
+        builder: (context, state) => AddressesScreen(
+          onAssistantPressed: state.extra is PersonalInformationRouteArguments
+              ? (state.extra as PersonalInformationRouteArguments)
+                    .onAssistantPressed
+              : null,
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.occupations,
+        builder: (context, state) => OccupationsScreen(
+          onAssistantPressed: state.extra is PersonalInformationRouteArguments
+              ? (state.extra as PersonalInformationRouteArguments)
+                    .onAssistantPressed
+              : null,
+        ),
+      ),
       GoRoute(
         path: AppRoutes.messages,
         builder: (context, state) {
@@ -215,6 +418,42 @@ class AllServicesRouteArguments {
   final ValueChanged<DashboardService>? onServiceRequested;
 }
 
+class ProxyDepositRouteArguments {
+  const ProxyDepositRouteArguments({
+    this.initialDepositNumber,
+    this.onAssistantPressed,
+  });
+  final String? initialDepositNumber;
+  final VoidCallback? onAssistantPressed;
+}
+
+class DepositRestrictionRouteArguments {
+  const DepositRestrictionRouteArguments({
+    this.initialDepositNumber,
+    this.onAssistantPressed,
+  });
+  final String? initialDepositNumber;
+  final VoidCallback? onAssistantPressed;
+}
+
+class CloseSurplusDepositsRouteArguments {
+  const CloseSurplusDepositsRouteArguments({
+    this.initialDepositNumber,
+    this.onAssistantPressed,
+  });
+  final String? initialDepositNumber;
+  final VoidCallback? onAssistantPressed;
+}
+
+class AgentSettingsRouteArguments {
+  const AgentSettingsRouteArguments({
+    this.initialDepositNumber,
+    this.onAssistantPressed,
+  });
+  final String? initialDepositNumber;
+  final VoidCallback? onAssistantPressed;
+}
+
 class PasswordRouteArguments {
   const PasswordRouteArguments({
     this.initialCardNumber,
@@ -240,6 +479,11 @@ class CertificateRouteArguments {
   final String? initialDepositNumber;
 }
 
+class AgentRouteArguments {
+  const AgentRouteArguments({this.initialDepositNumber});
+  final String? initialDepositNumber;
+}
+
 class DepositListRouteArguments {
   const DepositListRouteArguments({this.onAssistantPressed});
   final VoidCallback? onAssistantPressed;
@@ -249,4 +493,46 @@ class MessageCenterRouteArguments {
   const MessageCenterRouteArguments({required this.messages, this.onChanged});
   final List<NotificationMessage> messages;
   final ValueChanged<List<NotificationMessage>>? onChanged;
+}
+
+class ChequeClearanceRouteArguments {
+  const ChequeClearanceRouteArguments({this.onAssistantPressed});
+  final VoidCallback? onAssistantPressed;
+}
+
+class ChequeBookRouteArguments {
+  const ChequeBookRouteArguments({
+    this.initialDepositNumber,
+    this.onAssistantPressed,
+  });
+  final String? initialDepositNumber;
+  final VoidCallback? onAssistantPressed;
+}
+
+class ChequeCancellationRouteArguments {
+  const ChequeCancellationRouteArguments({
+    this.initialDepositNumber,
+    this.onAssistantPressed,
+  });
+  final String? initialDepositNumber;
+  final VoidCallback? onAssistantPressed;
+}
+
+class OnSiteTransferRouteArguments {
+  const OnSiteTransferRouteArguments({
+    this.initialDepositNumber,
+    this.onAssistantPressed,
+  });
+  final String? initialDepositNumber;
+  final VoidCallback? onAssistantPressed;
+}
+
+class RequestReportsRouteArguments {
+  const RequestReportsRouteArguments({this.onAssistantPressed});
+  final VoidCallback? onAssistantPressed;
+}
+
+class PersonalInformationRouteArguments {
+  const PersonalInformationRouteArguments({this.onAssistantPressed});
+  final VoidCallback? onAssistantPressed;
 }

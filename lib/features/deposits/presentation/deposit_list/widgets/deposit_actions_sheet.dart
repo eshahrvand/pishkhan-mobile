@@ -92,7 +92,7 @@ String getDepositActionLabel(DepositListAction action) => switch (action) {
   DepositListAction.statement => S.current.depositListStatement,
   DepositListAction.certificate => S.current.financialCertificate,
   DepositListAction.sms => S.current.depositListSms,
-  DepositListAction.representative => S.current.depositsRepresentative,
+  DepositListAction.agent => S.current.depositsAgent,
   DepositListAction.block => S.current.depositListBlock,
   DepositListAction.linkedLoans => S.current.depositsLinkedLoans,
 };
@@ -103,7 +103,7 @@ String getDepositActionAsset(DepositListAction action) => switch (action) {
   DepositListAction.statement => AppAssets.depositFeatureStatement,
   DepositListAction.certificate => AppAssets.depositFeatureCertificate,
   DepositListAction.sms => AppAssets.depositFeatureSms,
-  DepositListAction.representative => AppAssets.depositFeatureRepresentative,
+  DepositListAction.agent => AppAssets.depositFeatureAgent,
   DepositListAction.block => AppAssets.depositFeatureBlock,
   DepositListAction.linkedLoans => AppAssets.depositFeatureLoans,
 };

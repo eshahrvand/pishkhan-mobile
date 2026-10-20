@@ -5,6 +5,12 @@ abstract class HomeState with _$HomeState {
   const factory HomeState.initial({
     @Default(AppPrimaryTab.dashboard) AppPrimaryTab selectedTab,
     @Default(true) bool enableAnimations,
+    @Default('') String drawerQuery,
+    @Default(<DashboardDrawerGroup>[]) List<DashboardDrawerGroup> drawerGroups,
+    DashboardDrawerSection? expandedDrawerSection,
+    @Default(DashboardDrawerSection.home)
+    DashboardDrawerSection selectedDrawerSection,
+    DashboardDrawerSelection? drawerSelection,
     @Default('') String prompt,
     String? submittedPrompt,
     @Default(false) bool canSubmitPrompt,

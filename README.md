@@ -46,7 +46,15 @@ Visual captures are not stored in `doc`; optional test captures use ignored
 - [Standalone deposit list and account sheets](doc/deposits/deposit-list.md)
 - [Statement / average balance request](doc/deposits/average-balance.md)
 - [Financial solvency certificate](doc/deposits/financial-certificate.md)
+- [Agent settings](doc/deposits/agent-settings.md)
+- [Close surplus deposits](doc/deposits/close-surplus-deposits.md)
+- [Deposit blocking and unblocking](doc/deposits/deposit-restriction.md)
+- [Proxy deposit](doc/deposits/proxy-deposit.md)
 - [Loans](doc/loans/development.md)
+- [On-site transfer requests](doc/transfers/on-site-transfer.md)
+- [Request reports and cancellation](doc/requests/request-reports.md)
+- [Personal information: phone, addresses and occupations](doc/profile/personal-information.md)
+- [Modern banking: mobile activation, passwords, limits and deactivation](doc/modern-banking/mobile-bank.md)
 
 General architecture and design-system guidance remain in the top-level `doc`
 files. Existing Persian documents are retained unchanged.

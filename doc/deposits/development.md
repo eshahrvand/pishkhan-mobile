@@ -1,43 +1,113 @@
-# Deposits Development
-[Full Dashboard development document](../dashboard/development.md)
+# Deposits: implemented flows and integration
 
-| Phase | Screen | Figma node |
-| --- | --- | --- |
-| 1 | Single deposit | `27902:82476` |
-| 2 | Multiple deposits | `27902:82503` |
+Updated: 2026-10-19. This is the entry document for the deposit module. It describes
+implemented application flows and mock adapters. Bank APIs, real account operations,
+document issuance and payments remain integration work.
 
-## Reused components
+The mandatory [UI/Cubit/State contract](../ui-cubit-state-agent-rules-en.md),
+including its owner amendments, governs new and modified presentation code.
 
-AppDepositCard, AppPrimaryNavigation, AppTopBar, AppServiceGridCard, AppServiceGridItemView, AppServiceArtworkTile and AppAssistantButton are reused without source modifications. No duplicate shared component was introduced. New feature artwork is registered in AppAssets. SMS and cheque issuance icons were exported from their original instances after generated asset aliases proved incorrect.
+## Services and navigation
 
-## Behavior and integration
+| Service | ID | Route | Detailed contract |
+| --- | --- | --- | --- |
+| My deposits | `deposit-list` | `/deposits/list` | [Deposit list](deposit-list.md) |
+| Statement / average balance | `deposit-statement` | `/deposits/average-balance` | [Average balance](average-balance.md) |
+| Financial certificate | `deposit-certificate` | `/deposits/financial-certificate` | [Financial certificate](financial-certificate.md) |
+| Introduce agent | `deposit-representative` | `/deposits/introduce-representative` | [Introduce agent](introduce-agent.md) |
+| Agent settings | `deposit-representation-settings` | `/deposits/representation-settings` | [Agent settings](agent-settings.md) |
+| Block / unblock | `deposit-block`, `deposit-unblock` | `/deposits/block`, `/deposits/unblock` | [Restrictions](deposit-restriction.md) |
+| Close surplus deposits | `deposit-close-extras` | `/deposits/close-surplus-deposits` | [Surplus deposits](close-surplus-deposits.md) |
+| Proxy deposit | `deposit-proxy` | `/deposits/proxy` | [Proxy deposit](proxy-deposit.md) |
 
-DashboardScreen now opens DepositsTab as the third retained tab. One deposit uses the single card; multiple deposits use a snapping RTL carousel with neighboring previews and indicator navigation. Switching tabs retains selection; system back returns to Dashboard. Loans opens its retained dashboard tab.
+Paths and typed arguments live in `core/router`; `ServiceRegistry.openCardService`
+dispatches existing IDs. Supported deposit actions forward the selected account
+number; the destination Cubit resolves it against the fetched service catalog.
+Cheque services belong to [the cheque module](../cheque/development.md), including
+when opened from a deposit. A visible catalog icon alone does not mean its service
+is implemented.
 
-BankDeposit.hasChequeOperations drives cheque-section visibility independently of list length. The single Figma fixture enables it; the three multi fixtures disable it. Mixed caller data changes visible operations as selection changes. Data reorder retains selection by ID; removal falls back to the first remaining deposit; empty data renders safely.
+## Ownership
 
-Supply DashboardScreen.repositories and onDepositActionRequested for selected-deposit action context. onSelectedDepositChanged reports page changes. The existing onServiceRequested is a string-ID fallback and does not preserve deposit context. DepositsTab resolves the shared HomeCubit; copy, menu, assistant and tab interactions produce typed Home effects for the parent listener. Durable storage and executing bank operations remain adapter/host responsibilities.
+The retained Deposits tab, `BankDeposit` summaries and dashboard action mapping
+belong to `features/dashboard`. All four dashboard tabs share the `HomeCubit`
+owned by `DashboardScreen`. Standalone services and their domain/data code belong
+to `features/deposits`. The single card and RTL multi-account carousel retain
+selected-account context. Cheque visibility follows account capability data.
+The opening-date label is right-aligned with the number and IBAN labels in both
+card variants.
 
-## Accepted component differences
+Each standalone screen directly constructs its Cubit in `BlocProvider.create`
+and calls its required initial fetch. GetIt registers actual dependencies, never
+Cubits. Cubit resolves its repository in a field; UI/router do not forward data
+dependencies through constructors. State remains one plain Freezed `.initial`
+data class with independent operation statuses. Cubit owns decisions, validation
+outcomes, dependent selections, request construction and modal-result interpretation;
+UI renders and executes prepared Flutter effects.
 
-Per the user decision, AppDepositCard retains its existing corner-aligned gradient/default stops and AppShadows.md. The required shadow already exists as AppShadows.bankCard. AppPrimaryNavigation retains the gray deposit icon even on its blue selected surface; Figma requires white. Exact values, consumers, reasons and recommended optional variants are documented in Dashboard development Section 13.
+## Current behavior
 
-## Validation
+- Deposit list: search/filter, account and owner details, supported service actions.
+- Average balance: account/conditions, delivery, confirmation/fees. Dates remain
+  optional until the approved calendar picker is available.
+- Financial certificate: five stages, including recipient/currency and Latin
+  identity before delivery and fee confirmation.
+- Agent introduction: a local pending list followed by final submission. Settings:
+  two relationship tabs, draft filters and details; cancellation still shows
+  unavailable feedback.
+- Block/unblock: operation-specific eligibility, previous blocking information,
+  consent and wallet/fee requirements.
+- Proxy deposit: company/subject/account dependencies and service-provided broker
+  and amount; changing a selection resets dependent data and consent.
+- Surplus closure: more than one deposit shows the primary selector; zero or one
+  shows the empty result. All other accounts automatically become surplus.
+  There is no experimental intermediate candidate-list page.
 
-Nine focused deposit tests and all 119 app tests pass. Application and avp_ui analysis report no issues. Preview geometry, assets, capabilities, selected callback context, copying, retained tab state, back navigation, data replacement and narrow-screen/larger-text use were verified.
+Current DI selects mock repositories. Their in-memory changes are local to each
+adapter: surplus closure does not mutate the independent dashboard or generic
+list fixture. Production consistency must come from bank data.
 
-## Dashboard ownership and Cubit migration
+## Address feature and component reuse
 
-The tab, summary entity and action mapping live under lib/features/dashboard. Dedicated feature folders are reserved for standalone pages. DashboardScreen injects the DashboardRepositories bundle into HomeCubit; HomeState owns independent load outcomes and the selected deposit alongside the other tabs. DepositsTab has no repository parameter. See [current architecture and complete Figma audit](../dashboard/development.md) for loading/error/empty/single/multiple states, immutable selection, mock flow and future adapter requirements.
+`features/address/presentation/editor` owns the address form, Cubit and State.
+Average balance, financial certificates and cheque-book delivery call
+`ServiceRegistry.openAddressEditor`; their own Cubits interpret the raw result.
+Core `DeliveryAddress` is the common result type; `CertificateAddress` remains a
+compatibility alias. Callers do not import another feature's internal editor.
 
-## Cubit/State coding convention
+The editor collects an address. It does not implement persistent profile address
+management or registry verification. Local delivery changes last for the flow's
+lifetime unless a repository explicitly persists them.
 
-Follow [architecture Section 12](../architecture-smart-virtual-counter-v2-en.md#12-state-management-with-cubit) for new work and refactors. State is a plain Freezed data class with defaults and independent request statuses. Cubits accept an initial State, compute UI data and eligibility, and emit immutable snapshots through `copyWith`. UI reads those fields directly; no custom State/Cubit getters or UI-facing rules facade is used. Dependencies remain injectable and lifecycle/duplicate-request safeguards stay in place.
+Existing selectors, fields, recipient/agent sections, summary, invoice, cards,
+headers, assistant, exit dialog and blurred sheet frame are reused. Common
+certificate visuals live in `lib/shared/widgets`; stateful address editing stays
+in its own feature. Standard selects use anchored menus; explicitly designed
+bottom sheets retain their presentation.
 
-## Unified Home ownership (2026-10-16)
+## Integration limits
 
-All four dashboard tabs now share `HomeCubit`/`HomeState` at
-`presentation/home/cubit/home_cubit.dart` and `home_state.dart`.
-`DashboardScreen` provides the single scope and injects the repository bundle.
-The tab constructors accept only `super.key`; load, selection, operation lists
-and typed effects belong to Home. See [current state contract](../dashboard/development.md#12-state-management-with-cubit).
+Catalogs provide eligibility, options and tariffs. Confirmed payloads retain their
+identity across retries. Mock boundaries check service-specific ownership,
+quote/review binding and idempotency. Real authorization, atomic account/payment
+execution and durable deduplication remain server responsibilities. Receipts
+explicitly identify simulated operations.
+
+Official terms, agent enquiries, persistent profile address management, real
+certificates and delivery remain unavailable where the detailed flow document
+says so. Missing content shows availability feedback rather than a fabricated
+legal document or bank success.
+
+## Verification
+
+Tests are under `test/deposits`, `test/address`, shared-card and router suites:
+
+```sh
+flutter test test/deposits test/address test/app_financial_cards_test.dart test/core/router/app_router_test.dart
+flutter analyze
+```
+
+Screen tests optionally export previews with `CAPTURE_CERTIFICATE_PREVIEWS=1` to
+ignored `build/previews/`. Test counts are not frozen here; use the execution
+report. The [dashboard document](../dashboard/development.md) retains its design
+audit and accepted dashboard-specific differences.

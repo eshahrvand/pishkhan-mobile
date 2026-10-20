@@ -25,8 +25,22 @@ class AppAddressCard extends StatelessWidget {
     this.onDeleteTap,
     this.deleteIcon,
     this.deleteLabel = 'حذف آدرس',
+    this.titleLabel,
+    this.phoneLabel = 'شماره تلفن:',
+    this.postalLabel = 'آدرس پستی:',
+    this.residenceLabel = 'وضعیت اسکان و املاک',
+    this.reviewLabel = 'بررسی',
+    this.reviewStatus,
+    this.outlined = false,
   });
 
+  final String? titleLabel;
+  final String phoneLabel;
+  final String postalLabel;
+  final String residenceLabel;
+  final String reviewLabel;
+  final Widget? reviewStatus;
+  final bool outlined;
   final AppAddressType type;
   final String? phoneNumber;
   final String postalCode;
@@ -64,11 +78,17 @@ class AppAddressCard extends StatelessWidget {
             child: Container(
               key: const Key('app_address_card'),
               width: 343,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              padding: EdgeInsets.symmetric(
+                horizontal: outlined ? 15.2 : 16,
+                vertical: outlined ? 11.2 : 12,
+              ),
               decoration: BoxDecoration(
-                color: AppPalette.gray50,
+                color: outlined ? context.colors.surface : AppPalette.gray50,
                 borderRadius: AppRadius.borderMd,
-                boxShadow: AppShadows.sm,
+                boxShadow: outlined ? null : AppShadows.sm,
+                border: outlined
+                    ? Border.all(color: AppPalette.gray200, width: .8)
+                    : null,
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -94,7 +114,7 @@ class AppAddressCard extends StatelessWidget {
                         const SizedBox(width: 4),
                         Expanded(
                           child: Text(
-                            _isHome ? 'خانه' : 'محل کار',
+                            titleLabel ?? (_isHome ? 'خانه' : 'محل کار'),
                             textAlign: TextAlign.right,
                             style: _mediumStyle(AppPalette.gray900),
                           ),
@@ -127,12 +147,12 @@ class AppAddressCard extends StatelessWidget {
                   const SizedBox(height: 8),
                   AppAddressCardDetailRow(
                     value: _phoneNumber,
-                    label: 'شماره تلفن:',
+                    label: phoneLabel,
                   ),
                   const SizedBox(height: 8),
                   AppAddressCardDetailRow(
                     value: postalCode,
-                    label: 'آدرس پستی:',
+                    label: postalLabel,
                   ),
                   const SizedBox(height: 8),
                   Text(
@@ -148,30 +168,33 @@ class AppAddressCard extends StatelessWidget {
                         textDirection: TextDirection.ltr,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          InkWell(
-                            key: const Key('app_address_review'),
-                            onTap: onReviewTap,
-                            borderRadius: AppRadius.borderSm,
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              textDirection: TextDirection.ltr,
-                              children: [
-                                AvpImage(
-                                  image: AppAssets.addressCardAngleLeft,
-                                  width: 20,
-                                  height: 20,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  'بررسی',
-                                  style: _mediumStyle(AppPalette.brand600),
-                                ),
-                              ],
+                          if (reviewStatus != null)
+                            reviewStatus!
+                          else
+                            InkWell(
+                              key: const Key('app_address_review'),
+                              onTap: onReviewTap,
+                              borderRadius: AppRadius.borderSm,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                textDirection: TextDirection.ltr,
+                                children: [
+                                  AvpImage(
+                                    image: AppAssets.addressCardAngleLeft,
+                                    width: 20,
+                                    height: 20,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    reviewLabel,
+                                    style: _mediumStyle(AppPalette.brand600),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
                           Expanded(
                             child: Text(
-                              'وضعیت اسکان و املاک',
+                              residenceLabel,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               textAlign: TextAlign.right,

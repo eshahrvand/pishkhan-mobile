@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/shared/widgets/app_drawer.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/core/result/result.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/home/cubit/home_cubit.dart';
@@ -425,7 +426,12 @@ void main() {
       );
       expect(ids.last, 'loan-defer');
       await tap(tester, find.byKey(Key('dashboard_menu_button')));
-      expect(find.byType(DashboardServicesSheet), findsOneWidget);
+      expect(find.byType(AppDrawer), findsOneWidget);
+      expect(
+        tester.widget<AppDrawer>(find.byType(AppDrawer)).expandedItemId,
+        isNull,
+      );
+      await tap(tester, find.byKey(const Key('app_drawer_item_loans')));
       expect(find.text('وام‌های من'), findsWidgets);
       await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
@@ -455,7 +461,7 @@ void main() {
     );
     await tap(tester, find.byKey(Key('dashboard_menu_button')));
     expect(menus, 1);
-    expect(find.byType(DashboardServicesSheet), findsOneWidget);
+    expect(find.byType(AppDrawer), findsOneWidget);
   });
 
   testWidgets(

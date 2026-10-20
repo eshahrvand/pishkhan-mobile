@@ -7,18 +7,37 @@ String validatedReturnLocation(String? location) {
     return AppRoutes.home;
   }
   const paths = {
+    AppRoutes.mobileBank,
+    AppRoutes.mobileBankPasswordRecovery,
+    AppRoutes.mobileBankPasswordGuide,
+    AppRoutes.mobileBankTransferLimits,
+    AppRoutes.mobileBankDeactivation,
     AppRoutes.home,
+    AppRoutes.requestReports,
+    AppRoutes.onSiteTransfer,
     AppRoutes.allServices,
     AppRoutes.cardList,
     AppRoutes.depositList,
     AppRoutes.averageBalance,
     AppRoutes.financialCertificate,
+    AppRoutes.introduceAgent,
+    AppRoutes.agentSettings,
+    AppRoutes.closeSurplusDeposits,
+    AppRoutes.blockDeposit,
+    AppRoutes.unblockDeposit,
+    AppRoutes.proxyDeposit,
     AppRoutes.cardIssuance,
     AppRoutes.virtualCardRequest,
     AppRoutes.changeCardDeposit,
     AppRoutes.expiredGiftBalance,
     AppRoutes.cardPasswords,
     AppRoutes.messages,
+    AppRoutes.changePhone,
+    AppRoutes.addresses,
+    AppRoutes.occupations,
+    AppRoutes.chequeClearance,
+    AppRoutes.chequeBook,
+    AppRoutes.chequeCancellation,
   };
   final messageSegments = Uri.parse(AppRoutes.messages).pathSegments;
   final detail =

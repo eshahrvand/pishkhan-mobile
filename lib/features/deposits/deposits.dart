@@ -12,3 +12,11 @@ export 'presentation/financial_certificate/screens/financial_certificate_screen.
 export 'presentation/deposit_list/screens/deposit_list_screen.dart';
 export 'presentation/deposit_list/widgets/deposit_actions_sheet.dart';
 export 'presentation/deposit_list/widgets/deposit_account_details_sheet.dart';
+export 'domain/entities/agent_request.dart';
+export 'domain/repositories/agent_repository.dart';
+export 'presentation/introduce_agent/screens/introduce_agent_screen.dart';
+export 'presentation/agent_settings/screens/agent_settings_screen.dart';
+export 'presentation/close_surplus_deposits/screens/close_surplus_deposits_screen.dart';
+export 'domain/entities/deposit_restriction.dart';
+export 'presentation/deposit_restriction/screens/deposit_restriction_screen.dart';
+export 'presentation/proxy_deposit/screens/proxy_deposit_screen.dart';

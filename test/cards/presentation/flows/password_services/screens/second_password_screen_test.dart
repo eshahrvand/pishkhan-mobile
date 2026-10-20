@@ -288,6 +288,9 @@ void main() {
         expect(t.getTopLeft(find.byType(AppInvoice)).dy, 524);
         expect(t.getSize(find.byType(AppInvoice)).height, 130);
       }
+      if (['card-types', 'card-numbers', 'password-types'].contains(frame)) {
+        expect(find.byType(BottomSheet), findsOneWidget);
+      }
       if (frame == 'card-types') {
         expect(
           t.getTopLeft(find.byKey(const Key('app_bottom_sheet_header'))).dy,
@@ -691,6 +694,7 @@ void main() {
       expect(t.getTopLeft(authControl(t, 'password_operation')).dy, 434);
       if (frame == 'operation-sheet') {
         await tap(t, 'password_operation');
+        expect(find.byType(BottomSheet), findsOneWidget);
         expect(find.text('تغییر رمز عبور'), findsOneWidget);
         expect(find.text('فراموشی رمز عبور'), findsOneWidget);
         expect(

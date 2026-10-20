@@ -20,8 +20,8 @@ they do not change the public API of `avp_ui`.
 | Bottom sheet header | `15769:17067` | `AppBottomSheetHeader` | `lib/shared/widgets/app_bottom_sheet_header.dart` | Header and handle-only variants with configurable actions and icons. |
 | Delete address sheet | `16634:46458` | `AppDeleteAddressSheet` | `lib/shared/widgets/app_delete_address_sheet.dart` | Address confirmation content with destructive and cancel actions. |
 | Confirmers details card | `16256:124134` | `AppConfirmerDetailsCard` | `lib/shared/widgets/app_confirmer_details_card.dart` | Approved and waiting status variants. |
-| Me as representative card | `15826:97055` | `AppMeAsRepresentativeCard` | `lib/shared/widgets/app_representative_cards.dart` | Active and expired states with representation details. |
-| My representative card | `15826:96343` | `AppMyRepresentativeCard` | `lib/shared/widgets/app_representative_cards.dart` | Active, waiting, and expired states with representative details. |
+| Me as representative card | `15826:97055` | `AppMeAsAgentCard` | `lib/shared/widgets/app_agent_cards.dart` | Active and expired states with representation details. |
+| My representative card | `15826:96343` | `AppMyAgentCard` | `lib/shared/widgets/app_agent_cards.dart` | Active, waiting, and expired states with representative details. |
 | Credit card mockup | `15884:6299` | `AppCreditCardMockup` | `lib/shared/widgets/app_credit_card_mockup.dart` | Mobile, web, phone, active/inactive, and wallet variants. |
 | File upload base | `15907:44055` | `AppFileUploadBase` | `lib/shared/widgets/app_file_upload_base.dart` | Empty, uploading, and uploaded states. |
 | Transfer destination card | `16293:181820` | `AppTransferDestinationCard` | `lib/shared/widgets/app_transfer_destination_card.dart` | Internal, Satna, and Paya transfer details. |

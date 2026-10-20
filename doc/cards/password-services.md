@@ -1,5 +1,14 @@
 # Password Services Development Document
 
+## Password selector bottom sheets (2026-10-19)
+
+Owner clarification: password-service selectors are intentional bottom sheets,
+including card type, card number, password type and operation selection. Keep
+the custom menuBuilder in PasswordServiceSelect, showPasswordOptions and
+PasswordOptionsSheet for these controls. Other application selects retain the shared AppSelect
+anchored dropdown. Selection values, Cubit actions and request/receipt sheets
+are unchanged.
+
 ## UI structure and feature ownership
 
 Card password setup, change and recovery belong to the `cards` feature. Login,

@@ -1,20 +1,21 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 
-
 class AppConfirmerDetailsCardDetailRow extends StatelessWidget {
   const AppConfirmerDetailsCardDetailRow({
     super.key,
     required this.value,
     required this.label,
+    this.labelColor,
   });
   final String value;
   final String label;
+  final Color? labelColor;
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 18,
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minHeight: 18),
       child: Row(
         textDirection: TextDirection.ltr,
         children: [
@@ -22,7 +23,11 @@ class AppConfirmerDetailsCardDetailRow extends StatelessWidget {
             child: Text(value, textAlign: TextAlign.left, style: _valueStyle),
           ),
           Expanded(
-            child: Text(label, textAlign: TextAlign.right, style: _labelStyle),
+            child: Text(
+              label,
+              textAlign: TextAlign.right,
+              style: _labelStyle.copyWith(color: labelColor),
+            ),
           ),
         ],
       ),

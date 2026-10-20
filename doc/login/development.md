@@ -1,5 +1,23 @@
 # Login Development
 
+## Remembered prototype login (2026-10-19)
+
+App startup restores a local `prototype.authenticated.v1` boolean through
+`RouterSession.restorePrototype()`. Completing the existing mock login writes
+that marker with `shared_preferences`; subsequent app launches pass through the
+existing splash/guard to Home. Signing out removes the marker and pending route
+data. No OTP, national ID, phone number, bank token or credentials are persisted.
+
+This is explicitly temporary prototype behavior requested for testing. It does
+not implement real token storage, token validation, refresh or banking sessions;
+replace it with the authentication adapter when bank APIs become available.
+RouterSession's ordinary constructor remains in memory for isolated scopes.
+
+`test/core/router/router_session_test.dart` covers first entry, restored entry,
+logout, isolation and recreating the app after login. `shared_preferences` is a
+Flutter-maintained BSD dependency selected for this non-sensitive boolean;
+secure storage is reserved for real credentials rather than this mock marker.
+
 ## UI structure after the auth refactor
 
 `AuthScreen` lives in

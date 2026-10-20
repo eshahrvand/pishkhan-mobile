@@ -55,7 +55,7 @@ Unless a row explicitly says **Not implemented**, the component is implemented a
 | Input field | `15652:17725` | `AppTextField` | Label, hint, helper/error text, icons, add-ons, digit normalization, direction, multiline support. |
 | Search field | `15807:44137` | `AppSearchField` | Search icon and optional clear action. |
 | Text area input field | `13759:45191` | `AppTextArea` | Multiline text field with field-state styling. |
-| Dropdown / select field | `13846:6903` | `AppSelect<T>` | Opens the package option sheet. Use `AppSelectOption<T>`. |
+| Dropdown / select field | `13846:6903` | `AppSelect<T>` | Opens an input-width anchored menu with a 6px gap. Use `AppSelectOption<T>`. |
 | Select dropdown menu | `13819:12912` | `AppSelectMenu<T>` | Use only when a custom menu container is needed; `AppSelect` covers normal app usage. |
 | Toggle | `13759:55154` | `AppToggle` | `sm`/`md`, optional label and supporting text. |
 | Checkboxes | `15722:13478` | `AppCheckbox` | Square checkbox primitive, `sm`/`md`/`lg`, checked/unchecked/indeterminate. |
@@ -311,7 +311,8 @@ The Figma name mapper registers Video player once and includes a poster-only pre
 
 Additive APIs retain existing defaults:
 - `AppTextField.obscureText`, `obscuringCharacter`, `autocorrect`, `enableSuggestions` and `enableIMEPersonalizedLearning` enable secure password fields. Optional hintTextDirection aligns localized placeholders independently of the surrounding RTL icon layout; the default remains unchanged. Password callers must disable suggestions, autocorrection and personalized learning.
-- `AppSelect.menuBuilder` optionally returns a selection from an app-composed sheet. `null` cancels. The default option sheet remains unchanged.
+- `AppSelect.menuBuilder` optionally returns a selection from a custom menu. `null` cancels. By default the menu matches the input width with a 6px gap, opens above when space below is insufficient, and scrolls within a 320px maximum height. Outside taps and Back dismiss it without changing the value.
+  Password-service selectors intentionally override this default with their existing bottom sheets (card type, card number, password type and operation). Preserve this feature-specific presentation.
 - `AppButton.disabledAppearance: AppButtonDisabledAppearance.service` opts primary disabled buttons into Gray200 plus Shadow/xs. Standard/default and loading states remain unchanged.
 - `AppPasswordServiceColors` owns the password-instance title/body/hint/camera-notice/recording-scrim tokens.
 

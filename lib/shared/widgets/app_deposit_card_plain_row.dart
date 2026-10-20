@@ -1,7 +1,6 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 
-
 class AppDepositCardPlainRow extends StatelessWidget {
   const AppDepositCardPlainRow({
     super.key,
@@ -26,14 +25,12 @@ class AppDepositCardPlainRow extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 8),
-        Flexible(
-          child: Text(
-            label,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            textDirection: TextDirection.rtl,
-            style: _labelStyle,
-          ),
+        Text(
+          label,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          textDirection: TextDirection.rtl,
+          style: _labelStyle,
         ),
       ],
     );

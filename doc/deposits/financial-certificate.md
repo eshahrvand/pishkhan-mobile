@@ -13,8 +13,8 @@ account number. Explicit host callbacks retain precedence.
 ## State and behavior
 
 Plain Freezed State and direct Cubit `emit(state.copyWith(...))` updates follow
-the repository architecture. The Cubit receives its repository; widgets own
-presentation, while the repository boundary contains asynchronous errors.
+the repository architecture. Cubit resolves its repository through GetIt fields; widgets own presentation,
+while the application/repository boundary converts asynchronous exceptions to Result failures.
 
 At least one condition is required. Changing the deposit clears conditions.
 Embassy recipients require an embassy from the catalog and a currency. Other
@@ -33,13 +33,12 @@ the design. There is no calendar picker; expiry can be typed directly.
 Delivery, local address creation/deletion, optional bank agent input and the
 expandable summary/invoice reuse the statement feature's composition. An
 alternate delivery recipient requires name and ten-digit national identifier.
-Local address edits last only during the flow. The Latin address uses a native
-themed field with its own controller because the package textarea enforces a
-130px minimum, while the design requires 90px. It grows with text scaling.
+Local address edits last only during the flow. The Latin address uses the public `AppTextField` multiline API with its
+90px frame scaled for larger text; its value is controlled by Cubit State.
 
 The wallet gates the final action. Submission locks duplicate requests and
 edits, retries unchanged requests with the same key, omits hidden optional
-fields and ignores stale or disposed asynchronous results. The default adapter
+fields and preserves the request snapshot required by the current service boundary. The default adapter
 returns a clearly labeled demo receipt: no financial certificate is issued and
 no wallet debit occurs. Bank verification, actual tariffs and payment execution
 remain repository integration work.
@@ -49,7 +48,7 @@ remain repository integration work.
 `test/deposits/financial_certificate_*_test.dart` covers all eleven reference
 states, the complete five-step flow, both recipient branches, basic Latin/date
 validation, digit normalization, delivery requirements, wallet eligibility,
-duplicate/retry/disposal behavior, add/delete-address dialogs and service entry.
+duplicate/retry and Provider-owned lifetime behavior, add/delete-address dialogs and service entry.
 Compact 320px layouts are exercised in fa/en/ar with larger text and keyboard
 insets. Optional frame captures use `CAPTURE_CERTIFICATE_PREVIEWS=1` and write
 to ignored `build/previews/certificates/`.
@@ -73,3 +72,17 @@ DashboardScreen; GoRouter only selects the destination. Cubits resolve existing
 Repository/service/UseCase registrations through GetIt fields, without dependency
 constructor arguments from UI. Multi-case and substantial async listeners use
 named widget/State methods with the existing listenWhen filter.
+
+## Shared address feature
+
+Address form, Cubit and State live in `features/address/presentation/editor`.
+This flow opens the editor through `ServiceRegistry.openAddressEditor` and returns
+its raw result to its own Cubit. Core `DeliveryAddress` is the common entity;
+`CertificateAddress` remains an alias. Shared recipient/agent fields and summary
+visuals live in `lib/shared/widgets`; they do not own another copy of address State.
+Profile address management and registry verification are separate integrations.
+
+See [Deposits development](development.md) for current service routing, mock
+boundaries and verification commands, and [Cheque development](../cheque/development.md)
+for cheque-book reuse of the same address feature. Postal-office lookup belongs
+to cheque presentation and does not own this address form's postal code.

@@ -4,6 +4,84 @@
 /// code. Feature-specific facades may alias these constants, but must not
 /// duplicate path strings.
 abstract final class AppAssets {
+  static const modernGuide1 = 'assets/images/modern_guide_1.png';
+  static const modernGuide2 = 'assets/images/modern_guide_2.png';
+  static const modernGuide3 = 'assets/images/modern_guide_3.png';
+  static const modernGuide4 = 'assets/images/modern_guide_4.png';
+  static const modernIntro = 'assets/images/modern_intro.png';
+  static const modernIntroTitle = 'assets/images/modern_intro_title.svg';
+  static const modernKycInstruction =
+      'assets/images/modern_kyc_instruction.png';
+  static const modernKycPreview = 'assets/images/modern_kyc_preview.png';
+  static const modernSuccess = 'assets/images/modern_success.svg';
+  static const modernNotice = 'assets/images/modern_notice.png';
+  static const modernService = 'assets/images/modern_service.svg';
+  static const modernServiceForgot = 'assets/images/modern_service_forgot.svg';
+  static const modernRegistryFee = 'assets/images/modern_registry_fee.svg';
+  static const modernPasswordFee = 'assets/images/modern_password_fee.svg';
+  static const modernVideoPlay = 'assets/images/modern_video_play.svg';
+  static const modernStatusCheck = 'assets/images/modern_status_check.svg';
+  static const modernDivider = 'assets/images/modern_divider.svg';
+  static const modernStatusWait = 'assets/images/modern_status_wait.svg';
+  static const modernActivateArrow = 'assets/images/modern_activate_arrow.svg';
+  static const profileAddressValid = 'assets/images/profile_address_valid.svg';
+  static const profileAddressMissing =
+      'assets/images/profile_address_missing.svg';
+  static const profileTrash = 'assets/images/profile_trash.svg';
+  static const profileLock = 'assets/images/profile_lock.svg';
+  static const profileActionsDivider =
+      'assets/images/profile_actions_divider.svg';
+  static const profileEdit = 'assets/images/profile_edit.svg';
+  static const onSiteTransferSummaryOperation =
+      'assets/images/onsite_transfer_summary_operation.svg';
+  static const onSiteTransferUpload =
+      'assets/images/onsite_transfer_upload.svg';
+  static const chequeCancelFileListSelected =
+      'assets/images/cheque_cancel_file_list_selected.svg';
+  static const chequeCancelReviewDivider =
+      'assets/images/cheque_cancel_review_divider.svg';
+  static const chequeCancelFileList =
+      'assets/images/cheque_cancel_file_list.svg';
+  static const chequeCancelDivider = 'assets/images/cheque_cancel_divider.svg';
+  static const chequeCancelReasonDivider =
+      'assets/images/cheque_cancel_reason_divider.svg';
+  static const chequeCancelReasonRowDivider =
+      'assets/images/cheque_cancel_reason_row_divider.svg';
+  static const chequeCancelDownload =
+      'assets/images/cheque_cancel_download.svg';
+  static const chequeCancelCheck = 'assets/images/cheque_cancel_check.svg';
+  static const chequeCancelAngleDown =
+      'assets/images/cheque_cancel_angle_down.svg';
+  static const chequeBookDelivery = 'assets/images/chequebook_delivery.svg';
+  static const chequeBookCost = 'assets/images/chequebook_cost.svg';
+  static const chequeBookOpeningInfo =
+      'assets/images/chequebook_opening_info.svg';
+  static const chequeBookWarning = 'assets/images/chequebook_warning.svg';
+  static const chequeBookResidenceDivider =
+      'assets/images/chequebook_residence_divider.svg';
+  static const chequeBookSummaryOperation =
+      'assets/images/chequebook_summary_operation.svg';
+  static const chequeClearanceQuestion =
+      'assets/images/cheque_clearance_question.svg';
+  static const chequeClearanceDocument =
+      'assets/images/cheque_clearance_document.svg';
+  static const chequeClearanceEnvelopeEdit =
+      'assets/images/cheque_clearance_envelope_edit.svg';
+  static const chequeClearanceEnvelope =
+      'assets/images/cheque_clearance_envelope.svg';
+  static const chequeClearanceAddressDivider =
+      'assets/images/cheque_clearance_address_divider.svg';
+  static const chequeClearanceShare =
+      'assets/images/cheque_clearance_share.svg';
+  static const agentCancel = 'assets/images/agent_cancel.svg';
+  static const agentPlus = 'assets/images/agent_plus.svg';
+  static const agentNameDots = 'assets/images/agent_details_0.svg';
+  static const agentNationalIdDots = 'assets/images/agent_details_1.svg';
+  static const agentDepositDots = 'assets/images/agent_details_2.svg';
+  static const agentKindDots = 'assets/images/agent_details_3.svg';
+  static const agentIntroductionDots = 'assets/images/agent_details_4.svg';
+  static const agentExpiryDots = 'assets/images/agent_details_5.svg';
+  static const agentDivider = 'assets/images/agent_details_6.svg';
   static const financialCertificateOperation =
       'assets/images/certificate_financial_operation.svg';
   static const financialCertificateChevron =
@@ -28,6 +106,11 @@ abstract final class AppAssets {
   static const certificateFeeDelivery =
       'assets/images/certificate_certFeeDelivery.svg';
   static const depositFeatureBack = 'assets/images/deposit_list_back.svg';
+  static const proxyDepositInfo = 'assets/images/proxy_deposit_info.svg';
+  static const depositBlockDetailsDivider =
+      'assets/images/deposit_block_details_divider.svg';
+  static const surplusDepositsEmpty =
+      'assets/images/surplus_deposits_empty.svg';
   static const depositFeatureDeposit =
       'assets/images/deposit_feature_deposit.svg';
   static const depositFeatureMore = 'assets/images/deposit_list_more.svg';
@@ -40,8 +123,7 @@ abstract final class AppAssets {
   static const depositFeatureCertificate =
       'assets/images/deposit_list_certificate.svg';
   static const depositFeatureSms = 'assets/images/deposit_list_sms.svg';
-  static const depositFeatureRepresentative =
-      'assets/images/deposit_list_representative.svg';
+  static const depositFeatureAgent = 'assets/images/deposit_list_agent.svg';
   static const depositFeatureBlock = 'assets/images/deposit_list_block.svg';
   static const depositFeatureLoans = 'assets/images/deposit_list_loans.svg';
   static const depositFeatureScrim = 'assets/images/deposit_list_scrim.svg';
@@ -146,7 +228,7 @@ abstract final class AppAssets {
   static const depositsQuickPhone = '$_root/deposits_quick_phone.svg';
   static const depositsQuickProxy = '$_root/deposits_quick_proxy.svg';
   static const depositsQuickTransfer = '$_root/deposits_quick_transfer.svg';
-  static const depositsRepresentative = '$_root/deposits_representative.svg';
+  static const depositsAgent = '$_root/deposits_agent.svg';
   static const depositsSms = '$_root/deposits_sms.svg';
   static const depositsStatement = '$_root/deposits_statement.svg';
   static const depositsVirtual = '$_root/deposits_virtual.svg';
@@ -243,8 +325,7 @@ abstract final class AppAssets {
   static const iconMenuLeft24 = '$_root/icon_menu_left_24.svg';
   static const iconMoreVertical20Gray700 =
       '$_root/icon_more_vertical_20_gray700.svg';
-  static const iconRepresentative32Gray600 =
-      '$_root/icon_representative_32_gray600.svg';
+  static const iconAgent32Gray600 = '$_root/icon_agent_32_gray600.svg';
   static const iconWallet20Gray600 = '$_root/icon_wallet_20_gray600.svg';
   static const invoiceChevronDown = '$_root/invoice_chevron_down.svg';
   static const invoiceChevronUp = '$_root/invoice_chevron_up.svg';
@@ -259,8 +340,7 @@ abstract final class AppAssets {
   static const loanCardDividerMulti = '$_root/loan_card_divider_multi.svg';
   static const loanCardDividerSingle = '$_root/loan_card_divider_single.svg';
   static const occupationCardBriefcase = '$_root/occupation_card_briefcase.svg';
-  static const representativeCardMoreVertical =
-      '$_root/representative_card_more_vertical.svg';
+  static const agentCardMoreVertical = '$_root/agent_card_more_vertical.svg';
   static const resalatCardEye = '$_root/resalat_card_eye.svg';
   static const resalatCardEyeSlash = '$_root/resalat_card_eye_slash.svg';
   static const resalatCardMoreVertical =
@@ -270,16 +350,12 @@ abstract final class AppAssets {
       '$_root/service_grid_quick_service.svg';
   static const serviceGridQuickServiceBlueGray =
       '$_root/service_grid_quick_service_blue_gray.svg';
-  static const serviceGridRepresentative =
-      '$_root/service_grid_representative.svg';
-  static const serviceGridRepresentativeBlue =
-      '$_root/service_grid_representative_blue.svg';
-  static const serviceGridRepresentativeBlueGray =
-      '$_root/service_grid_representative_blue_gray.svg';
-  static const serviceGridRepresentativeGreen =
-      '$_root/service_grid_representative_green.svg';
-  static const serviceGridRepresentativePurple =
-      '$_root/service_grid_representative_purple.svg';
+  static const serviceGridAgent = '$_root/service_grid_agent.svg';
+  static const serviceGridAgentBlue = '$_root/service_grid_agent_blue.svg';
+  static const serviceGridAgentBlueGray =
+      '$_root/service_grid_agent_blue_gray.svg';
+  static const serviceGridAgentGreen = '$_root/service_grid_agent_green.svg';
+  static const serviceGridAgentPurple = '$_root/service_grid_agent_purple.svg';
   static const serviceGridSetting = '$_root/service_grid_setting.svg';
   static const transactionCardReceived = '$_root/transaction_card_received.svg';
   static const transactionCardSend = '$_root/transaction_card_send.svg';
@@ -330,8 +406,7 @@ abstract final class AppAssets {
       '$_root/dashboard_catalog_loan_deposit.svg';
   static const dashboardCatalogPassword =
       '$_root/dashboard_catalog_password.svg';
-  static const dashboardCatalogRepresentative =
-      '$_root/dashboard_catalog_representative.svg';
+  static const dashboardCatalogAgent = '$_root/dashboard_catalog_agent.svg';
   static const dashboardCatalogStatement =
       '$_root/dashboard_catalog_statement.svg';
   static const dashboardDepositDivider = '$_root/dashboard_deposit_divider.svg';
@@ -377,8 +452,7 @@ abstract final class AppAssets {
   static const dashboardFixedSms = '$_root/dashboard_fixed_sms.svg';
   static const dashboardFixedEstimate = '$_root/dashboard_fixed_estimate.svg';
   static const dashboardFixedPassword = '$_root/dashboard_fixed_password.svg';
-  static const dashboardFixedRepresentative =
-      '$_root/dashboard_fixed_representative.svg';
+  static const dashboardFixedAgent = '$_root/dashboard_fixed_agent.svg';
   static const dashboardFixedCertificate =
       '$_root/dashboard_fixed_certificate.svg';
   static const dashboardFixedStatement = '$_root/dashboard_fixed_statement.svg';
@@ -496,6 +570,52 @@ abstract final class AppAssets {
   static const notificationSecurity = '$_root/notification_security.png';
 
   static const all = <String>[
+    modernDivider,
+    modernStatusCheck,
+    modernStatusWait,
+    modernActivateArrow,
+    modernGuide1,
+    modernGuide2,
+    modernGuide3,
+    modernGuide4,
+    modernIntro,
+    modernIntroTitle,
+    modernKycInstruction,
+    modernKycPreview,
+    modernSuccess,
+    modernNotice,
+    modernService,
+    modernServiceForgot,
+    modernRegistryFee,
+    modernPasswordFee,
+    modernVideoPlay,
+    profileAddressValid,
+    profileAddressMissing,
+    profileTrash,
+    profileLock,
+    profileEdit,
+    profileActionsDivider,
+    chequeCancelReviewDivider,
+    chequeCancelFileListSelected,
+    chequeCancelFileList,
+    chequeCancelDivider,
+    chequeCancelReasonDivider,
+    chequeCancelReasonRowDivider,
+    chequeCancelDownload,
+    chequeCancelCheck,
+    chequeCancelAngleDown,
+    chequeBookDelivery,
+    chequeBookCost,
+    chequeBookOpeningInfo,
+    chequeBookWarning,
+    chequeBookResidenceDivider,
+    chequeBookSummaryOperation,
+    chequeClearanceQuestion,
+    chequeClearanceDocument,
+    chequeClearanceEnvelopeEdit,
+    chequeClearanceEnvelope,
+    chequeClearanceAddressDivider,
+    chequeClearanceShare,
     financialCertificateOperation,
     financialCertificateChevron,
     certificateChevronHint,
@@ -510,6 +630,9 @@ abstract final class AppAssets {
     certificateFeePrint,
     certificateFeeDelivery,
     depositFeatureBack,
+    proxyDepositInfo,
+    depositBlockDetailsDivider,
+    surplusDepositsEmpty,
     depositFeatureDeposit,
     depositFeatureMore,
     depositFeatureDivider,
@@ -519,7 +642,7 @@ abstract final class AppAssets {
     depositFeatureStatement,
     depositFeatureCertificate,
     depositFeatureSms,
-    depositFeatureRepresentative,
+    depositFeatureAgent,
     depositFeatureBlock,
     depositFeatureLoans,
     depositFeatureScrim,
@@ -580,7 +703,7 @@ abstract final class AppAssets {
     depositsQuickPhone,
     depositsQuickProxy,
     depositsQuickTransfer,
-    depositsRepresentative,
+    depositsAgent,
     depositsSms,
     depositsStatement,
     depositsVirtual,
@@ -588,7 +711,7 @@ abstract final class AppAssets {
     dashboardFixedSms,
     dashboardFixedEstimate,
     dashboardFixedPassword,
-    dashboardFixedRepresentative,
+    dashboardFixedAgent,
     dashboardFixedCertificate,
     dashboardFixedStatement,
     dashboardFixedBlock,
@@ -685,7 +808,7 @@ abstract final class AppAssets {
     dashboardCatalogIssue,
     dashboardCatalogLoanDeposit,
     dashboardCatalogPassword,
-    dashboardCatalogRepresentative,
+    dashboardCatalogAgent,
     dashboardCatalogStatement,
     dashboardDepositDivider,
     dashboardEditDivider,
@@ -788,6 +911,8 @@ abstract final class AppAssets {
     drawerResalat,
     drawerSearch,
     drawerSubmenuLine,
+    onSiteTransferSummaryOperation,
+    onSiteTransferUpload,
     fileUploadFile,
     fileUploadTrash,
     fileUploadUploadCloud,
@@ -796,7 +921,7 @@ abstract final class AppAssets {
     iconCopy16White,
     iconMenuLeft24,
     iconMoreVertical20Gray700,
-    iconRepresentative32Gray600,
+    iconAgent32Gray600,
     iconWallet20Gray600,
     invoiceChevronDown,
     invoiceChevronUp,
@@ -811,18 +936,18 @@ abstract final class AppAssets {
     loanCardDividerMulti,
     loanCardDividerSingle,
     occupationCardBriefcase,
-    representativeCardMoreVertical,
+    agentCardMoreVertical,
     resalatCardEye,
     resalatCardEyeSlash,
     resalatCardMoreVertical,
     serviceGridQuickAccess,
     serviceGridQuickService,
     serviceGridQuickServiceBlueGray,
-    serviceGridRepresentative,
-    serviceGridRepresentativeBlue,
-    serviceGridRepresentativeBlueGray,
-    serviceGridRepresentativeGreen,
-    serviceGridRepresentativePurple,
+    serviceGridAgent,
+    serviceGridAgentBlue,
+    serviceGridAgentBlueGray,
+    serviceGridAgentGreen,
+    serviceGridAgentPurple,
     serviceGridSetting,
     transactionCardReceived,
     transactionCardSend,

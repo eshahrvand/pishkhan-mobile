@@ -35,9 +35,7 @@ class DepositsTab extends StatelessWidget {
                     title: S.current.depositsMyTitle,
                     showLeadingActions: false,
                     onMenuPressed: () {
-                      context.read<HomeCubit>().requestMenu(
-                        AppPrimaryTab.deposits,
-                      );
+                      context.read<HomeCubit>().requestMenu();
                     },
                   ),
                   if (state.visibleDeposits.isNotEmpty)

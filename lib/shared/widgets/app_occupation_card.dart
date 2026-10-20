@@ -14,8 +14,14 @@ class AppOccupationCard extends StatelessWidget {
     this.description = 'UI / UX Designer',
     this.headerTitle,
     this.onMoreTap,
+    this.titleLabel = 'عنوان',
+    this.descriptionLabel = 'شرح',
+    this.outlined = false,
   });
 
+  final String titleLabel;
+  final String descriptionLabel;
+  final bool outlined;
   final String title;
   final String description;
   final String? headerTitle;
@@ -28,11 +34,17 @@ class AppOccupationCard extends StatelessWidget {
       child: Container(
         key: const Key('app_occupation_card'),
         width: 343,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: EdgeInsets.symmetric(
+          horizontal: outlined ? 15.2 : 16,
+          vertical: outlined ? 11.2 : 12,
+        ),
         decoration: BoxDecoration(
-          color: AppPalette.gray50,
+          color: outlined ? context.colors.surface : AppPalette.gray50,
           borderRadius: AppRadius.borderMd,
-          boxShadow: AppShadows.sm,
+          boxShadow: outlined ? null : AppShadows.sm,
+          border: outlined
+              ? Border.all(color: AppPalette.gray200, width: .8)
+              : null,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -87,9 +99,12 @@ class AppOccupationCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            AppOccupationCardDetailRow(value: title, label: 'عنوان'),
+            AppOccupationCardDetailRow(value: title, label: titleLabel),
             const SizedBox(height: 8),
-            AppOccupationCardDetailRow(value: description, label: 'شرح'),
+            AppOccupationCardDetailRow(
+              value: description,
+              label: descriptionLabel,
+            ),
           ],
         ),
       ),

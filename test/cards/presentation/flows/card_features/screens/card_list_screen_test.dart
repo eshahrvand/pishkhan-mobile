@@ -320,6 +320,7 @@ void main() {
         subject(dashboardScope(repositories: defaultDashboardTestRepositories)),
       );
       await tap(tester, find.byKey(const Key('dashboard_menu_button')).first);
+      await tap(tester, find.byKey(const Key('app_drawer_item_cards')));
       await tap(tester, find.text('لیست کارت‌ها').last);
       expect(find.byType(CardListScreen), findsOneWidget);
       await tester.binding.handlePopRoute();

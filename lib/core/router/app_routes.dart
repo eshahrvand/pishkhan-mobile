@@ -4,8 +4,18 @@ abstract final class AppRoutes {
 
   static const home = '/dashboard/home';
   static const allServices = '/dashboard/services';
+  static const requestReports = '/requests/reports';
 
   static const login = '/auth/login';
+
+  static const mobileBank = '/modern-banking/mobile';
+  static const mobileBankPasswordRecovery =
+      '/modern-banking/mobile/password-recovery';
+  static const mobileBankPasswordGuide =
+      '/modern-banking/mobile/password-guide';
+  static const mobileBankTransferLimits =
+      '/modern-banking/mobile/transfer-limits';
+  static const mobileBankDeactivation = '/modern-banking/mobile/deactivation';
 
   static const cardPasswords = '/cards/password-services';
   static const cardList = '/cards/list';
@@ -17,7 +27,22 @@ abstract final class AppRoutes {
   static const depositList = '/deposits/list';
   static const averageBalance = '/deposits/average-balance';
   static const financialCertificate = '/deposits/financial-certificate';
+  static const introduceAgent = '/deposits/introduce-representative';
+  static const agentSettings = '/deposits/representation-settings';
+  static const closeSurplusDeposits = '/deposits/close-surplus-deposits';
+  static const blockDeposit = '/deposits/block';
+  static const unblockDeposit = '/deposits/unblock';
+  static const proxyDeposit = '/deposits/proxy';
 
+  static const onSiteTransfer = '/transfers/on-site';
+
+  static const chequeCancellation = '/cheque/cancellation';
+  static const chequeBook = '/cheque/book-issuance';
+  static const chequeClearance = '/cheque/clearance';
+
+  static const changePhone = '/profile/change-phone';
+  static const addresses = '/profile/addresses';
+  static const occupations = '/profile/occupations';
   static const messages = '/profile/messages';
   static const messageDetail = '/profile/messages/:messageId';
 

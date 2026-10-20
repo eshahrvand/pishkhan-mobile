@@ -31,13 +31,14 @@ The adapter supplies print/delivery fees and wallet balance. The sample costs
 official tariffs, real documents and wallet execution are not connected.
 Mock submission returns a clearly marked demo receipt without charging or
 issuing a certificate. Submission locks edits and duplicate requests; unchanged
-retry retains its idempotency key. Stale/disposed asynchronous results are ignored.
+retry retains its idempotency key. Request-ID checks cover genuinely overlapping catalog responses. Provider owns
+the Cubit lifetime under the current UI/Cubit contract.
 
 ## Validation
 
 `test/deposits/average_balance_*_test.dart` covers six frame states, complete
 navigation/submission, nullable dates, recipient requirements, optional agent
-data, hidden-field omission, wallet gates, retry identity, race/disposal safety,
+data, hidden-field omission, wallet gates, retry identity, overlapping fetches and Provider ownership,
 service routing and 320px screens with larger text in fa/en/ar.
 
 Optional captures use `CAPTURE_CERTIFICATE_PREVIEWS=1` and write PNGs into
@@ -59,3 +60,18 @@ DashboardScreen; GoRouter only selects the destination. Cubits resolve existing
 Repository/service/UseCase registrations through GetIt fields, without dependency
 constructor arguments from UI. Multi-case and substantial async listeners use
 named widget/State methods with the existing listenWhen filter.
+
+## Shared address feature
+
+Address form, Cubit and State live in `features/address/presentation/editor`.
+This flow opens it through `ServiceRegistry.openAddressEditor` and returns the raw
+result to its own Cubit. Core `DeliveryAddress` is the common entity;
+`CertificateAddress` remains a compatibility alias. Recipient/agent fields and
+summary visuals are reused from `lib/shared/widgets` without another copy of
+address State. Profile address management and registry verification remain
+separate integrations.
+
+See [Deposits development](development.md) and
+[Cheque development](../cheque/development.md) for current routing, mock boundaries
+and address reuse. The cheque postal-office helper finds offices; it does not own
+this editor's postal-code validation.

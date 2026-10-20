@@ -1,5 +1,14 @@
 import '../../support/registered_dependency.dart';
 
+import 'package:pishkhan_mobile/features/deposits/domain/repositories/proxy_deposits_repository.dart';
+import 'package:pishkhan_mobile/features/deposits/presentation/proxy_deposit/cubit/proxy_deposit_cubit.dart';
+
+import 'package:pishkhan_mobile/features/deposits/domain/repositories/deposit_restrictions_repository.dart';
+import 'package:pishkhan_mobile/features/deposits/presentation/deposit_restriction/cubit/deposit_restriction_cubit.dart';
+
+import 'package:pishkhan_mobile/features/deposits/domain/repositories/surplus_deposits_repository.dart';
+import 'package:pishkhan_mobile/features/deposits/presentation/close_surplus_deposits/cubit/close_surplus_deposits_cubit.dart';
+
 import 'package:pishkhan_mobile/features/deposits/domain/repositories/deposits_repository.dart';
 import 'package:pishkhan_mobile/features/deposits/domain/repositories/deposit_certificates_repository.dart';
 import 'package:pishkhan_mobile/features/deposits/domain/repositories/financial_certificate_repository.dart';
@@ -37,6 +46,21 @@ void main() {
   });
 
   test('locator does not register presentation Cubits', () {
+    expect(container.isRegistered<ProxyDepositCubit>(), isFalse);
+    expect(
+      container<ProxyDepositsRepository>(),
+      same(container<ProxyDepositsRepository>()),
+    );
+    expect(container.isRegistered<DepositRestrictionCubit>(), isFalse);
+    expect(
+      container<DepositRestrictionsRepository>(),
+      same(container<DepositRestrictionsRepository>()),
+    );
+    expect(container.isRegistered<CloseSurplusDepositsCubit>(), isFalse);
+    expect(
+      container<SurplusDepositsRepository>(),
+      same(container<SurplusDepositsRepository>()),
+    );
     expect(container.isRegistered<AuthCubit>(), isFalse);
     expect(container.isRegistered<HomeCubit>(), isFalse);
     expect(container.isRegistered<CardFeaturesCubit>(), isFalse);

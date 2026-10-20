@@ -1,4 +1,7 @@
+import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
+import 'package:pishkhan_mobile/shared/widgets/app_drawer.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
+import 'package:pishkhan_mobile/features/requests/presentation/reports/screens/request_reports_screen.dart';
 
 import '../../../../support/home_tab_test_scope.dart';
 import '../../../../support/dashboard_ui_finders.dart';
@@ -75,6 +78,121 @@ void main() {
     await tester.tap(finder);
     await tester.pumpAndSettle();
   }
+
+  testWidgets(
+    'drawer searches services and closes before requesting navigation',
+    (tester) async {
+      String? selected;
+      await render(tester, subject(onService: (value) => selected = value));
+      await tap(tester, find.byKey(const Key('dashboard_menu_button')));
+      final drawer = tester.widget<AppDrawer>(find.byType(AppDrawer));
+      expect(drawer.items.map((item) => item.id), [
+        'home',
+        'modern',
+        'cards',
+        'cheques',
+        'transfers',
+        'loans',
+        'deposits',
+        'wallet',
+        'identity',
+        'requests',
+      ]);
+      expect(
+        tester.getSize(find.byKey(const Key('app_drawer_panel'))).width,
+        295,
+      );
+      final search = find.descendant(
+        of: find.byType(AppSearchField),
+        matching: find.byType(TextField),
+      );
+      await tester.enterText(search, 'صدور رسالت');
+      await tester.pumpAndSettle();
+      expect(
+        find.byKey(const Key('app_drawer_sub_item_card-issue')),
+        findsOneWidget,
+      );
+      expect(find.byKey(const Key('app_drawer_item_wallet')), findsNothing);
+      await tap(
+        tester,
+        find.byKey(const Key('app_drawer_sub_item_card-issue')),
+      );
+      expect(selected, 'card-issue');
+      expect(find.byType(AppDrawer), findsNothing);
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      await tap(tester, find.byKey(const Key('dashboard_menu_button')));
+      expect(tester.widget<AppDrawer>(find.byType(AppDrawer)).items.length, 10);
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      expect(find.byType(AppDrawer), findsNothing);
+      expect(find.byType(DashboardBankServices), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
+    'drawer dismissal preserves the active tab and Home returns to dashboard',
+    (tester) async {
+      await render(tester, subject());
+      await tap(
+        tester,
+        find.descendant(
+          of: find.byType(AppPrimaryNavigation),
+          matching: find.text(S.current.dashboardCardsTab),
+        ),
+      );
+      await tap(tester, find.byKey(const Key('dashboard_menu_button')));
+      expect(
+        tester.widget<AppDrawer>(find.byType(AppDrawer)).expandedItemId,
+        isNull,
+      );
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      expect(find.text(S.current.cardsMyTitle), findsOneWidget);
+      await tap(tester, find.byKey(const Key('dashboard_menu_button')));
+      await tap(tester, find.byKey(const Key('app_drawer_close')));
+      expect(find.text(S.current.cardsMyTitle), findsOneWidget);
+      await tap(tester, find.byKey(const Key('dashboard_menu_button')));
+      await tester.tapAt(const Offset(10, 400));
+      await tester.pumpAndSettle();
+      expect(find.byType(AppDrawer), findsNothing);
+      expect(find.text(S.current.cardsMyTitle), findsOneWidget);
+      await tap(tester, find.byKey(const Key('dashboard_menu_button')));
+      await tap(tester, find.byKey(const Key('app_drawer_item_home')));
+      expect(find.byType(DashboardBankServices), findsOneWidget);
+      await tap(tester, find.byKey(const Key('dashboard_menu_button')));
+      await tap(tester, find.byKey(const Key('app_drawer_item_requests')));
+      expect(find.byType(AppDrawer), findsNothing);
+      expect(find.byType(RequestReportsScreen), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets('dashboard header long presses do not display tooltips', (
+    tester,
+  ) async {
+    await render(tester, subject());
+    for (final label in [
+      S.current.profileLabel,
+      S.current.notificationsLabel,
+      S.current.servicesMenuLabel,
+    ]) {
+      final action = find.descendant(
+        of: find.byType(AppTopBar),
+        matching: find.byWidgetPredicate(
+          (widget) => widget is AppButton && widget.tooltip == label,
+        ),
+      );
+      final gesture = await tester.startGesture(tester.getCenter(action));
+      await tester.pump(const Duration(seconds: 1));
+      expect(find.text(label), findsNothing);
+      await gesture.cancel();
+      await tester.pump();
+    }
+    expect(find.byType(AppDrawer), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
 
   testWidgets(
     'new dashboard renders in RTL with wallet, Reso, services and navigation',
@@ -364,8 +482,8 @@ void main() {
       );
       await tap(tester, dashboardButton(S.current.dashboardConfirm));
       await tap(tester, find.byKey(Key('dashboard_menu_button')));
-      expect(find.byType(DashboardServicesSheet), findsOneWidget);
-      await tap(tester, find.byKey(Key('app_bottom_sheet_left_action')));
+      expect(find.byType(AppDrawer), findsOneWidget);
+      await tap(tester, find.byKey(Key('app_drawer_close')));
       expect(tester.takeException(), isNull);
     },
   );
@@ -389,6 +507,10 @@ void main() {
         find.byKey(Key('app_service_grid_icon_all-requests-list')),
       );
       expect(selected, 'requests-list');
+      expect(find.byType(RequestReportsScreen), findsOneWidget);
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      expect(find.byType(DashboardAllServicesScreen), findsOneWidget);
       await tap(
         tester,
         find.byWidgetPredicate(
@@ -405,7 +527,15 @@ void main() {
     'service groups collapse and Arabic search variants match Persian labels',
     (tester) async {
       await render(tester, subject());
-      await tap(tester, find.byKey(Key('dashboard_menu_button')));
+      await tap(
+        tester,
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is AppButton &&
+              widget.label == S.current.dashboardAddFavorites,
+        ),
+      );
+      await tap(tester, dashboardSemantic(S.current.dashboardAddService));
       await tap(
         tester,
         find.byWidgetPredicate(

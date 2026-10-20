@@ -6,7 +6,7 @@ enum DepositListAction {
   statement,
   certificate,
   sms,
-  representative,
+  agent,
   block,
   linkedLoans,
 }
