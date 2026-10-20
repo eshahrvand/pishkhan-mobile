@@ -18,6 +18,15 @@ abstract final class ServiceRegistry {
     String? initialDepositNumber,
     String? initialCardNumber,
   }) {
+    if (id == 'requests-list') {
+      context.push<void>(
+        AppRoutes.requestReports,
+        extra: RequestReportsRouteArguments(
+          onAssistantPressed: onAssistantPressed,
+        ),
+      );
+      return true;
+    }
     if (id == 'transfer-local') {
       context.push<void>(
         AppRoutes.onSiteTransfer,

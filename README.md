@@ -52,6 +52,7 @@ Visual captures are not stored in `doc`; optional test captures use ignored
 - [Proxy deposit](doc/deposits/proxy-deposit.md)
 - [Loans](doc/loans/development.md)
 - [On-site transfer requests](doc/transfers/on-site-transfer.md)
+- [Request reports and cancellation](doc/requests/request-reports.md)
 
 General architecture and design-system guidance remain in the top-level `doc`
 files. Existing Persian documents are retained unchanged.

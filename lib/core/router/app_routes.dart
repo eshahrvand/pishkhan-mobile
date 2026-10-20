@@ -4,6 +4,7 @@ abstract final class AppRoutes {
 
   static const home = '/dashboard/home';
   static const allServices = '/dashboard/services';
+  static const requestReports = '/requests/reports';
 
   static const login = '/auth/login';
 

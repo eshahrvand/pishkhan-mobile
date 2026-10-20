@@ -7084,6 +7084,381 @@ class S {
       args: [],
     );
   }
+
+  /// `گزارش درخواست‌ها`
+  String get reportTitle {
+    return Intl.message(
+      'گزارش درخواست‌ها',
+      name: 'reportTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `نوع درخواست`
+  String get reportRequestType {
+    return Intl.message(
+      'نوع درخواست',
+      name: 'reportRequestType',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `وضعیت درخواست`
+  String get reportRequestStatus {
+    return Intl.message(
+      'وضعیت درخواست',
+      name: 'reportRequestStatus',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `تاریخ درخواست`
+  String get reportRequestDate {
+    return Intl.message(
+      'تاریخ درخواست',
+      name: 'reportRequestDate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `تاریخ`
+  String get reportDate {
+    return Intl.message('تاریخ', name: 'reportDate', desc: '', args: []);
+  }
+
+  /// `وضعیت`
+  String get reportStatus {
+    return Intl.message('وضعیت', name: 'reportStatus', desc: '', args: []);
+  }
+
+  /// `شناسه`
+  String get reportIdentifier {
+    return Intl.message('شناسه', name: 'reportIdentifier', desc: '', args: []);
+  }
+
+  /// `جزئیات`
+  String get reportDetails {
+    return Intl.message('جزئیات', name: 'reportDetails', desc: '', args: []);
+  }
+
+  /// `شناسه پرداخت`
+  String get reportSearchIdentifier {
+    return Intl.message(
+      'شناسه پرداخت',
+      name: 'reportSearchIdentifier',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `جستجوی نوع درخواست`
+  String get reportSearchTypes {
+    return Intl.message(
+      'جستجوی نوع درخواست',
+      name: 'reportSearchTypes',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `(انتخاب همه)`
+  String get reportSelectAll {
+    return Intl.message(
+      '(انتخاب همه)',
+      name: 'reportSelectAll',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `اعمال فیلتر`
+  String get reportApplyFilter {
+    return Intl.message(
+      'اعمال فیلتر',
+      name: 'reportApplyFilter',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `حذف فیلترها`
+  String get reportResetFilters {
+    return Intl.message(
+      'حذف فیلترها',
+      name: 'reportResetFilters',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `نوع درخواستی پیدا نشد.`
+  String get reportNoTypes {
+    return Intl.message(
+      'نوع درخواستی پیدا نشد.',
+      name: 'reportNoTypes',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `درخواستی با این مشخصات پیدا نشد.`
+  String get reportNoResults {
+    return Intl.message(
+      'درخواستی با این مشخصات پیدا نشد.',
+      name: 'reportNoResults',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `دریافت گزارش درخواست‌ها ناموفق بود.`
+  String get reportLoadError {
+    return Intl.message(
+      'دریافت گزارش درخواست‌ها ناموفق بود.',
+      name: 'reportLoadError',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `جزئیات درخواست`
+  String get reportDetailsTitle {
+    return Intl.message(
+      'جزئیات درخواست',
+      name: 'reportDetailsTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `لغو درخواست`
+  String get reportCancelRequest {
+    return Intl.message(
+      'لغو درخواست',
+      name: 'reportCancelRequest',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `مطمئنید می‌خواید این درخواست رو لغو کنید؟`
+  String get reportCancelPrompt {
+    return Intl.message(
+      'مطمئنید می‌خواید این درخواست رو لغو کنید؟',
+      name: 'reportCancelPrompt',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `بله، لغو کن`
+  String get reportConfirmCancel {
+    return Intl.message(
+      'بله، لغو کن',
+      name: 'reportConfirmCancel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `لغو درخواست انجام نشد. دوباره تلاش کنید یا گزارش را به‌روز کنید.`
+  String get reportCancelError {
+    return Intl.message(
+      'لغو درخواست انجام نشد. دوباره تلاش کنید یا گزارش را به‌روز کنید.',
+      name: 'reportCancelError',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `در انتظار تایید`
+  String get reportStatusAwaitingApproval {
+    return Intl.message(
+      'در انتظار تایید',
+      name: 'reportStatusAwaitingApproval',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `انجام شده خودکار`
+  String get reportStatusCompleted {
+    return Intl.message(
+      'انجام شده خودکار',
+      name: 'reportStatusCompleted',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `رد شده`
+  String get reportStatusRejected {
+    return Intl.message(
+      'رد شده',
+      name: 'reportStatusRejected',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `خطای سیستم`
+  String get reportStatusSystemError {
+    return Intl.message(
+      'خطای سیستم',
+      name: 'reportStatusSystemError',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `لغو شده`
+  String get reportStatusCancelled {
+    return Intl.message(
+      'لغو شده',
+      name: 'reportStatusCancelled',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `همه تاریخ‌ها`
+  String get reportDateAll {
+    return Intl.message(
+      'همه تاریخ‌ها',
+      name: 'reportDateAll',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `امروز`
+  String get reportDateToday {
+    return Intl.message('امروز', name: 'reportDateToday', desc: '', args: []);
+  }
+
+  /// `هفته گذشته`
+  String get reportDateLastWeek {
+    return Intl.message(
+      'هفته گذشته',
+      name: 'reportDateLastWeek',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `ماه گذشته`
+  String get reportDateLastMonth {
+    return Intl.message(
+      'ماه گذشته',
+      name: 'reportDateLastMonth',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `۳ ماه گذشته`
+  String get reportDateLastThreeMonths {
+    return Intl.message(
+      '۳ ماه گذشته',
+      name: 'reportDateLastThreeMonths',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `افتتاح سپرده جاری`
+  String get reportTypeCurrentDeposit {
+    return Intl.message(
+      'افتتاح سپرده جاری',
+      name: 'reportTypeCurrentDeposit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `مسدودی سپرده`
+  String get reportTypeBlockDeposit {
+    return Intl.message(
+      'مسدودی سپرده',
+      name: 'reportTypeBlockDeposit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `رفع مسدودی سپرده`
+  String get reportTypeUnblockDeposit {
+    return Intl.message(
+      'رفع مسدودی سپرده',
+      name: 'reportTypeUnblockDeposit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `تغییر گذرواژه موبایل بانک`
+  String get reportTypeMobilePassword {
+    return Intl.message(
+      'تغییر گذرواژه موبایل بانک',
+      name: 'reportTypeMobilePassword',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `تغییر گذرواژه اینترنت بانک`
+  String get reportTypeInternetPassword {
+    return Intl.message(
+      'تغییر گذرواژه اینترنت بانک',
+      name: 'reportTypeInternetPassword',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `تغییر سپرده جهت کسر اقساط`
+  String get reportTypeInstallmentDeposit {
+    return Intl.message(
+      'تغییر سپرده جهت کسر اقساط',
+      name: 'reportTypeInstallmentDeposit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `صدور دسته چک`
+  String get reportTypeChequeBook {
+    return Intl.message(
+      'صدور دسته چک',
+      name: 'reportTypeChequeBook',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `رفع سوء اثر چک`
+  String get reportTypeChequeClearance {
+    return Intl.message(
+      'رفع سوء اثر چک',
+      name: 'reportTypeChequeClearance',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `انتقال وجه در محل`
+  String get reportTypeOnSiteTransfer {
+    return Intl.message(
+      'انتقال وجه در محل',
+      name: 'reportTypeOnSiteTransfer',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

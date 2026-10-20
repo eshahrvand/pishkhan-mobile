@@ -32,6 +32,8 @@ import 'package:pishkhan_mobile/core/notifications/notification_message.dart';
 import 'package:pishkhan_mobile/features/profile/presentation/message_center/screens/notifications_screen.dart';
 import 'package:pishkhan_mobile/features/profile/presentation/message_center/screens/notification_detail_screen.dart';
 
+import 'package:pishkhan_mobile/features/requests/presentation/reports/screens/request_reports_screen.dart';
+
 import 'router_session.dart';
 import 'guards/auth_guard.dart';
 import 'validated_return_location.dart';
@@ -55,6 +57,17 @@ GoRouter createAppRouter({
       ),
 
       // Dashboard
+      GoRoute(
+        path: AppRoutes.requestReports,
+        builder: (context, state) {
+          final args = state.extra is RequestReportsRouteArguments
+              ? state.extra as RequestReportsRouteArguments
+              : null;
+          return RequestReportsScreen(
+            onAssistantPressed: args?.onAssistantPressed,
+          );
+        },
+      ),
       GoRoute(
         path: AppRoutes.home,
         builder: (context, state) =>
@@ -451,5 +464,10 @@ class OnSiteTransferRouteArguments {
     this.onAssistantPressed,
   });
   final String? initialDepositNumber;
+  final VoidCallback? onAssistantPressed;
+}
+
+class RequestReportsRouteArguments {
+  const RequestReportsRouteArguments({this.onAssistantPressed});
   final VoidCallback? onAssistantPressed;
 }

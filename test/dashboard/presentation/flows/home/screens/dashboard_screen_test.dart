@@ -1,6 +1,7 @@
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_drawer.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
+import 'package:pishkhan_mobile/features/requests/presentation/reports/screens/request_reports_screen.dart';
 
 import '../../../../support/home_tab_test_scope.dart';
 import '../../../../support/dashboard_ui_finders.dart';
@@ -163,7 +164,7 @@ void main() {
       await tap(tester, find.byKey(const Key('dashboard_menu_button')));
       await tap(tester, find.byKey(const Key('app_drawer_item_requests')));
       expect(find.byType(AppDrawer), findsNothing);
-      expect(find.text(S.current.cardFeatureUnavailable), findsOneWidget);
+      expect(find.byType(RequestReportsScreen), findsOneWidget);
       expect(tester.takeException(), isNull);
     },
   );
@@ -506,6 +507,10 @@ void main() {
         find.byKey(Key('app_service_grid_icon_all-requests-list')),
       );
       expect(selected, 'requests-list');
+      expect(find.byType(RequestReportsScreen), findsOneWidget);
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      expect(find.byType(DashboardAllServicesScreen), findsOneWidget);
       await tap(
         tester,
         find.byWidgetPredicate(

@@ -36,11 +36,17 @@ import 'package:pishkhan_mobile/features/cards/domain/repositories/card_services
 import 'package:pishkhan_mobile/features/cards/domain/repositories/password_services_repository.dart';
 import 'package:pishkhan_mobile/features/cards/domain/repositories/virtual_card_repository.dart';
 
+import 'package:pishkhan_mobile/features/requests/data/repositories/mock_request_reports_repository.dart';
+import 'package:pishkhan_mobile/features/requests/domain/repositories/request_reports_repository.dart';
+
 final getIt = GetIt.instance;
 
 /// Register once before runApp. Tests may supply an isolated container.
 void configureDependencies({GetIt? container}) {
   final dependencies = container ?? getIt;
+  dependencies.registerLazySingleton<RequestReportsRepository>(
+    MockRequestReportsRepository.new,
+  );
   dependencies.registerLazySingleton<OnSiteTransferRepository>(
     MockOnSiteTransferRepository.new,
   );

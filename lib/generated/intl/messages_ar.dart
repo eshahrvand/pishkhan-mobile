@@ -1357,6 +1357,90 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "refreshCaptcha": MessageLookupByLibrary.simpleMessage("تحديث رمز الأمان"),
     "relatedLinks": MessageLookupByLibrary.simpleMessage("روابط ذات صلة"),
+    "reportApplyFilter": MessageLookupByLibrary.simpleMessage("تطبيق التصفية"),
+    "reportCancelError": MessageLookupByLibrary.simpleMessage(
+      "تعذر إلغاء الطلب. أعد المحاولة أو حدّث التقارير.",
+    ),
+    "reportCancelPrompt": MessageLookupByLibrary.simpleMessage(
+      "هل أنت متأكد من إلغاء هذا الطلب؟",
+    ),
+    "reportCancelRequest": MessageLookupByLibrary.simpleMessage("إلغاء الطلب"),
+    "reportConfirmCancel": MessageLookupByLibrary.simpleMessage("نعم، إلغاء"),
+    "reportDate": MessageLookupByLibrary.simpleMessage("التاريخ"),
+    "reportDateAll": MessageLookupByLibrary.simpleMessage("كل التواريخ"),
+    "reportDateLastMonth": MessageLookupByLibrary.simpleMessage("الشهر الماضي"),
+    "reportDateLastThreeMonths": MessageLookupByLibrary.simpleMessage(
+      "آخر ٣ أشهر",
+    ),
+    "reportDateLastWeek": MessageLookupByLibrary.simpleMessage(
+      "الأسبوع الماضي",
+    ),
+    "reportDateToday": MessageLookupByLibrary.simpleMessage("اليوم"),
+    "reportDetails": MessageLookupByLibrary.simpleMessage("التفاصيل"),
+    "reportDetailsTitle": MessageLookupByLibrary.simpleMessage("تفاصيل الطلب"),
+    "reportIdentifier": MessageLookupByLibrary.simpleMessage("المعرّف"),
+    "reportLoadError": MessageLookupByLibrary.simpleMessage(
+      "تعذر تحميل تقارير الطلبات.",
+    ),
+    "reportNoResults": MessageLookupByLibrary.simpleMessage(
+      "لم يتم العثور على طلبات مطابقة.",
+    ),
+    "reportNoTypes": MessageLookupByLibrary.simpleMessage(
+      "لم يتم العثور على أنواع طلبات.",
+    ),
+    "reportRequestDate": MessageLookupByLibrary.simpleMessage("تاريخ الطلب"),
+    "reportRequestStatus": MessageLookupByLibrary.simpleMessage("حالة الطلب"),
+    "reportRequestType": MessageLookupByLibrary.simpleMessage("نوع الطلب"),
+    "reportResetFilters": MessageLookupByLibrary.simpleMessage(
+      "مسح عوامل التصفية",
+    ),
+    "reportSearchIdentifier": MessageLookupByLibrary.simpleMessage(
+      "معرّف الدفع",
+    ),
+    "reportSearchTypes": MessageLookupByLibrary.simpleMessage(
+      "البحث عن نوع الطلب",
+    ),
+    "reportSelectAll": MessageLookupByLibrary.simpleMessage("(تحديد الكل)"),
+    "reportStatus": MessageLookupByLibrary.simpleMessage("الحالة"),
+    "reportStatusAwaitingApproval": MessageLookupByLibrary.simpleMessage(
+      "بانتظار الموافقة",
+    ),
+    "reportStatusCancelled": MessageLookupByLibrary.simpleMessage("ملغى"),
+    "reportStatusCompleted": MessageLookupByLibrary.simpleMessage(
+      "تم التنفيذ تلقائيًا",
+    ),
+    "reportStatusRejected": MessageLookupByLibrary.simpleMessage("مرفوض"),
+    "reportStatusSystemError": MessageLookupByLibrary.simpleMessage(
+      "خطأ في النظام",
+    ),
+    "reportTitle": MessageLookupByLibrary.simpleMessage("تقارير الطلبات"),
+    "reportTypeBlockDeposit": MessageLookupByLibrary.simpleMessage(
+      "حظر الوديعة",
+    ),
+    "reportTypeChequeBook": MessageLookupByLibrary.simpleMessage(
+      "إصدار دفتر شيكات",
+    ),
+    "reportTypeChequeClearance": MessageLookupByLibrary.simpleMessage(
+      "إزالة أثر الشيك",
+    ),
+    "reportTypeCurrentDeposit": MessageLookupByLibrary.simpleMessage(
+      "فتح حساب جاري",
+    ),
+    "reportTypeInstallmentDeposit": MessageLookupByLibrary.simpleMessage(
+      "تغيير وديعة سداد الأقساط",
+    ),
+    "reportTypeInternetPassword": MessageLookupByLibrary.simpleMessage(
+      "تغيير كلمة مرور الخدمات المصرفية عبر الإنترنت",
+    ),
+    "reportTypeMobilePassword": MessageLookupByLibrary.simpleMessage(
+      "تغيير كلمة مرور الهاتف المصرفي",
+    ),
+    "reportTypeOnSiteTransfer": MessageLookupByLibrary.simpleMessage(
+      "تحويل الأموال في الموقع",
+    ),
+    "reportTypeUnblockDeposit": MessageLookupByLibrary.simpleMessage(
+      "إلغاء حظر الوديعة",
+    ),
     "requestIdentifier": MessageLookupByLibrary.simpleMessage("معرف الطلب"),
     "requestOtp": MessageLookupByLibrary.simpleMessage("طلب رمز التحقق"),
     "requestStatus": MessageLookupByLibrary.simpleMessage("حالة الطلب"),

@@ -66,6 +66,7 @@ void main() {
       '/launch/': [AppRoutes.splash],
       '/dashboard/': [AppRoutes.home, AppRoutes.allServices],
       '/transfers/': [AppRoutes.onSiteTransfer],
+      '/requests/': [AppRoutes.requestReports],
       '/auth/': [AppRoutes.login],
       '/cards/': [
         AppRoutes.cardPasswords,

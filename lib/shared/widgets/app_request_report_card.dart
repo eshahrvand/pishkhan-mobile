@@ -18,6 +18,7 @@ class AppRequestReportCard extends StatelessWidget {
     this.date = '۱۴۰۳/۱۱/۱۳  -  ۰۸:۱۲',
     this.statusLabel = 'لیبل',
     this.statusColor = AppBadgeColor.success,
+    this.statusCorner = AppBadgeCorner.rounded,
     this.showDetails = true,
     this.width = 343,
     this.contentPadding = const EdgeInsets.symmetric(
@@ -41,6 +42,7 @@ class AppRequestReportCard extends StatelessWidget {
   final String date;
   final String statusLabel;
   final AppBadgeColor statusColor;
+  final AppBadgeCorner statusCorner;
   final bool showDetails;
   final double width;
   final EdgeInsetsGeometry contentPadding;
@@ -142,7 +144,7 @@ class AppRequestReportCard extends StatelessWidget {
                     color: statusColor,
                     background: AppBadgeBackground.light,
                     size: AppBadgeSize.small,
-                    corner: AppBadgeCorner.rounded,
+                    corner: statusCorner,
                   ),
                   Flexible(
                     child: Text(

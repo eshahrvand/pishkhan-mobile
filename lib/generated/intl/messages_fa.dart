@@ -1482,6 +1482,90 @@ class MessageLookup extends MessageLookupByLibrary {
       "تازه‌سازی کد امنیتی",
     ),
     "relatedLinks": MessageLookupByLibrary.simpleMessage("لینک‌های مرتبط"),
+    "reportApplyFilter": MessageLookupByLibrary.simpleMessage("اعمال فیلتر"),
+    "reportCancelError": MessageLookupByLibrary.simpleMessage(
+      "لغو درخواست انجام نشد. دوباره تلاش کنید یا گزارش را به‌روز کنید.",
+    ),
+    "reportCancelPrompt": MessageLookupByLibrary.simpleMessage(
+      "مطمئنید می‌خواید این درخواست رو لغو کنید؟",
+    ),
+    "reportCancelRequest": MessageLookupByLibrary.simpleMessage("لغو درخواست"),
+    "reportConfirmCancel": MessageLookupByLibrary.simpleMessage("بله، لغو کن"),
+    "reportDate": MessageLookupByLibrary.simpleMessage("تاریخ"),
+    "reportDateAll": MessageLookupByLibrary.simpleMessage("همه تاریخ‌ها"),
+    "reportDateLastMonth": MessageLookupByLibrary.simpleMessage("ماه گذشته"),
+    "reportDateLastThreeMonths": MessageLookupByLibrary.simpleMessage(
+      "۳ ماه گذشته",
+    ),
+    "reportDateLastWeek": MessageLookupByLibrary.simpleMessage("هفته گذشته"),
+    "reportDateToday": MessageLookupByLibrary.simpleMessage("امروز"),
+    "reportDetails": MessageLookupByLibrary.simpleMessage("جزئیات"),
+    "reportDetailsTitle": MessageLookupByLibrary.simpleMessage(
+      "جزئیات درخواست",
+    ),
+    "reportIdentifier": MessageLookupByLibrary.simpleMessage("شناسه"),
+    "reportLoadError": MessageLookupByLibrary.simpleMessage(
+      "دریافت گزارش درخواست‌ها ناموفق بود.",
+    ),
+    "reportNoResults": MessageLookupByLibrary.simpleMessage(
+      "درخواستی با این مشخصات پیدا نشد.",
+    ),
+    "reportNoTypes": MessageLookupByLibrary.simpleMessage(
+      "نوع درخواستی پیدا نشد.",
+    ),
+    "reportRequestDate": MessageLookupByLibrary.simpleMessage("تاریخ درخواست"),
+    "reportRequestStatus": MessageLookupByLibrary.simpleMessage(
+      "وضعیت درخواست",
+    ),
+    "reportRequestType": MessageLookupByLibrary.simpleMessage("نوع درخواست"),
+    "reportResetFilters": MessageLookupByLibrary.simpleMessage("حذف فیلترها"),
+    "reportSearchIdentifier": MessageLookupByLibrary.simpleMessage(
+      "شناسه پرداخت",
+    ),
+    "reportSearchTypes": MessageLookupByLibrary.simpleMessage(
+      "جستجوی نوع درخواست",
+    ),
+    "reportSelectAll": MessageLookupByLibrary.simpleMessage("(انتخاب همه)"),
+    "reportStatus": MessageLookupByLibrary.simpleMessage("وضعیت"),
+    "reportStatusAwaitingApproval": MessageLookupByLibrary.simpleMessage(
+      "در انتظار تایید",
+    ),
+    "reportStatusCancelled": MessageLookupByLibrary.simpleMessage("لغو شده"),
+    "reportStatusCompleted": MessageLookupByLibrary.simpleMessage(
+      "انجام شده خودکار",
+    ),
+    "reportStatusRejected": MessageLookupByLibrary.simpleMessage("رد شده"),
+    "reportStatusSystemError": MessageLookupByLibrary.simpleMessage(
+      "خطای سیستم",
+    ),
+    "reportTitle": MessageLookupByLibrary.simpleMessage("گزارش درخواست‌ها"),
+    "reportTypeBlockDeposit": MessageLookupByLibrary.simpleMessage(
+      "مسدودی سپرده",
+    ),
+    "reportTypeChequeBook": MessageLookupByLibrary.simpleMessage(
+      "صدور دسته چک",
+    ),
+    "reportTypeChequeClearance": MessageLookupByLibrary.simpleMessage(
+      "رفع سوء اثر چک",
+    ),
+    "reportTypeCurrentDeposit": MessageLookupByLibrary.simpleMessage(
+      "افتتاح سپرده جاری",
+    ),
+    "reportTypeInstallmentDeposit": MessageLookupByLibrary.simpleMessage(
+      "تغییر سپرده جهت کسر اقساط",
+    ),
+    "reportTypeInternetPassword": MessageLookupByLibrary.simpleMessage(
+      "تغییر گذرواژه اینترنت بانک",
+    ),
+    "reportTypeMobilePassword": MessageLookupByLibrary.simpleMessage(
+      "تغییر گذرواژه موبایل بانک",
+    ),
+    "reportTypeOnSiteTransfer": MessageLookupByLibrary.simpleMessage(
+      "انتقال وجه در محل",
+    ),
+    "reportTypeUnblockDeposit": MessageLookupByLibrary.simpleMessage(
+      "رفع مسدودی سپرده",
+    ),
     "requestIdentifier": MessageLookupByLibrary.simpleMessage("شناسه درخواست"),
     "requestOtp": MessageLookupByLibrary.simpleMessage("درخواست ارسال رمز"),
     "requestStatus": MessageLookupByLibrary.simpleMessage("وضعیت درخواست"),

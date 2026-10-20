@@ -1553,6 +1553,92 @@ class MessageLookup extends MessageLookupByLibrary {
       "Refresh security code",
     ),
     "relatedLinks": MessageLookupByLibrary.simpleMessage("Related links"),
+    "reportApplyFilter": MessageLookupByLibrary.simpleMessage("Apply filter"),
+    "reportCancelError": MessageLookupByLibrary.simpleMessage(
+      "Cancellation failed. Retry or refresh the reports.",
+    ),
+    "reportCancelPrompt": MessageLookupByLibrary.simpleMessage(
+      "Are you sure you want to cancel this request?",
+    ),
+    "reportCancelRequest": MessageLookupByLibrary.simpleMessage(
+      "Cancel request",
+    ),
+    "reportConfirmCancel": MessageLookupByLibrary.simpleMessage("Yes, cancel"),
+    "reportDate": MessageLookupByLibrary.simpleMessage("Date"),
+    "reportDateAll": MessageLookupByLibrary.simpleMessage("All dates"),
+    "reportDateLastMonth": MessageLookupByLibrary.simpleMessage("Last month"),
+    "reportDateLastThreeMonths": MessageLookupByLibrary.simpleMessage(
+      "Last 3 months",
+    ),
+    "reportDateLastWeek": MessageLookupByLibrary.simpleMessage("Last week"),
+    "reportDateToday": MessageLookupByLibrary.simpleMessage("Today"),
+    "reportDetails": MessageLookupByLibrary.simpleMessage("Details"),
+    "reportDetailsTitle": MessageLookupByLibrary.simpleMessage(
+      "Request details",
+    ),
+    "reportIdentifier": MessageLookupByLibrary.simpleMessage("Identifier"),
+    "reportLoadError": MessageLookupByLibrary.simpleMessage(
+      "Unable to load request reports.",
+    ),
+    "reportNoResults": MessageLookupByLibrary.simpleMessage(
+      "No matching requests found.",
+    ),
+    "reportNoTypes": MessageLookupByLibrary.simpleMessage(
+      "No request types found.",
+    ),
+    "reportRequestDate": MessageLookupByLibrary.simpleMessage("Request date"),
+    "reportRequestStatus": MessageLookupByLibrary.simpleMessage(
+      "Request status",
+    ),
+    "reportRequestType": MessageLookupByLibrary.simpleMessage("Request type"),
+    "reportResetFilters": MessageLookupByLibrary.simpleMessage("Clear filters"),
+    "reportSearchIdentifier": MessageLookupByLibrary.simpleMessage(
+      "Payment identifier",
+    ),
+    "reportSearchTypes": MessageLookupByLibrary.simpleMessage(
+      "Search request types",
+    ),
+    "reportSelectAll": MessageLookupByLibrary.simpleMessage("(Select all)"),
+    "reportStatus": MessageLookupByLibrary.simpleMessage("Status"),
+    "reportStatusAwaitingApproval": MessageLookupByLibrary.simpleMessage(
+      "Awaiting approval",
+    ),
+    "reportStatusCancelled": MessageLookupByLibrary.simpleMessage("Cancelled"),
+    "reportStatusCompleted": MessageLookupByLibrary.simpleMessage(
+      "Completed automatically",
+    ),
+    "reportStatusRejected": MessageLookupByLibrary.simpleMessage("Rejected"),
+    "reportStatusSystemError": MessageLookupByLibrary.simpleMessage(
+      "System error",
+    ),
+    "reportTitle": MessageLookupByLibrary.simpleMessage("Request reports"),
+    "reportTypeBlockDeposit": MessageLookupByLibrary.simpleMessage(
+      "Block deposit",
+    ),
+    "reportTypeChequeBook": MessageLookupByLibrary.simpleMessage(
+      "Issue cheque book",
+    ),
+    "reportTypeChequeClearance": MessageLookupByLibrary.simpleMessage(
+      "Cheque record clearance",
+    ),
+    "reportTypeCurrentDeposit": MessageLookupByLibrary.simpleMessage(
+      "Open current deposit",
+    ),
+    "reportTypeInstallmentDeposit": MessageLookupByLibrary.simpleMessage(
+      "Change installment repayment deposit",
+    ),
+    "reportTypeInternetPassword": MessageLookupByLibrary.simpleMessage(
+      "Change internet banking password",
+    ),
+    "reportTypeMobilePassword": MessageLookupByLibrary.simpleMessage(
+      "Change mobile banking password",
+    ),
+    "reportTypeOnSiteTransfer": MessageLookupByLibrary.simpleMessage(
+      "On-site transfer",
+    ),
+    "reportTypeUnblockDeposit": MessageLookupByLibrary.simpleMessage(
+      "Unblock deposit",
+    ),
     "requestIdentifier": MessageLookupByLibrary.simpleMessage(
       "Request identifier",
     ),
