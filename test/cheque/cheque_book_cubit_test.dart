@@ -196,6 +196,43 @@ void main() {
     expect(cubit.state.canContinue, isFalse);
   });
 
+  for (final succeeds in [true, false]) {
+    for (final selectsLeafCount in [false, true]) {
+      test(
+        'late address save ($succeeds) preserves new selection eligibility ($selectsLeafCount)',
+        () async {
+          final pending = Completer<Result<DeliveryAddress>>();
+          final repository = TestChequeBookRepository()
+            ..pendingAddressSave = pending;
+          final cubit = create(repository);
+          await selectBook(cubit);
+          final address = cubit.state.deliveryAddresses.first;
+          final saving = cubit.applyAddressResult(address);
+          cubit.requestBack();
+          cubit.selectDeposit(cubit.state.catalog!.deposits.last);
+          if (selectsLeafCount) {
+            cubit.selectLeafCount(25);
+          }
+          final before = cubit.state;
+          pending.complete(
+            succeeds ? Success(address) : const Err(DataFailure('save.failed')),
+          );
+          await saving;
+          expect(cubit.state.step, before.step);
+          expect(cubit.state.deposit, before.deposit);
+          expect(cubit.state.leafCount, before.leafCount);
+          expect(cubit.state.canContinue, selectsLeafCount);
+          expect(cubit.state.isEditable, before.isEditable);
+          expect(cubit.state.address, before.address);
+          expect(
+            cubit.state.addressSaveStatus,
+            succeeds ? RequestStatus.success : RequestStatus.failure,
+          );
+        },
+      );
+    }
+  }
+
   test('insufficient wallet disables final submission', () async {
     final cubit = create(TestChequeBookRepository()..walletBalanceRial = 100);
     await selectBook(cubit);

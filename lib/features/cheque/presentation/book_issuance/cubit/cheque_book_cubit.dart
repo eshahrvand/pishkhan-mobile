@@ -314,42 +314,64 @@ class ChequeBookCubit extends Cubit<ChequeBookState> {
   }
 
   Future<void> applyAddressResult(DeliveryAddress? address) {
-    if (address == null) return Future.value();
-    emit(
-      state.copyWith(
-        addressSaveStatus: RequestStatus.loading,
-        addressSaveFailure: null,
-        isEditable: false,
-      ),
-    );
-    return _saveDeliveryAddress(address).then((result) {
-      switch (result) {
-        case Err(:final failure):
-          emit(
-            state.copyWith(
-              addressSaveStatus: RequestStatus.failure,
-              addressSaveFailure: failure,
-              isEditable: true,
-            ),
-          );
-        case Success(:final data):
-          emit(
-            state.copyWith(
-              addressSaveStatus: RequestStatus.success,
-              deliveryAddresses: [...state.deliveryAddresses, data],
-              address: data,
-              isEditable: true,
-              hasChanges: true,
-              canContinue: _isDeliveryComplete(
-                data,
-                state.isRecipientRequired,
-                state.isRecipientNameValid,
-                state.isRecipientNationalIdValid,
-              ),
-            ),
-          );
-      }
-    });
+    switch (address) {
+      case null:
+        return Future.value();
+      case final address:
+        emit(
+          state.copyWith(
+            addressSaveStatus: RequestStatus.loading,
+            addressSaveFailure: null,
+            isEditable: false,
+          ),
+        );
+        return _saveDeliveryAddress(address).then((result) {
+          switch (result) {
+            case Err(:final failure):
+              if (state.step == ChequeBookStep.delivery) {
+                emit(
+                  state.copyWith(
+                    addressSaveStatus: RequestStatus.failure,
+                    addressSaveFailure: failure,
+                    isEditable: true,
+                  ),
+                );
+              } else {
+                emit(
+                  state.copyWith(
+                    addressSaveStatus: RequestStatus.failure,
+                    addressSaveFailure: failure,
+                  ),
+                );
+              }
+            case Success(:final data):
+              if (state.step == ChequeBookStep.delivery) {
+                emit(
+                  state.copyWith(
+                    addressSaveStatus: RequestStatus.success,
+                    deliveryAddresses: [...state.deliveryAddresses, data],
+                    address: data,
+                    isEditable: true,
+                    hasChanges: true,
+                    canContinue: _isDeliveryComplete(
+                      data,
+                      state.isRecipientRequired,
+                      state.isRecipientNameValid,
+                      state.isRecipientNationalIdValid,
+                    ),
+                  ),
+                );
+              } else {
+                emit(
+                  state.copyWith(
+                    addressSaveStatus: RequestStatus.success,
+                    deliveryAddresses: [...state.deliveryAddresses, data],
+                  ),
+                );
+              }
+          }
+        });
+    }
   }
 
   void updateOtherRecipient(bool value) {

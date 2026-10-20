@@ -33,6 +33,7 @@ class TestChequeBookRepository implements ChequeBookRepository {
   Completer<Result<ChequeBookResidency>>? pendingResidency;
   Completer<Result<ChequeBookQuote>>? pendingQuote;
   Completer<Result<ChequeBookReceipt>>? pendingSubmission;
+  Completer<Result<DeliveryAddress>>? pendingAddressSave;
   bool throwsCatalog = false;
   bool failsQuote = false;
   bool failsSubmission = false;
@@ -94,14 +95,16 @@ class TestChequeBookRepository implements ChequeBookRepository {
   @override
   Future<Result<DeliveryAddress>> saveDeliveryAddress(
     DeliveryAddress address,
-  ) async => Success(
-    DeliveryAddress(
-      id: 'saved-address',
-      title: address.title,
-      detail: address.detail,
-      postalCode: address.postalCode,
-    ),
-  );
+  ) async =>
+      pendingAddressSave?.future ??
+      Success(
+        DeliveryAddress(
+          id: 'saved-address',
+          title: address.title,
+          detail: address.detail,
+          postalCode: address.postalCode,
+        ),
+      );
   @override
   Future<Result<ChequeBookQuote>> fetchQuote(ChequeBookDraft draft) async {
     drafts.add(draft);

@@ -245,4 +245,49 @@ void main() {
     }
     expect(TransferLimitValidator.isValid('2000000000', 2000000000), isTrue);
   });
+
+  for (final operation in MobileBankOperation.values) {
+    test(
+      '$operation assistant exit confirms before discarding input and retains Home destination',
+      () async {
+        final cubit = MobileBankCubit(operation: operation);
+        addTearDown(cubit.close);
+        await cubit.fetchMobileBank();
+        cubit.requestHome();
+        expect(cubit.state.navigation, FlowNavigation.home);
+        if (operation == MobileBankOperation.activation) {
+          await cubit.continueFlow();
+        }
+        cubit.updateNationalCardSerial('3R12345678');
+        cubit.requestHome();
+        expect(cubit.state.navigation, FlowNavigation.confirmExit);
+        cubit.applyExitConfirmation(false);
+        expect(cubit.state.navigation, isNull);
+        expect(cubit.state.nationalCardSerial, '3R12345678');
+        expect(cubit.state.step, MobileBankStep.serial);
+        cubit.requestHome();
+        cubit.applyExitConfirmation(true);
+        expect(cubit.state.navigation, FlowNavigation.home);
+        if (operation == MobileBankOperation.activation) {
+          cubit.requestBack();
+        }
+        cubit.requestBack();
+        expect(cubit.state.navigation, FlowNavigation.confirmExit);
+        cubit.applyExitConfirmation(true);
+        expect(cubit.state.navigation, FlowNavigation.back);
+      },
+    );
+  }
+
+  test(
+    'completed identity exits Home without another discard confirmation',
+    () async {
+      final cubit = MobileBankCubit();
+      addTearDown(cubit.close);
+      await reachPreview(cubit);
+      await cubit.submitIdentity();
+      cubit.requestHome();
+      expect(cubit.state.navigation, FlowNavigation.home);
+    },
+  );
 }

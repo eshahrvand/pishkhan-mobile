@@ -184,6 +184,9 @@ void main() {
       cubit.updateTermsAcceptance(true);
       await cubit.submitRestriction();
       expect(cubit.state.submissionFailure, const UnexpectedFailure());
+      final key = cubit.state.idempotencyKey;
+      cubit.updateDescription('  شخصی  ');
+      expect(cubit.state.idempotencyKey, key);
       await cubit.submitRestriction();
       expect(cubit.state.submissionStatus, RequestStatus.success);
       expect(repository.requests.first, repository.requests.last);

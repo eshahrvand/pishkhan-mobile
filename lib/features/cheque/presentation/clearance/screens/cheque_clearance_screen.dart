@@ -80,17 +80,14 @@ class ChequeClearanceScreen extends StatelessWidget {
           listenWhen: (previous, current) =>
               previous.effectId != current.effectId,
           listener: _handleEffect,
-          buildWhen: (previous, current) =>
-              previous.effect != current.effect ||
-              previous.submissionStatus != current.submissionStatus,
+          buildWhen: (previous, current) => previous.effect != current.effect,
           builder: (context, state) {
             return Directionality(
               textDirection: TextDirection.rtl,
               child: PopScope(
                 canPop: state.effect == ChequeClearanceEffect.back,
                 onPopInvokedWithResult: (didPop, result) {
-                  if (!didPop &&
-                      state.submissionStatus != RequestStatus.loading) {
+                  if (!didPop) {
                     context.read<ChequeClearanceCubit>().requestBack();
                   }
                 },
@@ -112,13 +109,11 @@ class ChequeClearanceScreen extends StatelessWidget {
                                 height: 24,
                               ),
                               trailingTooltip: S.current.backLabel,
-                              onTrailingPressed:
-                                  state.submissionStatus ==
-                                      RequestStatus.loading
-                                  ? null
-                                  : context
-                                        .read<ChequeClearanceCubit>()
-                                        .requestBack,
+                              onTrailingPressed: () {
+                                context
+                                    .read<ChequeClearanceCubit>()
+                                    .requestBack();
+                              },
                             ),
                             const Expanded(child: ChequeClearanceForm()),
                             const ChequeClearanceFooter(),
@@ -127,14 +122,12 @@ class ChequeClearanceScreen extends StatelessWidget {
                         Positioned(
                           left: 16,
                           bottom: 76,
-                          child: IgnorePointer(
-                            ignoring:
-                                state.submissionStatus == RequestStatus.loading,
-                            child: AppAssistantButton(
-                              onPressed: context
+                          child: AppAssistantButton(
+                            onPressed: () {
+                              context
                                   .read<ChequeClearanceCubit>()
-                                  .requestAssistant,
-                            ),
+                                  .requestAssistant();
+                            },
                           ),
                         ),
                       ],

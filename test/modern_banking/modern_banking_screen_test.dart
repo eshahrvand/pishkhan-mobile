@@ -16,6 +16,8 @@ import 'package:pishkhan_mobile/features/modern_banking/presentation/deactivatio
 import 'package:pishkhan_mobile/features/modern_banking/presentation/transfer_limits/screens/mobile_bank_limits_screen.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/widgets/deposit_request_footer.dart';
+import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
+import 'package:pishkhan_mobile/shared/widgets/flow_exit_dialog.dart';
 
 import '../deposits/certificate_test_support.dart';
 
@@ -219,6 +221,26 @@ void main() {
     await captureModern(tester, 'modern_password_guide_4');
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets(
+    'assistant asks before discarding serial and Stay preserves the form',
+    (tester) async {
+      await mountCertificate(tester, const MobileBankScreen());
+      await tapLabel(tester, S.current.modernActivate);
+      await tester.enterText(find.byType(TextField), '3R12345678');
+      await tester.pumpAndSettle();
+      await tester.tap(find.byType(AppAssistantButton));
+      await tester.pumpAndSettle();
+      expect(find.byType(FlowExitDialog), findsOneWidget);
+      await tapLabel(tester, S.current.passwordStay);
+      expect(find.byType(FlowExitDialog), findsNothing);
+      expect(
+        tester.widget<TextField>(find.byType(TextField)).controller!.text,
+        '3R12345678',
+      );
+      expect(tester.takeException(), isNull);
+    },
+  );
 
   testWidgets(
     'deactivation username cannot be edited and consent gates submission',

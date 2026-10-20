@@ -238,11 +238,10 @@ class MobileBankCubit extends Cubit<MobileBankState> {
         emit(
           state.copyWith(
             navigation:
-                state.nationalCardSerial.isNotEmpty &&
-                    state.step != MobileBankStep.receipt &&
-                    state.step != MobileBankStep.pending
+                _requiresExitConfirmation(state.nationalCardSerial, state.step)
                 ? FlowNavigation.confirmExit
                 : FlowNavigation.back,
+            isExitToHome: false,
             destination: null,
             effectId: state.effectId + 1,
           ),
@@ -253,7 +252,9 @@ class MobileBankCubit extends Cubit<MobileBankState> {
   void applyExitConfirmation(bool? confirmed) {
     emit(
       state.copyWith(
-        navigation: confirmed == true ? FlowNavigation.back : null,
+        navigation: confirmed == true
+            ? (state.isExitToHome ? FlowNavigation.home : FlowNavigation.back)
+            : null,
         effectId: state.effectId + 1,
       ),
     );
@@ -262,10 +263,21 @@ class MobileBankCubit extends Cubit<MobileBankState> {
   void requestHome() {
     emit(
       state.copyWith(
-        navigation: FlowNavigation.home,
+        navigation:
+            _requiresExitConfirmation(state.nationalCardSerial, state.step)
+            ? FlowNavigation.confirmExit
+            : FlowNavigation.home,
+        isExitToHome: true,
         destination: null,
         effectId: state.effectId + 1,
       ),
     );
   }
 }
+
+bool _requiresExitConfirmation(String serial, MobileBankStep step) =>
+    serial.isNotEmpty &&
+    step != MobileBankStep.receipt &&
+    step != MobileBankStep.pending &&
+    step != MobileBankStep.active &&
+    step != MobileBankStep.recoveryApproved;

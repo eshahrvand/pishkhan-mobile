@@ -33,6 +33,7 @@ abstract class MobileBankState with _$MobileBankState {
     Failure? catalogFailure,
     Failure? submissionFailure,
     FlowNavigation? navigation,
+    @Default(false) bool isExitToHome,
     MobileBankDestination? destination,
     @Default(0) int effectId,
   }) = _MobileBankState;

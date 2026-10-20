@@ -110,7 +110,9 @@ class DepositRestrictionCubit extends Cubit<DepositRestrictionState> {
         description: description,
         hasChanges: true,
         submissionFailure: null,
-        idempotencyKey: _createRequestKey(),
+        idempotencyKey: description.trim() == state.description.trim()
+            ? state.idempotencyKey
+            : _createRequestKey(),
       ),
     );
   }

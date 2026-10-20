@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -7,6 +9,12 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
 import 'package:pishkhan_mobile/core/flow/service_registry.dart';
+import 'package:pishkhan_mobile/core/enums/request_status.dart';
+import 'package:pishkhan_mobile/core/result/failure.dart';
+import 'package:pishkhan_mobile/core/result/result.dart';
+import 'package:pishkhan_mobile/features/cheque/data/repositories/mock_cheque_clearance_repository.dart';
+import 'package:pishkhan_mobile/features/cheque/domain/repositories/cheque_clearance_repository.dart';
+import 'package:pishkhan_mobile/shared/widgets/flow_exit_dialog.dart';
 import 'package:pishkhan_mobile/features/cheque/domain/entities/cheque_clearance.dart';
 import 'package:pishkhan_mobile/features/cheque/presentation/clearance/cubit/cheque_clearance_cubit.dart';
 import 'package:pishkhan_mobile/features/cheque/presentation/clearance/screens/cheque_clearance_screen.dart';
@@ -17,6 +25,15 @@ import 'package:pishkhan_mobile/features/cheque/presentation/shared/postal/widge
 import 'package:pishkhan_mobile/generated/l10n.dart';
 
 import '../support/router_test_app.dart';
+
+class PendingClearanceRepository extends MockChequeClearanceRepository {
+  final submission = Completer<Result<ChequeClearanceReceipt>>();
+
+  @override
+  Future<Result<ChequeClearanceReceipt>> submitClearance(
+    ChequeClearanceRequest request,
+  ) => submission.future;
+}
 
 void main() {
   String? sharedText;
@@ -135,6 +152,51 @@ void main() {
   ChequeClearanceCubit cubit(WidgetTester tester) => tester
       .element(find.byType(ChequeClearanceForm))
       .read<ChequeClearanceCubit>();
+
+  for (final systemBack in [true, false]) {
+    testWidgets('Back ($systemBack) confirms exit during pending clearance', (
+      tester,
+    ) async {
+      final repository = PendingClearanceRepository();
+      await getIt.unregister<ChequeClearanceRepository>();
+      getIt.registerSingleton<ChequeClearanceRepository>(repository);
+      await mount(tester);
+      await fill(tester, S.current.chequeReasonDepositAndBlock);
+      await tap(tester, find.byType(AppCheckbox));
+      await tester.tap(button(S.current.chequeSubmit));
+      await tester.pump();
+      expect(cubit(tester).state.submissionStatus, RequestStatus.loading);
+      if (systemBack) {
+        await tester.binding.handlePopRoute();
+      } else {
+        await tester.tap(find.byTooltip(S.current.backLabel));
+      }
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.byType(FlowExitDialog), findsOneWidget);
+      await tester.tap(button(S.current.passwordStay));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.byType(FlowExitDialog), findsNothing);
+      expect(cubit(tester).state.chequeNumber, '123/123456');
+      expect(cubit(tester).state.submissionStatus, RequestStatus.loading);
+      if (systemBack) {
+        await tester.binding.handlePopRoute();
+      } else {
+        await tester.tap(find.byTooltip(S.current.backLabel));
+      }
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.byType(FlowExitDialog), findsOneWidget);
+      // Complete while the owner is alive; post-disposal errors are an accepted contract behavior.
+      repository.submission.complete(const Err(DataFailure('timeout')));
+      await tester.pumpAndSettle();
+      await tap(tester, button(S.current.passwordExit));
+      expect(find.byType(ChequeClearanceScreen), findsNothing);
+      expect(button('Open cheque'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+  }
 
   testWidgets(
     'initial form and both non-postal reasons use the central route',
