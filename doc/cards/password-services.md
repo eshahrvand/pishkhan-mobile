@@ -2,12 +2,14 @@
 
 ## Password selector bottom sheets (2026-10-19)
 
-Owner clarification: password-service selectors are intentional bottom sheets,
-including card type, card number, password type and operation selection. Keep
-the custom menuBuilder in PasswordServiceSelect, showPasswordOptions and
-PasswordOptionsSheet for these controls. Other application selects retain the shared AppSelect
-anchored dropdown. Selection values, Cubit actions and request/receipt sheets
-are unchanged.
+Owner/UI-UX decision (2026-10-21): the card-number selection sheet is the
+visual reference for the shared selection component in avp_ui. Card type,
+card number, password type and operation all use package showAppSelectSheet
+through AppSelect’s package-owned default behavior. The app-owned PasswordOptionsSheet
+and showPasswordOptions have been removed. The shared package owns option rows,
+header, close artwork and modal layout. Field visuals, selection values, Cubit
+actions and request/receipt sheets are unchanged. All other app dropdowns use
+the same package component.
 
 ## UI structure and feature ownership
 
@@ -147,7 +149,7 @@ An idempotency key identifies the submission intent. It is reused on unchanged r
 
 Reused: AppTopBar, AppInvoice, AppBottomSheetHeader; package AppSelect/AppTextField/AppCheckbox/AppButton, tokens and font. New AppVideoPlayer owns playback controls/original play SVGs. AppPasswordServiceColors owns instance colors. Existing defaults remain intact.
 
-Compatible app extension: AppInvoice.borderRadius and zeroHeightDividers reproduce the authored invoice without altering existing defaults. Compatible package extensions: secure field properties; optional AppSelect.menuBuilder for the authored full-width sheet; optional disabled primary service appearance (Gray200/xs). Video square is343px/radius8; bottom track8px and Play16px; poster uses the original image/crop; camera notice is BlueGray100. Runtime videos preserve their full frame with letterboxing where aspect ratios differ.
+Compatible app extension: AppInvoice.borderRadius and zeroHeightDividers reproduce the authored invoice without altering existing defaults. Compatible package extensions: secure field properties; AppSelect’s default full-width selection sheet; optional disabled primary service appearance (Gray200/xs). Video square is343px/radius8; bottom track8px and Play16px; poster uses the original image/crop; camera notice is BlueGray100. Runtime videos preserve their full frame with letterboxing where aspect ratios differ.
 
 App assets are original Figma exports in flat assets/images and registered in AppAssets. Instruction image1092×1560 uses the authored142.86% height/-11.62% top crop. Recording image472×398 uses cover in the square preview. Active/inactive check20px; PIN eye20px; serial info14px; camera info20px; mock Play20.903×22.803; success57.0045×59.9961. Selection and request-status sheets preserve their separate original375×812 scrim exports. Byte-identical option/section divider exports reuse cardFeaturesDivider/issuanceDivider. No screenshots become runtime assets. No temporary Figma URL appears in Dart.
 

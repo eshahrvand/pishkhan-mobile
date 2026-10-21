@@ -28,8 +28,16 @@ abstract final class ServiceRegistry {
     String? initialDepositNumber,
     String? initialCardNumber,
   }) {
-    if (id == 'modern-mobile') {
-      context.push<void>(AppRoutes.mobileBank);
+    final modernBankingPath = switch (id) {
+      'modern-mobile' => AppRoutes.mobileBank,
+      'modern-mobile-password-recovery' => AppRoutes.mobileBankPasswordRecovery,
+      'modern-mobile-password-guide' => AppRoutes.mobileBankPasswordGuide,
+      'modern-mobile-transfer-limits' => AppRoutes.mobileBankTransferLimits,
+      'modern-mobile-deactivation' => AppRoutes.mobileBankDeactivation,
+      _ => null,
+    };
+    if (modernBankingPath != null) {
+      context.push<void>(modernBankingPath);
       return true;
     }
     if (id == 'identity-phone' ||

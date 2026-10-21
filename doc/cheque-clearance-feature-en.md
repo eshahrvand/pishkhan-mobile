@@ -57,8 +57,9 @@ is not ready yet.” No legal document or download is fabricated.
   consent and request effects. The separate postal Cubit owns its modal steps,
   search and prepared share content.
 - UI owns rendering, modal/navigation/platform operations and focus.
-- The form uses anchored package selectors; postal lookup uses the two supplied
-  bottom-sheet states. Placeholder text and chevrons use the Figma gray400
+- The form and postal province/city fields use package selectors with app-owned
+  avp_ui option bottom sheets; postal lookup retains the two supplied bottom-sheet
+  states. Placeholder text and chevrons use the Figma gray400
   treatment; selected values use the primary text treatment.
 
 Figma file: `nYQNyZdSs98lwymCpt5Sag`, nodes `28060:25866`, `27372`, `28052`,

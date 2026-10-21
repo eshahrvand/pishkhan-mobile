@@ -82,8 +82,10 @@ lifetime unless a repository explicitly persists them.
 Existing selectors, fields, recipient/agent sections, summary, invoice, cards,
 headers, assistant, exit dialog and blurred sheet frame are reused. Common
 certificate visuals live in `lib/shared/widgets`; stateful address editing stays
-in its own feature. Standard selects use anchored menus; explicitly designed
-bottom sheets retain their presentation.
+in its own feature. All interactive selects keep their field visuals and open
+the shared avp_ui selection bottom sheet through AppSelect’s package-owned default behavior. The
+shared CertificateSelect supplies this behavior to deposit flows, profile/address
+forms, transfers and modern banking.
 
 ## Integration limits
 

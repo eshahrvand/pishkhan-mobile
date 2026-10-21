@@ -110,8 +110,11 @@ registry verification or a persisted profile entry.
 
 Public avp_ui fields/selects/search/checkboxes/toggle/stepper/buttons are reused,
 with app headers, assistant, sheet frame, summaries and delivery sections.
-Reason selection retains its designed bottom sheet; account/type use anchored
-menus. Original assets are bundled locally; matching existing artwork is reused.
+Reason selection uses package AppSelectSheet through showAppSelectSheetContent with
+its existing Cubit-owned draft and confirmation footer. Account/type and postal
+province/city selects open the same package sheet through AppSelect’s package-owned default behavior,
+without changing their field visuals. Original assets are bundled locally;
+matching existing artwork is reused.
 
 Cubit owns filtering, selection, drafts, request snapshots, stages and effect
 intents. UI owns Flutter resources and executes modal, scroll, navigation and

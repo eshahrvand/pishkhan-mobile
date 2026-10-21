@@ -293,7 +293,7 @@ void main() {
       }
       if (frame == 'card-types') {
         expect(
-          t.getTopLeft(find.byKey(const Key('app_bottom_sheet_header'))).dy,
+          t.getTopLeft(find.byType(AppSelectSheet<PasswordCardKind>)).dy,
           440,
         );
       }
@@ -698,7 +698,7 @@ void main() {
         expect(find.text('تغییر رمز عبور'), findsOneWidget);
         expect(find.text('فراموشی رمز عبور'), findsOneWidget);
         expect(
-          t.getTopLeft(find.byKey(const Key('app_bottom_sheet_header'))).dy,
+          t.getTopLeft(find.byType(AppSelectSheet<PasswordOperation>)).dy,
           552,
         );
       }

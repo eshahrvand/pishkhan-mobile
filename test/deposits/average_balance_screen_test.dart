@@ -81,6 +81,9 @@ void main() {
       final cubit = context.read<AverageBalanceCubit>();
       await tester.tap(find.byType(AppSelect<ListedDeposit>).first);
       await tester.pumpAndSettle();
+      expect(find.byType(AppSelectSheet<ListedDeposit>), findsOneWidget);
+      expect(find.byType(BottomSheet), findsOneWidget);
+      await captureCertificate(tester, 'average-deposit-options-sheet');
       await tester.tap(find.text('10.1234567.1').last);
       await tester.pumpAndSettle();
       expect(find.byType(AppSelect<CertificateLanguage>), findsOneWidget);

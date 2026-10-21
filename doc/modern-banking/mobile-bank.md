@@ -10,6 +10,14 @@ governs implementation; older feature examples do not supersede it.
 
 - Existing service ID `modern-mobile` opens `/modern-banking/mobile` from the
   dashboard catalog/drawer through `ServiceRegistry`.
+- The drawer's Modern Banking group lists the five implemented mobile-bank
+  services: activation, password recovery, password-change guide, transfer limits
+  and deactivation. Phone banking and internet banking are not shown in this
+  drawer group. Drawer search uses the same localized service labels.
+- The additional drawer service IDs are `modern-mobile-password-recovery`,
+  `modern-mobile-password-guide`, `modern-mobile-transfer-limits` and
+  `modern-mobile-deactivation`; ServiceRegistry dispatches them to the existing
+  authenticated routes. The activation drawer label uses `modernActivate`.
 - Central `AppRoutes` and `app_router.dart` also declare authenticated routes
   for `password-recovery`, `password-guide`, `transfer-limits` and `deactivation`.
   All five routes participate in the post-login return-location allowlist.

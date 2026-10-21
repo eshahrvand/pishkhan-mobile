@@ -49,10 +49,16 @@ class MobileBankLimitField extends StatelessWidget {
           textStyle: Theme.of(context).textTheme.bodyMedium,
           textDirection: TextDirection.ltr,
           textAlign: TextAlign.right,
-          suffixIcon: Text(
-            S.current.rialCurrency,
-            style: Theme.of(context).textTheme.bodyMedium!
-                .copyWith(color: context.colors.textTertiary),
+          suffixIcon: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            child: Center(
+              widthFactor: 1,
+              child: Text(
+                S.current.rialCurrency,
+                style: Theme.of(context).textTheme.bodyMedium!
+                    .copyWith(color: context.colors.textTertiary),
+              ),
+            ),
           ),
           errorText: isError ? S.current.modernLimitError : null,
           focusRing: AppTextFieldFocusRing.none,

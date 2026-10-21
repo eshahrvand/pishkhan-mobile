@@ -135,6 +135,7 @@ Map<DashboardService, String> dashboardDrawerServiceLabels() => {
 
 String dashboardDrawerServiceLabel(DashboardService service) =>
     switch (service) {
+      DashboardService.mobileBank => S.current.modernActivate,
       DashboardService.password => S.current.cardPasswordIssue.replaceAll(
         RegExp(r'\s*/\s*'),
         ' | ',

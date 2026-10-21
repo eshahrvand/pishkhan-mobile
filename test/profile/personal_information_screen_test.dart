@@ -275,7 +275,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(
         find.descendant(
-          of: find.byType(AppSelectMenu<DeliveryAddressType>),
+          of: find.byType(AppSelectSheet<DeliveryAddressType>),
           matching: find.text(S.current.profileWork),
         ),
       );
