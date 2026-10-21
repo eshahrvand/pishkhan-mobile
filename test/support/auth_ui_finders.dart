@@ -4,7 +4,6 @@ import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/login/widgets/auth_services_sheet.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/shared/auth_assets.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
@@ -62,10 +61,7 @@ Finder authControl(WidgetTester tester, String name) {
       find
           .ancestor(
             of: find.byWidgetPredicate(
-              (widget) =>
-                  widget is Image &&
-                  widget.image is AssetImage &&
-                  (widget.image as AssetImage).assetName == AuthAssets.captcha,
+              (widget) => widget is Image && widget.image is MemoryImage,
             ),
             matching: find.byType(Container),
           )

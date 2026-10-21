@@ -39,6 +39,7 @@ void main() {
   setUp(() {
     container = GetIt.asNewInstance();
     configureDependencies(container: container);
+    configureDependencies();
   });
   tearDown(() async {
     await container.reset();

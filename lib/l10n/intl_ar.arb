@@ -883,5 +883,9 @@
     }
   },
   "modernSerialStep": "الرقم التسلسلي للبطاقة الوطنية",
-  "modernKycStep": "التحقق من الهوية"
+  "modernKycStep": "التحقق من الهوية",
+  "authRequestFailed": "تعذر إتمام الطلب. تحقق من المعلومات وحاول مجدداً.",
+  "authNetworkError": "تعذر الاتصال بالخادم. حاول مجدداً.",
+  "authOtpRejected": "رمز التحقق غير صحيح أو انتهت صلاحيته.",
+  "authChangePhoneUnavailable": "خدمة تغيير رقم الهاتف غير متصلة بعد."
 }

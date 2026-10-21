@@ -1,15 +1,28 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
+import 'package:pishkhan_mobile/core/result/failure.dart';
+import 'package:pishkhan_mobile/core/result/result.dart';
+import 'package:pishkhan_mobile/features/auth/domain/entities/login_identity.dart';
+import 'package:pishkhan_mobile/features/auth/domain/repositories/auth_repository.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/login/cubit/auth_cubit.dart';
 
+import '../../../../../support/auth_test_dependencies.dart';
+
 void main() {
-  AuthCubit createCubit([AuthState initialState = const AuthState.initial()]) {
-    final cubit = AuthCubit(initialState: initialState);
+  setUp(configureAuthTestDependencies);
+  tearDown(() => getIt.reset());
+
+  AuthCubit createCubit([AuthState seed = const AuthState.initial()]) {
+    final cubit = AuthCubit(initialState: seed);
     addTearDown(cubit.close);
     return cubit;
   }
 
-  void fillIdentity(AuthCubit cubit) {
+  Future<void> fillIdentity(AuthCubit cubit) async {
+    await cubit.fetchCaptcha();
     cubit.updateNationalId('0081234562');
     cubit.updatePhoneNumber('09121127934');
     cubit.updateCaptcha('123456');
@@ -18,168 +31,175 @@ void main() {
   test(
     'construction preserves the supplied snapshot without initialization',
     () {
-      const seed = AuthState.initial(
-        step: AuthStep.changePhone,
-        nationalId: '0',
-        isNationalIdError: true,
-      );
-      final cubit = createCubit(seed);
-      expect(cubit.state, seed);
+      const seed = AuthState.initial(nationalId: '0', isNationalIdError: true);
+      expect(createCubit(seed).state, seed);
     },
   );
 
   test(
-    'field updates publish validity, live errors and aggregate eligibility',
-    () {
+    'eligibility requires a fetched CAPTCHA and independently valid fields',
+    () async {
       final cubit = createCubit();
-      cubit.updateNationalId('0');
-      expect(cubit.state.isNationalIdValid, isFalse);
-      expect(cubit.state.isNationalIdError, isTrue);
-      cubit.updatePhoneNumber('0');
-      expect(cubit.state.isPhoneNumberValid, isFalse);
-      expect(cubit.state.isPhoneNumberError, isTrue);
-
-      fillIdentity(cubit);
-      expect(cubit.state.isNationalIdValid, isTrue);
-      expect(cubit.state.isNationalIdError, isFalse);
-      expect(cubit.state.isPhoneNumberValid, isTrue);
-      expect(cubit.state.isPhoneNumberError, isFalse);
-      expect(cubit.state.isCaptchaValid, isTrue);
+      cubit.updateNationalId('0081234562');
+      cubit.updatePhoneNumber('09121127934');
+      cubit.updateCaptcha('123456');
+      expect(cubit.state.canRequestOtp, isFalse);
+      await fillIdentity(cubit);
       expect(cubit.state.canRequestOtp, isTrue);
-
-      cubit.updateNationalId('0081234563');
+      cubit.updateNationalId('0');
+      expect(cubit.state.isNationalIdError, isTrue);
       expect(cubit.state.canRequestOtp, isFalse);
       cubit.updateNationalId('0081234562');
       expect(cubit.state.canRequestOtp, isTrue);
-      cubit.updatePhoneNumber('08121127934');
-      expect(cubit.state.canRequestOtp, isFalse);
-      cubit.updatePhoneNumber('09121127934');
-      expect(cubit.state.canRequestOtp, isTrue);
-      cubit.updateCaptcha('12345');
+      cubit.updatePhoneNumber('0');
+      expect(cubit.state.isPhoneNumberError, isTrue);
       expect(cubit.state.canRequestOtp, isFalse);
     },
   );
 
   test(
-    'focus-loss validation reads stored validity and captcha reset clears it',
-    () {
+    'refresh replaces the image/session pair and invalidates the old answer',
+    () async {
       final cubit = createCubit();
-      cubit.validateNationalId();
-      cubit.validatePhoneNumber();
-      cubit.validateCaptcha();
-      expect(cubit.state.isNationalIdError, isTrue);
-      expect(cubit.state.isPhoneNumberError, isTrue);
-      expect(cubit.state.isCaptchaError, isTrue);
-
-      fillIdentity(cubit);
-      cubit.validateNationalId();
-      cubit.validatePhoneNumber();
-      cubit.validateCaptcha();
-      expect(cubit.state.isNationalIdError, isFalse);
-      expect(cubit.state.isPhoneNumberError, isFalse);
-      expect(cubit.state.isCaptchaError, isFalse);
-      cubit.resetCaptcha();
+      await fillIdentity(cubit);
+      final sessionId = cubit.state.sessionId;
+      await cubit.fetchCaptcha();
       expect(cubit.state.captcha, isEmpty);
-      expect(cubit.state.isCaptchaValid, isFalse);
       expect(cubit.state.canRequestOtp, isFalse);
+      expect(cubit.state.captchaImage, isNotNull);
+      expect(cubit.state.sessionId, isNot(sessionId));
+      expect(cubit.state.sessionId, cubit.state.captchaImage!.sessionId);
+      cubit.updateCaptcha('654321');
+      await cubit.submitOtpRequest();
+      expect(
+        (getIt<AuthRepository>() as FakeAuthRepository)
+            .lastOtpIdentity!
+            .sessionId,
+        cubit.state.captchaImage!.sessionId,
+      );
     },
   );
 
-  for (final changePhone in [false, true]) {
-    test(
-      'OTP request and Back preserve identity (changePhone: $changePhone)',
-      () {
-        final cubit = createCubit();
-        if (changePhone) cubit.openChangePhone();
-        fillIdentity(cubit);
-        cubit.submitOtpRequest();
-        expect(
-          cubit.state.step,
-          changePhone ? AuthStep.changePhoneOtp : AuthStep.loginOtp,
-        );
-        expect(cubit.state.maskedPhone, '0912*******34');
-        expect(cubit.state.effect, isA<AuthOtpRequested>());
-        expect(cubit.state.remainingSeconds, 60);
-        expect(cubit.state.canSubmitLogin, isFalse);
-        expect(cubit.state.canResendOtp, isFalse);
-        cubit.updateOtp('12');
-        expect(cubit.state.isOtpValid, isFalse);
-        cubit.updateOtp('1234');
-        expect(cubit.state.isOtpValid, isTrue);
-        expect(cubit.state.canSubmitLogin, isTrue);
-        cubit.requestBack();
-        expect(
-          cubit.state.step,
-          changePhone ? AuthStep.changePhone : AuthStep.login,
-        );
-        expect(cubit.state.nationalId, '0081234562');
-        expect(cubit.state.phoneNumber, '09121127934');
-        expect(cubit.state.captcha, '123456');
-        expect(cubit.state.canRequestOtp, isTrue);
-        expect(cubit.state.otp, isEmpty);
-        expect(cubit.state.canSubmitLogin, isFalse);
-        expect(cubit.state.remainingSeconds, 0);
-      },
-    );
-  }
-
-  test('expired OTP stays ineligible until resend and fresh entry', () {
-    final cubit = createCubit(
-      const AuthState.initial(step: AuthStep.loginOtp, canResendOtp: true),
-    );
-    cubit.updateOtp('1234');
-    expect(cubit.state.isOtpValid, isTrue);
-    expect(cubit.state.canSubmitLogin, isFalse);
-    cubit.submitOtpResend();
-    expect(cubit.state.otp, isEmpty);
-    expect(cubit.state.isOtpValid, isFalse);
-    expect(cubit.state.canSubmitLogin, isFalse);
-    expect(cubit.state.canResendOtp, isFalse);
-    expect(cubit.state.remainingSeconds, 60);
-    cubit.updateOtp('1234');
-    expect(cubit.state.canSubmitLogin, isTrue);
+  test('CAPTCHA failure remains retryable and cannot enable OTP', () async {
+    final repository = getIt<AuthRepository>() as FakeAuthRepository;
+    final cubit = createCubit();
+    await fillIdentity(cubit);
+    repository.captchaFailure = const DataFailure('network.connection');
+    await cubit.fetchCaptcha();
+    expect(cubit.state.captchaStatus, RequestStatus.failure);
+    expect(cubit.state.sessionId, isEmpty);
+    expect(cubit.state.captchaImage, isNull);
+    expect(cubit.state.canRequestOtp, isFalse);
+    repository.captchaFailure = null;
+    await cubit.fetchCaptcha();
+    expect(cubit.state.captchaStatus, RequestStatus.success);
+    expect(cubit.state.failure, isNull);
   });
 
   test(
-    'login completion publishes its effect and disables further submission',
-    () {
+    'OTP request waits for success and preserves entered identity on failure',
+    () async {
+      final repository = getIt<AuthRepository>() as FakeAuthRepository;
+      repository.otpResponse = Completer<Result<LoginOtpChallenge>>();
       final cubit = createCubit();
-      fillIdentity(cubit);
-      cubit.submitOtpRequest();
-      cubit.updateOtp('1234');
-      cubit.submitLogin();
-      expect(cubit.state.loginStatus, RequestStatus.success);
-      expect(cubit.state.effect, isA<AuthCompleted>());
-      expect(cubit.state.canSubmitLogin, isFalse);
-      expect(cubit.state.canResendOtp, isFalse);
+      await fillIdentity(cubit);
+      final request = cubit.submitOtpRequest();
+      expect(cubit.state.step, AuthStep.login);
+      expect(cubit.state.otpRequestStatus, RequestStatus.loading);
+      repository.otpResponse!.complete(
+        const Err(DataFailure('auth.request_rejected')),
+      );
+      await request;
+      expect(cubit.state.step, AuthStep.login);
+      expect(cubit.state.nationalId, '0081234562');
+      expect(cubit.state.otpRequestStatus, RequestStatus.failure);
     },
   );
 
-  test('guest sheet cancellation and repeated effects preserve delivery', () {
+  test(
+    'six-digit OTP is accepted only after the bank creates a challenge',
+    () async {
+      final cubit = createCubit();
+      await fillIdentity(cubit);
+      await cubit.submitOtpRequest();
+      expect(cubit.state.step, AuthStep.loginOtp);
+      expect(cubit.state.maskedPhone, '0912*******34');
+      expect(cubit.state.effect, isA<AuthOtpRequested>());
+      cubit.updateOtp('1234');
+      expect(cubit.state.canSubmitLogin, isFalse);
+      cubit.updateOtp('123456');
+      expect(cubit.state.canSubmitLogin, isTrue);
+    },
+  );
+
+  test(
+    'verification failures never publish authentication and permit retry',
+    () async {
+      final repository = getIt<AuthRepository>() as FakeAuthRepository;
+      repository.loginFailure = const DataFailure('auth.otp_rejected');
+      final cubit = createCubit();
+      await fillIdentity(cubit);
+      await cubit.submitOtpRequest();
+      cubit.updateOtp('123456');
+      await cubit.submitLogin(cubit.state.challenge!);
+      expect(cubit.state.loginStatus, RequestStatus.failure);
+      expect(cubit.state.effect, isNot(isA<AuthCompleted>()));
+      expect(cubit.state.otp, '123456');
+      repository.loginFailure = null;
+      await cubit.submitLogin(cubit.state.challenge!);
+      expect(cubit.state.loginStatus, RequestStatus.success);
+      expect(cubit.state.effect, isA<AuthCompleted>());
+      expect(cubit.state.otp, isEmpty);
+      expect(cubit.state.challenge, isNull);
+      expect(cubit.state.canSubmitLogin, isFalse);
+    },
+  );
+
+  test(
+    'resend starts a fresh CAPTCHA instead of reusing a consumed answer',
+    () async {
+      final cubit = createCubit();
+      await fillIdentity(cubit);
+      await cubit.submitOtpRequest();
+      await cubit.submitOtpResend();
+      expect(cubit.state.step, AuthStep.login);
+      expect(cubit.state.remainingSeconds, 0);
+      expect(cubit.state.challenge, isNull);
+      expect(cubit.state.captcha, isEmpty);
+      expect(cubit.state.nationalId, '0081234562');
+    },
+  );
+
+  test(
+    'change-phone does not call a login endpoint as a replacement service',
+    () async {
+      final cubit = createCubit();
+      cubit.openChangePhone();
+      await fillIdentity(cubit);
+      await cubit.submitOtpRequest();
+      expect(cubit.state.step, AuthStep.changePhone);
+      expect(cubit.state.failure?.code, 'auth.change_phone_unavailable');
+      expect((getIt<AuthRepository>() as FakeAuthRepository).otpCalls, 0);
+    },
+  );
+
+  testWidgets('closing a flow cancels its OTP clock', (tester) async {
+    final cubit = AuthCubit();
+    await fillIdentity(cubit);
+    await cubit.submitOtpRequest();
+    await cubit.close();
+    await tester.pump(const Duration(seconds: 61));
+    expect(tester.takeException(), isNull);
+  });
+
+  test('guest dismissal and repeated effects preserve delivery', () {
     final cubit = createCubit();
     cubit.requestServices();
-    expect(cubit.state.effect, isA<AuthServicesRequested>());
-    final sheetEffectId = cubit.state.effectId;
-    cubit.selectGuestService(null);
-    expect(cubit.state.effectId, sheetEffectId);
-    cubit.selectGuestService('requests.status');
-    expect(
-      (cubit.state.effect as AuthGuestServiceRequested).id,
-      'requests.status',
-    );
     final first = cubit.state.effectId;
+    cubit.selectGuestService(null);
+    expect(cubit.state.effectId, first);
     cubit.selectGuestService('requests.status');
-    expect(cubit.state.effectId, first + 1);
-    fillIdentity(cubit);
-    cubit.selectGuestService('identity.changePhone');
-    expect(cubit.state.step, AuthStep.changePhone);
-    expect(cubit.state.nationalId, isEmpty);
-    expect(cubit.state.isNationalIdValid, isFalse);
-    expect(cubit.state.phoneNumber, isEmpty);
-    expect(cubit.state.isPhoneNumberValid, isFalse);
-    expect(cubit.state.captcha, isEmpty);
-    expect(cubit.state.canRequestOtp, isFalse);
-    cubit.requestBack();
-    expect(cubit.state.step, AuthStep.login);
+    cubit.selectGuestService('requests.status');
+    expect(cubit.state.effectId, first + 2);
   });
 }

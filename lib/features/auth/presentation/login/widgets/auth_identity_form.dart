@@ -9,6 +9,9 @@ import 'package:pishkhan_mobile/features/auth/presentation/shared/auth_assets.da
 import 'package:pishkhan_mobile/generated/l10n.dart';
 
 import 'auth_captcha_field.dart';
+import 'auth_request_error.dart';
+
+import 'package:pishkhan_mobile/core/enums/request_status.dart';
 
 class AuthIdentityForm extends StatelessWidget {
   const AuthIdentityForm({required this.changePhone, super.key});
@@ -31,10 +34,12 @@ class AuthIdentityForm extends StatelessWidget {
         BlocBuilder<AuthCubit, AuthState>(
           buildWhen: (previous, current) =>
               previous.nationalId != current.nationalId ||
-              previous.isNationalIdError != current.isNationalIdError,
+              previous.isNationalIdError != current.isNationalIdError ||
+              previous.otpRequestStatus != current.otpRequestStatus,
           builder: (context, state) {
             return AppTextField(
               value: state.nationalId,
+              enabled: state.otpRequestStatus != RequestStatus.loading,
               hintText: changePhone
                   ? S.current.changeNationalIdHint
                   : S.current.loginNationalIdHint,
@@ -75,10 +80,12 @@ class AuthIdentityForm extends StatelessWidget {
         BlocBuilder<AuthCubit, AuthState>(
           buildWhen: (previous, current) =>
               previous.phoneNumber != current.phoneNumber ||
-              previous.isPhoneNumberError != current.isPhoneNumberError,
+              previous.isPhoneNumberError != current.isPhoneNumberError ||
+              previous.otpRequestStatus != current.otpRequestStatus,
           builder: (context, state) {
             return AppTextField(
               value: state.phoneNumber,
+              enabled: state.otpRequestStatus != RequestStatus.loading,
               hintText: changePhone
                   ? S.current.changePhoneHint
                   : S.current.loginPhoneHint,
@@ -145,24 +152,30 @@ class AuthIdentityForm extends StatelessWidget {
         else
           Align(
             alignment: AlignmentDirectional.centerEnd,
-            child: Semantics(
-              button: true,
-              label: S.current.changePhoneAction,
-              child: InkWell(
-                onTap: () {
-                  FocusManager.instance.primaryFocus?.unfocus();
-                  context.read<AuthCubit>().openChangePhone();
-                },
-                borderRadius: AppRadius.borderSm,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: Text(
-                    S.current.changePhoneAction,
-                    style: Theme.of(context).textTheme.titleSmall!.copyWith(
-                      color: context.colors.primary,
-                      fontWeight: FontWeight.w600,
-                      height: 20 / 14,
-                      letterSpacing: 0,
+            child: BlocBuilder<AuthCubit, AuthState>(
+              buildWhen: (previous, current) =>
+                  previous.otpRequestStatus != current.otpRequestStatus,
+              builder: (context, state) => Semantics(
+                button: true,
+                label: S.current.changePhoneAction,
+                child: InkWell(
+                  onTap: state.otpRequestStatus != RequestStatus.loading
+                      ? () {
+                          FocusManager.instance.primaryFocus?.unfocus();
+                          context.read<AuthCubit>().openChangePhone();
+                        }
+                      : null,
+                  borderRadius: AppRadius.borderSm,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: Text(
+                      S.current.changePhoneAction,
+                      style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                        color: context.colors.primary,
+                        fontWeight: FontWeight.w600,
+                        height: 20 / 14,
+                        letterSpacing: 0,
+                      ),
                     ),
                   ),
                 ),
@@ -174,20 +187,24 @@ class AuthIdentityForm extends StatelessWidget {
         const SizedBox(height: 24),
         BlocBuilder<AuthCubit, AuthState>(
           buildWhen: (previous, current) {
-            return previous.canRequestOtp != current.canRequestOtp;
+            return previous.canRequestOtp != current.canRequestOtp ||
+                previous.otpRequestStatus != current.otpRequestStatus;
           },
           builder: (context, state) {
             return AppButton(
               label: S.current.requestOtp,
+              isLoading: state.otpRequestStatus == RequestStatus.loading,
               size: AppButtonSize.md,
               onPressed: state.canRequestOtp
                   ? () {
+                      FocusManager.instance.primaryFocus?.unfocus();
                       context.read<AuthCubit>().submitOtpRequest();
                     }
                   : null,
             );
           },
         ),
+        const AuthRequestError(),
       ],
     );
   }

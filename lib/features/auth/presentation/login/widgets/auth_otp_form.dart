@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import 'auth_request_error.dart';
+
 import 'package:pishkhan_mobile/features/auth/presentation/login/cubit/auth_cubit.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/login/widgets/auth_form_shared.dart';
@@ -38,7 +40,8 @@ class AuthOtpForm extends StatelessWidget {
                 buildWhen: (previous, current) =>
                     previous.otp != current.otp ||
                     previous.canSubmitLogin != current.canSubmitLogin ||
-                    previous.loginStatus != current.loginStatus,
+                    previous.loginStatus != current.loginStatus ||
+                    previous.challenge != current.challenge,
                 builder: (context, state) {
                   return AppTextField(
                     value: state.otp,
@@ -67,15 +70,19 @@ class AuthOtpForm extends StatelessWidget {
                     normalizeDigits: true,
                     focusRing: AppTextFieldFocusRing.subtle,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    maxLength: 4,
+                    maxLength: 6,
                     keyboardType: TextInputType.number,
                     textInputAction: TextInputAction.done,
                     onChanged: (value) {
                       context.read<AuthCubit>().updateOtp(value);
                     },
-                    onSubmitted: state.canSubmitLogin
+                    onSubmitted:
+                        state.canSubmitLogin &&
+                            state.loginStatus != RequestStatus.loading
                         ? (_) {
-                            context.read<AuthCubit>().submitLogin();
+                            context.read<AuthCubit>().submitLogin(
+                              state.challenge!,
+                            );
                           }
                         : null,
                   );
@@ -88,12 +95,16 @@ class AuthOtpForm extends StatelessWidget {
               child: BlocBuilder<AuthCubit, AuthState>(
                 buildWhen: (previous, current) =>
                     previous.remainingSeconds != current.remainingSeconds ||
-                    previous.canResendOtp != current.canResendOtp,
+                    previous.canResendOtp != current.canResendOtp ||
+                    previous.loginStatus != current.loginStatus ||
+                    previous.challenge != current.challenge,
                 builder: (context, state) {
                   return SizedBox(
                     height: 44,
                     child: AppButton(
-                      onPressed: state.canResendOtp
+                      onPressed:
+                          state.canResendOtp &&
+                              state.loginStatus != RequestStatus.loading
                           ? () {
                               context.read<AuthCubit>().submitOtpResend();
                             }
@@ -120,13 +131,14 @@ class AuthOtpForm extends StatelessWidget {
         BlocBuilder<AuthCubit, AuthState>(
           buildWhen: (previous, current) =>
               previous.canSubmitLogin != current.canSubmitLogin ||
-              previous.loginStatus != current.loginStatus,
+              previous.loginStatus != current.loginStatus ||
+              previous.challenge != current.challenge,
           builder: (context, state) {
             return AppButton(
               isLoading: state.loginStatus == RequestStatus.loading,
               onPressed: state.canSubmitLogin
                   ? () {
-                      context.read<AuthCubit>().submitLogin();
+                      context.read<AuthCubit>().submitLogin(state.challenge!);
                     }
                   : null,
               label: S.current.enterDashboard,
@@ -134,6 +146,7 @@ class AuthOtpForm extends StatelessWidget {
             );
           },
         ),
+        const AuthRequestError(),
       ],
     );
   }

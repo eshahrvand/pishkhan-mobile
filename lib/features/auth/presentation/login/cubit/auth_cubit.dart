@@ -3,6 +3,15 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
+import 'package:pishkhan_mobile/core/result/result.dart';
+import 'package:pishkhan_mobile/core/result/failure.dart';
+
+import '../../../domain/entities/login_captcha.dart';
+import '../../../domain/entities/login_identity.dart';
+import '../../../domain/repositories/auth_repository.dart';
+import '../../../domain/usecases/login.dart';
+
 import 'package:pishkhan_mobile/core/validators/validators.dart';
 
 import 'auth_effect.dart';
@@ -12,12 +21,48 @@ export 'auth_effect.dart';
 part 'auth_state.dart';
 part 'auth_cubit.freezed.dart';
 
-/// Login prototype only; bank OTP requests and verification are not connected.
+/// Owns the real CAPTCHA → check-cif → check-sms login flow.
 class AuthCubit extends Cubit<AuthState> {
   AuthCubit({AuthState initialState = const AuthState.initial()})
     : super(initialState);
 
+  final repository = getIt<AuthRepository>();
   Timer? _otpTimer;
+
+  Future<void> fetchCaptcha() {
+    _startOtpClock();
+    emit(
+      state.copyWith(
+        captchaStatus: RequestStatus.loading,
+        captchaImage: null,
+        sessionId: '',
+        captcha: '',
+        isCaptchaValid: false,
+        isCaptchaError: false,
+        canRequestOtp: false,
+        failure: null,
+      ),
+    );
+    return FetchLoginCaptcha(repository)().then((result) {
+      switch (result) {
+        case Success(:final data):
+          emit(
+            state.copyWith(
+              captchaStatus: RequestStatus.success,
+              captchaImage: data,
+              sessionId: data.sessionId,
+            ),
+          );
+        case Err(:final failure):
+          emit(
+            state.copyWith(
+              captchaStatus: RequestStatus.failure,
+              failure: failure,
+            ),
+          );
+      }
+    });
+  }
 
   void requestServices() {
     emit(
@@ -53,7 +98,10 @@ class AuthCubit extends Cubit<AuthState> {
         isNationalIdValid: isValid,
         isNationalIdError: value.isNotEmpty && !isValid,
         canRequestOtp:
-            isValid && state.isPhoneNumberValid && state.isCaptchaValid,
+            isValid &&
+            state.isPhoneNumberValid &&
+            state.isCaptchaValid &&
+            state.captchaStatus == RequestStatus.success,
       ),
     );
   }
@@ -66,7 +114,10 @@ class AuthCubit extends Cubit<AuthState> {
         isPhoneNumberValid: isValid,
         isPhoneNumberError: value.isNotEmpty && !isValid,
         canRequestOtp:
-            isValid && state.isNationalIdValid && state.isCaptchaValid,
+            isValid &&
+            state.isNationalIdValid &&
+            state.isCaptchaValid &&
+            state.captchaStatus == RequestStatus.success,
       ),
     );
   }
@@ -79,7 +130,10 @@ class AuthCubit extends Cubit<AuthState> {
         isCaptchaValid: isValid,
         isCaptchaError: false,
         canRequestOtp:
-            isValid && state.isNationalIdValid && state.isPhoneNumberValid,
+            isValid &&
+            state.isNationalIdValid &&
+            state.isPhoneNumberValid &&
+            state.captchaStatus == RequestStatus.success,
       ),
     );
   }
@@ -93,80 +147,130 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   void validateCaptcha() {
-    emit(state.copyWith(isCaptchaError: !state.isCaptchaValid));
-  }
-
-  void resetCaptcha() {
     emit(
       state.copyWith(
-        captcha: '',
-        isCaptchaValid: false,
-        isCaptchaError: false,
-        canRequestOtp: false,
+        isCaptchaError: state.captcha.isNotEmpty && !state.isCaptchaValid,
       ),
     );
   }
 
-  void submitOtpRequest() {
-    emit(
-      state.copyWith(
-        step: state.step == AuthStep.changePhone
-            ? AuthStep.changePhoneOtp
-            : AuthStep.loginOtp,
-        maskedPhone:
-            '${state.phoneNumber.substring(0, 4)}*******${state.phoneNumber.substring(9)}',
-        otp: '',
-        isOtpValid: false,
-        remainingSeconds: 60,
-        canSubmitLogin: false,
-        canResendOtp: false,
-        loginStatus: RequestStatus.initial,
-        effect: const AuthOtpRequested(),
-        effectId: state.effectId + 1,
-      ),
-    );
-    _startOtpTimer();
+  Future<void> submitOtpRequest() {
+    switch (state.step) {
+      case AuthStep.changePhone:
+      case AuthStep.changePhoneOtp:
+        emit(
+          state.copyWith(
+            failure: const DataFailure('auth.change_phone_unavailable'),
+            otpRequestStatus: RequestStatus.failure,
+          ),
+        );
+        return Future.value();
+      case AuthStep.login:
+      case AuthStep.loginOtp:
+        final identity = LoginIdentity(
+          nationalCode: state.nationalId,
+          mobile: state.phoneNumber,
+          captcha: state.captcha,
+          sessionId: state.sessionId,
+        );
+        emit(
+          state.copyWith(
+            otpRequestStatus: RequestStatus.loading,
+            failure: null,
+          ),
+        );
+        return RequestLoginOtp(repository)(identity).then((result) {
+          switch (result) {
+            case Success(:final data):
+              emit(
+                state.copyWith(
+                  otpRequestStatus: RequestStatus.success,
+                  challenge: data,
+                  step: AuthStep.loginOtp,
+                  maskedPhone:
+                      '${identity.mobile.substring(0, 4)}*******${identity.mobile.substring(9)}',
+                  otp: '',
+                  isOtpValid: false,
+                  remainingSeconds: 60,
+                  otpStartTick: _otpTimer!.tick,
+                  canSubmitLogin: false,
+                  canResendOtp: false,
+                  effect: const AuthOtpRequested(),
+                  effectId: state.effectId + 1,
+                ),
+              );
+            case Err(:final failure):
+              emit(
+                state.copyWith(
+                  otpRequestStatus: RequestStatus.failure,
+                  failure: failure,
+                ),
+              );
+          }
+        });
+    }
   }
 
   void updateOtp(String value) {
-    final isValid = CodeValidator.isValid(value, length: 4);
+    final isValid = CodeValidator.isValid(value, length: 6);
     emit(
       state.copyWith(
         otp: value,
         isOtpValid: isValid,
-        canSubmitLogin: isValid && state.remainingSeconds > 0,
+        canSubmitLogin:
+            isValid && state.remainingSeconds > 0 && state.challenge != null,
       ),
     );
   }
 
-  void submitOtpResend() {
+  /// No resend endpoint was supplied. A fresh CAPTCHA avoids reusing a consumed one.
+  Future<void> submitOtpResend() {
     emit(
       state.copyWith(
+        step: AuthStep.login,
+        challenge: null,
+        otpStartTick: null,
         otp: '',
         isOtpValid: false,
-        remainingSeconds: 60,
         canSubmitLogin: false,
         canResendOtp: false,
+        remainingSeconds: 0,
       ),
     );
-    _startOtpTimer();
+    return fetchCaptcha();
   }
 
-  void submitLogin() {
-    _otpTimer?.cancel();
-    emit(
-      state.copyWith(
-        loginStatus: RequestStatus.success,
-        canSubmitLogin: false,
-        canResendOtp: false,
-        effect: const AuthCompleted(),
-        effectId: state.effectId + 1,
-      ),
-    );
+  Future<void> submitLogin(LoginOtpChallenge challenge) {
+    emit(state.copyWith(loginStatus: RequestStatus.loading, failure: null));
+    return VerifyLoginOtp(repository)(challenge, state.otp).then((result) {
+      switch (result) {
+        case Success():
+          emit(
+            state.copyWith(
+              loginStatus: RequestStatus.success,
+              canSubmitLogin: false,
+              canResendOtp: false,
+              challenge: null,
+              otpStartTick: null,
+              otp: '',
+              captcha: '',
+              captchaImage: null,
+              effect: const AuthCompleted(),
+              effectId: state.effectId + 1,
+            ),
+          );
+        case Err(:final failure):
+          emit(
+            state.copyWith(
+              loginStatus: RequestStatus.failure,
+              failure: failure,
+            ),
+          );
+      }
+    });
   }
 
   void openChangePhone() {
-    _otpTimer?.cancel();
     emit(
       state.copyWith(
         step: AuthStep.changePhone,
@@ -187,15 +291,18 @@ class AuthCubit extends Cubit<AuthState> {
         canResendOtp: false,
         remainingSeconds: 0,
         loginStatus: RequestStatus.initial,
+        otpRequestStatus: RequestStatus.initial,
+        failure: null,
+        challenge: null,
+        otpStartTick: null,
       ),
     );
   }
 
-  void requestBack() {
-    _otpTimer?.cancel();
+  Future<void> requestBack() {
     switch (state.step) {
       case AuthStep.login:
-        break;
+        return Future.value();
       case AuthStep.loginOtp:
       case AuthStep.changePhoneOtp:
         emit(
@@ -208,8 +315,12 @@ class AuthCubit extends Cubit<AuthState> {
             canSubmitLogin: false,
             canResendOtp: false,
             remainingSeconds: 0,
+            challenge: null,
+            otpStartTick: null,
+            failure: null,
           ),
         );
+        return fetchCaptcha();
       case AuthStep.changePhone:
         emit(
           state.copyWith(
@@ -224,24 +335,42 @@ class AuthCubit extends Cubit<AuthState> {
             isPhoneNumberError: false,
             isCaptchaError: false,
             canRequestOtp: false,
+            failure: null,
+            otpRequestStatus: RequestStatus.initial,
           ),
         );
+        return Future.value();
     }
   }
 
-  void _startOtpTimer() {
-    _otpTimer?.cancel();
-    _otpTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      // tick counts elapsed periods, including periods skipped by a delayed callback.
-      final remainingSeconds = (60 - timer.tick).clamp(0, 60);
-      if (remainingSeconds == 0) timer.cancel();
-      emit(
-        state.copyWith(
-          remainingSeconds: remainingSeconds,
-          canSubmitLogin: state.isOtpValid && remainingSeconds > 0,
-          canResendOtp: remainingSeconds == 0,
-        ),
-      );
+  /// Attach the flow-owned clock during the explicit initial action. The server
+  /// success snapshot records its start tick; inactive forms emit no timer updates.
+  void _startOtpClock() {
+    _otpTimer ??= Timer.periodic(const Duration(seconds: 1), (timer) {
+      switch (state.otpStartTick) {
+        case final startTick?:
+          // Timer.tick includes elapsed periods skipped by a delayed callback.
+          final remainingSeconds = (60 - (timer.tick - startTick)).clamp(0, 60);
+          if (remainingSeconds == 0) {
+            emit(
+              state.copyWith(
+                otpStartTick: null,
+                remainingSeconds: 0,
+                canSubmitLogin: false,
+                canResendOtp: true,
+              ),
+            );
+          } else {
+            emit(
+              state.copyWith(
+                remainingSeconds: remainingSeconds,
+                canSubmitLogin: state.isOtpValid && state.challenge != null,
+              ),
+            );
+          }
+        case null:
+          break;
+      }
     });
   }
 

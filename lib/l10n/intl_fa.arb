@@ -982,5 +982,9 @@
     }
   },
   "modernSerialStep": "وارد کردن سریال پشت کارت ملی",
-  "modernKycStep": "احراز هویت"
+  "modernKycStep": "احراز هویت",
+  "authRequestFailed": "درخواست انجام نشد. اطلاعات را بررسی و دوباره تلاش کنید.",
+  "authNetworkError": "ارتباط با سرور برقرار نشد. دوباره تلاش کنید.",
+  "authOtpRejected": "رمز تأیید صحیح نیست یا اعتبار آن تمام شده است.",
+  "authChangePhoneUnavailable": "سرویس تغییر شماره همراه هنوز متصل نشده است."
 }

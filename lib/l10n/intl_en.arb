@@ -955,5 +955,9 @@
     }
   },
   "modernSerialStep": "National ID card serial",
-  "modernKycStep": "Identity verification"
+  "modernKycStep": "Identity verification",
+  "authRequestFailed": "The request failed. Check your information and try again.",
+  "authNetworkError": "Could not connect to the server. Please try again.",
+  "authOtpRejected": "The verification code is incorrect or has expired.",
+  "authChangePhoneUnavailable": "The phone number change service is not connected yet."
 }

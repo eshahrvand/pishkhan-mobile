@@ -8349,6 +8349,46 @@ class S {
       args: [],
     );
   }
+
+  /// `درخواست انجام نشد. اطلاعات را بررسی و دوباره تلاش کنید.`
+  String get authRequestFailed {
+    return Intl.message(
+      'درخواست انجام نشد. اطلاعات را بررسی و دوباره تلاش کنید.',
+      name: 'authRequestFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `ارتباط با سرور برقرار نشد. دوباره تلاش کنید.`
+  String get authNetworkError {
+    return Intl.message(
+      'ارتباط با سرور برقرار نشد. دوباره تلاش کنید.',
+      name: 'authNetworkError',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `رمز تأیید صحیح نیست یا اعتبار آن تمام شده است.`
+  String get authOtpRejected {
+    return Intl.message(
+      'رمز تأیید صحیح نیست یا اعتبار آن تمام شده است.',
+      name: 'authOtpRejected',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `سرویس تغییر شماره همراه هنوز متصل نشده است.`
+  String get authChangePhoneUnavailable {
+    return Intl.message(
+      'سرویس تغییر شماره همراه هنوز متصل نشده است.',
+      name: 'authChangePhoneUnavailable',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

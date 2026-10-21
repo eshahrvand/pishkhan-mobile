@@ -6,7 +6,7 @@ import 'package:pishkhan_mobile/generated/l10n.dart';
 class AuthHeader extends StatelessWidget {
   const AuthHeader({required this.onMenu, super.key});
 
-  final VoidCallback onMenu;
+  final VoidCallback? onMenu;
 
   @override
   Widget build(BuildContext context) {

@@ -1,3 +1,6 @@
+import '../../support/auth_test_dependencies.dart';
+
+import 'package:pishkhan_mobile/core/network/access_token_store.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/services.dart';
@@ -12,7 +15,11 @@ import 'package:pishkhan_mobile/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  setUp(() => SharedPreferences.setMockInitialValues({}));
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+    configureAuthTestDependencies();
+  });
+  tearDown(() => getIt.reset());
   setUpAll(() async {
     final loader = FontLoader(AppTypography.defaultFontFamily);
     loader.addFont(
@@ -23,33 +30,50 @@ void main() {
     await loader.load();
   });
 
-  test('first launch requires login; login survives a fresh session', () async {
-    final first = await RouterSession.restorePrototype();
-    expect(first.isAuthenticated, isFalse);
-    await first.signIn();
-    first.dispose();
+  test(
+    'fresh sessions require bank login instead of a persisted marker',
+    () async {
+      final first = await RouterSession.restore();
+      expect(first.isAuthenticated, isFalse);
+      getIt<AccessTokenStore>().replace('test-final-token');
+      await first.signIn();
+      first.dispose();
 
-    final restarted = await RouterSession.restorePrototype();
-    addTearDown(restarted.dispose);
-    expect(restarted.isAuthenticated, isTrue);
-  });
+      final restarted = await RouterSession.restore();
+      addTearDown(restarted.dispose);
+      expect(restarted.isAuthenticated, isFalse);
+    },
+  );
 
   test('logout clears the remembered login and pending route data', () async {
-    final first = await RouterSession.restorePrototype();
+    final first = await RouterSession.restore();
+    getIt<AccessTokenStore>().replace('test-final-token');
     await first.signIn();
     first.pendingExtra = Object();
     await first.signOut();
+    expect(getIt<AccessTokenStore>().accessToken, isNull);
     expect(first.isAuthenticated, isFalse);
     expect(first.pendingExtra, isNull);
     first.dispose();
 
-    final restarted = await RouterSession.restorePrototype();
+    final restarted = await RouterSession.restore();
     addTearDown(restarted.dispose);
     expect(restarted.isAuthenticated, isFalse);
   });
 
-  test('isolated router scopes do not change remembered login', () async {
-    final remembered = await RouterSession.restorePrototype();
+  test('legacy prototype marker never restores authentication', () async {
+    SharedPreferences.setMockInitialValues({
+      'prototype.authenticated.v1': true,
+    });
+    final remembered = await RouterSession.restore();
+    expect(remembered.isAuthenticated, isFalse);
+    expect(
+      (await SharedPreferences.getInstance()).containsKey(
+        'prototype.authenticated.v1',
+      ),
+      isFalse,
+    );
+    getIt<AccessTokenStore>().replace('test-final-token');
     await remembered.signIn();
     remembered.dispose();
 
@@ -57,50 +81,56 @@ void main() {
     await isolated.signOut();
     isolated.dispose();
 
-    final restarted = await RouterSession.restorePrototype();
+    final restarted = await RouterSession.restore();
     addTearDown(restarted.dispose);
-    expect(restarted.isAuthenticated, isTrue);
+    expect(restarted.isAuthenticated, isFalse);
   });
 
-  testWidgets('login once skips login when the application is recreated', (
-    tester,
-  ) async {
-    configureDependencies();
-    addTearDown(() => getIt.reset());
-    tester.view.physicalSize = const Size(390, 844);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.reset);
-    tester.binding.platformDispatcher.accessibilityFeaturesTestValue =
-        FakeAccessibilityFeatures(disableAnimations: true);
-    addTearDown(
-      tester.binding.platformDispatcher.clearAccessibilityFeaturesTestValue,
-    );
-    final first = await tester.runAsync(RouterSession.restorePrototype);
-    await tester.pumpWidget(PishkhanApp(session: first!));
-    await tester.pumpAndSettle();
-    expect(find.byType(AuthScreen), findsOneWidget);
-    final auth = tester
-        .element(find.byType(BlocBuilder<AuthCubit, AuthState>).first)
-        .read<AuthCubit>();
-    auth.updateNationalId('0081234562');
-    auth.updatePhoneNumber('09121234567');
-    auth.updateCaptcha('123456');
-    auth.submitOtpRequest();
-    auth.updateOtp('1234');
-    auth.submitLogin();
-    await tester.pumpAndSettle();
-    expect(find.byType(DashboardScreen), findsOneWidget);
-    await tester.pumpWidget(const SizedBox.shrink());
-
-    final restarted = await tester.runAsync(RouterSession.restorePrototype);
-    await tester.pumpWidget(PishkhanApp(session: restarted!));
-    await tester.pumpAndSettle();
-    expect(find.byType(AuthScreen), findsNothing);
-    expect(find.byType(DashboardScreen), findsOneWidget);
-
-    await tester.runAsync(restarted.signOut);
-    await tester.pumpAndSettle();
-    expect(find.byType(AuthScreen), findsOneWidget);
-    await tester.pumpWidget(const SizedBox.shrink());
+  test('managed router cannot sign in without a verified bank token', () async {
+    final session = RouterSession.managed();
+    addTearDown(session.dispose);
+    await expectLater(session.signIn(), throwsStateError);
+    expect(session.isAuthenticated, isFalse);
   });
+
+  testWidgets(
+    'verified login enters the app and a fresh launch requires login',
+    (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      tester.binding.platformDispatcher.accessibilityFeaturesTestValue =
+          FakeAccessibilityFeatures(disableAnimations: true);
+      addTearDown(
+        tester.binding.platformDispatcher.clearAccessibilityFeaturesTestValue,
+      );
+      final first = await tester.runAsync(RouterSession.restore);
+      await tester.pumpWidget(PishkhanApp(session: first!));
+      await tester.pumpAndSettle();
+      expect(find.byType(AuthScreen), findsOneWidget);
+      final auth = tester
+          .element(find.byType(BlocBuilder<AuthCubit, AuthState>).first)
+          .read<AuthCubit>();
+      auth.updateNationalId('0081234562');
+      auth.updatePhoneNumber('09121234567');
+      auth.updateCaptcha('123456');
+      await auth.submitOtpRequest();
+      auth.updateOtp('123456');
+      await auth.submitLogin(auth.state.challenge!);
+      await tester.pumpAndSettle();
+      expect(find.byType(DashboardScreen), findsOneWidget);
+      await tester.pumpWidget(const SizedBox.shrink());
+
+      final restarted = await tester.runAsync(RouterSession.restore);
+      await tester.pumpWidget(PishkhanApp(session: restarted!));
+      await tester.pumpAndSettle();
+      expect(find.byType(AuthScreen), findsOneWidget);
+      expect(find.byType(DashboardScreen), findsNothing);
+
+      await tester.runAsync(restarted.signOut);
+      await tester.pumpAndSettle();
+      expect(find.byType(AuthScreen), findsOneWidget);
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
 }

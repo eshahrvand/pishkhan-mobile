@@ -1,39 +1,43 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
+import 'package:pishkhan_mobile/core/network/access_token_store.dart';
 
-/// Prototype session only. This marker never represents bank authentication.
+/// Router state is memory-only. A saved prototype marker never authenticates a user.
 class RouterSession extends ChangeNotifier {
-  RouterSession([this._authenticated = false]) : _preferences = null;
+  /// Isolated router scope; also used by navigation tests.
+  RouterSession([this._authenticated = false]) : _tokens = null;
 
-  RouterSession._remembered(SharedPreferences preferences)
-    : _preferences = preferences,
-      _authenticated = preferences.getBool(_prototypeLoginKey) ?? false;
+  RouterSession.managed()
+    : _authenticated = false,
+      _tokens = getIt<AccessTokenStore>();
 
-  static const _prototypeLoginKey = 'prototype.authenticated.v1';
-  final SharedPreferences? _preferences;
+  final AccessTokenStore? _tokens;
 
-  /// Only the app startup uses disk persistence; isolated router scopes stay
-  /// in memory. Replace this marker when the bank login adapter is connected.
-  static Future<RouterSession> restorePrototype() async {
-    return RouterSession._remembered(await SharedPreferences.getInstance());
+  /// Remove the obsolete prototype marker; no bank token is restored from disk.
+  static Future<RouterSession> restore() async {
+    final preferences = await SharedPreferences.getInstance();
+    await preferences.remove('prototype.authenticated.v1');
+    return RouterSession.managed();
   }
 
   bool _authenticated;
   Object? pendingExtra;
   bool get isAuthenticated => _authenticated;
+
   Future<void> signIn() async {
-    if (_preferences != null) {
-      await _preferences.setBool(_prototypeLoginKey, true);
+    if (_tokens != null && _tokens.accessToken == null) {
+      throw StateError('Bank authentication has not completed');
     }
     _authenticated = true;
     notifyListeners();
   }
 
   Future<void> signOut() async {
+    _tokens?.clear();
     _authenticated = false;
     pendingExtra = null;
     notifyListeners();
-    await _preferences?.remove(_prototypeLoginKey);
   }
 
   Object? takePendingExtra() {

@@ -1,5 +1,7 @@
 import '../widgets/auth_header.dart';
 
+import 'package:pishkhan_mobile/core/enums/request_status.dart';
+
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -45,7 +47,7 @@ class AuthScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     return BlocProvider(
-      create: (_) => AuthCubit(initialState: initialState),
+      create: (_) => AuthCubit(initialState: initialState)..fetchCaptcha(),
       child: BlocListener<AuthCubit, AuthState>(
         listenWhen: (previous, current) =>
             previous.effectId != current.effectId,
@@ -99,21 +101,39 @@ class AuthScreen extends StatelessWidget {
                   SafeArea(
                     child: BlocBuilder<AuthCubit, AuthState>(
                       buildWhen: (previous, current) =>
-                          previous.step != current.step,
+                          previous.step != current.step ||
+                          previous.captchaStatus != current.captchaStatus ||
+                          previous.otpRequestStatus !=
+                              current.otpRequestStatus ||
+                          previous.loginStatus != current.loginStatus,
                       builder: (context, state) {
                         return PopScope(
-                          canPop: state.step == AuthStep.login,
+                          canPop:
+                              state.step == AuthStep.login &&
+                              state.captchaStatus != RequestStatus.loading &&
+                              state.otpRequestStatus != RequestStatus.loading &&
+                              state.loginStatus != RequestStatus.loading,
                           onPopInvokedWithResult: (didPop, result) {
-                            if (!didPop) {
+                            if (!didPop &&
+                                state.captchaStatus != RequestStatus.loading &&
+                                state.otpRequestStatus !=
+                                    RequestStatus.loading &&
+                                state.loginStatus != RequestStatus.loading) {
                               context.read<AuthCubit>().requestBack();
                             }
                           },
                           child: Column(
                             children: [
                               AuthHeader(
-                                onMenu: context
-                                    .read<AuthCubit>()
-                                    .requestServices,
+                                onMenu:
+                                    state.captchaStatus !=
+                                            RequestStatus.loading &&
+                                        state.otpRequestStatus !=
+                                            RequestStatus.loading &&
+                                        state.loginStatus !=
+                                            RequestStatus.loading
+                                    ? context.read<AuthCubit>().requestServices
+                                    : null,
                               ),
                               Expanded(
                                 child: SingleChildScrollView(
