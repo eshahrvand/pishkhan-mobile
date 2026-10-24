@@ -1,5 +1,7 @@
 import '../../support/auth_test_dependencies.dart';
+import '../../support/secure_storage_test_driver.dart';
 
+import 'package:flutter/foundation.dart';
 import 'package:pishkhan_mobile/core/network/access_token_store.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -35,7 +37,7 @@ void main() {
     () async {
       final first = await RouterSession.restore();
       expect(first.isAuthenticated, isFalse);
-      getIt<AccessTokenStore>().replace('test-final-token');
+      await getIt<AccessTokenStore>().replace('test-final-token');
       await first.signIn();
       first.dispose();
 
@@ -47,7 +49,7 @@ void main() {
 
   test('logout clears the remembered login and pending route data', () async {
     final first = await RouterSession.restore();
-    getIt<AccessTokenStore>().replace('test-final-token');
+    await getIt<AccessTokenStore>().replace('test-final-token');
     await first.signIn();
     first.pendingExtra = Object();
     await first.signOut();
@@ -73,7 +75,7 @@ void main() {
       ),
       isFalse,
     );
-    getIt<AccessTokenStore>().replace('test-final-token');
+    await getIt<AccessTokenStore>().replace('test-final-token');
     await remembered.signIn();
     remembered.dispose();
 
@@ -90,6 +92,56 @@ void main() {
     final session = RouterSession.managed();
     addTearDown(session.dispose);
     await expectLater(session.signIn(), throwsStateError);
+    expect(session.isAuthenticated, isFalse);
+  });
+
+  test(
+    'Android startup resumes a saved token without a validation API',
+    () async {
+      final device = SecureStorageTestDriver()..install();
+      addTearDown(device.uninstall);
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      addTearDown(() => debugDefaultTargetPlatformOverride = null);
+      await getIt.unregister<AccessTokenStore>();
+      getIt.registerLazySingleton(createAccessTokenStore);
+      final first = await RouterSession.restore();
+      addTearDown(first.dispose);
+      expect(first.isAuthenticated, isFalse);
+      await getIt<AccessTokenStore>().replace('synthetic-final-token');
+      await first.signIn();
+
+      await getIt.resetLazySingleton<AccessTokenStore>();
+      final restarted = await RouterSession.restore();
+      addTearDown(restarted.dispose);
+      expect(restarted.isAuthenticated, isTrue);
+      expect(getIt<AccessTokenStore>().accessToken, 'synthetic-final-token');
+      expect(device.methods, ['read', 'write', 'read']);
+
+      await restarted.signOut();
+      await getIt.resetLazySingleton<AccessTokenStore>();
+      final afterLogout = await RouterSession.restore();
+      addTearDown(afterLogout.dispose);
+      expect(afterLogout.isAuthenticated, isFalse);
+      expect(device.values, isEmpty);
+    },
+  );
+
+  test('failed secure deletion does not report successful logout', () async {
+    final device = SecureStorageTestDriver()..install();
+    addTearDown(device.uninstall);
+    debugDefaultTargetPlatformOverride = TargetPlatform.android;
+    addTearDown(() => debugDefaultTargetPlatformOverride = null);
+    await getIt.unregister<AccessTokenStore>();
+    getIt.registerLazySingleton(createAccessTokenStore);
+    final session = await RouterSession.restore();
+    addTearDown(session.dispose);
+    await getIt<AccessTokenStore>().replace('synthetic-final-token');
+    await session.signIn();
+    device.failingMethod = 'delete';
+    await expectLater(session.signOut(), throwsA(isA<PlatformException>()));
+    expect(session.isAuthenticated, isTrue);
+    device.failingMethod = null;
+    await session.signOut();
     expect(session.isAuthenticated, isFalse);
   });
 

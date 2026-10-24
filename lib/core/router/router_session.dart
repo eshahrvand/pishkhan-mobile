@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
 import 'package:pishkhan_mobile/core/network/access_token_store.dart';
 
-/// Router state is memory-only. A saved prototype marker never authenticates a user.
+/// Android may resume a saved token; its server validity is not checked yet.
 class RouterSession extends ChangeNotifier {
   /// Isolated router scope; also used by navigation tests.
   RouterSession([this._authenticated = false]) : _tokens = null;
@@ -14,11 +14,14 @@ class RouterSession extends ChangeNotifier {
 
   final AccessTokenStore? _tokens;
 
-  /// Remove the obsolete prototype marker; no bank token is restored from disk.
+  /// Restore Android credentials; the obsolete prototype marker is never trusted.
   static Future<RouterSession> restore() async {
     final preferences = await SharedPreferences.getInstance();
     await preferences.remove('prototype.authenticated.v1');
-    return RouterSession.managed();
+    final session = RouterSession.managed();
+    await session._tokens!.restore();
+    session._authenticated = session._tokens.accessToken != null;
+    return session;
   }
 
   bool _authenticated;
@@ -27,14 +30,14 @@ class RouterSession extends ChangeNotifier {
 
   Future<void> signIn() async {
     if (_tokens != null && _tokens.accessToken == null) {
-      throw StateError('Bank authentication has not completed');
+      throw StateError('No bank login token is available');
     }
     _authenticated = true;
     notifyListeners();
   }
 
   Future<void> signOut() async {
-    _tokens?.clear();
+    await _tokens?.clear();
     _authenticated = false;
     pendingExtra = null;
     notifyListeners();

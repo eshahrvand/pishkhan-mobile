@@ -102,11 +102,38 @@ code returns to the identity form and fetches a fresh CAPTCHA, preserving identi
 fields. The consumed CAPTCHA is not automatically replayed. Change-phone uses no
 login endpoint as a substitute; it reports that its own service is not connected.
 
-AccessTokenStore is memory-only. A managed RouterSession requires a verified
-token before sign-in and clears it on logout. Startup removes the obsolete
-`prototype.authenticated.v1` preference instead of treating it as authentication.
-A fresh application session requires login. No refresh token was supplied, so no
-refresh endpoint, disk token persistence or automatic retry is invented.
+`AccessTokenStore` keeps the final login token in memory. Under the owner's
+2026-10-24 amendment, Android also saves that token with
+`flutter_secure_storage: ^11.2.0`, using the package's default Keystore-backed
+RSA-OAEP/AES-GCM protection without biometric prompts. Web and other platforms
+remain memory-only; a fresh web page requires login. No browser token storage
+or cookies are introduced, and iOS persistence is outside this Android task.
+
+Only a successful check-sms response whose customer matches the login identity
+can be persisted. The repository awaits the secure write before returning
+Success; storage exceptions become Err through the existing Data failure mapper.
+The OTP challenge token, OTP, identity and customer response are not persisted.
+
+Android startup reads the saved token before routing. If a nonblank token exists,
+the owner explicitly accepts entering the app without a server validity check
+for now: there is currently no validation API. Missing, blank or unreadable
+credentials require login. Resuming does not claim the token is unexpired or
+unrevoked, does not restore customer records, and does not make requests to a
+guessed endpoint. No local expiry duration is fabricated. A future authenticated
+API/validation contract must establish server authorization and expiry handling.
+
+Logout awaits secure token deletion, then clears memory and route state. If
+deletion fails, it reports the error instead of claiming successful logout;
+the session stays unchanged for retry. Android disables cloud Auto Backup and
+excludes `FlutterSecureStorage.xml` and `FlutterSecureKeyStorage.xml` from legacy
+backup rules and Android 12+ cloud/device transfer rules. Startup removes the
+obsolete `prototype.authenticated.v1` preference and never trusts it.
+
+No refresh token was supplied. Refresh-token storage/rotation is a future design,
+not the role of the current saved token. No refresh endpoint or automatic retry
+is introduced. Package configuration follows the
+[11.2.0 package documentation](https://pub.dev/packages/flutter_secure_storage/versions/11.2.0)
+and [Android backup guidance](https://developer.android.com/identity/data/autobackup).
 Other banking features and dashboard data remain on their existing mock repositories.
 
 ## Transport and remaining bank dependencies
@@ -150,6 +177,11 @@ loading, retry, expiry, logout and removal of the prototype persistence behavior
 They also cover the supplied HTTP-200 WRONG_CAPTCHA response, unknown-message
 fallback, repeated identical notifications, initial CAPTCHA error delivery,
 retry clearing without notification replay, and blocked Back during requests.
+Token tests simulate device storage across fresh store/session instances, ensure
+only the final token is saved, and cover failed reads/writes/deletes and Logout.
+A Chrome test verifies memory-only behavior even with an Android browser platform.
+These storage tests use a fake platform channel, not the device's actual Keystore;
+an on-device close/reopen/Logout check remains part of Android acceptance testing.
 Fixtures use synthetic data. Real-network smoke testing requests only CAPTCHA;
 no live identity submission or OTP verification is automated.
 

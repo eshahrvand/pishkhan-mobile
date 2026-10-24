@@ -727,7 +727,9 @@ SHA-256 hash verification of the server's **public key** (not the certificate it
 
 ### 9.7 Secure Storage
 
-* **Mobile:** tokens in Android Keystore (AES-GCM) and iOS Keychain via `flutter_secure_storage`.
+* **Mobile target:** persistent credentials use Android Keystore-backed encryption
+  and iOS Keychain via `flutter_secure_storage`. Section 10.2 distinguishes the
+  target access/refresh split from the current Android single-token amendment.
 * **Web:** no token is written to disk (Section 10.2).
 
 ### 9.8 Obfuscation
@@ -775,7 +777,7 @@ abstract class CardsRemoteDataSource {
 
 ### 10.2 Token Management
 
-`TokenStore` is an interface with two implementations:
+The target access/refresh design uses a `TokenStore` interface with platform implementations:
 
 | | Mobile | Web |
 |---|---|---|
@@ -786,6 +788,33 @@ abstract class CardsRemoteDataSource {
 
 > [!NOTE]
 > The bank's existing web counter also logs the user out on session expiry and requires re-login with OTP. This model matches current behavior and removes the entire secure-storage-on-web problem. Since no cookie is used, CSRF protection is not applicable.
+
+**Owner-approved current Android amendment (2026-10-24):** the available bank
+contract supplies a single final login token, with no refresh token, expiry
+metadata or validation endpoint. `AccessTokenStore` persists that final token on
+Android using `flutter_secure_storage: ^11.2.0`, while keeping a memory copy for
+the running session. Only validated check-sms success is saved; the temporary
+check-cif challenge is never persisted. Startup resumes the local session when a
+nonblank saved token is readable. This is explicitly a local resume decision,
+not proof of current server authorization; the owner accepts resume without an
+API validity check until the bank supplies one. No synthetic expiry, refresh,
+validation request or automatic POST replay is introduced.
+
+Web continues to use memory only: a fresh page/app instance requires OTP login.
+The web secure-storage implementation, localStorage, sessionStorage and cookies
+are not used for tokens. Persistent iOS/desktop storage remains unimplemented in
+this task. Android uses the package's default RSA-OAEP/AES-GCM configuration,
+without adding biometric prompts. Its secure preference files are excluded from
+cloud backup and device transfer; cloud Auto Backup is also disabled.
+
+A failed secure write returns a repository Err and does not publish login
+success. Unreadable storage on startup leaves the user at Login. Logout awaits
+token deletion before reporting success; a deletion failure propagates and
+leaves the current session unchanged so it can be retried. Startup still removes
+the obsolete prototype boolean and never uses it as authentication. Server-side
+validation, expiration, revocation/logout and the future access/refresh split
+require a confirmed bank API contract. Section 10.4 is a future target, not a
+currently implemented token flow.
 
 ### 10.3 Interceptor List and Order
 

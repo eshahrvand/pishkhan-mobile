@@ -64,7 +64,7 @@ class RemoteAuthRepository implements AuthRepository {
       );
       final result = mapAuthenticatedCustomer(response, challenge);
       if (result is Success<AuthenticatedCustomer>) {
-        tokens.replace(response.token!);
+        await tokens.replace(response.token!);
       }
       return result;
     } catch (error) {

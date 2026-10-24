@@ -54,7 +54,7 @@ final getIt = GetIt.instance;
 void configureDependencies({GetIt? container}) {
   final dependencies = container ?? getIt;
   dependencies.registerLazySingleton(createBankDio);
-  dependencies.registerLazySingleton(AccessTokenStore.new);
+  dependencies.registerLazySingleton(createAccessTokenStore);
   dependencies.registerLazySingleton<AuthRemoteDataSource>(
     () => AuthRemoteDataSource(dependencies()),
   );

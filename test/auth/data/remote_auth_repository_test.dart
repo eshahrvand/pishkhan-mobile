@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:pishkhan_mobile/core/network/access_token_store.dart';
 import 'package:pishkhan_mobile/core/result/result.dart';
 import 'package:pishkhan_mobile/features/auth/data/datasources/auth_remote_data_source.dart';
@@ -12,6 +13,7 @@ import 'package:pishkhan_mobile/features/auth/domain/entities/login_captcha.dart
 import 'package:pishkhan_mobile/features/auth/domain/entities/login_identity.dart';
 
 import '../../support/auth_test_dependencies.dart';
+import '../../support/secure_storage_test_driver.dart';
 
 class StubBankAdapter implements HttpClientAdapter {
   final requests = <RequestOptions>[];
@@ -302,6 +304,50 @@ void main() {
       isA<Err<AuthenticatedCustomer>>(),
     );
     expect(tokens.accessToken, isNull);
+  });
+
+  test(
+    'only a verified final token is persisted, not the OTP challenge',
+    () async {
+      final device = SecureStorageTestDriver()..install();
+      addTearDown(device.uninstall);
+      tokens = AccessTokenStore(storage: const FlutterSecureStorage());
+      repository = RemoteAuthRepository(AuthRemoteDataSource(dio), tokens);
+      adapter.responses.add(json('{"status":0,"token":"synthetic-challenge"}'));
+      await repository.requestOtp(testLoginIdentity);
+      expect(device.values, isEmpty);
+      adapter.responses.add(
+        json('''{"status":0,"token":"synthetic-final-token",
+      "customer":{"customerCode":"test-customer","nationalCode":"0081234562",
+      "firstName":"Test","lastName":"Customer"}}'''),
+      );
+      expect(
+        await repository.verifyOtp(testOtpChallenge, '123456'),
+        isA<Success<AuthenticatedCustomer>>(),
+      );
+      final restarted = AccessTokenStore(storage: const FlutterSecureStorage());
+      await restarted.restore();
+      expect(restarted.accessToken, 'synthetic-final-token');
+    },
+  );
+
+  test('secure write failure returns Err instead of login success', () async {
+    final device = SecureStorageTestDriver()..install();
+    addTearDown(device.uninstall);
+    device.failingMethod = 'write';
+    tokens = AccessTokenStore(storage: const FlutterSecureStorage());
+    repository = RemoteAuthRepository(AuthRemoteDataSource(dio), tokens);
+    adapter.responses.add(
+      json('''{"status":0,"token":"synthetic-final-token",
+      "customer":{"customerCode":"test-customer","nationalCode":"0081234562",
+      "firstName":"Test","lastName":"Customer"}}'''),
+    );
+    expect(
+      await repository.verifyOtp(testOtpChallenge, '123456'),
+      isA<Err<AuthenticatedCustomer>>(),
+    );
+    expect(tokens.accessToken, isNull);
+    expect(device.values, isEmpty);
   });
 
   test('a customer for a different national code is rejected', () async {

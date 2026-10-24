@@ -1,5 +1,12 @@
 # Login Development
 
+Current bank-login and token-storage behavior is documented in
+[Login API integration](../auth/login-api-integration.md). The prototype notes
+below are historical: the boolean marker no longer authenticates users.
+Android now persists the final bank login token in secure storage and resumes it
+without server validation under the owner's temporary decision. Web remains
+memory-only. No refresh token or validation endpoint exists in the supplied contract.
+
 ## Remembered prototype login (2026-10-19)
 
 App startup restores a local `prototype.authenticated.v1` boolean through

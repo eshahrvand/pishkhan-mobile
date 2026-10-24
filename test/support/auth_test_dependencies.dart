@@ -25,6 +25,8 @@ const testOtpChallenge = LoginOtpChallenge(
 
 void configureAuthTestDependencies() {
   configureDependencies();
+  getIt.unregister<AccessTokenStore>();
+  getIt.registerLazySingleton(AccessTokenStore.new);
   getIt.unregister<AuthRepository>();
   getIt.registerSingleton<AuthRepository>(
     FakeAuthRepository(tokens: getIt<AccessTokenStore>()),
@@ -84,7 +86,7 @@ class FakeAuthRepository implements AuthRepository {
     loginCalls++;
     if (loginResponse != null) return loginResponse!.future;
     if (loginFailure != null) return Err(loginFailure!);
-    tokens?.replace('test-final-token');
+    await tokens?.replace('test-final-token');
     return Success(
       AuthenticatedCustomer(
         customerCode: 'test-customer',
