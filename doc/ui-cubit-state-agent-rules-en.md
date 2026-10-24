@@ -1,10 +1,10 @@
 # UI, Cubit and State Coding Contract for the Team and Agents
 
 **Project:** Smart Virtual Counter — `pishkhan_mobile`  
-**Version:** 1.9 — Owner simplicity amendment: no `isClosed`, no BaseCubit, validate once, no default re-emit, naming rules<br>
-**Date:** 2026-10-18<br>
+**Version:** 1.10 — Owner-approved Login failure/message and loading amendment<br>
+**Date:** 2026-10-24<br>
 **Scope:** Presentation coding style, State management and readability rules  
-**Status:** This revision changes documentation only. Earlier reviews and code examples may describe historical implementations; they do not override the mandatory ownership rules below.
+**Status:** Authoritative coding contract. Historical examples do not override the mandatory ownership rules or the scoped Login amendment below. Implementation status is recorded in the feature documentation.
 
 This document turns the project owner's requirements and supplied examples into explicit rules. A team member opening a screen should be able to see how the UI is built, how State is read and how Cubit is called, without navigating through multiple wrappers and files to understand a simple form.
 
@@ -94,6 +94,57 @@ memory with its screen. If an HTTP response arrives after the screen has been
 closed, the `emit` in its callback throws a `StateError` that appears in logs or
 crash reporting as an uncaught async error; the user sees nothing. Agents MUST
 NOT add a guard to avoid it, and MUST NOT report its absence as a defect.
+
+## Mandatory Owner Amendment: Login Failure Messages and Loading
+
+The owner explicitly approved the following changes for the existing **Login
+API flow only**. Unconnected services, including guest change-phone, retain
+their previous unavailable behavior and are outside the new message path.
+This section supersedes conflicting general wording in Sections 3, 6.6, 8.4, 13.0, 20.2 and 21.6
+for that scope. It does not authorize migrating other features or relaxing any
+other Minimal Cubit Rule.
+
+1. Keep independent CAPTCHA, OTP-request and verification statuses, but retain
+   **one shared `Failure? failure`**: the latest failure of the Login flow.
+   Starting a new request clears the previous failure and prepared message.
+   Separate `<operation>Failure` fields are not required in Login.
+2. Add `String? message` to the plain Freezed State, without a separate message
+   counter. On each API failure notification, Cubit explicitly emits the failure,
+   prepared message, `AuthMessageRequested` effect and incremented **existing
+   effectId** in the same copyWith. The message is a display payload, not a
+   second technical error code. Do not add messageId to State.
+3. A focused pure function such as `getAuthErrorMessage(Failure failure)` in
+   `presentation/login/cubit/auth_error_messages.dart` maps known error codes
+   through a switch to owner-approved Persian text, with a generic fallback.
+   Cubit calls it inside the failure emit. It returns only String; it never
+   creates/publishes State or uses Flutter resources. Explicit Persian error
+   literals in this helper and prepared error messages in Login State are
+   approved. Ordinary labels and field-validation text still use S.current;
+   no localization dependency or text is introduced in Domain/Data.
+4. The existing BlocListener filters effectId and its named effect handler
+   displays message only for AuthMessageRequested. It does not map codes, translate
+   the message or render a second inline copy of the same API error. Increment
+   effectId for each new notification, even if its text and Failure are unchanged.
+   Clearing message or unrelated State updates must not replay the effect. No
+   separate message Listener/counter or new handling for unconnected services.
+5. Keep `Future<Result<T>>` at the Repository boundary and the returned `.then`
+   plus Success/Err switch in Cubit. HTTP 200 does not establish bank success.
+   Data maps `status: -1, message: WRONG_CAPTCHA` to
+   `Err(DataFailure('auth.wrong_captcha'))`; raw server messages are not displayed.
+   Unknown business rejection retains the generic failure/fallback. Do not turn
+   ordinary bank rejection into a DioException or add catchError to Cubit.
+6. **Back is unavailable while any Login request is loading**, including CAPTCHA,
+   OTP request and verification. UI gates system/in-screen Back consistently;
+   Cubit does not duplicate the gate with defensive action-entry checks. This
+   changes only Login; the ordinary service-flow Back policy remains unchanged.
+7. The OTP resend button uses `isLoading` for pending verification and only
+   `canResendOtp` in onPressed. It does not introduce a fictitious resend endpoint
+   or status: resend still returns to identity and fetches a fresh CAPTCHA.
+8. Keep the CAPTCHA image and its SessionId together in LoginCaptcha. Do not
+   duplicate sessionId in AuthState. Cubit constructs the request with
+   `state.captchaImage!.sessionId` after UI eligibility guarantees a fetched pair.
+   Clearing/replacing the model clears/replaces the pair atomically; no fallback
+   identifier or redundant null guard is added.
 
 ## Mandatory Enforcement for Every Agent
 
@@ -378,7 +429,7 @@ Business logic reused by multiple consumers remains in Domain. “Move logic int
 UI is responsible for:
 
 - Building the widget tree;
-- Choosing localized text, colors and spacing;
+- Choosing localized text, colors and spacing (Login request errors arrive as prepared messages under the scoped owner amendment);
 - Owning and disposing Flutter focus, scroll and controller resources;
 - Executing the dialog, sheet, snackbar, navigation or host callback requested by Cubit;
 - Returning raw interaction results to Cubit without interpreting flow behavior;
@@ -870,7 +921,7 @@ those decisions in code. The approved before/after examples are in Section 6.7.
   handling a returned modal result. Names should describe those differences.
   A result-handler name should identify the sheet/action whose result it accepts.
 - **Action verb vocabulary (preferred verbs):** `fetchX` (reads data and publishes loading/success/failure), `updateX` (stores a value the user typed), `selectX` (stores a choice), `toggleX` (flips a display flag), `validateX` (focus-loss validation), `submitX` (sends the final or an OTP request), `requestX` (publishes an effect asking UI to run a Flutter API), `applyX` / `cancelX` / `resetX` / `openX` (draft and sheet flows). Do not use `get`, `set`, `load`, `handle`, `process`, `init` or `on` as the verb.
-- **State field naming:** one status per operation named `<operation>Status` with a matching `<operation>Failure` (`otpRequestStatus`, `loginStatus`); eligibility flags `canX`; display flags `isX`; validator outcomes `isXValid`; shown errors `isXError`; data fields are plain nouns (`cards`, `visibleCards`, `phoneNumber`). Store the selected object once (`selectedCard`), not an ID plus the object. Do not use generic names (`value`, `data`, `item`, `flag`, `temp`) or a `request`-prefixed status (`requestProfileStatus`).
+- **State field naming:** except for the scoped Login shared-failure amendment above, one status per operation named `<operation>Status` with a matching `<operation>Failure` (`otpRequestStatus`, `loginStatus`); eligibility flags `canX`; display flags `isX`; validator outcomes `isXValid`; shown errors `isXError`; data fields are plain nouns (`cards`, `visibleCards`, `phoneNumber`). Store the selected object once (`selectedCard`), not an ID plus the object. Do not use generic names (`value`, `data`, `item`, `flag`, `temp`) or a `request`-prefixed status (`requestProfileStatus`).
 - Each action represents one coherent event or operation. Loading, success and
   failure publication belong to the same fetch operation; do not split them
   into `emitLoading`, `handleSuccess`, `publishCards` or similar State-publication
@@ -1205,8 +1256,12 @@ duplicate status or eligibility guard. Async completion has no disposal check (S
 - Client idempotency does not replace the server guarantee.
 - Keep the `.then` callback free of anything that can throw (see the boundary guarantee in Section 8.1); calculations belong in pure helpers.
 
-### 8.4 Errors Are Localized in UI
+### 8.4 Error Message Ownership
 
+Login follows the scoped owner amendment above: a Presentation helper prepares
+Persian error text, Cubit emits message with AuthMessageRequested and the existing
+effectId, and the existing Listener displays it.
+The following UI-localization pattern remains the baseline for other features.
 Do not turn Failure into raw display text in Domain. UI may remain simple:
 
 ```dart
@@ -2911,7 +2966,7 @@ Cubit determines the next step; UI selects the form for the current step. The fo
 - Cubit decides whether to move back one step.
 - UI executes navigation and shows exit confirmation.
 - Hardware Back and the in-screen button must behave consistently.
-- Back navigation and exit confirmation are always available to the user, even while an asynchronous operation or submission is loading. Cubit navigation actions (such as `requestBack`, `requestHome`, `exitConfirmationResult`) must not block navigation or confirmation based on `loading` status. A response that arrives after the screen has closed is ignored together with the released Cubit (Section 8.3).
+- Except for Login (Back is blocked during any loading request under the scoped owner amendment), Back navigation and exit confirmation are always available to the user, even while an asynchronous operation or submission is loading. Cubit navigation actions (such as `requestBack`, `requestHome`, `exitConfirmationResult`) must not block navigation or confirmation based on `loading` status. A response that arrives after the screen has closed is ignored together with the released Cubit (Section 8.3).
 - The first step of a form with discardable input requires exit confirmation.
 - After a successful receipt, leave the flow using `go` to the approved destination; the user must not return to a form that can be submitted again.
 
@@ -3002,7 +3057,7 @@ Text(S.current.otpSentMessage(state.maskedPhone));
 
 - Direct access is required; do not create `final l10n = ...` or `final strings = S.current` in UI.
 - A multi-step title helper receives the step and returns text from `S.current`; do not pass BuildContext solely for localization.
-- Cubit and Domain do not access `S.current`; they produce error codes, enums and data.
+- Cubit and Domain do not access `S.current`; they produce error codes, enums and data. Login alone may emit prepared Persian error text through its approved Presentation helper, as specified in the scoped owner amendment; Domain/Data still produce no UI text.
 - Read S.current after its delegate loads; this access itself is not a language-change subscription.
 - Runtime language switching, if separately requested, must coordinate app locale and necessary UI rebuilds.
 - Localization generation, delegate configuration and locale tests follow [architecture Section 14.1](architecture-smart-virtual-counter-v2-en.md#141-localization).
@@ -3375,6 +3430,11 @@ the root AGENTS.md entry requirement and compliance gate. The two temporary refe
 not modify Dart code or certify the compliance of the existing application.
 
 Version 1.9 (2026-10-18) applies the owner simplicity amendment (top of this document): no `isClosed`, no BaseCubit, validate-once, no default re-emit, no dead code, naming rules. It changes documentation only.
+
+Version 1.10 records the owner-approved Login-only shared Failure, prepared Persian
+message/helper and Listener delivery, HTTP-200 business rejection mapping, blocked
+Back during loading, resend button loading and single CAPTCHA session source.
+It does not change the rules for other features or authorize broader refactors.
 
 ### 25.3 Contract Adoption Does Not Authorize Automatic Refactoring
 

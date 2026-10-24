@@ -62,13 +62,12 @@ void main() {
     () async {
       final cubit = createCubit();
       await fillIdentity(cubit);
-      final sessionId = cubit.state.sessionId;
+      final sessionId = cubit.state.captchaImage!.sessionId;
       await cubit.fetchCaptcha();
       expect(cubit.state.captcha, isEmpty);
       expect(cubit.state.canRequestOtp, isFalse);
       expect(cubit.state.captchaImage, isNotNull);
-      expect(cubit.state.sessionId, isNot(sessionId));
-      expect(cubit.state.sessionId, cubit.state.captchaImage!.sessionId);
+      expect(cubit.state.captchaImage!.sessionId, isNot(sessionId));
       cubit.updateCaptcha('654321');
       await cubit.submitOtpRequest();
       expect(
@@ -87,14 +86,82 @@ void main() {
     repository.captchaFailure = const DataFailure('network.connection');
     await cubit.fetchCaptcha();
     expect(cubit.state.captchaStatus, RequestStatus.failure);
-    expect(cubit.state.sessionId, isEmpty);
     expect(cubit.state.captchaImage, isNull);
     expect(cubit.state.canRequestOtp, isFalse);
+    expect(cubit.state.message, 'ارتباط با سرور برقرار نشد. دوباره تلاش کنید.');
+    final effectId = cubit.state.effectId;
     repository.captchaFailure = null;
     await cubit.fetchCaptcha();
     expect(cubit.state.captchaStatus, RequestStatus.success);
     expect(cubit.state.failure, isNull);
+    expect(cubit.state.message, isNull);
+    expect(cubit.state.effectId, effectId);
   });
+
+  test('invalid CAPTCHA image leaves no image/session and publishes a specific message', () async {
+    final repository = getIt<AuthRepository>() as FakeAuthRepository;
+    repository.captchaFailure = const DataFailure(
+      'auth.captcha_invalid_response',
+    );
+    final cubit = createCubit();
+    await cubit.fetchCaptcha();
+    expect(cubit.state.captchaStatus, RequestStatus.failure);
+    expect(cubit.state.captchaImage, isNull);
+    expect(cubit.state.canRequestOtp, isFalse);
+    expect(
+      cubit.state.message,
+      'دریافت تصویر کد امنیتی کامل نشد. دوباره تلاش کنید.',
+    );
+    expect(cubit.state.effect, isA<AuthMessageRequested>());
+  });
+
+  test(
+    'repeated OTP rejection publishes each message and retry clears it',
+    () async {
+      final repository = getIt<AuthRepository>() as FakeAuthRepository;
+      repository.otpFailure = const DataFailure('auth.wrong_captcha');
+      final cubit = createCubit();
+      await fillIdentity(cubit);
+
+      await cubit.submitOtpRequest();
+      expect(cubit.state.message, 'کد امنیتی اشتباه است.');
+      final effectId = cubit.state.effectId;
+      cubit.updateCaptcha('654321');
+      expect(cubit.state.effectId, effectId);
+
+      await cubit.submitOtpRequest();
+      expect(cubit.state.message, 'کد امنیتی اشتباه است.');
+      expect(cubit.state.effectId, effectId + 1);
+
+      repository.otpResponse = Completer<Result<LoginOtpChallenge>>();
+      final retry = cubit.submitOtpRequest();
+      expect(cubit.state.failure, isNull);
+      expect(cubit.state.message, isNull);
+      expect(cubit.state.effectId, effectId + 1);
+      repository.otpResponse!.complete(const Success(testOtpChallenge));
+      await retry;
+      expect(cubit.state.step, AuthStep.loginOtp);
+      expect(cubit.state.message, isNull);
+      expect(cubit.state.effect, isA<AuthOtpRequested>());
+      expect(cubit.state.effectId, effectId + 2);
+    },
+  );
+
+  test(
+    'unknown rejection prepares a generic message without exposing its code',
+    () async {
+      final repository = getIt<AuthRepository>() as FakeAuthRepository;
+      repository.otpFailure = const DataFailure('bank.unknown_private_code');
+      final cubit = createCubit();
+      await fillIdentity(cubit);
+      await cubit.submitOtpRequest();
+      expect(cubit.state.failure?.code, 'bank.unknown_private_code');
+      expect(
+        cubit.state.message,
+        'درخواست انجام نشد. اطلاعات را بررسی و دوباره تلاش کنید.',
+      );
+    },
+  );
 
   test(
     'OTP request waits for success and preserves entered identity on failure',
@@ -145,6 +212,10 @@ void main() {
       expect(cubit.state.loginStatus, RequestStatus.failure);
       expect(cubit.state.effect, isNot(isA<AuthCompleted>()));
       expect(cubit.state.otp, '123456');
+      expect(
+        cubit.state.message,
+        'رمز تأیید صحیح نیست یا اعتبار آن تمام شده است.',
+      );
       repository.loginFailure = null;
       await cubit.submitLogin(cubit.state.challenge!);
       expect(cubit.state.loginStatus, RequestStatus.success);
@@ -152,6 +223,7 @@ void main() {
       expect(cubit.state.otp, isEmpty);
       expect(cubit.state.challenge, isNull);
       expect(cubit.state.canSubmitLogin, isFalse);
+      expect(cubit.state.message, isNull);
     },
   );
 
@@ -179,6 +251,8 @@ void main() {
       await cubit.submitOtpRequest();
       expect(cubit.state.step, AuthStep.changePhone);
       expect(cubit.state.failure?.code, 'auth.change_phone_unavailable');
+      expect(cubit.state.message, isNull);
+      expect(cubit.state.effect, isNull);
       expect((getIt<AuthRepository>() as FakeAuthRepository).otpCalls, 0);
     },
   );

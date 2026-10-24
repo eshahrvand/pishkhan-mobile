@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
@@ -30,6 +32,7 @@ class StubBankAdapter implements HttpClientAdapter {
 }
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
   late Dio dio;
   late StubBankAdapter adapter;
   late AccessTokenStore tokens;
@@ -72,6 +75,67 @@ void main() {
     expect(adapter.requests.single.path, '/captcha');
     expect(() => captcha.bytes[0] = 0, throwsUnsupportedError);
   });
+
+  final jpeg = File('test/support/fixtures/synthetic_captcha.jpg')
+      .readAsBytesSync();
+  for (final layers in [1, 2]) {
+    for (final missingEndBytes in [0, 1, 2]) {
+      test(
+        'JPEG with $layers Base64 layer(s) and $missingEndBytes missing EOI bytes decodes',
+        () async {
+          var body = base64Encode(
+            jpeg.sublist(0, jpeg.length - missingEndBytes),
+          );
+          body = '${body.substring(0, 76)}\r\n${body.substring(76)}\r\n';
+          if (layers == 2) body = base64Encode(utf8.encode(body));
+          adapter.responses.add(
+            ResponseBody.fromString(
+              body,
+              200,
+              headers: {
+                Headers.contentTypeHeader: ['image/jpeg'],
+                'sessionid': ['server#jpeg-$layers-$missingEndBytes'],
+              },
+            ),
+          );
+          final result = await repository.fetchCaptcha();
+          expect(result, isA<Success<LoginCaptcha>>());
+          final captcha = (result as Success<LoginCaptcha>).data;
+          expect(captcha.bytes, orderedEquals(jpeg));
+          expect(captcha.sessionId, 'server#jpeg-$layers-$missingEndBytes');
+          expect(adapter.requests.length, 1);
+        },
+      );
+    }
+  }
+
+  for (final invalidBody in [
+    base64Encode([0xff, 0xd8, 0xff, 0x00]),
+    base64Encode([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+    base64Encode(jpeg.sublist(0, 100)),
+    base64Encode(utf8.encode(base64Encode(utf8.encode(testCaptchaBase64)))),
+  ]) {
+    test(
+      'image signatures or excessive Base64 nesting never establish CAPTCHA success: ${invalidBody.length}',
+      () async {
+        adapter.responses.add(
+          ResponseBody.fromString(
+            invalidBody,
+            200,
+            headers: {
+              'sessionid': ['server#invalid-image'],
+            },
+          ),
+        );
+        final result = await repository.fetchCaptcha();
+        expect(result, isA<Err<LoginCaptcha>>());
+        expect(
+          (result as Err<LoginCaptcha>).failure.code,
+          'auth.captcha_invalid_response',
+        );
+      },
+    );
+  }
 
   test(
     'invalid image bodies and gateway pages become failure values',
@@ -193,6 +257,39 @@ void main() {
       expect(tokens.accessToken, isNull);
     });
   }
+
+  test(
+    'HTTP 200 WRONG_CAPTCHA returns a specific failure without a challenge',
+    () async {
+      adapter.responses.add(
+        json('{"status":-1,"message":"WRONG_CAPTCHA","token":null}'),
+      );
+      final result = await repository.requestOtp(testLoginIdentity);
+      expect(result, isA<Err<LoginOtpChallenge>>());
+      expect(
+        (result as Err<LoginOtpChallenge>).failure.code,
+        'auth.wrong_captcha',
+      );
+      expect(adapter.requests.length, 1);
+      expect(tokens.accessToken, isNull);
+    },
+  );
+
+  test(
+    'unknown bank rejection remains generic and does not expose server text',
+    () async {
+      adapter.responses.add(
+        json('{"status":-1,"message":"UNKNOWN_BANK_DETAIL","token":null}'),
+      );
+      final result = await repository.requestOtp(testLoginIdentity);
+      expect(result, isA<Err<LoginOtpChallenge>>());
+      expect(
+        (result as Err<LoginOtpChallenge>).failure.code,
+        'auth.request_rejected',
+      );
+      expect(tokens.accessToken, isNull);
+    },
+  );
 
   test('OTP failure does not authenticate or store a token', () async {
     adapter.responses.add(json('{"status":1,"token":"test-token"}'));

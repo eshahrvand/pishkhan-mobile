@@ -1,5 +1,6 @@
 import 'package:pishkhan_mobile/core/network/data/network_failure_mapper.dart';
 import 'package:pishkhan_mobile/core/result/result.dart';
+import 'package:pishkhan_mobile/core/result/failure.dart';
 import 'package:pishkhan_mobile/core/network/access_token_store.dart';
 
 import '../../domain/entities/login_captcha.dart';
@@ -21,11 +22,13 @@ class RemoteAuthRepository implements AuthRepository {
     try {
       final response = await remote.fetchCaptcha();
       return Success(
-        mapLoginCaptcha(
+        await mapLoginCaptcha(
           response.data,
           response.response.headers.value('SessionId'),
         ),
       );
+    } on FormatException {
+      return const Err(DataFailure('auth.captcha_invalid_response'));
     } catch (error) {
       return Err(mapNetworkFailure(error));
     }

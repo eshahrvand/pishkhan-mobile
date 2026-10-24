@@ -21,6 +21,7 @@ Map<String, dynamic> _$CheckSmsRequestDtoToJson(CheckSmsRequestDto instance) =>
 AuthResponseDto _$AuthResponseDtoFromJson(Map<String, dynamic> json) =>
     AuthResponseDto(
       status: (json['status'] as num?)?.toInt(),
+      message: json['message'] as String?,
       token: json['token'] as String?,
       customer: json['customer'] == null
           ? null

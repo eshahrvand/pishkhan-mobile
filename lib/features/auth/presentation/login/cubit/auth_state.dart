@@ -6,10 +6,10 @@ enum AuthStep { login, loginOtp, changePhone, changePhoneOtp }
 abstract class AuthState with _$AuthState {
   const factory AuthState.initial({
     @Default(AuthStep.login) AuthStep step,
-    @Default('') String sessionId,
     LoginCaptcha? captchaImage,
     LoginOtpChallenge? challenge,
     Failure? failure,
+    String? message,
     @Default(RequestStatus.initial) RequestStatus captchaStatus,
     @Default(RequestStatus.initial) RequestStatus otpRequestStatus,
     @Default('') String nationalId,

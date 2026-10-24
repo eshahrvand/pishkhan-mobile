@@ -4,7 +4,7 @@
 **Contractor:** Avat Vira Pardaz Co.
 **Framework:** Flutter (Dart 3+)
 **Domain:** Request-based banking services (80+ services) with an AI conversational assistant
-**Document version:** 2.0.0
+**Document version:** 2.0.1
 **Status:** Revised draft — ready for final review and development kickoff
 
 ---
@@ -934,6 +934,38 @@ final class BusinessFailure extends Failure {
 
 ### 11.3 Error Mapping
 
+#### Owner-approved Login amendment
+
+For the existing Login flow, a business rejection returned with HTTP 200 remains
+an unsuccessful operation. Data reads the response status/message; the supplied
+`status: -1, message: WRONG_CAPTCHA` maps to
+`Err(DataFailure('auth.wrong_captcha'))`. Missing/unknown rejection codes use the
+existing generic failure. Do not display raw server text or turn this rejection
+into a DioException. Network/parse exceptions are still converted to Err in Data.
+Repository APIs retain Future<Result<T>>; Cubit retains a returned .then and a
+Success/Err switch, without catchError.
+
+Login keeps independent request statuses and **one shared Failure? failure**.
+Its plain Freezed State additionally holds String? message, without a separate
+message counter. A pure switch helper in `presentation/login/cubit/auth_error_messages.dart` maps the
+Failure code to approved Persian text with a generic fallback. Cubit emits that
+message with AuthMessageRequested and increments the existing effectId for each
+API failure notification. The existing filtered BlocListener displays that effect;
+there is no separate message Listener or duplicate inline API-error view. Starting
+another request clears failure/message without replaying an effect. Unconnected
+services such as guest change-phone retain their prior unavailable feedback and
+are not moved into this API-message path.
+The message is prepared presentation data, while Failure remains technical data.
+
+This is an explicit Login-only exception to the general UI-localization and
+per-operation Failure naming rules. Persian error literals are allowed in that
+Presentation helper; Domain/Data stay free of display text. Ordinary UI labels,
+field validation, other features and the Failure hierarchy are unchanged. See
+the [mandatory Login amendment](ui-cubit-state-agent-rules-en.md#mandatory-owner-amendment-login-failure-messages-and-loading)
+for the full scope, repeated notification delivery and loading/Back rules.
+
+#### General error mapping
+
 Two central components:
 
 1. **`ErrorMappingInterceptor`** — converts `DioException` into `Failure`.
@@ -976,6 +1008,7 @@ refactors, not a claim that every existing Cubit already complies.
 
 * Each Cubit owns one plain Freezed State with a single `const factory State.initial(...)` and useful `@Default` values. Preserve the current organization: the State file is `part of` the Cubit library, and the Cubit declares `part '<name>_state.dart'` and `part '<name>_cubit.freezed.dart'`.
 * State contains data only. Do not add handwritten getters, calculation methods or a private constructor solely to support them. Generated Freezed accessors, equality and `copyWith` are framework infrastructure, not custom business getters.
+* Login retains one shared Failure plus prepared message using the existing effectId under Section 11.3; other features retain their existing failure ownership.
 * Give each independent async operation its own status field. Use `RequestStatus { initial, loading, success, failure }` from `core/enums/`. A single-operation Cubit may use `status`; multiple operations use meaningful names such as `checkStatus`, `quoteStatus` and `submissionStatus`.
 * UI reads State fields directly. Check `state.submissionStatus == RequestStatus.loading` directly in widget arguments; do not introduce getter aliases or local `loading`, `empty` or `form` variables in builders.
 * Cubit owns flow decisions, input validation coordination, filtering, selection resolution and request construction; reusable business rules belong in Domain. UI sends events, renders State, executes prepared Flutter effects and returns raw modal results to Cubit. State contains data, not behavior.
@@ -1276,9 +1309,9 @@ These are target-convention examples, not a report of completed implementation. 
 **Mandatory rules for agents:**
 
 1. Read localized UI text directly as `S.current.<key>`; do not introduce `context.l10n`, repeated `AppLocalizations.of(context)` calls or local aliases such as `final l10n = ...` in new UI code following this convention.
-2. Keep translations in ARB files, including parameterized messages and plural forms. Use generated methods for arguments rather than assembling translated sentence fragments manually.
+2. Keep translations in ARB files, including parameterized messages and plural forms, except for the approved Persian Login error helper in Section 11.3. Use generated methods for arguments rather than assembling translated sentence fragments manually.
 3. Do not hand-edit generated Dart files or maintain a second generator for the same app messages.
-4. Keep `S.current` in Presentation. Domain and Cubit logic return codes, enums and data; they must not store localized button titles or messages in State.
+4. Keep `S.current` in Presentation. Domain and Cubit logic return codes, enums and data; they must not store localized button titles or messages in State, except for the explicitly approved Login error-message payload and pure Presentation helper in Section 11.3. Domain/Data still produce no display text.
 5. Helpers that map several steps to translated titles return a `String` and read `S.current` directly. They do not accept `BuildContext` solely to retrieve a translation.
 
 ```dart
@@ -1520,6 +1553,15 @@ GoRouter createAppRouter({required RouterSession session}) {
 2. **Duplicate detection test:** collect routes from the actual `GoRouter` configuration and assert uniqueness and feature prefixes. Do not maintain a second production route list just for tests. Authentication, validated post-login return, typed inputs, Back and unavailable-route behavior must also remain covered.
 
 ### 15.4 Flow Lifecycle
+
+**Owner-approved Login exception:** system and in-screen Back are blocked by UI
+while CAPTCHA, OTP request or verification is loading. Do not repeat this UI gate
+inside Cubit actions. Other service flows keep their existing Back/exit policy.
+Login's OTP resend button uses isLoading for pending verification and only
+canResendOtp in onPressed. AuthState retains the LoginCaptcha model as the single
+source of its image/SessionId pair, without a separate sessionId field. The Cubit
+reads the model's SessionId when constructing the OTP request; refresh clears or
+replaces the pair together. These changes add no new endpoint or banking policy.
 
 When a future service needs URL-addressable steps, declare its step paths in
 `AppRoutes` and place this `ShellRoute` directly in the central router list.
@@ -1850,6 +1892,13 @@ The complete list is provided in the separate document "Bank Requirements and De
 
 ## 21. Change Log
 
+**2.0.1 — owner-approved Login amendment:** Section 11.3 defines one shared
+Failure, Persian error-message preparation in Presentation and existing-effectId-based
+Listener delivery, while preserving Result/.then and Data-owned HTTP-200 business
+rejection handling. Sections 12, 14 and 15 record the scoped message, loading/Back,
+resend-button and CAPTCHA session ownership rules. Other features, dependencies
+and pending bank/security contracts are unchanged.
+
 **2026-10-18 owner simplicity amendment:** `BaseCubit` (`core/cubit/base_cubit.dart`) is removed from the directory tree and from the design; `isClosed` is prohibited everywhere (Sections 12.2, 12.4, 12.7, 16.3) — the Cubit is released with its screen; validation runs once per field and use cases no longer repeat form checks (Sections 7.3, 7.4, 12.4); initial actions exist only for real fetches; the Section 12.2 snippet no longer references an undefined `cubit`. See coding contract v1.9.
 
 **2026-10-17 UI-owned interaction gating:** The owner superseded the earlier
@@ -1881,5 +1930,5 @@ post-close calls. Application Dart code is unchanged by this documentation updat
 
 ---
 
-**End of document — version 2.0.0**
+**End of document — version 2.0.1**
 *Section 19 will be completed in a subsequent revision.*

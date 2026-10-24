@@ -204,7 +204,7 @@ class AuthIdentityForm extends StatelessWidget {
             );
           },
         ),
-        const AuthRequestError(),
+        if (changePhone) const AuthRequestError(),
       ],
     );
   }

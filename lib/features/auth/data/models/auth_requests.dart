@@ -33,12 +33,13 @@ class CheckSmsRequestDto {
 
 @JsonSerializable(createToJson: false)
 class AuthResponseDto {
-  const AuthResponseDto({this.status, this.token, this.customer});
+  const AuthResponseDto({this.status, this.message, this.token, this.customer});
 
   factory AuthResponseDto.fromJson(Map<String, dynamic> json) =>
       _$AuthResponseDtoFromJson(json);
 
   final int? status;
+  final String? message;
   final String? token;
   final AuthCustomerDto? customer;
 }

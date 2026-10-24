@@ -38,6 +38,9 @@ class AuthScreen extends StatelessWidget {
       case AuthCompleted():
         FocusManager.instance.primaryFocus?.unfocus();
         onAuthenticated?.call();
+      case AuthMessageRequested():
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(state.message!)));
       case null:
         break;
     }
@@ -108,6 +111,7 @@ class AuthScreen extends StatelessWidget {
                           previous.loginStatus != current.loginStatus,
                       builder: (context, state) {
                         return PopScope(
+                          // Login keeps Back unavailable during bank requests.
                           canPop:
                               state.step == AuthStep.login &&
                               state.captchaStatus != RequestStatus.loading &&

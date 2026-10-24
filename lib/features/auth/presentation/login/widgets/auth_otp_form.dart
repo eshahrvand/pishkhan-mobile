@@ -102,9 +102,8 @@ class AuthOtpForm extends StatelessWidget {
                   return SizedBox(
                     height: 44,
                     child: AppButton(
-                      onPressed:
-                          state.canResendOtp &&
-                              state.loginStatus != RequestStatus.loading
+                      isLoading: state.loginStatus == RequestStatus.loading,
+                      onPressed: state.canResendOtp
                           ? () {
                               context.read<AuthCubit>().submitOtpResend();
                             }

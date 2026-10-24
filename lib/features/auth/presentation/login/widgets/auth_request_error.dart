@@ -5,6 +5,7 @@ import 'package:pishkhan_mobile/generated/l10n.dart';
 
 import '../cubit/auth_cubit.dart';
 
+/// Keeps the existing unconnected change-phone feedback outside Login API effects.
 class AuthRequestError extends StatelessWidget {
   const AuthRequestError({super.key});
 
@@ -13,20 +14,15 @@ class AuthRequestError extends StatelessWidget {
     return BlocBuilder<AuthCubit, AuthState>(
       buildWhen: (previous, current) => previous.failure != current.failure,
       builder: (context, state) {
-        if (state.failure == null) return const SizedBox.shrink();
+        if (state.failure?.code != 'auth.change_phone_unavailable') {
+          return const SizedBox.shrink();
+        }
         return Padding(
           padding: const EdgeInsets.only(top: 12),
           child: Semantics(
             liveRegion: true,
             child: Text(
-              switch (state.failure!.code) {
-                'auth.otp_rejected' => S.current.authOtpRejected,
-                'auth.change_phone_unavailable' =>
-                  S.current.authChangePhoneUnavailable,
-                final code when code.startsWith('network.') =>
-                  S.current.authNetworkError,
-                _ => S.current.authRequestFailed,
-              },
+              S.current.authChangePhoneUnavailable,
               style: Theme.of(context).textTheme.bodySmall!
                   .copyWith(color: context.colors.error),
             ),

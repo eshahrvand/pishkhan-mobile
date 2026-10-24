@@ -18,3 +18,7 @@ final class AuthCompleted extends AuthEffect {
 final class AuthOtpRequested extends AuthEffect {
   const AuthOtpRequested();
 }
+
+final class AuthMessageRequested extends AuthEffect {
+  const AuthMessageRequested();
+}

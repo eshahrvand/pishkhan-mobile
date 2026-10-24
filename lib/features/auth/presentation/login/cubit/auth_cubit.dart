@@ -15,6 +15,7 @@ import '../../../domain/usecases/login.dart';
 import 'package:pishkhan_mobile/core/validators/validators.dart';
 
 import 'auth_effect.dart';
+import 'auth_error_messages.dart';
 
 export 'auth_effect.dart';
 
@@ -35,12 +36,12 @@ class AuthCubit extends Cubit<AuthState> {
       state.copyWith(
         captchaStatus: RequestStatus.loading,
         captchaImage: null,
-        sessionId: '',
         captcha: '',
         isCaptchaValid: false,
         isCaptchaError: false,
         canRequestOtp: false,
         failure: null,
+        message: null,
       ),
     );
     return FetchLoginCaptcha(repository)().then((result) {
@@ -50,7 +51,6 @@ class AuthCubit extends Cubit<AuthState> {
             state.copyWith(
               captchaStatus: RequestStatus.success,
               captchaImage: data,
-              sessionId: data.sessionId,
             ),
           );
         case Err(:final failure):
@@ -58,6 +58,9 @@ class AuthCubit extends Cubit<AuthState> {
             state.copyWith(
               captchaStatus: RequestStatus.failure,
               failure: failure,
+              message: getAuthErrorMessage(failure),
+              effect: const AuthMessageRequested(),
+              effectId: state.effectId + 1,
             ),
           );
       }
@@ -171,12 +174,13 @@ class AuthCubit extends Cubit<AuthState> {
           nationalCode: state.nationalId,
           mobile: state.phoneNumber,
           captcha: state.captcha,
-          sessionId: state.sessionId,
+          sessionId: state.captchaImage!.sessionId,
         );
         emit(
           state.copyWith(
             otpRequestStatus: RequestStatus.loading,
             failure: null,
+            message: null,
           ),
         );
         return RequestLoginOtp(repository)(identity).then((result) {
@@ -204,6 +208,9 @@ class AuthCubit extends Cubit<AuthState> {
                 state.copyWith(
                   otpRequestStatus: RequestStatus.failure,
                   failure: failure,
+                  message: getAuthErrorMessage(failure),
+                  effect: const AuthMessageRequested(),
+                  effectId: state.effectId + 1,
                 ),
               );
           }
@@ -241,7 +248,13 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   Future<void> submitLogin(LoginOtpChallenge challenge) {
-    emit(state.copyWith(loginStatus: RequestStatus.loading, failure: null));
+    emit(
+      state.copyWith(
+        loginStatus: RequestStatus.loading,
+        failure: null,
+        message: null,
+      ),
+    );
     return VerifyLoginOtp(repository)(challenge, state.otp).then((result) {
       switch (result) {
         case Success():
@@ -264,6 +277,9 @@ class AuthCubit extends Cubit<AuthState> {
             state.copyWith(
               loginStatus: RequestStatus.failure,
               failure: failure,
+              message: getAuthErrorMessage(failure),
+              effect: const AuthMessageRequested(),
+              effectId: state.effectId + 1,
             ),
           );
       }
@@ -293,6 +309,7 @@ class AuthCubit extends Cubit<AuthState> {
         loginStatus: RequestStatus.initial,
         otpRequestStatus: RequestStatus.initial,
         failure: null,
+        message: null,
         challenge: null,
         otpStartTick: null,
       ),
@@ -318,6 +335,7 @@ class AuthCubit extends Cubit<AuthState> {
             challenge: null,
             otpStartTick: null,
             failure: null,
+            message: null,
           ),
         );
         return fetchCaptcha();
@@ -336,6 +354,7 @@ class AuthCubit extends Cubit<AuthState> {
             isCaptchaError: false,
             canRequestOtp: false,
             failure: null,
+            message: null,
             otpRequestStatus: RequestStatus.initial,
           ),
         );

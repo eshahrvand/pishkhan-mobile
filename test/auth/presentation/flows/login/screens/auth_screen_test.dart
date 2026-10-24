@@ -290,6 +290,14 @@ void main() {
     await tester.binding.handlePopRoute();
     await tester.pump();
     expect(repository.otpCalls, 1);
+    expect(
+      tester
+          .widget<PopScope>(
+            find.byWidgetPredicate((widget) => widget is PopScope).first,
+          )
+          .canPop,
+      isFalse,
+    );
     expect(cubit.state.step, AuthStep.login);
     repository.otpResponse!.complete(const Success(testOtpChallenge));
     await tester.pumpAndSettle();
@@ -298,12 +306,84 @@ void main() {
   });
 
   testWidgets(
+    'CAPTCHA refresh blocks Back until the new image/session arrives',
+    (tester) async {
+      final repository = getIt<AuthRepository>() as FakeAuthRepository;
+      final cubit = await mount(tester, state: filled, keyboard: false);
+      final captcha = cubit.state.captchaImage!;
+      repository.captchaResponse = Completer();
+      final refresh = find.byWidgetPredicate(
+        (widget) =>
+            widget is AppButton && widget.tooltip == S.current.refreshCaptcha,
+      );
+      await tester.tap(refresh);
+      await tester.pump();
+      expect(cubit.state.captchaImage, isNull);
+      expect(cubit.state.canRequestOtp, isFalse);
+      expect(
+        tester
+            .widget<PopScope>(
+              find.byWidgetPredicate((widget) => widget is PopScope).first,
+            )
+            .canPop,
+        isFalse,
+      );
+      await tester.binding.handlePopRoute();
+      await tester.pump();
+      expect(cubit.state.step, AuthStep.login);
+      expect(repository.captchaCalls, 2);
+      repository.captchaResponse!.complete(Success(captcha));
+      await tester.pumpAndSettle();
+      expect(
+        tester
+            .widget<PopScope>(
+              find.byWidgetPredicate((widget) => widget is PopScope).first,
+            )
+            .canPop,
+        isTrue,
+      );
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
+
+  testWidgets(
+    'initial CAPTCHA failure reaches the message listener and refresh recovers',
+    (tester) async {
+      final repository = getIt<AuthRepository>() as FakeAuthRepository;
+      repository.captchaFailure = const DataFailure('network.connection');
+      final cubit = await mount(tester, keyboard: false);
+      expect(find.byType(SnackBar), findsOneWidget);
+      expect(
+        find.text('ارتباط با سرور برقرار نشد. دوباره تلاش کنید.'),
+        findsOneWidget,
+      );
+      ScaffoldMessenger.of(tester.element(find.byType(Scaffold)))
+          .removeCurrentSnackBar();
+      await tester.pumpAndSettle();
+
+      repository.captchaFailure = null;
+      await tester.tap(
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is AppButton && widget.tooltip == S.current.refreshCaptcha,
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(cubit.state.failure, isNull);
+      expect(cubit.state.message, isNull);
+      expect(cubit.state.captchaImage, isNotNull);
+      expect(find.byType(SnackBar), findsNothing);
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
+
+  testWidgets(
     'verification loading blocks duplicates and failure permits retry',
     (tester) async {
       final repository = getIt<AuthRepository>() as FakeAuthRepository;
       repository.loginResponse = Completer<Result<AuthenticatedCustomer>>();
       var completed = 0;
-      await mount(
+      final cubit = await mount(
         tester,
         state: loginOtp,
         keyboard: false,
@@ -327,6 +407,15 @@ void main() {
       await tester.pump();
       expect(repository.loginCalls, 1);
       expect(completed, 0);
+      expect(
+        tester
+            .widget<AppButton>(authControl(tester, 'otp_timer_button'))
+            .isLoading,
+        isTrue,
+      );
+      await tester.binding.handlePopRoute();
+      await tester.pump();
+      expect(cubit.state.step, AuthStep.loginOtp);
       repository.loginResponse!.complete(
         const Err(DataFailure('auth.otp_rejected')),
       );
@@ -337,6 +426,57 @@ void main() {
       await tester.tap(authControl(tester, 'submit_otp_button'));
       await tester.pumpAndSettle();
       expect(completed, 1);
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
+
+  testWidgets('unconnected change-phone keeps its existing inline feedback', (
+    tester,
+  ) async {
+    final repository = getIt<AuthRepository>() as FakeAuthRepository;
+    final cubit = await mount(tester, state: changePhone, keyboard: false);
+    await tester.tap(authControl(tester, 'request_otp_button'));
+    await tester.pumpAndSettle();
+    expect(repository.otpCalls, 0);
+    expect(cubit.state.message, isNull);
+    expect(cubit.state.effect, isNull);
+    expect(find.byType(SnackBar), findsNothing);
+    expect(find.text(S.current.authChangePhoneUnavailable), findsOneWidget);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets(
+    'request messages are shown once per event, including identical retries',
+    (tester) async {
+      final repository = getIt<AuthRepository>() as FakeAuthRepository;
+      repository.otpFailure = const DataFailure('auth.wrong_captcha');
+      final cubit = await mount(tester, state: filled, keyboard: false);
+
+      await tester.tap(authControl(tester, 'request_otp_button'));
+      await tester.pumpAndSettle();
+      expect(find.byType(SnackBar), findsOneWidget);
+      expect(find.text('کد امنیتی اشتباه است.'), findsOneWidget);
+
+      ScaffoldMessenger.of(tester.element(find.byType(Scaffold)))
+          .removeCurrentSnackBar();
+      await tester.pumpAndSettle();
+      cubit.updateCaptcha('654321');
+      await tester.pumpAndSettle();
+      expect(find.byType(SnackBar), findsNothing);
+
+      await tester.tap(authControl(tester, 'request_otp_button'));
+      await tester.pumpAndSettle();
+      expect(find.byType(SnackBar), findsOneWidget);
+      expect(find.text('کد امنیتی اشتباه است.'), findsOneWidget);
+
+      ScaffoldMessenger.of(tester.element(find.byType(Scaffold)))
+          .removeCurrentSnackBar();
+      repository.otpFailure = null;
+      await tester.tap(authControl(tester, 'request_otp_button'));
+      await tester.pumpAndSettle();
+      expect(cubit.state.step, AuthStep.loginOtp);
+      await tester.pump(const Duration(seconds: 2));
+      expect(find.byType(SnackBar), findsNothing);
       await tester.pumpWidget(const SizedBox.shrink());
     },
   );

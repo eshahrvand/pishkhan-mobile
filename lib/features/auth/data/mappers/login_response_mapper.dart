@@ -9,7 +9,12 @@ Result<LoginOtpChallenge> mapOtpChallenge(
   LoginIdentity identity,
 ) {
   if (response.status != 0) {
-    return const Err(DataFailure('auth.request_rejected'));
+    return Err(
+      DataFailure(switch (response.message) {
+        'WRONG_CAPTCHA' => 'auth.wrong_captcha',
+        _ => 'auth.request_rejected',
+      }),
+    );
   }
   final token = response.token;
   if (token == null || token.trim().isEmpty) {

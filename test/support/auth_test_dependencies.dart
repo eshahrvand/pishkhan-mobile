@@ -10,7 +10,7 @@ import 'package:pishkhan_mobile/features/auth/domain/entities/login_identity.dar
 import 'package:pishkhan_mobile/features/auth/domain/repositories/auth_repository.dart';
 
 const testCaptchaBase64 =
-    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a1uoAAAAASUVORK5CYII=';
+    'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR4nGP4DwQACfsD/fteaysAAAAASUVORK5CYII=';
 
 const testLoginIdentity = LoginIdentity(
   nationalCode: '0081234562',
@@ -38,6 +38,7 @@ class FakeAuthRepository implements AuthRepository {
   Failure? captchaFailure;
   Failure? otpFailure;
   Failure? loginFailure;
+  Completer<Result<LoginCaptcha>>? captchaResponse;
   Completer<Result<LoginOtpChallenge>>? otpResponse;
   Completer<Result<AuthenticatedCustomer>>? loginResponse;
   int captchaCalls = 0;
@@ -48,6 +49,7 @@ class FakeAuthRepository implements AuthRepository {
   @override
   Future<Result<LoginCaptcha>> fetchCaptcha() async {
     captchaCalls++;
+    if (captchaResponse != null) return captchaResponse!.future;
     return captchaFailure == null
         ? Success(
             LoginCaptcha(
