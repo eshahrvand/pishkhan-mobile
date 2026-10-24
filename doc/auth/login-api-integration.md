@@ -21,6 +21,19 @@ replaces the challenge only after validation. HTTP 200 or a message saying OK
 alone never authenticates a user. Unknown failures use the approved generic Persian message;
 Dio exceptions and DTOs remain in the Data layer.
 
+`check-cif` also requires the client protocol header `version: ng-1`, as shown
+in the owner's working browser capture and explicitly set by the bank's public
+web client (`https://vc.rqbank.ir/main.f9ce156486acf1b1.js`). Retrofit sets it on
+that operation only; it is not the application's release version. CAPTCHA and
+check-sms keep their existing headers. The phone capture lacked this header and
+returned `status: 0, message: null, token: null`; this still cannot establish an
+OTP challenge. The header mismatch is confirmed, but no live check-cif submission
+is automated to prove it is the sole cause. Recheck with a fresh CAPTCHA on-device.
+Response Set-Cookie headers alone do not establish a cookie requirement: the
+supplied browser request shows no Cookie header, and the bank's inspected login
+calls do not enable cross-origin credentials. No cookie jar or copied browser
+Origin/Referer/Sec-Fetch headers are introduced by this correction.
+
 The owner-approved Login amendment in the UI/Cubit/State contract retains one
 shared `Failure? failure`, with `String? message` in State and no separate
 message counter.

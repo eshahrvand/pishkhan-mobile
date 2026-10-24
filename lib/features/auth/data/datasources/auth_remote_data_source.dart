@@ -1,4 +1,4 @@
-import 'package:dio/dio.dart';
+import 'package:dio/dio.dart' hide Headers;
 import 'package:retrofit/retrofit.dart';
 
 import '../models/auth_requests.dart';
@@ -16,6 +16,7 @@ abstract class AuthRemoteDataSource {
   Future<HttpResponse<String>> fetchCaptcha();
 
   @POST('/check-cif')
+  @Headers({'version': 'ng-1'})
   Future<AuthResponseDto> checkCif(@Body() CheckCifRequestDto request);
 
   @POST('/check-sms')

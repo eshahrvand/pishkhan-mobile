@@ -72,6 +72,7 @@ void main() {
     expect(captcha.bytes.take(4), [0x89, 0x50, 0x4e, 0x47]);
     expect(captcha.sessionId, 'server#captcha-1');
     expect(adapter.requests.single.method, 'GET');
+    expect(adapter.requests.single.headers.containsKey('version'), isFalse);
     expect(adapter.requests.single.path, '/captcha');
     expect(() => captcha.bytes[0] = 0, throwsUnsupportedError);
   });
@@ -209,6 +210,7 @@ void main() {
       expect(result, isA<Success<LoginOtpChallenge>>());
       expect(adapter.requests.single.path, '/check-cif');
       expect(adapter.requests.single.method, 'POST');
+      expect(adapter.requests.single.headers['version'], 'ng-1');
       expect(adapter.requests.single.data, {
         'nationalCode': testLoginIdentity.nationalCode,
         'ip': '192.168.0.1',
@@ -239,11 +241,13 @@ void main() {
       adapter.requests.single.headers.containsKey('Authorization'),
       isFalse,
     );
+    expect(adapter.requests.single.headers.containsKey('version'), isFalse);
     expect(tokens.accessToken, 'test-final-token');
   });
 
   for (final response in [
     '{"status":1,"message":"rejected","token":"test-token"}',
+    '{"status":0,"message":null,"token":null}',
     '{"status":0,"token":""}',
     '{"message":"OK","token":"test-token"}',
     '{}',

@@ -57,7 +57,8 @@ class _AuthRemoteDataSource implements AuthRemoteDataSource {
   Future<AuthResponseDto> checkCif(CheckCifRequestDto request) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{};
+    final _headers = <String, dynamic>{r'version': 'ng-1'};
+    _headers.removeWhere((k, v) => v == null);
     final _data = <String, dynamic>{};
     _data.addAll(request.toJson());
     final _options = _setStreamType<AuthResponseDto>(
