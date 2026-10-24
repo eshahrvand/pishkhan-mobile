@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
-import 'package:pishkhan_mobile/core/network/access_token_store.dart';
+import 'package:pishkhan_mobile/core/security/access_token_store.dart';
 
 /// Android may resume a saved token; its server validity is not checked yet.
 class RouterSession extends ChangeNotifier {

@@ -2,7 +2,7 @@ import '../../support/auth_test_dependencies.dart';
 import '../../support/secure_storage_test_driver.dart';
 
 import 'package:flutter/foundation.dart';
-import 'package:pishkhan_mobile/core/network/access_token_store.dart';
+import 'package:pishkhan_mobile/core/security/access_token_store.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/services.dart';

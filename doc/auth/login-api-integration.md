@@ -10,6 +10,11 @@ No real identity, token, account or loan sample is included in source or tests.
 
 Base URL: `https://apii.rqbank.ir`.
 
+The shared Dio reads its API base URL and connect/send/receive timeouts from
+`core/config/constant.dart` (`AppConstants`). Current network timeouts remain
+15/20/20 seconds respectively. Only the existing bank API address is configured;
+additional server addresses must come from confirmed service contracts.
+
 | Operation | Method/path | Body | Success |
 |---|---|---|---|
 | CAPTCHA | `GET /captcha` | None | MIME Base64 text plus the `SessionId` response header. Despite `Content-Type: image/jpeg`, CRLF is stripped before Base64 decoding; the image is validated in memory. |
@@ -102,7 +107,9 @@ code returns to the identity form and fetches a fresh CAPTCHA, preserving identi
 fields. The consumed CAPTCHA is not automatically replayed. Change-phone uses no
 login endpoint as a substitute; it reports that its own service is not connected.
 
-`AccessTokenStore` keeps the final login token in memory. Under the owner's
+`AccessTokenStore` in `core/security/access_token_store.dart` keeps the final
+login token in memory. Token persistence belongs to this security infrastructure;
+the network layer does not contain a second storage implementation. Under the owner's
 2026-10-24 amendment, Android also saves that token with
 `flutter_secure_storage: ^11.2.0`, using the package's default Keystore-backed
 RSA-OAEP/AES-GCM protection without biometric prompts. Web and other platforms

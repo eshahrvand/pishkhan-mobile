@@ -1,7 +1,7 @@
 import 'package:pishkhan_mobile/core/network/data/network_failure_mapper.dart';
 import 'package:pishkhan_mobile/core/result/result.dart';
 import 'package:pishkhan_mobile/core/result/failure.dart';
-import 'package:pishkhan_mobile/core/network/access_token_store.dart';
+import 'package:pishkhan_mobile/core/security/access_token_store.dart';
 
 import '../../domain/entities/login_captcha.dart';
 import '../../domain/entities/login_identity.dart';

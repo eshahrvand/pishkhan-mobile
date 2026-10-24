@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
+import '../../config/constant.dart';
 import '../../result/failure.dart';
 import 'interceptors/api_logging_interceptor.dart';
 
@@ -9,10 +10,10 @@ import 'interceptors/api_logging_interceptor.dart';
 Dio createBankDio() {
   final dio = Dio(
     BaseOptions(
-      baseUrl: 'https://apii.rqbank.ir',
-      connectTimeout: const Duration(seconds: 15),
-      sendTimeout: const Duration(seconds: 20),
-      receiveTimeout: const Duration(seconds: 20),
+      baseUrl: AppConstants.bankBaseUrl,
+      connectTimeout: AppConstants.connectTimeout,
+      sendTimeout: AppConstants.sendTimeout,
+      receiveTimeout: AppConstants.receiveTimeout,
       followRedirects: false,
       headers: {'Accept-Language': 'fa-IR'},
     ),

@@ -309,7 +309,6 @@ pishkhan_project/
         │   ├── network/
         │   │   ├── dio_factory.dart
         │   │   ├── ssl_pinning.dart
-        │   │   ├── token_store.dart          # Interface + mobile/web implementations
         │   │   └── interceptors/
         │   │       ├── correlation_id_interceptor.dart
         │   │       ├── locale_interceptor.dart
@@ -323,7 +322,7 @@ pishkhan_project/
         │   │   ├── security_verdict.dart
         │   │   ├── security_service.dart     # Evaluation and result caching
         │   │   ├── screen_protector.dart
-        │   │   ├── secure_storage.dart
+        │   │   ├── access_token_store.dart   # Current Android secure storage + memory-only Web
         │   │   ├── session_manager.dart
         │   │   └── activity_tracker.dart
         │   ├── validators/
@@ -340,7 +339,8 @@ pishkhan_project/
         │   │   ├── flow_outcome.dart
         │   │   └── service_registry.dart      # serviceId → route mapping
         │   ├── config/
-        │   │   └── remote_config.dart         # Timeout, thresholds, enabled services
+        │   │   ├── constant.dart              # Current API base URLs and network timeouts
+        │   │   └── remote_config.dart         # Planned server config: session timeout, thresholds, enabled services
         │   ├── push/
         │   │   └── push_service.dart          # Interface + platform implementations
         │   ├── enums/
@@ -791,7 +791,8 @@ The target access/refresh design uses a `TokenStore` interface with platform imp
 
 **Owner-approved current Android amendment (2026-10-24):** the available bank
 contract supplies a single final login token, with no refresh token, expiry
-metadata or validation endpoint. `AccessTokenStore` persists that final token on
+metadata or validation endpoint. `AccessTokenStore` in
+`core/security/access_token_store.dart` owns token storage and persists the final token on
 Android using `flutter_secure_storage: ^11.2.0`, while keeping a memory copy for
 the running session. Only validated check-sms success is saved; the temporary
 check-cif challenge is never persisted. Startup resumes the local session when a
