@@ -112,13 +112,23 @@ Other banking features and dashboard data remain on their existing mock reposito
 ## Transport and remaining bank dependencies
 
 Dio uses HTTPS with normal certificate verification, bounded timeouts, no redirect
-following and no automatic POST replay. In development/profile builds,
-ApiLoggingInterceptor prints method, sanitized URL, HTTP status and success/error
-results to the terminal. HTTP 200 with a nonzero bank status is labeled BUSINESS
-ERROR. Only diagnostic response fields are exposed; credentials, identities,
-banking records, query values and request headers/bodies are masked or omitted.
-Raw CAPTCHA Base64, binary data and non-JSON pages are summarized. Output is
-bounded and logging is not registered in release builds.
+following and no automatic POST replay. In Debug builds only, the shared
+ApiLoggingInterceptor prints the full URL
+and query values, request/response headers and bodies without redaction,
+allowlists or output-length limits. This includes SessionId, token, Authorization,
+cookies, identity fields, OTP/CAPTCHA values, unknown JSON fields and raw Base64
+or non-JSON responses. It also prints request numbers, timeouts, response type,
+HTTP status, elapsed time and error details. HTTP 200 with a nonzero bank status
+remains BUSINESS ERROR. The formatter does not modify request/response values.
+Multipart fields and file metadata are displayed; file and live response streams
+are not consumed by logging. All current Login calls use ordinary JSON/plain
+responses and display their complete bodies. The logger lives in
+`core/network/data/interceptors/api_logging_interceptor.dart`, with a separate
+payload formatter. It applies to every API using the registered shared Dio, not
+just Login. Registration and all callbacks are gated by kDebugMode; Profile and
+Release produce no API logs. Unit tests use synthetic data and fake transports;
+no diagnostic probes or live-bank test switches are added to production code.
+Hot restart a running app to recreate the shared Dio client.
 Development/profile traffic can use the supplied host. Mobile release traffic is
 blocked with `security.pinning_not_configured` until architecture §9.4 can be
 implemented using bank-approved current and backup SPKI hashes, expiry policy

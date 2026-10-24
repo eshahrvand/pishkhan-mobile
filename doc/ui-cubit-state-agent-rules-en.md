@@ -146,6 +146,18 @@ other Minimal Cubit Rule.
    Clearing/replacing the model clears/replaces the pair atomically; no fallback
    identifier or redundant null guard is added.
 
+## Owner-Approved Debug-Only Network Diagnostics
+
+The owner explicitly requested complete terminal visibility for outgoing and
+incoming API data. The shared bank Dio logging interceptor may print full URLs,
+headers and bodies, including credentials, OTP/CAPTCHA and banking/identity data,
+without masking or length truncation in Debug builds only. This scoped
+instruction supersedes the general no-sensitive-logging wording only for that
+interceptor. Both the factory registration and interceptor callbacks use
+`kDebugMode`; Profile and Release produce no API logs. Cubit/State logging and all other
+security boundaries are unchanged. Live upload/response streams are not consumed
+by the formatter; multipart logs contain fields and file metadata.
+
 ## Mandatory Enforcement for Every Agent
 
 This is the single authoritative project style contract for UI, Cubit, State,

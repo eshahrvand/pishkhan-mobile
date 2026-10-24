@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import '../../result/failure.dart';
 import 'interceptors/api_logging_interceptor.dart';
 
-/// HTTPS transport with redacted development logs and no automatic POST retries.
+/// HTTPS transport with full debug-only logs and no automatic POST retries.
 /// Bank-approved primary/backup SPKI pins are still required for production.
 Dio createBankDio() {
   final dio = Dio(
@@ -33,7 +33,7 @@ Dio createBankDio() {
       ),
     );
   }
-  if (!kReleaseMode) {
+  if (kDebugMode) {
     dio.interceptors.add(ApiLoggingInterceptor());
   }
   return dio;

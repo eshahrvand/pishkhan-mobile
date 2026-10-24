@@ -807,7 +807,20 @@ Response / error path:
 
 **`ErrorMappingInterceptor`:** no feature should ever see a `DioException`. Enforced by `custom_lint`.
 
-**`LoggingInterceptor`:** full body logging, even in staging, means national IDs and account numbers land in system logs. The list of masked fields is defined and applied centrally.
+**`LoggingInterceptor` baseline:** PII masking applies unless explicitly superseded
+by the owner instruction below.
+
+**Owner-approved Debug-only diagnostics:** the existing shared bank Dio logger
+prints complete outgoing/incoming URLs, header values, body values and error
+details with no redaction or length truncation in Debug builds only.
+This includes tokens, SessionId, cookies, identity and OTP/CAPTCHA data. This
+explicit instruction supersedes conflicting masking wording only for that
+interceptor. The shared Dio factory registers it only with kDebugMode, and its
+callbacks also check kDebugMode. Profile and Release produce no API logs. All API
+repositories use the registered shared Dio; no feature-specific logger is needed.
+JSON and plain/Base64 bodies
+are printed in full; multipart fields/file metadata are shown without consuming
+upload streams. Other security controls and logging locations are unchanged.
 
 ### 10.4 Refresh Token Rotation (Mobile Only)
 
