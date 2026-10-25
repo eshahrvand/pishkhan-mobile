@@ -687,6 +687,12 @@ Evaluation runs at two points: application startup, and every return to `AppLife
 
 ### 9.4 SSL Certificate Pinning
 
+**Temporary owner exception, 2026-10-25:** team review Release builds may send
+requests using ordinary HTTPS certificate validation while approved pins are
+unavailable. The local `security.pinning_not_configured` request blocker is
+removed. No certificate validation bypass is introduced. The pinning design and
+bank-supplied current/backup keys below remain a production integration task.
+
 SHA-256 hash verification of the server's **public key** (not the certificate itself) on all Dio requests. Mobile only; on web this is the browser's responsibility.
 
 **Operational requirements that must accompany the implementation:**
@@ -844,14 +850,13 @@ Response / error path:
 **`LoggingInterceptor` baseline:** PII masking applies unless explicitly superseded
 by the owner instruction below.
 
-**Owner-approved Debug-only diagnostics:** the existing shared bank Dio logger
-prints complete outgoing/incoming URLs, header values, body values and error
-details with no redaction or length truncation in Debug builds only.
-This includes tokens, SessionId, cookies, identity and OTP/CAPTCHA data. This
-explicit instruction supersedes conflicting masking wording only for that
-interceptor. The shared Dio factory registers it only with kDebugMode, and its
-callbacks also check kDebugMode. Profile and Release produce no API logs. All API
-repositories use the registered shared Dio; no feature-specific logger is needed.
+**Owner-approved API diagnostics:** the shared bank Dio logger prints complete
+outgoing/incoming URLs, headers, bodies and error details without masking or
+length truncation. On 2026-10-25 the owner explicitly extended this to Release
+troubleshooting. Factory registration and callbacks use
+`AppConstants.apiLoggingEnabled`; `API_LOGS` currently defaults to true in all
+modes and may be disabled with `--dart-define=API_LOGS=false`. All API repositories
+use the shared Dio logger. This supersedes the previous Debug-only restriction.
 JSON and plain/Base64 bodies
 are printed in full; multipart fields/file metadata are shown without consuming
 upload streams. Other security controls and logging locations are unchanged.

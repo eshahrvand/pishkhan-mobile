@@ -151,10 +151,10 @@ Reused: AppTopBar, AppInvoice, AppBottomSheetHeader; package AppSelect/AppTextFi
 
 Compatible app extension: AppInvoice.borderRadius and zeroHeightDividers reproduce the authored invoice without altering existing defaults. Compatible package extensions: secure field properties; AppSelect’s default full-width selection sheet; optional disabled primary service appearance (Gray200/xs). Video square is343px/radius8; bottom track8px and Play16px; poster uses the original image/crop; camera notice is BlueGray100. Runtime videos preserve their full frame with letterboxing where aspect ratios differ.
 
-App assets are original Figma exports in flat assets/images and referenced with AppConstants.baseImage. Instruction image1092×1560 uses the authored142.86% height/-11.62% top crop. Recording image472×398 uses cover in the square preview. Active/inactive check20px; PIN eye20px; serial info14px; camera info20px; mock Play20.903×22.803; success57.0045×59.9961. Selection and request-status sheets preserve their separate original375×812 scrim exports. Byte-identical option/section divider exports reuse cardFeaturesDivider/issuanceDivider. No screenshots become runtime assets. No temporary Figma URL appears in Dart.
+App assets are original Figma exports in flat assets/images and referenced with AppConstants.baseImage. Instruction image1092×1560 uses the authored142.86% height/-11.62% top crop. Recording image472×398 uses cover in the square preview. Active/inactive check20px; PIN eye20px; serial info14px; camera info20px; mock Play20.903×22.803; success57.0045×59.9961. Selection and request-status sheets retain the original #101828/.64 scrim color through the shared native modal barrier; their source exports remain bundled. Byte-identical option/section divider exports reuse cardFeaturesDivider/issuanceDivider. No screenshots become runtime assets. No temporary Figma URL appears in Dart.
 
 Retained/corrected differences:
-- The original modal SVG has unsupported foreignObject/displacement filters; its supported scrim plus native sigma2 backdrop blur render. The advanced authored texture is not exact.
+- The shared AppServiceSheetRoute fades the scrim and sigma2 blur in place while only the panel slides. The original unsupported SVG displacement/texture is not reproduced.
 - AppInvoice opts into compatible borderRadius=zero and zeroHeightDividers=true, matching the white square-corner/zero-height instance. Existing16px/.5px defaults and other consumers remain unchanged.
 - The record page includes explicit mock disclosure/confirmation. It is a placeholder, as requested, not a video of the user. The sample player's attribution is additional truthful demo copy.
 - The first-PIN option is visible with authored explanation but reports unsupported rather than entering Feature 1.
@@ -233,3 +233,10 @@ Static current-field eye/check/divider and sheet badge SVGs are byte-identical t
 ## Cubit/State coding convention
 
 Follow [architecture Section 12](../architecture-smart-virtual-counter-v2-en.md#12-state-management-with-cubit) for new work and refactors. State is a plain Freezed data class with defaults and independent request statuses. Cubits accept an initial State, compute UI data and eligibility, and emit immutable snapshots through `copyWith`. UI reads those fields directly; no custom State/Cubit getters or UI-facing rules facade is used. Dependencies remain injectable and lifecycle/duplicate-request safeguards stay in place.
+
+## Bottom-sheet transition update
+
+Card and password sheets now use the shared AppServiceSheetRoute. The dim layer
+belongs to the stationary modal barrier; only the content panel slides from the
+bottom. The original dark color, panel styling, safe-area spacing and modal
+results are retained. Outside taps and system Back use the route dismissal path.

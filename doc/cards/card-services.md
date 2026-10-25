@@ -211,7 +211,12 @@ Original category-vector transforms are preserved; existing legacy AppCardsList 
 
 ### Known rendering limits
 
-The original modal SVG contains foreignObject/texture/displacement filter constructs unsupported by flutter_svg. Its supported fill remains intact; a native BackdropFilter(sigma2) supplies backdrop blur. The advanced Figma displacement/texture effect is not reproduced exactly. Both unsupported-element warnings and the remaining effect difference are recorded here; the source SVG is not edited or replaced.
+The shared AppServiceSheetRoute paints the original #101828/.64 scrim as a native
+modal barrier. Its opacity and sigma2 backdrop blur animate in place; only the
+panel slides. Card action/detail/filter sheets share this route with other card
+services. The original SVG stays in the asset bundle but is not rendered as a
+full-height sliding sheet background. Advanced Figma displacement/texture is not
+reproduced.
 
 Fixed44px input/40px chip/22px row geometry follows the normal-scale frames. Large-text/narrow interaction tests pass, with opt-in footer ellipsis; full untruncated large-text card-detail redesign and platform rasterization certification remain future work. OS status/navigation icons are not reproduced.
 

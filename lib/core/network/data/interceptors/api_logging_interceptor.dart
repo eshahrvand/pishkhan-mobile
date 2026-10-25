@@ -1,10 +1,11 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
+import '../../../config/constant.dart';
 import 'api_log_formatter.dart';
 
 /// Terminal diagnostics for every request on the shared bank Dio client.
-/// Full headers and bodies in Debug only, including when manually registered.
+/// Full headers and bodies in every build mode while API_LOGS is enabled.
 class ApiLoggingInterceptor extends Interceptor {
   ApiLoggingInterceptor({void Function(String)? log})
     : _log = log ?? ((message) => debugPrint(message, wrapWidth: 1000));
@@ -15,7 +16,7 @@ class ApiLoggingInterceptor extends Interceptor {
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    if (!kDebugMode) {
+    if (!AppConstants.apiLoggingEnabled) {
       handler.next(options);
       return;
     }
@@ -35,7 +36,7 @@ class ApiLoggingInterceptor extends Interceptor {
 
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
-    if (!kDebugMode) {
+    if (!AppConstants.apiLoggingEnabled) {
       handler.next(response);
       return;
     }
@@ -55,7 +56,7 @@ class ApiLoggingInterceptor extends Interceptor {
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    if (!kDebugMode) {
+    if (!AppConstants.apiLoggingEnabled) {
       handler.next(err);
       return;
     }

@@ -160,15 +160,17 @@ are not consumed by logging. All current Login calls use ordinary JSON/plain
 responses and display their complete bodies. The logger lives in
 `core/network/data/interceptors/api_logging_interceptor.dart`, with a separate
 payload formatter. It applies to every API using the registered shared Dio, not
-just Login. Registration and all callbacks are gated by kDebugMode; Profile and
-Release produce no API logs. Unit tests use synthetic data and fake transports;
+just Login. The owner enabled Release diagnostics on 2026-10-25. Registration
+and callbacks use AppConstants.apiLoggingEnabled (`API_LOGS`, currently true by
+default in all modes). Disable diagnostics with `--dart-define=API_LOGS=false`. Unit tests use synthetic data and fake transports;
 no diagnostic probes or live-bank test switches are added to production code.
 Hot restart a running app to recreate the shared Dio client.
-Development/profile traffic can use the supplied host. Mobile release traffic is
-blocked with `security.pinning_not_configured` until architecture §9.4 can be
-implemented using bank-approved current and backup SPKI hashes, expiry policy
-and rotation instructions. Web relies on browser TLS as the architecture specifies.
-The current code is not a completed certificate-pinning implementation.
+The owner explicitly authorized temporary review releases without the local
+`security.pinning_not_configured` request blocker on 2026-10-25. Debug, Profile
+and Release now use ordinary HTTPS certificate validation; no invalid-certificate
+callback or trust-all adapter is installed. Approved current/backup SPKI hashes,
+expiry policy and rotation instructions remain required to implement architecture
+§9.4 for production. The current code is not a completed pinning implementation.
 
 Before production: obtain official OpenAPI/error codes, approved SPKI pins and
 expiry handling, IP policy, OTP expiry/resend

@@ -1,12 +1,10 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 
 import '../../config/constant.dart';
-import '../../result/failure.dart';
 import 'interceptors/api_logging_interceptor.dart';
 
-/// HTTPS transport with full debug-only logs and no automatic POST retries.
-/// Bank-approved primary/backup SPKI pins are still required for production.
+/// HTTPS transport with configurable API diagnostics and no automatic POST retries.
+/// Owner-approved test releases currently use ordinary HTTPS validation.
 Dio createBankDio() {
   final dio = Dio(
     BaseOptions(
@@ -18,24 +16,10 @@ Dio createBankDio() {
       headers: {'Accept-Language': 'fa-IR'},
     ),
   );
-  // Architecture §9.4 requires approved current + backup SPKI pins. Until the
-  // bank supplies those keys, do not silently ship an unpinned release client.
-  if (kReleaseMode && !kIsWeb) {
-    dio.interceptors.add(
-      InterceptorsWrapper(
-        onRequest: (options, handler) {
-          handler.reject(
-            DioException(
-              requestOptions: options,
-              error: const DataFailure('security.pinning_not_configured'),
-            ),
-          );
-        },
-      ),
-    );
-  }
-  if (kDebugMode) {
+  if (AppConstants.apiLoggingEnabled) {
     dio.interceptors.add(ApiLoggingInterceptor());
   }
+  // Owner-approved temporary review builds use ordinary HTTPS certificate
+  // validation in every mode until the bank supplies its approved SPKI pins.
   return dio;
 }

@@ -39,6 +39,65 @@ void main() {
     ),
   );
 
+  for (final width in [320.0, 375.0]) {
+    testWidgets(
+      'microservices align incomplete rows with columns at width $width',
+      (tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: AppTheme.light(),
+            home: Scaffold(
+              body: SizedBox(
+                width: width,
+                child: AppServiceGridCard(
+                  title: 'Services',
+                  items: [
+                    for (var index = 0; index < (width == 320 ? 5 : 6); index++)
+                      AppServiceGridItem(
+                        id: 'service-$index',
+                        label: 'Service $index',
+                        icon: const Icon(Icons.person_outline),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+        final items = find.byType(AppServiceGridItemView);
+        final grid = tester.getRect(
+          find.ancestor(of: items.first, matching: find.byType(Row)).first,
+        );
+        final firstRow = [
+          for (var index = 0; index < items.evaluate().length; index++)
+            if ((tester.getRect(items.at(index)).top -
+                        tester.getRect(items.first).top)
+                    .abs() <
+                .01)
+              tester.getRect(items.at(index)),
+        ]..sort((a, b) => a.left.compareTo(b.left));
+        expect(firstRow, hasLength(width == 320 ? 3 : 4));
+        expect(firstRow.first.left, closeTo(grid.left, .01));
+        expect(firstRow.last.right, closeTo(grid.right, .01));
+        final gap = firstRow[1].left - firstRow[0].right;
+        for (var index = 2; index < firstRow.length; index++) {
+          expect(
+            firstRow[index].left - firstRow[index - 1].right,
+            closeTo(gap, .01),
+          );
+        }
+        final columns = firstRow.length;
+        for (var index = columns; index < items.evaluate().length; index++) {
+          expect(
+            tester.getRect(items.at(index)).left,
+            closeTo(tester.getRect(items.at(index % columns)).left, .01),
+          );
+        }
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
+
   testWidgets('reports selected service item', (tester) async {
     var tapped = false;
     await tester.pumpWidget(

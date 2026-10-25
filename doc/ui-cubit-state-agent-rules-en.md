@@ -216,16 +216,21 @@ remain unchanged.
    Clearing/replacing the model clears/replaces the pair atomically; no fallback
    identifier or redundant null guard is added.
 
-## Owner-Approved Debug-Only Network Diagnostics
+## Owner-Approved Network Diagnostics
 
 The owner explicitly requested complete terminal visibility for outgoing and
 incoming API data. The shared bank Dio logging interceptor may print full URLs,
 headers and bodies, including credentials, OTP/CAPTCHA and banking/identity data,
-without masking or length truncation in Debug builds only. This scoped
-instruction supersedes the general no-sensitive-logging wording only for that
-interceptor. Both the factory registration and interceptor callbacks use
-`kDebugMode`; Profile and Release produce no API logs. Cubit/State logging and all other
-security boundaries are unchanged. Live upload/response streams are not consumed
+without masking or length truncation. The owner explicitly enabled Release
+terminal diagnostics for troubleshooting on 2026-10-25. The shared
+`AppConstants.apiLoggingEnabled` switch is controlled by `API_LOGS` and currently
+defaults to true in all build modes; use `--dart-define=API_LOGS=false` to disable
+it. The factory and interceptor use the same switch. All shared-client requests
+and failures, including local interceptor rejections, use these diagnostics.
+This is an explicit temporary extension of the previous Debug-only scope.
+Cubit/State logging remains unchanged. The owner separately authorized removing
+the unconfigured-pinning Release request blocker for current team review builds;
+ordinary HTTPS certificate validation remains enabled. See architecture §9.4. Live upload/response streams are not consumed
 by the formatter; multipart logs contain fields and file metadata.
 
 ## Mandatory Enforcement for Every Agent
