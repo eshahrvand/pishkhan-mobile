@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 
 import 'password_pin_field.dart';
@@ -9,7 +10,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/features/cards/presentation/password_services/cubit/second_password_cubit.dart';
 import 'package:pishkhan_mobile/features/cards/presentation/password_services/widgets/password_styles.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 class SecondPasswordForm extends StatefulWidget {
   const SecondPasswordForm({super.key, required this.state});
@@ -76,7 +76,7 @@ class _PasswordFormState extends State<SecondPasswordForm> {
               minHeight: 1,
               maxHeight: 1,
               child: AvpImage(
-                image: AppAssets.issuanceDivider,
+                image: '${AppConstants.baseImage}issuance_divider.svg',
                 fit: BoxFit.fill,
               ),
             ),

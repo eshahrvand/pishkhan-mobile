@@ -23,11 +23,11 @@ abstract class DepositRestrictionState with _$DepositRestrictionState {
     @Default(false) bool isEditable,
     @Default(false) bool hasChanges,
     @Default(false) bool isExitToAssistant,
-    Failure? catalogFailure,
-    Failure? submissionFailure,
+    Failure? failure,
+    String? message,
+
     String? idempotencyKey,
     DepositRestrictionReceipt? receipt,
     DepositRestrictionEffect? effect,
-    @Default(0) int effectId,
   }) = _DepositRestrictionState;
 }

@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:pishkhan_mobile/core/flow/service_registry.dart';
 
 import '../../shared/certificate_receipt_dialog.dart';
@@ -13,7 +14,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
 
@@ -35,8 +35,17 @@ class FinancialCertificateScreen extends StatelessWidget {
     BuildContext context,
     FinancialCertificateState state,
   ) async {
+    if (state.message != null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(state.message!)));
+      return;
+    }
+
     switch (state.effect) {
       case CertificateAddressRequested():
+        context
+            .read<FinancialCertificateCubit>()
+            .consumeFinancialCertificateInteraction();
         final address = await ServiceRegistry.openAddressEditor(context);
         if (context.mounted) {
           context.read<FinancialCertificateCubit>().applyAddressSelection(
@@ -44,6 +53,9 @@ class FinancialCertificateScreen extends StatelessWidget {
           );
         }
       case CertificateAddressRemovalRequested(:final address):
+        context
+            .read<FinancialCertificateCubit>()
+            .consumeFinancialCertificateInteraction();
         final cubit = context.read<FinancialCertificateCubit>();
         await showModalBottomSheet<void>(
           context: context,
@@ -64,12 +76,18 @@ class FinancialCertificateScreen extends StatelessWidget {
           ),
         );
       case CertificateAgentUnavailable():
+        context
+            .read<FinancialCertificateCubit>()
+            .consumeFinancialCertificateInteraction();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(S.current.certificateAgentUnavailable)),
         );
       case null:
         switch (state.navigation) {
           case FlowNavigation.confirmExit:
+            context
+                .read<FinancialCertificateCubit>()
+                .consumeFinancialCertificateInteraction();
             final confirmed = await showFlowExitDialog(context);
             if (context.mounted) {
               context.read<FinancialCertificateCubit>().applyExitConfirmation(
@@ -109,7 +127,13 @@ class FinancialCertificateScreen extends StatelessWidget {
       )..fetchCatalog(),
       child: BlocListener<FinancialCertificateCubit, FinancialCertificateState>(
         listenWhen: (previous, current) =>
-            previous.effectId != current.effectId,
+            (previous.effect != current.effect && current.effect != null) ||
+            (previous.navigation != current.navigation &&
+                current.navigation != null) ||
+            ((previous.catalogStatus != current.catalogStatus &&
+                    current.catalogStatus == RequestStatus.failure) ||
+                (previous.submissionStatus != current.submissionStatus &&
+                    current.submissionStatus == RequestStatus.failure)),
         listener: _handleEffect,
         child: BlocConsumer<FinancialCertificateCubit, FinancialCertificateState>(
           listenWhen: (previous, current) =>
@@ -117,14 +141,21 @@ class FinancialCertificateScreen extends StatelessWidget {
               current.submissionStatus == RequestStatus.success,
           listener: _handleReceipt,
           buildWhen: (previous, current) =>
+              previous.catalogStatus != current.catalogStatus ||
+              previous.submissionStatus != current.submissionStatus ||
               previous.navigation != current.navigation,
           builder: (context, state) {
             return Directionality(
               textDirection: TextDirection.rtl,
               child: PopScope(
-                canPop: state.navigation == FlowNavigation.back,
+                canPop:
+                    (state.catalogStatus != RequestStatus.loading &&
+                        state.submissionStatus != RequestStatus.loading) &&
+                    (state.navigation == FlowNavigation.back),
                 onPopInvokedWithResult: (didPop, _) {
-                  if (!didPop) {
+                  if (!didPop &&
+                      state.catalogStatus != RequestStatus.loading &&
+                      state.submissionStatus != RequestStatus.loading) {
                     context.read<FinancialCertificateCubit>().requestBack();
                   }
                 },
@@ -138,12 +169,17 @@ class FinancialCertificateScreen extends StatelessWidget {
                           leadingAction: const SizedBox.shrink(),
                           showLeadingActions: false,
                           trailingIcon: depositIcon(
-                            AppAssets.depositFeatureBack,
+                            '${AppConstants.baseImage}deposit_list_back.svg',
                           ),
                           trailingTooltip: S.current.backLabel,
-                          onTrailingPressed: context
-                              .read<FinancialCertificateCubit>()
-                              .requestBack,
+                          onTrailingPressed:
+                              (state.catalogStatus != RequestStatus.loading &&
+                                  state.submissionStatus !=
+                                      RequestStatus.loading)
+                              ? context
+                                    .read<FinancialCertificateCubit>()
+                                    .requestBack
+                              : null,
                         ),
                         Expanded(
                           child: Stack(

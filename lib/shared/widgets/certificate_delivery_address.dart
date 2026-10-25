@@ -1,7 +1,7 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_address_card.dart';
 
 import 'package:pishkhan_mobile/core/domain/entities/delivery_address.dart';
@@ -59,7 +59,7 @@ class CertificateDeliveryAddress extends StatelessWidget {
                   label: S.current.issuanceAddAddress,
                   variant: AppButtonVariant.text,
                   leadingIcon: AvpImage(
-                    image: AppAssets.certificatePlus,
+                    image: '${AppConstants.baseImage}certificate_certPlus.svg',
                     width: 20,
                     height: 20,
                   ),
@@ -78,7 +78,7 @@ class CertificateDeliveryAddress extends StatelessWidget {
             address: address!.detail,
             postalCode: address!.postalCode,
             deleteIcon: AvpImage(
-              image: AppAssets.issuanceTrash,
+              image: '${AppConstants.baseImage}issuance_trash.svg',
               width: 20,
               height: 20,
             ),

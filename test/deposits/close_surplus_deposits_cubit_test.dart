@@ -122,7 +122,7 @@ void main() {
       getIt.registerSingleton<SurplusDepositsRepository>(repository);
       final cubit = createCubit();
       await cubit.fetchPrimaryDeposits();
-      expect(cubit.state.depositsFailure, const UnexpectedFailure());
+      expect(cubit.state.failure, const UnexpectedFailure());
       repository.throwsCatalog = false;
       await cubit.fetchPrimaryDeposits();
       cubit.selectPrimaryDeposit(cubit.state.deposits.first);
@@ -183,9 +183,11 @@ void main() {
       cubit.applyExitConfirmation(true);
       expect(cubit.state.effect, CloseSurplusDepositsEffect.assistant);
       cubit.requestTerms();
-      final id = cubit.state.effectId;
+      final effectBeforeRepeat = cubit.state.effect;
+      cubit.consumeCloseSurplusDepositsInteraction();
+      expect(cubit.state.effect, isNull);
       cubit.requestTerms();
-      expect(cubit.state.effectId, id + 1);
+      expect(cubit.state.effect.runtimeType, effectBeforeRepeat.runtimeType);
     },
   );
 

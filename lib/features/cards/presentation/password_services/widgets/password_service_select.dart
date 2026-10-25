@@ -1,6 +1,6 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 import 'password_styles.dart';
 
@@ -43,8 +43,8 @@ class PasswordServiceSelect<T> extends StatelessWidget {
         dimension: 20,
         child: AvpImage(
           image: value == null
-              ? AppAssets.issuanceSelectEmpty
-              : AppAssets.cardFeaturesChevron,
+              ? '${AppConstants.baseImage}issuance_select_empty.svg'
+              : '${AppConstants.baseImage}card_features_chevron.svg',
           fit: BoxFit.contain,
         ),
       ),

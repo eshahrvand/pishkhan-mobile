@@ -28,7 +28,7 @@ class AgentSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocListener<AgentCubit, AgentState>(
       listenWhen: (previous, current) =>
-          previous.draftSavedId != current.draftSavedId,
+          current.agents.length > previous.agents.length,
       listener: (context, state) => context.pop(),
       child: Directionality(
         textDirection: TextDirection.rtl,

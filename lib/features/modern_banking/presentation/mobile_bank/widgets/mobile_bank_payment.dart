@@ -1,8 +1,8 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_invoice.dart';
 
 import '../cubit/mobile_bank_cubit.dart';
@@ -29,7 +29,9 @@ class MobileBankPayment extends StatelessWidget {
           amount: CurrencyFormatter.format(state.catalog!.registryFeeRial),
           icon: SizedBox.square(
             dimension: 20,
-            child: AvpImage(image: AppAssets.modernRegistryFee),
+            child: AvpImage(
+              image: '${AppConstants.baseImage}modern_registry_fee.svg',
+            ),
           ),
         ),
         AppInvoiceLine(
@@ -44,7 +46,9 @@ class MobileBankPayment extends StatelessWidget {
           amount: CurrencyFormatter.format(state.catalog!.passwordFeeRial),
           icon: SizedBox.square(
             dimension: 20,
-            child: AvpImage(image: AppAssets.modernPasswordFee),
+            child: AvpImage(
+              image: '${AppConstants.baseImage}modern_password_fee.svg',
+            ),
           ),
         ),
       ],

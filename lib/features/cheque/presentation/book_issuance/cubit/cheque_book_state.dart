@@ -60,13 +60,9 @@ abstract class ChequeBookState with _$ChequeBookState {
     ChequeBookDraft? confirmedDraft,
     String? idempotencyKey,
     ChequeBookReceipt? receipt,
-    Failure? catalogFailure,
-    Failure? residencyFailure,
-    Failure? addressDeletionFailure,
-    Failure? addressSaveFailure,
-    Failure? quoteFailure,
-    Failure? submissionFailure,
+    Failure? failure,
+    String? message,
+
     ChequeBookEffect? effect,
-    @Default(0) int effectId,
   }) = _ChequeBookState;
 }

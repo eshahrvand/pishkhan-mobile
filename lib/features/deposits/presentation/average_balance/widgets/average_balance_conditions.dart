@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
+
 import 'average_balance_date_field.dart';
 import 'average_balance_turnover_field.dart';
 
@@ -8,7 +10,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../domain/entities/listed_deposit.dart';
 
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 import '../../../domain/entities/certificate_data.dart';
 import '../../shared/certificate_fields.dart';
@@ -39,7 +40,9 @@ class AverageBalanceConditions extends StatelessWidget {
             ),
             if (state.deposit != null) ...[
               const SizedBox(height: 22),
-              const DepositDivider(asset: AppAssets.certificateDivider),
+              const DepositDivider(
+                asset: '${AppConstants.baseImage}certificate_certDivider.svg',
+              ),
               const SizedBox(height: 20),
               Text(
                 S.current.certificateConditionsPrompt,
@@ -118,7 +121,7 @@ class AverageBalanceConditions extends StatelessWidget {
                         Row(
                           children: [
                             depositIcon(
-                              AppAssets.certificatePrintNotice,
+                              '${AppConstants.baseImage}certificate_certPrintNotice.svg',
                               size: 20,
                             ),
                             const SizedBox(width: 4),

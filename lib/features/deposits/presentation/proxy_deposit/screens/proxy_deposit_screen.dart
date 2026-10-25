@@ -1,10 +1,10 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
 import 'package:pishkhan_mobile/shared/widgets/flow_exit_dialog.dart';
@@ -28,8 +28,15 @@ class ProxyDepositScreen extends StatelessWidget {
     BuildContext context,
     ProxyDepositState state,
   ) async {
+    if (state.message != null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(state.message!)));
+      return;
+    }
+
     switch (state.effect) {
       case ProxyDepositEffect.confirmExit:
+        context.read<ProxyDepositCubit>().consumeProxyDepositInteraction();
         final confirmed = await showFlowExitDialog(context);
         if (context.mounted) {
           context.read<ProxyDepositCubit>().applyExitConfirmation(confirmed);
@@ -41,9 +48,11 @@ class ProxyDepositScreen extends StatelessWidget {
       case ProxyDepositEffect.home:
         NavigationActions.returnHome(context);
       case ProxyDepositEffect.assistant:
+        context.read<ProxyDepositCubit>().consumeProxyDepositInteraction();
         NavigationActions.returnHome(context);
         onAssistantPressed?.call();
       case ProxyDepositEffect.termsUnavailable:
+        context.read<ProxyDepositCubit>().consumeProxyDepositInteraction();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(S.current.issuanceTermsUnavailable)),
         );
@@ -75,16 +84,26 @@ class ProxyDepositScreen extends StatelessWidget {
         listener: _handleReceipt,
         child: BlocConsumer<ProxyDepositCubit, ProxyDepositState>(
           listenWhen: (previous, current) =>
-              previous.effectId != current.effectId,
+              (previous.effect != current.effect &&
+                  current.effect != null) ||
+              ((previous.catalogStatus != current.catalogStatus &&
+                      current.catalogStatus == RequestStatus.failure) ||
+                  (previous.submissionStatus != current.submissionStatus &&
+                      current.submissionStatus == RequestStatus.failure)),
           listener: _handleEffect,
-          buildWhen: (previous, current) => previous.effect != current.effect,
+
           builder: (context, state) {
             return Directionality(
               textDirection: TextDirection.rtl,
               child: PopScope(
-                canPop: state.effect == ProxyDepositEffect.back,
+                canPop:
+                    (state.catalogStatus != RequestStatus.loading &&
+                        state.submissionStatus != RequestStatus.loading) &&
+                    (state.effect == ProxyDepositEffect.back),
                 onPopInvokedWithResult: (didPop, _) {
-                  if (!didPop) {
+                  if (!didPop &&
+                      state.catalogStatus != RequestStatus.loading &&
+                      state.submissionStatus != RequestStatus.loading) {
                     context.read<ProxyDepositCubit>().requestBack();
                   }
                 },
@@ -98,12 +117,15 @@ class ProxyDepositScreen extends StatelessWidget {
                           showLeadingActions: false,
                           leadingAction: const SizedBox.shrink(),
                           trailingIcon: depositIcon(
-                            AppAssets.depositFeatureBack,
+                            '${AppConstants.baseImage}deposit_list_back.svg',
                           ),
                           trailingTooltip: S.current.backLabel,
-                          onTrailingPressed: context
-                              .read<ProxyDepositCubit>()
-                              .requestBack,
+                          onTrailingPressed:
+                              (state.catalogStatus != RequestStatus.loading &&
+                                  state.submissionStatus !=
+                                      RequestStatus.loading)
+                              ? context.read<ProxyDepositCubit>().requestBack
+                              : null,
                         ),
                         Expanded(
                           child: Stack(

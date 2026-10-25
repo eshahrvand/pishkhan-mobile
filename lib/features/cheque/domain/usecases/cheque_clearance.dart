@@ -16,18 +16,6 @@ class FetchChequeClearanceCatalog {
   }
 }
 
-class FetchChequePostalOffices {
-  const FetchChequePostalOffices(this.repository);
-  final ChequeClearanceRepository repository;
-  Future<Result<List<PostalOffice>>> call(String cityId) async {
-    try {
-      return await repository.fetchPostalOffices(cityId);
-    } catch (_) {
-      return const Err(UnexpectedFailure());
-    }
-  }
-}
-
 class SubmitChequeClearance {
   const SubmitChequeClearance(this.repository);
   final ChequeClearanceRepository repository;

@@ -28,7 +28,8 @@ class _IssuanceAddressFormState extends State<IssuanceAddressForm> {
   Widget build(BuildContext context) {
     return BlocConsumer<CardIssuanceCubit, CardIssuanceState>(
       listenWhen: (previous, current) =>
-          previous.addressSavedId != current.addressSavedId,
+          (current.catalog?.addresses.length ?? 0) >
+          (previous.catalog?.addresses.length ?? 0),
       listener: (context, state) => Navigator.of(context).pop(),
       buildWhen: (previous, current) =>
           previous.isAddressFormError != current.isAddressFormError,

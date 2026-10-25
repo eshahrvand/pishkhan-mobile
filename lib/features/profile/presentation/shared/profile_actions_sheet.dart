@@ -1,6 +1,6 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_bottom_sheet_header.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_service_sheet.dart';
 
@@ -66,7 +66,9 @@ class ProfileActionsSheet<T> extends StatelessWidget {
                             1.8746,
                             1.5453,
                           ),
-                          child: AvpImage(image: AppAssets.profileEdit),
+                          child: AvpImage(
+                            image: '${AppConstants.baseImage}profile_edit.svg',
+                          ),
                         ),
                       ),
                       const SizedBox(width: 8),
@@ -89,7 +91,8 @@ class ProfileActionsSheet<T> extends StatelessWidget {
                   minHeight: .5,
                   maxHeight: .5,
                   child: AvpImage(
-                    image: AppAssets.profileActionsDivider,
+                    image:
+                        '${AppConstants.baseImage}profile_actions_divider.svg',
                     fit: BoxFit.fill,
                   ),
                 ),
@@ -103,7 +106,7 @@ class ProfileActionsSheet<T> extends StatelessWidget {
                   child: Row(
                     children: [
                       AvpImage(
-                        image: AppAssets.profileTrash,
+                        image: '${AppConstants.baseImage}profile_trash.svg',
                         width: 18,
                         height: 18,
                       ),

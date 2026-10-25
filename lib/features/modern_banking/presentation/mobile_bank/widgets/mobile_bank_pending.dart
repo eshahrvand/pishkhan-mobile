@@ -1,7 +1,7 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 import '../../shared/modern_bank_notice.dart';
 
@@ -35,7 +35,10 @@ class MobileBankPending extends StatelessWidget {
                   child: Center(
                     child: SizedBox.square(
                       dimension: 16,
-                      child: AvpImage(image: AppAssets.modernStatusCheck),
+                      child: AvpImage(
+                        image:
+                            '${AppConstants.baseImage}modern_status_check.svg',
+                      ),
                     ),
                   ),
                 ),
@@ -54,7 +57,10 @@ class MobileBankPending extends StatelessWidget {
                   child: Center(
                     child: SizedBox.square(
                       dimension: 16,
-                      child: AvpImage(image: AppAssets.modernStatusCheck),
+                      child: AvpImage(
+                        image:
+                            '${AppConstants.baseImage}modern_status_check.svg',
+                      ),
                     ),
                   ),
                 ),
@@ -65,7 +71,9 @@ class MobileBankPending extends StatelessWidget {
                 ),
                 SizedBox.square(
                   dimension: 20,
-                  child: AvpImage(image: AppAssets.modernStatusWait),
+                  child: AvpImage(
+                    image: '${AppConstants.baseImage}modern_status_wait.svg',
+                  ),
                 ),
               ],
             ),
@@ -124,7 +132,10 @@ class MobileBankPending extends StatelessWidget {
         const SizedBox(height: 20),
         SizedBox(
           height: 1,
-          child: AvpImage(image: AppAssets.modernDivider, fit: BoxFit.fill),
+          child: AvpImage(
+            image: '${AppConstants.baseImage}modern_divider.svg',
+            fit: BoxFit.fill,
+          ),
         ),
         const SizedBox(height: 20),
         ModernBankNotice(message: S.current.modernUsernameNotice),

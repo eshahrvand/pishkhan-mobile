@@ -43,9 +43,9 @@ they do not change the public API of `avp_ui`.
 - Reuse an existing file only when its binary content is identical. Give true
   shared assets a semantic name; prefix unique assets with their feature or
   component name to prevent collisions.
-- Add every path to `AppAssets` and reference that registry (or a thin
-  feature-scoped alias) from Dart code. Do not hard-code asset paths in UI
-  widgets.
+- Reference app images directly as `${AppConstants.baseImage}filename.svg` using
+  `core/config/constant.dart`. Keep the `assets/images/` bundle entry in pubspec.
+  Do not introduce an asset registry or feature alias class.
 - Add a focused widget test in `test/` for each interactive state.
 
 ## Dashboard composition (updated design)
@@ -58,7 +58,7 @@ See [Dashboard development](dashboard/development.md) for all nine updated frame
 - Dashboard bell pushes `NotificationsScreen`; cards push `NotificationDetailScreen`.
 - `NotificationHeader` and `NotificationCard` compose `avp_ui` typography, colors,
   radii, shadows, and the existing `AppButton`. Exact notification SVGs and the
-  detail illustration are registered in `AppAssets`.
+  detail illustration are referenced with `AppConstants.baseImage`.
 - `NotificationsScreen.messages` accepts `NotificationMessage` data; `onChanged`
   returns read-state updates. Opening a message marks it read, and “Read all”
   marks every message read. The dashboard retains updates for its lifetime.

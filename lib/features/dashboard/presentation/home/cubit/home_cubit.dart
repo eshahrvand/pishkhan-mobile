@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:characters/characters.dart';
+import 'package:pishkhan_mobile/core/presentation/mappers/request_error_message_mapper.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
 import 'package:pishkhan_mobile/core/notifications/notification_message.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -20,6 +21,7 @@ import '../../shared/dashboard_drawer_group.dart';
 import '../../shared/deposit_actions.dart';
 import '../../shared/loan_actions.dart';
 import '../../shared/dashboard_services.dart';
+import '../../shared/dashboard_service_group.dart';
 import '../../shared/dashboard_tab.dart';
 import 'home_effect.dart';
 
@@ -32,10 +34,12 @@ class HomeCubit extends Cubit<HomeState> {
     HomeState initialState = const HomeState.initial(),
     this.drawerSectionLabels = const {},
     this.drawerServiceLabels = const {},
+    this.servicePickerLabels = const {},
   }) : super(initialState);
 
   final Map<DashboardDrawerSection, String> drawerSectionLabels;
   final Map<DashboardService, String> drawerServiceLabels;
+  final Map<DashboardService, String> servicePickerLabels;
 
   final _repositories = getIt<DashboardRepositories>();
   late final _loadHome = LoadDashboardHome(_repositories.home);
@@ -61,7 +65,7 @@ class HomeCubit extends Cubit<HomeState> {
       state.copyWith(
         selectedTab: tab,
         effect: HomeTabRequested(tab),
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -75,7 +79,7 @@ class HomeCubit extends Cubit<HomeState> {
         selectedDrawerSection: DashboardDrawerSection.home,
         drawerSelection: null,
         effect: const HomeMenuRequested(),
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -177,7 +181,7 @@ class HomeCubit extends Cubit<HomeState> {
       state.copyWith(
         selectedTab: AppPrimaryTab.dashboard,
         effect: const HomeAssistantRequested(),
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -187,30 +191,19 @@ class HomeCubit extends Cubit<HomeState> {
       requestAssistant();
     } else {
       emit(
-        state.copyWith(
-          effect: HomeServiceRequested(service.id),
-          effectId: state.effectId + 1,
-        ),
+        state.copyWith(effect: HomeServiceRequested(service.id), message: null),
       );
     }
   }
 
   void requestAllServices() {
     emit(
-      state.copyWith(
-        effect: const HomeAllServicesRequested(),
-        effectId: state.effectId + 1,
-      ),
+      state.copyWith(effect: const HomeAllServicesRequested(), message: null),
     );
   }
 
   void requestProfile() {
-    emit(
-      state.copyWith(
-        effect: const HomeProfileRequested(),
-        effectId: state.effectId + 1,
-      ),
-    );
+    emit(state.copyWith(effect: const HomeProfileRequested(), message: null));
   }
 
   void requestNotifications() {
@@ -218,7 +211,7 @@ class HomeCubit extends Cubit<HomeState> {
       state.copyWith(
         messages: state.messages ?? NotificationMessage.examples(),
         effect: const HomeNotificationsRequested(),
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -230,21 +223,97 @@ class HomeCubit extends Cubit<HomeState> {
   void requestFavoritePicker() {
     emit(
       state.copyWith(
-        effect: HomeFavoritePickerRequested(
-          excluded: state.favoriteServices
-              .map((service) => service.id)
-              .toList(),
-        ),
-        effectId: state.effectId + 1,
+        servicePickerQuery: '',
+        servicePickerGroups: _filterServicePickerGroups('', const {}),
+        servicePickerCollapsedCategories: const {},
+        isServicePickerSearching: false,
+        pickedService: null,
+        effect: const HomeFavoritePickerRequested(),
+        message: null,
       ),
     );
   }
+
+  void updateServicePickerQuery(String value) {
+    emit(
+      state.copyWith(
+        servicePickerQuery: value,
+        servicePickerGroups: _filterServicePickerGroups(
+          value,
+          state.servicePickerCollapsedCategories,
+        ),
+        isServicePickerSearching: _normalizeServicePickerQuery(value)
+            .isNotEmpty,
+      ),
+    );
+  }
+
+  void toggleServicePickerCategory(DashboardCategory category) {
+    final collapsed = Set<DashboardCategory>.of(
+      state.servicePickerCollapsedCategories,
+    );
+    if (!collapsed.remove(category)) collapsed.add(category);
+    emit(
+      state.copyWith(
+        servicePickerCollapsedCategories: collapsed,
+        servicePickerGroups: _filterServicePickerGroups(
+          state.servicePickerQuery,
+          collapsed,
+        ),
+      ),
+    );
+  }
+
+  void selectPickerService(DashboardService service) {
+    emit(state.copyWith(pickedService: service));
+  }
+
+  List<DashboardServiceGroup> _filterServicePickerGroups(
+    String query,
+    Set<DashboardCategory> collapsed,
+  ) {
+    final normalized = _normalizeServicePickerQuery(query);
+    final excluded = state.favoriteServices
+        .map((service) => service.id)
+        .toSet();
+    return [
+      for (final category in DashboardCategory.values)
+        if (category.services.any(
+          (service) => _normalizeServicePickerQuery(
+            servicePickerLabels[service] ?? service.id,
+          ).contains(normalized),
+        ))
+          DashboardServiceGroup(
+            category: category,
+            choices: [
+              for (final service in category.services)
+                if (_normalizeServicePickerQuery(
+                  servicePickerLabels[service] ?? service.id,
+                ).contains(normalized))
+                  DashboardServiceChoice(
+                    service: service,
+                    canSelect: !excluded.contains(service.id),
+                  ),
+            ],
+            isCollapsed: normalized.isEmpty && collapsed.contains(category),
+            canToggle:
+                normalized.isEmpty && category == DashboardCategory.cards,
+          ),
+    ];
+  }
+
+  String _normalizeServicePickerQuery(String value) => value
+      .trim()
+      .replaceAll('ي', 'ی')
+      .replaceAll('ك', 'ک')
+      .replaceAll('\u200c', ' ')
+      .replaceAll(RegExp(r'\s+'), ' ');
 
   void requestFavoritesReset() {
     emit(
       state.copyWith(
         effect: const HomeFavoritesResetRequested(),
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -263,11 +332,12 @@ class HomeCubit extends Cubit<HomeState> {
         homeStatus: RequestStatus.loading,
         homeData: null,
         isEditingFavorites: false,
-        homeFailure: null,
         favoriteServices: const [],
         fixedServices: const [],
         canAddFavorite: true,
         isFavoritesLimitReached: false,
+        failure: null,
+        message: null,
       ),
     );
     return _loadHome().then((result) {
@@ -276,7 +346,8 @@ class HomeCubit extends Cubit<HomeState> {
           emit(
             state.copyWith(
               homeStatus: RequestStatus.failure,
-              homeFailure: failure,
+              failure: failure,
+              message: getRequestErrorMessage(failure),
             ),
           );
         case Success(:final data):
@@ -415,13 +486,14 @@ class HomeCubit extends Cubit<HomeState> {
     emit(
       state.copyWith(
         cardsStatus: RequestStatus.loading,
-        cardsFailure: null,
         visibleCards: const [],
         selectedCardIndex: 0,
         selectedCard: null,
         cardActions: const [],
         pinActions: const [],
         cardQuickActions: const [],
+        failure: null,
+        message: null,
       ),
     );
     return _loadCards().then((result) {
@@ -430,7 +502,8 @@ class HomeCubit extends Cubit<HomeState> {
           emit(
             state.copyWith(
               cardsStatus: RequestStatus.failure,
-              cardsFailure: failure,
+              failure: failure,
+              message: getRequestErrorMessage(failure),
             ),
           );
         case Success(:final data):
@@ -474,10 +547,7 @@ class HomeCubit extends Cubit<HomeState> {
       card: state.selectedCard!,
     );
     emit(
-      state.copyWith(
-        effect: HomeCardActionRequested(request),
-        effectId: state.effectId + 1,
-      ),
+      state.copyWith(effect: HomeCardActionRequested(request), message: null),
     );
   }
 
@@ -485,7 +555,7 @@ class HomeCubit extends Cubit<HomeState> {
     emit(
       state.copyWith(
         effect: HomeCardNumberCopyRequested(card.number),
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -494,7 +564,7 @@ class HomeCubit extends Cubit<HomeState> {
     emit(
       state.copyWith(
         effect: HomeCardIbanCopyRequested(card.iban),
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -505,13 +575,14 @@ class HomeCubit extends Cubit<HomeState> {
     emit(
       state.copyWith(
         depositsStatus: RequestStatus.loading,
-        depositsFailure: null,
         visibleDeposits: const [],
         selectedDepositIndex: 0,
         selectedDeposit: null,
         depositActions: const [],
         depositQuickActions: const [],
         depositChequeActions: const [],
+        failure: null,
+        message: null,
       ),
     );
     return _loadDeposits().then((result) {
@@ -520,7 +591,8 @@ class HomeCubit extends Cubit<HomeState> {
           emit(
             state.copyWith(
               depositsStatus: RequestStatus.failure,
-              depositsFailure: failure,
+              failure: failure,
+              message: getRequestErrorMessage(failure),
             ),
           );
         case Success(:final data):
@@ -572,7 +644,7 @@ class HomeCubit extends Cubit<HomeState> {
     emit(
       state.copyWith(
         effect: HomeDepositActionRequested(request),
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -581,7 +653,7 @@ class HomeCubit extends Cubit<HomeState> {
     emit(
       state.copyWith(
         effect: HomeDepositNumberCopyRequested(deposit.number),
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -590,7 +662,7 @@ class HomeCubit extends Cubit<HomeState> {
     emit(
       state.copyWith(
         effect: HomeDepositIbanCopyRequested(deposit.iban),
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -601,12 +673,13 @@ class HomeCubit extends Cubit<HomeState> {
     emit(
       state.copyWith(
         loansStatus: RequestStatus.loading,
-        loansFailure: null,
         visibleLoans: const [],
         selectedLoanIndex: 0,
         selectedLoan: null,
         loanActions: const [],
         loanQuickActions: const [],
+        failure: null,
+        message: null,
       ),
     );
     return _loadLoans().then((result) {
@@ -615,7 +688,8 @@ class HomeCubit extends Cubit<HomeState> {
           emit(
             state.copyWith(
               loansStatus: RequestStatus.failure,
-              loansFailure: failure,
+              failure: failure,
+              message: getRequestErrorMessage(failure),
             ),
           );
         case Success(:final data):
@@ -653,10 +727,7 @@ class HomeCubit extends Cubit<HomeState> {
       loan: state.selectedLoan!,
     );
     emit(
-      state.copyWith(
-        effect: HomeLoanActionRequested(request),
-        effectId: state.effectId + 1,
-      ),
+      state.copyWith(effect: HomeLoanActionRequested(request), message: null),
     );
   }
 
@@ -664,7 +735,7 @@ class HomeCubit extends Cubit<HomeState> {
     emit(
       state.copyWith(
         effect: HomeLoanNumberCopyRequested(loan.number),
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -678,21 +749,11 @@ class HomeCubit extends Cubit<HomeState> {
   }
 
   void requestCardMore(BankCard card) {
-    emit(
-      state.copyWith(
-        effect: HomeCardMoreRequested(card),
-        effectId: state.effectId + 1,
-      ),
-    );
+    emit(state.copyWith(effect: HomeCardMoreRequested(card), message: null));
   }
 
   void requestLoanDetails(BankLoan loan) {
-    emit(
-      state.copyWith(
-        effect: HomeLoanDetailsRequested(loan),
-        effectId: state.effectId + 1,
-      ),
-    );
+    emit(state.copyWith(effect: HomeLoanDetailsRequested(loan), message: null));
   }
 
   Timer? _typingTimer;
@@ -721,7 +782,7 @@ class HomeCubit extends Cubit<HomeState> {
       state.copyWith(
         submittedPrompt: prompt,
         effect: HomePromptSubmitted(prompt),
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -807,5 +868,10 @@ class HomeCubit extends Cubit<HomeState> {
   Future<void> close() {
     _typingTimer?.cancel();
     return super.close();
+  }
+
+  /// UI has accepted the pending interaction; data and request statuses stay intact.
+  void consumeHomeInteraction() {
+    emit(state.copyWith(effect: null));
   }
 }

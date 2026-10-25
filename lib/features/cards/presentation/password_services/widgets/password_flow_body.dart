@@ -7,7 +7,6 @@ import 'package:pishkhan_mobile/features/cards/presentation/password_services/wi
 import 'package:pishkhan_mobile/features/cards/presentation/password_services/widgets/password_recording_section.dart';
 import 'package:pishkhan_mobile/features/cards/presentation/password_services/widgets/password_selection_section.dart';
 import 'package:pishkhan_mobile/features/cards/presentation/password_services/widgets/password_serial_form.dart';
-import 'package:pishkhan_mobile/features/cards/presentation/password_services/widgets/password_styles.dart';
 import 'package:pishkhan_mobile/features/cards/presentation/password_services/widgets/second_password_form.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 
@@ -59,15 +58,6 @@ class PasswordFlowBody extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (state.existingRequestFailure != null ||
-              state.submissionFailure != null) ...[
-            Text(
-              S.current.dashboardLoadError,
-              style: passwordBody(context)
-                  .copyWith(color: context.colors.error),
-            ),
-            const SizedBox(height: 12),
-          ],
           switch (state.step) {
             SecondPasswordStep.selection => PasswordSelectionSection(
               state: state,

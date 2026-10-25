@@ -1,8 +1,8 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_invoice.dart';
 
 import '../../../domain/entities/issuance_data.dart';
@@ -57,7 +57,7 @@ class IssuanceConfirmation extends StatelessWidget {
                           RotatedBox(
                             quarterTurns: state.isSummaryExpanded ? 0 : 2,
                             child: issuanceIcon(
-                              AppAssets.issuanceSummaryChevron,
+                              '${AppConstants.baseImage}issuance_summary_chevron.svg',
                             ),
                           ),
                         ],
@@ -69,13 +69,15 @@ class IssuanceConfirmation extends StatelessWidget {
                     IssuanceSummaryRow(
                       label: S.current.issuanceDepositNumber,
                       value: state.draft.deposit!.number,
-                      asset: AppAssets.issuanceSummaryDivider,
+                      asset:
+                          '${AppConstants.baseImage}issuance_summary_divider.svg',
                     ),
                     const SizedBox(height: 12),
                     IssuanceSummaryRow(
                       label: S.current.issuanceOperation,
                       value: S.current.issuanceTitle,
-                      asset: AppAssets.issuanceSummaryDividerOperation,
+                      asset:
+                          '${AppConstants.baseImage}issuance_summary_divider_operation.svg',
                     ),
                   ],
                 ],
@@ -119,16 +121,6 @@ class IssuanceConfirmation extends StatelessWidget {
               walletInsufficientLabel: S.current.issuanceWalletInsufficient,
               isWalletBalanceSufficient: state.isWalletSufficient,
             ),
-            if (state.submissionFailure != null) ...[
-              const SizedBox(height: 12),
-              Semantics(
-                liveRegion: true,
-                child: Text(
-                  S.current.issuanceSubmitError,
-                  style: small.copyWith(color: context.colors.error),
-                ),
-              ),
-            ],
           ],
         );
       },

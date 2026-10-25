@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,7 +9,6 @@ import 'auth_request_error.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/login/cubit/auth_cubit.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/login/widgets/auth_form_shared.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/shared/auth_assets.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 
 class AuthOtpForm extends StatelessWidget {
@@ -57,7 +57,7 @@ class AuthOtpForm extends StatelessWidget {
                       height: 44,
                       child: Center(
                         child: AvpImage(
-                          image: AuthAssets.lock,
+                          image: '${AppConstants.baseImage}auth_lock.svg',
                           width: 20,
                           height: 20,
                         ),
@@ -112,7 +112,7 @@ class AuthOtpForm extends StatelessWidget {
                           ? S.current.resendOtp
                           : getOtpRemainingTime(state.remainingSeconds),
                       trailingIcon: AvpImage(
-                        image: AuthAssets.clock,
+                        image: '${AppConstants.baseImage}auth_clock.svg',
                         width: 20,
                         height: 20,
                       ),

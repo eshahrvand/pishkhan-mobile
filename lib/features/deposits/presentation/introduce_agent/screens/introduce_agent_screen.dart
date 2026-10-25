@@ -1,10 +1,10 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
 import 'package:pishkhan_mobile/shared/widgets/flow_exit_dialog.dart';
@@ -22,10 +22,18 @@ class IntroduceAgentScreen extends StatelessWidget {
   final String? initialDepositNumber;
 
   Future<void> _handleEffect(BuildContext context, AgentState state) async {
+    if (state.message != null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(state.message!)));
+      return;
+    }
+
     switch (state.effect) {
       case AgentEffect.addNext:
+        context.read<AgentCubit>().consumeAgentInteraction();
         await showAgentSheet(context, context.read<AgentCubit>());
       case AgentEffect.confirmExit:
+        context.read<AgentCubit>().consumeAgentInteraction();
         final confirmed = await showFlowExitDialog(context);
         if (context.mounted) {
           context.read<AgentCubit>().applyExitConfirmation(confirmed);
@@ -61,16 +69,26 @@ class IntroduceAgentScreen extends StatelessWidget {
         listener: _handleReceipt,
         child: BlocConsumer<AgentCubit, AgentState>(
           listenWhen: (previous, current) =>
-              previous.effectId != current.effectId,
+              (previous.effect != current.effect &&
+                  current.effect != null) ||
+              ((previous.depositsStatus != current.depositsStatus &&
+                      current.depositsStatus == RequestStatus.failure) ||
+                  (previous.submissionStatus != current.submissionStatus &&
+                      current.submissionStatus == RequestStatus.failure)),
           listener: _handleEffect,
-          buildWhen: (previous, current) => previous.effect != current.effect,
+
           builder: (context, state) {
             return Directionality(
               textDirection: TextDirection.rtl,
               child: PopScope(
-                canPop: state.effect == AgentEffect.back,
+                canPop:
+                    (state.depositsStatus != RequestStatus.loading &&
+                        state.submissionStatus != RequestStatus.loading) &&
+                    (state.effect == AgentEffect.back),
                 onPopInvokedWithResult: (didPop, _) {
-                  if (!didPop) {
+                  if (!didPop &&
+                      state.depositsStatus != RequestStatus.loading &&
+                      state.submissionStatus != RequestStatus.loading) {
                     context.read<AgentCubit>().requestBack();
                   }
                 },
@@ -84,12 +102,15 @@ class IntroduceAgentScreen extends StatelessWidget {
                           showLeadingActions: false,
                           leadingAction: const SizedBox.shrink(),
                           trailingIcon: depositIcon(
-                            AppAssets.depositFeatureBack,
+                            '${AppConstants.baseImage}deposit_list_back.svg',
                           ),
                           trailingTooltip: S.current.backLabel,
-                          onTrailingPressed: context
-                              .read<AgentCubit>()
-                              .requestBack,
+                          onTrailingPressed:
+                              (state.depositsStatus != RequestStatus.loading &&
+                                  state.submissionStatus !=
+                                      RequestStatus.loading)
+                              ? context.read<AgentCubit>().requestBack
+                              : null,
                         ),
                         Expanded(
                           child: Stack(
@@ -122,11 +143,10 @@ class IntroduceAgentScreen extends StatelessWidget {
                                       case RequestStatus.failure:
                                         return Column(
                                           children: [
-                                            if (state.depositsFailure != null)
-                                              Text(
-                                                S.current.dashboardLoadError,
-                                              ),
                                             AppButton(
+                                              isLoading:
+                                                  state.depositsStatus ==
+                                                  RequestStatus.loading,
                                               label: S.current.dashboardRetry,
                                               onPressed: context
                                                   .read<AgentCubit>()

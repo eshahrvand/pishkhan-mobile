@@ -24,50 +24,18 @@ class ChequeDeposit extends Equatable {
   List<Object?> get props => [id, number];
 }
 
-class PostalCity extends Equatable {
-  const PostalCity({required this.id, required this.name});
-  final String id;
-  final String name;
-  @override
-  List<Object?> get props => [id, name];
-}
-
-class PostalProvince extends Equatable {
-  PostalProvince({
-    required this.id,
-    required this.name,
-    required Iterable<PostalCity> cities,
-  }) : cities = List.unmodifiable(cities);
-  final String id;
-  final String name;
-  final List<PostalCity> cities;
-  @override
-  List<Object?> get props => [id, name, cities];
-}
-
-class PostalOffice extends Equatable {
-  const PostalOffice({required this.id, required this.address});
-  final String id;
-  final String address;
-  @override
-  List<Object?> get props => [id, address];
-}
-
 class ChequeClearanceCatalog extends Equatable {
   ChequeClearanceCatalog({
     required Iterable<ChequeDeposit> deposits,
     required Iterable<ChequeClearanceReason> reasons,
-    required Iterable<PostalProvince> provinces,
     required this.mailingAddress,
   }) : deposits = List.unmodifiable(deposits),
-       reasons = List.unmodifiable(reasons),
-       provinces = List.unmodifiable(provinces);
+       reasons = List.unmodifiable(reasons);
   final List<ChequeDeposit> deposits;
   final List<ChequeClearanceReason> reasons;
-  final List<PostalProvince> provinces;
   final String mailingAddress;
   @override
-  List<Object?> get props => [deposits, reasons, provinces, mailingAddress];
+  List<Object?> get props => [deposits, reasons, mailingAddress];
 }
 
 class ChequeClearanceRequest extends Equatable {

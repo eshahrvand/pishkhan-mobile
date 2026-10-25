@@ -17,7 +17,7 @@ class ChequeClearanceFooter extends StatelessWidget {
           previous.canSubmit != current.canSubmit ||
           previous.isEditable != current.isEditable ||
           previous.submissionStatus != current.submissionStatus ||
-          previous.submissionFailure != current.submissionFailure,
+          previous.failure != current.failure,
       builder: (context, state) {
         return Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -76,14 +76,7 @@ class ChequeClearanceFooter extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              if (state.submissionFailure != null) ...[
-                Text(
-                  S.current.chequeSubmitFailure,
-                  style: chequeLabelStyle(context)
-                      .copyWith(color: context.colors.error),
-                ),
-                const SizedBox(height: 8),
-              ],
+
               AppButton(
                 label: S.current.chequeSubmit,
                 size: AppButtonSize.lg,

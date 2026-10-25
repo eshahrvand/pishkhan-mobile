@@ -31,6 +31,5 @@ abstract class AuthState with _$AuthState {
     int? otpStartTick,
     @Default(RequestStatus.initial) RequestStatus loginStatus,
     AuthEffect? effect,
-    @Default(0) int effectId,
   }) = _AuthState;
 }

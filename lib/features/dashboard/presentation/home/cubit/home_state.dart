@@ -4,6 +4,13 @@ part of 'home_cubit.dart';
 abstract class HomeState with _$HomeState {
   const factory HomeState.initial({
     @Default(AppPrimaryTab.dashboard) AppPrimaryTab selectedTab,
+    @Default('') String servicePickerQuery,
+    @Default(<DashboardCategory>{})
+    Set<DashboardCategory> servicePickerCollapsedCategories,
+    @Default(<DashboardServiceGroup>[])
+    List<DashboardServiceGroup> servicePickerGroups,
+    @Default(false) bool isServicePickerSearching,
+    DashboardService? pickedService,
     @Default(true) bool enableAnimations,
     @Default('') String drawerQuery,
     @Default(<DashboardDrawerGroup>[]) List<DashboardDrawerGroup> drawerGroups,
@@ -28,7 +35,8 @@ abstract class HomeState with _$HomeState {
     @Default(false) bool isFavoritesLimitReached,
     @Default(RequestStatus.initial) RequestStatus homeStatus,
     DashboardHomeData? homeData,
-    Failure? homeFailure,
+    Failure? failure,
+    String? message,
     @Default(RequestStatus.initial) RequestStatus cardsStatus,
     @Default(<BankCard>[]) List<BankCard> visibleCards,
     @Default(0) int selectedCardIndex,
@@ -37,20 +45,20 @@ abstract class HomeState with _$HomeState {
     @Default(<CardAction>[]) List<CardAction> pinActions,
     @Default(<CardAction>[]) List<CardAction> cardQuickActions,
     @Default({}) Map<String, bool> cardVisibility,
-    Failure? cardsFailure,
+
     List<NotificationMessage>? messages,
     HomeEffect? effect,
-    @Default(0) int effectId,
+
     @Default(RequestStatus.initial) RequestStatus depositsStatus,
     @Default(<BankDeposit>[]) List<BankDeposit> visibleDeposits,
     @Default(0) int selectedDepositIndex,
     BankDeposit? selectedDeposit,
-    Failure? depositsFailure,
+
     @Default(RequestStatus.initial) RequestStatus loansStatus,
     @Default(<BankLoan>[]) List<BankLoan> visibleLoans,
     @Default(0) int selectedLoanIndex,
     BankLoan? selectedLoan,
-    Failure? loansFailure,
+
     @Default(<DepositAction>[]) List<DepositAction> depositActions,
     @Default(<DepositAction>[]) List<DepositAction> depositChequeActions,
     @Default(<DepositAction>[]) List<DepositAction> depositQuickActions,

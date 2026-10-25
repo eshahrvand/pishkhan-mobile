@@ -165,9 +165,11 @@ void main() {
     expect(cubit.state.details, agent);
     expect(cubit.state.details!.confirmers.length, 2);
     cubit.requestCancellation();
-    final effectId = cubit.state.effectId;
+    final effectBeforeRepeat = cubit.state.effect;
+    cubit.consumeAgentSettingsInteraction();
+    expect(cubit.state.effect, isNull);
     cubit.requestCancellation();
-    expect(cubit.state.effectId, effectId + 1);
+    expect(cubit.state.effect.runtimeType, effectBeforeRepeat.runtimeType);
     expect(cubit.state.effect, isA<AgentUnavailableRequested>());
     expect(cubit.state.agents.length, 5);
     cubit.requestBack();
@@ -186,11 +188,11 @@ void main() {
       final cubit = createCubit(number: '10-1234567-2');
       await cubit.fetchAgents();
       expect(cubit.state.agentsStatus, RequestStatus.failure);
-      expect(cubit.state.agentsFailure, const DataFailure('unavailable'));
+      expect(cubit.state.failure, const DataFailure('unavailable'));
       repository.fails = false;
       await cubit.fetchAgents();
       expect(cubit.state.visibleAgents.single.id, 'mine-waiting');
-      expect(cubit.state.agentsFailure, isNull);
+      expect(cubit.state.failure, isNull);
       repository.throwsException = true;
       final result = await FetchAgents(repository)();
       expect(result, isA<Err<List<DepositAgent>>>());

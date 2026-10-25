@@ -148,7 +148,7 @@ void main() {
   }
 
   testWidgets(
-    'failed catalog retries; pending controls gate taps while Back remains available',
+    'failed catalog retries; pending controls gate taps while Back is blocked',
     (tester) async {
       final repository = PendingRestrictionRepository();
       getIt.unregister<DepositRestrictionsRepository>();
@@ -160,7 +160,11 @@ void main() {
           initialDepositNumber: '10.1234567.1',
         ),
       );
-      expect(find.text(S.current.dashboardLoadError), findsOneWidget);
+      expect(find.text('درخواست انجام نشد. دوباره تلاش کنید.'), findsOneWidget);
+      tester
+          .state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger))
+          .clearSnackBars();
+      await tester.pumpAndSettle();
       repository.failsCatalog = false;
       await tester.tap(find.text(S.current.dashboardRetry));
       await tester.pumpAndSettle();
@@ -193,13 +197,17 @@ void main() {
       expect(repository.requests.length, 1);
       await tester.tap(find.byTooltip(S.current.backLabel));
       await tester.pump(const Duration(milliseconds: 300));
-      expect(find.byType(AlertDialog), findsOneWidget);
-      // Dismissal returns the raw result to Cubit and keeps the pending form alive.
+      expect(find.byType(AlertDialog), findsNothing);
+      // System Back also leaves the pending form alive.
       await tester.binding.handlePopRoute();
       await tester.pump(const Duration(milliseconds: 300));
       repository.submission.complete(const Err(DataFailure('timeout')));
       await tester.pumpAndSettle();
-      expect(find.text(S.current.issuanceSubmitError), findsOneWidget);
+      expect(find.text('درخواست انجام نشد. دوباره تلاش کنید.'), findsOneWidget);
+      tester
+          .state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger))
+          .clearSnackBars();
+      await tester.pumpAndSettle();
       await tester.tap(submitRestrictionButton());
       await tester.pumpAndSettle();
       expect(repository.requests.first, repository.requests.last);

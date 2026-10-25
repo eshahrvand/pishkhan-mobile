@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/presentation/mappers/request_error_message_mapper.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
@@ -35,13 +36,19 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
       emit(
         state.copyWith(
           cardsStatus: RequestStatus.loading,
+          failure: null,
+          message: null,
           category: category,
           footerAction: _categoryFooterAction(category),
         ),
       );
     } else {
       emit(
-        state.copyWith(cardsStatus: RequestStatus.loading, cardsFailure: null),
+        state.copyWith(
+          cardsStatus: RequestStatus.loading,
+          failure: null,
+          message: null,
+        ),
       );
     }
 
@@ -51,7 +58,8 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
           emit(
             state.copyWith(
               cardsStatus: RequestStatus.failure,
-              cardsFailure: failure,
+              failure: failure,
+              message: getRequestErrorMessage(failure),
             ),
           );
         case Success(:final data):
@@ -84,7 +92,6 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
           value,
           scrollToEnd: _isTrailingCategory(value),
         ),
-        effectId: state.effectId + 1,
         selectedCard: null,
         visibleCards: _filterCards(
           state.cards,
@@ -92,6 +99,7 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
           state.filter,
           state.searchQuery,
         ),
+        message: null,
       ),
     );
   }
@@ -103,7 +111,7 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
           state.category,
           scrollToEnd: _isTrailingCategory(state.category),
         ),
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -113,7 +121,7 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
       state.copyWith(
         selectedCard: card,
         effect: CardActionsRequested(card),
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -130,12 +138,7 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
   }
 
   void requestCardDetails(ListedCard card) {
-    emit(
-      state.copyWith(
-        effect: CardDetailsRequested(card),
-        effectId: state.effectId + 1,
-      ),
-    );
+    emit(state.copyWith(effect: CardDetailsRequested(card), message: null));
   }
 
   void requestCardService(CardFeatureAction action, {ListedCard? card}) {
@@ -149,7 +152,7 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
           ),
           serviceId: _cardServiceId(action),
         ),
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -177,7 +180,7 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
       state.copyWith(
         draftFilter: state.filter,
         effect: const CardFilterRequested(),
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -287,5 +290,10 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
       value = value.replaceAll(persian[i], '$i').replaceAll(arabic[i], '$i');
     }
     return value.replaceAll(RegExp(r'[\s\-\.\u200c]'), '').toLowerCase();
+  }
+
+  /// UI has accepted the pending interaction; data and request statuses stay intact.
+  void consumeCardFeaturesInteraction() {
+    emit(state.copyWith(effect: null));
   }
 }

@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/presentation/mappers/request_error_message_mapper.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
@@ -23,7 +24,8 @@ class RequestReportsCubit extends Cubit<RequestReportsState> {
     emit(
       state.copyWith(
         reportsStatus: RequestStatus.loading,
-        reportsFailure: null,
+        failure: null,
+        message: null,
       ),
     );
     return repository.fetchReports().then((result) {
@@ -46,7 +48,8 @@ class RequestReportsCubit extends Cubit<RequestReportsState> {
           emit(
             state.copyWith(
               reportsStatus: RequestStatus.failure,
-              reportsFailure: failure,
+              failure: failure,
+              message: getRequestErrorMessage(failure),
             ),
           );
       }
@@ -91,7 +94,7 @@ class RequestReportsCubit extends Cubit<RequestReportsState> {
           typeQuery: '',
           visibleTypes: ReportRequestType.values,
           effect: RequestReportsEffect.typeFilter,
-          effectId: state.effectId + 1,
+          message: null,
         ),
       );
     }
@@ -119,7 +122,7 @@ class RequestReportsCubit extends Cubit<RequestReportsState> {
         state.copyWith(
           draftFilter: state.filter,
           effect: RequestReportsEffect.statusFilter,
-          effectId: state.effectId + 1,
+          message: null,
         ),
       );
     }
@@ -147,7 +150,7 @@ class RequestReportsCubit extends Cubit<RequestReportsState> {
         state.copyWith(
           draftFilter: state.filter,
           effect: RequestReportsEffect.dateFilter,
-          effectId: state.effectId + 1,
+          message: null,
         ),
       );
     }
@@ -261,7 +264,7 @@ class RequestReportsCubit extends Cubit<RequestReportsState> {
         selectedReport: report,
         canCancelRequest: report.status == ReportRequestStatus.awaitingApproval,
         effect: RequestReportsEffect.details,
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -272,9 +275,9 @@ class RequestReportsCubit extends Cubit<RequestReportsState> {
         emit(
           state.copyWith(
             cancellationStatus: RequestStatus.initial,
-            cancellationFailure: null,
             effect: RequestReportsEffect.cancelConfirmation,
-            effectId: state.effectId + 1,
+            failure: null,
+            message: null,
           ),
         );
       case null:
@@ -286,7 +289,8 @@ class RequestReportsCubit extends Cubit<RequestReportsState> {
     emit(
       state.copyWith(
         cancellationStatus: RequestStatus.loading,
-        cancellationFailure: null,
+        failure: null,
+        message: null,
       ),
     );
     return repository
@@ -319,7 +323,8 @@ class RequestReportsCubit extends Cubit<RequestReportsState> {
               emit(
                 state.copyWith(
                   cancellationStatus: RequestStatus.failure,
-                  cancellationFailure: failure,
+                  failure: failure,
+                  message: getRequestErrorMessage(failure),
                 ),
               );
           }
@@ -327,20 +332,15 @@ class RequestReportsCubit extends Cubit<RequestReportsState> {
   }
 
   void requestBack() {
-    emit(
-      state.copyWith(
-        effect: RequestReportsEffect.back,
-        effectId: state.effectId + 1,
-      ),
-    );
+    emit(state.copyWith(effect: RequestReportsEffect.back, message: null));
   }
 
   void requestAssistant() {
-    emit(
-      state.copyWith(
-        effect: RequestReportsEffect.assistant,
-        effectId: state.effectId + 1,
-      ),
-    );
+    emit(state.copyWith(effect: RequestReportsEffect.assistant, message: null));
+  }
+
+  /// UI has accepted the pending interaction; data and request statuses stay intact.
+  void consumeRequestReportsInteraction() {
+    emit(state.copyWith(effect: null));
   }
 }

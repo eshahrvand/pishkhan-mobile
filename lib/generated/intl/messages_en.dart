@@ -146,8 +146,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "appTitle": MessageLookupByLibrary.simpleMessage("Resalat Virtual Counter"),
     "assetReport": MessageLookupByLibrary.simpleMessage("Asset report"),
-        "authChangePhoneUnavailable": MessageLookupByLibrary.simpleMessage(
-            "The phone number change service is not connected yet."),
+    "authChangePhoneUnavailable": MessageLookupByLibrary.simpleMessage(
+      "The phone number change service is not connected yet.",
+    ),
     "authInvalidCaptcha": MessageLookupByLibrary.simpleMessage(
       "Enter the 6-digit security code",
     ),
@@ -157,12 +158,15 @@ class MessageLookup extends MessageLookupByLibrary {
     "authInvalidPhone": MessageLookupByLibrary.simpleMessage(
       "Enter an 11-digit mobile number starting with 09",
     ),
-        "authNetworkError": MessageLookupByLibrary.simpleMessage(
-            "Could not connect to the server. Please try again."),
-        "authOtpRejected": MessageLookupByLibrary.simpleMessage(
-            "The verification code is incorrect or has expired."),
-        "authRequestFailed": MessageLookupByLibrary.simpleMessage(
-            "The request failed. Check your information and try again."),
+    "authNetworkError": MessageLookupByLibrary.simpleMessage(
+      "Could not connect to the server. Please try again.",
+    ),
+    "authOtpRejected": MessageLookupByLibrary.simpleMessage(
+      "The verification code is incorrect or has expired.",
+    ),
+    "authRequestFailed": MessageLookupByLibrary.simpleMessage(
+      "The request failed. Check your information and try again.",
+    ),
     "automaticCompleted": MessageLookupByLibrary.simpleMessage(
       "Completed automatically",
     ),

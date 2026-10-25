@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/widgets/flow_exit_dialog.dart';
 
@@ -8,7 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pishkhan_mobile/features/cards/domain/entities/password_data.dart';
 import 'package:pishkhan_mobile/features/cards/presentation/password_services/widgets/password_request_status.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 Future<void> showPasswordRecord(
   BuildContext context,
@@ -24,7 +24,7 @@ Future<void> showPasswordRecord(
   ),
   requestStatus: true,
   scrimAsset: operation == PasswordOperation.changePassword
-      ? AppAssets.passwordChangeScrim
+      ? '${AppConstants.baseImage}password_change_scrim.svg'
       : null,
 );
 
@@ -92,8 +92,8 @@ class PasswordSheetLayout extends StatelessWidget {
                       image:
                           scrimAsset ??
                           (requestStatus
-                              ? AppAssets.passwordRequestScrim
-                              : AppAssets.passwordScrim),
+                              ? '${AppConstants.baseImage}password_request_scrim.svg'
+                              : '${AppConstants.baseImage}password_scrim.svg'),
                       fit: BoxFit.fill,
                     ),
                   ),

@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'dashboard_favorites_card.dart';
@@ -8,7 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/home/cubit/home_cubit.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/dashboard_services.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_service_grid_card.dart';
 
@@ -71,7 +71,8 @@ class DashboardBankServices extends StatelessWidget {
                           onPressed: onAllServices,
                           label: S.current.dashboardViewAll,
                           trailingIcon: AvpImage(
-                            image: AppAssets.dashboardAllAngle,
+                            image:
+                                '${AppConstants.baseImage}dashboard_all_angle.svg',
                             width: 20,
                             height: 20,
                           ),
@@ -157,7 +158,8 @@ class DashboardBankServices extends StatelessWidget {
                     label: S.current.dashboardAddFavorites,
                     foregroundColor: AppDashboardColors.favoritesAction,
                     leadingIcon: AvpImage(
-                      image: AppAssets.dashboardAddFavorites,
+                      image:
+                          '${AppConstants.baseImage}dashboard_add_favorites.svg',
                       width: 20,
                       height: 20,
                     ),

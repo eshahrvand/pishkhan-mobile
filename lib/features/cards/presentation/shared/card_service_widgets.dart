@@ -1,9 +1,9 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 import '../../domain/entities/card_service_data.dart';
 
@@ -194,7 +194,10 @@ class CardServiceDivider extends StatelessWidget {
       child: OverflowBox(
         minHeight: 1,
         maxHeight: 1,
-        child: AvpImage(image: AppAssets.issuanceDivider, fit: BoxFit.fill),
+        child: AvpImage(
+          image: '${AppConstants.baseImage}issuance_divider.svg',
+          fit: BoxFit.fill,
+        ),
       ),
     );
   }
@@ -210,7 +213,10 @@ class CardServiceRowDivider extends StatelessWidget {
       child: OverflowBox(
         minHeight: .5,
         maxHeight: .5,
-        child: AvpImage(image: AppAssets.cardFeaturesDivider, fit: BoxFit.fill),
+        child: AvpImage(
+          image: '${AppConstants.baseImage}card_features_divider.svg',
+          fit: BoxFit.fill,
+        ),
       ),
     );
   }

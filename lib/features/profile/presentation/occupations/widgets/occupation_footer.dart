@@ -45,9 +45,7 @@ class OccupationFooter extends StatelessWidget {
           },
           submitLabel: S.current.profileSubmit,
           isLoading: state.submissionStatus == RequestStatus.loading,
-          errorText: state.submissionStatus == RequestStatus.failure
-              ? S.current.profileOperationError
-              : null,
+
           onSubmit: state.canSubmit
               ? () {
                   context.read<OccupationsCubit>().submitOccupation();

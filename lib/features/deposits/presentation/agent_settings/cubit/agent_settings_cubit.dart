@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/presentation/mappers/request_error_message_mapper.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -30,7 +31,11 @@ class AgentSettingsCubit extends Cubit<AgentSettingsState> {
   Future<void> fetchAgents() {
     final resolveEntry = state.depositNumbers.isEmpty;
     emit(
-      state.copyWith(agentsStatus: RequestStatus.loading, agentsFailure: null),
+      state.copyWith(
+        agentsStatus: RequestStatus.loading,
+        failure: null,
+        message: null,
+      ),
     );
     return _fetchAgents().then((result) {
       switch (result) {
@@ -38,7 +43,8 @@ class AgentSettingsCubit extends Cubit<AgentSettingsState> {
           emit(
             state.copyWith(
               agentsStatus: RequestStatus.failure,
-              agentsFailure: failure,
+              failure: failure,
+              message: getRequestErrorMessage(failure),
             ),
           );
         case Success(:final data):
@@ -116,7 +122,7 @@ class AgentSettingsCubit extends Cubit<AgentSettingsState> {
           draftDeposits: state.depositNumbers.toSet(),
           isEveryDepositSelected: true,
           effect: const AgentDepositFilterRequested(),
-          effectId: state.effectId + 1,
+          message: null,
         ),
       );
     }
@@ -142,7 +148,7 @@ class AgentSettingsCubit extends Cubit<AgentSettingsState> {
           draftKinds: AgentKind.values.toSet(),
           isEveryKindSelected: true,
           effect: const AgentKindFilterRequested(),
-          effectId: state.effectId + 1,
+          message: null,
         ),
       );
     }
@@ -168,7 +174,7 @@ class AgentSettingsCubit extends Cubit<AgentSettingsState> {
           draftStatuses: AgentStatus.values.toSet(),
           isEveryStatusSelected: true,
           effect: const AgentStatusFilterRequested(),
-          effectId: state.effectId + 1,
+          message: null,
         ),
       );
     }
@@ -324,12 +330,7 @@ class AgentSettingsCubit extends Cubit<AgentSettingsState> {
   }
 
   void requestAgentActions(DepositAgent agent) {
-    emit(
-      state.copyWith(
-        effect: AgentActionsRequested(agent),
-        effectId: state.effectId + 1,
-      ),
-    );
+    emit(state.copyWith(effect: AgentActionsRequested(agent), message: null));
   }
 
   void selectAgentAction(DepositAgent agent, AgentAction? action) {
@@ -345,10 +346,7 @@ class AgentSettingsCubit extends Cubit<AgentSettingsState> {
 
   void requestCancellation() {
     emit(
-      state.copyWith(
-        effect: const AgentUnavailableRequested(),
-        effectId: state.effectId + 1,
-      ),
+      state.copyWith(effect: const AgentUnavailableRequested(), message: null),
     );
   }
 
@@ -356,7 +354,7 @@ class AgentSettingsCubit extends Cubit<AgentSettingsState> {
     emit(
       state.copyWith(
         effect: AgentIntroductionRequested(initialDepositNumber),
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -365,21 +363,13 @@ class AgentSettingsCubit extends Cubit<AgentSettingsState> {
     if (state.details != null) {
       emit(state.copyWith(details: null));
     } else {
-      emit(
-        state.copyWith(
-          effect: const AgentBackRequested(),
-          effectId: state.effectId + 1,
-        ),
-      );
+      emit(state.copyWith(effect: const AgentBackRequested(), message: null));
     }
   }
 
   void requestAssistant() {
     emit(
-      state.copyWith(
-        effect: const AgentAssistantRequested(),
-        effectId: state.effectId + 1,
-      ),
+      state.copyWith(effect: const AgentAssistantRequested(), message: null),
     );
   }
 
@@ -399,5 +389,10 @@ class AgentSettingsCubit extends Cubit<AgentSettingsState> {
               (statuses == null || statuses.contains(record.status)),
         )
         .toList();
+  }
+
+  /// UI has accepted the pending interaction; data and request statuses stay intact.
+  void consumeAgentSettingsInteraction() {
+    emit(state.copyWith(effect: null));
   }
 }

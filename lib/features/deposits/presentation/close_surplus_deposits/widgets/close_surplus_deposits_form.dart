@@ -44,12 +44,9 @@ class CloseSurplusDepositsForm extends StatelessWidget {
           ],
           if (state.depositsStatus == RequestStatus.failure) ...[
             const SizedBox(height: 16),
-            Text(
-              S.current.dashboardLoadError,
-              style: certificateLabelStyle(context)
-                  .copyWith(color: context.colors.error),
-            ),
+            const SizedBox.shrink(),
             AppButton(
+              isLoading: state.depositsStatus == RequestStatus.loading,
               label: S.current.dashboardRetry,
               onPressed: context
                   .read<CloseSurplusDepositsCubit>()

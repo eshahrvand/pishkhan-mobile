@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,7 +8,6 @@ import 'package:pishkhan_mobile/core/flow/flow_navigation.dart';
 import 'package:pishkhan_mobile/core/router/app_routes.dart';
 import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
 import 'package:pishkhan_mobile/shared/widgets/deposit_request_footer.dart';
@@ -29,7 +29,15 @@ class MobileBankScreen extends StatelessWidget {
     BuildContext context,
     MobileBankState state,
   ) async {
+    if (state.message != null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(state.message!)));
+      return;
+    }
+
     if (state.destination != null) {
+      context.read<MobileBankCubit>().consumeMobileBankInteraction();
+
       await context.push<void>(switch (state.destination!) {
         MobileBankDestination.passwordRecovery =>
           AppRoutes.mobileBankPasswordRecovery,
@@ -45,6 +53,7 @@ class MobileBankScreen extends StatelessWidget {
     } else {
       switch (state.navigation) {
         case FlowNavigation.confirmExit:
+          context.read<MobileBankCubit>().consumeMobileBankInteraction();
           final confirmed = await showFlowExitDialog(context);
           if (context.mounted) {
             context.read<MobileBankCubit>().applyExitConfirmation(confirmed);
@@ -67,14 +76,28 @@ class MobileBankScreen extends StatelessWidget {
       create: (_) => MobileBankCubit(operation: operation)..fetchMobileBank(),
       child: BlocListener<MobileBankCubit, MobileBankState>(
         listenWhen: (previous, current) =>
-            previous.effectId != current.effectId,
+            (((previous.navigation != current.navigation &&
+                    current.navigation != null) ||
+                (previous.destination != current.destination &&
+                    current.destination != null))) ||
+            ((previous.catalogStatus != current.catalogStatus &&
+                    current.catalogStatus == RequestStatus.failure) ||
+                (previous.submissionStatus != current.submissionStatus &&
+                    current.submissionStatus == RequestStatus.failure)),
         listener: _handleEffect,
         child: BlocBuilder<MobileBankCubit, MobileBankState>(
           builder: (context, state) {
             return PopScope(
-              canPop: state.navigation == FlowNavigation.back,
+              canPop:
+                  (state.catalogStatus != RequestStatus.loading &&
+                      state.submissionStatus != RequestStatus.loading) &&
+                  (state.navigation == FlowNavigation.back),
               onPopInvokedWithResult: (didPop, _) {
-                if (!didPop) context.read<MobileBankCubit>().requestBack();
+                if (!didPop &&
+                    state.catalogStatus != RequestStatus.loading &&
+                    state.submissionStatus != RequestStatus.loading) {
+                  context.read<MobileBankCubit>().requestBack();
+                }
               },
               child: Scaffold(
                 backgroundColor: context.colors.surfaceSubtle,
@@ -88,12 +111,19 @@ class MobileBankScreen extends StatelessWidget {
                         showLeadingActions: false,
                         trailingIcon: SizedBox.square(
                           dimension: 24,
-                          child: AvpImage(image: AppAssets.depositFeatureBack),
+                          child: AvpImage(
+                            image:
+                                '${AppConstants.baseImage}deposit_list_back.svg',
+                          ),
                         ),
                         trailingTooltip: S.current.backLabel,
-                        onTrailingPressed: () {
-                          context.read<MobileBankCubit>().requestBack();
-                        },
+                        onTrailingPressed:
+                            (state.catalogStatus != RequestStatus.loading &&
+                                state.submissionStatus != RequestStatus.loading)
+                            ? () {
+                                context.read<MobileBankCubit>().requestBack();
+                              }
+                            : null,
                       ),
                       Expanded(
                         child: Stack(
@@ -104,6 +134,9 @@ class MobileBankScreen extends StatelessWidget {
                             if (state.catalogStatus == RequestStatus.failure)
                               Center(
                                 child: AppButton(
+                                  isLoading:
+                                      state.catalogStatus ==
+                                      RequestStatus.loading,
                                   label: S.current.dashboardRetry,
                                   onPressed: () {
                                     context
@@ -141,18 +174,6 @@ class MobileBankScreen extends StatelessWidget {
                       if (state.catalogStatus == RequestStatus.success &&
                           state.step != MobileBankStep.pending &&
                           state.step != MobileBankStep.active) ...[
-                        if (state.submissionStatus == RequestStatus.failure)
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 8,
-                            ),
-                            child: Text(
-                              S.current.cardServiceSubmitError,
-                              style: Theme.of(context).textTheme.bodySmall!
-                                  .copyWith(color: context.colors.error),
-                            ),
-                          ),
                         if (state.step == MobileBankStep.payment)
                           DepositRequestFooter(
                             termsAccepted: state.termsAccepted,
@@ -184,6 +205,11 @@ class MobileBankScreen extends StatelessWidget {
                           Padding(
                             padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                             child: AppButton(
+                              isLoading:
+                                  state.catalogStatus ==
+                                      RequestStatus.loading ||
+                                  state.submissionStatus ==
+                                      RequestStatus.loading,
                               label: S.current.passwordUnderstood,
                               size: AppButtonSize.lg,
                               onPressed: () {
@@ -201,7 +227,8 @@ class MobileBankScreen extends StatelessWidget {
                                   ? SizedBox.square(
                                       dimension: 20,
                                       child: AvpImage(
-                                        image: AppAssets.modernActivateArrow,
+                                        image:
+                                            '${AppConstants.baseImage}modern_activate_arrow.svg',
                                       ),
                                     )
                                   : null,

@@ -1,6 +1,6 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/shared/auth_assets.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 
 class AuthHeader extends StatelessWidget {
@@ -19,7 +19,11 @@ class AuthHeader extends StatelessWidget {
             top: 4,
             child: AppButton(
               onPressed: onMenu,
-              icon: AvpImage(image: AuthAssets.menu, width: 24, height: 24),
+              icon: AvpImage(
+                image: '${AppConstants.baseImage}auth_menu.svg',
+                width: 24,
+                height: 24,
+              ),
               variant: AppButtonVariant.text,
               size: AppButtonSize.xl,
               semanticLabel: S.current.servicesMenuLabel,
@@ -32,7 +36,7 @@ class AuthHeader extends StatelessWidget {
               width: 22,
               height: 24,
               child: AvpImage(
-                image: AuthAssets.resalatLogo,
+                image: '${AppConstants.baseImage}auth_resalat_logo.svg',
                 fit: BoxFit.contain,
               ),
             ),
@@ -42,7 +46,7 @@ class AuthHeader extends StatelessWidget {
             right: 0,
             bottom: 0,
             child: AvpImage(
-              image: AuthAssets.headerDivider,
+              image: '${AppConstants.baseImage}auth_header_divider.svg',
               height: .8,
               fit: BoxFit.fill,
             ),

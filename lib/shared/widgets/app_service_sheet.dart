@@ -1,9 +1,10 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
+
 import 'dart:ui' as ui;
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 /// Shared blurred service-sheet layout, including device safe-area insets.
 Future<T?> showAppServiceSheet<T>(
@@ -38,7 +39,8 @@ Future<T?> showAppServiceSheet<T>(
                     child: scrimColor != null
                         ? ColoredBox(color: scrimColor)
                         : AvpImage(
-                            image: AppAssets.depositFeatureScrim,
+                            image:
+                                '${AppConstants.baseImage}deposit_list_scrim.svg',
                             fit: BoxFit.fill,
                           ),
                   ),

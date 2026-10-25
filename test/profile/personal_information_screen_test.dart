@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:pishkhan_mobile/core/domain/entities/delivery_address.dart';
 import 'package:pishkhan_mobile/features/address/presentation/editor/widgets/address_editor_form.dart';
@@ -18,7 +19,6 @@ import 'package:pishkhan_mobile/features/profile/presentation/occupations/screen
 import 'package:pishkhan_mobile/features/profile/domain/entities/personal_information.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_address_card.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_delete_address_sheet.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_decision_sheet.dart';
 import 'package:pishkhan_mobile/features/profile/presentation/occupations/widgets/occupations_list.dart';
@@ -100,7 +100,8 @@ void main() {
         tester.getSize(
           find.byWidgetPredicate(
             (widget) =>
-                widget is AvpImage && widget.image == AppAssets.profileLock,
+                widget is AvpImage &&
+                widget.image == '${AppConstants.baseImage}profile_lock.svg',
           ),
         ),
         const Size(20, 20),

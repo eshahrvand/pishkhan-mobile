@@ -1,10 +1,12 @@
+import 'package:pishkhan_mobile/features/postal_offices/domain/entities/postal_office.dart';
+
 import 'dart:async';
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pishkhan_mobile/features/cheque/presentation/shared/postal/cubit/cheque_postal_cubit.dart';
+import 'package:pishkhan_mobile/features/postal_offices/presentation/lookup/cubit/postal_offices_cubit.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
@@ -20,8 +22,8 @@ import 'package:pishkhan_mobile/features/cheque/presentation/clearance/cubit/che
 import 'package:pishkhan_mobile/features/cheque/presentation/clearance/screens/cheque_clearance_screen.dart';
 import 'package:pishkhan_mobile/features/cheque/presentation/clearance/widgets/cheque_clearance_form.dart';
 import 'package:pishkhan_mobile/features/cheque/presentation/clearance/widgets/cheque_clearance_receipt_dialog.dart';
-import 'package:pishkhan_mobile/features/cheque/presentation/shared/postal/widgets/cheque_postal_results.dart';
-import 'package:pishkhan_mobile/features/cheque/presentation/shared/postal/widgets/cheque_postal_sheet.dart';
+import 'package:pishkhan_mobile/features/postal_offices/presentation/lookup/widgets/postal_offices_results.dart';
+import 'package:pishkhan_mobile/features/postal_offices/presentation/lookup/widgets/postal_offices_sheet.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 
 import '../support/router_test_app.dart';
@@ -154,7 +156,7 @@ void main() {
       .read<ChequeClearanceCubit>();
 
   for (final systemBack in [true, false]) {
-    testWidgets('Back ($systemBack) confirms exit during pending clearance', (
+    testWidgets('Back ($systemBack) blocks exit during pending clearance', (
       tester,
     ) async {
       final repository = PendingClearanceRepository();
@@ -173,24 +175,19 @@ void main() {
       }
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
-      expect(find.byType(FlowExitDialog), findsOneWidget);
-      await tester.tap(button(S.current.passwordStay));
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 300));
       expect(find.byType(FlowExitDialog), findsNothing);
       expect(cubit(tester).state.chequeNumber, '123/123456');
       expect(cubit(tester).state.submissionStatus, RequestStatus.loading);
+      // Complete while the owner is alive; post-disposal errors are an accepted contract behavior.
+      repository.submission.complete(const Err(DataFailure('timeout')));
+      await tester.pumpAndSettle();
       if (systemBack) {
         await tester.binding.handlePopRoute();
       } else {
         await tester.tap(find.byTooltip(S.current.backLabel));
       }
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 300));
-      expect(find.byType(FlowExitDialog), findsOneWidget);
-      // Complete while the owner is alive; post-disposal errors are an accepted contract behavior.
-      repository.submission.complete(const Err(DataFailure('timeout')));
       await tester.pumpAndSettle();
+      expect(find.byType(FlowExitDialog), findsOneWidget);
       await tap(tester, button(S.current.passwordExit));
       expect(find.byType(ChequeClearanceScreen), findsNothing);
       expect(button('Open cheque'), findsOneWidget);
@@ -330,7 +327,7 @@ void main() {
       await mount(tester);
       await fill(tester, S.current.chequeReasonOriginal);
       await tap(tester, find.text(S.current.chequePostalAction));
-      expect(find.byType(ChequePostalSheet), findsOneWidget);
+      expect(find.byType(PostalOfficesSheet), findsOneWidget);
       expect(
         tester
             .widget<AppButton>(button(S.current.chequePostalSearch))
@@ -340,19 +337,23 @@ void main() {
       await choose<PostalProvince>(tester, 'تهران');
       await choose<PostalCity>(tester, 'منطقه پستی شمال شرق');
       await tap(tester, button(S.current.chequePostalSearch));
-      expect(find.byType(ChequePostalResults), findsOneWidget);
+      expect(find.byType(PostalOfficesResults), findsOneWidget);
       expect(find.textContaining('کارگاه نیاوران'), findsOneWidget);
       await tap(tester, button(S.current.chequePostalShare));
       expect(sharedText, contains('کارگاه نیاوران'));
       expect(sharedText, contains('کارگاه ایرانشهر'));
+      final firstShare = sharedText;
+      sharedText = null;
+      await tap(tester, button(S.current.chequePostalShare));
+      expect(sharedText, firstShare);
       await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
-      expect(find.byType(ChequePostalResults), findsNothing);
+      expect(find.byType(PostalOfficesResults), findsNothing);
       await choose<PostalProvince>(tester, 'اصفهان');
       expect(
         tester
-            .element(find.byType(ChequePostalSheet))
-            .read<ChequePostalCubit>()
+            .element(find.byType(PostalOfficesSheet))
+            .read<PostalOfficesCubit>()
             .state
             .city,
         isNull,
@@ -369,7 +370,7 @@ void main() {
       expect(button(S.current.chequePostalShare), findsNothing);
       await tap(tester, button(S.current.chequePostalSearchAgain));
       await tap(tester, find.byKey(const Key('app_bottom_sheet_left_action')));
-      expect(find.byType(ChequePostalSheet), findsNothing);
+      expect(find.byType(PostalOfficesSheet), findsNothing);
       expect(cubit(tester).state.reason, ChequeClearanceReason.originalCheque);
       expect(tester.takeException(), isNull);
     },
@@ -384,7 +385,7 @@ void main() {
       await choose<PostalProvince>(tester, 'تهران');
       await choose<PostalCity>(tester, 'منطقه پستی شمال شرق');
       await tap(tester, button(S.current.chequePostalSearch));
-      expect(find.byType(ChequePostalResults), findsOneWidget);
+      expect(find.byType(PostalOfficesResults), findsOneWidget);
       await tap(tester, find.byKey(const Key('app_bottom_sheet_left_action')));
       await tap(tester, find.byType(AppCheckbox));
       expect(

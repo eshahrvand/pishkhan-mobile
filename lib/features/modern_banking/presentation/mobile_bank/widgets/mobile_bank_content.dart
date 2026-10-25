@@ -1,9 +1,9 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 import '../../shared/modern_bank_video.dart';
 import '../../../domain/entities/mobile_bank.dart';
@@ -41,7 +41,7 @@ class MobileBankContent extends StatelessWidget {
         ],
         if (state.step == MobileBankStep.introduction) ...[
           ModernBankVideo(
-            poster: AppAssets.modernIntro,
+            poster: '${AppConstants.baseImage}modern_intro.png',
             url: state.catalog!.activationVideoUrl,
             isIntroduction: true,
           ),
@@ -68,7 +68,7 @@ class MobileBankContent extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           ModernBankVideo(
-            poster: AppAssets.modernKycInstruction,
+            poster: '${AppConstants.baseImage}modern_kyc_instruction.png',
             url: state.catalog!.identityVideoUrl,
           ),
           const SizedBox(height: 20),
@@ -82,7 +82,9 @@ class MobileBankContent extends StatelessWidget {
               children: [
                 SizedBox.square(
                   dimension: 20,
-                  child: AvpImage(image: AppAssets.passwordCameraInfo),
+                  child: AvpImage(
+                    image: '${AppConstants.baseImage}password_camera_info.svg',
+                  ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
@@ -103,7 +105,9 @@ class MobileBankContent extends StatelessWidget {
                 .copyWith(height: 20 / 14, fontWeight: FontWeight.w500),
           ),
           const SizedBox(height: 20),
-          ModernBankVideo(poster: AppAssets.modernKycPreview),
+          ModernBankVideo(
+            poster: '${AppConstants.baseImage}modern_kyc_preview.png',
+          ),
           const SizedBox(height: 12),
           Align(
             alignment: Alignment.centerLeft,
@@ -111,11 +115,10 @@ class MobileBankContent extends StatelessWidget {
               child: AppButton(
                 label: S.current.passwordRecordAgain,
                 variant: AppButtonVariant.text,
-                onPressed: state.submissionStatus == RequestStatus.loading
-                    ? null
-                    : () {
-                        context.read<MobileBankCubit>().requestRecordingAgain();
-                      },
+                isLoading: state.submissionStatus == RequestStatus.loading,
+                onPressed: () {
+                  context.read<MobileBankCubit>().requestRecordingAgain();
+                },
               ),
             ),
           ),

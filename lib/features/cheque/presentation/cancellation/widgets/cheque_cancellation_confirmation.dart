@@ -1,8 +1,8 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/certificate_fields.dart';
 
 import '../cubit/cheque_cancellation_cubit.dart';
@@ -26,7 +26,7 @@ class ChequeCancellationConfirmation extends StatelessWidget {
           variant: AppButtonVariant.secondaryColor,
           size: AppButtonSize.sm,
           leadingIcon: const AvpImage(
-            image: AppAssets.chequeCancelDownload,
+            image: '${AppConstants.baseImage}cheque_cancel_download.svg',
             width: 20,
             height: 20,
           ),
@@ -36,7 +36,7 @@ class ChequeCancellationConfirmation extends StatelessWidget {
         ),
         const SizedBox(height: 20),
         const AvpImage(
-          image: AppAssets.issuanceDivider,
+          image: '${AppConstants.baseImage}issuance_divider.svg',
           height: 1,
           fit: BoxFit.fill,
         ),
@@ -62,7 +62,8 @@ class ChequeCancellationConfirmation extends StatelessWidget {
             child: Row(
               children: [
                 const AvpImage(
-                  image: AppAssets.chequeClearanceEnvelope,
+                  image:
+                      '${AppConstants.baseImage}cheque_clearance_envelope.svg',
                   width: 20,
                   height: 20,
                 ),
@@ -74,7 +75,7 @@ class ChequeCancellationConfirmation extends StatelessWidget {
                   ),
                 ),
                 const AvpImage(
-                  image: AppAssets.cardFeaturesChevron,
+                  image: '${AppConstants.baseImage}card_features_chevron.svg',
                   width: 20,
                   height: 20,
                 ),

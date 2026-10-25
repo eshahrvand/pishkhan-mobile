@@ -26,6 +26,7 @@ class OccupationsList extends StatelessWidget {
         if (state.occupationsStatus == RequestStatus.failure) {
           return Center(
             child: AppButton(
+              isLoading: state.occupationsStatus == RequestStatus.loading,
               label: S.current.dashboardRetry,
               onPressed: () {
                 context.read<OccupationsCubit>().fetchOccupations();
@@ -67,12 +68,6 @@ class OccupationsList extends StatelessWidget {
             ],
             if (state.deletionStatus == RequestStatus.loading)
               const Center(child: CircularProgressIndicator()),
-            if (state.deletionStatus == RequestStatus.failure)
-              Text(
-                S.current.profileOperationError,
-                style: Theme.of(context).textTheme.bodySmall
-                    ?.copyWith(color: context.colors.error),
-              ),
           ],
         );
       },

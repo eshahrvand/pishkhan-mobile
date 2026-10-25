@@ -146,7 +146,7 @@ void main() {
     getIt.registerSingleton<DepositRestrictionsRepository>(repository);
     final cubit = createCubit();
     await cubit.fetchCatalog();
-    expect(cubit.state.catalogFailure, const UnexpectedFailure());
+    expect(cubit.state.failure, const UnexpectedFailure());
     repository.throwsCatalog = false;
     await cubit.fetchCatalog();
     cubit.selectDeposit(cubit.state.catalog!.deposits.first);
@@ -167,7 +167,7 @@ void main() {
     final key = cubit.state.idempotencyKey;
     cubit.updateDescription('updated');
     expect(cubit.state.idempotencyKey, isNot(key));
-    expect(cubit.state.submissionFailure, isNull);
+    expect(cubit.state.failure, isNull);
   });
 
   test(
@@ -183,7 +183,7 @@ void main() {
       cubit.updateDescription(' شخصی ');
       cubit.updateTermsAcceptance(true);
       await cubit.submitRestriction();
-      expect(cubit.state.submissionFailure, const UnexpectedFailure());
+      expect(cubit.state.failure, const UnexpectedFailure());
       final key = cubit.state.idempotencyKey;
       cubit.updateDescription('  شخصی  ');
       expect(cubit.state.idempotencyKey, key);
@@ -254,9 +254,11 @@ void main() {
     () async {
       final cubit = createCubit();
       cubit.requestTerms();
-      final id = cubit.state.effectId;
+      final effectBeforeRepeat = cubit.state.effect;
+      cubit.consumeDepositRestrictionInteraction();
+      expect(cubit.state.effect, isNull);
       cubit.requestTerms();
-      expect(cubit.state.effectId, id + 1);
+      expect(cubit.state.effect.runtimeType, effectBeforeRepeat.runtimeType);
       cubit.requestBack();
       expect(cubit.state.effect, DepositRestrictionEffect.back);
       cubit.updateDescription('draft');

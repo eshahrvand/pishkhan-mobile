@@ -1,8 +1,8 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_address_card.dart';
 
 import '../../../domain/entities/issuance_data.dart';
@@ -114,7 +114,9 @@ class _IssuanceDeliveryState extends State<IssuanceDelivery> {
                     ),
                     contentGap: 8,
                     constrainLabel: true,
-                    leadingIcon: issuanceIcon(AppAssets.issuancePlus),
+                    leadingIcon: issuanceIcon(
+                      '${AppConstants.baseImage}issuance_plus.svg',
+                    ),
                     onPressed: widget.onAddAddress,
                   ),
                 ),

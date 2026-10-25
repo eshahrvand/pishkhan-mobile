@@ -91,12 +91,22 @@ class _HomeTabTestScopeState extends State<HomeTabTestScope> {
 
   void _observe(HomeCubit cubit) {
     _cubit = cubit;
-    var effectId = cubit.state.effectId;
+    HomeState effectPrevious = cubit.state;
     _subscriptions.add(
       cubit.stream.listen((state) {
-        if (effectId == state.effectId) return;
-        effectId = state.effectId;
-        _handleEffect(context, state);
+        final requested =
+            effectPrevious.effect != state.effect && state.effect != null;
+        final failed =
+            (effectPrevious.homeStatus != state.homeStatus &&
+                state.homeStatus == RequestStatus.failure) ||
+            (effectPrevious.cardsStatus != state.cardsStatus &&
+                state.cardsStatus == RequestStatus.failure) ||
+            (effectPrevious.depositsStatus != state.depositsStatus &&
+                state.depositsStatus == RequestStatus.failure) ||
+            (effectPrevious.loansStatus != state.loansStatus &&
+                state.loansStatus == RequestStatus.failure);
+        effectPrevious = state;
+        if (requested || failed) _handleEffect(context, state);
       }),
     );
     HomeState previous = cubit.state;
@@ -165,7 +175,15 @@ class _HomeTabTestScopeState extends State<HomeTabTestScope> {
       value: _cubit,
       child: BlocListener<HomeCubit, HomeState>(
         listenWhen: (previous, current) =>
-            previous.effectId != current.effectId,
+            (((previous.effect != current.effect && current.effect != null))) ||
+            ((previous.homeStatus != current.homeStatus &&
+                    current.homeStatus == RequestStatus.failure) ||
+                (previous.cardsStatus != current.cardsStatus &&
+                    current.cardsStatus == RequestStatus.failure) ||
+                (previous.depositsStatus != current.depositsStatus &&
+                    current.depositsStatus == RequestStatus.failure) ||
+                (previous.loansStatus != current.loansStatus &&
+                    current.loansStatus == RequestStatus.failure)),
         listener: _handleEffect,
         child: BlocListener<HomeCubit, HomeState>(
           listenWhen: (previous, current) =>
@@ -181,46 +199,67 @@ class _HomeTabTestScopeState extends State<HomeTabTestScope> {
   }
 
   void _handleEffect(BuildContext context, HomeState state) {
+    if (state.message != null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(state.message!)));
+      return;
+    }
+
     switch (state.effect) {
       case HomeCardActionRequested(:final request):
+        _cubit.consumeHomeInteraction();
         widget.onCardAction?.call(request);
         if (widget.onCardAction == null) {
           widget.onServiceRequested?.call(request.action.id);
         }
       case HomeDepositActionRequested(:final request):
+        _cubit.consumeHomeInteraction();
         widget.onDepositAction?.call(request);
         if (widget.onDepositAction == null) {
           widget.onServiceRequested?.call(request.action.id);
         }
       case HomeLoanActionRequested(:final request):
+        _cubit.consumeHomeInteraction();
         widget.onLoanAction?.call(request);
         if (widget.onLoanAction == null) {
           widget.onServiceRequested?.call(request.action.id);
         }
       case HomeCardMoreRequested(:final card):
+        _cubit.consumeHomeInteraction();
         widget.onMore?.call(card);
       case HomeLoanDetailsRequested(:final loan):
+        _cubit.consumeHomeInteraction();
         widget.onDetails?.call(loan);
       case HomeCardNumberCopyRequested(:final number):
+        _cubit.consumeHomeInteraction();
         _copyNumber(number);
       case HomeDepositNumberCopyRequested(:final number):
+        _cubit.consumeHomeInteraction();
         _copyNumber(number);
       case HomeLoanNumberCopyRequested(:final number):
+        _cubit.consumeHomeInteraction();
         _copyNumber(number);
       case HomeCardIbanCopyRequested(:final iban):
+        _cubit.consumeHomeInteraction();
         _copyIban(iban);
       case HomeDepositIbanCopyRequested(:final iban):
+        _cubit.consumeHomeInteraction();
         _copyIban(iban);
       case HomeTabRequested(:final tab):
+        _cubit.consumeHomeInteraction();
         widget.onTabSelected?.call(tab);
       case HomeMenuRequested():
+        _cubit.consumeHomeInteraction();
         widget.onMenuPressed?.call();
       case HomeAssistantRequested():
+        _cubit.consumeHomeInteraction();
         widget.onAssistantPressed?.call();
         widget.onServiceRequested?.call('assistant');
       case HomeServiceRequested(:final serviceId):
+        _cubit.consumeHomeInteraction();
         widget.onServiceRequested?.call(serviceId);
       case HomePromptSubmitted(:final prompt):
+        _cubit.consumeHomeInteraction();
         widget.onPromptSubmitted?.call(prompt);
       case HomeAllServicesRequested():
       case HomeProfileRequested():

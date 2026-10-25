@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../cubit/dashboard_services_sheet_cubit.dart';
-import '../dashboard_service_group.dart';
-import '../dashboard_services.dart';
-import 'dashboard_category_heading.dart';
-import 'dashboard_service_option.dart';
+import '../cubit/home_cubit.dart';
+import '../../shared/dashboard_service_group.dart';
+import '../../shared/dashboard_services.dart';
+import '../../shared/widgets/dashboard_category_heading.dart';
+import '../../shared/widgets/dashboard_service_option.dart';
 
 class DashboardServiceGroupSection extends StatelessWidget {
   const DashboardServiceGroupSection({
@@ -32,7 +32,7 @@ class DashboardServiceGroupSection extends StatelessWidget {
           search: isSearching,
           onTap: group.canToggle
               ? () {
-                  context.read<DashboardServicesSheetCubit>().toggleCategory(
+                  context.read<HomeCubit>().toggleServicePickerCategory(
                     group.category,
                   );
                 }

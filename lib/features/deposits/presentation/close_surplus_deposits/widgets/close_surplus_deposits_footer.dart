@@ -69,14 +69,7 @@ class CloseSurplusDepositsFooter extends StatelessWidget {
             ),
             const SizedBox(height: 16),
           ],
-          if (state.submissionFailure != null) ...[
-            Text(
-              S.current.issuanceSubmitError,
-              style: certificateLabelStyle(context)
-                  .copyWith(color: context.colors.error),
-            ),
-            const SizedBox(height: 8),
-          ],
+
           AppButton(
             constrainLabel: true,
             label: S.current.surplusDepositsSubmit,

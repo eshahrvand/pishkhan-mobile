@@ -1,8 +1,8 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_invoice.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_request_summary.dart';
 
@@ -21,7 +21,8 @@ class ChequeBookConfirmation extends StatelessWidget {
           AppRequestSummary(
             depositNumber: state.deposit!.number,
             operation: S.current.issueChequeBook,
-            operationDivider: AppAssets.chequeBookSummaryOperation,
+            operationDivider:
+                '${AppConstants.baseImage}chequebook_summary_operation.svg',
             isExpanded: state.isSummaryExpanded,
             onExpandedChanged: context
                 .read<ChequeBookCubit>()
@@ -29,7 +30,7 @@ class ChequeBookConfirmation extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           const AvpImage(
-            image: AppAssets.issuanceDivider,
+            image: '${AppConstants.baseImage}issuance_divider.svg',
             height: .5,
             fit: BoxFit.fill,
           ),
@@ -38,12 +39,13 @@ class ChequeBookConfirmation extends StatelessWidget {
             title: S.current.issuancePayable,
             walletLabel: S.current.issuanceWallet,
             costIcon: const AvpImage(
-              image: AppAssets.chequeBookCost,
+              image: '${AppConstants.baseImage}chequebook_cost.svg',
               width: 20,
               height: 20,
             ),
             walletIcon: const AvpImage(
-              image: AppAssets.dashboardCatalogCategoryWallet,
+              image:
+                  '${AppConstants.baseImage}dashboard_catalog_category_wallet.svg',
               width: 20,
               height: 20,
             ),
@@ -57,7 +59,7 @@ class ChequeBookConfirmation extends StatelessWidget {
                 label: S.current.chequeBookIssueFee,
                 amount: CurrencyFormatter.format(state.quote!.issueFeeRial),
                 icon: const AvpImage(
-                  image: AppAssets.drawerCheque,
+                  image: '${AppConstants.baseImage}drawer_cheque.svg',
                   width: 20,
                   height: 20,
                 ),
@@ -67,7 +69,7 @@ class ChequeBookConfirmation extends StatelessWidget {
                 label: S.current.issuanceDeliveryFee,
                 amount: CurrencyFormatter.format(state.quote!.deliveryFeeRial),
                 icon: const AvpImage(
-                  image: AppAssets.chequeBookDelivery,
+                  image: '${AppConstants.baseImage}chequebook_delivery.svg',
                   width: 20,
                   height: 20,
                 ),

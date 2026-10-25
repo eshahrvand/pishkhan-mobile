@@ -84,20 +84,20 @@ owner decision. Valid mock numbers are listed in the detailed clearance contract
 
 ## Shared postal-office helper
 
-`presentation/shared/postal` owns `ChequePostalCubit`, plain Freezed State,
-`ChequePostalSheet` and `ChequePostalResults`. Clearance and cancellation both
-open `showChequePostalSheet`. Every opening creates a separate Provider-owned
-postal Cubit; selected cheques, reasons and consent remain in the caller's Cubit.
+`features/postal_offices` owns `PostalOfficesCubit`, plain Freezed State,
+`PostalOfficesSheet` and `PostalOfficesResults`. Clearance and cancellation both
+open the public `showPostalOfficesSheet` entry point. Every opening creates a
+separate Provider-owned postal Cubit; cheque selection, reasons and consent remain
+in the caller's Cubit. There is no Cubit under `shared`.
 
-The helper fetches provinces, narrows cities after province selection, retrieves
-offices for the chosen city and prepares actual retrieved addresses for native
-sharing. Province changes clear city/results; Back from results returns to
-location selection. Sharing opens the system chooser and never sends on its own.
-Unsupported hosts show availability feedback.
+The feature owns its Domain entities, `PostalOfficesRepository`, lookup use cases
+and mock adapter. GetIt registers the repository, not the Cubit. Province changes
+clear city/results; Back from results returns to location selection. Pending
+requests block Back and the header close action. Share text is prepared in Cubit;
+UI opens the system chooser without sending automatically. See
+[Postal offices](../postal-offices/development.md).
 
-The existing `ChequeClearanceRepository` and use cases supply postal data to both
-callers. Reuse of that contract avoids another fixture/API layer. A real adapter
-can replace it without duplicating UI. Tehran/north-east returns two demo
+Tehran/north-east returns two demo
 addresses; Isfahan returns an empty result.
 
 This helper finds post offices. Delivery-address editing and postal-code

@@ -69,7 +69,7 @@ type yields an empty list. No real cheque is cancelled or posted.
 Public controls, app headers/assistant/exit dialog and blurred service-sheet frame
 are reused. Identity rows are shared between cards and review. Circular reason
 choices use the original Figma check asset; installed avp_ui has no radio primitive.
-Postal search reuses `presentation/shared/postal` as documented in the
+Postal search opens the independent `features/postal_offices` feature as documented in the
 [module overview](development.md#shared-postal-office-helper). It does not share
 the address editor's State or postal-code validation.
 

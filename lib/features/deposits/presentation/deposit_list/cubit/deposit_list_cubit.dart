@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/presentation/mappers/request_error_message_mapper.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
@@ -26,10 +27,7 @@ class DepositListCubit extends Cubit<DepositListState> {
 
   void requestDepositActions(ListedDeposit deposit) {
     emit(
-      state.copyWith(
-        effect: DepositActionsRequested(deposit),
-        effectId: state.effectId + 1,
-      ),
+      state.copyWith(effect: DepositActionsRequested(deposit), message: null),
     );
   }
 
@@ -39,7 +37,7 @@ class DepositListCubit extends Cubit<DepositListState> {
         emit(
           state.copyWith(
             effect: DepositDetailsRequested(deposit),
-            effectId: state.effectId + 1,
+            message: null,
           ),
         );
       case null:
@@ -53,12 +51,11 @@ class DepositListCubit extends Cubit<DepositListState> {
                 DepositListAction.statement => 'deposit-statement',
                 DepositListAction.certificate => 'deposit-certificate',
                 DepositListAction.block => 'deposit-block',
-                DepositListAction.agent =>
-                  'deposit-representation-settings',
+                DepositListAction.agent => 'deposit-representation-settings',
                 _ => null,
               },
             ),
-            effectId: state.effectId + 1,
+            message: null,
           ),
         );
     }
@@ -71,7 +68,7 @@ class DepositListCubit extends Cubit<DepositListState> {
       emit(
         state.copyWith(
           effect: const DepositKindFilterRequested(),
-          effectId: state.effectId + 1,
+          message: null,
         ),
       );
     }
@@ -84,7 +81,7 @@ class DepositListCubit extends Cubit<DepositListState> {
       emit(
         state.copyWith(
           effect: const DepositStatusFilterRequested(),
-          effectId: state.effectId + 1,
+          message: null,
         ),
       );
     }
@@ -102,7 +99,8 @@ class DepositListCubit extends Cubit<DepositListState> {
     emit(
       state.copyWith(
         depositsStatus: RequestStatus.loading,
-        depositsFailure: null,
+        failure: null,
+        message: null,
       ),
     );
     return _loadDeposits().then((result) {
@@ -111,7 +109,8 @@ class DepositListCubit extends Cubit<DepositListState> {
           emit(
             state.copyWith(
               depositsStatus: RequestStatus.failure,
-              depositsFailure: failure,
+              failure: failure,
+              message: getRequestErrorMessage(failure),
             ),
           );
         case Success(:final data):
@@ -164,5 +163,10 @@ class DepositListCubit extends Cubit<DepositListState> {
               (status == null || deposit.status == status),
         )
         .toList();
+  }
+
+  /// UI has accepted the pending interaction; data and request statuses stay intact.
+  void consumeDepositListInteraction() {
+    emit(state.copyWith(effect: null));
   }
 }

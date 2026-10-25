@@ -1,7 +1,7 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_agent_card_detail_row.dart';
 
 import '../../../domain/entities/deposit_restriction.dart';
@@ -29,7 +29,9 @@ class DepositBlockDetailsCard extends StatelessWidget {
             labelColor: context.colors.textSecondary,
           ),
           const SizedBox(height: 12),
-          const DepositDivider(asset: AppAssets.depositBlockDetailsDivider),
+          const DepositDivider(
+            asset: '${AppConstants.baseImage}deposit_block_details_divider.svg',
+          ),
           const SizedBox(height: 12),
           AppAgentCardDetailRow(
             row: (
@@ -39,7 +41,9 @@ class DepositBlockDetailsCard extends StatelessWidget {
             labelColor: context.colors.textSecondary,
           ),
           const SizedBox(height: 12),
-          const DepositDivider(asset: AppAssets.depositBlockDetailsDivider),
+          const DepositDivider(
+            asset: '${AppConstants.baseImage}deposit_block_details_divider.svg',
+          ),
           const SizedBox(height: 12),
           AppAgentCardDetailRow(
             row: (

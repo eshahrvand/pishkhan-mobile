@@ -44,8 +44,9 @@ shared `Failure? failure`, with `String? message` in State and no separate
 message counter.
 `presentation/login/cubit/auth_error_messages.dart` maps known Failure codes to
 Persian text with a switch and generic fallback. Cubit emits the prepared message
-with AuthMessageRequested and increments the existing effectId for each API
-notification; the existing filtered UI Listener displays it. There is no separate
+in the failure emit; the filtered UI Listener observes the operation entering
+failure and displays the prepared text. Identical failures after retry are delivered
+again through loading-to-failure transitions, without effect/message counters. There is no separate
 message Listener or duplicate inline API-error display. The unconnected guest
 change-phone flow retains its previous inline unavailable feedback and receives
 no new message/effect handling. Starting a request clears failure/message without
@@ -93,7 +94,7 @@ use a synthetic 200×70 JPEG, not real bank CAPTCHA content.
 CAPTCHA bytes stay in memory; there is no cached network image or disk file.
 The image widget uses `Image.memory` because AvpImage has no byte-source API.
 UI loading gates block repeated submissions, input edits and Back during requests.
-Blocked Back is the explicitly approved Login-only policy. The resend button
+Blocked Back now follows the owner-approved policy for all request-driven flows. The resend button
 uses `isLoading` for verification and only `canResendOtp` in its onPressed gate.
 The explicit initial action attaches the Cubit-owned clock. An OTP-success
 snapshot records its start tick; identity screens produce no countdown emissions.

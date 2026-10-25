@@ -127,10 +127,7 @@ final class HomeNotificationsRequested extends HomeEffect {
 }
 
 final class HomeFavoritePickerRequested extends HomeEffect {
-  const HomeFavoritePickerRequested({this.excluded = const []});
-  final List<String> excluded;
-  @override
-  List<Object?> get props => [excluded];
+  const HomeFavoritePickerRequested();
 }
 
 final class HomeFavoritesResetRequested extends HomeEffect {

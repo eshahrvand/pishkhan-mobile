@@ -229,7 +229,7 @@ void main() {
       repository.pendingQuotes.first.complete(const Err(DataFailure('old')));
       await t.pumpAndSettle();
       expect(cubit(t).state.quote?.count, 4);
-      expect(cubit(t).state.quoteFailure, isNull);
+      expect(cubit(t).state.failure, isNull);
       expect(find.byType(AppInvoice), findsOneWidget);
       expect(t.takeException(), isNull);
     },
@@ -250,13 +250,18 @@ void main() {
       await t.pumpAndSettle();
       await t.tap(retry);
       await t.pumpAndSettle();
-      repository.quoteFailure = const DataFailure('quote-offline');
+      repository.failure = const DataFailure('quote-offline');
       await fill(t);
       expect(cubit(t).state.quoteStatus, RequestStatus.failure);
-      repository.quoteFailure = null;
+      repository.failure = null;
       await t.ensureVisible(retry);
       await t.pumpAndSettle();
       await t.tap(retry);
+      await t.pumpAndSettle();
+      t
+          .state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger))
+          .clearSnackBars();
+      await t.pump(const Duration(seconds: 5));
       await t.pumpAndSettle();
       expect(cubit(t).state.quote, isNotNull);
       expect(cubit(t).state.termsAccepted, isFalse);
@@ -284,7 +289,7 @@ void main() {
       );
       expect(
         t.widget<AppTopBar>(find.byType(AppTopBar)).onTrailingPressed,
-        isNotNull,
+        isNull,
       );
       await t.tap(cardControl(t, 'virtual_submit'));
       await t.pump();

@@ -89,13 +89,12 @@ void main() {
     expect(cubit.state.captchaImage, isNull);
     expect(cubit.state.canRequestOtp, isFalse);
     expect(cubit.state.message, 'ارتباط با سرور برقرار نشد. دوباره تلاش کنید.');
-    final effectId = cubit.state.effectId;
     repository.captchaFailure = null;
     await cubit.fetchCaptcha();
     expect(cubit.state.captchaStatus, RequestStatus.success);
     expect(cubit.state.failure, isNull);
     expect(cubit.state.message, isNull);
-    expect(cubit.state.effectId, effectId);
+    expect(cubit.state.effect, isNull);
   });
 
   test('invalid CAPTCHA image leaves no image/session and publishes a specific message', () async {
@@ -112,7 +111,7 @@ void main() {
       cubit.state.message,
       'دریافت تصویر کد امنیتی کامل نشد. دوباره تلاش کنید.',
     );
-    expect(cubit.state.effect, isA<AuthMessageRequested>());
+    expect(cubit.state.effect, isNull);
   });
 
   test(
@@ -123,27 +122,39 @@ void main() {
       final cubit = createCubit();
       await fillIdentity(cubit);
 
-      await cubit.submitOtpRequest();
-      expect(cubit.state.message, 'کد امنیتی اشتباه است.');
-      final effectId = cubit.state.effectId;
-      cubit.updateCaptcha('654321');
-      expect(cubit.state.effectId, effectId);
+      final notifications = <String>[];
+      var previous = cubit.state;
+      final subscription = cubit.stream.listen((current) {
+        if (previous.otpRequestStatus != current.otpRequestStatus &&
+            current.otpRequestStatus == RequestStatus.failure) {
+          notifications.add(current.message!);
+        }
+        previous = current;
+      });
+      addTearDown(subscription.cancel);
 
       await cubit.submitOtpRequest();
       expect(cubit.state.message, 'کد امنیتی اشتباه است.');
-      expect(cubit.state.effectId, effectId + 1);
+      cubit.updateCaptcha('654321');
+      await Future<void>.delayed(Duration.zero);
+      expect(notifications, ['کد امنیتی اشتباه است.']);
+
+      await cubit.submitOtpRequest();
+      expect(cubit.state.message, 'کد امنیتی اشتباه است.');
+      await Future<void>.delayed(Duration.zero);
+      expect(notifications, ['کد امنیتی اشتباه است.', 'کد امنیتی اشتباه است.']);
 
       repository.otpResponse = Completer<Result<LoginOtpChallenge>>();
       final retry = cubit.submitOtpRequest();
       expect(cubit.state.failure, isNull);
       expect(cubit.state.message, isNull);
-      expect(cubit.state.effectId, effectId + 1);
+      expect(cubit.state.otpRequestStatus, RequestStatus.loading);
       repository.otpResponse!.complete(const Success(testOtpChallenge));
       await retry;
       expect(cubit.state.step, AuthStep.loginOtp);
       expect(cubit.state.message, isNull);
       expect(cubit.state.effect, isA<AuthOtpRequested>());
-      expect(cubit.state.effectId, effectId + 2);
+      expect(notifications, hasLength(2));
     },
   );
 
@@ -269,11 +280,21 @@ void main() {
   test('guest dismissal and repeated effects preserve delivery', () {
     final cubit = createCubit();
     cubit.requestServices();
-    final first = cubit.state.effectId;
+    expect(cubit.state.effect, isA<AuthServicesRequested>());
+    cubit.consumeAuthInteraction();
     cubit.selectGuestService(null);
-    expect(cubit.state.effectId, first);
+    expect(cubit.state.effect, isNull);
     cubit.selectGuestService('requests.status');
+    expect(
+      (cubit.state.effect as AuthGuestServiceRequested).id,
+      'requests.status',
+    );
+    cubit.consumeAuthInteraction();
+    expect(cubit.state.effect, isNull);
     cubit.selectGuestService('requests.status');
-    expect(cubit.state.effectId, first + 2);
+    expect(
+      (cubit.state.effect as AuthGuestServiceRequested).id,
+      'requests.status',
+    );
   });
 }

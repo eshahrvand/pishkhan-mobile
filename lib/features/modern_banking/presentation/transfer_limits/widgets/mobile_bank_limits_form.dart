@@ -1,9 +1,9 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 import '../cubit/transfer_limits_cubit.dart';
 import 'mobile_bank_limit_field.dart';
@@ -40,7 +40,10 @@ class MobileBankLimitsForm extends StatelessWidget {
         const SizedBox(height: 20),
         SizedBox(
           height: 1,
-          child: AvpImage(image: AppAssets.modernDivider, fit: BoxFit.fill),
+          child: AvpImage(
+            image: '${AppConstants.baseImage}modern_divider.svg',
+            fit: BoxFit.fill,
+          ),
         ),
         const SizedBox(height: 20),
         MobileBankLimitField(
@@ -59,7 +62,10 @@ class MobileBankLimitsForm extends StatelessWidget {
         const SizedBox(height: 20),
         SizedBox(
           height: 1,
-          child: AvpImage(image: AppAssets.modernDivider, fit: BoxFit.fill),
+          child: AvpImage(
+            image: '${AppConstants.baseImage}modern_divider.svg',
+            fit: BoxFit.fill,
+          ),
         ),
         const SizedBox(height: 20),
         MobileBankLimitField(

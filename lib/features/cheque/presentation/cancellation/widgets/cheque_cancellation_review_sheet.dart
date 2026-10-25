@@ -1,8 +1,8 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_bottom_sheet_header.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_service_sheet.dart';
 import 'package:pishkhan_mobile/shared/widgets/certificate_fields.dart';
@@ -28,6 +28,9 @@ class ChequeCancellationReviewSheet extends StatelessWidget {
     BuildContext context,
     ChequeCancellationState state,
   ) {
+    context
+        .read<ChequeCancellationCubit>()
+        .consumeChequeCancellationInteraction();
     return showChequeCancellationDeleteSheet(context, state.pendingCheque!);
   }
 
@@ -35,7 +38,7 @@ class ChequeCancellationReviewSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocConsumer<ChequeCancellationCubit, ChequeCancellationState>(
       listenWhen: (previous, current) =>
-          previous.effectId != current.effectId &&
+          (previous.effect != current.effect && current.effect != null) &&
           current.effect == ChequeCancellationEffect.deleteReviewCheque,
       listener: _handleEffect,
       builder: (context, state) {
@@ -66,7 +69,8 @@ class ChequeCancellationReviewSheet extends StatelessWidget {
                     separatorBuilder: (_, _) => Padding(
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       child: const AvpImage(
-                        image: AppAssets.cardFeaturesDivider,
+                        image:
+                            '${AppConstants.baseImage}card_features_divider.svg',
                         height: .5,
                         fit: BoxFit.fill,
                       ),
@@ -100,7 +104,8 @@ class ChequeCancellationReviewSheet extends StatelessWidget {
                                   state.selectedEntries[index].cheque,
                                 ),
                             child: const AvpImage(
-                              image: AppAssets.issuanceTrash,
+                              image:
+                                  '${AppConstants.baseImage}issuance_trash.svg',
                               width: 20,
                               height: 20,
                             ),

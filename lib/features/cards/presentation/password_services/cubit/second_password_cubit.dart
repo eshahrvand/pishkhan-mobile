@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:pishkhan_mobile/core/presentation/mappers/request_error_message_mapper.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/result/failure.dart';
@@ -34,7 +35,8 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
     emit(
       state.copyWith(
         catalogStatus: RequestStatus.loading,
-        catalogFailure: null,
+        failure: null,
+        message: null,
       ),
     );
     return LoadPasswordCatalog(_repository)().then((result) {
@@ -43,7 +45,8 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
           emit(
             state.copyWith(
               catalogStatus: RequestStatus.failure,
-              catalogFailure: failure,
+              failure: failure,
+              message: getRequestErrorMessage(failure),
             ),
           );
         case Success(:final data):
@@ -104,8 +107,8 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
         isConfirmationError: false,
         isSerialError: false,
         idempotencyKey: null,
-        existingRequestFailure: null,
-        submissionFailure: null,
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -145,8 +148,8 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
         isConfirmationError: false,
         isSerialError: false,
         idempotencyKey: null,
-        existingRequestFailure: null,
-        submissionFailure: null,
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -157,7 +160,7 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
         emit(
           state.copyWith(
             effect: const PasswordUnsupportedRequested(),
-            effectId: state.effectId + 1,
+            message: null,
           ),
         );
       case PasswordType.second:
@@ -201,8 +204,8 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
         isConfirmationError: false,
         isSerialError: false,
         idempotencyKey: null,
-        existingRequestFailure: null,
-        submissionFailure: null,
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -252,10 +255,11 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
         isFormComplete: false,
         canContinue: false,
         primaryAction: PasswordPrimaryAction.continueFlow,
-        submissionFailure: null,
         idempotencyKey: normalized == state.currentPassword
             ? state.idempotencyKey
             : null,
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -279,10 +283,11 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
         isFormComplete: false,
         canContinue: false,
         primaryAction: PasswordPrimaryAction.continueFlow,
-        submissionFailure: null,
         idempotencyKey: normalized == state.password
             ? state.idempotencyKey
             : null,
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -299,7 +304,8 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
         isFormComplete: false,
         canContinue: false,
         primaryAction: PasswordPrimaryAction.continueFlow,
-        submissionFailure: null,
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -314,10 +320,11 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
         isSerialError: false,
         isRecordingConfirmed: false,
         canContinue: isValid,
-        submissionFailure: null,
         idempotencyKey: normalized == state.nationalCardSerial
             ? state.idempotencyKey
             : null,
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -376,9 +383,9 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
             state.copyWith(
               step: SecondPasswordStep.serial,
               canContinue: state.isSerialValid,
-              existingRequestFailure: null,
-              submissionFailure: null,
               isSerialError: false,
+              failure: null,
+              message: null,
             ),
           );
           return Future.value();
@@ -389,8 +396,8 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
             step: SecondPasswordStep.instruction,
             canContinue: true,
             primaryAction: PasswordPrimaryAction.startKyc,
-            existingRequestFailure: null,
-            submissionFailure: null,
+            failure: null,
+            message: null,
           ),
         );
         return Future.value();
@@ -403,8 +410,8 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
                 state.isFormComplete &&
                 state.isSerialValid,
             primaryAction: PasswordPrimaryAction.submit,
-            existingRequestFailure: null,
-            submissionFailure: null,
+            failure: null,
+            message: null,
           ),
         );
         return Future.value();
@@ -417,10 +424,11 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
     emit(
       state.copyWith(
         existingRequestStatus: RequestStatus.loading,
-        existingRequestFailure: null,
         record: null,
         isEditable: false,
         canContinue: false,
+        failure: null,
+        message: null,
       ),
     );
     return CheckPasswordRequest(_repository)(
@@ -432,9 +440,10 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
           emit(
             state.copyWith(
               existingRequestStatus: RequestStatus.failure,
-              existingRequestFailure: failure,
               isEditable: true,
               canContinue: true,
+              failure: failure,
+              message: getRequestErrorMessage(failure),
             ),
           );
         case Success(:final data):
@@ -451,7 +460,7 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
                         state.operation!,
                         newlySubmitted: false,
                       ),
-                effectId: state.effectId + 1,
+                message: null,
               ),
             );
           } else if (!state.isSelectionComplete ||
@@ -459,11 +468,12 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
             emit(
               state.copyWith(
                 existingRequestStatus: RequestStatus.failure,
-                existingRequestFailure: const DataFailure(
-                  'password.request.ineligible',
-                ),
                 isEditable: true,
                 canContinue: true,
+                failure: const DataFailure('password.request.ineligible'),
+                message: getRequestErrorMessage(
+                  const DataFailure('password.request.ineligible'),
+                ),
               ),
             );
           } else {
@@ -501,10 +511,11 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
     emit(
       state.copyWith(
         submissionStatus: RequestStatus.loading,
-        submissionFailure: null,
         idempotencyKey: key,
         isEditable: false,
         canContinue: false,
+        failure: null,
+        message: null,
       ),
     );
     return SubmitSecondPassword(_repository)(request).then((result) {
@@ -513,9 +524,10 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
           emit(
             state.copyWith(
               submissionStatus: RequestStatus.failure,
-              submissionFailure: failure,
               isEditable: true,
               canContinue: _canContinueAtStep(state.step),
+              failure: failure,
+              message: getRequestErrorMessage(failure),
             ),
           );
         case Success(:final data):
@@ -529,7 +541,6 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
                 state.operation!,
                 newlySubmitted: true,
               ),
-              effectId: state.effectId + 1,
               idempotencyKey: null,
               password: '',
               currentPassword: '',
@@ -549,6 +560,7 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
               isCurrentPasswordVisible: false,
               isConfirmationError: false,
               isSerialError: false,
+              message: null,
             ),
           );
       }
@@ -558,10 +570,7 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
   void requestBack() {
     if (state.isFullStatusVisible) {
       emit(
-        state.copyWith(
-          effect: const PasswordExitRequested(),
-          effectId: state.effectId + 1,
-        ),
+        state.copyWith(effect: const PasswordExitRequested(), message: null),
       );
     } else {
       switch (state.step) {
@@ -573,7 +582,7 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
                       state.isSelectionComplete
                   ? const PasswordExitConfirmationRequested()
                   : const PasswordExitRequested(),
-              effectId: state.effectId + 1,
+              message: null,
             ),
           );
         case SecondPasswordStep.password:
@@ -585,8 +594,8 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
                   _canContinueAtStep(SecondPasswordStep.selection),
               primaryAction: PasswordPrimaryAction.continueFlow,
               record: null,
-              existingRequestFailure: null,
-              submissionFailure: null,
+              failure: null,
+              message: null,
             ),
           );
         case SecondPasswordStep.serial:
@@ -600,8 +609,8 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
               isCurrentPasswordVisible: false,
               isConfirmationError: false,
               record: null,
-              existingRequestFailure: null,
-              submissionFailure: null,
+              failure: null,
+              message: null,
             ),
           );
         case SecondPasswordStep.instruction:
@@ -612,8 +621,8 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
               primaryAction: PasswordPrimaryAction.continueFlow,
               isSerialError: false,
               record: null,
-              existingRequestFailure: null,
-              submissionFailure: null,
+              failure: null,
+              message: null,
             ),
           );
         case SecondPasswordStep.recording:
@@ -623,8 +632,8 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
               canContinue: state.isEditable,
               primaryAction: PasswordPrimaryAction.startKyc,
               record: null,
-              existingRequestFailure: null,
-              submissionFailure: null,
+              failure: null,
+              message: null,
             ),
           );
       }
@@ -635,7 +644,7 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
     emit(
       state.copyWith(
         effect: confirmed == true ? const PasswordExitRequested() : null,
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -643,10 +652,7 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
   void applyRecordDismissal() {
     if (state.submissionStatus == RequestStatus.success) {
       emit(
-        state.copyWith(
-          effect: const PasswordHomeRequested(),
-          effectId: state.effectId + 1,
-        ),
+        state.copyWith(effect: const PasswordHomeRequested(), message: null),
       );
     } else {
       emit(
@@ -687,5 +693,10 @@ class SecondPasswordCubit extends Cubit<SecondPasswordState> {
       16,
       (_) => random.nextInt(256).toRadixString(16).padLeft(2, '0'),
     ).join();
+  }
+
+  /// UI has accepted the pending interaction; data and request statuses stay intact.
+  void consumeSecondPasswordInteraction() {
+    emit(state.copyWith(effect: null));
   }
 }

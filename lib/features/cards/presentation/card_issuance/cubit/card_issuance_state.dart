@@ -7,8 +7,9 @@ abstract class CardIssuanceState with _$CardIssuanceState {
   const factory CardIssuanceState.initial({
     @Default(RequestStatus.initial) RequestStatus catalogStatus,
     @Default(RequestStatus.initial) RequestStatus submissionStatus,
-    Failure? catalogFailure,
-    Failure? submissionFailure,
+    Failure? failure,
+    String? message,
+
     IssuanceCatalog? catalog,
     @Default(IssuanceDraft()) IssuanceDraft draft,
     @Default(IssuanceStep.selection) IssuanceStep step,
@@ -37,13 +38,10 @@ abstract class CardIssuanceState with _$CardIssuanceState {
     @Default(false) bool isAddressDetailValid,
     @Default(false) bool isAddressPostalCodeValid,
     @Default(false) bool isAddressFormError,
-    @Default(0) int addressSavedId,
     IssuanceRequest? confirmedRequest,
     IssuanceReceipt? receipt,
     IssuanceEffect? effect,
-    @Default(0) int effectId,
+
     FlowNavigation? navigation,
-    @Default(0) int navigationId,
-    @Default(0) int scrollId,
   }) = _CardIssuanceState;
 }

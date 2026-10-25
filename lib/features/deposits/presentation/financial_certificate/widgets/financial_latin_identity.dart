@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
+
 import 'financial_latin_names.dart';
 import 'financial_passport_fields.dart';
 import 'financial_latin_address_field.dart';
@@ -5,7 +7,6 @@ import 'financial_latin_address_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 import '../../shared/certificate_fields.dart';
 import '../../deposit_list/widgets/deposit_ui.dart';
@@ -26,7 +27,9 @@ class FinancialLatinIdentityForm extends StatelessWidget {
         const SizedBox(height: 20),
         const FinancialLatinNames(),
         const FinancialPassportFields(),
-        const DepositDivider(asset: AppAssets.certificateDivider),
+        const DepositDivider(
+          asset: '${AppConstants.baseImage}certificate_certDivider.svg',
+        ),
         const SizedBox(height: 20),
         Text(
           S.current.financialLatinAddressPrompt,

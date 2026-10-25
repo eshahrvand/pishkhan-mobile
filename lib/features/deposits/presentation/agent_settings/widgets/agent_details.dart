@@ -1,7 +1,7 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_confirmer_details_card.dart';
 
 import '../../../domain/entities/deposit_agent.dart';
@@ -42,43 +42,45 @@ class AgentDetails extends StatelessWidget {
               CertificateSummaryRow(
                 label: S.current.agentSettingsNameLabel,
                 value: agent.agentName,
-                asset: AppAssets.agentNameDots,
+                asset: '${AppConstants.baseImage}agent_details_0.svg',
               ),
               const SizedBox(height: 12),
               CertificateSummaryRow(
                 label: S.current.agentSettingsNationalIdLabel,
                 value: CurrencyFormatter.toPersianDigits(agent.agentNationalId),
-                asset: AppAssets.agentNationalIdDots,
+                asset: '${AppConstants.baseImage}agent_details_1.svg',
               ),
               const SizedBox(height: 12),
               CertificateSummaryRow(
                 label: S.current.agentSettingsDepositLabel,
                 value: CurrencyFormatter.toPersianDigits(agent.depositNumber),
-                asset: AppAssets.agentDepositDots,
+                asset: '${AppConstants.baseImage}agent_details_2.svg',
               ),
               const SizedBox(height: 12),
               CertificateSummaryRow(
                 label: S.current.agentSettingsKindLabel,
                 value: agentKindLabel(agent.kind),
-                asset: AppAssets.agentKindDots,
+                asset: '${AppConstants.baseImage}agent_details_3.svg',
               ),
               const SizedBox(height: 12),
               CertificateSummaryRow(
                 label: S.current.agentSettingsIntroducedLabel,
                 value: JalaliDateFormatter.format(agent.introducedAt),
-                asset: AppAssets.agentIntroductionDots,
+                asset: '${AppConstants.baseImage}agent_details_4.svg',
               ),
               const SizedBox(height: 12),
               CertificateSummaryRow(
                 label: S.current.agentSettingsExpiryLabel,
                 value: JalaliDateFormatter.format(agent.expiresAt),
-                asset: AppAssets.agentExpiryDots,
+                asset: '${AppConstants.baseImage}agent_details_5.svg',
               ),
             ],
           ),
         ),
         const SizedBox(height: 20),
-        const DepositDivider(asset: AppAssets.agentDivider),
+        const DepositDivider(
+          asset: '${AppConstants.baseImage}agent_details_6.svg',
+        ),
         const SizedBox(height: 20),
         Text(
           S.current.agentSettingsConfirmers,

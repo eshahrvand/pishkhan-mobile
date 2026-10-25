@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:pishkhan_mobile/core/presentation/mappers/request_error_message_mapper.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/result/failure.dart';
@@ -28,7 +29,8 @@ class ChequeClearanceCubit extends Cubit<ChequeClearanceState> {
     emit(
       state.copyWith(
         catalogStatus: RequestStatus.loading,
-        catalogFailure: null,
+        failure: null,
+        message: null,
       ),
     );
     return _fetchCatalog().then((result) {
@@ -37,7 +39,8 @@ class ChequeClearanceCubit extends Cubit<ChequeClearanceState> {
           emit(
             state.copyWith(
               catalogStatus: RequestStatus.failure,
-              catalogFailure: failure,
+              failure: failure,
+              message: getRequestErrorMessage(failure),
             ),
           );
         case Success(:final data):
@@ -63,8 +66,9 @@ class ChequeClearanceCubit extends Cubit<ChequeClearanceState> {
         termsAccepted: false,
         canSubmit: false,
         hasChanges: true,
-        submissionFailure: null,
         idempotencyKey: _createRequestKey(),
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -86,8 +90,9 @@ class ChequeClearanceCubit extends Cubit<ChequeClearanceState> {
             (!state.isJudicialLetterRequired ||
                 state.isJudicialLetterNumberValid),
         hasChanges: true,
-        submissionFailure: null,
         idempotencyKey: _createRequestKey(),
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -118,8 +123,9 @@ class ChequeClearanceCubit extends Cubit<ChequeClearanceState> {
         termsAccepted: false,
         canSubmit: false,
         hasChanges: true,
-        submissionFailure: null,
         idempotencyKey: _createRequestKey(),
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -139,8 +145,9 @@ class ChequeClearanceCubit extends Cubit<ChequeClearanceState> {
             state.chequeNumberError != ChequeNumberError.notFound &&
             state.termsAccepted,
         hasChanges: true,
-        submissionFailure: null,
         idempotencyKey: _createRequestKey(),
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -175,8 +182,9 @@ class ChequeClearanceCubit extends Cubit<ChequeClearanceState> {
     emit(
       state.copyWith(
         submissionStatus: RequestStatus.loading,
-        submissionFailure: null,
         isEditable: false,
+        failure: null,
+        message: null,
       ),
     );
     return _submitClearance(request).then((result) {
@@ -189,14 +197,17 @@ class ChequeClearanceCubit extends Cubit<ChequeClearanceState> {
                 isEditable: true,
                 chequeNumberError: ChequeNumberError.notFound,
                 canSubmit: false,
+                failure: failure,
+                message: getRequestErrorMessage(failure),
               ),
             );
           } else {
             emit(
               state.copyWith(
                 submissionStatus: RequestStatus.failure,
-                submissionFailure: failure,
                 isEditable: true,
+                failure: failure,
+                message: getRequestErrorMessage(failure),
               ),
             );
           }
@@ -217,7 +228,7 @@ class ChequeClearanceCubit extends Cubit<ChequeClearanceState> {
     emit(
       state.copyWith(
         effect: ChequeClearanceEffect.postalOffices,
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -226,7 +237,7 @@ class ChequeClearanceCubit extends Cubit<ChequeClearanceState> {
     emit(
       state.copyWith(
         effect: ChequeClearanceEffect.contentUnavailable,
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -235,7 +246,7 @@ class ChequeClearanceCubit extends Cubit<ChequeClearanceState> {
     emit(
       state.copyWith(
         effect: ChequeClearanceEffect.contentUnavailable,
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -244,7 +255,7 @@ class ChequeClearanceCubit extends Cubit<ChequeClearanceState> {
     emit(
       state.copyWith(
         effect: ChequeClearanceEffect.contentUnavailable,
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -256,7 +267,7 @@ class ChequeClearanceCubit extends Cubit<ChequeClearanceState> {
             ? ChequeClearanceEffect.confirmExit
             : ChequeClearanceEffect.back,
         isExitToAssistant: false,
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -268,7 +279,7 @@ class ChequeClearanceCubit extends Cubit<ChequeClearanceState> {
             ? ChequeClearanceEffect.confirmExit
             : ChequeClearanceEffect.assistant,
         isExitToAssistant: true,
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -281,20 +292,20 @@ class ChequeClearanceCubit extends Cubit<ChequeClearanceState> {
                   ? ChequeClearanceEffect.assistant
                   : ChequeClearanceEffect.back)
             : null,
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
 
   void applyReceiptDismissal() {
-    emit(
-      state.copyWith(
-        effect: ChequeClearanceEffect.home,
-        effectId: state.effectId + 1,
-      ),
-    );
+    emit(state.copyWith(effect: ChequeClearanceEffect.home, message: null));
   }
 
   String _createRequestKey() =>
       'cheque-clearance-${DateTime.now().microsecondsSinceEpoch}-${Random.secure().nextInt(1 << 32)}';
+
+  /// UI has accepted the pending interaction; data and request statuses stay intact.
+  void consumeChequeClearanceInteraction() {
+    emit(state.copyWith(effect: null));
+  }
 }

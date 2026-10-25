@@ -1,9 +1,10 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
+
 import 'dart:ui';
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 /// Owns the optional training controller; it never starts camera capture.
 class ModernBankVideo extends StatefulWidget {
@@ -75,12 +76,16 @@ class _ModernBankVideoState extends State<ModernBankVideo> {
               top: 100,
               width: 160,
               height: 52,
-              child: AvpImage(image: AppAssets.modernIntroTitle),
+              child: AvpImage(
+                image: '${AppConstants.baseImage}modern_intro_title.svg',
+              ),
             ),
           Center(
             child: SizedBox.square(
               dimension: 64,
-              child: AvpImage(image: AppAssets.modernVideoPlay),
+              child: AvpImage(
+                image: '${AppConstants.baseImage}modern_video_play.svg',
+              ),
             ),
           ),
         ],

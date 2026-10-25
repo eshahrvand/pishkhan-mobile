@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:pishkhan_mobile/core/presentation/mappers/request_error_message_mapper.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
 import 'package:pishkhan_mobile/core/domain/entities/delivery_address.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
@@ -37,7 +38,8 @@ class ChequeBookCubit extends Cubit<ChequeBookState> {
     emit(
       state.copyWith(
         catalogStatus: RequestStatus.loading,
-        catalogFailure: null,
+        failure: null,
+        message: null,
       ),
     );
     return _fetchCatalog().then((result) {
@@ -46,7 +48,8 @@ class ChequeBookCubit extends Cubit<ChequeBookState> {
           emit(
             state.copyWith(
               catalogStatus: RequestStatus.failure,
-              catalogFailure: failure,
+              failure: failure,
+              message: getRequestErrorMessage(failure),
             ),
           );
         case Success(:final data):
@@ -73,9 +76,7 @@ class ChequeBookCubit extends Cubit<ChequeBookState> {
       state.copyWith(
         deposit: deposit,
         submissionStatus: RequestStatus.initial,
-        submissionFailure: null,
         quoteStatus: RequestStatus.initial,
-        quoteFailure: null,
         leafCount: null,
         leafCounts: deposit.leafCounts,
         canContinue: false,
@@ -84,6 +85,8 @@ class ChequeBookCubit extends Cubit<ChequeBookState> {
         quote: null,
         confirmedDraft: null,
         idempotencyKey: null,
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -122,12 +125,7 @@ class ChequeBookCubit extends Cubit<ChequeBookState> {
             ),
           );
         } else {
-          emit(
-            state.copyWith(
-              effect: ChequeBookEffect.home,
-              effectId: state.effectId + 1,
-            ),
-          );
+          emit(state.copyWith(effect: ChequeBookEffect.home, message: null));
         }
         return Future.value();
       case ChequeBookStep.delivery:
@@ -144,9 +142,10 @@ class ChequeBookCubit extends Cubit<ChequeBookState> {
         step: ChequeBookStep.checking,
         stepNumber: 2,
         residencyStatus: RequestStatus.loading,
-        residencyFailure: null,
         canContinue: false,
         isEditable: false,
+        failure: null,
+        message: null,
       ),
     );
     return _checkResidency(state.deposit!.id).then((result) {
@@ -157,8 +156,9 @@ class ChequeBookCubit extends Cubit<ChequeBookState> {
           emit(
             state.copyWith(
               residencyStatus: RequestStatus.failure,
-              residencyFailure: failure,
               isEditable: true,
+              failure: failure,
+              message: getRequestErrorMessage(failure),
             ),
           );
         case Success(:final data):
@@ -208,7 +208,7 @@ class ChequeBookCubit extends Cubit<ChequeBookState> {
       state.copyWith(
         pendingAddress: address,
         effect: ChequeBookEffect.deleteAddress,
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -230,8 +230,9 @@ class ChequeBookCubit extends Cubit<ChequeBookState> {
     emit(
       state.copyWith(
         addressDeletionStatus: RequestStatus.loading,
-        addressDeletionFailure: null,
         isEditable: false,
+        failure: null,
+        message: null,
       ),
     );
     return _deleteResidence(state.deposit!.id, address).then((result) {
@@ -240,8 +241,9 @@ class ChequeBookCubit extends Cubit<ChequeBookState> {
           emit(
             state.copyWith(
               addressDeletionStatus: RequestStatus.failure,
-              addressDeletionFailure: failure,
               isEditable: true,
+              failure: failure,
+              message: getRequestErrorMessage(failure),
             ),
           );
         case Success(:final data):
@@ -305,12 +307,7 @@ class ChequeBookCubit extends Cubit<ChequeBookState> {
   }
 
   void requestAddAddress() {
-    emit(
-      state.copyWith(
-        effect: ChequeBookEffect.addAddress,
-        effectId: state.effectId + 1,
-      ),
-    );
+    emit(state.copyWith(effect: ChequeBookEffect.addAddress, message: null));
   }
 
   Future<void> applyAddressResult(DeliveryAddress? address) {
@@ -321,8 +318,9 @@ class ChequeBookCubit extends Cubit<ChequeBookState> {
         emit(
           state.copyWith(
             addressSaveStatus: RequestStatus.loading,
-            addressSaveFailure: null,
             isEditable: false,
+            failure: null,
+            message: null,
           ),
         );
         return _saveDeliveryAddress(address).then((result) {
@@ -332,15 +330,17 @@ class ChequeBookCubit extends Cubit<ChequeBookState> {
                 emit(
                   state.copyWith(
                     addressSaveStatus: RequestStatus.failure,
-                    addressSaveFailure: failure,
                     isEditable: true,
+                    failure: failure,
+                    message: getRequestErrorMessage(failure),
                   ),
                 );
               } else {
                 emit(
                   state.copyWith(
                     addressSaveStatus: RequestStatus.failure,
-                    addressSaveFailure: failure,
+                    failure: failure,
+                    message: getRequestErrorMessage(failure),
                   ),
                 );
               }
@@ -462,8 +462,9 @@ class ChequeBookCubit extends Cubit<ChequeBookState> {
     emit(
       state.copyWith(
         quoteStatus: RequestStatus.loading,
-        quoteFailure: null,
         isEditable: false,
+        failure: null,
+        message: null,
       ),
     );
     return _fetchQuote(draft).then((result) {
@@ -474,8 +475,9 @@ class ChequeBookCubit extends Cubit<ChequeBookState> {
           emit(
             state.copyWith(
               quoteStatus: RequestStatus.failure,
-              quoteFailure: failure,
               isEditable: true,
+              failure: failure,
+              message: getRequestErrorMessage(failure),
             ),
           );
         case Success(:final data):
@@ -510,8 +512,9 @@ class ChequeBookCubit extends Cubit<ChequeBookState> {
     emit(
       state.copyWith(
         submissionStatus: RequestStatus.loading,
-        submissionFailure: null,
         isEditable: false,
+        failure: null,
+        message: null,
       ),
     );
     return _submitIssuance(request).then((result) {
@@ -520,8 +523,9 @@ class ChequeBookCubit extends Cubit<ChequeBookState> {
           emit(
             state.copyWith(
               submissionStatus: RequestStatus.failure,
-              submissionFailure: failure,
               isEditable: true,
+              failure: failure,
+              message: getRequestErrorMessage(failure),
             ),
           );
         case Success(:final data):
@@ -532,7 +536,7 @@ class ChequeBookCubit extends Cubit<ChequeBookState> {
               hasChanges: false,
               canContinue: false,
               effect: ChequeBookEffect.receipt,
-              effectId: state.effectId + 1,
+              message: null,
             ),
           );
       }
@@ -545,19 +549,14 @@ class ChequeBookCubit extends Cubit<ChequeBookState> {
       emit(state.copyWith(isInvoiceExpanded: value));
 
   void requestRegistry() {
-    emit(
-      state.copyWith(
-        effect: ChequeBookEffect.registry,
-        effectId: state.effectId + 1,
-      ),
-    );
+    emit(state.copyWith(effect: ChequeBookEffect.registry, message: null));
   }
 
   void requestUnavailableContent() {
     emit(
       state.copyWith(
         effect: ChequeBookEffect.contentUnavailable,
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -571,7 +570,7 @@ class ChequeBookCubit extends Cubit<ChequeBookState> {
                 ? ChequeBookEffect.confirmExit
                 : ChequeBookEffect.back,
             isExitToAssistant: false,
-            effectId: state.effectId + 1,
+            message: null,
           ),
         );
       case ChequeBookStep.checking:
@@ -591,41 +590,33 @@ class ChequeBookCubit extends Cubit<ChequeBookState> {
         emit(
           state.copyWith(
             quoteStatus: RequestStatus.initial,
-            quoteFailure: null,
             step: ChequeBookStep.selection,
             stepNumber: 1,
             primaryAction: ChequeBookAction.next,
             isEditable: true,
             canContinue: state.deposit != null && state.leafCount != null,
+            failure: null,
+            message: null,
           ),
         );
       case ChequeBookStep.confirmation:
-        if (state.submissionStatus == RequestStatus.loading) {
-          emit(
-            state.copyWith(
-              effect: ChequeBookEffect.confirmExit,
-              isExitToAssistant: false,
-              effectId: state.effectId + 1,
+        emit(
+          state.copyWith(
+            submissionStatus: RequestStatus.initial,
+            step: ChequeBookStep.delivery,
+            stepNumber: 3,
+            primaryAction: ChequeBookAction.next,
+            isEditable: true,
+            canContinue: _isDeliveryComplete(
+              state.address,
+              state.isRecipientRequired,
+              state.isRecipientNameValid,
+              state.isRecipientNationalIdValid,
             ),
-          );
-        } else {
-          emit(
-            state.copyWith(
-              submissionStatus: RequestStatus.initial,
-              submissionFailure: null,
-              step: ChequeBookStep.delivery,
-              stepNumber: 3,
-              primaryAction: ChequeBookAction.next,
-              isEditable: true,
-              canContinue: _isDeliveryComplete(
-                state.address,
-                state.isRecipientRequired,
-                state.isRecipientNameValid,
-                state.isRecipientNationalIdValid,
-              ),
-            ),
-          );
-        }
+            failure: null,
+            message: null,
+          ),
+        );
     }
   }
 
@@ -636,7 +627,7 @@ class ChequeBookCubit extends Cubit<ChequeBookState> {
             ? ChequeBookEffect.confirmExit
             : ChequeBookEffect.assistant,
         isExitToAssistant: true,
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -649,18 +640,18 @@ class ChequeBookCubit extends Cubit<ChequeBookState> {
                   ? ChequeBookEffect.assistant
                   : ChequeBookEffect.back)
             : null,
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
 
   void applyReceiptDismissal() {
-    emit(
-      state.copyWith(
-        effect: ChequeBookEffect.home,
-        effectId: state.effectId + 1,
-      ),
-    );
+    emit(state.copyWith(effect: ChequeBookEffect.home, message: null));
+  }
+
+  /// UI has accepted the pending interaction; data and request statuses stay intact.
+  void consumeChequeBookInteraction() {
+    emit(state.copyWith(effect: null));
   }
 }
 

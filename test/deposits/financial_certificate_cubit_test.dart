@@ -230,11 +230,11 @@ void main() {
           >(repo, () => FinancialCertificateCubit());
       await cubit.fetchCatalog();
       expect(cubit.state.catalogStatus, RequestStatus.failure);
-      expect(cubit.state.submissionFailure, isNull);
+      expect(cubit.state.failure, isA<UnexpectedFailure>());
       repo.loader = () async => Success(repo.catalog);
       await cubit.fetchCatalog();
       expect(cubit.state.catalogStatus, RequestStatus.success);
-      expect(cubit.state.catalogFailure, isNull);
+      expect(cubit.state.failure, isNull);
       await cubit.close();
     },
   );

@@ -8,10 +8,10 @@ enum GiftBalanceStep { selection, destination }
 abstract class ExpiredGiftBalanceState with _$ExpiredGiftBalanceState {
   const factory ExpiredGiftBalanceState.initial({
     GiftBalanceEffect? effect,
-    @Default(0) int effectId,
+
     @Default(false) bool advanceAfterReview,
     FlowNavigation? navigation,
-    @Default(0) int navigationId,
+
     @Default(RequestStatus.initial) RequestStatus catalogStatus,
     @Default(RequestStatus.initial) RequestStatus submissionStatus,
     @Default(GiftBalanceStep.selection) GiftBalanceStep step,
@@ -37,8 +37,9 @@ abstract class ExpiredGiftBalanceState with _$ExpiredGiftBalanceState {
     @Default(GiftBalanceDepositFilter.all())
     GiftBalanceDepositFilter draftFilter,
     @Default(false) bool termsAccepted,
-    Failure? catalogFailure,
-    Failure? submissionFailure,
+    Failure? failure,
+    String? message,
+
     CardServiceReceipt? receipt,
   }) = _ExpiredGiftBalanceState;
 }

@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
+
 import 'dart:math' as math;
 
 import 'package:avp_ui/avp_ui.dart';
@@ -5,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_deposit_list.dart';
 
 import '../../../domain/entities/listed_deposit.dart';
@@ -29,8 +30,9 @@ class DepositListContent extends StatelessWidget {
         if (state.depositsStatus == RequestStatus.failure) {
           return Column(
             children: [
-              Text(S.current.dashboardLoadError),
+              const SizedBox.shrink(),
               AppButton(
+                isLoading: state.depositsStatus == RequestStatus.loading,
                 label: S.current.dashboardRetry,
                 onPressed: context.read<DepositListCubit>().fetchDeposits,
               ),
@@ -67,15 +69,18 @@ class DepositListContent extends StatelessWidget {
                   DepositStatus.blocked => AppBadgeColor.error,
                 },
                 depositIcon: depositIcon(
-                  AppAssets.depositFeatureDeposit,
+                  '${AppConstants.baseImage}deposit_feature_deposit.svg',
                   size: 20,
                 ),
                 moreIcon: Transform.rotate(
                   angle: -math.pi / 2,
-                  child: depositIcon(AppAssets.depositFeatureMore, size: 20),
+                  child: depositIcon(
+                    '${AppConstants.baseImage}deposit_list_more.svg',
+                    size: 20,
+                  ),
                 ),
                 divider: const DepositDivider(
-                  asset: AppAssets.depositFeatureDivider,
+                  asset: '${AppConstants.baseImage}deposit_list_divider.svg',
                 ),
                 onMoreTap: () => context
                     .read<DepositListCubit>()

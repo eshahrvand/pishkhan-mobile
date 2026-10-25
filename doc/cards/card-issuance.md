@@ -73,7 +73,7 @@ lib/features/cards/presentation/card_list_screen.dart    default reissue route
 lib/shared/widgets/app_invoice.dart                  compatible invoice appearance/copy properties
 lib/shared/widgets/app_address_card.dart             full/default and delivery/compact variants
 lib/shared/widgets/app_delete_address_sheet.dart     reused deletion confirmation
-lib/shared/assets/app_assets.dart                    canonical app asset paths
+lib/core/config/constant.dart                       shared image prefix
 lib/l10n/app_{fa,en,ar}.arb                           issuance text
 lib/l10n/generated/                                 generated localization getters
 ```
@@ -248,9 +248,9 @@ The Toggle small track is 36×20 with 16px thumb and 2px inset. AppShadows.cardL
 
 ### 13.4 Asset inventory and geometry
 
-All new app assets are non-empty original SVG downloads in the flat registered directory. AppAssets is the only path registry. The selected chevron reuses cardFeaturesChevron because its bytes match exactly. Existing back chevron, assistant stars and invoice glyphs are reused; their renderer slots are unchanged.
+All new app assets are non-empty original SVG downloads in the flat registered directory. App image references use the direct `AppConstants.baseImage` prefix; no registry class is used. The selected chevron reuses cardFeaturesChevron because its bytes match exactly. Existing back chevron, assistant stars and invoice glyphs are reused; their renderer slots are unchanged.
 
-| AppAssets key | Original local source | Root dimensions |
+| Former asset name | Original local source | Root dimensions |
 | --- | --- | --- |
 | issuanceCalendar | assets/images/issuance_calendar.svg | 20 × 20 |
 | issuanceCardDivider | assets/images/issuance_card_divider.svg | 311 × 0.5 |

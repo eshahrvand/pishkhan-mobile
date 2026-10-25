@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/presentation/mappers/request_error_message_mapper.dart';
 import 'package:pishkhan_mobile/core/validators/required_text_validator.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -17,7 +18,13 @@ class OccupationsCubit extends Cubit<OccupationsState> {
   }) : super(initialState);
   final repository = getIt<PersonalInformationRepository>();
   Future<void> fetchOccupations() {
-    emit(state.copyWith(occupationsStatus: RequestStatus.loading));
+    emit(
+      state.copyWith(
+        occupationsStatus: RequestStatus.loading,
+        failure: null,
+        message: null,
+      ),
+    );
     return repository.fetchOccupations().then((result) {
       switch (result) {
         case Success(:final data):
@@ -31,7 +38,8 @@ class OccupationsCubit extends Cubit<OccupationsState> {
           emit(
             state.copyWith(
               occupationsStatus: RequestStatus.failure,
-              occupationsFailure: failure,
+              failure: failure,
+              message: getRequestErrorMessage(failure),
             ),
           );
       }
@@ -43,7 +51,7 @@ class OccupationsCubit extends Cubit<OccupationsState> {
       state.copyWith(
         selectedOccupation: occupation,
         effect: OccupationEffect.actions,
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -63,8 +71,9 @@ class OccupationsCubit extends Cubit<OccupationsState> {
             termsAccepted: false,
             canSubmit: false,
             submissionStatus: RequestStatus.initial,
-            submissionFailure: null,
             idempotencyKey: null,
+            failure: null,
+            message: null,
           ),
         );
       case OccupationAction.delete:
@@ -73,7 +82,7 @@ class OccupationsCubit extends Cubit<OccupationsState> {
             effect: state.occupations.length > 1
                 ? OccupationEffect.confirmDeletion
                 : OccupationEffect.minimumOccupation,
-            effectId: state.effectId + 1,
+            message: null,
           ),
         );
       case null:
@@ -95,8 +104,9 @@ class OccupationsCubit extends Cubit<OccupationsState> {
         termsAccepted: false,
         canSubmit: false,
         submissionStatus: RequestStatus.initial,
-        submissionFailure: null,
         idempotencyKey: null,
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -115,7 +125,6 @@ class OccupationsCubit extends Cubit<OccupationsState> {
       state.copyWith(
         kind: kind,
         submissionStatus: RequestStatus.initial,
-        submissionFailure: null,
         conflictingOccupation: conflict,
         requiresOperatorReview:
             state.selectedOccupation != null &&
@@ -124,6 +133,8 @@ class OccupationsCubit extends Cubit<OccupationsState> {
         canSubmit:
             conflict == null && state.isDescriptionValid && state.termsAccepted,
         idempotencyKey: null,
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -134,7 +145,6 @@ class OccupationsCubit extends Cubit<OccupationsState> {
       state.copyWith(
         description: value,
         submissionStatus: RequestStatus.initial,
-        submissionFailure: null,
         isDescriptionValid: valid,
         isDescriptionError: value.isNotEmpty && !valid,
         canSubmit:
@@ -143,6 +153,8 @@ class OccupationsCubit extends Cubit<OccupationsState> {
             state.conflictingOccupation == null &&
             state.termsAccepted,
         idempotencyKey: null,
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -172,8 +184,9 @@ class OccupationsCubit extends Cubit<OccupationsState> {
     emit(
       state.copyWith(
         submissionStatus: RequestStatus.loading,
-        submissionFailure: null,
         idempotencyKey: key,
+        failure: null,
+        message: null,
       ),
     );
     return repository.saveOccupation(occupation, idempotencyKey: key).then((
@@ -186,14 +199,15 @@ class OccupationsCubit extends Cubit<OccupationsState> {
               submissionStatus: RequestStatus.success,
               canSubmit: false,
               effect: OccupationEffect.submitted,
-              effectId: state.effectId + 1,
+              message: null,
             ),
           );
         case Err(:final failure):
           emit(
             state.copyWith(
               submissionStatus: RequestStatus.failure,
-              submissionFailure: failure,
+              failure: failure,
+              message: getRequestErrorMessage(failure),
             ),
           );
       }
@@ -208,7 +222,8 @@ class OccupationsCubit extends Cubit<OccupationsState> {
     emit(
       state.copyWith(
         deletionStatus: RequestStatus.loading,
-        deletionFailure: null,
+        failure: null,
+        message: null,
       ),
     );
     return repository.deleteOccupation(occupation.id).then((result) {
@@ -226,7 +241,8 @@ class OccupationsCubit extends Cubit<OccupationsState> {
           emit(
             state.copyWith(
               deletionStatus: RequestStatus.failure,
-              deletionFailure: failure,
+              failure: failure,
+              message: getRequestErrorMessage(failure),
             ),
           );
       }
@@ -239,7 +255,7 @@ class OccupationsCubit extends Cubit<OccupationsState> {
         effect: state.step == OccupationStep.form
             ? OccupationEffect.confirmExit
             : OccupationEffect.back,
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -251,20 +267,15 @@ class OccupationsCubit extends Cubit<OccupationsState> {
   }
 
   void requestTerms() {
-    emit(
-      state.copyWith(
-        effect: OccupationEffect.terms,
-        effectId: state.effectId + 1,
-      ),
-    );
+    emit(state.copyWith(effect: OccupationEffect.terms, message: null));
   }
 
   void requestAssistant() {
-    emit(
-      state.copyWith(
-        effect: OccupationEffect.assistant,
-        effectId: state.effectId + 1,
-      ),
-    );
+    emit(state.copyWith(effect: OccupationEffect.assistant, message: null));
+  }
+
+  /// UI has accepted the pending interaction; data and request statuses stay intact.
+  void consumeOccupationsInteraction() {
+    emit(state.copyWith(effect: null));
   }
 }

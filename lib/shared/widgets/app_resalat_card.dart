@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
+
 import 'app_resalat_card_security_details.dart';
 import 'app_resalat_card_asset_action.dart';
 
@@ -5,7 +7,6 @@ import 'dart:math' as math;
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 enum AppResalatCardSize { single, multi }
 
@@ -82,7 +83,7 @@ class AppResalatCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               AppResalatCardAssetAction(
-                path: AppAssets.resalatCardMoreVertical,
+                path: '${AppConstants.baseImage}resalat_card_more_vertical.svg',
                 label: moreLabel,
                 size: 24,
                 onTap: onMorePressed,
@@ -150,7 +151,7 @@ class AppResalatCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 8),
                       AppResalatCardAssetAction(
-                        path: AppAssets.iconCopy16White,
+                        path: '${AppConstants.baseImage}icon_copy_16_white.svg',
                         size: 16,
                         onTap: onCopyCardNumber,
                         label: copyNumberLabel,
@@ -176,7 +177,7 @@ class AppResalatCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   AppResalatCardAssetAction(
-                    path: AppAssets.iconCopy16White,
+                    path: '${AppConstants.baseImage}icon_copy_16_white.svg',
                     size: 16,
                     onTap: onCopyIban,
                     label: copyIbanLabel,

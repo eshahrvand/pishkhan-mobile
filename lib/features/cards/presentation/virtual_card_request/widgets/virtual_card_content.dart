@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
+
 import 'virtual_card_icon.dart';
 
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
@@ -6,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_invoice.dart';
 
 import '../../../domain/entities/virtual_card_data.dart';
@@ -44,6 +45,7 @@ class VirtualCardContent extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           AppButton(
+            isLoading: state.catalogStatus == RequestStatus.loading,
             onPressed: context.read<VirtualCardCubit>().fetchCatalog,
             label: S.current.dashboardRetry,
           ),
@@ -81,8 +83,8 @@ class VirtualCardContent extends StatelessWidget {
             ),
             trailing: VirtualCardIcon(
               path: state.deposit == null
-                  ? AppAssets.issuanceSelectEmpty
-                  : AppAssets.cardFeaturesChevron,
+                  ? '${AppConstants.baseImage}issuance_select_empty.svg'
+                  : '${AppConstants.baseImage}card_features_chevron.svg',
             ),
           ),
         ),
@@ -118,7 +120,10 @@ class VirtualCardContent extends StatelessWidget {
           child: OverflowBox(
             minHeight: 1,
             maxHeight: 1,
-            child: AvpImage(image: AppAssets.issuanceDivider, fit: BoxFit.fill),
+            child: AvpImage(
+              image: '${AppConstants.baseImage}issuance_divider.svg',
+              fit: BoxFit.fill,
+            ),
           ),
         ),
         const SizedBox(height: 20),
@@ -142,7 +147,10 @@ class VirtualCardContent extends StatelessWidget {
                       2.0462,
                       3.7116,
                     ),
-                    child: AvpImage(image: AppAssets.virtualRequestCard),
+                    child: AvpImage(
+                      image:
+                          '${AppConstants.baseImage}virtual_request_card.svg',
+                    ),
                   ),
                 ),
               ),
@@ -170,14 +178,15 @@ class VirtualCardContent extends StatelessWidget {
           const SizedBox(height: 12),
           Text(S.current.virtualRequestQuoting),
         ],
-        if (state.quoteFailure != null || state.submissionFailure != null) ...[
+        if (state.quoteStatus == RequestStatus.failure ||
+            state.submissionStatus == RequestStatus.failure) ...[
           const SizedBox(height: 12),
-          Text(
-            S.current.dashboardLoadError,
-            style: virtualCardBodyStyle(context)
-                .copyWith(color: context.colors.error),
-          ),
+          const SizedBox.shrink(),
           AppButton(
+            isLoading:
+                state.catalogStatus == RequestStatus.loading ||
+                state.quoteStatus == RequestStatus.loading ||
+                state.submissionStatus == RequestStatus.loading,
             onPressed: state.canRetry
                 ? context.read<VirtualCardCubit>().submitRetry
                 : null,

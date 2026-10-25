@@ -1,9 +1,9 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_invoice.dart';
 import 'package:pishkhan_mobile/shared/widgets/certificate_fields.dart';
 
@@ -31,6 +31,7 @@ class ChangePhoneForm extends StatelessWidget {
         if (state.settingsStatus == RequestStatus.failure) {
           return Center(
             child: AppButton(
+              isLoading: state.settingsStatus == RequestStatus.loading,
               label: S.current.dashboardRetry,
               onPressed: () {
                 context.read<ChangePhoneCubit>().fetchSettings();
@@ -99,7 +100,8 @@ class ChangePhoneForm extends StatelessWidget {
                   minHeight: 1,
                   maxHeight: 1,
                   child: AvpImage(
-                    image: AppAssets.certificateDivider,
+                    image:
+                        '${AppConstants.baseImage}certificate_certDivider.svg',
                     fit: BoxFit.fill,
                   ),
                 ),

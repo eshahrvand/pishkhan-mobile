@@ -57,7 +57,7 @@ edge alignment and uses the authored blue deposit and rotated overflow icons.
 The back icon is exported from the actual overridden instance
 `I28060:13806;13867:8754;13867:8738`; the parent context returned base menu
 artwork despite displaying the back override. Every new asset is local and
-registered in `AppAssets`. Exact duplicate info and separator assets reuse the
+referenced with `AppConstants.baseImage`. Exact duplicate info and separator assets reuse the
 existing registry. Original dotted leaders and scrim are retained; Flutter's
 native backdrop filter supplies the blur unsupported by SVG rendering.
 

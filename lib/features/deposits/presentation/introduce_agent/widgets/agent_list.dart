@@ -1,8 +1,8 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_agent_card.dart';
 
 import '../../deposit_list/widgets/deposit_ui.dart';
@@ -25,7 +25,10 @@ class AgentList extends StatelessWidget {
               AppAgentCard(
                 title: S.current.agentNewPerson,
                 secondary: CurrencyFormatter.toPersianDigits(agent.nationalId),
-                actionIcon: depositIcon(AppAssets.fileUploadTrash, size: 20),
+                actionIcon: depositIcon(
+                  '${AppConstants.baseImage}file_upload_trash.svg',
+                  size: 20,
+                ),
                 actionLabel: S.current.agentRemove,
                 actionAlignment: Alignment.centerLeft,
                 bodyColor: AppPalette.gray100,
@@ -59,7 +62,10 @@ class AgentList extends StatelessWidget {
                   height: 20,
                   child: AppButton(
                     label: S.current.agentAddNext,
-                    leadingIcon: depositIcon(AppAssets.issuancePlus, size: 20),
+                    leadingIcon: depositIcon(
+                      '${AppConstants.baseImage}issuance_plus.svg',
+                      size: 20,
+                    ),
                     variant: AppButtonVariant.text,
                     size: AppButtonSize.sm,
                     horizontalPadding: 0,

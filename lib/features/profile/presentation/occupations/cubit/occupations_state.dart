@@ -23,9 +23,9 @@ abstract class OccupationsState with _$OccupationsState {
     @Default(RequestStatus.initial) RequestStatus occupationsStatus,
     @Default(RequestStatus.initial) RequestStatus submissionStatus,
     @Default(RequestStatus.initial) RequestStatus deletionStatus,
-    Failure? occupationsFailure,
-    Failure? submissionFailure,
-    Failure? deletionFailure,
+    Failure? failure,
+    String? message,
+
     ProfileOccupation? selectedOccupation,
     OccupationKind? kind,
     @Default('') String description,
@@ -37,6 +37,5 @@ abstract class OccupationsState with _$OccupationsState {
     @Default(false) bool canSubmit,
     String? idempotencyKey,
     OccupationEffect? effect,
-    @Default(0) int effectId,
   }) = _OccupationsState;
 }

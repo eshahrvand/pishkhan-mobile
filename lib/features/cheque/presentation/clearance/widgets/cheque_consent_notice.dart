@@ -1,8 +1,8 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 import '../cubit/cheque_clearance_cubit.dart';
 import 'cheque_clearance_ui.dart';
@@ -24,7 +24,7 @@ class ChequeConsentNotice extends StatelessWidget {
           Row(
             children: [
               const AvpImage(
-                image: AppAssets.passwordCameraInfo,
+                image: '${AppConstants.baseImage}password_camera_info.svg',
                 width: 20,
                 height: 20,
               ),
@@ -56,7 +56,7 @@ class ChequeConsentNotice extends StatelessWidget {
                 labelStyle: chequeLabelStyle(context)
                     .copyWith(color: context.colors.primary),
                 trailingIcon: const AvpImage(
-                  image: AppAssets.addressCardAngleLeft,
+                  image: '${AppConstants.baseImage}address_card_angle_left.svg',
                   width: 20,
                   height: 20,
                 ),
@@ -69,7 +69,8 @@ class ChequeConsentNotice extends StatelessWidget {
             ],
           ),
           const AvpImage(
-            image: AppAssets.chequeClearanceAddressDivider,
+            image:
+                '${AppConstants.baseImage}cheque_clearance_address_divider.svg',
             height: 1,
             fit: BoxFit.fill,
           ),
@@ -91,7 +92,7 @@ class ChequeConsentNotice extends StatelessWidget {
                 labelStyle: chequeLabelStyle(context)
                     .copyWith(color: context.colors.primary),
                 trailingIcon: const AvpImage(
-                  image: AppAssets.addressCardAngleLeft,
+                  image: '${AppConstants.baseImage}address_card_angle_left.svg',
                   width: 20,
                   height: 20,
                 ),

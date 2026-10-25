@@ -1,8 +1,9 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
+
 import 'dart:ui' as ui;
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 class CardFeatureSheetFrame extends StatelessWidget {
   const CardFeatureSheetFrame({
@@ -30,7 +31,7 @@ class CardFeatureSheetFrame extends StatelessWidget {
                   child: BackdropFilter(
                     filter: ui.ImageFilter.blur(sigmaX: 2, sigmaY: 2),
                     child: AvpImage(
-                      image: AppAssets.cardFeaturesScrim,
+                      image: '${AppConstants.baseImage}card_features_scrim.svg',
                       fit: BoxFit.fill,
                     ),
                   ),

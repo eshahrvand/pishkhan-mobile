@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,7 +10,6 @@ import 'password_service_select.dart';
 
 import 'package:pishkhan_mobile/features/cards/presentation/password_services/widgets/password_styles.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_invoice.dart';
 
 class PasswordSelectionSection extends StatelessWidget {
@@ -89,7 +89,7 @@ class PasswordSelectionSection extends StatelessWidget {
               minHeight: 1,
               maxHeight: 1,
               child: AvpImage(
-                image: AppAssets.issuanceDivider,
+                image: '${AppConstants.baseImage}issuance_divider.svg',
                 fit: BoxFit.fill,
               ),
             ),

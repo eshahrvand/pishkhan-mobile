@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_drawer.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
@@ -517,7 +518,8 @@ void main() {
           (widget) =>
               widget is AppButton &&
               widget.icon is AvpImage &&
-              (widget.icon as AvpImage).image == AppAssets.dashboardCatalogBack,
+              (widget.icon as AvpImage).image ==
+                  '${AppConstants.baseImage}dashboard_catalog_back.svg',
         ),
       );
       expect(find.byType(DashboardBankServices), findsOneWidget);

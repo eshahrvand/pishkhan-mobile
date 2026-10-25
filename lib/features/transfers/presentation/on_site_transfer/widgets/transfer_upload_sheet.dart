@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
-import 'package:pishkhan_mobile/shared/widgets/certificate_fields.dart';
 
 import '../cubit/on_site_transfer_cubit.dart';
 
@@ -72,14 +71,7 @@ class TransferUploadSheet extends StatelessWidget {
                       context.read<OnSiteTransferCubit>().removeUpload();
                     },
                   ),
-                  if (state.uploadFailure != null) ...[
-                    const SizedBox(height: 12),
-                    Text(
-                      S.current.transferFileInvalid,
-                      style: certificateLabelStyle(context)
-                          .copyWith(color: context.colors.error),
-                    ),
-                  ],
+
                   if (state.uploadName.isNotEmpty) ...[
                     const SizedBox(height: 32),
                     Row(

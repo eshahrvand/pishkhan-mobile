@@ -8,7 +8,7 @@ abstract class AverageBalanceState with _$AverageBalanceState {
     FlowNavigation? navigation,
     @Default(false) bool canCheckAgent,
     CertificateEffect? effect,
-    @Default(0) int effectId,
+
     @Default(RequestStatus.initial) RequestStatus catalogStatus,
     @Default(RequestStatus.initial) RequestStatus submissionStatus,
     @Default(AverageBalanceStep.conditions) AverageBalanceStep step,
@@ -34,8 +34,9 @@ abstract class AverageBalanceState with _$AverageBalanceState {
     @Default(false) bool isWalletSufficient,
     @Default(true) bool isSummaryExpanded,
     @Default(true) bool isInvoiceExpanded,
-    Failure? catalogFailure,
-    Failure? submissionFailure,
+    Failure? failure,
+    String? message,
+
     CertificateReceipt? receipt,
   }) = _AverageBalanceState;
 }

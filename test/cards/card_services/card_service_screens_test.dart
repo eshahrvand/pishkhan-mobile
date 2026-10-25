@@ -175,53 +175,52 @@ void main() {
       expect(t.takeException(), isNull);
     },
   );
-  testWidgets(
-    'change submission disables form actions and keeps Back available',
-    (t) async {
-      final repo = TestCardServicesRepository()
-        ..pendingSubmit = Completer<Result<CardServiceReceipt>>();
-      var completions = 0;
-      await mount(
-        t,
-        ChangeCardDepositScreen(onCompleted: (_) => completions++),
-        repository: repo,
-      );
-      await choose<ServiceBankCard>(t, 0, '\u200e5041 7212 2345 6787');
-      await choose<CardServiceDeposit>(t, 0, '10.123456.2');
-      await t.tap(find.byType(AppCheckbox));
-      await t.pumpAndSettle();
-      await t.tap(button('تایید و ثبت درخواست'));
-      await t.pump();
-      expect(
-        t.widget<AppButton>(button('تایید و ثبت درخواست')).onPressed,
-        isNull,
-      );
-      expect(t.widget<AppCheckbox>(find.byType(AppCheckbox)).onChanged, isNull);
-      expect(
-        t
-            .widget<AbsorbPointer>(
-              find.descendant(
-                of: find.byType(ChangeCardDepositForm),
-                matching: find.byType(AbsorbPointer),
-              ),
-            )
-            .absorbing,
-        isTrue,
-      );
-      expect(
-        t.widget<AppTopBar>(find.byType(AppTopBar)).onTrailingPressed,
-        isNotNull,
-      );
-      expect(repo.changes, hasLength(1));
-      repo.pendingSubmit!.complete(
-        const Success(CardServiceReceipt(reference: 'done', isMock: true)),
-      );
-      await t.pumpAndSettle();
-      expect(completions, 1);
-      expect(changeCubit(t).state.submissionStatus, RequestStatus.success);
-      expect(t.takeException(), isNull);
-    },
-  );
+  testWidgets('change submission disables form actions and blocks Back', (
+    t,
+  ) async {
+    final repo = TestCardServicesRepository()
+      ..pendingSubmit = Completer<Result<CardServiceReceipt>>();
+    var completions = 0;
+    await mount(
+      t,
+      ChangeCardDepositScreen(onCompleted: (_) => completions++),
+      repository: repo,
+    );
+    await choose<ServiceBankCard>(t, 0, '\u200e5041 7212 2345 6787');
+    await choose<CardServiceDeposit>(t, 0, '10.123456.2');
+    await t.tap(find.byType(AppCheckbox));
+    await t.pumpAndSettle();
+    await t.tap(button('تایید و ثبت درخواست'));
+    await t.pump();
+    expect(
+      t.widget<AppButton>(button('تایید و ثبت درخواست')).onPressed,
+      isNull,
+    );
+    expect(t.widget<AppCheckbox>(find.byType(AppCheckbox)).onChanged, isNull);
+    expect(
+      t
+          .widget<AbsorbPointer>(
+            find.descendant(
+              of: find.byType(ChangeCardDepositForm),
+              matching: find.byType(AbsorbPointer),
+            ),
+          )
+          .absorbing,
+      isTrue,
+    );
+    expect(
+      t.widget<AppTopBar>(find.byType(AppTopBar)).onTrailingPressed,
+      isNull,
+    );
+    expect(repo.changes, hasLength(1));
+    repo.pendingSubmit!.complete(
+      const Success(CardServiceReceipt(reference: 'done', isMock: true)),
+    );
+    await t.pumpAndSettle();
+    expect(completions, 1);
+    expect(changeCubit(t).state.submissionStatus, RequestStatus.success);
+    expect(t.takeException(), isNull);
+  });
 
   testWidgets(
     'one-account gift flow reviews selection and then submits to destination',
@@ -339,6 +338,7 @@ void main() {
       expect(cubit.state.draftFilter.deposit, isNull);
       Navigator.of(t.element(find.byType(GiftBalanceFilterSheet))).pop();
       await t.pumpAndSettle();
+      await t.ensureVisible(button(S.current.giftBalanceNext));
       await t.tap(button(S.current.giftBalanceNext));
       await t.pumpAndSettle();
       Navigator.of(t.element(find.byType(GiftBalanceReviewSheet))).pop();
@@ -364,9 +364,12 @@ void main() {
       expect(giftCubit(t).state.catalogStatus, RequestStatus.failure);
       repository.throwLoad = false;
       await t.tap(button(S.current.dashboardRetry));
+      await t.pump(const Duration(seconds: 5));
+      await t.pumpAndSettle();
       await t.pumpAndSettle();
       await t.tap(find.byType(AppCheckbox).first);
       await t.pumpAndSettle();
+      await t.ensureVisible(button(S.current.giftBalanceNext));
       await t.tap(button(S.current.giftBalanceNext));
       await t.pumpAndSettle();
       await t.tap(button(S.current.backLabel));
@@ -377,7 +380,9 @@ void main() {
       repository.failSubmit = true;
       await t.tap(button(S.current.giftBalanceSubmit));
       await t.pumpAndSettle();
-      expect(find.text(S.current.cardServiceSubmitError), findsOneWidget);
+      expect(find.text('درخواست انجام نشد. دوباره تلاش کنید.'), findsOneWidget);
+      await t.pump(const Duration(seconds: 5));
+      await t.pumpAndSettle();
       expect(giftCubit(t).state.selectedCards, hasLength(1));
       repository.pendingSubmit = Completer<Result<CardServiceReceipt>>();
       await t.tap(button(S.current.giftBalanceSubmit));
@@ -389,7 +394,7 @@ void main() {
       expect(t.widget<AppCheckbox>(find.byType(AppCheckbox)).onChanged, isNull);
       expect(
         t.widget<AppTopBar>(find.byType(AppTopBar)).onTrailingPressed,
-        isNotNull,
+        isNull,
       );
       final review = find.byWidgetPredicate(
         (widget) =>
@@ -448,10 +453,7 @@ void main() {
     await t.tap(button('تایید و ثبت درخواست'));
     await t.pumpAndSettle();
     expect(changeCubit(t).state.isEditable, isTrue);
-    expect(
-      find.text('ثبت درخواست انجام نشد. دوباره تلاش کنید.'),
-      findsOneWidget,
-    );
+    expect(find.text('درخواست انجام نشد. دوباره تلاش کنید.'), findsOneWidget);
   });
   for (final locale in ['fa', 'en', 'ar']) {
     testWidgets('$locale compact phone with large text has no overflow', (

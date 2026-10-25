@@ -1,25 +1,25 @@
-part of 'cheque_postal_cubit.dart';
+part of 'postal_offices_cubit.dart';
 
-enum ChequePostalStep { location, results }
+enum PostalOfficesStep { location, results }
 
-enum ChequePostalEffect { share }
+enum PostalOfficesEffect { share }
 
 @Freezed(toStringOverride: false)
-abstract class ChequePostalState with _$ChequePostalState {
-  const factory ChequePostalState.initial({
+abstract class PostalOfficesState with _$PostalOfficesState {
+  const factory PostalOfficesState.initial({
     @Default(RequestStatus.initial) RequestStatus provincesStatus,
-    Failure? provincesFailure,
+    Failure? failure,
+    String? message,
     @Default(<PostalProvince>[]) List<PostalProvince> provinces,
-    @Default(ChequePostalStep.location) ChequePostalStep postalStep,
+    @Default(PostalOfficesStep.location) PostalOfficesStep postalStep,
     PostalProvince? province,
     PostalCity? city,
     @Default(<PostalCity>[]) List<PostalCity> cities,
     @Default(false) bool canSearchPostalOffices,
     @Default(RequestStatus.initial) RequestStatus postalOfficesStatus,
-    Failure? postalOfficesFailure,
+
     @Default(<PostalOffice>[]) List<PostalOffice> postalOffices,
     String? postalShareText,
-    ChequePostalEffect? effect,
-    @Default(0) int effectId,
-  }) = _ChequePostalState;
+    PostalOfficesEffect? effect,
+  }) = _PostalOfficesState;
 }

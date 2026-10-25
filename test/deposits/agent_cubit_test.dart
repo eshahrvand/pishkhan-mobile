@@ -167,7 +167,7 @@ void main() {
     cubit.updateTermsAcceptance(true);
     repository.response = () => Future.error(StateError('transport'));
     await cubit.submitAgents();
-    expect(cubit.state.submissionFailure, const UnexpectedFailure());
+    expect(cubit.state.failure, const UnexpectedFailure());
     expect(cubit.state.canSubmit, isTrue);
   });
 

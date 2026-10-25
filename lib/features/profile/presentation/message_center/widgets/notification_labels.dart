@@ -1,7 +1,7 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:pishkhan_mobile/core/notifications/notification_message.dart';
 
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 String getNotificationTitle(NotificationMessage message) =>
     switch (message.example) {
@@ -57,5 +57,5 @@ List<String> getNotificationBullets(NotificationMessage message) =>
     : message.bullets;
 String? getNotificationImage(NotificationMessage message) =>
     _isSecurityExample(message)
-    ? AppAssets.notificationSecurity
+    ? '${AppConstants.baseImage}notification_security.png'
     : message.imageAsset;

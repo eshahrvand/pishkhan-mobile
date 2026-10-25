@@ -88,7 +88,7 @@ File: `nYQNyZdSs98lwymCpt5Sag`.
 | Transfer limits | `28084:11921`, `11980` |
 | Deactivation | `28084:11936`, `11958` |
 
-Static artwork is local and registered in AppAssets. Native status/navigation
+Static artwork is local and referenced with AppConstants.baseImage. Native status/navigation
 bars are not drawn by the application. The existing AppInvoice, request footer,
 service grid, top bar and assistant are reused. AppCreditCardMockup gains a
 compatible `isCompact` option for the approved 104px card; its default remains

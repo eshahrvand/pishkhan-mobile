@@ -72,14 +72,7 @@ class ChequeCancellationFooter extends StatelessWidget {
                 ),
                 const SizedBox(height: 20),
               ],
-              if (state.submissionFailure != null) ...[
-                Text(
-                  S.current.chequeSubmitFailure,
-                  style: certificateLabelStyle(context)
-                      .copyWith(color: context.colors.error),
-                ),
-                const SizedBox(height: 8),
-              ],
+
               AppButton(
                 label: state.step == ChequeCancellationStep.confirmation
                     ? S.current.chequeSubmit

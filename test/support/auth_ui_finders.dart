@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:pishkhan_mobile/features/cards/presentation/password_services/widgets/password_request_status.dart';
 import 'package:pishkhan_mobile/features/cards/presentation/password_services/widgets/password_flow_footer.dart';
 import 'package:avp_ui/avp_ui.dart';
@@ -5,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/login/widgets/auth_services_sheet.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 // Identify controls by their public content and widget type, without adding
 // production keys solely for tests. Names keep the existing frame scenarios readable.
@@ -116,8 +116,12 @@ Finder authControl(WidgetTester tester, String name) {
           widget.label == S.current.passwordConfirmMock,
     ),
     'password_tracking' => find.byType(SelectableText),
-    'password_result_badge' => badge(AppAssets.passwordApproved),
-    'password_status_badge' => badge(AppAssets.passwordStatusSuccess),
+    'password_result_badge' => badge(
+      '${AppConstants.baseImage}password_approved.svg',
+    ),
+    'password_status_badge' => badge(
+      '${AppConstants.baseImage}password_status_success.svg',
+    ),
     'password_status_page' => find.byType(PasswordStatusContent),
     'password_record_dismiss' => find.descendant(
       of: find.byType(PasswordRecordSheet),

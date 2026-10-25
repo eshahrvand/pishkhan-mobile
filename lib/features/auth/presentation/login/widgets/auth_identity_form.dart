@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -5,7 +6,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:pishkhan_mobile/features/auth/presentation/login/cubit/auth_cubit.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/login/widgets/auth_form_shared.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/shared/auth_assets.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 
 import 'auth_captcha_field.dart';
@@ -51,7 +51,7 @@ class AuthIdentityForm extends StatelessWidget {
                 height: 44,
                 child: Center(
                   child: AvpImage(
-                    image: AuthAssets.user,
+                    image: '${AppConstants.baseImage}auth_user.svg',
                     width: 20,
                     height: 20,
                   ),
@@ -97,7 +97,7 @@ class AuthIdentityForm extends StatelessWidget {
                 height: 44,
                 child: Center(
                   child: AvpImage(
-                    image: AuthAssets.mobile,
+                    image: '${AppConstants.baseImage}auth_mobile.svg',
                     width: 20,
                     height: 20,
                   ),
@@ -133,7 +133,11 @@ class AuthIdentityForm extends StatelessWidget {
             ),
             child: Row(
               children: [
-                AvpImage(image: AuthAssets.infoCircle, width: 20, height: 20),
+                AvpImage(
+                  image: '${AppConstants.baseImage}auth_info_circle.svg',
+                  width: 20,
+                  height: 20,
+                ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(

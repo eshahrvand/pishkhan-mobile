@@ -21,14 +21,14 @@ abstract class ChequeCancellationState with _$ChequeCancellationState {
   const factory ChequeCancellationState.initial({
     @Default(ChequeCancellationStep.selection) ChequeCancellationStep step,
     @Default(1) int stepNumber,
-    @Default(0) int stepRevealId,
     @Default(RequestStatus.initial) RequestStatus catalogStatus,
-    Failure? catalogFailure,
+    Failure? failure,
+    String? message,
     ChequeCancellationCatalog? catalog,
     ChequeDeposit? deposit,
     CancellationChequeType? type,
     @Default(RequestStatus.initial) RequestStatus chequesStatus,
-    Failure? chequesFailure,
+
     @Default(<CancellableCheque>[]) List<CancellableCheque> cheques,
     @Default(<CancellationChequeChoice>[])
     List<CancellationChequeChoice> visibleCheques,
@@ -45,10 +45,9 @@ abstract class ChequeCancellationState with _$ChequeCancellationState {
     @Default(false) bool termsAccepted,
     ChequeCancellationRequest? confirmedRequest,
     @Default(RequestStatus.initial) RequestStatus submissionStatus,
-    Failure? submissionFailure,
+
     ChequeCancellationReceipt? receipt,
     @Default(false) bool isExitToAssistant,
     ChequeCancellationEffect? effect,
-    @Default(0) int effectId,
   }) = _ChequeCancellationState;
 }

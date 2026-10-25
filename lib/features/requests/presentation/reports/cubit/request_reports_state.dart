@@ -27,9 +27,9 @@ abstract class RequestReportsState with _$RequestReportsState {
     DateTime? bankTime,
     RequestReport? selectedReport,
     @Default(false) bool canCancelRequest,
-    Failure? reportsFailure,
-    Failure? cancellationFailure,
+    Failure? failure,
+    String? message,
+
     RequestReportsEffect? effect,
-    @Default(0) int effectId,
   }) = _RequestReportsState;
 }

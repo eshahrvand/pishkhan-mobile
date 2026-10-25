@@ -34,9 +34,12 @@ class NotificationsCubit extends Cubit<NotificationsState> {
         unreadMessages: messages.where((message) => !message.isRead).toList(),
         readMessages: messages.where((message) => message.isRead).toList(),
         detailMessage: readMessage,
-        detailRequestId: state.detailRequestId + 1,
       ),
     );
+  }
+
+  void consumeMessageDetail() {
+    emit(state.copyWith(detailMessage: null));
   }
 
   void markAllRead() {

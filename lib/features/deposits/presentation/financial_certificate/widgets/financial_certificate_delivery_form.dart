@@ -1,6 +1,6 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 import '../../deposit_list/widgets/deposit_ui.dart';
 import '../../shared/certificate_delivery_address.dart';
@@ -36,7 +36,9 @@ class FinancialCertificateDeliveryForm extends StatelessWidget {
           },
         ),
         const SizedBox(height: 20),
-        const DepositDivider(asset: AppAssets.certificateDivider),
+        const DepositDivider(
+          asset: '${AppConstants.baseImage}certificate_certDivider.svg',
+        ),
         const SizedBox(height: 20),
         BlocBuilder<FinancialCertificateCubit, FinancialCertificateState>(
           buildWhen: (previous, current) =>
@@ -62,7 +64,9 @@ class FinancialCertificateDeliveryForm extends StatelessWidget {
           },
         ),
         const SizedBox(height: 20),
-        const DepositDivider(asset: AppAssets.certificateDivider),
+        const DepositDivider(
+          asset: '${AppConstants.baseImage}certificate_certDivider.svg',
+        ),
         const SizedBox(height: 20),
         BlocBuilder<FinancialCertificateCubit, FinancialCertificateState>(
           buildWhen: (previous, current) =>

@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:pishkhan_mobile/shared/widgets/flow_exit_dialog.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
@@ -5,7 +6,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
 
 import '../../../domain/entities/card_service_data.dart';
@@ -35,8 +35,17 @@ class _ChangeCardDepositScreenState extends State<ChangeCardDepositScreen> {
     BuildContext context,
     ChangeCardDepositState state,
   ) async {
+    if (state.message != null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(state.message!)));
+      return;
+    }
+
     switch (state.navigation) {
       case FlowNavigation.confirmExit:
+        context
+            .read<ChangeCardDepositCubit>()
+            .consumeChangeCardDepositInteraction();
         final confirmed = await showFlowExitDialog(context);
         if (context.mounted) {
           context.read<ChangeCardDepositCubit>().applyExitConfirmation(
@@ -63,7 +72,12 @@ class _ChangeCardDepositScreenState extends State<ChangeCardDepositScreen> {
             ..fetchCatalog(),
       child: BlocListener<ChangeCardDepositCubit, ChangeCardDepositState>(
         listenWhen: (previous, current) =>
-            previous.navigationId != current.navigationId,
+            (previous.navigation != current.navigation &&
+                current.navigation != null) ||
+            ((previous.catalogStatus != current.catalogStatus &&
+                    current.catalogStatus == RequestStatus.failure) ||
+                (previous.submissionStatus != current.submissionStatus &&
+                    current.submissionStatus == RequestStatus.failure)),
         listener: _handleNavigation,
         child: Directionality(
           textDirection: TextDirection.rtl,
@@ -76,9 +90,14 @@ class _ChangeCardDepositScreenState extends State<ChangeCardDepositScreen> {
             },
             builder: (context, state) {
               return PopScope(
-                canPop: state.navigation == FlowNavigation.back,
+                canPop:
+                    (state.catalogStatus != RequestStatus.loading &&
+                        state.submissionStatus != RequestStatus.loading) &&
+                    (state.navigation == FlowNavigation.back),
                 onPopInvokedWithResult: (didPop, _) {
-                  if (!didPop) {
+                  if (!didPop &&
+                      state.catalogStatus != RequestStatus.loading &&
+                      state.submissionStatus != RequestStatus.loading) {
                     context.read<ChangeCardDepositCubit>().requestBack();
                   }
                 },
@@ -91,13 +110,18 @@ class _ChangeCardDepositScreenState extends State<ChangeCardDepositScreen> {
                           title: S.current.changeCardDepositTitle,
                           showLeadingActions: false,
                           trailingIcon: cardServiceIcon(
-                            AppAssets.cardFeaturesBack,
+                            '${AppConstants.baseImage}card_features_back.svg',
                             size: 24,
                           ),
                           trailingTooltip: S.current.backLabel,
-                          onTrailingPressed: context
-                              .read<ChangeCardDepositCubit>()
-                              .requestBack,
+                          onTrailingPressed:
+                              (state.catalogStatus != RequestStatus.loading &&
+                                  state.submissionStatus !=
+                                      RequestStatus.loading)
+                              ? context
+                                    .read<ChangeCardDepositCubit>()
+                                    .requestBack
+                              : null,
                         ),
                         Expanded(
                           child:

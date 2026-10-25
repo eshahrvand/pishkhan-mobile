@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:pishkhan_mobile/core/presentation/mappers/request_error_message_mapper.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/flow/flow_navigation.dart';
@@ -32,7 +33,8 @@ class ExpiredGiftBalanceCubit extends Cubit<ExpiredGiftBalanceState> {
     emit(
       state.copyWith(
         catalogStatus: RequestStatus.loading,
-        catalogFailure: null,
+        failure: null,
+        message: null,
       ),
     );
     return LoadCardServiceCatalog(_repository)().then((result) {
@@ -41,7 +43,8 @@ class ExpiredGiftBalanceCubit extends Cubit<ExpiredGiftBalanceState> {
           emit(
             state.copyWith(
               catalogStatus: RequestStatus.failure,
-              catalogFailure: failure,
+              failure: failure,
+              message: getRequestErrorMessage(failure),
             ),
           );
         case Success(:final data):
@@ -104,7 +107,8 @@ class ExpiredGiftBalanceCubit extends Cubit<ExpiredGiftBalanceState> {
         canReviewSelection: selected.isNotEmpty,
         termsAccepted: false,
         submissionStatus: RequestStatus.initial,
-        submissionFailure: null,
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -129,7 +133,8 @@ class ExpiredGiftBalanceCubit extends Cubit<ExpiredGiftBalanceState> {
         canReviewSelection: cards.isNotEmpty,
         termsAccepted: false,
         submissionStatus: RequestStatus.initial,
-        submissionFailure: null,
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -142,7 +147,7 @@ class ExpiredGiftBalanceCubit extends Cubit<ExpiredGiftBalanceState> {
         canContinue: false,
         canReviewSelection: false,
         effect: GiftBalanceEffect.filter,
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -191,7 +196,7 @@ class ExpiredGiftBalanceCubit extends Cubit<ExpiredGiftBalanceState> {
         canReviewSelection: false,
         effect: GiftBalanceEffect.review,
         advanceAfterReview: advance,
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -208,7 +213,8 @@ class ExpiredGiftBalanceCubit extends Cubit<ExpiredGiftBalanceState> {
         isAllVisibleSelected: _allVisibleSelected(state.visibleCards, selected),
         termsAccepted: false,
         submissionStatus: RequestStatus.initial,
-        submissionFailure: null,
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -241,7 +247,8 @@ class ExpiredGiftBalanceCubit extends Cubit<ExpiredGiftBalanceState> {
         termsAccepted: false,
         canContinue: false,
         submissionStatus: RequestStatus.initial,
-        submissionFailure: null,
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -281,10 +288,11 @@ class ExpiredGiftBalanceCubit extends Cubit<ExpiredGiftBalanceState> {
     emit(
       state.copyWith(
         submissionStatus: RequestStatus.loading,
-        submissionFailure: null,
         isEditable: false,
         canContinue: false,
         canReviewSelection: false,
+        failure: null,
+        message: null,
       ),
     );
     return cardServiceBoundary(() => _repository.transferGiftBalance(request))
@@ -294,13 +302,14 @@ class ExpiredGiftBalanceCubit extends Cubit<ExpiredGiftBalanceState> {
               emit(
                 state.copyWith(
                   submissionStatus: RequestStatus.failure,
-                  submissionFailure: failure,
                   isEditable: true,
                   canReviewSelection: state.selectedCards.isNotEmpty,
                   canContinue:
                       state.selectedCards.isNotEmpty &&
                       (state.step == GiftBalanceStep.selection ||
                           state.destination != null && state.termsAccepted),
+                  failure: failure,
+                  message: getRequestErrorMessage(failure),
                 ),
               );
             case Success(:final data):
@@ -337,7 +346,7 @@ class ExpiredGiftBalanceCubit extends Cubit<ExpiredGiftBalanceState> {
           navigation: needsConfirmation
               ? FlowNavigation.confirmExit
               : FlowNavigation.back,
-          navigationId: state.navigationId + 1,
+          message: null,
         ),
       );
     }
@@ -347,7 +356,7 @@ class ExpiredGiftBalanceCubit extends Cubit<ExpiredGiftBalanceState> {
     emit(
       state.copyWith(
         navigation: confirmed == true ? FlowNavigation.back : null,
-        navigationId: state.navigationId + 1,
+        message: null,
       ),
     );
   }
@@ -379,4 +388,9 @@ class ExpiredGiftBalanceCubit extends Cubit<ExpiredGiftBalanceState> {
 
   String _normalizeNumber(String value) =>
       DigitNormalizer.normalize(value).replaceAll(RegExp(r'[\s-]'), '');
+
+  /// UI has accepted the pending interaction; data and request statuses stay intact.
+  void consumeExpiredGiftBalanceInteraction() {
+    emit(state.copyWith(effect: null, navigation: null));
+  }
 }

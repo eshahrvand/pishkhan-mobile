@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:avp_ui/avp_ui.dart' show DigitNormalizer;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:pishkhan_mobile/core/presentation/mappers/request_error_message_mapper.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/result/failure.dart';
@@ -30,7 +31,8 @@ class ChequeCancellationCubit extends Cubit<ChequeCancellationState> {
     emit(
       state.copyWith(
         catalogStatus: RequestStatus.loading,
-        catalogFailure: null,
+        failure: null,
+        message: null,
       ),
     );
     return FetchChequeCancellationCatalog(repository)().then((result) {
@@ -39,7 +41,8 @@ class ChequeCancellationCubit extends Cubit<ChequeCancellationState> {
           emit(
             state.copyWith(
               catalogStatus: RequestStatus.failure,
-              catalogFailure: failure,
+              failure: failure,
+              message: getRequestErrorMessage(failure),
             ),
           );
         case Success(:final data):
@@ -68,7 +71,8 @@ class ChequeCancellationCubit extends Cubit<ChequeCancellationState> {
         isAllSelected: false,
         canContinue: state.type != null,
         confirmedRequest: null,
-        submissionFailure: null,
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -84,7 +88,8 @@ class ChequeCancellationCubit extends Cubit<ChequeCancellationState> {
         isAllSelected: false,
         canContinue: state.deposit != null,
         confirmedRequest: null,
-        submissionFailure: null,
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -98,7 +103,7 @@ class ChequeCancellationCubit extends Cubit<ChequeCancellationState> {
           state.copyWith(
             isReviewContinuing: true,
             effect: ChequeCancellationEffect.review,
-            effectId: state.effectId + 1,
+            message: null,
           ),
         );
       case ChequeCancellationStep.reasons:
@@ -106,9 +111,7 @@ class ChequeCancellationCubit extends Cubit<ChequeCancellationState> {
           state.copyWith(
             step: ChequeCancellationStep.confirmation,
             stepNumber: 4,
-            stepRevealId: state.stepRevealId + 1,
             submissionStatus: RequestStatus.initial,
-            submissionFailure: null,
             termsAccepted: false,
             canContinue: false,
             confirmedRequest:
@@ -120,6 +123,8 @@ class ChequeCancellationCubit extends Cubit<ChequeCancellationState> {
                   idempotencyKey:
                       'cheque-cancel-${DateTime.now().microsecondsSinceEpoch}-${Random.secure().nextInt(1 << 32)}',
                 ),
+            failure: null,
+            message: null,
           ),
         );
       case ChequeCancellationStep.confirmation:
@@ -135,10 +140,10 @@ class ChequeCancellationCubit extends Cubit<ChequeCancellationState> {
       state.copyWith(
         step: ChequeCancellationStep.cheques,
         stepNumber: 2,
-        stepRevealId: state.stepRevealId + 1,
         chequesStatus: RequestStatus.loading,
-        chequesFailure: null,
         canContinue: false,
+        failure: null,
+        message: null,
       ),
     );
     return FetchCancellableCheques(repository)(
@@ -151,7 +156,8 @@ class ChequeCancellationCubit extends Cubit<ChequeCancellationState> {
           emit(
             state.copyWith(
               chequesStatus: RequestStatus.failure,
-              chequesFailure: failure,
+              failure: failure,
+              message: getRequestErrorMessage(failure),
             ),
           );
         case Success(:final data):
@@ -235,7 +241,7 @@ class ChequeCancellationCubit extends Cubit<ChequeCancellationState> {
       state.copyWith(
         isReviewContinuing: false,
         effect: ChequeCancellationEffect.review,
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -250,7 +256,6 @@ class ChequeCancellationCubit extends Cubit<ChequeCancellationState> {
         state.copyWith(
           step: ChequeCancellationStep.reasons,
           stepNumber: 3,
-          stepRevealId: state.stepRevealId + 1,
           canContinue: _hasReasons(state.selectedEntries),
           effect: null,
         ),
@@ -265,7 +270,7 @@ class ChequeCancellationCubit extends Cubit<ChequeCancellationState> {
       state.copyWith(
         pendingCheque: cheque,
         effect: ChequeCancellationEffect.deleteCheque,
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -275,7 +280,7 @@ class ChequeCancellationCubit extends Cubit<ChequeCancellationState> {
       state.copyWith(
         pendingCheque: cheque,
         effect: ChequeCancellationEffect.deleteReviewCheque,
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -296,7 +301,6 @@ class ChequeCancellationCubit extends Cubit<ChequeCancellationState> {
           isAllSelected: false,
           step: ChequeCancellationStep.cheques,
           stepNumber: 2,
-          stepRevealId: state.stepRevealId + 1,
           canContinue: false,
           confirmedRequest: null,
           pendingCheque: null,
@@ -329,7 +333,7 @@ class ChequeCancellationCubit extends Cubit<ChequeCancellationState> {
         reasonDraft: entry.reason,
         isReasonForAll: false,
         effect: ChequeCancellationEffect.reason,
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -341,7 +345,7 @@ class ChequeCancellationCubit extends Cubit<ChequeCancellationState> {
         reasonDraft: null,
         isReasonForAll: true,
         effect: ChequeCancellationEffect.reason,
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -378,8 +382,9 @@ class ChequeCancellationCubit extends Cubit<ChequeCancellationState> {
     emit(
       state.copyWith(
         submissionStatus: RequestStatus.loading,
-        submissionFailure: null,
         isEditable: false,
+        failure: null,
+        message: null,
       ),
     );
     return SubmitChequeCancellation(repository)(state.confirmedRequest!)
@@ -389,8 +394,9 @@ class ChequeCancellationCubit extends Cubit<ChequeCancellationState> {
               emit(
                 state.copyWith(
                   submissionStatus: RequestStatus.failure,
-                  submissionFailure: failure,
                   isEditable: true,
+                  failure: failure,
+                  message: getRequestErrorMessage(failure),
                 ),
               );
             case Success(:final data):
@@ -400,7 +406,7 @@ class ChequeCancellationCubit extends Cubit<ChequeCancellationState> {
                   receipt: data,
                   canContinue: false,
                   effect: ChequeCancellationEffect.receipt,
-                  effectId: state.effectId + 1,
+                  message: null,
                 ),
               );
           }
@@ -411,7 +417,7 @@ class ChequeCancellationCubit extends Cubit<ChequeCancellationState> {
     emit(
       state.copyWith(
         effect: ChequeCancellationEffect.postalOffices,
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -420,7 +426,7 @@ class ChequeCancellationCubit extends Cubit<ChequeCancellationState> {
     emit(
       state.copyWith(
         effect: ChequeCancellationEffect.contentUnavailable,
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -429,7 +435,7 @@ class ChequeCancellationCubit extends Cubit<ChequeCancellationState> {
     emit(
       state.copyWith(
         effect: ChequeCancellationEffect.contentUnavailable,
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -443,7 +449,7 @@ class ChequeCancellationCubit extends Cubit<ChequeCancellationState> {
             effect: state.deposit != null || state.type != null
                 ? ChequeCancellationEffect.confirmExit
                 : ChequeCancellationEffect.back,
-            effectId: state.effectId + 1,
+            message: null,
           ),
         );
       case ChequeCancellationStep.cheques:
@@ -452,7 +458,6 @@ class ChequeCancellationCubit extends Cubit<ChequeCancellationState> {
           state.copyWith(
             step: ChequeCancellationStep.selection,
             stepNumber: 1,
-            stepRevealId: state.stepRevealId + 1,
             chequesStatus: RequestStatus.initial,
             canContinue: true,
           ),
@@ -462,7 +467,6 @@ class ChequeCancellationCubit extends Cubit<ChequeCancellationState> {
           state.copyWith(
             step: ChequeCancellationStep.cheques,
             stepNumber: 2,
-            stepRevealId: state.stepRevealId + 1,
             canContinue: state.selectedEntries.isNotEmpty,
           ),
         );
@@ -471,7 +475,6 @@ class ChequeCancellationCubit extends Cubit<ChequeCancellationState> {
           state.copyWith(
             step: ChequeCancellationStep.reasons,
             stepNumber: 3,
-            stepRevealId: state.stepRevealId + 1,
             termsAccepted: false,
             canContinue: _hasReasons(state.selectedEntries),
           ),
@@ -486,7 +489,7 @@ class ChequeCancellationCubit extends Cubit<ChequeCancellationState> {
         effect: state.deposit != null || state.type != null
             ? ChequeCancellationEffect.confirmExit
             : ChequeCancellationEffect.assistant,
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -499,18 +502,13 @@ class ChequeCancellationCubit extends Cubit<ChequeCancellationState> {
                   ? ChequeCancellationEffect.assistant
                   : ChequeCancellationEffect.back)
             : null,
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
 
   void applyReceiptDismissal() {
-    emit(
-      state.copyWith(
-        effect: ChequeCancellationEffect.home,
-        effectId: state.effectId + 1,
-      ),
-    );
+    emit(state.copyWith(effect: ChequeCancellationEffect.home, message: null));
   }
 
   bool _hasReasons(List<ChequeCancellationEntry> entries) =>
@@ -531,5 +529,10 @@ class ChequeCancellationCubit extends Cubit<ChequeCancellationState> {
             isSelected: entries.any((entry) => entry.cheque == cheque),
           ),
     ];
+  }
+
+  /// UI has accepted the pending interaction; data and request statuses stay intact.
+  void consumeChequeCancellationInteraction() {
+    emit(state.copyWith(effect: null));
   }
 }

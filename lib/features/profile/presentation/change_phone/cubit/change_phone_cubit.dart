@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:pishkhan_mobile/core/presentation/mappers/request_error_message_mapper.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/result/failure.dart';
@@ -22,7 +23,13 @@ class ChangePhoneCubit extends Cubit<ChangePhoneState> {
   final repository = getIt<PersonalInformationRepository>();
   Timer? _timer;
   Future<void> fetchSettings() {
-    emit(state.copyWith(settingsStatus: RequestStatus.loading));
+    emit(
+      state.copyWith(
+        settingsStatus: RequestStatus.loading,
+        failure: null,
+        message: null,
+      ),
+    );
     return repository.fetchPhoneSettings().then((result) {
       switch (result) {
         case Success(:final data):
@@ -37,7 +44,8 @@ class ChangePhoneCubit extends Cubit<ChangePhoneState> {
           emit(
             state.copyWith(
               settingsStatus: RequestStatus.failure,
-              settingsFailure: failure,
+              failure: failure,
+              message: getRequestErrorMessage(failure),
             ),
           );
       }
@@ -54,9 +62,7 @@ class ChangePhoneCubit extends Cubit<ChangePhoneState> {
       state.copyWith(
         phoneNumber: normalized,
         otpRequestStatus: RequestStatus.initial,
-        otpRequestFailure: null,
         submissionStatus: RequestStatus.initial,
-        submissionFailure: null,
         isPhoneNumberValid: valid,
         isPhoneNumberError: normalized.isNotEmpty && !valid,
         challenge: null,
@@ -67,6 +73,8 @@ class ChangePhoneCubit extends Cubit<ChangePhoneState> {
         canRequestOtp: valid,
         canSubmit: false,
         idempotencyKey: null,
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -85,7 +93,6 @@ class ChangePhoneCubit extends Cubit<ChangePhoneState> {
       state.copyWith(
         otp: normalized,
         submissionStatus: RequestStatus.initial,
-        submissionFailure: null,
         isOtpValid: valid,
         isOtpError: normalized.isNotEmpty && !valid,
         canSubmit:
@@ -94,6 +101,8 @@ class ChangePhoneCubit extends Cubit<ChangePhoneState> {
             state.termsAccepted &&
             state.walletSufficient,
         idempotencyKey: null,
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -116,7 +125,8 @@ class ChangePhoneCubit extends Cubit<ChangePhoneState> {
     emit(
       state.copyWith(
         otpRequestStatus: RequestStatus.loading,
-        otpRequestFailure: null,
+        failure: null,
+        message: null,
       ),
     );
     return repository.requestPhoneOtp(state.phoneNumber).then((result) {
@@ -143,7 +153,8 @@ class ChangePhoneCubit extends Cubit<ChangePhoneState> {
           emit(
             state.copyWith(
               otpRequestStatus: RequestStatus.failure,
-              otpRequestFailure: failure,
+              failure: failure,
+              message: getRequestErrorMessage(failure),
             ),
           );
       }
@@ -187,8 +198,9 @@ class ChangePhoneCubit extends Cubit<ChangePhoneState> {
       state.copyWith(
         submissionStatus: RequestStatus.loading,
         canRequestOtp: false,
-        submissionFailure: null,
         idempotencyKey: key,
+        failure: null,
+        message: null,
       ),
     );
     return repository
@@ -210,7 +222,7 @@ class ChangePhoneCubit extends Cubit<ChangePhoneState> {
                   otp: '',
                   isOtpValid: false,
                   effect: ChangePhoneEffect.submitted,
-                  effectId: state.effectId + 1,
+                  message: null,
                 ),
               );
             case Err(:final failure):
@@ -219,7 +231,8 @@ class ChangePhoneCubit extends Cubit<ChangePhoneState> {
                   submissionStatus: RequestStatus.failure,
                   canRequestOtp:
                       state.remainingSeconds == 0 && state.isPhoneNumberValid,
-                  submissionFailure: failure,
+                  failure: failure,
+                  message: getRequestErrorMessage(failure),
                 ),
               );
           }
@@ -227,55 +240,35 @@ class ChangePhoneCubit extends Cubit<ChangePhoneState> {
   }
 
   void requestBack() {
-    emit(
-      state.copyWith(
-        effect: ChangePhoneEffect.confirmExit,
-        effectId: state.effectId + 1,
-      ),
-    );
+    emit(state.copyWith(effect: ChangePhoneEffect.confirmExit, message: null));
   }
 
   void applyExitConfirmation(bool? confirmed) {
     if (confirmed == true) {
-      emit(
-        state.copyWith(
-          effect: ChangePhoneEffect.back,
-          effectId: state.effectId + 1,
-        ),
-      );
+      emit(state.copyWith(effect: ChangePhoneEffect.back, message: null));
     }
   }
 
   void applySubmissionDismissal() {
-    emit(
-      state.copyWith(
-        effect: ChangePhoneEffect.home,
-        effectId: state.effectId + 1,
-      ),
-    );
+    emit(state.copyWith(effect: ChangePhoneEffect.home, message: null));
   }
 
   void requestTerms() {
-    emit(
-      state.copyWith(
-        effect: ChangePhoneEffect.terms,
-        effectId: state.effectId + 1,
-      ),
-    );
+    emit(state.copyWith(effect: ChangePhoneEffect.terms, message: null));
   }
 
   void requestAssistant() {
-    emit(
-      state.copyWith(
-        effect: ChangePhoneEffect.assistant,
-        effectId: state.effectId + 1,
-      ),
-    );
+    emit(state.copyWith(effect: ChangePhoneEffect.assistant, message: null));
   }
 
   @override
   Future<void> close() {
     _timer?.cancel();
     return super.close();
+  }
+
+  /// UI has accepted the pending interaction; data and request statuses stay intact.
+  void consumeChangePhoneInteraction() {
+    emit(state.copyWith(effect: null));
   }
 }

@@ -54,8 +54,9 @@ class _AddressEditorFormState extends State<AddressEditorForm> {
       },
       child: BlocListener<AddressEditorCubit, AddressEditorState>(
         listenWhen: (previous, current) =>
-            previous.minimumHomeNoticeId != current.minimumHomeNoticeId,
+            previous.effect != current.effect && current.effect != null,
         listener: (context, state) {
+          context.read<AddressEditorCubit>().consumeAddressEditorInteraction();
           showAppDecisionSheet(
             context,
             message: S.current.profileMinimumAddress,
@@ -66,7 +67,9 @@ class _AddressEditorFormState extends State<AddressEditorForm> {
           );
         },
         child: BlocConsumer<AddressEditorCubit, AddressEditorState>(
-          listenWhen: (previous, current) => previous.saveId != current.saveId,
+          listenWhen: (previous, current) =>
+              previous.savedAddress != current.savedAddress &&
+              current.savedAddress != null,
           listener: (context, state) => context.pop(state.savedAddress),
           builder: (context, state) {
             return Directionality(

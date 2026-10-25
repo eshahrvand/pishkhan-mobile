@@ -1,9 +1,9 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/login/cubit/auth_cubit.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/shared/auth_assets.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 
@@ -37,12 +37,12 @@ class AuthCaptchaField extends StatelessWidget {
                   width: 48,
                   height: 44,
                   child: AppButton(
-                    isLoading: state.captchaStatus == RequestStatus.loading,
-                    onPressed: state.otpRequestStatus != RequestStatus.loading
-                        ? () => context.read<AuthCubit>().fetchCaptcha()
-                        : null,
+                    isLoading:
+                        state.captchaStatus == RequestStatus.loading ||
+                        state.otpRequestStatus == RequestStatus.loading,
+                    onPressed: context.read<AuthCubit>().fetchCaptcha,
                     icon: AvpImage(
-                      image: AuthAssets.refresh,
+                      image: '${AppConstants.baseImage}auth_refresh.svg',
                       width: 20,
                       height: 20,
                     ),
@@ -107,7 +107,8 @@ class AuthCaptchaField extends StatelessWidget {
                         gaplessPlayback: false,
                         excludeFromSemantics: true,
                         errorBuilder: (context, error, stackTrace) => AvpImage(
-                          image: AuthAssets.infoCircle,
+                          image:
+                              '${AppConstants.baseImage}auth_info_circle.svg',
                           width: 20,
                           height: 20,
                         ),

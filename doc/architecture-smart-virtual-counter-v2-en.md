@@ -304,7 +304,7 @@ pishkhan_project/
         ├── main_production.dart
         ├── app.dart
         │
-        ├── core/                        # App infrastructure, no UI dependency
+        ├── core/                        # Cross-feature infrastructure; pure mappers under presentation/
         │   ├── di/
         │   ├── network/
         │   │   ├── dio_factory.dart
@@ -339,8 +339,11 @@ pishkhan_project/
         │   │   ├── flow_outcome.dart
         │   │   └── service_registry.dart      # serviceId → route mapping
         │   ├── config/
-        │   │   ├── constant.dart              # Current API base URLs and network timeouts
+        │   │   ├── constant.dart              # Current image prefix, API base URLs and network timeouts
         │   │   └── remote_config.dart         # Planned server config: session timeout, thresholds, enabled services
+        │   ├── presentation/
+        │   │   └── mappers/
+        │   │       └── request_error_message_mapper.dart # Pure display-text mapping
         │   ├── push/
         │   │   └── push_service.dart          # Interface + platform implementations
         │   ├── enums/
@@ -385,6 +388,7 @@ pishkhan_project/
             ├── loans/
             ├── deposits/
             ├── cheque/
+            ├── postal_offices/          # Independent lookup used by multiple cheque flows
             ├── requests/
             ├── assistant/
             └── ...
@@ -988,24 +992,24 @@ into a DioException. Network/parse exceptions are still converted to Err in Data
 Repository APIs retain Future<Result<T>>; Cubit retains a returned .then and a
 Success/Err switch, without catchError.
 
-Login keeps independent request statuses and **one shared Failure? failure**.
-Its plain Freezed State additionally holds String? message, without a separate
-message counter. A pure switch helper in `presentation/login/cubit/auth_error_messages.dart` maps the
-Failure code to approved Persian text with a generic fallback. Cubit emits that
-message with AuthMessageRequested and increments the existing effectId for each
-API failure notification. The existing filtered BlocListener displays that effect;
-there is no separate message Listener or duplicate inline API-error view. Starting
-another request clears failure/message without replaying an effect. Unconnected
-services such as guest change-phone retain their prior unavailable feedback and
-are not moved into this API-message path.
-The message is prepared presentation data, while Failure remains technical data.
+All request-driven flows keep independent operation statuses and one latest
+`Failure? failure` plus a prepared `String? message` in their plain Freezed State.
+Cubit maps Failure codes to approved Persian text through a pure Presentation
+switch helper, with a generic fallback. The reusable mapper lives in
+`core/presentation/mappers/request_error_message_mapper.dart`; Login retains
+`presentation/login/cubit/auth_error_messages.dart`. Domain/Data contain no display
+text. Ordinary labels and field validation continue to use `S.current`.
 
-This is an explicit Login-only exception to the general UI-localization and
-per-operation Failure naming rules. Persian error literals are allowed in that
-Presentation helper; Domain/Data stay free of display text. Ordinary UI labels,
-field validation, other features and the Failure hierarchy are unchanged. See
-the [mandatory Login amendment](ui-cubit-state-agent-rules-en.md#mandatory-owner-amendment-login-failure-messages-and-loading)
-for the full scope, repeated notification delivery and loading/Back rules.
+Focused listeners compare previous/current operation statuses and display the
+prepared message when an operation enters failure. Loading clears failure/message;
+retries therefore deliver identical failures again without `effectId`,
+`navigationId`, `messageId` or a message effect. Independent concurrent operation
+statuses are preserved. UI commands clear old display messages to avoid replay.
+Reusable typed sheet/dialog/share commands are explicitly consumed before awaiting
+the Flutter operation. Exit intents authorizing PopScope remain until actual exit.
+Unconnected Login guest actions retain their existing unavailable feedback.
+See the mandatory counter-free and project-wide amendments in the
+[UI/Cubit/State contract](ui-cubit-state-agent-rules-en.md).
 
 #### General error mapping
 
@@ -1051,7 +1055,7 @@ refactors, not a claim that every existing Cubit already complies.
 
 * Each Cubit owns one plain Freezed State with a single `const factory State.initial(...)` and useful `@Default` values. Preserve the current organization: the State file is `part of` the Cubit library, and the Cubit declares `part '<name>_state.dart'` and `part '<name>_cubit.freezed.dart'`.
 * State contains data only. Do not add handwritten getters, calculation methods or a private constructor solely to support them. Generated Freezed accessors, equality and `copyWith` are framework infrastructure, not custom business getters.
-* Login retains one shared Failure plus prepared message using the existing effectId under Section 11.3; other features retain their existing failure ownership.
+* Every request-driven State retains one latest shared Failure plus a prepared message under Section 11.3; independent operations retain their own statuses. No interaction sequence counters are used.
 * Give each independent async operation its own status field. Use `RequestStatus { initial, loading, success, failure }` from `core/enums/`. A single-operation Cubit may use `status`; multiple operations use meaningful names such as `checkStatus`, `quoteStatus` and `submissionStatus`.
 * UI reads State fields directly. Check `state.submissionStatus == RequestStatus.loading` directly in widget arguments; do not introduce getter aliases or local `loading`, `empty` or `form` variables in builders.
 * Cubit owns flow decisions, input validation coordination, filtering, selection resolution and request construction; reusable business rules belong in Domain. UI sends events, renders State, executes prepared Flutter effects and returns raw modal results to Cubit. State contains data, not behavior.
@@ -1352,7 +1356,7 @@ These are target-convention examples, not a report of completed implementation. 
 **Mandatory rules for agents:**
 
 1. Read localized UI text directly as `S.current.<key>`; do not introduce `context.l10n`, repeated `AppLocalizations.of(context)` calls or local aliases such as `final l10n = ...` in new UI code following this convention.
-2. Keep translations in ARB files, including parameterized messages and plural forms, except for the approved Persian Login error helper in Section 11.3. Use generated methods for arguments rather than assembling translated sentence fragments manually.
+2. Keep translations in ARB files, including parameterized messages and plural forms, except for the approved Persian Presentation failure-message helpers in Section 11.3. Use generated methods for arguments rather than assembling translated sentence fragments manually.
 3. Do not hand-edit generated Dart files or maintain a second generator for the same app messages.
 4. Keep `S.current` in Presentation. Domain and Cubit logic return codes, enums and data; they must not store localized button titles or messages in State, except for the explicitly approved Login error-message payload and pure Presentation helper in Section 11.3. Domain/Data still produce no display text.
 5. Helpers that map several steps to translated titles return a `String` and read `S.current` directly. They do not accept `BuildContext` solely to retrieve a translation.
@@ -1597,9 +1601,9 @@ GoRouter createAppRouter({required RouterSession session}) {
 
 ### 15.4 Flow Lifecycle
 
-**Owner-approved Login exception:** system and in-screen Back are blocked by UI
-while CAPTCHA, OTP request or verification is loading. Do not repeat this UI gate
-inside Cubit actions. Other service flows keep their existing Back/exit policy.
+**Owner-approved project-wide policy:** system and in-screen Back are blocked by
+UI while any request in the owning flow is loading. Do not repeat this gate inside
+Cubit actions. After loading, retain each flow's exit/confirmation behavior.
 Login's OTP resend button uses isLoading for pending verification and only
 canResendOtp in onPressed. AuthState retains the LoginCaptcha model as the single
 source of its image/SessionId pair, without a separate sessionId field. The Cubit
@@ -1935,12 +1939,17 @@ The complete list is provided in the separate document "Bank Requirements and De
 
 ## 21. Change Log
 
-**2.0.1 — owner-approved Login amendment:** Section 11.3 defines one shared
-Failure, Persian error-message preparation in Presentation and existing-effectId-based
-Listener delivery, while preserving Result/.then and Data-owned HTTP-200 business
-rejection handling. Sections 12, 14 and 15 record the scoped message, loading/Back,
-resend-button and CAPTCHA session ownership rules. Other features, dependencies
-and pending bank/security contracts are unchanged.
+**2026-10-25 owner amendment:** project-wide shared latest Failure/prepared message,
+independent operation-status listeners, no effect/navigation/message sequence IDs,
+Back blocked during all pending requests and loading-capable buttons using
+`isLoading`. Reusable interactions are consumed before awaiting UI operations.
+Postal lookup is an independent `features/postal_offices` feature shared by cheque
+clearance/cancellation; Cubits never live under `shared`. Home-only service-picker
+logic belongs to HomeCubit. App images use `AppConstants.baseImage` from
+`core/config/constant.dart` (prefix `assets/images/`), without asset alias registries.
+The common pure message mapper belongs to `core/presentation/mappers`.
+HTTP-200 business rejections remain Data-owned `Err` values; no endpoint, token
+policy or dependency was added by this migration.
 
 **2026-10-18 owner simplicity amendment:** `BaseCubit` (`core/cubit/base_cubit.dart`) is removed from the directory tree and from the design; `isClosed` is prohibited everywhere (Sections 12.2, 12.4, 12.7, 16.3) — the Cubit is released with its screen; validation runs once per field and use cases no longer repeat form checks (Sections 7.3, 7.4, 12.4); initial actions exist only for real fetches; the Section 12.2 snippet no longer references an undefined `cubit`. See coding contract v1.9.
 

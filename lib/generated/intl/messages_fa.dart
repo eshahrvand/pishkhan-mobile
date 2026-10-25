@@ -141,8 +141,9 @@ class MessageLookup extends MessageLookupByLibrary {
     ),
     "appTitle": MessageLookupByLibrary.simpleMessage("پیشخوان مجازی رسالت"),
     "assetReport": MessageLookupByLibrary.simpleMessage("گزارش تمکن"),
-        "authChangePhoneUnavailable": MessageLookupByLibrary.simpleMessage(
-            "سرویس تغییر شماره همراه هنوز متصل نشده است."),
+    "authChangePhoneUnavailable": MessageLookupByLibrary.simpleMessage(
+      "سرویس تغییر شماره همراه هنوز متصل نشده است.",
+    ),
     "authInvalidCaptcha": MessageLookupByLibrary.simpleMessage(
       "کد امنیتی ۶ رقمی را وارد کنید",
     ),
@@ -152,12 +153,15 @@ class MessageLookup extends MessageLookupByLibrary {
     "authInvalidPhone": MessageLookupByLibrary.simpleMessage(
       "شماره همراه ۱۱ رقمی با ۰۹ را وارد کنید",
     ),
-        "authNetworkError": MessageLookupByLibrary.simpleMessage(
-            "ارتباط با سرور برقرار نشد. دوباره تلاش کنید."),
-        "authOtpRejected": MessageLookupByLibrary.simpleMessage(
-            "رمز تأیید صحیح نیست یا اعتبار آن تمام شده است."),
-        "authRequestFailed": MessageLookupByLibrary.simpleMessage(
-            "درخواست انجام نشد. اطلاعات را بررسی و دوباره تلاش کنید."),
+    "authNetworkError": MessageLookupByLibrary.simpleMessage(
+      "ارتباط با سرور برقرار نشد. دوباره تلاش کنید.",
+    ),
+    "authOtpRejected": MessageLookupByLibrary.simpleMessage(
+      "رمز تأیید صحیح نیست یا اعتبار آن تمام شده است.",
+    ),
+    "authRequestFailed": MessageLookupByLibrary.simpleMessage(
+      "درخواست انجام نشد. اطلاعات را بررسی و دوباره تلاش کنید.",
+    ),
     "automaticCompleted": MessageLookupByLibrary.simpleMessage(
       "انجام شده خودکار",
     ),

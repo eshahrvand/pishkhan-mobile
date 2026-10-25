@@ -40,7 +40,7 @@ construction and mutations.
 Shared cards accept localized labels, the outlined white appearance from these
 frames, and an address review-status slot. Existing defaults remain available to
 previous callers. Existing matching assets are reused; six missing SVG assets
-are bundled and registered in `AppAssets`.
+are bundled and referenced with `AppConstants.baseImage`.
 
 ## Change mobile number
 

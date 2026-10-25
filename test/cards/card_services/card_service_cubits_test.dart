@@ -213,13 +213,12 @@ void main() {
       cubit.updateTermsAcceptance(true);
       await cubit.submitDepositChange();
       expect(cubit.state.catalogStatus, RequestStatus.success);
-      expect(cubit.state.catalogFailure, isNull);
-      expect(cubit.state.submissionFailure, isA<DataFailure>());
+      expect(cubit.state.failure, isA<DataFailure>());
       expect(cubit.state.canSubmit, isTrue);
       cubit.selectCard(
         cubit.state.catalog!.cards.firstWhere((card) => card.id == 'card-3'),
       );
-      expect(cubit.state.submissionFailure, isNull);
+      expect(cubit.state.failure, isNull);
       expect(cubit.state.destination, isNull);
       cubit.selectDestination(cubit.state.destinations.first);
       cubit.updateTermsAcceptance(true);
@@ -262,7 +261,7 @@ void main() {
     cubit.selectDestination(cubit.state.destinations.last);
     expect(cubit.state.termsAccepted, isFalse);
     expect(cubit.state.canSubmit, isFalse);
-    expect(cubit.state.submissionFailure, isNull);
+    expect(cubit.state.failure, isNull);
     cubit.updateTermsAcceptance(true);
     await cubit.submitDepositChange();
     expect(
@@ -321,9 +320,8 @@ void main() {
       addTearDown(cubit.close);
       await cubit.fetchCatalog();
       expect(cubit.state.catalogStatus, RequestStatus.failure);
-      expect(cubit.state.catalogFailure, isA<DataFailure>());
+      expect(cubit.state.failure, isA<DataFailure>());
       expect(cubit.state.submissionStatus, RequestStatus.initial);
-      expect(cubit.state.submissionFailure, isNull);
     },
   );
 
@@ -477,9 +475,8 @@ void main() {
     cubit.updateTermsAcceptance(true);
     await cubit.submitCurrentStep();
     expect(cubit.state.submissionStatus, RequestStatus.failure);
-    expect(cubit.state.submissionFailure, isA<DataFailure>());
+    expect(cubit.state.failure, isA<DataFailure>());
     expect(cubit.state.catalogStatus, RequestStatus.success);
-    expect(cubit.state.catalogFailure, isNull);
     expect(cubit.state.canContinue, isTrue);
     // Consent and an unchanged review do not alter the payload.
     cubit.updateTermsAcceptance(false);
@@ -516,7 +513,7 @@ void main() {
     await cubit.submitCurrentStep();
     cubit.selectDestination(cubit.state.catalog!.deposits.last);
     expect(cubit.state.termsAccepted, isFalse);
-    expect(cubit.state.submissionFailure, isNull);
+    expect(cubit.state.failure, isNull);
     cubit.updateTermsAcceptance(true);
     await cubit.submitCurrentStep();
     expect(
@@ -559,12 +556,11 @@ void main() {
       expect(repository.loadCalls, 0);
       await cubit.fetchCatalog();
       expect(cubit.state.catalogStatus, RequestStatus.failure);
-      expect(cubit.state.catalogFailure, isA<UnexpectedFailure>());
-      expect(cubit.state.submissionFailure, isNull);
+      expect(cubit.state.failure, isA<UnexpectedFailure>());
       repository.throwLoad = false;
       await cubit.fetchCatalog();
       expect(cubit.state.catalogStatus, RequestStatus.success);
-      expect(cubit.state.catalogFailure, isNull);
+      expect(cubit.state.failure, isNull);
       expect(cubit.state.query, '۵۰۴۱');
     },
   );

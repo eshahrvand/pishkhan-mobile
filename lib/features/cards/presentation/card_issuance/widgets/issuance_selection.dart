@@ -1,8 +1,8 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 import '../../../domain/entities/issuance_data.dart';
 import '../cubit/card_issuance_cubit.dart';
@@ -50,7 +50,7 @@ class IssuanceSelection extends StatelessWidget {
                     IssuanceCurrentCardRow(
                       label: S.current.issuanceCurrentCard,
                       value: state.draft.deposit!.cardNumber,
-                      asset: AppAssets.issuanceCredit,
+                      asset: '${AppConstants.baseImage}issuance_credit.svg',
                     ),
                     const SizedBox(height: 12),
                     SizedBox(
@@ -60,7 +60,8 @@ class IssuanceSelection extends StatelessWidget {
                         minHeight: .5,
                         maxHeight: .5,
                         child: AvpImage(
-                          image: AppAssets.issuanceCardDivider,
+                          image:
+                              '${AppConstants.baseImage}issuance_card_divider.svg',
                           fit: BoxFit.fill,
                         ),
                       ),
@@ -69,7 +70,7 @@ class IssuanceSelection extends StatelessWidget {
                     IssuanceCurrentCardRow(
                       label: S.current.issuanceExpiry,
                       value: state.draft.deposit!.expiry,
-                      asset: AppAssets.issuanceCalendar,
+                      asset: '${AppConstants.baseImage}issuance_calendar.svg',
                     ),
                   ],
                 ),

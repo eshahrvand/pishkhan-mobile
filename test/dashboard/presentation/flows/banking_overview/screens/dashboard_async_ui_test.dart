@@ -123,6 +123,10 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(dashboardButton(S.current.dashboardRetry), findsOneWidget);
+    tester
+        .state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger))
+        .clearSnackBars();
+    await tester.pumpAndSettle();
     await tester.tap(
       find
           .descendant(

@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
+
 import 'dart:async';
 
 import 'package:pishkhan_mobile/core/result/result.dart';
@@ -25,7 +27,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/login/screens/auth_screen.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/login/cubit/auth_cubit.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/shared/auth_assets.dart';
 
 const previewKey = Key('auth_preview');
 
@@ -84,8 +85,14 @@ void main() {
     await tester.pumpAndSettle();
     await tester.runAsync(() async {
       final context = tester.element(find.byType(AuthScreen));
-      await precacheImage(const AssetImage(AuthAssets.background), context);
-      await precacheImage(const AssetImage(AuthAssets.captcha), context);
+      await precacheImage(
+        const AssetImage('${AppConstants.baseImage}auth_background.png'),
+        context,
+      );
+      await precacheImage(
+        const AssetImage('${AppConstants.baseImage}auth_captcha.png'),
+        context,
+      );
     });
     await tester.pumpAndSettle();
     final cubit = tester

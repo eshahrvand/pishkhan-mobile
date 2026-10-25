@@ -62,10 +62,12 @@ void main() {
     cubit.selectType(DeliveryAddressType.work);
     expect(cubit.state.type, DeliveryAddressType.home);
     expect(cubit.state.detail, 'new detail');
-    expect(cubit.state.minimumHomeNoticeId, 1);
+    expect(cubit.state.effect, AddressEditorEffect.minimumHomeNotice);
+    cubit.consumeAddressEditorInteraction();
+    expect(cubit.state.effect, isNull);
     expect(cubit.state.savedAddress, isNull);
     cubit.selectType(DeliveryAddressType.work);
-    expect(cubit.state.minimumHomeNoticeId, 2);
+    expect(cubit.state.effect, AddressEditorEffect.minimumHomeNotice);
     cubit.submitAddress();
     expect(cubit.state.savedAddress!.type, DeliveryAddressType.home);
     expect(cubit.state.savedAddress!.detail, 'new detail');

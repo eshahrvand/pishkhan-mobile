@@ -1,8 +1,8 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_bottom_sheet_header.dart';
 
 import '../../shared/card_service_sheet.dart';
@@ -33,7 +33,9 @@ class GiftBalanceFilterSheet extends StatelessWidget {
             children: [
               AppBottomSheetHeader(
                 title: S.current.cardFeatureFilter,
-                rightIcon: cardServiceIcon(AppAssets.cardFeaturesFilterHeader),
+                rightIcon: cardServiceIcon(
+                  '${AppConstants.baseImage}card_features_filter_header.svg',
+                ),
                 showLeftAction: false,
               ),
               Padding(
@@ -48,7 +50,9 @@ class GiftBalanceFilterSheet extends StatelessWidget {
                     letterSpacing: 0,
                     color: context.colors.textPrimary,
                   ),
-                  trailing: cardServiceIcon(AppAssets.cardFeaturesChevron),
+                  trailing: cardServiceIcon(
+                    '${AppConstants.baseImage}card_features_chevron.svg',
+                  ),
                   options: [
                     for (final filter in state.filterOptions)
                       AppSelectOption(

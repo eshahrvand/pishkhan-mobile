@@ -1,6 +1,6 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 /// The existing Figma informational surface, reused by date and file guidance.
 class TransferNotice extends StatelessWidget {
@@ -28,7 +28,7 @@ class TransferNotice extends StatelessWidget {
           child: Row(
             children: [
               AvpImage(
-                image: AppAssets.passwordCameraInfo,
+                image: '${AppConstants.baseImage}password_camera_info.svg',
                 width: 20,
                 height: 20,
               ),

@@ -1,9 +1,9 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
 
@@ -39,7 +39,9 @@ class _MobileBankGuideScreenState extends State<MobileBankGuideScreen> {
                     showLeadingActions: false,
                     trailingIcon: SizedBox.square(
                       dimension: 24,
-                      child: AvpImage(image: AppAssets.depositFeatureBack),
+                      child: AvpImage(
+                        image: '${AppConstants.baseImage}deposit_list_back.svg',
+                      ),
                     ),
                     trailingTooltip: S.current.backLabel,
                     onTrailingPressed: () {
@@ -181,8 +183,8 @@ String getModernBankGuideText(int page) => switch (page) {
   _ => S.current.modernGuidePassword,
 };
 String getModernBankGuideImage(int page) => switch (page) {
-  0 => AppAssets.modernGuide1,
-  1 => AppAssets.modernGuide2,
-  2 => AppAssets.modernGuide3,
-  _ => AppAssets.modernGuide4,
+  0 => '${AppConstants.baseImage}modern_guide_1.png',
+  1 => '${AppConstants.baseImage}modern_guide_2.png',
+  2 => '${AppConstants.baseImage}modern_guide_3.png',
+  _ => '${AppConstants.baseImage}modern_guide_4.png',
 };

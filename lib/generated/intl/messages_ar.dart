@@ -111,8 +111,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "assetReport": MessageLookupByLibrary.simpleMessage(
       "تقرير الملاءة المالية",
     ),
-        "authChangePhoneUnavailable": MessageLookupByLibrary.simpleMessage(
-            "خدمة تغيير رقم الهاتف غير متصلة بعد."),
+    "authChangePhoneUnavailable": MessageLookupByLibrary.simpleMessage(
+      "خدمة تغيير رقم الهاتف غير متصلة بعد.",
+    ),
     "authInvalidCaptcha": MessageLookupByLibrary.simpleMessage(
       "أدخل رمز الأمان المكون من 6 أرقام",
     ),
@@ -122,12 +123,15 @@ class MessageLookup extends MessageLookupByLibrary {
     "authInvalidPhone": MessageLookupByLibrary.simpleMessage(
       "أدخل رقم الهاتف المكون من 11 رقماً ويبدأ بـ 09",
     ),
-        "authNetworkError": MessageLookupByLibrary.simpleMessage(
-            "تعذر الاتصال بالخادم. حاول مجدداً."),
-        "authOtpRejected": MessageLookupByLibrary.simpleMessage(
-            "رمز التحقق غير صحيح أو انتهت صلاحيته."),
-        "authRequestFailed": MessageLookupByLibrary.simpleMessage(
-            "تعذر إتمام الطلب. تحقق من المعلومات وحاول مجدداً."),
+    "authNetworkError": MessageLookupByLibrary.simpleMessage(
+      "تعذر الاتصال بالخادم. حاول مجدداً.",
+    ),
+    "authOtpRejected": MessageLookupByLibrary.simpleMessage(
+      "رمز التحقق غير صحيح أو انتهت صلاحيته.",
+    ),
+    "authRequestFailed": MessageLookupByLibrary.simpleMessage(
+      "تعذر إتمام الطلب. تحقق من المعلومات وحاول مجدداً.",
+    ),
     "automaticCompleted": MessageLookupByLibrary.simpleMessage(
       "اكتمل تلقائياً",
     ),

@@ -399,7 +399,7 @@ void main() {
       );
       expect(
         t.widget<AppTopBar>(find.byType(AppTopBar)).onTrailingPressed,
-        isNotNull,
+        isNull,
       );
       repository.checking!.complete(
         const Success(

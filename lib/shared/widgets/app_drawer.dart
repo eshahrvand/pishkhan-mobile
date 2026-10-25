@@ -1,9 +1,10 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
+
 import 'app_drawer_header.dart';
 import 'app_drawer_navigation.dart';
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 /// The Figma-exported icons used by the Pishkhan drawer examples.
 ///
@@ -11,28 +12,43 @@ import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 /// helpers provide the canonical local assets for the shared-component gallery
 /// and for product areas that use the same navigation vocabulary.
 abstract final class AppDrawerIcons {
-  static Widget close() => _svg(AppAssets.drawerClose, width: 24, height: 24);
-  static Widget resalat() =>
-      _svg(AppAssets.drawerResalat, width: 30.108, height: 30);
-  static Widget chevronDown() => _svg(AppAssets.drawerChevronDown);
-  static Widget chevronUp() => _svg(AppAssets.drawerChevronUp);
-  static Widget home() => _svg(AppAssets.drawerHome);
-  static Widget modernBanking() => _svg(AppAssets.drawerModernBanking);
-  static Widget card() => _svg(AppAssets.drawerCard);
-  static Widget cheque() => _svg(AppAssets.drawerCheque);
-  static Widget moneyTransfer() => _svg(AppAssets.drawerMoneyTransfer);
-  static Widget loan() => _svg(AppAssets.drawerLoan);
-  static Widget deposit() => _svg(AppAssets.drawerDeposit);
-  static Widget wallet() => _svg(AppAssets.iconWallet20Gray600);
+  static Widget close() =>
+      _svg('${AppConstants.baseImage}drawer_close.svg', width: 24, height: 24);
+  static Widget resalat() => _svg(
+    '${AppConstants.baseImage}drawer_resalat.svg',
+    width: 30.108,
+    height: 30,
+  );
+  static Widget chevronDown() =>
+      _svg('${AppConstants.baseImage}drawer_chevron_down.svg');
+  static Widget chevronUp() =>
+      _svg('${AppConstants.baseImage}drawer_chevron_up.svg');
+  static Widget home() => _svg('${AppConstants.baseImage}drawer_home.svg');
+  static Widget modernBanking() =>
+      _svg('${AppConstants.baseImage}drawer_modern_banking.svg');
+  static Widget card() => _svg('${AppConstants.baseImage}drawer_card.svg');
+  static Widget cheque() => _svg('${AppConstants.baseImage}drawer_cheque.svg');
+  static Widget moneyTransfer() =>
+      _svg('${AppConstants.baseImage}drawer_money_transfer.svg');
+  static Widget loan() => _svg('${AppConstants.baseImage}drawer_loan.svg');
+  static Widget deposit() =>
+      _svg('${AppConstants.baseImage}drawer_deposit.svg');
+  static Widget wallet() =>
+      _svg('${AppConstants.baseImage}icon_wallet_20_gray600.svg');
   static Widget personalInformation() =>
-      _svg(AppAssets.drawerPersonalInformation);
-  static Widget personalInformationDeselected() =>
-      _svg(AppAssets.drawerPersonalInformationDeselected);
-  static Widget myRequests() => _svg(AppAssets.drawerMyRequests);
+      _svg('${AppConstants.baseImage}drawer_personal_information.svg');
+  static Widget personalInformationDeselected() => _svg(
+    '${AppConstants.baseImage}drawer_personal_information_deselected.svg',
+  );
+  static Widget myRequests() =>
+      _svg('${AppConstants.baseImage}drawer_my_requests.svg');
   static Widget submenuLine({required double height}) => SizedBox(
     width: 2,
     height: height,
-    child: AvpImage(image: AppAssets.drawerSubmenuLine, fit: BoxFit.fill),
+    child: AvpImage(
+      image: '${AppConstants.baseImage}drawer_submenu_line.svg',
+      fit: BoxFit.fill,
+    ),
   );
 
   static Widget _svg(String path, {double width = 20, double height = 20}) {

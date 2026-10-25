@@ -1,7 +1,7 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/certificate_fields.dart';
 
 import '../../../domain/entities/cheque_book.dart';
@@ -51,7 +51,7 @@ class ChequeBookResidenceCard extends StatelessWidget {
                   child: InkWell(
                     onTap: onDelete,
                     child: const AvpImage(
-                      image: AppAssets.fileUploadTrash,
+                      image: '${AppConstants.baseImage}file_upload_trash.svg',
                       width: 20,
                       height: 20,
                     ),
@@ -62,7 +62,7 @@ class ChequeBookResidenceCard extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           const AvpImage(
-            image: AppAssets.chequeBookResidenceDivider,
+            image: '${AppConstants.baseImage}chequebook_residence_divider.svg',
             height: .5,
             fit: BoxFit.fill,
           ),

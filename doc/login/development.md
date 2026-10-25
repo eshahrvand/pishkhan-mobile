@@ -98,7 +98,7 @@ form and OTP values are controlled by `AuthCubit`.
 The background PNG is an export of the background artwork node
 `27847:4238`, not a screenshot of the screen. All visible login SVGs and
 the CAPTCHA example are downloaded from the supplied frames and registered
-in `AppAssets`. Existing asset paths are reused.
+using `AppConstants.baseImage`. Existing asset paths are reused.
 
 ## Interaction and integration
 

@@ -20,6 +20,7 @@ class TransferForm extends StatelessWidget {
         if (state.catalogStatus == RequestStatus.failure) {
           return Center(
             child: AppButton(
+              isLoading: state.catalogStatus == RequestStatus.loading,
               label: S.current.dashboardRetry,
               onPressed: () {
                 context.read<OnSiteTransferCubit>().fetchCatalog();

@@ -30,7 +30,7 @@ void main() {
 
   for (final financial in [false, true]) {
     testWidgets(
-      '${financial ? "financial" : "average"} pending submission gates repeated taps and permits Back',
+      '${financial ? "financial" : "average"} pending submission gates repeated taps and blocks Back',
       (tester) async {
         final pending = Completer<Result<CertificateReceipt>>();
         final averageRepository = CertificateTestRepository()
@@ -94,25 +94,23 @@ void main() {
 
         await tester.tap(find.byTooltip(S.current.backLabel));
         await tester.pump(const Duration(milliseconds: 300));
-        final next = find.byWidgetPredicate(
-          (widget) =>
-              widget is AppButton && widget.label == S.current.issuanceNext,
-        );
-        expect(next, findsOneWidget);
-        expect(tester.widget<AppButton>(next).isLoading, isTrue);
-        await tester.tap(find.byType(AppToggle).first, warnIfMissed: false);
+        expect(submit, findsOneWidget);
+        expect(tester.widget<AppButton>(submit).isLoading, isTrue);
+        await tester.binding.handlePopRoute();
         await tester.pump();
         final context = tester.element(find.byType(AppStepper));
         expect(
           financial
-              ? context.read<FinancialCertificateCubit>().state.isOtherRecipient
-              : context.read<AverageBalanceCubit>().state.isOtherRecipient,
-          isFalse,
+              ? context.read<FinancialCertificateCubit>().state.step ==
+                    FinancialCertificateStep.confirmation
+              : context.read<AverageBalanceCubit>().state.step ==
+                    AverageBalanceStep.confirmation,
+          isTrue,
         );
 
         pending.complete(const Err(UnexpectedFailure()));
         await tester.pumpAndSettle();
-        expect(tester.widget<AppButton>(next).isLoading, isFalse);
+        expect(tester.widget<AppButton>(submit).isLoading, isFalse);
         expect(tester.takeException(), isNull);
         await tester.pumpWidget(const SizedBox.shrink());
       },

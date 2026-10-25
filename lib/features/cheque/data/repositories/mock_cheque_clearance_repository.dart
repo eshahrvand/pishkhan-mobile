@@ -18,54 +18,12 @@ class MockChequeClearanceRepository implements ChequeClearanceRepository {
       ChequeDeposit(id: 'cheque-deposit-1', number: '10.1234567.1'),
     ],
     reasons: ChequeClearanceReason.values,
-    provinces: [
-      PostalProvince(
-        id: 'tehran',
-        name: 'تهران',
-        cities: const [
-          PostalCity(id: 'tehran-north-east', name: 'منطقه پستی شمال شرق'),
-          PostalCity(id: 'tehran-central', name: 'تهران مرکزی'),
-        ],
-      ),
-      PostalProvince(
-        id: 'isfahan',
-        name: 'اصفهان',
-        cities: const [PostalCity(id: 'isfahan-city', name: 'اصفهان')],
-      ),
-    ],
     mailingAddress: 'صندوق پستی ۱۶۶۳-۱۳۱۸۵ ، به نام مرکز خزانه داری و مبادلات بانک قرض الحسنه رسالت',
   );
-  static const _offices = {
-    'tehran-north-east': [
-      PostalOffice(
-        id: 'niavaran',
-        address: 'سه راه یاسر، خیابان شهید باهنر، روبروی ساختمان سروش، کارگاه نیاوران',
-      ),
-      PostalOffice(
-        id: 'iranshahr',
-        address: 'ایرانشهر جنوبی، نرسیده به انقلاب، کارگاه ایرانشهر',
-      ),
-    ],
-    'tehran-central': [
-      PostalOffice(
-        id: 'iranshahr',
-        address: 'ایرانشهر جنوبی، نرسیده به انقلاب، کارگاه ایرانشهر',
-      ),
-    ],
-    'isfahan-city': <PostalOffice>[],
-  };
 
   @override
   Future<Result<ChequeClearanceCatalog>> fetchCatalog() async =>
       Success(_catalog);
-
-  @override
-  Future<Result<List<PostalOffice>>> fetchPostalOffices(String cityId) async {
-    final offices = _offices[cityId];
-    return offices == null
-        ? const Err(DataFailure('cheque.postal-city-invalid'))
-        : Success(List.unmodifiable(offices));
-  }
 
   @override
   Future<Result<ChequeClearanceReceipt>> submitClearance(

@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
+
 import 'dashboard_favorites_grid.dart';
 
 import 'package:avp_ui/avp_ui.dart';
@@ -5,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/home/cubit/home_cubit.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/dashboard_services.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 class DashboardFavoritesCard extends StatelessWidget {
   const DashboardFavoritesCard({
@@ -62,7 +63,7 @@ class DashboardFavoritesCard extends StatelessWidget {
                   child: AppButton(
                     onPressed: onReset,
                     icon: AvpImage(
-                      image: AppAssets.dashboardReset,
+                      image: '${AppConstants.baseImage}dashboard_reset.svg',
                       width: 20,
                       height: 20,
                     ),
@@ -79,7 +80,7 @@ class DashboardFavoritesCard extends StatelessWidget {
                     label: S.current.dashboardEdit,
                     foregroundColor: AppDashboardColors.favoritesAction,
                     leadingIcon: AvpImage(
-                      image: AppAssets.dashboardEdit,
+                      image: '${AppConstants.baseImage}dashboard_edit.svg',
                       width: 20,
                       height: 20,
                     ),
@@ -130,7 +131,8 @@ class DashboardFavoritesCard extends StatelessWidget {
                       child: Row(
                         children: [
                           AvpImage(
-                            image: AppAssets.authInfoCircle,
+                            image:
+                                '${AppConstants.baseImage}auth_info_circle.svg',
                             width: 20,
                             height: 20,
                           ),

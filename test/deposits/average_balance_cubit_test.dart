@@ -156,7 +156,7 @@ void main() {
       repo.loader = () async => Success(repo.catalog);
       await retry.fetchCatalog();
       expect(retry.state.catalogStatus, RequestStatus.success);
-      expect(retry.state.catalogFailure, isNull);
+      expect(retry.state.failure, isNull);
       await retry.close();
     },
   );

@@ -111,7 +111,7 @@ The architectural product targets Android, iOS and mobile Safari as the iOS fall
 | Equality | Equatable 2.0.7 domain entities; Freezed State and immutable collections | Keep immutable state contracts |
 | Domain | Dashboard summary entities, repository interfaces and loading use cases | Validated service DTO mapping |
 | Data | Async mock repository implementations and centralized mock fixtures | Remote datasources, transport DTOs, mappers and live repositories |
-| Localization/artwork | fa/en/ar ARBs, local AppAssets, flutter_svg and PNGs | Optional remote icon resolver/cache |
+| Localization/artwork | fa/en/ar ARBs, local AppConstants.baseImage paths, flutter_svg and PNGs | Optional remote icon resolver/cache |
 | Routing | IndexedStack, Navigator; core notification navigation adapter | Service registry and authenticated guards |
 | Errors | Typed Result/Failure with coded failures | Transport/auth/contract failures mapped by data layer |
 | Testing | flutter_test unit/widget/geometry tests | Service contract and device tests |
@@ -182,12 +182,11 @@ lib/features/dashboard/
         cubit/loans_state.dart              LoansState alias, LoansLoaded
     shared/
       dashboard_services.dart              46 local service IDs and nine categories
-      dashboard_assets.dart                feature aliases for AppAssets
       widgets/
         dashboard_async_view.dart          loading/error/retry/empty composition
         dashboard_bank_services.dart       fixed grid and favorite editor
         dashboard_service_tile.dart        service artwork/icon composition
-        dashboard_services_sheet.dart      catalog/query/category sheet + reset sheet
+        dashboard_reset_sheet.dart         reset confirmation sheet
         dashboard_all_services_screen.dart full catalog and category heading
         dashboard_reso_banner.dart         prompt resources/animation/lifecycle
         dashboard_header.dart              shared top bar wrapper
@@ -196,8 +195,9 @@ lib/core/result/
   failure.dart                             Failure, DataFailure, UnexpectedFailure
 lib/core/router/
   dashboard_notifications_navigation.dart  standalone notification navigation/cache
+lib/core/config/
+  constant.dart                            direct app image prefix
 lib/shared/
-  assets/app_assets.dart                    canonical local asset registry
   widgets/                                 reusable visual widgets; see Section 13
 lib/l10n/                                  fa/en/ar ARBs + generated localizations
 test/dashboard/
@@ -306,7 +306,7 @@ Dashboard services are instances of a compile-time enum, not records decoded fro
 | ID | DashboardService.id, DepositAction.id, LoanAction.id, CardAction.id | Fixed supported IDs; favorites choose among them | Server may select known IDs. Add DTO parsing/registry resolution; unknown IDs must not reach firstWhere |
 | Title | DashboardService.label/catalogLabel, DepositAction.label, CardsTab._label -> ARB getters | Locale-dependent, not arbitrary server copy | Add localized text map and optional known localization key; server text wins only with defined fallback |
 | Description/supporting text | Reso banner and wallet ARBs; service item has no description field | Localized constants | Extend feature presentation model and an approved existing-component slot/variant before showing description |
-| Icon | Enum asset switches + AppAssets local files | Selection of fixed/editing/saved variants is dynamic; source is local | Server iconKey resolver is easiest; URLs require renderer, cache, fallback and geometry contract |
+| Icon | Enum asset switches + direct local image paths | Selection of fixed/editing/saved variants is dynamic; source is local | Server iconKey resolver is easiest; URLs require renderer, cache, fallback and geometry contract |
 | Item order | Home repository supplies fixedServiceIds/suggestedServiceIds; enum category and deposit/loan lists remain local | Repository and favorite ordering dynamic; mock defaults hard-coded | Sort validated server rank with stable ID tie-break; permit groups and ordered feature ID arrays |
 | Category/group | DashboardCategory.services; deposit groups in screen | Filtered by query/category and deposit flag | Server can assign supported category keys/groups; unknown group types require fallback or omission |
 | Visible | Fixed enum inclusion; search/category filtering; hasChequeOperations; nonempty lists | Local filters and deposit data only | Map explicit visibility/capabilities to view model; filter before building widgets |
@@ -327,7 +327,7 @@ The shared AppServiceGridItem fields are exactly `id`, `label`, `icon` (a Widget
 
 ### 10.2 Exact icon sources and mappings
 
-All feature artwork is local under the flat `assets/images/` folder, registered by `AppAssets` in `lib/shared/assets/app_assets.dart`, and bundled by `pubspec.yaml`'s `assets/images/` entry. Feature icons are SVGs rendered by flutter_svg, not an icon font or a Material icon catalog. The application uses the package's IRANYekan font for text only.
+All feature artwork is local under the flat `assets/images/` folder, referenced directly using `AppConstants.baseImage` from `lib/core/config/constant.dart`, and bundled by `pubspec.yaml`'s `assets/images/` entry. Feature icons are SVGs rendered by flutter_svg, not an icon font or a Material icon catalog. The application uses the package's IRANYekan font for text only.
 
 The dashboard mapping is in `lib/features/dashboard/presentation/shared/dashboard_services.dart`:
 - `catalogAsset`: full catalog and fallback tiles.
@@ -336,7 +336,7 @@ The dashboard mapping is in `lib/features/dashboard/presentation/shared/dashboar
 - `tileAsset(editing:, full:)`: precomposed favorite artwork when available. The current `full` argument does not alter its switch result.
 - `DashboardCategory.asset/activeAsset`: category icons.
 
-`DashboardServiceTile` in `presentation/shared/widgets/dashboard_service_tile.dart` chooses precomposed AppServiceArtworkTile or a local wave + catalog icon. Cheque issuance has a specific `AppAssets.dashboardFavoriteChequeIcon` composition. The fixed assistant uses shared `AppAssistantIcon`, composed from `dashboardAssistantSpark` and `dashboardAssistantStar`; the inventory table's fallback star path is not the whole fixed assistant visual.
+`DashboardServiceTile` in `presentation/shared/widgets/dashboard_service_tile.dart` chooses precomposed AppServiceArtworkTile or a local wave + catalog icon. Cheque issuance has a specific `${AppConstants.baseImage}dashboard_favorite_cheque_icon.svg` composition. The fixed assistant uses shared `AppAssistantIcon`, composed from `dashboardAssistantSpark` and `dashboardAssistantStar`; the inventory table's fallback star path is not the whole fixed assistant visual.
 
 Favorite artwork mappings:
 | Service | Saved file | Editing file |
@@ -350,7 +350,7 @@ Favorite artwork mappings:
 | loan-deposit | Fallback wave + catalog icon | `assets/images/dashboard_favorite_loan_deposit_edit.svg` |
 | Other services | Fallback wave + catalog icon | Same fallback, inside editor wrapper |
 
-Fallback wave: `assets/images/dashboard_tile_wave.svg`. Decorative/banner images: `dashboard_reso.png`, `dashboard_texture.png`, local glows and prompt arrow via AppAssets in DashboardResoBanner. Header pattern and header-action aliases are DashboardAssets in `shared/dashboard_assets.dart`. These are app dashboard artwork, not backend feature-item icons.
+Fallback wave: `assets/images/dashboard_tile_wave.svg`. Decorative/banner images: `dashboard_reso.png`, `dashboard_texture.png`, local glows and prompt arrow via direct AppConstants.baseImage paths in DashboardResoBanner. Header pattern and header-action paths use the same AppConstants.baseImage prefix. These are app dashboard artwork, not backend feature-item icons.
 
 The complete compile-time service inventory follows; the table resolves the actual switch fallbacks, including generic “more” artwork. It lists all 46 enum values; the nine-category catalog contains 45 entries because assistant is outside those category lists.
 
@@ -441,11 +441,11 @@ Deposit icon mapping is in `lib/features/dashboard/presentation/tabs/deposits/de
 
 The Cards category active file is `assets/images/dashboard_category_card_active.svg`. Search headings use `assets/images/dashboard_search_card.svg`, `dashboard_search_wallet.svg` and `dashboard_search_identity.svg` for those three categories; all other headings use the category mapping above. Category dividers are resolved by DashboardCategoryHeading in the same all-services source.
 
-Cards use `CardsTab._asset(CardAction)` in `lib/features/dashboard/presentation/tabs/cards/cards_tab.dart`, resolving `AppAssets.cardsAction*` and `cardsQuick*` in the same registry. Notifications use `notification_*.svg` and `notification_security.png`. Shared navigation owns dashboard_nav_*.svg and cards_nav_*.svg. None of these callsites is currently a network renderer.
+Cards use `CardsTab._asset(CardAction)` in `lib/features/dashboard/presentation/tabs/cards/cards_tab.dart`, resolving `cards_action_*.svg` and `cards_quick_*.svg` under the same image prefix. Notifications use `notification_*.svg` and `notification_security.png`. Shared navigation owns dashboard_nav_*.svg and cards_nav_*.svg. None of these callsites is currently a network renderer.
 
 ### 10.3 Could icons come from the server?
 
-**Known icon keys:** Yes, with a modest mapping layer. Return a stable key such as `deposit.statement`; map it to AppAssets using an allowlisted registry. This removes server dependence on local file names and permits controlled fallback. It does not add a new glyph when the app has not shipped it.
+**Known icon keys:** Yes, with a modest mapping layer. Return a stable key such as `deposit.statement`; map it to supported local image paths. This removes server dependence on local file names and permits controlled fallback. It does not add a new glyph when the app has not shipped it.
 
 **Remote URLs:** Possible, but not supported by current service widgets without adapter changes. Add a typed icon descriptor (`key`, `url`, `format`, `version`, optional digest); remote loader; timeout/error fallback; bounded memory/disk cache; and a renderer that chooses SVG versus PNG/WebP. Prefer HTTPS on approved asset hosts. Validate declared and actual content types; do not execute arbitrary scripts. SVG gets vector rendering, raster gets ImageProvider/Image with fit behavior. Unsupported formats should show a local fallback.
 
@@ -602,9 +602,9 @@ LoanAction in `lib/features/dashboard/presentation/tabs/loans/loan_actions.dart`
 | relationships / loan-relationships | loansRelationships | `assets/images/loans_quick_relationships.svg` | Quick access |
 | consolidate / loan-consolidate | consolidateDepositCredit | `assets/images/loans_quick_consolidate.svg` | Quick access |
 
-All are registered in `lib/shared/assets/app_assets.dart`. Operations SVG roots are 32×32; quick exports are 70×70.5 with export shadow margin, rendered in the existing 64×64 AppServiceArtworkTile. The quick header reuses `AppAssets.depositsQuickAccess` -> `assets/images/deposits_quick_access.svg` (the same Figma asset reference), and the new pattern is `AppAssets.loansPatternUp` -> `assets/images/loans_pattern_up.svg` (375×122). Binary hash comparison found no exact existing matches for the seven newly downloaded files; no SVG was redrawn or edited.
+All are referenced using `AppConstants.baseImage` from `lib/core/config/constant.dart`. Operations SVG roots are 32×32; quick exports are 70×70.5 with export shadow margin, rendered in the existing 64×64 AppServiceArtworkTile. The quick header reuses `${AppConstants.baseImage}deposits_quick_access.svg` -> `assets/images/deposits_quick_access.svg` (the same Figma asset reference), and the new pattern is `${AppConstants.baseImage}loans_pattern_up.svg` -> `assets/images/loans_pattern_up.svg` (375×122). Binary hash comparison found no exact existing matches for the seven newly downloaded files; no SVG was redrawn or edited.
 
-The loan summary itself uses existing `AppAssets.loanCardCopy`, `loanCardDividerSingle`, `loanCardDividerMulti`, and `arrowButtonArrowLeft` through AppLoanCard/AppArrowButton, not feature-local replacement icons. Navigation uses the existing `dashboardNavLoan`.
+The loan summary itself uses existing `${AppConstants.baseImage}loan_card_copy.svg`, `loanCardDividerSingle`, `loanCardDividerMulti`, and `arrowButtonArrowLeft` through AppLoanCard/AppArrowButton, not feature-local replacement icons. Navigation uses the existing `dashboardNavLoan`.
 
 Loan feature fields are currently:
 - **Title/icon/ID/group/order:** compile-time enum mapping and localized ARBs; move to a server catalog only through the supported action registry.
@@ -751,15 +751,16 @@ owned by UI lifecycle objects; they are not State fields.
 ### 12.4 Effects and integration
 
 `HomeEffect` values describe typed operation requests, selection notifications,
-copy, details, menu, assistant and tab changes. `effectId` identifies repeated
-identical interactions. The dashboard's single listener executes navigation,
+copy, details, menu, assistant and tab changes. Reusable commands are consumed
+when the listener accepts them, so identical interactions can run again without counters. The dashboard's single listener executes navigation,
 clipboard and sheets. HomePanel listens for focus effects. Cubit holds no
 BuildContext, controllers or UI callback fields. Services use the existing registry
 and retain the selected card/deposit context. Unsupported destinations retain their
 previous behavior; prompt text is stored in State without inventing an assistant backend.
 
-The reusable service picker and animated prompt retain their own component
-lifetimes under `presentation/shared`; they do not own any of the four tab
+The service picker (its sheet and group widgets under `presentation/home/widgets`)
+is owned by HomeCubit; the animated
+prompt retains its own UI lifecycle under `presentation/shared`; they do not own any of the four tab
 catalogs, repository reads or selected banking records. Dedicated standalone
 Cards/Deposits banking service features are outside this dashboard scope.
 
@@ -818,7 +819,7 @@ Recommendation: allow a reviewed shadow/visual variant in AppDepositCard that us
 
 ### 13.4 Known issue: AppPrimaryNavigation selected Deposits icon
 
-Source: `lib/shared/widgets/app_primary_navigation.dart`. The deposit branch always resolves `AppAssets.dashboardNavDeposit` -> `assets/images/dashboard_nav_deposit.svg`. There is no active/inactive branch for that tab.
+Source: `lib/shared/widgets/app_primary_navigation.dart`. The deposit branch always resolves `${AppConstants.baseImage}dashboard_nav_deposit.svg` -> `assets/images/dashboard_nav_deposit.svg`. There is no active/inactive branch for that tab.
 
 The selected tab already gets the blue AppDashboardColors.navActive surface, white label and DemiBold text, but the bundled deposit icon remains gray. Both new frames require a white money-bill icon in the active deposit tab. This was deliberately preserved.
 
@@ -888,7 +889,7 @@ The comparison uses freshly retrieved Figma design context and screenshots, then
 | AppProgressIndicator — avp_ui/lib/widgets/loaders/app_progress_indicator.dart | Linear progress set [15992:142102](https://www.figma.com/design/nYQNyZdSs98lwymCpt5Sag/Pishkhan-AI-Mobile?node-id=15992-142102); loan [27902:82623](https://www.figma.com/design/nYQNyZdSs98lwymCpt5Sag/Pishkhan-AI-Mobile?node-id=27902-82623). Height8, radius4, track #F5F5F5, foreground #1570EF; no gradient/shadow. Foreground now receives full height and proportional width. AppLoanCard's explicit centerLeft gives the Figma physical-left origin in RTL. Actual zero/partial/full geometry and every loan fixture are tested. | Count-based widths intentionally replace Figma's inconsistent sample percentages (Section 13.6). The broader primitive is not exact in all label variants: right-label design has a total320px row with a flexible shorter track; current width320 means track-only plus12px gap and label. Generic RTL default begins at directional start; Figma samples begin physically left. Some Figma0% variants retain an8px stub; app0 is genuinely empty. Floating tooltips use hardcoded offsets/clamps instead of fully matching all endpoint tooltip geometry. These untouched variants need a reviewed compatible API/layout fix; they are not used by loan cards. AppProgressCircle shares the file but its painter/layout were not changed and are not certified by this audit. |
 | AppButton — avp_ui/lib/widgets/buttons/app_button.dart | Button set15699:34979; fetched [sm active15699:34995](https://www.figma.com/design/nYQNyZdSs98lwymCpt5Sag/Pishkhan-AI-Mobile?node-id=15699-34995), md active15699:35395, xl active15699:36195, disabled15699:35035, focused15699:35515, text15699:35715 and loading15705:63267. Heights36/40/44/48, horizontal default padding18/20/22/24,20px icons,8px gap, radius8. Primary active #1570EF/white and xs shadow match. Type sm12/18 Medium; md/lg14/20 DemiBold; xl16/24 DemiBold. Additive horizontalPadding/foregroundColor parameters retain default behavior. Foreground overrides are deliberately ignored when disabled. | Disabled source removes xs shadow although inspected Figma disabled retains it. Focus source uses active brand/error color at .28 alpha, while Figma primary focus ring is opaque #E4F3FF,spread4. Loading source is disabled gray with spinner-only; Figma loading is #175CD3, xs shadow, label plus20px loader. Text-only source retains standard36/40/44/48 hit-area height/padding; Figma visible md text row is20px high. Source has Material splash/hover behavior, not an exact Figma motion specification. Review optional styling states/visible versus accessible hit bounds; do not silently alter other consumers. |
 | AppTextField — avp_ui/lib/widgets/fields/app_text_field.dart | Input set15652:17725; inspected [regular active15652:17946](https://www.figma.com/design/nYQNyZdSs98lwymCpt5Sag/Pishkhan-AI-Mobile?node-id=15652-17946), focused15652:26618 and focused/error15652:28442. Single-line44px, radius8, horizontal14px/vertical10px padding; label14/20 Medium,8px vertical gaps, body16/24 Regular, helper14/20 Regular. Active white/#D5D7DA/xs, focused #1570EF border, error #FDA29B and #F04438 helper match those source values. Added textStyle/onSubmitted/digit normalization are opt-in behavior; no new icon asset is embedded in the field. | Focused Figma variants inspected have xs only; source adds2px or4px primary/error ring. Regular Figma leading icon is a20px icon after8px gap; source uses Material prefix/suffix slots min48×44, so exact content positions need a variant-level layout review. Figma helper can include14px question icon and8px gap; source only displays helper text. AppTextArea delegates to the same field but was not separately changed/certified. AppTextField's fixed44px single-line height remains a large-text constraint. |
-| AppSearchField — same package field file | Search set [15807:44137](https://www.figma.com/design/nYQNyZdSs98lwymCpt5Sag/Pishkhan-AI-Mobile?node-id=15807-44137) includes Active/Hover/Focused/Disabled/Filled/View Only with default/error feedback. Verified44px/radius8, active white/#D5D7DA, hover #A4A7AE border with gray1004px ring, error hover #F97066/#FEE4E2 ring; filled text #181D27; view-only #FAFAFA/#414651; active-error #FFFBFA. clearIcon/searchIcon slots allow existing exact app SVGs instead of forced Material glyphs. | Generic search active hint uses #A4A7AE through AppTextField, while Figma search hint is #717680. Focus adds a source primary/error ring absent from Figma focused search. Default disabled text #A4A7AE matches its inspected text; icon-color differences remain where Figma has #535862. Material default search/close glyphs are not the authored Figma SVGs; Dashboard supplies AppAssets.dashboardCatalogSearch and dashboardSearchClear. Dashboard intentionally supplies14/20 text and subtle2px ring for its frame instance, rather than the generic16/24 design-set type. Clear IconButton uses Material hit-area behavior, not a fixed20px visible slot by itself. The Persian clear tooltip is still package-owned. |
+| AppSearchField — same package field file | Search set [15807:44137](https://www.figma.com/design/nYQNyZdSs98lwymCpt5Sag/Pishkhan-AI-Mobile?node-id=15807-44137) includes Active/Hover/Focused/Disabled/Filled/View Only with default/error feedback. Verified44px/radius8, active white/#D5D7DA, hover #A4A7AE border with gray1004px ring, error hover #F97066/#FEE4E2 ring; filled text #181D27; view-only #FAFAFA/#414651; active-error #FFFBFA. clearIcon/searchIcon slots allow existing exact app SVGs instead of forced Material glyphs. | Generic search active hint uses #A4A7AE through AppTextField, while Figma search hint is #717680. Focus adds a source primary/error ring absent from Figma focused search. Default disabled text #A4A7AE matches its inspected text; icon-color differences remain where Figma has #535862. Material default search/close glyphs are not the authored Figma SVGs; Dashboard supplies ${AppConstants.baseImage}dashboard_catalog_search.svg and dashboardSearchClear. Dashboard intentionally supplies14/20 text and subtle2px ring for its frame instance, rather than the generic16/24 design-set type. Clear IconButton uses Material hit-area behavior, not a fixed20px visible slot by itself. The Persian clear tooltip is still package-owned. |
 | AppTypography — avp_ui/lib/tokens/app_typography.dart | Inspected Button/Input and Dashboard frame typography uses IRANYekanXFaNum at12/18,14/20,16/24, zero tracking; weights Regular400/Medium500/DemiBold600. defaultFontFamily now resolves packages/avp_ui/IRANYekanX, whose font files are declared in avp_ui/pubspec.yaml. The changed family path matches the actual package registration; tests load Regular/Medium/DemiBold/Bold fonts. | Tokens still include Material-scale defaults that need explicit line-height/tracking overrides for individual Figma instances; package font-path correction does not make every text style exact. Static widget tests verify metrics with production fonts; native font rasterization/browser/platform differences are not certified. |
 | AppShadows.bankCard — avp_ui/lib/tokens/app_shadows.dart | Fresh Cards27902:82533 and Loans27902:82623 contexts confirm two layers: #0A0D121A offset(0,4),blur8,spread+2; #0A0D120F offset(0,2),blur4,spread+2 (Figma RGBA hex). Token uses correct Dart ARGB 0x1A0A0D12 and0x0F0A0D12. Existing AppResalatCard applies this matching elevation. | AppDepositCard and AppLoanCard still use md, not bankCard. Their exact mismatch is documented in13.3/13.6. md was not globally corrected; its unusual literals/spread remain pre-existing. |
 | AppShadows focus-ring additions — same token file | Search hover Figma gray100/error100 rings have4px spread,zero blur/offset plus xs alpha. Source focusedGray4px #F5F5F5 and focusedError4px #FEE4E2 match those effect numbers. Button-focused Figma token #E4F3FF matches focusedPrimary4px's color/spread. | AppButton does not consume the matching focus token. AppTextField applies a primary/error ring to focused variants where retrieved Figma has xs only.2px variants support existing instance customization but are not demonstrated by the generic4px set; use only for reviewed instances. Shadow-list order differs from returned ring-first context and should be render-reviewed when changing ring composition. |
@@ -944,7 +945,7 @@ Routes are app-owned code. A future server action target must resolve through an
 - Service-ID fallback, menu callback, assistant transition and navigation into the dedicated Loans tab.
 - Narrow 320px viewport with 1.4 text scale and reachable quick action.
 
-Existing dashboard/card/notification/widget and asset integrity tests remain regression coverage. AppAssets.all verifies every new registered file is bundled and non-empty; static asset metadata and rendered slots are checked against design context. The original cheque-plus instance export is used, not the incorrect generated Chat alias.
+Existing dashboard/card/notification/widget and asset integrity tests remain regression coverage. The image asset integrity test verifies referenced files are bundled and non-empty; static asset metadata and rendered slots are checked against design context. The original cheque-plus instance export is used, not the incorrect generated Chat alias.
 
 ### 16.3 Results and limits
 
@@ -1065,7 +1066,7 @@ The motion test checks actual foreground bounds across the7.5-second circle loop
 - The eight fixed services and the selected-services card are separate compositions. The selected card has an empty action, three suggested services, editing, saved, eight-item limit, and reset states.
 - The compact service choices named “Deposit Card” in the sheet are ordinary frames, not the existing bank deposit card. They are implemented directly from the page frames; no extra component link is required.
 - Public `avp_ui` additions: `AppDashboardColors`, `AppButton.foregroundColor` and `AppSearchField.clearIcon`. Defaults remain compatible with existing consumers.
-- Original Figma SVGs are local and registered in `AppAssets`. The original header and back icons were exported from their instance nodes because the design-context connector returned the menu SVG for multiple distinct icons. SVG blur/shadow filters are reproduced with Flutter effects where the SVG renderer cannot render them.
+- Original Figma SVGs are local and referenced with `AppConstants.baseImage`. The original header and back icons were exported from their instance nodes because the design-context connector returned the menu SVG for multiple distinct icons. SVG blur/shadow filters are reproduced with Flutter effects where the SVG renderer cannot render them.
 
 ### Behavior
 

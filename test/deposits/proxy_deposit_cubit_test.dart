@@ -101,7 +101,7 @@ void main() {
     getIt.registerSingleton<ProxyDepositsRepository>(repository);
     final cubit = createCubit();
     await cubit.fetchCatalog();
-    expect(cubit.state.catalogFailure, const UnexpectedFailure());
+    expect(cubit.state.failure, const UnexpectedFailure());
     repository.throwsCatalog = false;
     await cubit.fetchCatalog();
     cubit.selectSubject(cubit.state.subjects.first);
@@ -134,7 +134,7 @@ void main() {
     cubit.selectSubject(cubit.state.subjects.first);
     cubit.updateTermsAcceptance(true);
     await cubit.submitProxyDeposit();
-    expect(cubit.state.submissionFailure, const UnexpectedFailure());
+    expect(cubit.state.failure, const UnexpectedFailure());
     await cubit.submitProxyDeposit();
     expect(repository.requests.first, repository.requests.last);
     expect(cubit.state.receipt!.reference, 'DEMO-PROXY-1');
@@ -186,9 +186,11 @@ void main() {
   test('repeated terms effects and exit confirmation stay in Cubit', () {
     final cubit = createCubit();
     cubit.requestTerms();
-    final id = cubit.state.effectId;
+    final effectBeforeRepeat = cubit.state.effect;
+    cubit.consumeProxyDepositInteraction();
+    expect(cubit.state.effect, isNull);
     cubit.requestTerms();
-    expect(cubit.state.effectId, id + 1);
+    expect(cubit.state.effect.runtimeType, effectBeforeRepeat.runtimeType);
     cubit.requestBack();
     expect(cubit.state.effect, ProxyDepositEffect.back);
     cubit.updateTermsAcceptance(true);

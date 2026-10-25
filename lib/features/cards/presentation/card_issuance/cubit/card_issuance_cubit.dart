@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/presentation/mappers/request_error_message_mapper.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
@@ -37,9 +38,10 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
     emit(
       state.copyWith(
         catalogStatus: RequestStatus.loading,
-        catalogFailure: null,
         catalog: null,
         isCatalogEmpty: false,
+        failure: null,
+        message: null,
       ),
     );
     return _loadIssuanceCatalog().then((result) {
@@ -48,8 +50,8 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
           emit(
             state.copyWith(
               catalogStatus: RequestStatus.failure,
-              catalogFailure: failure,
-              scrollId: state.scrollId + 1,
+              failure: failure,
+              message: getRequestErrorMessage(failure),
             ),
           );
         case Success(:final data):
@@ -82,7 +84,6 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
               isCatalogEmpty: isCatalogEmpty,
               isEditable: !isCatalogEmpty,
               canContinue: isSelectionComplete,
-              scrollId: state.scrollId + 1,
             ),
           );
       }
@@ -90,12 +91,7 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
   }
 
   void requestTerms() {
-    emit(
-      state.copyWith(
-        effect: const IssuanceTermsRequested(),
-        effectId: state.effectId + 1,
-      ),
-    );
+    emit(state.copyWith(effect: const IssuanceTermsRequested(), message: null));
   }
 
   void requestAddAddress() {
@@ -109,7 +105,7 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
         isAddressPostalCodeValid: false,
         isAddressFormError: false,
         effect: const IssuanceAddressRequested(),
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -118,7 +114,7 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
     emit(
       state.copyWith(
         effect: IssuanceAddressRemovalRequested(address),
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -143,7 +139,7 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
           navigation: needsConfirmation
               ? FlowNavigation.confirmExit
               : FlowNavigation.back,
-          navigationId: state.navigationId + 1,
+          message: null,
         ),
       );
     } else {
@@ -163,44 +159,28 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
       state.draft.termsAccepted,
       state.isWalletSufficient,
     );
-    if (state.submissionStatus == RequestStatus.loading) {
-      emit(
-        state.copyWith(
-          step: previousStep,
-          stepNumber: previousStep.index + 1,
-          canContinue: canContinue,
-          submissionFailure: null,
-        ),
-      );
-    } else {
-      emit(
-        state.copyWith(
-          step: previousStep,
-          stepNumber: previousStep.index + 1,
-          canContinue: canContinue,
-          submissionFailure: null,
-          scrollId: state.scrollId + 1,
-        ),
-      );
-    }
+    emit(
+      state.copyWith(
+        step: previousStep,
+        stepNumber: previousStep.index + 1,
+        canContinue: canContinue,
+        failure: null,
+        message: null,
+      ),
+    );
   }
 
   void applyExitConfirmation(bool? confirmed) {
     emit(
       state.copyWith(
         navigation: confirmed == true ? FlowNavigation.back : null,
-        navigationId: state.navigationId + 1,
+        message: null,
       ),
     );
   }
 
   void requestHome() {
-    emit(
-      state.copyWith(
-        navigation: FlowNavigation.home,
-        navigationId: state.navigationId + 1,
-      ),
-    );
+    emit(state.copyWith(navigation: FlowNavigation.home, message: null));
   }
 
   void selectDeposit(IssuanceDeposit deposit) {
@@ -211,7 +191,6 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
         draft: draft,
         isSelectionComplete: isSelectionComplete,
         confirmedRequest: null,
-        submissionFailure: null,
         canContinue: _canContinue(
           state.step,
           isSelectionComplete,
@@ -219,6 +198,8 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
           false,
           state.isWalletSufficient,
         ),
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -231,7 +212,6 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
         draft: draft,
         isSelectionComplete: isSelectionComplete,
         confirmedRequest: null,
-        submissionFailure: null,
         canContinue: _canContinue(
           state.step,
           isSelectionComplete,
@@ -239,6 +219,8 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
           false,
           state.isWalletSufficient,
         ),
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -264,7 +246,6 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
         isWalletSufficient: isWalletSufficient,
         isDeliveryComplete: isDeliveryComplete,
         confirmedRequest: null,
-        submissionFailure: null,
         canContinue: _canContinue(
           state.step,
           state.isSelectionComplete,
@@ -272,6 +253,8 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
           false,
           isWalletSufficient,
         ),
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -288,7 +271,6 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
         draft: draft,
         isDeliveryComplete: isDeliveryComplete,
         confirmedRequest: null,
-        submissionFailure: null,
         canContinue: _canContinue(
           state.step,
           state.isSelectionComplete,
@@ -296,6 +278,8 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
           false,
           state.isWalletSufficient,
         ),
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -315,7 +299,6 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
         draft: draft,
         isDeliveryComplete: isDeliveryComplete,
         confirmedRequest: null,
-        submissionFailure: null,
         canContinue: _canContinue(
           state.step,
           state.isSelectionComplete,
@@ -323,6 +306,8 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
           false,
           state.isWalletSufficient,
         ),
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -342,7 +327,6 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
         draft: draft,
         isDeliveryComplete: isDeliveryComplete,
         confirmedRequest: null,
-        submissionFailure: null,
         canContinue: _canContinue(
           state.step,
           state.isSelectionComplete,
@@ -350,6 +334,8 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
           false,
           state.isWalletSufficient,
         ),
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -376,7 +362,6 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
         isRecipientValid: isRecipientValid,
         isDeliveryComplete: isDeliveryComplete,
         confirmedRequest: null,
-        submissionFailure: null,
         canContinue: _canContinue(
           state.step,
           state.isSelectionComplete,
@@ -384,6 +369,8 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
           false,
           state.isWalletSufficient,
         ),
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -408,7 +395,6 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
         isRecipientValid: isRecipientValid,
         isDeliveryComplete: isDeliveryComplete,
         confirmedRequest: null,
-        submissionFailure: null,
         canContinue: _canContinue(
           state.step,
           state.isSelectionComplete,
@@ -416,6 +402,8 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
           false,
           state.isWalletSufficient,
         ),
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -442,7 +430,6 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
         isRecipientValid: isRecipientValid,
         isDeliveryComplete: isDeliveryComplete,
         confirmedRequest: null,
-        submissionFailure: null,
         canContinue: _canContinue(
           state.step,
           state.isSelectionComplete,
@@ -450,6 +437,8 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
           false,
           state.isWalletSufficient,
         ),
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -473,7 +462,6 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
         isAgentValid: isAgentValid,
         isDeliveryComplete: isDeliveryComplete,
         confirmedRequest: null,
-        submissionFailure: null,
         canContinue: _canContinue(
           state.step,
           state.isSelectionComplete,
@@ -481,6 +469,8 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
           false,
           state.isWalletSufficient,
         ),
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -504,7 +494,6 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
         isAgentValid: isAgentValid,
         isDeliveryComplete: isDeliveryComplete,
         confirmedRequest: null,
-        submissionFailure: null,
         canContinue: _canContinue(
           state.step,
           state.isSelectionComplete,
@@ -512,6 +501,8 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
           false,
           state.isWalletSufficient,
         ),
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -563,11 +554,9 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
         state.copyWith(
           catalog: catalog,
           draft: draft,
-          addressSavedId: state.addressSavedId + 1,
           isAddressFormError: false,
           isDeliveryComplete: isDeliveryComplete,
           confirmedRequest: null,
-          submissionFailure: null,
           canContinue: _canContinue(
             state.step,
             state.isSelectionComplete,
@@ -575,6 +564,8 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
             false,
             state.isWalletSufficient,
           ),
+          failure: null,
+          message: null,
         ),
       );
     } else {
@@ -601,7 +592,6 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
         draft: draft,
         isDeliveryComplete: isDeliveryComplete,
         confirmedRequest: null,
-        submissionFailure: null,
         canContinue: _canContinue(
           state.step,
           state.isSelectionComplete,
@@ -609,6 +599,8 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
           false,
           state.isWalletSufficient,
         ),
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -617,7 +609,6 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
     emit(
       state.copyWith(
         draft: state.draft.copyWith(termsAccepted: value),
-        submissionFailure: null,
         canContinue: _canContinue(
           state.step,
           state.isSelectionComplete,
@@ -625,6 +616,8 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
           value,
           state.isWalletSufficient,
         ),
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -646,7 +639,6 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
       state.copyWith(
         step: nextStep,
         stepNumber: nextStep.index + 1,
-        scrollId: state.scrollId + 1,
         canContinue: _canContinue(
           nextStep,
           state.isSelectionComplete,
@@ -666,18 +658,20 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
         state.copyWith(
           confirmedRequest: request,
           submissionStatus: RequestStatus.loading,
-          submissionFailure: null,
           isEditable: false,
           canContinue: false,
+          failure: null,
+          message: null,
         ),
       );
     } else {
       emit(
         state.copyWith(
           submissionStatus: RequestStatus.loading,
-          submissionFailure: null,
           isEditable: false,
           canContinue: false,
+          failure: null,
+          message: null,
         ),
       );
     }
@@ -687,9 +681,7 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
           emit(
             state.copyWith(
               submissionStatus: RequestStatus.failure,
-              submissionFailure: failure,
               isEditable: !state.isCatalogEmpty,
-              scrollId: state.scrollId + 1,
               canContinue: _canContinue(
                 state.step,
                 state.isSelectionComplete,
@@ -697,6 +689,8 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
                 state.draft.termsAccepted,
                 state.isWalletSufficient,
               ),
+              failure: failure,
+              message: getRequestErrorMessage(failure),
             ),
           );
         case Success(:final data):
@@ -705,7 +699,6 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
               submissionStatus: RequestStatus.success,
               receipt: data,
               canContinue: false,
-              scrollId: state.scrollId + 1,
             ),
           );
       }
@@ -793,5 +786,10 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
           .replaceAll(arabic[digit], '$digit');
     }
     return value;
+  }
+
+  /// UI has accepted the pending interaction; data and request statuses stay intact.
+  void consumeCardIssuanceInteraction() {
+    emit(state.copyWith(effect: null, navigation: null));
   }
 }

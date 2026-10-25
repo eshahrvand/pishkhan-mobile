@@ -1,7 +1,7 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 import '../../../domain/entities/listed_deposit.dart';
 
@@ -24,7 +24,7 @@ Widget depositIcon(String asset, {double size = 24}) => SizedBox.square(
 class DepositDivider extends StatelessWidget {
   const DepositDivider({
     super.key,
-    this.asset = AppAssets.depositFeatureSheetDivider,
+    this.asset = '${AppConstants.baseImage}deposit_list_sheet_divider.svg',
     this.thickness = .5,
   });
   final String asset;

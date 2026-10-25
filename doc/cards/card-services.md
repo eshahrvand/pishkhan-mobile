@@ -65,7 +65,7 @@ lib/core/router/card_features_navigation.dart      allowlisted standalone route 
 lib/shared/widgets/app_cards_list.dart             coloredHeader opt-in variant
 lib/shared/widgets/app_top_bar.dart                optional trailing/back widget/callback
 lib/shared/widgets/app_bottom_sheet_header.dart    optional text-action color
-lib/shared/assets/app_assets.dart                  original Figma artwork registry
+lib/core/config/constant.dart                     shared image prefix
 lib/l10n/app_{fa,en,ar}.arb                         feature copy
 lib/l10n/generated/                                generated output
 test/cards/card_features_cubit_test.dart           four state/repository unit cases
@@ -144,7 +144,7 @@ Recommended adapter locations: data/datasources/, data/dto/, data/mappers/, data
 | depositTypeKey | qarz mock key, localized known type | supported product/type-key registry |
 | status | active/blocked/expired enum; details/filter | known service status with explicit unknown handling |
 | action availability | local four-row menu/category footer | reviewed per-card capability/action set; not currently modeled |
-| icon/tint/title | local enum + AppAssets + ARBs/package tokens | app-owned supported registry; future catalog cannot execute arbitrary routes |
+| icon/tint/title | local enum + direct image paths + ARBs/package tokens | app-owned supported registry; future catalog cannot execute arbitrary routes |
 
 No remote icon renderer, metadata-driven visual template or permission filter is present. The current mock data varies by ID/status/deposit; supplied Figma account numbers are illustrative and some mock row values intentionally differ.
 
@@ -181,7 +181,7 @@ No app-owned hex colors or duplicate control implementation is introduced. The f
 
 ### Exact artwork and export provenance
 
-All new files are registered in lib/shared/assets/app_assets.dart and used by presentation/card_features_ui.dart or the sheets/screen.
+All new files use the AppConstants.baseImage prefix and are used by presentation/card_features_ui.dart or the sheets/screen.
 
 | Asset file under assets/images/ | Role / rendered slot |
 | --- | --- |
@@ -295,8 +295,8 @@ setter and generic filter setup/setter APIs have been removed.
 `CardListScreen` delegates card selection, menu/detail requests, service request
 construction, destination service IDs, footer selection and category reveal
 requests to `CardFeaturesCubit`. Plain State carries `footerAction`, a typed
-`CardFeaturesEffect` and an incrementing `effectId` so repeated interactions
-are delivered. A filtered `BlocConsumer` listener executes navigation, host
+`CardFeaturesEffect`. Reusable commands are consumed by the UI before awaiting
+them, so repeated interactions are delivered without counters. A filtered `BlocConsumer` listener executes navigation, host
 callbacks, sheets, messages and scrolling; sheet selections return to Cubit.
 
 There is no `didChangeDependencies` hook or initial-reveal flag. The provider

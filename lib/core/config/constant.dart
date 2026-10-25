@@ -1,5 +1,6 @@
-/// Shared API addresses and network timeouts.
+/// Shared asset prefix, API addresses and network timeouts.
 abstract final class AppConstants {
+  static const baseImage = 'assets/images/';
   static const bankBaseUrl = 'https://apii.rqbank.ir';
 
   static const connectTimeout = Duration(seconds: 15);

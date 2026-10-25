@@ -306,7 +306,7 @@ void main() {
     });
   }
   testWidgets(
-    'loading UI disables repeat submission and editing while Back stays available',
+    'loading UI disables repeat submission and editing while Back is blocked',
     (tester) async {
       final repository = ControlledIssuanceRepository()
         ..submitting = Completer();
@@ -330,13 +330,13 @@ void main() {
       expect(cubit.state.isEditable, isFalse);
       expect(
         tester.widget<AppTopBar>(find.byType(AppTopBar)).onTrailingPressed,
-        isNotNull,
+        isNull,
       );
       await tester.tap(cardControl(tester, 'issuance_continue'));
       await tester.binding.handlePopRoute();
       await tester.pump();
       expect(repository.calls, 1);
-      expect(cubit.state.step, IssuanceStep.delivery);
+      expect(cubit.state.step, IssuanceStep.confirmation);
       expect(cubit.state.navigation, isNull);
 
       repository.submitting!.complete(repository.submitResult);

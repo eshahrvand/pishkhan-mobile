@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:pishkhan_mobile/core/presentation/mappers/request_error_message_mapper.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/flow/flow_navigation.dart';
@@ -44,7 +45,7 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
     emit(
       state.copyWith(
         effect: const CertificateAddressRequested(),
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -57,7 +58,7 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
     emit(
       state.copyWith(
         effect: CertificateAddressRemovalRequested(state.address!),
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -66,7 +67,7 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
     emit(
       state.copyWith(
         effect: const CertificateAgentUnavailable(),
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -76,7 +77,7 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
       state.copyWith(
         navigation: confirmed == true ? FlowNavigation.back : null,
         effect: null,
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -86,7 +87,7 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
       state.copyWith(
         navigation: FlowNavigation.home,
         effect: null,
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -96,7 +97,7 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
       state.copyWith(
         navigation: FlowNavigation.home,
         effect: null,
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -176,7 +177,7 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
                 ? FlowNavigation.confirmExit
                 : FlowNavigation.back,
             effect: null,
-            effectId: state.effectId + 1,
+            message: null,
           ),
         );
     }
@@ -230,8 +231,9 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
     emit(
       state.copyWith(
         catalogStatus: RequestStatus.loading,
-        catalogFailure: null,
         canContinue: false,
+        failure: null,
+        message: null,
       ),
     );
     return LoadCertificateCatalog(repository)().then((result) {
@@ -240,7 +242,8 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
           emit(
             state.copyWith(
               catalogStatus: RequestStatus.failure,
-              catalogFailure: failure,
+              failure: failure,
+              message: getRequestErrorMessage(failure),
             ),
           );
         case Success(:final data):
@@ -341,8 +344,9 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
       state.copyWith(
         deposit: deposit,
         conditions: {},
-        submissionFailure: null,
         canContinue: false,
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -353,8 +357,9 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
     emit(
       state.copyWith(
         conditions: conditions,
-        submissionFailure: null,
         canContinue: conditions.isNotEmpty,
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -369,7 +374,8 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
         isAuthorityNameValid: false,
         isRecipientComplete: false,
         canContinue: false,
-        submissionFailure: null,
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -381,7 +387,8 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
         embassy: embassy,
         isRecipientComplete: complete,
         canContinue: complete,
-        submissionFailure: null,
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -395,7 +402,8 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
         isAuthorityNameValid: valid,
         isRecipientComplete: complete,
         canContinue: complete,
-        submissionFailure: null,
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -412,7 +420,8 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
         currency: currency,
         isRecipientComplete: complete,
         canContinue: complete,
-        submissionFailure: null,
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -432,7 +441,8 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
         isLatinNameValid: valid,
         isLatinComplete: complete,
         canContinue: complete,
-        submissionFailure: null,
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -452,7 +462,8 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
         isLatinSurnameValid: valid,
         isLatinComplete: complete,
         canContinue: complete,
-        submissionFailure: null,
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -472,7 +483,8 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
         isLatinFatherNameValid: valid,
         isLatinComplete: complete,
         canContinue: complete,
-        submissionFailure: null,
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -493,7 +505,8 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
         isPassportNumberValid: valid,
         isLatinComplete: complete,
         canContinue: complete,
-        submissionFailure: null,
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -514,7 +527,8 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
         passportExpiry: expiry,
         isLatinComplete: complete,
         canContinue: complete,
-        submissionFailure: null,
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -534,7 +548,8 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
         isLatinAddressValid: valid,
         isLatinComplete: complete,
         canContinue: complete,
-        submissionFailure: null,
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -543,10 +558,11 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
     emit(
       state.copyWith(
         address: address,
-        submissionFailure: null,
         canContinue:
             !state.isOtherRecipient ||
             (state.isRecipientNameValid && state.isRecipientNationalIdValid),
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -653,7 +669,8 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
     emit(
       state.copyWith(
         submissionStatus: RequestStatus.loading,
-        submissionFailure: null,
+        failure: null,
+        message: null,
       ),
     );
     return certificateBoundary(
@@ -664,7 +681,8 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
           emit(
             state.copyWith(
               submissionStatus: RequestStatus.failure,
-              submissionFailure: failure,
+              failure: failure,
+              message: getRequestErrorMessage(failure),
             ),
           );
         case Success(:final data):
@@ -719,5 +737,10 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
                 Random.secure().nextInt(256).toRadixString(16).padLeft(2, '0'),
           ).join(),
     );
+  }
+
+  /// UI has accepted the pending interaction; data and request statuses stay intact.
+  void consumeFinancialCertificateInteraction() {
+    emit(state.copyWith(navigation: null, effect: null));
   }
 }

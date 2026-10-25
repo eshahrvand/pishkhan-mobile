@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -5,7 +6,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/features/cards/presentation/password_services/cubit/second_password_cubit.dart';
 import 'package:pishkhan_mobile/features/cards/presentation/password_services/widgets/password_styles.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 class PasswordRecordingSection extends StatelessWidget {
   const PasswordRecordingSection({super.key, required this.state});
@@ -28,7 +28,10 @@ class PasswordRecordingSection extends StatelessWidget {
             child: Stack(
               fit: StackFit.expand,
               children: [
-                AvpImage(image: AppAssets.passwordRecording, fit: BoxFit.cover),
+                AvpImage(
+                  image: '${AppConstants.baseImage}password_recording.png',
+                  fit: BoxFit.cover,
+                ),
                 ColoredBox(
                   color: AppPasswordServiceColors.recordingScrim.withValues(
                     alpha: .4,
@@ -44,7 +47,8 @@ class PasswordRecordingSection extends StatelessWidget {
                     icon: SizedBox.square(
                       dimension: 23,
                       child: AvpImage(
-                        image: AppAssets.passwordRecordPlay,
+                        image:
+                            '${AppConstants.baseImage}password_record_play.svg',
                         fit: BoxFit.contain,
                       ),
                     ),

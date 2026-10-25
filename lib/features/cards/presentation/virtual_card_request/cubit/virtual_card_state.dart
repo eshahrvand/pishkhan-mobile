@@ -6,7 +6,7 @@ enum VirtualCardRetryAction { quote, submission }
 abstract class VirtualCardState with _$VirtualCardState {
   const factory VirtualCardState.initial({
     FlowNavigation? navigation,
-    @Default(0) int navigationId,
+
     int? count,
     @Default(false) bool isCountValid,
     @Default(false) bool isCountError,
@@ -23,9 +23,9 @@ abstract class VirtualCardState with _$VirtualCardState {
     VirtualCardQuote? quote,
     @Default(false) bool termsAccepted,
     @Default(true) bool isInvoiceExpanded,
-    Failure? catalogFailure,
-    Failure? quoteFailure,
-    Failure? submissionFailure,
+    Failure? failure,
+    String? message,
+
     VirtualCardReceipt? receipt,
   }) = _VirtualCardState;
 }

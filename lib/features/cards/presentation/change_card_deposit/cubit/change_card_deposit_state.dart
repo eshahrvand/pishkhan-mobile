@@ -4,7 +4,7 @@ part of 'change_card_deposit_cubit.dart';
 abstract class ChangeCardDepositState with _$ChangeCardDepositState {
   const factory ChangeCardDepositState.initial({
     FlowNavigation? navigation,
-    @Default(0) int navigationId,
+
     @Default(RequestStatus.initial) RequestStatus catalogStatus,
     @Default(RequestStatus.initial) RequestStatus submissionStatus,
     CardServiceCatalog? catalog,
@@ -17,8 +17,9 @@ abstract class ChangeCardDepositState with _$ChangeCardDepositState {
     @Default(false) bool isWalletSufficient,
     @Default(false) bool canSubmit,
     @Default(false) bool termsAccepted,
-    Failure? catalogFailure,
-    Failure? submissionFailure,
+    Failure? failure,
+    String? message,
+
     CardServiceReceipt? receipt,
   }) = _ChangeCardDepositState;
 }

@@ -1,9 +1,10 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
+
 import 'app_agent_card_status_line.dart';
 import 'app_agent_card_detail_row.dart';
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 import 'app_agent_cards.dart';
 
@@ -70,7 +71,8 @@ class AppAgentCard extends StatelessWidget {
                             child:
                                 actionIcon ??
                                 AvpImage(
-                                  image: AppAssets.agentCardMoreVertical,
+                                  image:
+                                      '${AppConstants.baseImage}agent_card_more_vertical.svg',
                                   fit: BoxFit.contain,
                                 ),
                           ),

@@ -1,7 +1,7 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_service_grid_card.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_service_artwork_tile.dart';
 
@@ -33,7 +33,9 @@ class DashboardCardsServiceGroup extends StatelessWidget {
       type: quick
           ? AppServiceGridCardType.quick
           : AppServiceGridCardType.service,
-      headerAction: quick ? AvpImage(image: AppAssets.cardsQuickAccess) : null,
+      headerAction: quick
+          ? AvpImage(image: '${AppConstants.baseImage}cards_quick_access.svg')
+          : null,
       items: [
         for (final action in actions)
           AppServiceGridItem(
@@ -67,18 +69,27 @@ String getCardActionLabel(CardAction action) => switch (action) {
   CardAction.giftBalance => S.current.dashboardExpiredGift,
 };
 String getCardActionAsset(CardAction action) => switch (action) {
-  CardAction.list => AppAssets.cardsListCreditCard,
-  CardAction.virtualList => AppAssets.cardsListVirtualCard,
-  CardAction.reissue => AppAssets.cardsActionReissue,
-  CardAction.changeDeposit => AppAssets.cardsActionDeposit,
-  CardAction.block => AppAssets.cardsActionBlock,
-  CardAction.changeFirstPin => AppAssets.cardsActionChangeFirst,
-  CardAction.setSecondPin => AppAssets.cardsActionSetSecond,
-  CardAction.changeSecondPin => AppAssets.cardsActionSetSecond,
-  CardAction.forgotFirstPin => AppAssets.cardsActionForgotFirst,
-  CardAction.forgotSecondPin => AppAssets.cardsActionForgotSecond,
-  CardAction.issue => AppAssets.cardsQuickIssue,
-  CardAction.virtualCard => AppAssets.cardsQuickVirtual,
-  CardAction.giftPurchase => AppAssets.cardsQuickGiftBuy,
-  CardAction.giftBalance => AppAssets.cardsQuickGiftBalance,
+  CardAction.list => '${AppConstants.baseImage}cards_list_credit_card.svg',
+  CardAction.virtualList =>
+    '${AppConstants.baseImage}cards_list_virtual_card.svg',
+  CardAction.reissue => '${AppConstants.baseImage}cards_action_reissue.svg',
+  CardAction.changeDeposit =>
+    '${AppConstants.baseImage}cards_action_deposit.svg',
+  CardAction.block => '${AppConstants.baseImage}cards_action_block.svg',
+  CardAction.changeFirstPin =>
+    '${AppConstants.baseImage}cards_action_change_first.svg',
+  CardAction.setSecondPin =>
+    '${AppConstants.baseImage}cards_action_set_second.svg',
+  CardAction.changeSecondPin =>
+    '${AppConstants.baseImage}cards_action_set_second.svg',
+  CardAction.forgotFirstPin =>
+    '${AppConstants.baseImage}cards_action_forgot_first.svg',
+  CardAction.forgotSecondPin =>
+    '${AppConstants.baseImage}cards_action_forgot_second.svg',
+  CardAction.issue => '${AppConstants.baseImage}cards_quick_issue.svg',
+  CardAction.virtualCard => '${AppConstants.baseImage}cards_quick_virtual.svg',
+  CardAction.giftPurchase =>
+    '${AppConstants.baseImage}cards_quick_gift_buy.svg',
+  CardAction.giftBalance =>
+    '${AppConstants.baseImage}cards_quick_gift_balance.svg',
 };

@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:pishkhan_mobile/core/presentation/mappers/request_error_message_mapper.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/result/failure.dart';
@@ -32,8 +33,9 @@ class CloseSurplusDepositsCubit extends Cubit<CloseSurplusDepositsState> {
     emit(
       state.copyWith(
         depositsStatus: RequestStatus.loading,
-        depositsFailure: null,
         isEditable: false,
+        failure: null,
+        message: null,
       ),
     );
     return _fetchPrimaryDeposits().then((result) {
@@ -42,8 +44,9 @@ class CloseSurplusDepositsCubit extends Cubit<CloseSurplusDepositsState> {
           emit(
             state.copyWith(
               depositsStatus: RequestStatus.failure,
-              depositsFailure: failure,
               isEditable: true,
+              failure: failure,
+              message: getRequestErrorMessage(failure),
             ),
           );
         case Success(:final data):
@@ -87,9 +90,10 @@ class CloseSurplusDepositsCubit extends Cubit<CloseSurplusDepositsState> {
         canContinue: false,
         hasChanges: true,
         submissionStatus: RequestStatus.initial,
-        submissionFailure: null,
         idempotencyKey:
             'close-surplus-${DateTime.now().microsecondsSinceEpoch}-${Random.secure().nextInt(1 << 32)}',
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -112,7 +116,7 @@ class CloseSurplusDepositsCubit extends Cubit<CloseSurplusDepositsState> {
         emit(
           state.copyWith(
             effect: CloseSurplusDepositsEffect.back,
-            effectId: state.effectId + 1,
+            message: null,
           ),
         );
         return Future.value();
@@ -123,8 +127,9 @@ class CloseSurplusDepositsCubit extends Cubit<CloseSurplusDepositsState> {
     emit(
       state.copyWith(
         submissionStatus: RequestStatus.loading,
-        submissionFailure: null,
         isEditable: false,
+        failure: null,
+        message: null,
       ),
     );
     return _closeRemainingDeposits(
@@ -136,8 +141,9 @@ class CloseSurplusDepositsCubit extends Cubit<CloseSurplusDepositsState> {
           emit(
             state.copyWith(
               submissionStatus: RequestStatus.failure,
-              submissionFailure: failure,
               isEditable: true,
+              failure: failure,
+              message: getRequestErrorMessage(failure),
             ),
           );
         case Success(:final data):
@@ -157,7 +163,7 @@ class CloseSurplusDepositsCubit extends Cubit<CloseSurplusDepositsState> {
     emit(
       state.copyWith(
         effect: CloseSurplusDepositsEffect.termsUnavailable,
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -169,7 +175,7 @@ class CloseSurplusDepositsCubit extends Cubit<CloseSurplusDepositsState> {
             ? CloseSurplusDepositsEffect.confirmExit
             : CloseSurplusDepositsEffect.back,
         isExitToAssistant: false,
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -181,7 +187,7 @@ class CloseSurplusDepositsCubit extends Cubit<CloseSurplusDepositsState> {
             ? CloseSurplusDepositsEffect.confirmExit
             : CloseSurplusDepositsEffect.assistant,
         isExitToAssistant: true,
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -194,17 +200,19 @@ class CloseSurplusDepositsCubit extends Cubit<CloseSurplusDepositsState> {
                   ? CloseSurplusDepositsEffect.assistant
                   : CloseSurplusDepositsEffect.back)
             : null,
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
 
   void applyReceiptDismissal() {
     emit(
-      state.copyWith(
-        effect: CloseSurplusDepositsEffect.home,
-        effectId: state.effectId + 1,
-      ),
+      state.copyWith(effect: CloseSurplusDepositsEffect.home, message: null),
     );
+  }
+
+  /// UI has accepted the pending interaction; data and request statuses stay intact.
+  void consumeCloseSurplusDepositsInteraction() {
+    emit(state.copyWith(effect: null));
   }
 }

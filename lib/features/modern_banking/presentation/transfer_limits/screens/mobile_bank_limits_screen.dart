@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,7 +8,6 @@ import 'package:pishkhan_mobile/core/flow/flow_navigation.dart';
 import 'package:pishkhan_mobile/core/router/app_routes.dart';
 import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
 import 'package:pishkhan_mobile/shared/widgets/deposit_request_footer.dart';
@@ -24,8 +24,15 @@ class MobileBankLimitsScreen extends StatelessWidget {
     BuildContext context,
     TransferLimitsState state,
   ) async {
+    if (state.message != null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(state.message!)));
+      return;
+    }
+
     switch (state.navigation) {
       case FlowNavigation.confirmExit:
+        context.read<TransferLimitsCubit>().consumeTransferLimitsInteraction();
         final result = await showFlowExitDialog(context);
         if (context.mounted) {
           context.read<TransferLimitsCubit>().applyExitConfirmation(result);
@@ -47,14 +54,26 @@ class MobileBankLimitsScreen extends StatelessWidget {
       create: (_) => TransferLimitsCubit()..fetchLimits(),
       child: BlocListener<TransferLimitsCubit, TransferLimitsState>(
         listenWhen: (previous, current) =>
-            previous.effectId != current.effectId,
+            (previous.navigation != current.navigation &&
+                current.navigation != null) ||
+            ((previous.catalogStatus != current.catalogStatus &&
+                    current.catalogStatus == RequestStatus.failure) ||
+                (previous.submissionStatus != current.submissionStatus &&
+                    current.submissionStatus == RequestStatus.failure)),
         listener: _handleNavigation,
         child: BlocBuilder<TransferLimitsCubit, TransferLimitsState>(
           builder: (context, state) {
             return PopScope(
-              canPop: state.navigation == FlowNavigation.back,
+              canPop:
+                  (state.catalogStatus != RequestStatus.loading &&
+                      state.submissionStatus != RequestStatus.loading) &&
+                  (state.navigation == FlowNavigation.back),
               onPopInvokedWithResult: (didPop, _) {
-                if (!didPop) context.read<TransferLimitsCubit>().requestBack();
+                if (!didPop &&
+                    state.catalogStatus != RequestStatus.loading &&
+                    state.submissionStatus != RequestStatus.loading) {
+                  context.read<TransferLimitsCubit>().requestBack();
+                }
               },
               child: Scaffold(
                 backgroundColor: context.colors.surfaceSubtle,
@@ -66,12 +85,21 @@ class MobileBankLimitsScreen extends StatelessWidget {
                         showLeadingActions: false,
                         trailingIcon: SizedBox.square(
                           dimension: 24,
-                          child: AvpImage(image: AppAssets.depositFeatureBack),
+                          child: AvpImage(
+                            image:
+                                '${AppConstants.baseImage}deposit_list_back.svg',
+                          ),
                         ),
                         trailingTooltip: S.current.backLabel,
-                        onTrailingPressed: () {
-                          context.read<TransferLimitsCubit>().requestBack();
-                        },
+                        onTrailingPressed:
+                            (state.catalogStatus != RequestStatus.loading &&
+                                state.submissionStatus != RequestStatus.loading)
+                            ? () {
+                                context
+                                    .read<TransferLimitsCubit>()
+                                    .requestBack();
+                              }
+                            : null,
                       ),
                       Expanded(
                         child: Stack(
@@ -82,6 +110,9 @@ class MobileBankLimitsScreen extends StatelessWidget {
                             if (state.catalogStatus == RequestStatus.failure)
                               Center(
                                 child: AppButton(
+                                  isLoading:
+                                      state.catalogStatus ==
+                                      RequestStatus.loading,
                                   label: S.current.dashboardRetry,
                                   onPressed: () {
                                     context
@@ -158,10 +189,7 @@ class MobileBankLimitsScreen extends StatelessWidget {
                                 : null,
                             isLoading:
                                 state.submissionStatus == RequestStatus.loading,
-                            errorText:
-                                state.submissionStatus == RequestStatus.failure
-                                ? S.current.cardServiceSubmitError
-                                : null,
+
                             bottomPadding: 16,
                           )
                         else

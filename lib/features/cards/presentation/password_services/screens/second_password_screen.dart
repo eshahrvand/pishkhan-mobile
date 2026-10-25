@@ -1,6 +1,7 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
+import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
 
 import '../widgets/password_flow_content.dart';
@@ -70,8 +71,15 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
     BuildContext context,
     SecondPasswordState state,
   ) async {
+    if (state.message != null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(state.message!)));
+      return;
+    }
+
     switch (state.effect) {
       case PasswordUnsupportedRequested():
+        context.read<SecondPasswordCubit>().consumeSecondPasswordInteraction();
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text(S.current.passwordUnsupported)));
@@ -82,6 +90,7 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
       case PasswordHomeRequested():
         NavigationActions.returnHome(context);
       case PasswordExitConfirmationRequested():
+        context.read<SecondPasswordCubit>().consumeSecondPasswordInteraction();
         final confirmed = await showPasswordExitDialog(context);
         if (context.mounted) {
           context.read<SecondPasswordCubit>().applyExitConfirmation(confirmed);
@@ -91,6 +100,7 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
         :final operation,
         :final newlySubmitted,
       ):
+        context.read<SecondPasswordCubit>().consumeSecondPasswordInteraction();
         if (newlySubmitted) widget.onSubmitted?.call(record);
         if (!context.mounted) return;
         await showPasswordRecord(
@@ -118,19 +128,29 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
         textDirection: TextDirection.rtl,
         child: BlocListener<SecondPasswordCubit, SecondPasswordState>(
           listenWhen: (previous, current) =>
-              previous.effectId != current.effectId,
+              (previous.effect != current.effect &&
+                  current.effect != null) ||
+              ((previous.catalogStatus != current.catalogStatus &&
+                      current.catalogStatus == RequestStatus.failure) ||
+                  (previous.existingRequestStatus !=
+                          current.existingRequestStatus &&
+                      current.existingRequestStatus == RequestStatus.failure) ||
+                  (previous.submissionStatus != current.submissionStatus &&
+                      current.submissionStatus == RequestStatus.failure)),
           listener: _handleEffect,
           child: BlocBuilder<SecondPasswordCubit, SecondPasswordState>(
-            buildWhen: (previous, current) =>
-                previous.isChange != current.isChange ||
-                previous.step != current.step ||
-                (previous.effect is PasswordExitRequested) !=
-                    (current.effect is PasswordExitRequested),
             builder: (context, state) {
               return PopScope<void>(
-                canPop: state.effect is PasswordExitRequested,
+                canPop:
+                    (state.catalogStatus != RequestStatus.loading &&
+                        state.existingRequestStatus != RequestStatus.loading &&
+                        state.submissionStatus != RequestStatus.loading) &&
+                    (state.effect is PasswordExitRequested),
                 onPopInvokedWithResult: (didPop, _) {
-                  if (!didPop) {
+                  if (!didPop &&
+                      state.catalogStatus != RequestStatus.loading &&
+                      state.existingRequestStatus != RequestStatus.loading &&
+                      state.submissionStatus != RequestStatus.loading) {
                     context.read<SecondPasswordCubit>().requestBack();
                   }
                 },
@@ -152,13 +172,22 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
                           trailingIcon: SizedBox.square(
                             dimension: 24,
                             child: AvpImage(
-                              image: AppAssets.cardFeaturesBack,
+                              image:
+                                  '${AppConstants.baseImage}card_features_back.svg',
                               fit: BoxFit.contain,
                             ),
                           ),
                           trailingTooltip: S.current.backLabel,
-                          onTrailingPressed: () =>
-                              context.read<SecondPasswordCubit>().requestBack(),
+                          onTrailingPressed:
+                              (state.catalogStatus != RequestStatus.loading &&
+                                  state.existingRequestStatus !=
+                                      RequestStatus.loading &&
+                                  state.submissionStatus !=
+                                      RequestStatus.loading)
+                              ? () => context
+                                    .read<SecondPasswordCubit>()
+                                    .requestBack()
+                              : null,
                         ),
                         Expanded(
                           child: PasswordFlowContent(

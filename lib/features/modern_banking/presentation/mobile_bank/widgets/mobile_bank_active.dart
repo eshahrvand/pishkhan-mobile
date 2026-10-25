@@ -1,8 +1,8 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_credit_card_mockup.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_service_grid_card.dart';
 
@@ -33,7 +33,9 @@ class MobileBankActive extends StatelessWidget {
             AppServiceGridItem(
               id: 'modern-recovery',
               label: S.current.passwordForgot,
-              icon: AvpImage(image: AppAssets.modernServiceForgot),
+              icon: AvpImage(
+                image: '${AppConstants.baseImage}modern_service_forgot.svg',
+              ),
               onTap: () {
                 context.read<MobileBankCubit>().requestDestination(
                   MobileBankDestination.passwordRecovery,
@@ -43,7 +45,9 @@ class MobileBankActive extends StatelessWidget {
             AppServiceGridItem(
               id: 'modern-password-guide',
               label: S.current.passwordChange,
-              icon: AvpImage(image: AppAssets.modernService),
+              icon: AvpImage(
+                image: '${AppConstants.baseImage}modern_service.svg',
+              ),
               onTap: () {
                 context.read<MobileBankCubit>().requestDestination(
                   MobileBankDestination.passwordGuide,
@@ -53,7 +57,9 @@ class MobileBankActive extends StatelessWidget {
             AppServiceGridItem(
               id: 'modern-limits',
               label: S.current.modernLimitsTitle,
-              icon: AvpImage(image: AppAssets.modernService),
+              icon: AvpImage(
+                image: '${AppConstants.baseImage}modern_service.svg',
+              ),
               onTap: () {
                 context.read<MobileBankCubit>().requestDestination(
                   MobileBankDestination.transferLimits,
@@ -63,7 +69,9 @@ class MobileBankActive extends StatelessWidget {
             AppServiceGridItem(
               id: 'modern-deactivation',
               label: S.current.modernDeactivate,
-              icon: AvpImage(image: AppAssets.modernService),
+              icon: AvpImage(
+                image: '${AppConstants.baseImage}modern_service.svg',
+              ),
               onTap: () {
                 context.read<MobileBankCubit>().requestDestination(
                   MobileBankDestination.deactivation,

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
-import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/widgets/deposit_request_footer.dart';
 
 import '../cubit/change_phone_cubit.dart';
@@ -31,18 +30,8 @@ class ChangePhoneFooter extends StatelessWidget {
                   context.read<ChangePhoneCubit>().submitPhoneChange();
                 }
               : null,
-          errorText: state.submissionStatus == RequestStatus.failure
-              ? phoneSubmissionError(state.submissionFailure?.code)
-              : null,
         );
       },
     );
   }
 }
-
-String phoneSubmissionError(String? code) => switch (code) {
-  'profile.otp.invalid' => S.current.profileOtpInvalid,
-  'profile.otp.expired' => S.current.profileOtpExpired,
-  'profile.wallet.insufficient' => S.current.issuanceWalletInsufficient,
-  _ => S.current.profileOperationError,
-};

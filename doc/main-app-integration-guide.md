@@ -380,7 +380,7 @@ node ID. Existing assets stay owned by their app/package and keep their paths.
 AvpImage(image: asset, width: 20, height: 20)
 
 AvpImage(
-  image: AppAssets.examplePhoto,
+  image: '${AppConstants.baseImage}example_photo.png',
   width: 80,
   height: 80,
   fit: BoxFit.cover,
@@ -390,7 +390,7 @@ AvpImage(
 
 AvpImage(
   image: imageUrl,
-  placeholder: AppAssets.examplePlaceholder,
+  placeholder: '${AppConstants.baseImage}example_placeholder.png',
   width: 120,
   height: 80,
   headers: imageHeaders,
@@ -399,7 +399,7 @@ AvpImage(
 )
 ```
 
-The `AppAssets.example...` names above illustrate host-supplied paths, not new
+The `AppConstants.baseImage` examples above illustrate host-supplied paths, not new
 package assets. The package does not import application registries or Cubits.
 
 ### Supported inputs

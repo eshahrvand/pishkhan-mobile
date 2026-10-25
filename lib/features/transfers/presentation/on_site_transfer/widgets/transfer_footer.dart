@@ -31,9 +31,7 @@ class TransferFooter extends StatelessWidget {
             },
             isLoading: state.submissionStatus == RequestStatus.loading,
             submitLabel: S.current.transferConfirmNext,
-            errorText: state.submissionFailure == null
-                ? null
-                : S.current.dashboardLoadError,
+
             onSubmit: state.canContinue
                 ? () {
                     context.read<OnSiteTransferCubit>().submitTransfer();

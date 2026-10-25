@@ -59,8 +59,6 @@ class AuthCubit extends Cubit<AuthState> {
               captchaStatus: RequestStatus.failure,
               failure: failure,
               message: getAuthErrorMessage(failure),
-              effect: const AuthMessageRequested(),
-              effectId: state.effectId + 1,
             ),
           );
       }
@@ -68,12 +66,7 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   void requestServices() {
-    emit(
-      state.copyWith(
-        effect: const AuthServicesRequested(),
-        effectId: state.effectId + 1,
-      ),
-    );
+    emit(state.copyWith(effect: const AuthServicesRequested(), message: null));
   }
 
   /// A null sheet result is dismissal, rather than a selected service.
@@ -85,10 +78,7 @@ class AuthCubit extends Cubit<AuthState> {
         openChangePhone();
       default:
         emit(
-          state.copyWith(
-            effect: AuthGuestServiceRequested(id),
-            effectId: state.effectId + 1,
-          ),
+          state.copyWith(effect: AuthGuestServiceRequested(id), message: null),
         );
     }
   }
@@ -200,7 +190,7 @@ class AuthCubit extends Cubit<AuthState> {
                   canSubmitLogin: false,
                   canResendOtp: false,
                   effect: const AuthOtpRequested(),
-                  effectId: state.effectId + 1,
+                  message: null,
                 ),
               );
             case Err(:final failure):
@@ -209,8 +199,6 @@ class AuthCubit extends Cubit<AuthState> {
                   otpRequestStatus: RequestStatus.failure,
                   failure: failure,
                   message: getAuthErrorMessage(failure),
-                  effect: const AuthMessageRequested(),
-                  effectId: state.effectId + 1,
                 ),
               );
           }
@@ -269,7 +257,7 @@ class AuthCubit extends Cubit<AuthState> {
               captcha: '',
               captchaImage: null,
               effect: const AuthCompleted(),
-              effectId: state.effectId + 1,
+              message: null,
             ),
           );
         case Err(:final failure):
@@ -278,8 +266,6 @@ class AuthCubit extends Cubit<AuthState> {
               loginStatus: RequestStatus.failure,
               failure: failure,
               message: getAuthErrorMessage(failure),
-              effect: const AuthMessageRequested(),
-              effectId: state.effectId + 1,
             ),
           );
       }
@@ -397,5 +383,10 @@ class AuthCubit extends Cubit<AuthState> {
   Future<void> close() {
     _otpTimer?.cancel();
     return super.close();
+  }
+
+  /// UI has accepted the pending interaction; data and request statuses stay intact.
+  void consumeAuthInteraction() {
+    emit(state.copyWith(effect: null));
   }
 }

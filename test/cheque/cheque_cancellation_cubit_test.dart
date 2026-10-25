@@ -43,7 +43,7 @@ void main() {
     expect(cubit.state, const ChequeCancellationState.initial());
     repository.throwCatalog = true;
     await cubit.fetchCatalog();
-    expect(cubit.state.catalogFailure, const UnexpectedFailure());
+    expect(cubit.state.failure, const UnexpectedFailure());
     repository.throwCatalog = false;
     await cubit.fetchCatalog();
     cubit.selectType(CancellationChequeType.paper);

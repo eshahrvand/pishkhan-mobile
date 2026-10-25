@@ -21,7 +21,9 @@ void main() {
 
   test('constructors preserve supplied state and do not fetch', () async {
     const phoneState = ChangePhoneState.initial(phoneNumber: '123');
-    const addressesState = AddressesState.initial(effectId: 3);
+    const addressesState = AddressesState.initial(
+      effect: AddressEffect.minimumAddress,
+    );
     const occupationsState = OccupationsState.initial(description: 'draft');
     final phone = ChangePhoneCubit(initialState: phoneState);
     final addresses = AddressesCubit(initialState: addressesState);
@@ -64,7 +66,7 @@ void main() {
     cubit.updateTerms(true);
     await cubit.submitPhoneChange();
     expect(cubit.state.submissionStatus, RequestStatus.failure);
-    expect(cubit.state.submissionFailure!.code, 'profile.otp.invalid');
+    expect(cubit.state.failure!.code, 'profile.otp.invalid');
     final failedKey = cubit.state.idempotencyKey;
     await cubit.submitPhoneChange();
     expect(cubit.state.idempotencyKey, failedKey);

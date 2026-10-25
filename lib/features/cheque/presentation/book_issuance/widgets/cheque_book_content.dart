@@ -26,8 +26,9 @@ class ChequeBookContent extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(S.current.dashboardLoadError),
+                const SizedBox.shrink(),
                 AppButton(
+                  isLoading: state.catalogStatus == RequestStatus.loading,
                   label: S.current.dashboardRetry,
                   onPressed: context.read<ChequeBookCubit>().fetchCatalog,
                 ),
@@ -49,8 +50,9 @@ class ChequeBookContent extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 if (state.residencyStatus == RequestStatus.failure) ...[
-                  Text(S.current.dashboardLoadError),
+                  const SizedBox.shrink(),
                   AppButton(
+                    isLoading: state.residencyStatus == RequestStatus.loading,
                     label: S.current.dashboardRetry,
                     onPressed: context.read<ChequeBookCubit>().fetchResidency,
                   ),

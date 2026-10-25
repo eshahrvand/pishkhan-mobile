@@ -1,8 +1,9 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
+
 import 'app_service_grid_item_view_icon.dart';
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 /// The two Figma visual treatments for a service category card.
 enum AppServiceGridCardType { service, quick }
@@ -10,13 +11,19 @@ enum AppServiceGridCardType { service, quick }
 /// Figma SVG assets used by [AppServiceGridCard] previews.
 abstract final class AppServiceGridIcons {
   static Widget agentPurple() =>
-      _svg(AppAssets.serviceGridAgentPurple);
-  static Widget quickService() =>
-      _svg(AppAssets.serviceGridQuickService, size: const Size(70, 70.5));
-  static Widget quickAccess() =>
-      _svg(AppAssets.serviceGridQuickAccess, size: const Size.square(20));
-  static Widget angleLeft() =>
-      _svg(AppAssets.iconAngleLeft20Gray700, size: const Size.square(20));
+      _svg('${AppConstants.baseImage}service_grid_agent_purple.svg');
+  static Widget quickService() => _svg(
+    '${AppConstants.baseImage}service_grid_quick_service.svg',
+    size: const Size(70, 70.5),
+  );
+  static Widget quickAccess() => _svg(
+    '${AppConstants.baseImage}service_grid_quick_access.svg',
+    size: const Size.square(20),
+  );
+  static Widget angleLeft() => _svg(
+    '${AppConstants.baseImage}icon_angle_left_20_gray700.svg',
+    size: const Size.square(20),
+  );
 
   static Widget _svg(String path, {Size size = const Size.square(32)}) =>
       SizedBox(

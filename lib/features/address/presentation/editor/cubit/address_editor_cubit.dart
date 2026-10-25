@@ -39,9 +39,13 @@ class AddressEditorCubit extends Cubit<AddressEditorState> {
     );
   }
 
+  void consumeAddressEditorInteraction() {
+    emit(state.copyWith(effect: null));
+  }
+
   void selectType(DeliveryAddressType type) {
     if (retainHomeAddress && type == DeliveryAddressType.work) {
-      emit(state.copyWith(minimumHomeNoticeId: state.minimumHomeNoticeId + 1));
+      emit(state.copyWith(effect: AddressEditorEffect.minimumHomeNotice));
     } else {
       emit(state.copyWith(type: type));
     }
@@ -128,7 +132,7 @@ class AddressEditorCubit extends Cubit<AddressEditorState> {
         detail: state.detail.trim(),
         postalCode: state.postalCode,
       );
-      emit(state.copyWith(savedAddress: address, saveId: state.saveId + 1));
+      emit(state.copyWith(savedAddress: address));
     } else {
       emit(state.copyWith(isInvalid: true));
     }

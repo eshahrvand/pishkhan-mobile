@@ -1,8 +1,8 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 import '../../../domain/entities/card_service_data.dart';
 import '../../shared/card_service_widgets.dart';
@@ -59,7 +59,9 @@ class GiftBalanceDestination extends StatelessWidget {
                     ? context.colors.textDisabled
                     : context.colors.textPrimary,
               ),
-              trailing: cardServiceIcon(AppAssets.cardFeaturesChevron),
+              trailing: cardServiceIcon(
+                '${AppConstants.baseImage}card_features_chevron.svg',
+              ),
               options: [
                 for (final d in state.catalog!.deposits)
                   AppSelectOption(value: d, label: d.number),
@@ -68,16 +70,6 @@ class GiftBalanceDestination extends StatelessWidget {
                   .read<ExpiredGiftBalanceCubit>()
                   .selectDestination,
             ),
-            if (state.submissionFailure != null) ...[
-              const SizedBox(height: 12),
-              Semantics(
-                liveRegion: true,
-                child: Text(
-                  S.current.cardServiceSubmitError,
-                  style: cardServiceSmall(context, color: context.colors.error),
-                ),
-              ),
-            ],
           ],
         ),
       ),

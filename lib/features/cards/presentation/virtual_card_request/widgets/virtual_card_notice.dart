@@ -1,6 +1,6 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 import 'virtual_card_styles.dart';
 import 'virtual_card_icon.dart';
@@ -19,7 +19,9 @@ class VirtualCardNotice extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          VirtualCardIcon(path: AppAssets.passwordCameraInfo),
+          VirtualCardIcon(
+            path: '${AppConstants.baseImage}password_camera_info.svg',
+          ),
           const SizedBox(width: 8),
           Expanded(
             child: Text(

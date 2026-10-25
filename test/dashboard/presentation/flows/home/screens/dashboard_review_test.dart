@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/home/cubit/home_cubit.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
@@ -103,9 +104,12 @@ void main() {
       await tester.pumpAndSettle();
       await tester.runAsync(() async {
         final context = tester.element(find.byType(DashboardScreen));
-        await precacheImage(const AssetImage(AppAssets.dashboardReso), context);
         await precacheImage(
-          const AssetImage(AppAssets.dashboardTexture),
+          const AssetImage('${AppConstants.baseImage}dashboard_reso.png'),
+          context,
+        );
+        await precacheImage(
+          const AssetImage('${AppConstants.baseImage}dashboard_texture.png'),
           context,
         );
       });
@@ -192,7 +196,9 @@ void main() {
       final field = find.byType(TextField);
       String? hint() => tester.widget<TextField>(field).decoration?.hintText;
       final start = hint();
-      final glow = dashboardImagePosition(AppAssets.dashboardGlowLarge);
+      final glow = dashboardImagePosition(
+        '${AppConstants.baseImage}dashboard_glow_large.svg',
+      );
       final startX = tester.widget<Positioned>(glow).left;
       await tester.pump(const Duration(milliseconds: 450));
       expect(hint(), isNot(start));
@@ -235,14 +241,19 @@ void main() {
       await tester.pump();
       await tester.runAsync(() async {
         final context = tester.element(find.byType(DashboardResoBanner));
-        await precacheImage(const AssetImage(AppAssets.dashboardReso), context);
         await precacheImage(
-          const AssetImage(AppAssets.dashboardTexture),
+          const AssetImage('${AppConstants.baseImage}dashboard_reso.png'),
+          context,
+        );
+        await precacheImage(
+          const AssetImage('${AppConstants.baseImage}dashboard_texture.png'),
           context,
         );
       });
       await tester.pump();
-      final person = dashboardImagePosition(AppAssets.dashboardReso);
+      final person = dashboardImagePosition(
+        '${AppConstants.baseImage}dashboard_reso.png',
+      );
       final caption = find
           .ancestor(
             of: find.text(S.current.dashboardResoTitle),
@@ -250,9 +261,15 @@ void main() {
           )
           .first;
       final field = find.byType(AppTextField);
-      final large = dashboardImagePosition(AppAssets.dashboardGlowLarge);
-      final small = dashboardImagePosition(AppAssets.dashboardGlowSmall);
-      final overlay = dashboardImagePosition(AppAssets.dashboardResoOverlay);
+      final large = dashboardImagePosition(
+        '${AppConstants.baseImage}dashboard_glow_large.svg',
+      );
+      final small = dashboardImagePosition(
+        '${AppConstants.baseImage}dashboard_glow_small.svg',
+      );
+      final overlay = dashboardImagePosition(
+        '${AppConstants.baseImage}dashboard_reso_overlay.svg',
+      );
       final fixed = [
         tester.getRect(person),
         tester.getRect(caption),

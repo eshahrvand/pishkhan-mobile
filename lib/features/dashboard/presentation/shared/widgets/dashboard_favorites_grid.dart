@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
+
 import 'dashboard_dashed_border.dart';
 
 import 'package:avp_ui/avp_ui.dart';
@@ -6,7 +8,6 @@ import 'package:pishkhan_mobile/features/dashboard/presentation/home/cubit/home_
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/dashboard_services.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_service_tile.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_service_grid_card.dart';
 
 class DashboardFavoritesGrid extends StatelessWidget {
@@ -80,7 +81,8 @@ class DashboardFavoritesGrid extends StatelessWidget {
                                       maxWidth: 20,
                                       maxHeight: 20,
                                       child: AvpImage(
-                                        image: AppAssets.dashboardMinus,
+                                        image:
+                                            '${AppConstants.baseImage}dashboard_minus.svg',
                                       ),
                                     ),
                                   ),
@@ -120,7 +122,8 @@ class DashboardFavoritesGrid extends StatelessWidget {
                             ),
                             child: Center(
                               child: AvpImage(
-                                image: AppAssets.dashboardGreenPlus,
+                                image:
+                                    '${AppConstants.baseImage}dashboard_green_plus.svg',
                                 width: 20,
                                 height: 20,
                               ),

@@ -1,7 +1,6 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-
-import 'package:pishkhan_mobile/features/auth/presentation/shared/auth_assets.dart';
 
 class AuthSectionHeading extends StatelessWidget {
   const AuthSectionHeading({
@@ -20,7 +19,11 @@ class AuthSectionHeading extends StatelessWidget {
       children: [
         Row(
           children: [
-            AvpImage(image: AuthAssets.sectionMark, width: 10, height: 20),
+            AvpImage(
+              image: '${AppConstants.baseImage}auth_section_mark.svg',
+              width: 10,
+              height: 20,
+            ),
             const SizedBox(width: 6),
             Flexible(
               child: Text(

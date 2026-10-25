@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:pishkhan_mobile/core/presentation/mappers/request_error_message_mapper.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
 import 'package:pishkhan_mobile/core/domain/entities/delivery_address.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
@@ -38,7 +39,13 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
     _flowKey ??= base64UrlEncode(
       List<int>.generate(18, (_) => Random.secure().nextInt(256)),
     );
-    emit(state.copyWith(catalogStatus: RequestStatus.loading));
+    emit(
+      state.copyWith(
+        catalogStatus: RequestStatus.loading,
+        failure: null,
+        message: null,
+      ),
+    );
     return _repository.fetchCatalog().then((result) {
       switch (result) {
         case Success(:final data):
@@ -57,7 +64,8 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
           emit(
             state.copyWith(
               catalogStatus: RequestStatus.failure,
-              catalogFailure: failure,
+              failure: failure,
+              message: getRequestErrorMessage(failure),
             ),
           );
       }
@@ -116,10 +124,7 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
 
   void requestAddressEditor() {
     emit(
-      state.copyWith(
-        effect: OnSiteTransferEffect.addressEditor,
-        effectId: state.effectId + 1,
-      ),
+      state.copyWith(effect: OnSiteTransferEffect.addressEditor, message: null),
     );
   }
 
@@ -140,10 +145,7 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
 
   void requestAddressDeletion() {
     emit(
-      state.copyWith(
-        effect: OnSiteTransferEffect.deleteAddress,
-        effectId: state.effectId + 1,
-      ),
+      state.copyWith(effect: OnSiteTransferEffect.deleteAddress, message: null),
     );
   }
 
@@ -174,9 +176,9 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
         description: '',
         canAddDestination: false,
         destinationStatus: RequestStatus.initial,
-        destinationFailure: null,
         effect: OnSiteTransferEffect.destinationEditor,
-        effectId: state.effectId + 1,
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -244,7 +246,8 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
     emit(
       state.copyWith(
         destinationStatus: RequestStatus.loading,
-        destinationFailure: null,
+        failure: null,
+        message: null,
       ),
     );
     return _repository
@@ -266,14 +269,15 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
                   canContinue: true,
                   canAddDestination: false,
                   effect: OnSiteTransferEffect.closeDestination,
-                  effectId: state.effectId + 1,
+                  message: null,
                 ),
               );
             case Err(:final failure):
               emit(
                 state.copyWith(
                   destinationStatus: RequestStatus.failure,
-                  destinationFailure: failure,
+                  failure: failure,
+                  message: getRequestErrorMessage(failure),
                 ),
               );
           }
@@ -316,9 +320,9 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
             : RequestStatus.success,
         uploadProgress: state.attachment == null ? 0 : 1,
         canReviewFile: state.attachment != null,
-        uploadFailure: null,
         effect: OnSiteTransferEffect.uploadSheet,
-        effectId: state.effectId + 1,
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -328,7 +332,7 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
       state.copyWith(
         filePickerRequestId: ++_uploadRequestId,
         effect: OnSiteTransferEffect.pickFile,
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -351,7 +355,8 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
             uploadProgress: 0,
             pendingAttachment: null,
             canReviewFile: false,
-            uploadFailure: null,
+            failure: null,
+            message: null,
           ),
         );
         return _upload(file, (progress) {
@@ -374,7 +379,8 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
               emit(
                 state.copyWith(
                   uploadStatus: RequestStatus.failure,
-                  uploadFailure: failure,
+                  failure: failure,
+                  message: getRequestErrorMessage(failure),
                 ),
               );
           }
@@ -387,7 +393,10 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
     emit(
       state.copyWith(
         uploadStatus: RequestStatus.failure,
-        uploadFailure: const DataFailure('transfer.file.invalid'),
+        failure: const DataFailure('transfer.file.invalid'),
+        message: getRequestErrorMessage(
+          const DataFailure('transfer.file.invalid'),
+        ),
       ),
     );
   }
@@ -402,7 +411,8 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
         uploadProgress: 0,
         pendingAttachment: null,
         canReviewFile: false,
-        uploadFailure: null,
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -431,7 +441,7 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
           termsAccepted: false,
           canContinue: false,
           effect: OnSiteTransferEffect.reveal,
-          effectId: state.effectId + 1,
+          message: null,
         ),
       );
     }
@@ -439,10 +449,7 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
 
   void requestUnavailable() {
     emit(
-      state.copyWith(
-        effect: OnSiteTransferEffect.unavailable,
-        effectId: state.effectId + 1,
-      ),
+      state.copyWith(effect: OnSiteTransferEffect.unavailable, message: null),
     );
   }
 
@@ -455,7 +462,7 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
             stepNumber: 2,
             canContinue: state.address != null && state.isVisitDateValid,
             effect: OnSiteTransferEffect.reveal,
-            effectId: state.effectId + 1,
+            message: null,
           ),
         );
       case OnSiteTransferStep.visit:
@@ -466,7 +473,7 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
             canContinue:
                 state.destinations.isNotEmpty || state.attachment != null,
             effect: OnSiteTransferEffect.reveal,
-            effectId: state.effectId + 1,
+            message: null,
           ),
         );
       case OnSiteTransferStep.destinations:
@@ -489,7 +496,7 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
             termsAccepted: false,
             canContinue: false,
             effect: OnSiteTransferEffect.reveal,
-            effectId: state.effectId + 1,
+            message: null,
           ),
         );
       case OnSiteTransferStep.confirmation:
@@ -535,7 +542,8 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
     emit(
       state.copyWith(
         submissionStatus: RequestStatus.loading,
-        submissionFailure: null,
+        failure: null,
+        message: null,
       ),
     );
     return _repository.submit(state.confirmedRequest!).then((result) {
@@ -547,14 +555,15 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
               receipt: data,
               canContinue: false,
               effect: OnSiteTransferEffect.receipt,
-              effectId: state.effectId + 1,
+              message: null,
             ),
           );
         case Err(:final failure):
           emit(
             state.copyWith(
               submissionStatus: RequestStatus.failure,
-              submissionFailure: failure,
+              failure: failure,
+              message: getRequestErrorMessage(failure),
             ),
           );
       }
@@ -567,7 +576,7 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
         emit(
           state.copyWith(
             effect: OnSiteTransferEffect.confirmExit,
-            effectId: state.effectId + 1,
+            message: null,
           ),
         );
       case OnSiteTransferStep.visit:
@@ -577,7 +586,7 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
             stepNumber: 1,
             canContinue: state.deposit != null && state.isTransferDateValid,
             effect: OnSiteTransferEffect.reveal,
-            effectId: state.effectId + 1,
+            message: null,
           ),
         );
       case OnSiteTransferStep.destinations:
@@ -587,7 +596,7 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
             stepNumber: 2,
             canContinue: state.address != null && state.isVisitDateValid,
             effect: OnSiteTransferEffect.reveal,
-            effectId: state.effectId + 1,
+            message: null,
           ),
         );
       case OnSiteTransferStep.confirmation:
@@ -598,7 +607,7 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
             canContinue:
                 state.destinations.isNotEmpty || state.attachment != null,
             effect: OnSiteTransferEffect.reveal,
-            effectId: state.effectId + 1,
+            message: null,
           ),
         );
     }
@@ -606,30 +615,20 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
 
   void applyExitConfirmation(bool? confirmed) {
     if (confirmed == true) {
-      emit(
-        state.copyWith(
-          effect: OnSiteTransferEffect.back,
-          effectId: state.effectId + 1,
-        ),
-      );
+      emit(state.copyWith(effect: OnSiteTransferEffect.back, message: null));
     }
   }
 
   void requestAssistant() {
-    emit(
-      state.copyWith(
-        effect: OnSiteTransferEffect.assistant,
-        effectId: state.effectId + 1,
-      ),
-    );
+    emit(state.copyWith(effect: OnSiteTransferEffect.assistant, message: null));
   }
 
   void applyReceiptDismissal() {
-    emit(
-      state.copyWith(
-        effect: OnSiteTransferEffect.home,
-        effectId: state.effectId + 1,
-      ),
-    );
+    emit(state.copyWith(effect: OnSiteTransferEffect.home, message: null));
+  }
+
+  /// UI has accepted the pending interaction; data and request statuses stay intact.
+  void consumeOnSiteTransferInteraction() {
+    emit(state.copyWith(effect: null));
   }
 }

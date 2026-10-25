@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:pishkhan_mobile/core/presentation/mappers/request_error_message_mapper.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/flow/flow_navigation.dart';
@@ -41,7 +42,7 @@ class AverageBalanceCubit extends Cubit<AverageBalanceState> {
     emit(
       state.copyWith(
         effect: const CertificateAddressRequested(),
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -54,7 +55,7 @@ class AverageBalanceCubit extends Cubit<AverageBalanceState> {
     emit(
       state.copyWith(
         effect: CertificateAddressRemovalRequested(state.address!),
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -63,7 +64,7 @@ class AverageBalanceCubit extends Cubit<AverageBalanceState> {
     emit(
       state.copyWith(
         effect: const CertificateAgentUnavailable(),
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -119,7 +120,7 @@ class AverageBalanceCubit extends Cubit<AverageBalanceState> {
                 ? FlowNavigation.confirmExit
                 : FlowNavigation.back,
             effect: null,
-            effectId: state.effectId + 1,
+            message: null,
           ),
         );
     }
@@ -130,7 +131,7 @@ class AverageBalanceCubit extends Cubit<AverageBalanceState> {
       state.copyWith(
         navigation: confirmed == true ? FlowNavigation.back : null,
         effect: null,
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -140,7 +141,7 @@ class AverageBalanceCubit extends Cubit<AverageBalanceState> {
       state.copyWith(
         navigation: FlowNavigation.home,
         effect: null,
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -150,7 +151,7 @@ class AverageBalanceCubit extends Cubit<AverageBalanceState> {
       state.copyWith(
         navigation: FlowNavigation.home,
         effect: null,
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -189,8 +190,9 @@ class AverageBalanceCubit extends Cubit<AverageBalanceState> {
     emit(
       state.copyWith(
         catalogStatus: RequestStatus.loading,
-        catalogFailure: null,
         canContinue: false,
+        failure: null,
+        message: null,
       ),
     );
     return LoadCertificateCatalog(repository)().then((result) {
@@ -199,7 +201,8 @@ class AverageBalanceCubit extends Cubit<AverageBalanceState> {
           emit(
             state.copyWith(
               catalogStatus: RequestStatus.failure,
-              catalogFailure: failure,
+              failure: failure,
+              message: getRequestErrorMessage(failure),
             ),
           );
         case Success(:final data):
@@ -268,8 +271,9 @@ class AverageBalanceCubit extends Cubit<AverageBalanceState> {
         turnover: null,
         fromDate: null,
         toDate: null,
-        submissionFailure: null,
         canContinue: false,
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -278,8 +282,9 @@ class AverageBalanceCubit extends Cubit<AverageBalanceState> {
     emit(
       state.copyWith(
         language: language,
-        submissionFailure: null,
         canContinue: state.turnover != null,
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -288,8 +293,9 @@ class AverageBalanceCubit extends Cubit<AverageBalanceState> {
     emit(
       state.copyWith(
         turnover: turnover,
-        submissionFailure: null,
         canContinue: state.language != null,
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -298,10 +304,11 @@ class AverageBalanceCubit extends Cubit<AverageBalanceState> {
     emit(
       state.copyWith(
         address: address,
-        submissionFailure: null,
         canContinue:
             !state.isOtherRecipient ||
             (state.isRecipientNameValid && state.isRecipientNationalIdValid),
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -408,7 +415,8 @@ class AverageBalanceCubit extends Cubit<AverageBalanceState> {
     emit(
       state.copyWith(
         submissionStatus: RequestStatus.loading,
-        submissionFailure: null,
+        failure: null,
+        message: null,
       ),
     );
     return certificateBoundary(() => repository.submitAverageBalance(request))
@@ -418,7 +426,8 @@ class AverageBalanceCubit extends Cubit<AverageBalanceState> {
               emit(
                 state.copyWith(
                   submissionStatus: RequestStatus.failure,
-                  submissionFailure: failure,
+                  failure: failure,
+                  message: getRequestErrorMessage(failure),
                 ),
               );
             case Success(:final data):
@@ -457,5 +466,10 @@ class AverageBalanceCubit extends Cubit<AverageBalanceState> {
                 Random.secure().nextInt(256).toRadixString(16).padLeft(2, '0'),
           ).join(),
     );
+  }
+
+  /// UI has accepted the pending interaction; data and request statuses stay intact.
+  void consumeAverageBalanceInteraction() {
+    emit(state.copyWith(navigation: null, effect: null));
   }
 }

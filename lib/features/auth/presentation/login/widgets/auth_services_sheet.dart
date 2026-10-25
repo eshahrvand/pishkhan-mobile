@@ -1,10 +1,11 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
+
 import 'dart:ui';
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/login/widgets/auth_services_grid.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/shared/auth_assets.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_bottom_sheet_header.dart';
 
@@ -68,7 +69,9 @@ class AuthServicesSheet extends StatelessWidget {
           AppBottomSheetHeader(
             title: S.current.servicesList,
             showRightIcon: false,
-            leftIcon: AvpImage(image: AuthAssets.sheetClose),
+            leftIcon: AvpImage(
+              image: '${AppConstants.baseImage}auth_sheet_close.svg',
+            ),
             onLeftAction: onClose,
           ),
           Expanded(
@@ -94,7 +97,8 @@ class AuthServicesSheet extends StatelessWidget {
                       const SizedBox(width: 12),
                       Expanded(
                         child: AvpImage(
-                          image: AuthAssets.sectionDivider1,
+                          image:
+                              '${AppConstants.baseImage}auth_section_divider_1.svg',
                           height: 1,
                           fit: BoxFit.fill,
                         ),
@@ -107,23 +111,23 @@ class AuthServicesSheet extends StatelessWidget {
                       item(
                         'deposits.assetReport',
                         S.current.assetReport,
-                        AuthAssets.assetReport,
+                        '${AppConstants.baseImage}auth_asset_report.svg',
                       ),
                       item(
                         'identity.changePhone',
                         S.current.changeMobileService,
-                        AuthAssets.changeMobile,
+                        '${AppConstants.baseImage}auth_change_mobile.svg',
                       ),
                       item(
                         'requests.status',
                         S.current.requestStatus,
-                        AuthAssets.requestStatus,
+                        '${AppConstants.baseImage}auth_request_status.svg',
                         mutedLabel: true,
                       ),
                       item(
                         'identity.inheritance',
                         S.current.inheritance,
-                        AuthAssets.inheritance,
+                        '${AppConstants.baseImage}auth_inheritance.svg',
                       ),
                     ],
                   ),
@@ -145,7 +149,8 @@ class AuthServicesSheet extends StatelessWidget {
                       const SizedBox(width: 12),
                       Expanded(
                         child: AvpImage(
-                          image: AuthAssets.sectionDivider2,
+                          image:
+                              '${AppConstants.baseImage}auth_section_divider_2.svg',
                           height: 1,
                           fit: BoxFit.fill,
                         ),
@@ -158,22 +163,22 @@ class AuthServicesSheet extends StatelessWidget {
                       item(
                         'links.mobileBank',
                         S.current.mobileBank,
-                        AuthAssets.mobileBank,
+                        '${AppConstants.baseImage}auth_mobile_bank.svg',
                       ),
                       item(
                         'links.internetBank',
                         S.current.internetBank,
-                        AuthAssets.internetBank,
+                        '${AppConstants.baseImage}auth_internet_bank.svg',
                       ),
                       item(
                         'links.callCenter',
                         S.current.memberContactCenter,
-                        AuthAssets.callCenter,
+                        '${AppConstants.baseImage}auth_call_center.svg',
                       ),
                       item(
                         'links.resalat',
                         S.current.resalatApp,
-                        AuthAssets.resalatService,
+                        '${AppConstants.baseImage}auth_resalat_service.svg',
                       ),
                     ],
                   ),
@@ -184,12 +189,12 @@ class AuthServicesSheet extends StatelessWidget {
                       item(
                         'links.security',
                         S.current.securityTips,
-                        AuthAssets.security,
+                        '${AppConstants.baseImage}auth_security.svg',
                       ),
                       item(
                         'links.updateGuide',
                         S.current.updateGuide,
-                        AuthAssets.updateGuide,
+                        '${AppConstants.baseImage}auth_update_guide.svg',
                       ),
                     ],
                   ),

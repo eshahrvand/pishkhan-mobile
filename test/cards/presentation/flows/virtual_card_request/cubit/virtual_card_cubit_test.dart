@@ -14,7 +14,7 @@ class TestVirtualRepository implements VirtualCardRepository {
   VirtualCardCatalog catalog = MockVirtualCardRepository.catalog;
   final pendingQuotes = <Completer<Result<VirtualCardQuote>>>[];
   bool holdQuotes = false, throwLoad = false, mockReceipt = true;
-  Failure? quoteFailure, submitFailure;
+  Failure? failure, submitFailure;
   Completer<Result<VirtualCardReceipt>>? submitting;
   final requests = <VirtualCardRequest>[];
   int wallet = 2000000;
@@ -39,9 +39,7 @@ class TestVirtualRepository implements VirtualCardRepository {
       pendingQuotes.add(pending);
       return pending.future;
     }
-    return quoteFailure == null
-        ? Success(value(id, count))
-        : Err(quoteFailure!);
+    return failure == null ? Success(value(id, count)) : Err(failure!);
   }
 
   @override
@@ -156,7 +154,7 @@ void main() {
     r.pendingQuotes[2].complete(Success(r.value('virtual-deposit-1', 4)));
     await bad;
     expect(c.state.quote, isNull);
-    expect(c.state.quoteFailure!.code, 'virtual.quote.invalid');
+    expect(c.state.failure!.code, 'virtual.quote.invalid');
     expect(c.state.quoteStatus, RequestStatus.failure);
     expect(c.state.catalogStatus, RequestStatus.success);
     await c.close();
@@ -232,11 +230,11 @@ void main() {
     expect(c.state.catalogStatus, RequestStatus.failure);
     r.throwLoad = false;
     await c.fetchCatalog();
-    r.quoteFailure = const DataFailure('network');
+    r.failure = const DataFailure('network');
     await fillVirtual(c);
     expect(c.state.canSubmit, false);
-    expect(c.state.quoteFailure, isNotNull);
-    r.quoteFailure = null;
+    expect(c.state.failure, isNotNull);
+    r.failure = null;
     await c.fetchQuote();
     expect(c.state.quote, isNotNull);
     expect(c.state.termsAccepted, false);
@@ -300,7 +298,7 @@ void main() {
     'quote and submission failures retain independent retry contracts',
     () async {
       final repository = TestVirtualRepository()
-        ..quoteFailure = const DataFailure('quote-offline');
+        ..failure = const DataFailure('quote-offline');
       final cubit =
           withRegisteredDependency<VirtualCardRepository, VirtualCardCubit>(
             repository,
@@ -309,17 +307,17 @@ void main() {
       addTearDown(cubit.close);
       await cubit.fetchCatalog();
       await fillVirtual(cubit);
-      expect(cubit.state.quoteFailure?.code, 'quote-offline');
-      expect(cubit.state.catalogFailure, isNull);
-      expect(cubit.state.submissionFailure, isNull);
+      expect(cubit.state.failure?.code, 'quote-offline');
+      expect(cubit.state.catalogStatus, RequestStatus.success);
+      expect(cubit.state.submissionStatus, RequestStatus.initial);
       expect(cubit.state.retryAction, VirtualCardRetryAction.quote);
-      repository.quoteFailure = null;
+      repository.failure = null;
       await cubit.submitRetry();
-      expect(cubit.state.quoteFailure, isNull);
+      expect(cubit.state.failure, isNull);
       cubit.updateTermsAcceptance(true);
       repository.submitFailure = const DataFailure('submit-offline');
       await cubit.submitVirtualCards();
-      expect(cubit.state.submissionFailure?.code, 'submit-offline');
+      expect(cubit.state.failure?.code, 'submit-offline');
       expect(cubit.state.quoteStatus, RequestStatus.success);
       expect(cubit.state.retryAction, VirtualCardRetryAction.submission);
       cubit.updateTermsAcceptance(false);

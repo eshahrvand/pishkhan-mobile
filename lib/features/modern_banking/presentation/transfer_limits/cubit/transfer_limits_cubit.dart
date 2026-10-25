@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:pishkhan_mobile/core/presentation/mappers/request_error_message_mapper.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/flow/flow_navigation.dart';
@@ -26,7 +27,8 @@ class TransferLimitsCubit extends Cubit<TransferLimitsState> {
     emit(
       state.copyWith(
         catalogStatus: RequestStatus.loading,
-        catalogFailure: null,
+        failure: null,
+        message: null,
       ),
     );
     return FetchMobileBankCatalog(repository)().then((result) {
@@ -51,7 +53,8 @@ class TransferLimitsCubit extends Cubit<TransferLimitsState> {
           emit(
             state.copyWith(
               catalogStatus: RequestStatus.failure,
-              catalogFailure: failure,
+              failure: failure,
+              message: getRequestErrorMessage(failure),
             ),
           );
       }
@@ -152,7 +155,8 @@ class TransferLimitsCubit extends Cubit<TransferLimitsState> {
     emit(
       state.copyWith(
         submissionStatus: RequestStatus.loading,
-        submissionFailure: null,
+        failure: null,
+        message: null,
       ),
     );
     return repository.submitTransferLimits(request).then((result) {
@@ -168,7 +172,8 @@ class TransferLimitsCubit extends Cubit<TransferLimitsState> {
           emit(
             state.copyWith(
               submissionStatus: RequestStatus.failure,
-              submissionFailure: failure,
+              failure: failure,
+              message: getRequestErrorMessage(failure),
             ),
           );
       }
@@ -182,7 +187,7 @@ class TransferLimitsCubit extends Cubit<TransferLimitsState> {
             state.isEditing && state.submissionStatus != RequestStatus.success
             ? FlowNavigation.confirmExit
             : FlowNavigation.back,
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -191,17 +196,17 @@ class TransferLimitsCubit extends Cubit<TransferLimitsState> {
     emit(
       state.copyWith(
         navigation: confirmed == true ? FlowNavigation.back : null,
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
 
   void requestHome() {
-    emit(
-      state.copyWith(
-        navigation: FlowNavigation.home,
-        effectId: state.effectId + 1,
-      ),
-    );
+    emit(state.copyWith(navigation: FlowNavigation.home, message: null));
+  }
+
+  /// UI has accepted the pending interaction; data and request statuses stay intact.
+  void consumeTransferLimitsInteraction() {
+    emit(state.copyWith(navigation: null));
   }
 }

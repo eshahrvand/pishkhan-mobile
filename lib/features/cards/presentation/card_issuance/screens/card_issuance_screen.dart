@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:pishkhan_mobile/shared/widgets/flow_exit_dialog.dart';
 
 import '../widgets/issuance_address_sheet.dart';
@@ -10,7 +11,6 @@ import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_delete_address_sheet.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
@@ -51,6 +51,7 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
   ) async {
     switch (state.navigation) {
       case FlowNavigation.confirmExit:
+        context.read<CardIssuanceCubit>().consumeCardIssuanceInteraction();
         final confirmed = await showFlowExitDialog(context);
         if (context.mounted) {
           context.read<CardIssuanceCubit>().applyExitConfirmation(confirmed);
@@ -71,8 +72,15 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
     BuildContext context,
     CardIssuanceState state,
   ) async {
+    if (state.message != null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(state.message!)));
+      return;
+    }
+
     switch (state.effect) {
       case IssuanceTermsRequested():
+        context.read<CardIssuanceCubit>().consumeCardIssuanceInteraction();
         if (widget.onTermsRequested != null) {
           widget.onTermsRequested!();
         } else {
@@ -81,11 +89,13 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
           );
         }
       case IssuanceAddressRequested():
+        context.read<CardIssuanceCubit>().consumeCardIssuanceInteraction();
         await showIssuanceAddressSheet(
           context,
           context.read<CardIssuanceCubit>(),
         );
       case IssuanceAddressRemovalRequested(:final address):
+        context.read<CardIssuanceCubit>().consumeCardIssuanceInteraction();
         await showModalBottomSheet<void>(
           context: context,
           isScrollControlled: true,
@@ -127,23 +137,38 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
             ..fetchIssuanceCatalog(),
       child: BlocListener<CardIssuanceCubit, CardIssuanceState>(
         listenWhen: (previous, current) =>
-            previous.navigationId != current.navigationId,
+            (previous.navigation != current.navigation &&
+            current.navigation != null),
         listener: _handleNavigation,
         child: BlocListener<CardIssuanceCubit, CardIssuanceState>(
           listenWhen: (previous, current) =>
-              previous.effectId != current.effectId,
+              (previous.effect != current.effect &&
+                  current.effect != null) ||
+              ((previous.catalogStatus != current.catalogStatus &&
+                      current.catalogStatus == RequestStatus.failure) ||
+                  (previous.submissionStatus != current.submissionStatus &&
+                      current.submissionStatus == RequestStatus.failure)),
           listener: _handleEffect,
           child: Directionality(
             textDirection: TextDirection.rtl,
             child: BlocConsumer<CardIssuanceCubit, CardIssuanceState>(
               listenWhen: (previous, current) =>
-                  previous.scrollId != current.scrollId,
+                  previous.step != current.step ||
+                  (previous.catalogStatus != current.catalogStatus &&
+                      current.catalogStatus != RequestStatus.loading) ||
+                  (previous.submissionStatus != current.submissionStatus &&
+                      current.submissionStatus != RequestStatus.loading),
               listener: _handleProgress,
               builder: (context, state) {
                 return PopScope<void>(
-                  canPop: state.navigation == FlowNavigation.back,
+                  canPop:
+                      (state.catalogStatus != RequestStatus.loading &&
+                          state.submissionStatus != RequestStatus.loading) &&
+                      (state.navigation == FlowNavigation.back),
                   onPopInvokedWithResult: (didPop, _) {
-                    if (!didPop) {
+                    if (!didPop &&
+                        state.catalogStatus != RequestStatus.loading &&
+                        state.submissionStatus != RequestStatus.loading) {
                       context.read<CardIssuanceCubit>().requestBack();
                     }
                   },
@@ -156,12 +181,18 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
                             title: S.current.issuanceTitle,
                             showLeadingActions: false,
                             trailingIcon: issuanceIcon(
-                              AppAssets.cardFeaturesBack,
+                              '${AppConstants.baseImage}card_features_back.svg',
                               size: 24,
                             ),
                             trailingTooltip: S.current.backLabel,
-                            onTrailingPressed: () =>
-                                context.read<CardIssuanceCubit>().requestBack(),
+                            onTrailingPressed:
+                                (state.catalogStatus != RequestStatus.loading &&
+                                    state.submissionStatus !=
+                                        RequestStatus.loading)
+                                ? () => context
+                                      .read<CardIssuanceCubit>()
+                                      .requestBack()
+                                : null,
                           ),
                           Expanded(
                             // The assistant and footer overlay the scroll viewport; a Column

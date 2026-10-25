@@ -1,9 +1,9 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 import '../../../domain/entities/request_report.dart';
 import '../cubit/request_reports_cubit.dart';
@@ -40,8 +40,8 @@ class ReportFilters extends StatelessWidget {
                         selected: state.filter.types != null,
                         icon: AvpImage(
                           image: state.filter.types == null
-                              ? AppAssets.depositFeatureChevron
-                              : AppAssets.depositFeatureClear,
+                              ? '${AppConstants.baseImage}deposit_list_chevron.svg'
+                              : '${AppConstants.baseImage}deposit_list_clear.svg',
                           width: 20,
                           height: 20,
                         ),
@@ -59,8 +59,8 @@ class ReportFilters extends StatelessWidget {
                         selected: state.filter.period != ReportDatePeriod.all,
                         icon: AvpImage(
                           image: state.filter.period == ReportDatePeriod.all
-                              ? AppAssets.depositFeatureChevron
-                              : AppAssets.depositFeatureClear,
+                              ? '${AppConstants.baseImage}deposit_list_chevron.svg'
+                              : '${AppConstants.baseImage}deposit_list_clear.svg',
                           width: 20,
                           height: 20,
                         ),
@@ -78,8 +78,8 @@ class ReportFilters extends StatelessWidget {
                         selected: state.filter.statuses != null,
                         icon: AvpImage(
                           image: state.filter.statuses == null
-                              ? AppAssets.depositFeatureChevron
-                              : AppAssets.depositFeatureClear,
+                              ? '${AppConstants.baseImage}deposit_list_chevron.svg'
+                              : '${AppConstants.baseImage}deposit_list_clear.svg',
                           width: 20,
                           height: 20,
                         ),
@@ -97,7 +97,7 @@ class ReportFilters extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               const AvpImage(
-                image: AppAssets.cardFeaturesSeparator,
+                image: '${AppConstants.baseImage}card_features_separator.png',
                 height: 1,
                 width: double.infinity,
                 fit: BoxFit.fill,
@@ -117,7 +117,8 @@ class ReportFilters extends StatelessWidget {
                   height: 44,
                   child: Center(
                     child: AvpImage(
-                      image: AppAssets.cardFeaturesSearch,
+                      image:
+                          '${AppConstants.baseImage}card_features_search.svg',
                       width: 20,
                       height: 20,
                     ),

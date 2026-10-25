@@ -1,8 +1,8 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 /// Repeated amount field with its bank-provided limit and display helper.
 class MobileBankLimitField extends StatelessWidget {
@@ -70,7 +70,9 @@ class MobileBankLimitField extends StatelessWidget {
             children: [
               SizedBox.square(
                 dimension: 14,
-                child: AvpImage(image: AppAssets.passwordInfo),
+                child: AvpImage(
+                  image: '${AppConstants.baseImage}password_info.svg',
+                ),
               ),
               const SizedBox(width: 8),
               Text(
@@ -91,7 +93,9 @@ class MobileBankLimitField extends StatelessWidget {
               children: [
                 SizedBox.square(
                   dimension: 20,
-                  child: AvpImage(image: AppAssets.passwordCameraInfo),
+                  child: AvpImage(
+                    image: '${AppConstants.baseImage}password_camera_info.svg',
+                  ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(

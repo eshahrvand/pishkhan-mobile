@@ -20,8 +20,9 @@ abstract class CloseSurplusDepositsState with _$CloseSurplusDepositsState {
     @Default(<ListedDeposit>[]) List<ListedDeposit> deposits,
     ListedDeposit? deposit,
     SurplusDepositClosureReceipt? receipt,
-    Failure? depositsFailure,
-    Failure? submissionFailure,
+    Failure? failure,
+    String? message,
+
     @Default(false) bool termsAccepted,
     @Default(false) bool canContinue,
     @Default(false) bool hasChanges,
@@ -29,6 +30,5 @@ abstract class CloseSurplusDepositsState with _$CloseSurplusDepositsState {
     @Default(false) bool isExitToAssistant,
     String? idempotencyKey,
     CloseSurplusDepositsEffect? effect,
-    @Default(0) int effectId,
   }) = _CloseSurplusDepositsState;
 }

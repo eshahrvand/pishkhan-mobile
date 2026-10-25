@@ -1,7 +1,7 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 class NotificationHeader extends StatelessWidget {
   const NotificationHeader({super.key, this.title, this.action});
@@ -27,7 +27,9 @@ class NotificationHeader extends StatelessWidget {
               padding: EdgeInsets.zero,
               tooltip: MaterialLocalizations.of(context).backButtonTooltip,
               onPressed: () => NavigationActions.back(context),
-              icon: AvpImage(image: AppAssets.notificationBack),
+              icon: AvpImage(
+                image: '${AppConstants.baseImage}notification_back.svg',
+              ),
             ),
           ),
           const SizedBox(width: 10),

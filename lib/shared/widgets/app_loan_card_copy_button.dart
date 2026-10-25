@@ -1,6 +1,6 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 class AppLoanCardCopyButton extends StatelessWidget {
   const AppLoanCardCopyButton({super.key, required this.onCopyLoanNumber});
@@ -10,7 +10,10 @@ class AppLoanCardCopyButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final icon = SizedBox.square(
       dimension: 16,
-      child: AvpImage(image: AppAssets.loanCardCopy, fit: BoxFit.contain),
+      child: AvpImage(
+        image: '${AppConstants.baseImage}loan_card_copy.svg',
+        fit: BoxFit.contain,
+      ),
     );
     return onCopyLoanNumber == null
         ? KeyedSubtree(key: const Key('app_loan_card_copy'), child: icon)

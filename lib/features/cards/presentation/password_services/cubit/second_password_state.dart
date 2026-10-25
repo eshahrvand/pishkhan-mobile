@@ -10,7 +10,7 @@ enum PasswordPrimaryAction { continueFlow, startKyc, submit, changePassword }
 abstract class SecondPasswordState with _$SecondPasswordState {
   const factory SecondPasswordState.initial({
     PasswordEffect? effect,
-    @Default(0) int effectId,
+
     @Default(false) bool isFullStatusVisible,
     @Default(false) bool isPasswordVisible,
     @Default(false) bool isConfirmationVisible,
@@ -50,8 +50,7 @@ abstract class SecondPasswordState with _$SecondPasswordState {
     @Default(false) bool isRecordingConfirmed,
     PasswordRequestRecord? record,
     String? idempotencyKey,
-    Failure? catalogFailure,
-    Failure? existingRequestFailure,
-    Failure? submissionFailure,
+    Failure? failure,
+    String? message,
   }) = _SecondPasswordState;
 }

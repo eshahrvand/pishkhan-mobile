@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:pishkhan_mobile/core/presentation/mappers/request_error_message_mapper.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/result/failure.dart';
@@ -32,8 +33,9 @@ class DepositRestrictionCubit extends Cubit<DepositRestrictionState> {
     emit(
       state.copyWith(
         catalogStatus: RequestStatus.loading,
-        catalogFailure: null,
         isEditable: false,
+        failure: null,
+        message: null,
       ),
     );
     return _fetchCatalog(operation).then((result) {
@@ -42,7 +44,8 @@ class DepositRestrictionCubit extends Cubit<DepositRestrictionState> {
           emit(
             state.copyWith(
               catalogStatus: RequestStatus.failure,
-              catalogFailure: failure,
+              failure: failure,
+              message: getRequestErrorMessage(failure),
             ),
           );
         case Success(:final data):
@@ -83,8 +86,9 @@ class DepositRestrictionCubit extends Cubit<DepositRestrictionState> {
         termsAccepted: false,
         canSubmit: false,
         hasChanges: true,
-        submissionFailure: null,
         idempotencyKey: _createRequestKey(),
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -98,8 +102,9 @@ class DepositRestrictionCubit extends Cubit<DepositRestrictionState> {
             state.termsAccepted &&
             state.isWalletSufficient,
         hasChanges: true,
-        submissionFailure: null,
         idempotencyKey: _createRequestKey(),
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -109,10 +114,11 @@ class DepositRestrictionCubit extends Cubit<DepositRestrictionState> {
       state.copyWith(
         description: description,
         hasChanges: true,
-        submissionFailure: null,
         idempotencyKey: description.trim() == state.description.trim()
             ? state.idempotencyKey
             : _createRequestKey(),
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -143,8 +149,9 @@ class DepositRestrictionCubit extends Cubit<DepositRestrictionState> {
     emit(
       state.copyWith(
         submissionStatus: RequestStatus.loading,
-        submissionFailure: null,
         isEditable: false,
+        failure: null,
+        message: null,
       ),
     );
     return _submitRestriction(request).then((result) {
@@ -153,8 +160,9 @@ class DepositRestrictionCubit extends Cubit<DepositRestrictionState> {
           emit(
             state.copyWith(
               submissionStatus: RequestStatus.failure,
-              submissionFailure: failure,
               isEditable: true,
+              failure: failure,
+              message: getRequestErrorMessage(failure),
             ),
           );
         case Success(:final data):
@@ -174,7 +182,7 @@ class DepositRestrictionCubit extends Cubit<DepositRestrictionState> {
     emit(
       state.copyWith(
         effect: DepositRestrictionEffect.termsUnavailable,
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -186,7 +194,7 @@ class DepositRestrictionCubit extends Cubit<DepositRestrictionState> {
             ? DepositRestrictionEffect.confirmExit
             : DepositRestrictionEffect.back,
         isExitToAssistant: false,
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -198,7 +206,7 @@ class DepositRestrictionCubit extends Cubit<DepositRestrictionState> {
             ? DepositRestrictionEffect.confirmExit
             : DepositRestrictionEffect.assistant,
         isExitToAssistant: true,
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -211,20 +219,20 @@ class DepositRestrictionCubit extends Cubit<DepositRestrictionState> {
                   ? DepositRestrictionEffect.assistant
                   : DepositRestrictionEffect.back)
             : null,
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
 
   void applyReceiptDismissal() {
-    emit(
-      state.copyWith(
-        effect: DepositRestrictionEffect.home,
-        effectId: state.effectId + 1,
-      ),
-    );
+    emit(state.copyWith(effect: DepositRestrictionEffect.home, message: null));
   }
 
   String _createRequestKey() =>
       'deposit-restriction-${DateTime.now().microsecondsSinceEpoch}-${Random.secure().nextInt(1 << 32)}';
+
+  /// UI has accepted the pending interaction; data and request statuses stay intact.
+  void consumeDepositRestrictionInteraction() {
+    emit(state.copyWith(effect: null));
+  }
 }

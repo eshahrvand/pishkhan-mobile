@@ -1,9 +1,9 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 import '../../shared/card_service_widgets.dart';
 import '../cubit/expired_gift_balance_cubit.dart';
@@ -44,7 +44,9 @@ class GiftBalanceSelection extends StatelessWidget {
                     prefixIcon: Center(
                       widthFactor: 1,
                       heightFactor: 1,
-                      child: cardServiceIcon(AppAssets.cardFeaturesSearch),
+                      child: cardServiceIcon(
+                        '${AppConstants.baseImage}card_features_search.svg',
+                      ),
                     ),
                     normalizeDigits: true,
                     maxLength: 19,
@@ -72,7 +74,9 @@ class GiftBalanceSelection extends StatelessWidget {
                       variant: AppButtonVariant.secondaryGray,
                       tooltip: S.current.cardFeatureFilter,
                       backgroundColor: AppPalette.warning300,
-                      icon: cardServiceIcon(AppAssets.giftBalanceFilter),
+                      icon: cardServiceIcon(
+                        '${AppConstants.baseImage}gift_balance_filter.svg',
+                      ),
                     ),
                   ),
                 ],

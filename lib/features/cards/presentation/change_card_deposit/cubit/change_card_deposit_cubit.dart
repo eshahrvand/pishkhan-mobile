@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:pishkhan_mobile/core/presentation/mappers/request_error_message_mapper.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/flow/flow_navigation.dart';
@@ -33,7 +34,8 @@ class ChangeCardDepositCubit extends Cubit<ChangeCardDepositState> {
     emit(
       state.copyWith(
         catalogStatus: RequestStatus.loading,
-        catalogFailure: null,
+        failure: null,
+        message: null,
       ),
     );
     return LoadCardServiceCatalog(_repository)().then((result) {
@@ -42,7 +44,8 @@ class ChangeCardDepositCubit extends Cubit<ChangeCardDepositState> {
           emit(
             state.copyWith(
               catalogStatus: RequestStatus.failure,
-              catalogFailure: failure,
+              failure: failure,
+              message: getRequestErrorMessage(failure),
             ),
           );
         case Success(:final data):
@@ -85,7 +88,8 @@ class ChangeCardDepositCubit extends Cubit<ChangeCardDepositState> {
         termsAccepted: false,
         canSubmit: false,
         submissionStatus: RequestStatus.initial,
-        submissionFailure: null,
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -98,7 +102,8 @@ class ChangeCardDepositCubit extends Cubit<ChangeCardDepositState> {
         termsAccepted: false,
         canSubmit: false,
         submissionStatus: RequestStatus.initial,
-        submissionFailure: null,
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -130,9 +135,10 @@ class ChangeCardDepositCubit extends Cubit<ChangeCardDepositState> {
     emit(
       state.copyWith(
         submissionStatus: RequestStatus.loading,
-        submissionFailure: null,
         isEditable: false,
         canSubmit: false,
+        failure: null,
+        message: null,
       ),
     );
     return cardServiceBoundary(() => _repository.changeDeposit(request))
@@ -142,9 +148,10 @@ class ChangeCardDepositCubit extends Cubit<ChangeCardDepositState> {
               emit(
                 state.copyWith(
                   submissionStatus: RequestStatus.failure,
-                  submissionFailure: failure,
                   isEditable: true,
                   canSubmit: state.termsAccepted && state.isWalletSufficient,
+                  failure: failure,
+                  message: getRequestErrorMessage(failure),
                 ),
               );
             case Success(:final data):
@@ -170,7 +177,7 @@ class ChangeCardDepositCubit extends Cubit<ChangeCardDepositState> {
         navigation: needsConfirmation
             ? FlowNavigation.confirmExit
             : FlowNavigation.back,
-        navigationId: state.navigationId + 1,
+        message: null,
       ),
     );
   }
@@ -179,7 +186,7 @@ class ChangeCardDepositCubit extends Cubit<ChangeCardDepositState> {
     emit(
       state.copyWith(
         navigation: confirmed == true ? FlowNavigation.back : null,
-        navigationId: state.navigationId + 1,
+        message: null,
       ),
     );
   }
@@ -193,4 +200,9 @@ class ChangeCardDepositCubit extends Cubit<ChangeCardDepositState> {
 
   String _number(String value) =>
       DigitNormalizer.normalize(value).replaceAll(RegExp(r'[^0-9]'), '');
+
+  /// UI has accepted the pending interaction; data and request statuses stay intact.
+  void consumeChangeCardDepositInteraction() {
+    emit(state.copyWith(navigation: null));
+  }
 }

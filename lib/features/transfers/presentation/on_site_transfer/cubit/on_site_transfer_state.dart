@@ -65,11 +65,9 @@ abstract class OnSiteTransferState with _$OnSiteTransferState {
     @Default(false) bool isInvoiceExpanded,
     OnSiteTransferRequest? confirmedRequest,
     TransferReceipt? receipt,
-    Failure? catalogFailure,
-    Failure? destinationFailure,
-    Failure? uploadFailure,
-    Failure? submissionFailure,
+    Failure? failure,
+    String? message,
+
     OnSiteTransferEffect? effect,
-    @Default(0) int effectId,
   }) = _OnSiteTransferState;
 }

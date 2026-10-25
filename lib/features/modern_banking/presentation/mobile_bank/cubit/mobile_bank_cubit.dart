@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:pishkhan_mobile/core/presentation/mappers/request_error_message_mapper.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/flow/flow_navigation.dart';
@@ -29,7 +30,8 @@ class MobileBankCubit extends Cubit<MobileBankState> {
     emit(
       state.copyWith(
         catalogStatus: RequestStatus.loading,
-        catalogFailure: null,
+        failure: null,
+        message: null,
       ),
     );
     return FetchMobileBankCatalog(repository)().then((result) {
@@ -71,7 +73,8 @@ class MobileBankCubit extends Cubit<MobileBankState> {
           emit(
             state.copyWith(
               catalogStatus: RequestStatus.failure,
-              catalogFailure: failure,
+              failure: failure,
+              message: getRequestErrorMessage(failure),
             ),
           );
       }
@@ -167,7 +170,8 @@ class MobileBankCubit extends Cubit<MobileBankState> {
     emit(
       state.copyWith(
         submissionStatus: RequestStatus.loading,
-        submissionFailure: null,
+        failure: null,
+        message: null,
       ),
     );
     return repository.submitIdentity(request).then((result) {
@@ -185,7 +189,8 @@ class MobileBankCubit extends Cubit<MobileBankState> {
           emit(
             state.copyWith(
               submissionStatus: RequestStatus.failure,
-              submissionFailure: failure,
+              failure: failure,
+              message: getRequestErrorMessage(failure),
             ),
           );
       }
@@ -194,11 +199,7 @@ class MobileBankCubit extends Cubit<MobileBankState> {
 
   void requestDestination(MobileBankDestination destination) {
     emit(
-      state.copyWith(
-        destination: destination,
-        navigation: null,
-        effectId: state.effectId + 1,
-      ),
+      state.copyWith(destination: destination, navigation: null, message: null),
     );
   }
 
@@ -243,7 +244,7 @@ class MobileBankCubit extends Cubit<MobileBankState> {
                 : FlowNavigation.back,
             isExitToHome: false,
             destination: null,
-            effectId: state.effectId + 1,
+            message: null,
           ),
         );
     }
@@ -255,7 +256,7 @@ class MobileBankCubit extends Cubit<MobileBankState> {
         navigation: confirmed == true
             ? (state.isExitToHome ? FlowNavigation.home : FlowNavigation.back)
             : null,
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -269,9 +270,14 @@ class MobileBankCubit extends Cubit<MobileBankState> {
             : FlowNavigation.home,
         isExitToHome: true,
         destination: null,
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
+  }
+
+  /// UI has accepted the pending interaction; data and request statuses stay intact.
+  void consumeMobileBankInteraction() {
+    emit(state.copyWith(navigation: null, destination: null));
   }
 }
 

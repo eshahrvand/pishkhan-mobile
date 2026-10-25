@@ -219,7 +219,7 @@ void main() {
     c.selectOperationType(PasswordOperation.forgotPassword);
     await c.submitCurrentStep();
     expect(c.state.step, SecondPasswordStep.selection);
-    expect(c.state.existingRequestFailure, isNotNull);
+    expect(c.state.failure, isNotNull);
     r.current = const PasswordRequestRecord(
       status: PasswordRequestStatus.approved,
       trackingCode: '123',
@@ -449,7 +449,7 @@ void main() {
     select(c);
     await c.submitCurrentStep();
     expect(c.state.step, SecondPasswordStep.selection);
-    expect(c.state.existingRequestFailure, isNotNull);
+    expect(c.state.failure, isNotNull);
     await c.close();
     r.catalog = PasswordCatalog(
       cards: MockPasswordServicesRepository.sampleCatalog.cards,
@@ -464,7 +464,7 @@ void main() {
     select(poor);
     await poor.submitCurrentStep();
     expect(poor.state.step, SecondPasswordStep.selection);
-    expect(poor.state.existingRequestFailure, isNotNull);
+    expect(poor.state.failure, isNotNull);
     await poor.close();
   });
   test('submission disables editing and result clears credentials', () async {
@@ -537,14 +537,13 @@ void main() {
       cubit.selectPasswordType(PasswordType.second);
       await cubit.submitCurrentStep();
       expect(cubit.state.catalogStatus, RequestStatus.success);
-      expect(cubit.state.catalogFailure, isNull);
-      expect(cubit.state.existingRequestFailure?.code, 'offline');
-      expect(cubit.state.submissionFailure, isNull);
+      expect(cubit.state.failure?.code, 'offline');
+      expect(cubit.state.submissionStatus, RequestStatus.initial);
       expect(cubit.state.canContinue, isTrue);
       repository.statusFailure = null;
       await cubit.submitCurrentStep();
       expect(cubit.state.step, SecondPasswordStep.password);
-      expect(cubit.state.existingRequestFailure, isNull);
+      expect(cubit.state.failure, isNull);
     },
   );
 
@@ -602,7 +601,7 @@ void main() {
     r.catalog = MockPasswordServicesRepository.sampleCatalog;
     r.loadFailure = const DataFailure('network');
     await c.fetchCatalog();
-    expect(c.state.catalogFailure!.code, 'network');
+    expect(c.state.failure!.code, 'network');
     r.loadFailure = null;
     await c.fetchCatalog();
     expect(c.state.catalogStatus, RequestStatus.success);

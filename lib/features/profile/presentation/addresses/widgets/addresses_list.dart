@@ -1,10 +1,10 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/core/domain/entities/delivery_address.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_address_card.dart';
 
 import '../../shared/profile_notice.dart';
@@ -24,6 +24,7 @@ class AddressesList extends StatelessWidget {
         if (state.addressesStatus == RequestStatus.failure) {
           return Center(
             child: AppButton(
+              isLoading: state.addressesStatus == RequestStatus.loading,
               label: S.current.dashboardRetry,
               onPressed: () {
                 context.read<AddressesCubit>().fetchAddresses();
@@ -85,8 +86,8 @@ class AddressesList extends StatelessWidget {
                             if (address.status != ResidenceStatus.querying) ...[
                               AvpImage(
                                 image: address.status == ResidenceStatus.valid
-                                    ? AppAssets.profileAddressValid
-                                    : AppAssets.profileAddressMissing,
+                                    ? '${AppConstants.baseImage}profile_address_valid.svg'
+                                    : '${AppConstants.baseImage}profile_address_missing.svg',
                                 width: 16,
                                 height: 16,
                               ),
@@ -116,13 +117,7 @@ class AddressesList extends StatelessWidget {
               if (state.saveStatus == RequestStatus.loading ||
                   state.deletionStatus == RequestStatus.loading)
                 const Center(child: CircularProgressIndicator()),
-              if (state.saveStatus == RequestStatus.failure ||
-                  state.deletionStatus == RequestStatus.failure)
-                Text(
-                  S.current.profileOperationError,
-                  style: Theme.of(context).textTheme.bodySmall
-                      ?.copyWith(color: context.colors.error),
-                ),
+
               ProfileNotice(
                 message: S.current.profileResidenceNotice,
                 messageSpans: [

@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
+
 import '../widgets/auth_header.dart';
 
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
@@ -10,7 +12,6 @@ import 'package:pishkhan_mobile/features/auth/presentation/login/cubit/auth_cubi
 import 'package:pishkhan_mobile/features/auth/presentation/login/widgets/auth_identity_form.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/login/widgets/auth_otp_form.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/login/widgets/auth_services_sheet.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/shared/auth_assets.dart';
 
 class AuthScreen extends StatelessWidget {
   const AuthScreen({
@@ -25,22 +26,29 @@ class AuthScreen extends StatelessWidget {
   final ValueChanged<String>? onGuestServiceRequested;
 
   Future<void> _handleEffect(BuildContext context, AuthState state) async {
+    if (state.message != null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(state.message!)));
+      return;
+    }
+
     switch (state.effect) {
       case AuthServicesRequested():
+        context.read<AuthCubit>().consumeAuthInteraction();
         final id = await showAuthServicesSheet(context);
         if (context.mounted) {
           context.read<AuthCubit>().selectGuestService(id);
         }
       case AuthGuestServiceRequested(:final id):
+        context.read<AuthCubit>().consumeAuthInteraction();
         onGuestServiceRequested?.call(id);
       case AuthOtpRequested():
+        context.read<AuthCubit>().consumeAuthInteraction();
         FocusManager.instance.primaryFocus?.unfocus();
       case AuthCompleted():
         FocusManager.instance.primaryFocus?.unfocus();
         onAuthenticated?.call();
-      case AuthMessageRequested():
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(state.message!)));
+
       case null:
         break;
     }
@@ -53,7 +61,13 @@ class AuthScreen extends StatelessWidget {
       create: (_) => AuthCubit(initialState: initialState)..fetchCaptcha(),
       child: BlocListener<AuthCubit, AuthState>(
         listenWhen: (previous, current) =>
-            previous.effectId != current.effectId,
+            (previous.effect != current.effect && current.effect != null) ||
+            ((previous.captchaStatus != current.captchaStatus &&
+                    current.captchaStatus == RequestStatus.failure) ||
+                (previous.otpRequestStatus != current.otpRequestStatus &&
+                    current.otpRequestStatus == RequestStatus.failure) ||
+                (previous.loginStatus != current.loginStatus &&
+                    current.loginStatus == RequestStatus.failure)),
         listener: _handleEffect,
         child: Theme(
           data: Theme.of(context).copyWith(
@@ -81,7 +95,7 @@ class AuthScreen extends StatelessWidget {
                     right: 0,
                     child: IgnorePointer(
                       child: AvpImage(
-                        image: AuthAssets.background,
+                        image: '${AppConstants.baseImage}auth_background.png',
                         fit: BoxFit.fitWidth,
                         excludeFromSemantics: true,
                       ),

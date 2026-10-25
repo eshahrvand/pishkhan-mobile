@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/presentation/mappers/request_error_message_mapper.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
@@ -5,39 +6,41 @@ import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/result/failure.dart';
 import 'package:pishkhan_mobile/core/result/result.dart';
 
-import '../../../../domain/entities/cheque_clearance.dart';
-import '../../../../domain/repositories/cheque_clearance_repository.dart';
-import '../../../../domain/usecases/cheque_clearance.dart';
-part 'cheque_postal_state.dart';
-part 'cheque_postal_cubit.freezed.dart';
+import '../../../domain/entities/postal_office.dart';
+import '../../../domain/repositories/postal_offices_repository.dart';
+import '../../../domain/usecases/lookup.dart';
+part 'postal_offices_state.dart';
+part 'postal_offices_cubit.freezed.dart';
 
-class ChequePostalCubit extends Cubit<ChequePostalState> {
-  ChequePostalCubit({
-    ChequePostalState initialState = const ChequePostalState.initial(),
+class PostalOfficesCubit extends Cubit<PostalOfficesState> {
+  PostalOfficesCubit({
+    PostalOfficesState initialState = const PostalOfficesState.initial(),
   }) : super(initialState);
-  final repository = getIt<ChequeClearanceRepository>();
+  final repository = getIt<PostalOfficesRepository>();
 
   Future<void> fetchProvinces() {
     emit(
       state.copyWith(
         provincesStatus: RequestStatus.loading,
-        provincesFailure: null,
+        failure: null,
+        message: null,
       ),
     );
-    return FetchChequeClearanceCatalog(repository)().then((result) {
+    return FetchPostalProvinces(repository)().then((result) {
       switch (result) {
         case Success(:final data):
           emit(
             state.copyWith(
               provincesStatus: RequestStatus.success,
-              provinces: data.provinces,
+              provinces: data,
             ),
           );
         case Err(:final failure):
           emit(
             state.copyWith(
               provincesStatus: RequestStatus.failure,
-              provincesFailure: failure,
+              failure: failure,
+              message: getRequestErrorMessage(failure),
             ),
           );
       }
@@ -53,7 +56,8 @@ class ChequePostalCubit extends Cubit<ChequePostalState> {
         canSearchPostalOffices: false,
         postalOffices: const [],
         postalOfficesStatus: RequestStatus.initial,
-        postalOfficesFailure: null,
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -65,7 +69,8 @@ class ChequePostalCubit extends Cubit<ChequePostalState> {
         canSearchPostalOffices: true,
         postalOffices: const [],
         postalOfficesStatus: RequestStatus.initial,
-        postalOfficesFailure: null,
+        failure: null,
+        message: null,
       ),
     );
   }
@@ -74,16 +79,18 @@ class ChequePostalCubit extends Cubit<ChequePostalState> {
     emit(
       state.copyWith(
         postalOfficesStatus: RequestStatus.loading,
-        postalOfficesFailure: null,
+        failure: null,
+        message: null,
       ),
     );
-    return FetchChequePostalOffices(repository)(state.city!.id).then((result) {
+    return FetchPostalOffices(repository)(state.city!.id).then((result) {
       switch (result) {
         case Err(:final failure):
           emit(
             state.copyWith(
               postalOfficesStatus: RequestStatus.failure,
-              postalOfficesFailure: failure,
+              failure: failure,
+              message: getRequestErrorMessage(failure),
             ),
           );
         case Success(:final data):
@@ -91,7 +98,7 @@ class ChequePostalCubit extends Cubit<ChequePostalState> {
             state.copyWith(
               postalOfficesStatus: RequestStatus.success,
               postalOffices: data,
-              postalStep: ChequePostalStep.results,
+              postalStep: PostalOfficesStep.results,
             ),
           );
       }
@@ -99,7 +106,7 @@ class ChequePostalCubit extends Cubit<ChequePostalState> {
   }
 
   void requestPostalSearch() {
-    emit(state.copyWith(postalStep: ChequePostalStep.location));
+    emit(state.copyWith(postalStep: PostalOfficesStep.location));
   }
 
   void requestPostalShare() {
@@ -108,9 +115,14 @@ class ChequePostalCubit extends Cubit<ChequePostalState> {
     emit(
       state.copyWith(
         postalShareText: text,
-        effect: ChequePostalEffect.share,
-        effectId: state.effectId + 1,
+        effect: PostalOfficesEffect.share,
+        message: null,
       ),
     );
+  }
+
+  /// UI has accepted the pending interaction; data and request statuses stay intact.
+  void consumePostalOfficesInteraction() {
+    emit(state.copyWith(effect: null));
   }
 }

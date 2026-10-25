@@ -1,9 +1,10 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
+import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
 import 'package:pishkhan_mobile/shared/widgets/flow_exit_dialog.dart';
@@ -25,8 +26,15 @@ class OccupationsScreen extends StatelessWidget {
     BuildContext context,
     OccupationsState state,
   ) async {
+    if (state.message != null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(state.message!)));
+      return;
+    }
+
     switch (state.effect) {
       case OccupationEffect.actions:
+        context.read<OccupationsCubit>().consumeOccupationsInteraction();
         final action = await showProfileActionsSheet<OccupationAction>(
           context,
           editLabel: S.current.profileEditOccupation,
@@ -38,6 +46,7 @@ class OccupationsScreen extends StatelessWidget {
           context.read<OccupationsCubit>().applyOccupationAction(action);
         }
       case OccupationEffect.confirmDeletion:
+        context.read<OccupationsCubit>().consumeOccupationsInteraction();
         await showAppDecisionSheet(
           context,
           title: S.current.profileDeleteOccupation,
@@ -54,6 +63,7 @@ class OccupationsScreen extends StatelessWidget {
           },
         );
       case OccupationEffect.minimumOccupation:
+        context.read<OccupationsCubit>().consumeOccupationsInteraction();
         await showAppDecisionSheet(
           context,
           title: S.current.profileDeleteOccupation,
@@ -64,11 +74,13 @@ class OccupationsScreen extends StatelessWidget {
           },
         );
       case OccupationEffect.confirmExit:
+        context.read<OccupationsCubit>().consumeOccupationsInteraction();
         final confirmed = await showFlowExitDialog(context);
         if (context.mounted) {
           context.read<OccupationsCubit>().applyExitConfirmation(confirmed);
         }
       case OccupationEffect.submitted:
+        context.read<OccupationsCubit>().consumeOccupationsInteraction();
         await showDialog<void>(
           context: context,
           builder: (context) => AlertDialog(
@@ -89,9 +101,11 @@ class OccupationsScreen extends StatelessWidget {
       case OccupationEffect.back:
         NavigationActions.back(context);
       case OccupationEffect.assistant:
+        context.read<OccupationsCubit>().consumeOccupationsInteraction();
         NavigationActions.returnHome(context);
         onAssistantPressed?.call();
       case OccupationEffect.terms:
+        context.read<OccupationsCubit>().consumeOccupationsInteraction();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(S.current.issuanceTermsUnavailable)),
         );
@@ -106,19 +120,29 @@ class OccupationsScreen extends StatelessWidget {
       create: (_) => OccupationsCubit()..fetchOccupations(),
       child: BlocListener<OccupationsCubit, OccupationsState>(
         listenWhen: (previous, current) =>
-            previous.effectId != current.effectId,
+            (previous.effect != current.effect && current.effect != null) ||
+            ((previous.occupationsStatus != current.occupationsStatus &&
+                    current.occupationsStatus == RequestStatus.failure) ||
+                (previous.submissionStatus != current.submissionStatus &&
+                    current.submissionStatus == RequestStatus.failure) ||
+                (previous.deletionStatus != current.deletionStatus &&
+                    current.deletionStatus == RequestStatus.failure)),
         listener: _handleEffect,
         child: BlocBuilder<OccupationsCubit, OccupationsState>(
-          buildWhen: (previous, current) =>
-              previous.step != current.step ||
-              previous.selectedOccupation != current.selectedOccupation,
           builder: (context, state) {
             return Directionality(
               textDirection: TextDirection.rtl,
               child: PopScope(
-                canPop: state.step == OccupationStep.list,
+                canPop:
+                    (state.occupationsStatus != RequestStatus.loading &&
+                        state.submissionStatus != RequestStatus.loading &&
+                        state.deletionStatus != RequestStatus.loading) &&
+                    (state.step == OccupationStep.list),
                 onPopInvokedWithResult: (didPop, _) {
-                  if (!didPop) {
+                  if (!didPop &&
+                      state.occupationsStatus != RequestStatus.loading &&
+                      state.submissionStatus != RequestStatus.loading &&
+                      state.deletionStatus != RequestStatus.loading) {
                     context.read<OccupationsCubit>().requestBack();
                   }
                 },
@@ -138,14 +162,25 @@ class OccupationsScreen extends StatelessWidget {
                               showLeadingActions: false,
                               leadingAction: const SizedBox.shrink(),
                               trailingIcon: AvpImage(
-                                image: AppAssets.depositFeatureBack,
+                                image:
+                                    '${AppConstants.baseImage}deposit_list_back.svg',
                                 width: 24,
                                 height: 24,
                               ),
                               trailingTooltip: S.current.backLabel,
-                              onTrailingPressed: () {
-                                context.read<OccupationsCubit>().requestBack();
-                              },
+                              onTrailingPressed:
+                                  (state.occupationsStatus !=
+                                          RequestStatus.loading &&
+                                      state.submissionStatus !=
+                                          RequestStatus.loading &&
+                                      state.deletionStatus !=
+                                          RequestStatus.loading)
+                                  ? () {
+                                      context
+                                          .read<OccupationsCubit>()
+                                          .requestBack();
+                                    }
+                                  : null,
                             ),
                             Expanded(
                               child: state.step == OccupationStep.list

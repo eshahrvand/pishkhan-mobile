@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:pishkhan_mobile/core/presentation/mappers/request_error_message_mapper.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/flow/flow_navigation.dart';
@@ -37,11 +38,12 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
     emit(
       state.copyWith(
         catalogStatus: RequestStatus.loading,
-        catalogFailure: null,
         catalog: null,
         isEditable: false,
         canSubmit: false,
         canRetry: false,
+        failure: null,
+        message: null,
       ),
     );
     return LoadVirtualCardCatalog(_repository)().then((result) {
@@ -50,7 +52,8 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
           emit(
             state.copyWith(
               catalogStatus: RequestStatus.failure,
-              catalogFailure: failure,
+              failure: failure,
+              message: getRequestErrorMessage(failure),
             ),
           );
         case Success(:final data):
@@ -77,10 +80,10 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
         quote: null,
         termsAccepted: false,
         canSubmit: false,
-        quoteFailure: null,
-        submissionFailure: null,
         retryAction: null,
         canRetry: false,
+        failure: null,
+        message: null,
       ),
     );
     return state.isCountValid
@@ -93,9 +96,10 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
                 emit(
                   state.copyWith(
                     quoteStatus: RequestStatus.failure,
-                    quoteFailure: failure,
                     retryAction: VirtualCardRetryAction.quote,
                     canRetry: true,
+                    failure: failure,
+                    message: getRequestErrorMessage(failure),
                   ),
                 );
               case Success(:final data):
@@ -128,10 +132,10 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
         quote: null,
         termsAccepted: false,
         canSubmit: false,
-        quoteFailure: null,
-        submissionFailure: null,
         retryAction: null,
         canRetry: false,
+        failure: null,
+        message: null,
       ),
     );
     return canQuote
@@ -144,9 +148,10 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
                 emit(
                   state.copyWith(
                     quoteStatus: RequestStatus.failure,
-                    quoteFailure: failure,
                     retryAction: VirtualCardRetryAction.quote,
                     canRetry: true,
+                    failure: failure,
+                    message: getRequestErrorMessage(failure),
                   ),
                 );
               case Success(:final data):
@@ -169,10 +174,10 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
         quote: null,
         termsAccepted: false,
         canSubmit: false,
-        quoteFailure: null,
-        submissionFailure: null,
         retryAction: null,
         canRetry: false,
+        failure: null,
+        message: null,
       ),
     );
     return QuoteVirtualCards(_repository)(
@@ -185,9 +190,10 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
           emit(
             state.copyWith(
               quoteStatus: RequestStatus.failure,
-              quoteFailure: failure,
               retryAction: VirtualCardRetryAction.quote,
               canRetry: true,
+              failure: failure,
+              message: getRequestErrorMessage(failure),
             ),
           );
         case Success(:final data):
@@ -229,10 +235,11 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
     emit(
       state.copyWith(
         submissionStatus: RequestStatus.loading,
-        submissionFailure: null,
         isEditable: false,
         canSubmit: false,
         canRetry: false,
+        failure: null,
+        message: null,
       ),
     );
     return virtualCardBoundary(() => _repository.submit(request)).then((
@@ -243,11 +250,12 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
           emit(
             state.copyWith(
               submissionStatus: RequestStatus.failure,
-              submissionFailure: failure,
               isEditable: true,
               canSubmit: state.termsAccepted && state.quote!.walletSufficient,
               retryAction: VirtualCardRetryAction.submission,
               canRetry: state.termsAccepted && state.quote!.walletSufficient,
+              failure: failure,
+              message: getRequestErrorMessage(failure),
             ),
           );
         case Success(:final data):
@@ -257,7 +265,7 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
               receipt: data,
               retryAction: null,
               navigation: FlowNavigation.home,
-              navigationId: state.navigationId + 1,
+              message: null,
             ),
           );
       }
@@ -276,7 +284,7 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
         navigation: needsConfirmation
             ? FlowNavigation.confirmExit
             : FlowNavigation.back,
-        navigationId: state.navigationId + 1,
+        message: null,
       ),
     );
   }
@@ -285,7 +293,7 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
     emit(
       state.copyWith(
         navigation: confirmed == true ? FlowNavigation.back : null,
-        navigationId: state.navigationId + 1,
+        message: null,
       ),
     );
   }
@@ -308,5 +316,10 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
                 Random.secure().nextInt(256).toRadixString(16).padLeft(2, '0'),
           ).join(),
     );
+  }
+
+  /// UI has accepted the pending interaction; data and request statuses stay intact.
+  void consumeVirtualCardInteraction() {
+    emit(state.copyWith(navigation: null));
   }
 }

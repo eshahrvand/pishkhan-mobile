@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
+
 import 'dart:ui' as ui;
 
 import 'package:flutter/services.dart';
@@ -8,17 +10,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_bottom_sheet_header.dart';
 
-import '../../../../domain/entities/cheque_clearance.dart';
-import '../cubit/cheque_postal_cubit.dart';
+import '../../../domain/entities/postal_office.dart';
+import '../cubit/postal_offices_cubit.dart';
 
 import 'package:pishkhan_mobile/shared/widgets/certificate_fields.dart';
 
-import 'cheque_postal_results.dart';
+import 'postal_offices_results.dart';
 
-Future<void> showChequePostalSheet(BuildContext context) {
+Future<void> showPostalOfficesSheet(BuildContext context) {
   FocusManager.instance.primaryFocus?.unfocus();
   return showModalBottomSheet<void>(
     context: context,
@@ -27,51 +28,74 @@ Future<void> showChequePostalSheet(BuildContext context) {
     backgroundColor: Colors.transparent,
     barrierColor: context.colors.textPrimary.withValues(alpha: .4),
     builder: (_) => BlocProvider(
-      create: (_) => ChequePostalCubit()..fetchProvinces(),
+      create: (_) => PostalOfficesCubit()..fetchProvinces(),
       child: BackdropFilter(
         filter: ui.ImageFilter.blur(sigmaX: 1, sigmaY: 1),
-        child: const ChequePostalSheet(),
+        child: const PostalOfficesSheet(),
       ),
     ),
   );
 }
 
-class ChequePostalSheet extends StatelessWidget {
-  const ChequePostalSheet({super.key});
+class PostalOfficesSheet extends StatelessWidget {
+  const PostalOfficesSheet({super.key});
   Future<void> _handleEffect(
     BuildContext context,
-    ChequePostalState state,
+    PostalOfficesState state,
   ) async {
-    try {
-      await PlatformShare.shareText(state.postalShareText!);
-    } on PlatformException {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(S.current.chequeShareUnavailable)),
-        );
-      }
-    } on MissingPluginException {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(S.current.chequeShareUnavailable)),
-        );
-      }
+    if (state.message != null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(state.message!)));
+      return;
+    }
+
+    switch (state.effect) {
+      case PostalOfficesEffect.share:
+        context.read<PostalOfficesCubit>().consumePostalOfficesInteraction();
+        try {
+          await PlatformShare.shareText(state.postalShareText!);
+        } on PlatformException {
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(S.current.chequeShareUnavailable)),
+            );
+          }
+        } on MissingPluginException {
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(S.current.chequeShareUnavailable)),
+            );
+          }
+        }
+
+      case null:
+        break;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<ChequePostalCubit, ChequePostalState>(
-      listenWhen: (previous, current) => previous.effectId != current.effectId,
+    return BlocConsumer<PostalOfficesCubit, PostalOfficesState>(
+      listenWhen: (previous, current) =>
+          (previous.effect != current.effect && current.effect != null) ||
+          ((previous.provincesStatus != current.provincesStatus &&
+                  current.provincesStatus == RequestStatus.failure) ||
+              (previous.postalOfficesStatus != current.postalOfficesStatus &&
+                  current.postalOfficesStatus == RequestStatus.failure)),
       listener: _handleEffect,
       builder: (context, state) {
         return Directionality(
           textDirection: TextDirection.rtl,
           child: PopScope(
-            canPop: state.postalStep == ChequePostalStep.location,
+            canPop:
+                (state.provincesStatus != RequestStatus.loading &&
+                    state.postalOfficesStatus != RequestStatus.loading) &&
+                (state.postalStep == PostalOfficesStep.location),
             onPopInvokedWithResult: (didPop, result) {
-              if (!didPop) {
-                context.read<ChequePostalCubit>().requestPostalSearch();
+              if (!didPop &&
+                  state.provincesStatus != RequestStatus.loading &&
+                  state.postalOfficesStatus != RequestStatus.loading) {
+                context.read<PostalOfficesCubit>().requestPostalSearch();
               }
             },
             child: Container(
@@ -90,7 +114,12 @@ class ChequePostalSheet extends StatelessWidget {
                     AppBottomSheetHeader(
                       title: S.current.chequePostalTitle,
                       showRightIcon: false,
-                      onLeftAction: () => Navigator.of(context).pop(),
+                      onLeftAction:
+                          (state.provincesStatus != RequestStatus.loading &&
+                              state.postalOfficesStatus !=
+                                  RequestStatus.loading)
+                          ? () => Navigator.of(context).pop()
+                          : null,
                     ),
                     if (state.provincesStatus == RequestStatus.loading)
                       const Padding(
@@ -99,13 +128,15 @@ class ChequePostalSheet extends StatelessWidget {
                       )
                     else if (state.provincesStatus == RequestStatus.failure)
                       AppButton(
+                        isLoading:
+                            state.provincesStatus == RequestStatus.loading,
                         label: S.current.dashboardRetry,
                         onPressed: context
-                            .read<ChequePostalCubit>()
+                            .read<PostalOfficesCubit>()
                             .fetchProvinces,
                       )
-                    else if (state.postalStep == ChequePostalStep.results)
-                      Flexible(child: ChequePostalResults(state: state))
+                    else if (state.postalStep == PostalOfficesStep.results)
+                      Flexible(child: PostalOfficesResults(state: state))
                     else
                       Flexible(
                         child: SingleChildScrollView(
@@ -131,8 +162,8 @@ class ChequePostalSheet extends StatelessWidget {
                                     ),
                                 trailing: AvpImage(
                                   image: state.province == null
-                                      ? AppAssets.issuanceSelectEmpty
-                                      : AppAssets.cardFeaturesChevron,
+                                      ? '${AppConstants.baseImage}issuance_select_empty.svg'
+                                      : '${AppConstants.baseImage}card_features_chevron.svg',
                                   width: 20,
                                   height: 20,
                                 ),
@@ -148,7 +179,7 @@ class ChequePostalSheet extends StatelessWidget {
                                     ),
                                 ],
                                 onChanged: context
-                                    .read<ChequePostalCubit>()
+                                    .read<PostalOfficesCubit>()
                                     .selectProvince,
                               ),
                               const SizedBox(height: 20),
@@ -165,8 +196,8 @@ class ChequePostalSheet extends StatelessWidget {
                                     ),
                                 trailing: AvpImage(
                                   image: state.city == null
-                                      ? AppAssets.issuanceSelectEmpty
-                                      : AppAssets.cardFeaturesChevron,
+                                      ? '${AppConstants.baseImage}issuance_select_empty.svg'
+                                      : '${AppConstants.baseImage}card_features_chevron.svg',
                                   width: 20,
                                   height: 20,
                                 ),
@@ -183,20 +214,12 @@ class ChequePostalSheet extends StatelessWidget {
                                 ],
                                 onChanged: state.province != null
                                     ? context
-                                          .read<ChequePostalCubit>()
+                                          .read<PostalOfficesCubit>()
                                           .selectCity
                                     : null,
                               ),
                               const SizedBox(height: 32),
-                              if (state.postalOfficesStatus ==
-                                  RequestStatus.failure) ...[
-                                Text(
-                                  S.current.chequePostalFailure,
-                                  style: certificateLabelStyle(context)
-                                      .copyWith(color: context.colors.error),
-                                ),
-                                const SizedBox(height: 12),
-                              ],
+
                               AppButton(
                                 label: S.current.chequePostalSearch,
                                 size: AppButtonSize.lg,
@@ -207,7 +230,7 @@ class ChequePostalSheet extends StatelessWidget {
                                     RequestStatus.loading,
                                 onPressed: state.canSearchPostalOffices
                                     ? context
-                                          .read<ChequePostalCubit>()
+                                          .read<PostalOfficesCubit>()
                                           .searchPostalOffices
                                     : null,
                               ),

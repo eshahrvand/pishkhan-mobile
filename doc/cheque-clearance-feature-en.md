@@ -35,10 +35,10 @@ request needs consent. Submission locks editing; transient retries retain their
 idempotency key. A repeated successful key returns the same mock receipt;
 reusing it with different request data returns an idempotency conflict.
 
-Postal search is owned by the independently scoped `ChequePostalCubit` under
-`features/cheque/presentation/shared/postal`, reused by cancellation and clearance.
+Postal search is owned by the independently scoped `PostalOfficesCubit` under
+`features/postal_offices/presentation/lookup`, reused by cancellation and clearance.
 Each opening constructs its own Provider-owned instance and fetches provinces
-through the existing catalog repository; the request form retains its own State. Select Tehran and the north-east
+through its own PostalOfficesRepository; the request form retains its own State. Select Tehran and the north-east
 postal district for the two Figma sample addresses; Isfahan has an empty result
 fixture. Changing province clears the city. Back from results returns to the
 search form. Reopening starts a fresh postal scope with no old city or result selection.

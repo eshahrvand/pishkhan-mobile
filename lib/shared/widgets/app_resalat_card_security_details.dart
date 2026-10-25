@@ -1,7 +1,7 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 import 'app_resalat_card.dart';
 import 'app_resalat_card_asset_action.dart';
@@ -71,8 +71,8 @@ class AppResalatCardSecurityDetails extends StatelessWidget {
             alignment: Alignment.centerRight,
             child: AppResalatCardAssetAction(
               path: isVisible
-                  ? AppAssets.resalatCardEye
-                  : AppAssets.resalatCardEyeSlash,
+                  ? '${AppConstants.baseImage}resalat_card_eye.svg'
+                  : '${AppConstants.baseImage}resalat_card_eye_slash.svg',
               size: 20,
               label: visibilityLabel,
               onTap: onVisibilityChanged == null

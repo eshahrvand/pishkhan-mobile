@@ -87,7 +87,7 @@ copy. Full IBANs wrap in this feature's destination cards rather than shrinking
 into an unreadable account-number slot. Existing card/gallery defaults remain.
 File-upload progress fills from the physical left, as in the supplied frame.
 
-The original upload icon and operation divider were downloaded from Figma and registered in `AppAssets`.
+The original upload icon and operation divider were downloaded from Figma and referenced with `AppConstants.baseImage`.
 Other icons/artwork reuse matching existing local assets. No screen screenshot
 is used as an application asset. Flutter/native status and navigation bars are
 outside the screen widget captures.

@@ -1,6 +1,6 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:pishkhan_mobile/features/dashboard/domain/entities/bank_deposit.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 /// Supported UI actions. IDs are integration keys, not arbitrary routes.
 enum DepositAction {
@@ -83,29 +83,29 @@ enum DepositAction {
   };
 
   String get asset => switch (this) {
-    list => AppAssets.depositsCards,
-    statement => AppAssets.depositsStatement,
-    certificate => AppAssets.depositsCertificate,
-    sms => AppAssets.depositsSms,
-    block => AppAssets.depositsBlock,
-    agent => AppAssets.depositsAgent,
-    introduceAgent => AppAssets.depositsAgent,
-    unblock => AppAssets.depositsBlock,
-    closeExtras => AppAssets.depositsBlock,
-    virtualCard => AppAssets.depositsVirtual,
-    linkedCards => AppAssets.depositsCards,
-    linkedLoans => AppAssets.depositsLoans,
-    issueCheque => AppAssets.depositsChequeIssue,
-    cancelCheque => AppAssets.depositsChequeCancel,
-    clearCheque => AppAssets.depositsChequeClear,
-    issueCard => AppAssets.depositsQuickIssue,
-    localTransfer => AppAssets.depositsQuickTransfer,
-    estimateLoan => AppAssets.depositsQuickEstimate,
-    introduceLoan => AppAssets.depositsQuickIntroduce,
-    proxy => AppAssets.depositsQuickProxy,
-    mobileBank => AppAssets.depositsQuickMobile,
-    internetBank => AppAssets.depositsQuickInternet,
-    phoneBank => AppAssets.depositsQuickPhone,
+    list => '${AppConstants.baseImage}deposits_cards.svg',
+    statement => '${AppConstants.baseImage}deposits_statement.svg',
+    certificate => '${AppConstants.baseImage}deposits_certificate.svg',
+    sms => '${AppConstants.baseImage}deposits_sms.svg',
+    block => '${AppConstants.baseImage}deposits_block.svg',
+    agent => '${AppConstants.baseImage}deposits_agent.svg',
+    introduceAgent => '${AppConstants.baseImage}deposits_agent.svg',
+    unblock => '${AppConstants.baseImage}deposits_block.svg',
+    closeExtras => '${AppConstants.baseImage}deposits_block.svg',
+    virtualCard => '${AppConstants.baseImage}deposits_virtual.svg',
+    linkedCards => '${AppConstants.baseImage}deposits_cards.svg',
+    linkedLoans => '${AppConstants.baseImage}deposits_loans.svg',
+    issueCheque => '${AppConstants.baseImage}deposits_cheque_issue.svg',
+    cancelCheque => '${AppConstants.baseImage}deposits_cheque_cancel.svg',
+    clearCheque => '${AppConstants.baseImage}deposits_cheque_clear.svg',
+    issueCard => '${AppConstants.baseImage}deposits_quick_issue.svg',
+    localTransfer => '${AppConstants.baseImage}deposits_quick_transfer.svg',
+    estimateLoan => '${AppConstants.baseImage}deposits_quick_estimate.svg',
+    introduceLoan => '${AppConstants.baseImage}deposits_quick_introduce.svg',
+    proxy => '${AppConstants.baseImage}deposits_quick_proxy.svg',
+    mobileBank => '${AppConstants.baseImage}deposits_quick_mobile.svg',
+    internetBank => '${AppConstants.baseImage}deposits_quick_internet.svg',
+    phoneBank => '${AppConstants.baseImage}deposits_quick_phone.svg',
   };
 }
 

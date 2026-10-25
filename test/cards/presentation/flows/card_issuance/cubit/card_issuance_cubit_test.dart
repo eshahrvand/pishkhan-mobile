@@ -234,7 +234,7 @@ void main() {
     confirm(c);
     await c.submitCardIssuance();
     final confirmedRequest = repository.captured;
-    expect(c.state.submissionFailure!.code, 'rejected');
+    expect(c.state.failure!.code, 'rejected');
     expect(c.state.canContinue, true);
     repository.submitResult = const Success(
       IssuanceReceipt(reference: 'retry', isMock: true),
@@ -242,7 +242,7 @@ void main() {
     await c.submitCardIssuance();
     expect(identical(repository.captured, confirmedRequest), isTrue);
     expect(c.state.receipt!.reference, 'retry');
-    expect(c.state.submissionFailure, isNull);
+    expect(c.state.failure, isNull);
   });
   test('editing a failed request invalidates its confirmed snapshot', () async {
     final repository = ControlledIssuanceRepository()
@@ -274,7 +274,7 @@ void main() {
       final repository = ControlledIssuanceRepository()..throwOnLoad = true;
       final c = await ready(repository: repository);
       expect(c.state.catalogStatus, RequestStatus.failure);
-      expect(c.state.catalogFailure, const UnexpectedFailure());
+      expect(c.state.failure, const UnexpectedFailure());
 
       repository.throwOnLoad = false;
       await c.fetchIssuanceCatalog();
@@ -282,14 +282,14 @@ void main() {
       repository.throwOnSubmit = true;
       await c.submitCardIssuance();
       expect(c.state.submissionStatus, RequestStatus.failure);
-      expect(c.state.submissionFailure, const UnexpectedFailure());
+      expect(c.state.failure, const UnexpectedFailure());
       expect(c.state.isEditable, isTrue);
       expect(c.state.canContinue, isTrue);
 
       repository.throwOnSubmit = false;
       await c.submitCardIssuance();
       expect(c.state.submissionStatus, RequestStatus.success);
-      expect(c.state.submissionFailure, isNull);
+      expect(c.state.failure, isNull);
     },
   );
   test('each recipient and agent edit publishes fresh eligibility', () async {

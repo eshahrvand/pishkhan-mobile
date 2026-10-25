@@ -37,8 +37,7 @@ class _ChequeCancellationContentState extends State<ChequeCancellationContent> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<ChequeCancellationCubit, ChequeCancellationState>(
-      listenWhen: (previous, current) =>
-          previous.stepRevealId != current.stepRevealId,
+      listenWhen: (previous, current) => previous.step != current.step,
       listener: _revealStep,
       builder: (context, state) {
         if (state.catalogStatus == RequestStatus.loading) {
@@ -47,6 +46,7 @@ class _ChequeCancellationContentState extends State<ChequeCancellationContent> {
         if (state.catalogStatus == RequestStatus.failure) {
           return Center(
             child: AppButton(
+              isLoading: state.catalogStatus == RequestStatus.loading,
               label: S.current.dashboardRetry,
               onPressed: context.read<ChequeCancellationCubit>().fetchCatalog,
             ),

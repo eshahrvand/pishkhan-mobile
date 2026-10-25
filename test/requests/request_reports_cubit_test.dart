@@ -101,18 +101,18 @@ void main() {
     cubit.applyFilter();
     cubit.cancelDraftFilter();
     cubit.updateTrackingQuery('487567');
-    final effectId = cubit.state.effectId;
+    final pendingEffect = cubit.state.effect;
 
     cubit.requestTypeFilter();
     expect(cubit.state.filter.types, isNull);
     expect(cubit.state.filter.statuses, {ReportRequestStatus.awaitingApproval});
     expect(cubit.state.filter.period, ReportDatePeriod.lastWeek);
-    expect(cubit.state.effectId, effectId);
+    expect(cubit.state.effect, pendingEffect);
 
     cubit.requestStatusFilter();
     expect(cubit.state.filter.statuses, isNull);
     expect(cubit.state.filter.period, ReportDatePeriod.lastWeek);
-    expect(cubit.state.effectId, effectId);
+    expect(cubit.state.effect, pendingEffect);
 
     cubit.requestDateFilter();
     expect(cubit.state.filter, const RequestReportFilter());
@@ -120,11 +120,10 @@ void main() {
     expect(cubit.state.visibleReports.map((report) => report.trackingId), [
       '137/487567',
     ]);
-    expect(cubit.state.effectId, effectId);
+    expect(cubit.state.effect, pendingEffect);
 
     cubit.requestTypeFilter();
     expect(cubit.state.effect, RequestReportsEffect.typeFilter);
-    expect(cubit.state.effectId, effectId + 1);
   });
 
   test('type search does not lose hidden selections; all individual choices restore all', () async {

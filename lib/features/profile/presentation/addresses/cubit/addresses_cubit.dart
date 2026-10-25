@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/presentation/mappers/request_error_message_mapper.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
@@ -18,7 +19,13 @@ class AddressesCubit extends Cubit<AddressesState> {
   final repository = getIt<PersonalInformationRepository>();
 
   Future<void> fetchAddresses() {
-    emit(state.copyWith(addressesStatus: RequestStatus.loading));
+    emit(
+      state.copyWith(
+        addressesStatus: RequestStatus.loading,
+        failure: null,
+        message: null,
+      ),
+    );
     return repository.fetchAddresses().then((result) {
       switch (result) {
         case Success(:final data):
@@ -32,7 +39,8 @@ class AddressesCubit extends Cubit<AddressesState> {
           emit(
             state.copyWith(
               addressesStatus: RequestStatus.failure,
-              addressesFailure: failure,
+              failure: failure,
+              message: getRequestErrorMessage(failure),
             ),
           );
       }
@@ -44,7 +52,7 @@ class AddressesCubit extends Cubit<AddressesState> {
       state.copyWith(
         selectedAddress: address,
         effect: AddressEffect.actions,
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -62,7 +70,7 @@ class AddressesCubit extends Cubit<AddressesState> {
                   state.addresses,
                   state.selectedAddress!.address,
                 ),
-            effectId: state.effectId + 1,
+            message: null,
           ),
         );
       case AddressAction.delete:
@@ -75,7 +83,7 @@ class AddressesCubit extends Cubit<AddressesState> {
                 )
                 ? AddressEffect.confirmDeletion
                 : AddressEffect.minimumAddress,
-            effectId: state.effectId + 1,
+            message: null,
           ),
         );
       case null:
@@ -89,7 +97,7 @@ class AddressesCubit extends Cubit<AddressesState> {
         selectedAddress: null,
         retainHomeAddress: false,
         effect: AddressEffect.editor,
-        effectId: state.effectId + 1,
+        message: null,
       ),
     );
   }
@@ -97,7 +105,11 @@ class AddressesCubit extends Cubit<AddressesState> {
   Future<void> applyAddressEditor(DeliveryAddress? address) {
     if (address != null && canSaveProfileAddress(state.addresses, address)) {
       emit(
-        state.copyWith(saveStatus: RequestStatus.loading, saveFailure: null),
+        state.copyWith(
+          saveStatus: RequestStatus.loading,
+          failure: null,
+          message: null,
+        ),
       );
       return repository.saveAddress(address).then((result) {
         switch (result) {
@@ -119,18 +131,14 @@ class AddressesCubit extends Cubit<AddressesState> {
             emit(
               state.copyWith(
                 saveStatus: RequestStatus.failure,
-                saveFailure: failure,
+                failure: failure,
+                message: getRequestErrorMessage(failure),
               ),
             );
         }
       });
     } else if (address != null) {
-      emit(
-        state.copyWith(
-          effect: AddressEffect.minimumAddress,
-          effectId: state.effectId + 1,
-        ),
-      );
+      emit(state.copyWith(effect: AddressEffect.minimumAddress, message: null));
     }
     return Future.value();
   }
@@ -139,7 +147,8 @@ class AddressesCubit extends Cubit<AddressesState> {
     emit(
       state.copyWith(
         deletionStatus: RequestStatus.loading,
-        deletionFailure: null,
+        failure: null,
+        message: null,
       ),
     );
     return repository.deleteAddress(address.address.id).then((result) {
@@ -157,7 +166,8 @@ class AddressesCubit extends Cubit<AddressesState> {
           emit(
             state.copyWith(
               deletionStatus: RequestStatus.failure,
-              deletionFailure: failure,
+              failure: failure,
+              message: getRequestErrorMessage(failure),
             ),
           );
       }
@@ -213,17 +223,15 @@ class AddressesCubit extends Cubit<AddressesState> {
   }
 
   void requestBack() {
-    emit(
-      state.copyWith(effect: AddressEffect.back, effectId: state.effectId + 1),
-    );
+    emit(state.copyWith(effect: AddressEffect.back, message: null));
   }
 
   void requestAssistant() {
-    emit(
-      state.copyWith(
-        effect: AddressEffect.assistant,
-        effectId: state.effectId + 1,
-      ),
-    );
+    emit(state.copyWith(effect: AddressEffect.assistant, message: null));
+  }
+
+  /// UI has accepted the pending interaction; data and request statuses stay intact.
+  void consumeAddressesInteraction() {
+    emit(state.copyWith(effect: null));
   }
 }

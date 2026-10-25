@@ -8,7 +8,7 @@
 
 ## Reused components
 
-AppLoanCard (including AppArrowButton and avp_ui AppProgressIndicator), AppTopBar, AppServiceGridCard, AppServiceGridItemView, AppServiceArtworkTile, AppAssistantButton and AppPrimaryNavigation are reused. The later progress fix corrects shared primitive sizing and the loan fill origin. No duplicate shared widget was introduced. Original operation/quick/pattern SVGs are registered in AppAssets. The identical quick-header asset is reused from depositsQuickAccess.
+AppLoanCard (including AppArrowButton and avp_ui AppProgressIndicator), AppTopBar, AppServiceGridCard, AppServiceGridItemView, AppServiceArtworkTile, AppAssistantButton and AppPrimaryNavigation are reused. The later progress fix corrects shared primitive sizing and the loan fill origin. No duplicate shared widget was introduced. Original operation/quick/pattern SVGs are referenced with AppConstants.baseImage. The identical quick-header asset is reused from depositsQuickAccess.
 
 ## Behavior and integration
 

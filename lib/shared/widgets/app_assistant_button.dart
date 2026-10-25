@@ -1,7 +1,7 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 class AppAssistantButton extends StatelessWidget {
   const AppAssistantButton({super.key, required this.onPressed});
@@ -44,8 +44,8 @@ class AppAssistantIcon extends StatelessWidget {
             bottom: size * (floating ? .5265 : .5005),
             child: AvpImage(
               image: floating
-                  ? AppAssets.dashboardFabStar
-                  : AppAssets.dashboardAssistantStar,
+                  ? '${AppConstants.baseImage}dashboard_fab_star.svg'
+                  : '${AppConstants.baseImage}dashboard_assistant_star.svg',
             ),
           ),
           Positioned(
@@ -55,8 +55,8 @@ class AppAssistantIcon extends StatelessWidget {
             bottom: size * (floating ? .1101 : .084),
             child: AvpImage(
               image: floating
-                  ? AppAssets.dashboardFabSpark
-                  : AppAssets.dashboardAssistantSpark,
+                  ? '${AppConstants.baseImage}dashboard_fab_spark.svg'
+                  : '${AppConstants.baseImage}dashboard_assistant_spark.svg',
             ),
           ),
         ],

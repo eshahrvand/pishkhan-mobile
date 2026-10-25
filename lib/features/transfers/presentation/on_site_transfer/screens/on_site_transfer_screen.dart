@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
+import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -6,7 +8,6 @@ import 'package:pishkhan_mobile/core/platform/document_picker.dart';
 import 'package:pishkhan_mobile/core/platform/selected_document.dart';
 import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_delete_address_sheet.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_service_sheet.dart';
@@ -44,13 +45,21 @@ class _OnSiteTransferScreenState extends State<OnSiteTransferScreen> {
     BuildContext context,
     OnSiteTransferState state,
   ) async {
+    if (state.message != null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(state.message!)));
+      return;
+    }
+
     switch (state.effect) {
       case OnSiteTransferEffect.addressEditor:
+        context.read<OnSiteTransferCubit>().consumeOnSiteTransferInteraction();
         final address = await ServiceRegistry.openAddressEditor(context);
         if (context.mounted) {
           context.read<OnSiteTransferCubit>().applyAddressResult(address);
         }
       case OnSiteTransferEffect.deleteAddress:
+        context.read<OnSiteTransferCubit>().consumeOnSiteTransferInteraction();
         await showAppServiceSheet<void>(
           context,
           AppDeleteAddressSheet(
@@ -71,18 +80,22 @@ class _OnSiteTransferScreenState extends State<OnSiteTransferScreen> {
           ),
         );
       case OnSiteTransferEffect.destinationEditor:
+        context.read<OnSiteTransferCubit>().consumeOnSiteTransferInteraction();
         await showTransferDestinationSheet(context);
         if (context.mounted) {
           context.read<OnSiteTransferCubit>().cancelDestinationEditor();
         }
       case OnSiteTransferEffect.closeDestination:
+        context.read<OnSiteTransferCubit>().consumeOnSiteTransferInteraction();
         Navigator.of(context).pop();
       case OnSiteTransferEffect.uploadSheet:
+        context.read<OnSiteTransferCubit>().consumeOnSiteTransferInteraction();
         final confirmed = await showTransferUploadSheet(context);
         if (context.mounted) {
           context.read<OnSiteTransferCubit>().applyUploadSheetResult(confirmed);
         }
       case OnSiteTransferEffect.pickFile:
+        context.read<OnSiteTransferCubit>().consumeOnSiteTransferInteraction();
         SelectedDocument? file;
         try {
           file = await DocumentPicker.pickSpreadsheet();
@@ -101,11 +114,13 @@ class _OnSiteTransferScreenState extends State<OnSiteTransferScreen> {
           );
         }
       case OnSiteTransferEffect.reveal:
+        context.read<OnSiteTransferCubit>().consumeOnSiteTransferInteraction();
         FocusManager.instance.primaryFocus?.unfocus();
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted && _scroll.hasClients) _scroll.jumpTo(0);
         });
       case OnSiteTransferEffect.confirmExit:
+        context.read<OnSiteTransferCubit>().consumeOnSiteTransferInteraction();
         final confirmed = await showFlowExitDialog(context);
         if (context.mounted) {
           context.read<OnSiteTransferCubit>().applyExitConfirmation(confirmed);
@@ -118,13 +133,16 @@ class _OnSiteTransferScreenState extends State<OnSiteTransferScreen> {
       case OnSiteTransferEffect.home:
         NavigationActions.returnHome(context);
       case OnSiteTransferEffect.assistant:
+        context.read<OnSiteTransferCubit>().consumeOnSiteTransferInteraction();
         NavigationActions.returnHome(context);
         widget.onAssistantPressed?.call();
       case OnSiteTransferEffect.unavailable:
+        context.read<OnSiteTransferCubit>().consumeOnSiteTransferInteraction();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(S.current.cardFeatureUnavailable)),
         );
       case OnSiteTransferEffect.receipt:
+        context.read<OnSiteTransferCubit>().consumeOnSiteTransferInteraction();
         await showTransferReceiptDialog(context, state.receipt!);
         if (context.mounted) {
           context.read<OnSiteTransferCubit>().applyReceiptDismissal();
@@ -142,15 +160,33 @@ class _OnSiteTransferScreenState extends State<OnSiteTransferScreen> {
             ..fetchCatalog(),
       child: BlocListener<OnSiteTransferCubit, OnSiteTransferState>(
         listenWhen: (previous, current) =>
-            previous.effectId != current.effectId,
+            (previous.effect != current.effect && current.effect != null) ||
+            ((previous.catalogStatus != current.catalogStatus &&
+                    current.catalogStatus == RequestStatus.failure) ||
+                (previous.destinationStatus != current.destinationStatus &&
+                    current.destinationStatus == RequestStatus.failure) ||
+                (previous.uploadStatus != current.uploadStatus &&
+                    current.uploadStatus == RequestStatus.failure) ||
+                (previous.submissionStatus != current.submissionStatus &&
+                    current.submissionStatus == RequestStatus.failure)),
         listener: _handleEffect,
         child: BlocBuilder<OnSiteTransferCubit, OnSiteTransferState>(
-          buildWhen: (previous, current) => previous.effect != current.effect,
           builder: (context, state) {
             return PopScope(
-              canPop: state.effect == OnSiteTransferEffect.back,
+              canPop:
+                  (state.catalogStatus != RequestStatus.loading &&
+                      state.destinationStatus != RequestStatus.loading &&
+                      state.uploadStatus != RequestStatus.loading &&
+                      state.submissionStatus != RequestStatus.loading) &&
+                  (state.effect == OnSiteTransferEffect.back),
               onPopInvokedWithResult: (didPop, _) {
-                if (!didPop) context.read<OnSiteTransferCubit>().requestBack();
+                if (!didPop &&
+                    state.catalogStatus != RequestStatus.loading &&
+                    state.destinationStatus != RequestStatus.loading &&
+                    state.uploadStatus != RequestStatus.loading &&
+                    state.submissionStatus != RequestStatus.loading) {
+                  context.read<OnSiteTransferCubit>().requestBack();
+                }
               },
               child: Scaffold(
                 backgroundColor: context.colors.surfaceSubtle,
@@ -164,12 +200,24 @@ class _OnSiteTransferScreenState extends State<OnSiteTransferScreen> {
                             title: S.current.mobileBank,
                             showLeadingActions: false,
                             trailingIcon: AvpImage(
-                              image: AppAssets.depositFeatureBack,
+                              image:
+                                  '${AppConstants.baseImage}deposit_list_back.svg',
                             ),
                             trailingTooltip: S.current.backLabel,
-                            onTrailingPressed: () {
-                              context.read<OnSiteTransferCubit>().requestBack();
-                            },
+                            onTrailingPressed:
+                                (state.catalogStatus != RequestStatus.loading &&
+                                    state.destinationStatus !=
+                                        RequestStatus.loading &&
+                                    state.uploadStatus !=
+                                        RequestStatus.loading &&
+                                    state.submissionStatus !=
+                                        RequestStatus.loading)
+                                ? () {
+                                    context
+                                        .read<OnSiteTransferCubit>()
+                                        .requestBack();
+                                  }
+                                : null,
                           ),
                           Expanded(child: TransferForm(controller: _scroll)),
                           const TransferFooter(),

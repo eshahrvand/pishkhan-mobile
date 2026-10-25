@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +9,6 @@ import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/d
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_bank_services.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_reso_banner.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_wallet_card.dart';
@@ -34,8 +34,10 @@ class _DashboardHomePanelState extends State<DashboardHomePanel> {
   void _applyFocusEffect(BuildContext context, HomeState state) {
     switch (state.effect) {
       case HomeAssistantRequested():
+        context.read<HomeCubit>().consumeHomeInteraction();
         _promptFocus.requestFocus();
       case HomeTabRequested():
+        context.read<HomeCubit>().consumeHomeInteraction();
         _promptFocus.unfocus();
       default:
         break;
@@ -48,24 +50,28 @@ class _DashboardHomePanelState extends State<DashboardHomePanel> {
       textDirection: TextDirection.rtl,
       child: BlocConsumer<HomeCubit, HomeState>(
         listenWhen: (previous, current) =>
-            previous.effectId != current.effectId &&
+            (previous.effect != current.effect && current.effect != null) &&
             (current.effect is HomeAssistantRequested ||
                 current.effect is HomeTabRequested),
         listener: _applyFocusEffect,
-        buildWhen: (previous, current) {
-          return previous.homeStatus != current.homeStatus ||
-              previous.homeData != current.homeData ||
-              previous.isEditingFavorites != current.isEditingFavorites ||
-              previous.selectedTab != current.selectedTab ||
-              previous.enableAnimations != current.enableAnimations;
-        },
+
         builder: (context, state) {
           return PopScope(
             canPop:
-                !state.isEditingFavorites &&
-                state.selectedTab == AppPrimaryTab.dashboard,
+                (state.homeStatus != RequestStatus.loading &&
+                    state.cardsStatus != RequestStatus.loading &&
+                    state.depositsStatus != RequestStatus.loading &&
+                    state.loansStatus != RequestStatus.loading) &&
+                (!state.isEditingFavorites &&
+                    state.selectedTab == AppPrimaryTab.dashboard),
             onPopInvokedWithResult: (didPop, _) {
-              if (!didPop) context.read<HomeCubit>().requestBack();
+              if (!didPop &&
+                  state.homeStatus != RequestStatus.loading &&
+                  state.cardsStatus != RequestStatus.loading &&
+                  state.depositsStatus != RequestStatus.loading &&
+                  state.loansStatus != RequestStatus.loading) {
+                context.read<HomeCubit>().requestBack();
+              }
             },
             child:
                 state.homeStatus != RequestStatus.success ||
@@ -153,7 +159,8 @@ class _DashboardHomePanelState extends State<DashboardHomePanel> {
                                         right: 0,
                                         height: 122,
                                         child: AvpImage(
-                                          image: AppAssets.dashboardPatternUp,
+                                          image:
+                                              '${AppConstants.baseImage}dashboard_pattern_up.svg',
                                           fit: BoxFit.fill,
                                         ),
                                       ),
@@ -163,7 +170,8 @@ class _DashboardHomePanelState extends State<DashboardHomePanel> {
                                         right: 0,
                                         height: 122,
                                         child: AvpImage(
-                                          image: AppAssets.dashboardPatternDown,
+                                          image:
+                                              '${AppConstants.baseImage}dashboard_pattern_down.svg',
                                           fit: BoxFit.fill,
                                         ),
                                       ),

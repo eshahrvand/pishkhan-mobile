@@ -43,7 +43,7 @@ service routing and 320px screens with larger text in fa/en/ar.
 
 Optional captures use `CAPTURE_CERTIFICATE_PREVIEWS=1` and write PNGs into
 ignored `build/previews/certificates/`. Static assets are locally bundled and
-registered in `AppAssets`; exact duplicate artwork is reused. The design's
+referenced with `AppConstants.baseImage`; exact duplicate artwork is reused. The design's
 OS status/navigation bars are reserved as viewport insets, not drawn by the app.
 
 ## UI/Cubit contract adoption (2026-10-17)

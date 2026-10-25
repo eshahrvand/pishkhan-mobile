@@ -74,13 +74,13 @@ void main() {
           );
       await cubit.fetchDeposits();
       expect(cubit.state.depositsStatus, RequestStatus.failure);
-      expect(cubit.state.depositsFailure, isA<UnexpectedFailure>());
+      expect(cubit.state.failure, isA<UnexpectedFailure>());
       await cubit.fetchDeposits();
       expect(cubit.state.depositsStatus, RequestStatus.success);
       expect(cubit.state.deposits, isEmpty);
       await cubit.fetchDeposits();
       expect(
-        cubit.state.depositsFailure,
+        cubit.state.failure,
         const DataFailure('deposits.catalog.invalid'),
       );
       await cubit.close();
@@ -98,9 +98,9 @@ void main() {
       final deposit = cubit.state.visibleDeposits.first;
       cubit.requestDepositActions(deposit);
       expect((cubit.state.effect as DepositActionsRequested).deposit, deposit);
-      final effectId = cubit.state.effectId;
+      final pendingEffect = cubit.state.effect;
       cubit.applyActionSelection(deposit, null);
-      expect(cubit.state.effectId, effectId);
+      expect(cubit.state.effect, pendingEffect);
       cubit.applyActionSelection(deposit, DepositListAction.accountDetails);
       expect((cubit.state.effect as DepositDetailsRequested).deposit, deposit);
       cubit.applyActionSelection(deposit, DepositListAction.statement);

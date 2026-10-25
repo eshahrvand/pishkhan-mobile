@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
+
 import 'app_deposit_list_header.dart';
 import 'app_deposit_list_detail_row.dart';
 
@@ -5,7 +7,6 @@ import 'dart:math' as math;
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 /// Local Figma SVG assets used by [AppDepositList].
 abstract final class AppDepositListIcons {
@@ -13,19 +14,22 @@ abstract final class AppDepositListIcons {
   // card's physical-left horizontal overflow affordance.
   static Widget moreHorizontal() => Transform.rotate(
     angle: -math.pi / 2,
-    child: _svg(AppAssets.iconMoreVertical20Gray700),
+    child: _svg('${AppConstants.baseImage}icon_more_vertical_20_gray700.svg'),
   );
   static Widget deposit() => Transform.rotate(
     angle: math.pi,
     child: Transform.flip(
       flipY: true,
-      child: _svg(AppAssets.depositListDeposit),
+      child: _svg('${AppConstants.baseImage}deposit_list_deposit.svg'),
     ),
   );
   static Widget divider() => SizedBox(
     height: .5,
     width: double.infinity,
-    child: AvpImage(image: AppAssets.dividerCardGray200, fit: BoxFit.fill),
+    child: AvpImage(
+      image: '${AppConstants.baseImage}divider_card_gray200.svg',
+      fit: BoxFit.fill,
+    ),
   );
 
   static Widget _svg(String path) => SizedBox(

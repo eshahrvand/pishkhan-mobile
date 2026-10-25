@@ -305,7 +305,7 @@ void main() {
       final repository = TestChequeBookRepository()..throwsCatalog = true;
       final cubit = create(repository);
       await cubit.fetchCatalog();
-      expect(cubit.state.catalogFailure, const UnexpectedFailure());
+      expect(cubit.state.failure, const UnexpectedFailure());
       repository.throwsCatalog = false;
       await cubit.fetchCatalog();
       expect(cubit.state.catalogStatus, RequestStatus.success);
@@ -324,8 +324,10 @@ void main() {
     cubit.applyExitConfirmation(true);
     expect(cubit.state.effect, ChequeBookEffect.assistant);
     cubit.requestUnavailableContent();
-    final effectId = cubit.state.effectId;
+    final effectBeforeRepeat = cubit.state.effect;
+    cubit.consumeChequeBookInteraction();
+    expect(cubit.state.effect, isNull);
     cubit.requestUnavailableContent();
-    expect(cubit.state.effectId, effectId + 1);
+    expect(cubit.state.effect.runtimeType, effectBeforeRepeat.runtimeType);
   });
 }

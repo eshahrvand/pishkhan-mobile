@@ -1,16 +1,16 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
-import '../cubit/cheque_postal_cubit.dart';
+import '../cubit/postal_offices_cubit.dart';
 
 import 'package:pishkhan_mobile/shared/widgets/certificate_fields.dart';
 
-class ChequePostalResults extends StatelessWidget {
-  const ChequePostalResults({super.key, required this.state});
-  final ChequePostalState state;
+class PostalOfficesResults extends StatelessWidget {
+  const PostalOfficesResults({super.key, required this.state});
+  final PostalOfficesState state;
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -65,7 +65,7 @@ class ChequePostalResults extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           const AvpImage(
-            image: AppAssets.issuanceDivider,
+            image: '${AppConstants.baseImage}issuance_divider.svg',
             height: 1,
             fit: BoxFit.fill,
           ),
@@ -78,7 +78,7 @@ class ChequePostalResults extends StatelessWidget {
             const SizedBox(height: 24),
             AppButton(
               label: S.current.chequePostalSearchAgain,
-              onPressed: context.read<ChequePostalCubit>().requestPostalSearch,
+              onPressed: context.read<PostalOfficesCubit>().requestPostalSearch,
             ),
           ] else ...[
             Flexible(
@@ -98,12 +98,12 @@ class ChequePostalResults extends StatelessWidget {
             AppButton(
               label: S.current.chequePostalShare,
               leadingIcon: const AvpImage(
-                image: AppAssets.chequeClearanceShare,
+                image: '${AppConstants.baseImage}cheque_clearance_share.svg',
                 width: 20,
                 height: 20,
               ),
               size: AppButtonSize.lg,
-              onPressed: context.read<ChequePostalCubit>().requestPostalShare,
+              onPressed: context.read<PostalOfficesCubit>().requestPostalShare,
             ),
           ],
         ],

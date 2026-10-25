@@ -12,7 +12,7 @@
 - `AppTopBar`, `AppPrimaryNavigation`, `AppAssistantButton`, `AppAssistantIcon` and `AppServiceArtworkTile`: extracted the compatible dashboard visuals into shared widgets. Dashboard compatibility names remain available, and its existing notifications, search and customization interactions are retained.
 - `AppShadows.bankCard` in `avp_ui`: reproduces the card instance's two shadow layers. The existing general-purpose `md` token remains separate.
 
-All static assets are local and registered in `AppAssets`. The virtual-card artwork was exported from the original quick-access instance because the generated asset reference returned an identity icon. No screenshots are used as UI assets.
+All static assets are local and referenced with `AppConstants.baseImage`. The virtual-card artwork was exported from the original quick-access instance because the generated asset reference returned an identity icon. No screenshots are used as UI assets.
 
 ## Behavior and integration
 
@@ -42,8 +42,8 @@ updates its repository when injected dependencies change. Default data come
 from DashboardMockData through MockDashboardCardsRepository.
 
 Typed `HomeEffect` values carry action, more, selection, copy, tab, menu and
-assistant requests. A monotonically increasing `effectId` lets BlocListener
-handle repeated identical interactions. DashboardScreen owns the listener that
+assistant requests. BlocListener accepts and consumes reusable commands before
+awaiting them, allowing repeated identical interactions without counters. DashboardScreen owns the listener that
 executes clipboard/navigation/menu effects and host callbacks. Cubit contains
 no BuildContext, platform clipboard calls or UI callback fields. Standalone
 tests/hosts supply the same Provider/Listener scope around `const CardsTab()`;

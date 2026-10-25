@@ -1,14 +1,16 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
+import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
 import 'package:pishkhan_mobile/shared/widgets/flow_exit_dialog.dart';
 
-import '../../shared/postal/widgets/cheque_postal_sheet.dart';
+import 'package:pishkhan_mobile/features/postal_offices/postal_offices.dart';
+
 import '../cubit/cheque_cancellation_cubit.dart';
 import '../widgets/cheque_cancellation_content.dart';
 import '../widgets/cheque_cancellation_delete_sheet.dart';
@@ -29,8 +31,17 @@ class ChequeCancellationScreen extends StatelessWidget {
     BuildContext context,
     ChequeCancellationState state,
   ) async {
+    if (state.message != null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(state.message!)));
+      return;
+    }
+
     switch (state.effect) {
       case ChequeCancellationEffect.review:
+        context
+            .read<ChequeCancellationCubit>()
+            .consumeChequeCancellationInteraction();
         final continued = await showChequeCancellationReviewSheet(context);
         if (context.mounted) {
           context.read<ChequeCancellationCubit>().applyReviewDismissal(
@@ -38,21 +49,39 @@ class ChequeCancellationScreen extends StatelessWidget {
           );
         }
       case ChequeCancellationEffect.reason:
+        context
+            .read<ChequeCancellationCubit>()
+            .consumeChequeCancellationInteraction();
         await showChequeCancellationReasonSheet(context);
       case ChequeCancellationEffect.deleteCheque:
+        context
+            .read<ChequeCancellationCubit>()
+            .consumeChequeCancellationInteraction();
         await showChequeCancellationDeleteSheet(context, state.pendingCheque!);
       case ChequeCancellationEffect.postalOffices:
-        await showChequePostalSheet(context);
+        context
+            .read<ChequeCancellationCubit>()
+            .consumeChequeCancellationInteraction();
+        await showPostalOfficesSheet(context);
       case ChequeCancellationEffect.contentUnavailable:
+        context
+            .read<ChequeCancellationCubit>()
+            .consumeChequeCancellationInteraction();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(S.current.chequeContentUnavailable)),
         );
       case ChequeCancellationEffect.receipt:
+        context
+            .read<ChequeCancellationCubit>()
+            .consumeChequeCancellationInteraction();
         await showChequeCancellationReceiptDialog(context, state.receipt!);
         if (context.mounted) {
           context.read<ChequeCancellationCubit>().applyReceiptDismissal();
         }
       case ChequeCancellationEffect.confirmExit:
+        context
+            .read<ChequeCancellationCubit>()
+            .consumeChequeCancellationInteraction();
         final confirmed = await showFlowExitDialog(context);
         if (context.mounted) {
           context.read<ChequeCancellationCubit>().applyExitConfirmation(
@@ -66,6 +95,9 @@ class ChequeCancellationScreen extends StatelessWidget {
       case ChequeCancellationEffect.home:
         NavigationActions.returnHome(context);
       case ChequeCancellationEffect.assistant:
+        context
+            .read<ChequeCancellationCubit>()
+            .consumeChequeCancellationInteraction();
         NavigationActions.returnHome(context);
         onAssistantPressed?.call();
       case ChequeCancellationEffect.deleteReviewCheque:
@@ -82,17 +114,29 @@ class ChequeCancellationScreen extends StatelessWidget {
             ..fetchCatalog(),
       child: BlocConsumer<ChequeCancellationCubit, ChequeCancellationState>(
         listenWhen: (previous, current) =>
-            previous.effectId != current.effectId,
+            (previous.effect != current.effect && current.effect != null) ||
+            ((previous.catalogStatus != current.catalogStatus &&
+                    current.catalogStatus == RequestStatus.failure) ||
+                (previous.chequesStatus != current.chequesStatus &&
+                    current.chequesStatus == RequestStatus.failure) ||
+                (previous.submissionStatus != current.submissionStatus &&
+                    current.submissionStatus == RequestStatus.failure)),
         listener: _handleEffect,
-        buildWhen: (previous, current) =>
-            previous.step != current.step || previous.effect != current.effect,
+
         builder: (context, state) {
           return Directionality(
             textDirection: TextDirection.rtl,
             child: PopScope(
-              canPop: state.effect == ChequeCancellationEffect.back,
+              canPop:
+                  (state.catalogStatus != RequestStatus.loading &&
+                      state.chequesStatus != RequestStatus.loading &&
+                      state.submissionStatus != RequestStatus.loading) &&
+                  (state.effect == ChequeCancellationEffect.back),
               onPopInvokedWithResult: (didPop, _) {
-                if (!didPop) {
+                if (!didPop &&
+                    state.catalogStatus != RequestStatus.loading &&
+                    state.chequesStatus != RequestStatus.loading &&
+                    state.submissionStatus != RequestStatus.loading) {
                   context.read<ChequeCancellationCubit>().requestBack();
                 }
               },
@@ -135,10 +179,8 @@ class ChequeCancellationScreen extends StatelessWidget {
                                             child: AvpImage(
                                               image:
                                                   state.selectedEntries.isEmpty
-                                                  ? AppAssets
-                                                        .chequeCancelFileList
-                                                  : AppAssets
-                                                        .chequeCancelFileListSelected,
+                                                  ? '${AppConstants.baseImage}cheque_cancel_file_list.svg'
+                                                  : '${AppConstants.baseImage}cheque_cancel_file_list_selected.svg',
                                               width: 24,
                                               height: 24,
                                             ),
@@ -149,14 +191,22 @@ class ChequeCancellationScreen extends StatelessWidget {
                                   )
                                 : const SizedBox.shrink(),
                             trailingIcon: const AvpImage(
-                              image: AppAssets.depositFeatureBack,
+                              image:
+                                  '${AppConstants.baseImage}deposit_list_back.svg',
                               width: 24,
                               height: 24,
                             ),
                             trailingTooltip: S.current.backLabel,
-                            onTrailingPressed: context
-                                .read<ChequeCancellationCubit>()
-                                .requestBack,
+                            onTrailingPressed:
+                                (state.catalogStatus != RequestStatus.loading &&
+                                    state.chequesStatus !=
+                                        RequestStatus.loading &&
+                                    state.submissionStatus !=
+                                        RequestStatus.loading)
+                                ? context
+                                      .read<ChequeCancellationCubit>()
+                                      .requestBack
+                                : null,
                           ),
                           const Expanded(child: ChequeCancellationContent()),
                           const ChequeCancellationFooter(),

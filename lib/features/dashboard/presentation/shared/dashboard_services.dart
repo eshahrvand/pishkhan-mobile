@@ -1,5 +1,5 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 // Localization stays in Presentation; Cubits receive searchable text as data.
 Map<DashboardService, String> getDashboardServiceSearchLabels() {
@@ -194,45 +194,48 @@ enum DashboardService {
   };
 
   String get catalogAsset => switch (this) {
-    statement => AppAssets.dashboardCatalogStatement,
-    certificate => AppAssets.dashboardCatalogCertificate,
-    agent => AppAssets.dashboardCatalogAgent,
-    issue => AppAssets.dashboardCatalogIssue,
+    statement => '${AppConstants.baseImage}dashboard_catalog_statement.svg',
+    certificate => '${AppConstants.baseImage}dashboard_catalog_certificate.svg',
+    agent => '${AppConstants.baseImage}dashboard_catalog_agent.svg',
+    issue => '${AppConstants.baseImage}dashboard_catalog_issue.svg',
     password ||
     forgotPassword ||
-    changePassword => AppAssets.dashboardCatalogPassword,
-    cardDeposit => AppAssets.dashboardCatalogCardDeposit,
-    block => AppAssets.dashboardCatalogBlock,
-    estimate => AppAssets.dashboardCatalogEstimate,
-    introduce => AppAssets.dashboardCatalogIntroduce,
-    consolidation => AppAssets.dashboardCatalogConsolidation,
-    loanDeposit => AppAssets.dashboardCatalogLoanDeposit,
-    blockDeposit => AppAssets.dashboardCatalogAgent,
-    requests => AppAssets.dashboardCatalogRequests,
-    assistant => AppAssets.dashboardAssistantStar,
-    _ => AppAssets.dashboardCatalogMore,
+    changePassword => '${AppConstants.baseImage}dashboard_catalog_password.svg',
+    cardDeposit =>
+      '${AppConstants.baseImage}dashboard_catalog_card_deposit.svg',
+    block => '${AppConstants.baseImage}dashboard_catalog_block.svg',
+    estimate => '${AppConstants.baseImage}dashboard_catalog_estimate.svg',
+    introduce => '${AppConstants.baseImage}dashboard_catalog_introduce.svg',
+    consolidation =>
+      '${AppConstants.baseImage}dashboard_catalog_consolidation.svg',
+    loanDeposit =>
+      '${AppConstants.baseImage}dashboard_catalog_loan_deposit.svg',
+    blockDeposit => '${AppConstants.baseImage}dashboard_catalog_agent.svg',
+    requests => '${AppConstants.baseImage}dashboard_catalog_requests.svg',
+    assistant => '${AppConstants.baseImage}dashboard_assistant_star.svg',
+    _ => '${AppConstants.baseImage}dashboard_catalog_more.svg',
   };
 
   String get optionAsset => switch (this) {
-    issue => AppAssets.dashboardOptionIssue,
+    issue => '${AppConstants.baseImage}dashboard_option_issue.svg',
     password ||
     forgotPassword ||
-    changePassword => AppAssets.dashboardOptionPassword,
-    cardDeposit => AppAssets.dashboardOptionCardDeposit,
-    block => AppAssets.dashboardOptionBlock,
-    _ => AppAssets.dashboardOptionMore,
+    changePassword => '${AppConstants.baseImage}dashboard_option_password.svg',
+    cardDeposit => '${AppConstants.baseImage}dashboard_option_card_deposit.svg',
+    block => '${AppConstants.baseImage}dashboard_option_block.svg',
+    _ => '${AppConstants.baseImage}dashboard_option_more.svg',
   };
 
   String get fixedAsset => switch (this) {
-    sms => AppAssets.dashboardFixedSms,
-    estimate => AppAssets.dashboardFixedEstimate,
+    sms => '${AppConstants.baseImage}dashboard_fixed_sms.svg',
+    estimate => '${AppConstants.baseImage}dashboard_fixed_estimate.svg',
     password ||
     forgotPassword ||
-    changePassword => AppAssets.dashboardFixedPassword,
-    agent => AppAssets.dashboardFixedAgent,
-    certificate => AppAssets.dashboardFixedCertificate,
-    statement => AppAssets.dashboardFixedStatement,
-    block => AppAssets.dashboardFixedBlock,
+    changePassword => '${AppConstants.baseImage}dashboard_fixed_password.svg',
+    agent => '${AppConstants.baseImage}dashboard_fixed_agent.svg',
+    certificate => '${AppConstants.baseImage}dashboard_fixed_certificate.svg',
+    statement => '${AppConstants.baseImage}dashboard_fixed_statement.svg',
+    block => '${AppConstants.baseImage}dashboard_fixed_block.svg',
     _ => catalogAsset,
   };
 
@@ -245,27 +248,32 @@ enum DashboardService {
     return switch (this) {
       cardDeposit =>
         editing
-            ? AppAssets.dashboardFavoriteCardDepositEdit
-            : AppAssets.dashboardFavoriteCardDeposit,
+            ? '${AppConstants.baseImage}dashboard_favorite_card_deposit_edit.svg'
+            : '${AppConstants.baseImage}dashboard_favorite_card_deposit.svg',
       consolidation =>
         editing
-            ? AppAssets.dashboardFavoriteConsolidationEdit
-            : AppAssets.dashboardFavoriteConsolidation,
+            ? '${AppConstants.baseImage}dashboard_favorite_consolidation_edit.svg'
+            : '${AppConstants.baseImage}dashboard_favorite_consolidation.svg',
       issue =>
         editing
-            ? AppAssets.dashboardFavoriteIssueEdit
-            : AppAssets.dashboardFavoriteIssue,
+            ? '${AppConstants.baseImage}dashboard_favorite_issue_edit.svg'
+            : '${AppConstants.baseImage}dashboard_favorite_issue.svg',
       proxy =>
         editing
-            ? AppAssets.dashboardFavoriteProxyEdit
-            : AppAssets.dashboardFavoriteProxy,
+            ? '${AppConstants.baseImage}dashboard_favorite_proxy_edit.svg'
+            : '${AppConstants.baseImage}dashboard_favorite_proxy.svg',
       mobileBank =>
         editing
-            ? AppAssets.dashboardFavoriteMobileEdit
-            : AppAssets.dashboardFavoriteMobile,
-      internetBank => editing ? AppAssets.dashboardFavoriteInternetEdit : null,
+            ? '${AppConstants.baseImage}dashboard_favorite_mobile_edit.svg'
+            : '${AppConstants.baseImage}dashboard_favorite_mobile.svg',
+      internetBank =>
+        editing
+            ? '${AppConstants.baseImage}dashboard_favorite_internet_edit.svg'
+            : null,
       loanDeposit =>
-        editing ? AppAssets.dashboardFavoriteLoanDepositEdit : null,
+        editing
+            ? '${AppConstants.baseImage}dashboard_favorite_loan_deposit_edit.svg'
+            : null,
       _ => null,
     };
   }
@@ -307,17 +315,22 @@ enum DashboardCategory {
   };
 
   String get asset => switch (this) {
-    modern => AppAssets.dashboardCatalogCategoryModern,
-    cards => AppAssets.dashboardCatalogCategoryCard,
-    cheque => AppAssets.dashboardCatalogCategoryCheque,
-    transfers => AppAssets.dashboardCatalogCategoryTransfer,
-    loans => AppAssets.dashboardCatalogCategoryLoan,
-    deposits => AppAssets.dashboardCatalogCategoryDeposit,
-    wallet => AppAssets.dashboardCatalogCategoryWallet,
-    identity => AppAssets.dashboardCatalogCategoryIdentity,
-    requests => AppAssets.dashboardCatalogCategoryRequests,
+    modern => '${AppConstants.baseImage}dashboard_catalog_category_modern.svg',
+    cards => '${AppConstants.baseImage}dashboard_catalog_category_card.svg',
+    cheque => '${AppConstants.baseImage}dashboard_catalog_category_cheque.svg',
+    transfers =>
+      '${AppConstants.baseImage}dashboard_catalog_category_transfer.svg',
+    loans => '${AppConstants.baseImage}dashboard_catalog_category_loan.svg',
+    deposits =>
+      '${AppConstants.baseImage}dashboard_catalog_category_deposit.svg',
+    wallet => '${AppConstants.baseImage}dashboard_catalog_category_wallet.svg',
+    identity =>
+      '${AppConstants.baseImage}dashboard_catalog_category_identity.svg',
+    requests =>
+      '${AppConstants.baseImage}dashboard_catalog_category_requests.svg',
   };
 
-  String get activeAsset =>
-      this == cards ? AppAssets.dashboardCategoryCardActive : asset;
+  String get activeAsset => this == cards
+      ? '${AppConstants.baseImage}dashboard_category_card_active.svg'
+      : asset;
 }

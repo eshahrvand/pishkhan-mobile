@@ -1,7 +1,4 @@
-import 'dart:async';
-
 import 'package:flutter_test/flutter_test.dart';
-import 'package:pishkhan_mobile/features/cheque/presentation/shared/postal/cubit/cheque_postal_cubit.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/result/failure.dart';
@@ -16,7 +13,6 @@ import 'package:pishkhan_mobile/features/cheque/presentation/clearance/cubit/che
 
 class ControlledChequeRepository implements ChequeClearanceRepository {
   final delegate = MockChequeClearanceRepository();
-  final postalRequests = <Completer<Result<List<PostalOffice>>>>[];
   final submissions = <ChequeClearanceRequest>[];
   Result<ChequeClearanceReceipt>? submissionResult;
   bool failCatalog = false;
@@ -25,13 +21,6 @@ class ControlledChequeRepository implements ChequeClearanceRepository {
   Future<Result<ChequeClearanceCatalog>> fetchCatalog() => failCatalog
       ? Future.value(const Err(DataFailure('offline')))
       : delegate.fetchCatalog();
-
-  @override
-  Future<Result<List<PostalOffice>>> fetchPostalOffices(String cityId) {
-    final completer = Completer<Result<List<PostalOffice>>>();
-    postalRequests.add(completer);
-    return completer.future;
-  }
 
   @override
   Future<Result<ChequeClearanceReceipt>> submitClearance(
@@ -76,7 +65,7 @@ void main() {
     repository.failCatalog = false;
     await cubit.fetchCatalog();
     expect(cubit.state.catalogStatus, RequestStatus.success);
-    expect(cubit.state.catalogFailure, isNull);
+    expect(cubit.state.failure, isNull);
     expect(cubit.state.isEditable, isTrue);
   });
 
@@ -121,26 +110,24 @@ void main() {
     );
   }
 
-  test(
-    'unknown cheque is a field error only after submission; editing recovers',
-    () async {
-      await fill(ChequeClearanceReason.depositAndBlock, number: '999/999999');
-      expect(cubit.state.chequeNumberError, isNull);
-      cubit.updateTermsAcceptance(true);
-      await cubit.submitClearance();
-      expect(cubit.state.chequeNumberError, ChequeNumberError.notFound);
-      expect(cubit.state.submissionFailure, isNull);
-      expect(cubit.state.isEditable, isTrue);
-      cubit.updateTermsAcceptance(false);
-      cubit.updateTermsAcceptance(true);
-      expect(cubit.state.canSubmit, isFalse);
-      cubit.updateChequeNumber('123/123456');
-      expect(cubit.state.chequeNumberError, isNull);
-      expect(cubit.state.canSubmit, isTrue);
-      await cubit.submitClearance();
-      expect(cubit.state.submissionStatus, RequestStatus.success);
-    },
-  );
+  test('unknown cheque prepares a request message and field error; editing recovers', () async {
+    await fill(ChequeClearanceReason.depositAndBlock, number: '999/999999');
+    expect(cubit.state.chequeNumberError, isNull);
+    cubit.updateTermsAcceptance(true);
+    await cubit.submitClearance();
+    expect(cubit.state.chequeNumberError, ChequeNumberError.notFound);
+    expect(cubit.state.failure?.code, 'cheque.not-found');
+    expect(cubit.state.message, 'چک موردنظر یافت نشد.');
+    expect(cubit.state.isEditable, isTrue);
+    cubit.updateTermsAcceptance(false);
+    cubit.updateTermsAcceptance(true);
+    expect(cubit.state.canSubmit, isFalse);
+    cubit.updateChequeNumber('123/123456');
+    expect(cubit.state.chequeNumberError, isNull);
+    expect(cubit.state.canSubmit, isTrue);
+    await cubit.submitClearance();
+    expect(cubit.state.submissionStatus, RequestStatus.success);
+  });
 
   test(
     'deposit and reason changes discard dependent values and consent',
@@ -183,58 +170,6 @@ void main() {
         key,
       ]);
       expect(cubit.state.submissionStatus, RequestStatus.success);
-    },
-  );
-
-  test(
-    'postal search resets dependent city and publishes service results',
-    () async {
-      final postal = ChequePostalCubit();
-      addTearDown(postal.close);
-      await postal.fetchProvinces();
-      postal.selectProvince(postal.state.provinces.first);
-      postal.selectCity(postal.state.cities.first);
-      postal.selectProvince(postal.state.provinces.last);
-      expect(postal.state.city, isNull);
-      expect(postal.state.canSearchPostalOffices, isFalse);
-      postal.selectCity(postal.state.cities.single);
-      final lookup = postal.searchPostalOffices();
-      repository.postalRequests.single.complete(const Success([]));
-      await lookup;
-      expect(postal.state.postalOffices, isEmpty);
-      expect(postal.state.postalStep, ChequePostalStep.results);
-      expect(postal.state.city!.id, 'isfahan-city');
-    },
-  );
-
-  test(
-    'postal failure retries; sharing uses the actual retrieved offices',
-    () async {
-      final postal = ChequePostalCubit();
-      addTearDown(postal.close);
-      await postal.fetchProvinces();
-      postal.selectProvince(postal.state.provinces.first);
-      postal.selectCity(postal.state.cities.first);
-      var lookup = postal.searchPostalOffices();
-      repository.postalRequests.last.complete(
-        const Err(DataFailure('offline')),
-      );
-      await lookup;
-      expect(postal.state.postalOfficesStatus, RequestStatus.failure);
-      expect(postal.state.postalStep, ChequePostalStep.location);
-      lookup = postal.searchPostalOffices();
-      repository.postalRequests.last.complete(
-        const Success([
-          PostalOffice(id: 'office', address: 'address from service'),
-        ]),
-      );
-      await lookup;
-      postal.requestPostalShare();
-      expect(postal.state.effect, ChequePostalEffect.share);
-      expect(postal.state.postalShareText, contains('address from service'));
-      expect(postal.state.postalShareText, contains(postal.state.city!.name));
-      postal.requestPostalSearch();
-      expect(postal.state.postalStep, ChequePostalStep.location);
     },
   );
 

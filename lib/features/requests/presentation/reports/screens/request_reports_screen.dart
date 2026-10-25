@@ -1,9 +1,10 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
+import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
 
@@ -25,32 +26,44 @@ class RequestReportsScreen extends StatelessWidget {
     BuildContext context,
     RequestReportsState state,
   ) async {
+    if (state.message != null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(state.message!)));
+      return;
+    }
+
     switch (state.effect) {
       case RequestReportsEffect.typeFilter:
+        context.read<RequestReportsCubit>().consumeRequestReportsInteraction();
         await showReportTypeFilterSheet(context);
         if (context.mounted) {
           context.read<RequestReportsCubit>().cancelDraftFilter();
         }
       case RequestReportsEffect.statusFilter:
+        context.read<RequestReportsCubit>().consumeRequestReportsInteraction();
         await showReportStatusFilterSheet(context);
         if (context.mounted) {
           context.read<RequestReportsCubit>().cancelDraftFilter();
         }
       case RequestReportsEffect.dateFilter:
+        context.read<RequestReportsCubit>().consumeRequestReportsInteraction();
         await showReportDateFilterSheet(context);
         if (context.mounted) {
           context.read<RequestReportsCubit>().cancelDraftFilter();
         }
       case RequestReportsEffect.details:
+        context.read<RequestReportsCubit>().consumeRequestReportsInteraction();
         final result = await showReportDetailsSheet(context);
         if (context.mounted) {
           context.read<RequestReportsCubit>().applyDetailsResult(result);
         }
       case RequestReportsEffect.cancelConfirmation:
+        context.read<RequestReportsCubit>().consumeRequestReportsInteraction();
         await showReportCancellationSheet(context);
       case RequestReportsEffect.back:
         NavigationActions.back(context);
       case RequestReportsEffect.assistant:
+        context.read<RequestReportsCubit>().consumeRequestReportsInteraction();
         NavigationActions.returnHome(context);
         onAssistantPressed?.call();
       case null:
@@ -64,55 +77,77 @@ class RequestReportsScreen extends StatelessWidget {
       create: (_) => RequestReportsCubit()..fetchReports(),
       child: BlocListener<RequestReportsCubit, RequestReportsState>(
         listenWhen: (previous, current) =>
-            previous.effectId != current.effectId,
+            (previous.effect != current.effect && current.effect != null) ||
+            ((previous.reportsStatus != current.reportsStatus &&
+                    current.reportsStatus == RequestStatus.failure) ||
+                (previous.cancellationStatus != current.cancellationStatus &&
+                    current.cancellationStatus == RequestStatus.failure)),
         listener: _handleEffect,
         child: Directionality(
           textDirection: TextDirection.rtl,
-          child: Scaffold(
-            backgroundColor: context.colors.surfaceSubtle,
-            body: SafeArea(
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Column(
-                    children: [
-                      Builder(
-                        builder: (context) {
-                          return AppTopBar(
-                            title: S.current.reportTitle,
-                            showLeadingActions: false,
-                            trailingIcon: const AvpImage(
-                              image: AppAssets.depositFeatureBack,
+          child: BlocBuilder<RequestReportsCubit, RequestReportsState>(
+            builder: (context, state) {
+              return PopScope(
+                canPop:
+                    state.reportsStatus != RequestStatus.loading &&
+                    state.cancellationStatus != RequestStatus.loading,
+                child: Scaffold(
+                  backgroundColor: context.colors.surfaceSubtle,
+                  body: SafeArea(
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        Column(
+                          children: [
+                            Builder(
+                              builder: (context) {
+                                return AppTopBar(
+                                  title: S.current.reportTitle,
+                                  showLeadingActions: false,
+                                  trailingIcon: const AvpImage(
+                                    image:
+                                        '${AppConstants.baseImage}deposit_list_back.svg',
+                                  ),
+                                  trailingTooltip: S.current.backLabel,
+                                  onTrailingPressed:
+                                      (state.reportsStatus !=
+                                              RequestStatus.loading &&
+                                          state.cancellationStatus !=
+                                              RequestStatus.loading)
+                                      ? () {
+                                          context
+                                              .read<RequestReportsCubit>()
+                                              .requestBack();
+                                        }
+                                      : null,
+                                );
+                              },
                             ),
-                            trailingTooltip: S.current.backLabel,
-                            onTrailingPressed: () {
-                              context.read<RequestReportsCubit>().requestBack();
+                            const ReportFilters(),
+                            const Expanded(child: ReportsList()),
+                          ],
+                        ),
+                        Positioned(
+                          left: 16,
+                          bottom: 16,
+                          child: Builder(
+                            builder: (context) {
+                              return AppAssistantButton(
+                                onPressed: () {
+                                  context
+                                      .read<RequestReportsCubit>()
+                                      .requestAssistant();
+                                },
+                              );
                             },
-                          );
-                        },
-                      ),
-                      const ReportFilters(),
-                      const Expanded(child: ReportsList()),
-                    ],
-                  ),
-                  Positioned(
-                    left: 16,
-                    bottom: 16,
-                    child: Builder(
-                      builder: (context) {
-                        return AppAssistantButton(
-                          onPressed: () {
-                            context
-                                .read<RequestReportsCubit>()
-                                .requestAssistant();
-                          },
-                        );
-                      },
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ],
-              ),
-            ),
+                ),
+              );
+            },
           ),
         ),
       ),
