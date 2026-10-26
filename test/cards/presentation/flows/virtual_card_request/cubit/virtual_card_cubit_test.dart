@@ -126,6 +126,47 @@ void main() {
     },
   );
 
+  for (final fails in [false, true]) {
+    test(
+      'invalid count discards an in-flight quote (failure: $fails)',
+      () async {
+        final repository = TestVirtualRepository()..holdQuotes = true;
+        final cubit =
+            withRegisteredDependency<VirtualCardRepository, VirtualCardCubit>(
+              repository,
+              () => VirtualCardCubit(),
+            );
+        addTearDown(cubit.close);
+        await cubit.fetchCatalog();
+        await cubit.updateCount('۴');
+        expect(repository.pendingQuotes, isEmpty);
+
+        final pending = cubit.selectDeposit(
+          cubit.state.catalog!.deposits.first,
+        );
+        expect(repository.pendingQuotes, hasLength(1));
+        expect(cubit.state.quoteStatus, RequestStatus.loading);
+
+        await cubit.updateCount('');
+        expect(repository.pendingQuotes, hasLength(1));
+        expect(cubit.state.quoteStatus, RequestStatus.initial);
+        repository.pendingQuotes.single.complete(
+          fails
+              ? const Err(DataFailure('old-quote'))
+              : Success(repository.value(cubit.state.deposit!.id, 4)),
+        );
+        await pending;
+
+        expect(cubit.state.quoteStatus, RequestStatus.initial);
+        expect(cubit.state.quote, isNull);
+        expect(cubit.state.failure, isNull);
+        expect(cubit.state.message, isNull);
+        expect(cubit.state.canRetry, isFalse);
+        expect(cubit.state.canSubmit, isFalse);
+      },
+    );
+  }
+
   test('late quotes cannot replace current selection; invalid quote bindings are rejected', () async {
     final r = TestVirtualRepository()..holdQuotes = true;
     final c = withRegisteredDependency<VirtualCardRepository, VirtualCardCubit>(

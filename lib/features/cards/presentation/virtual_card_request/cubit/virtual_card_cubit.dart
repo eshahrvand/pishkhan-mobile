@@ -61,7 +61,7 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
             state.copyWith(
               catalogStatus: RequestStatus.success,
               catalog: data,
-              deposit: _entryDeposit(data),
+              deposit: _findInitialDeposit(data),
               isEditable: data.deposits.isNotEmpty,
             ),
           );
@@ -70,64 +70,33 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
   }
 
   Future<void> selectDeposit(VirtualCardDeposit deposit) {
-    final requestId = ++_quoteRequestId;
-    emit(
-      state.copyWith(
-        deposit: deposit,
-        quoteStatus: state.isCountValid
-            ? RequestStatus.loading
-            : RequestStatus.initial,
-        quote: null,
-        termsAccepted: false,
-        canSubmit: false,
-        retryAction: null,
-        canRetry: false,
-        failure: null,
-        message: null,
-      ),
-    );
-    return state.isCountValid
-        ? QuoteVirtualCards(_repository)(deposit.id, state.count!).then((
-            result,
-          ) {
-            if (requestId != _quoteRequestId) return;
-            switch (result) {
-              case Err(:final failure):
-                emit(
-                  state.copyWith(
-                    quoteStatus: RequestStatus.failure,
-                    retryAction: VirtualCardRetryAction.quote,
-                    canRetry: true,
-                    failure: failure,
-                    message: getRequestErrorMessage(failure),
-                  ),
-                );
-              case Success(:final data):
-                emit(
-                  state.copyWith(
-                    quoteStatus: RequestStatus.success,
-                    quote: data,
-                  ),
-                );
-            }
-          })
-        : Future.value();
+    emit(state.copyWith(deposit: deposit));
+    return fetchQuote();
   }
 
   Future<void> updateCount(String text) {
-    final normalized = DigitNormalizer.normalize(text).trim();
+    final countText = DigitNormalizer.normalize(text).trim();
     final count = VirtualCardCountValidator.parseValidCount(
-      normalized,
+      countText,
       maxCount: state.catalog!.maxCount,
     );
-    final canQuote = state.deposit != null && count != null;
-    final requestId = ++_quoteRequestId;
     emit(
       state.copyWith(
-        countText: normalized,
+        countText: countText,
         count: count,
         isCountValid: count != null,
-        isCountError: normalized.isNotEmpty && count == null,
+        isCountError: countText.isNotEmpty && count == null,
+      ),
+    );
+    return fetchQuote();
+  }
+
+  Future<void> fetchQuote() {
+    // Invalidate an older quote even when the changed form cannot start one.
+    final requestId = ++_quoteRequestId;
+    final canQuote = state.deposit != null && state.isCountValid;
+    emit(
+      state.copyWith(
         quoteStatus: canQuote ? RequestStatus.loading : RequestStatus.initial,
         quote: null,
         termsAccepted: false,
@@ -138,48 +107,8 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
         message: null,
       ),
     );
-    return canQuote
-        ? QuoteVirtualCards(_repository)(state.deposit!.id, count).then((
-            result,
-          ) {
-            if (requestId != _quoteRequestId) return;
-            switch (result) {
-              case Err(:final failure):
-                emit(
-                  state.copyWith(
-                    quoteStatus: RequestStatus.failure,
-                    retryAction: VirtualCardRetryAction.quote,
-                    canRetry: true,
-                    failure: failure,
-                    message: getRequestErrorMessage(failure),
-                  ),
-                );
-              case Success(:final data):
-                emit(
-                  state.copyWith(
-                    quoteStatus: RequestStatus.success,
-                    quote: data,
-                  ),
-                );
-            }
-          })
-        : Future.value();
-  }
+    if (!canQuote) return Future.value();
 
-  Future<void> fetchQuote() {
-    final requestId = ++_quoteRequestId;
-    emit(
-      state.copyWith(
-        quoteStatus: RequestStatus.loading,
-        quote: null,
-        termsAccepted: false,
-        canSubmit: false,
-        retryAction: null,
-        canRetry: false,
-        failure: null,
-        message: null,
-      ),
-    );
     return QuoteVirtualCards(_repository)(
       state.deposit!.id,
       state.count!,
@@ -203,14 +132,11 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
   }
 
   void updateTermsAcceptance(bool accepted) {
-    final canSubmit = accepted && state.quote?.walletSufficient == true;
     emit(
       state.copyWith(
         termsAccepted: accepted,
-        canSubmit: canSubmit,
-        canRetry:
-            state.retryAction == VirtualCardRetryAction.quote ||
-            state.retryAction == VirtualCardRetryAction.submission && canSubmit,
+        canSubmit: _canSubmit(termsAccepted: accepted),
+        canRetry: _canRetry(termsAccepted: accepted),
       ),
     );
   }
@@ -227,9 +153,9 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
   }
 
   Future<void> submitVirtualCards() {
-    var request = _createRequest(_submittedRequest?.idempotencyKey);
+    var request = _createVirtualCardRequest(_submittedRequest?.idempotencyKey);
     if (_submittedRequest != null && request != _submittedRequest) {
-      request = _createRequest(null);
+      request = _createVirtualCardRequest(null);
     }
     _submittedRequest = request;
     emit(
@@ -242,46 +168,38 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
         message: null,
       ),
     );
-    return virtualCardBoundary(() => _repository.submit(request)).then((
-      result,
-    ) {
-      switch (result) {
-        case Err(:final failure):
-          emit(
-            state.copyWith(
-              submissionStatus: RequestStatus.failure,
-              isEditable: true,
-              canSubmit: state.termsAccepted && state.quote!.walletSufficient,
-              retryAction: VirtualCardRetryAction.submission,
-              canRetry: state.termsAccepted && state.quote!.walletSufficient,
-              failure: failure,
-              message: getRequestErrorMessage(failure),
-            ),
-          );
-        case Success(:final data):
-          emit(
-            state.copyWith(
-              submissionStatus: RequestStatus.success,
-              receipt: data,
-              retryAction: null,
-              navigation: FlowNavigation.home,
-              message: null,
-            ),
-          );
-      }
-    });
+    return virtualCardBoundary(() => _repository.submit(request))
+        .then((result) {
+          switch (result) {
+            case Err(:final failure):
+              emit(
+                state.copyWith(
+                  submissionStatus: RequestStatus.failure,
+                  isEditable: true,
+                  canSubmit: _canSubmit(termsAccepted: state.termsAccepted),
+                  retryAction: VirtualCardRetryAction.submission,
+                  canRetry: _canSubmit(termsAccepted: state.termsAccepted),
+                  failure: failure,
+                  message: getRequestErrorMessage(failure),
+                ),
+              );
+            case Success(:final data):
+              emit(
+                state.copyWith(
+                  submissionStatus: RequestStatus.success,
+                  receipt: data,
+                  retryAction: null,
+                  navigation: FlowNavigation.home,
+                ),
+              );
+          }
+        });
   }
 
   void requestBack() {
-    final needsConfirmation =
-        state.submissionStatus != RequestStatus.success &&
-        state.catalogStatus == RequestStatus.success &&
-        (state.deposit != _entryDeposit(state.catalog!) ||
-            state.countText.isNotEmpty ||
-            state.termsAccepted);
     emit(
       state.copyWith(
-        navigation: needsConfirmation
+        navigation: _needsExitConfirmation()
             ? FlowNavigation.confirmExit
             : FlowNavigation.back,
         message: null,
@@ -298,14 +216,36 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
     );
   }
 
-  VirtualCardDeposit? _entryDeposit(VirtualCardCatalog catalog) {
+  bool _canSubmit({required bool termsAccepted}) {
+    return termsAccepted && state.quote?.walletSufficient == true;
+  }
+
+  bool _canRetry({required bool termsAccepted}) {
+    return switch (state.retryAction) {
+      VirtualCardRetryAction.quote => true,
+      VirtualCardRetryAction.submission => _canSubmit(
+        termsAccepted: termsAccepted,
+      ),
+      null => false,
+    };
+  }
+
+  bool _needsExitConfirmation() {
+    return state.submissionStatus != RequestStatus.success &&
+        state.catalogStatus == RequestStatus.success &&
+        (state.deposit != _findInitialDeposit(state.catalog!) ||
+            state.countText.isNotEmpty ||
+            state.termsAccepted);
+  }
+
+  VirtualCardDeposit? _findInitialDeposit(VirtualCardCatalog catalog) {
     final number = DigitNormalizer.normalize(initialDepositNumber ?? '').trim();
     return catalog.deposits
         .where((deposit) => DigitNormalizer.normalize(deposit.number) == number)
         .lastOrNull;
   }
 
-  VirtualCardRequest _createRequest(String? idempotencyKey) {
+  VirtualCardRequest _createVirtualCardRequest(String? idempotencyKey) {
     return VirtualCardRequest(
       quote: state.quote!,
       idempotencyKey:

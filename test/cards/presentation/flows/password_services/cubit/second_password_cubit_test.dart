@@ -79,6 +79,87 @@ Future<void> readyToSubmit(SecondPasswordCubit c) async {
 }
 
 void main() {
+  for (final selection in ['kind', 'card', 'operation']) {
+    test(
+      '$selection change clears credentials and preserves catalog context',
+      () {
+        final repository = ControlledPasswordRepository();
+        final catalog = repository.catalog;
+        final card = catalog.cards.first;
+        final cubit =
+            withRegisteredDependency<
+              PasswordServicesRepository,
+              SecondPasswordCubit
+            >(
+              repository,
+              () => SecondPasswordCubit(
+                selectOperation: true,
+                initialState: SecondPasswordState.initial(
+                  catalog: catalog,
+                  catalogStatus: RequestStatus.success,
+                  existingRequestStatus: RequestStatus.failure,
+                  submissionStatus: RequestStatus.failure,
+                  isEditable: true,
+                  isWalletSufficient: true,
+                  card: card,
+                  kind: card.kind,
+                  cardsForSelectedKind: catalog.cards,
+                  passwordType: PasswordType.second,
+                  operation: PasswordOperation.forgotPassword,
+                  password: '829164',
+                  currentPassword: '5638',
+                  confirmation: '829164',
+                  nationalCardSerial: '3R12345678',
+                  termsAccepted: true,
+                  isRecordingConfirmed: true,
+                  isPasswordVisible: true,
+                  isConfirmationVisible: true,
+                  isCurrentPasswordVisible: true,
+                  isPasswordLengthValid: true,
+                  isPasswordPatternValid: true,
+                  isPasswordDateValid: true,
+                  isSerialValid: true,
+                  isFormComplete: true,
+                  idempotencyKey: 'old-request',
+                ),
+              ),
+            );
+        addTearDown(cubit.close);
+
+        switch (selection) {
+          case 'kind':
+            cubit.selectKind(card.kind);
+          case 'card':
+            cubit.selectCard(card);
+          case 'operation':
+            cubit.selectOperationType(PasswordOperation.changePassword);
+        }
+
+        expect(cubit.state.catalog, same(catalog));
+        expect(cubit.state.catalogStatus, RequestStatus.success);
+        expect(cubit.state.existingRequestStatus, RequestStatus.failure);
+        expect(cubit.state.submissionStatus, RequestStatus.failure);
+        expect(cubit.state.isEditable, isTrue);
+        expect(cubit.state.isWalletSufficient, isTrue);
+        expect(cubit.state.password, isEmpty);
+        expect(cubit.state.currentPassword, isEmpty);
+        expect(cubit.state.confirmation, isEmpty);
+        expect(cubit.state.nationalCardSerial, isEmpty);
+        expect(cubit.state.termsAccepted, isFalse);
+        expect(cubit.state.isRecordingConfirmed, isFalse);
+        expect(cubit.state.isPasswordVisible, isFalse);
+        expect(cubit.state.isConfirmationVisible, isFalse);
+        expect(cubit.state.isCurrentPasswordVisible, isFalse);
+        expect(cubit.state.isPasswordLengthValid, isFalse);
+        expect(cubit.state.isPasswordPatternValid, isFalse);
+        expect(cubit.state.isPasswordDateValid, isFalse);
+        expect(cubit.state.isSerialValid, isFalse);
+        expect(cubit.state.isFormComplete, isFalse);
+        expect(cubit.state.idempotencyKey, isNull);
+      },
+    );
+  }
+
   test(
     'Freezed password state never prints credentials, including after copyWith',
     () {

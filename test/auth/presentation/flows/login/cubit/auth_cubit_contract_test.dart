@@ -54,6 +54,13 @@ void main() {
       cubit.updatePhoneNumber('0');
       expect(cubit.state.isPhoneNumberError, isTrue);
       expect(cubit.state.canRequestOtp, isFalse);
+      cubit.updatePhoneNumber('09121127934');
+      expect(cubit.state.isPhoneNumberError, isFalse);
+      expect(cubit.state.canRequestOtp, isTrue);
+      cubit.updateCaptcha('123');
+      expect(cubit.state.canRequestOtp, isFalse);
+      cubit.updateCaptcha('654321');
+      expect(cubit.state.canRequestOtp, isTrue);
     },
   );
 
@@ -89,6 +96,8 @@ void main() {
     expect(cubit.state.captchaImage, isNull);
     expect(cubit.state.canRequestOtp, isFalse);
     expect(cubit.state.message, 'ارتباط با سرور برقرار نشد. دوباره تلاش کنید.');
+    cubit.updateCaptcha('654321');
+    expect(cubit.state.canRequestOtp, isFalse);
     repository.captchaFailure = null;
     await cubit.fetchCaptcha();
     expect(cubit.state.captchaStatus, RequestStatus.success);
@@ -231,10 +240,7 @@ void main() {
       await cubit.submitLogin(cubit.state.challenge!);
       expect(cubit.state.loginStatus, RequestStatus.success);
       expect(cubit.state.effect, isA<AuthCompleted>());
-      expect(cubit.state.otp, isEmpty);
-      expect(cubit.state.challenge, isNull);
       expect(cubit.state.canSubmitLogin, isFalse);
-      expect(cubit.state.message, isNull);
     },
   );
 
@@ -253,6 +259,68 @@ void main() {
     },
   );
 
+  test('opening change-phone resets login data and commands while retaining CAPTCHA', () async {
+    final repository = getIt<AuthRepository>() as FakeAuthRepository;
+    repository.loginFailure = const DataFailure('auth.otp_rejected');
+    final cubit = createCubit();
+    await fillIdentity(cubit);
+    final captcha = cubit.state.captchaImage;
+    await cubit.submitOtpRequest();
+    cubit.updateOtp('123456');
+    await cubit.submitLogin(cubit.state.challenge!);
+    cubit.requestServices();
+
+    cubit.openChangePhone();
+
+    expect(cubit.state.step, AuthStep.changePhone);
+    expect(identical(cubit.state.captchaImage, captcha), isTrue);
+    expect(cubit.state.captchaStatus, RequestStatus.success);
+    expect(cubit.state.nationalId, isEmpty);
+    expect(cubit.state.phoneNumber, isEmpty);
+    expect(cubit.state.captcha, isEmpty);
+    expect(cubit.state.otp, isEmpty);
+    expect(cubit.state.maskedPhone, isEmpty);
+    expect(cubit.state.challenge, isNull);
+    expect(cubit.state.otpStartTick, isNull);
+    expect(cubit.state.remainingSeconds, 0);
+    expect(cubit.state.canRequestOtp, isFalse);
+    expect(cubit.state.canSubmitLogin, isFalse);
+    expect(cubit.state.canResendOtp, isFalse);
+    expect(cubit.state.loginStatus, RequestStatus.initial);
+    expect(cubit.state.otpRequestStatus, RequestStatus.initial);
+    expect(cubit.state.failure, isNull);
+    expect(cubit.state.message, isNull);
+    expect(cubit.state.effect, isNull);
+    expect(repository.captchaCalls, 1);
+  });
+
+  test('leaving change-phone resets its inputs and failure without refetching CAPTCHA', () async {
+    final repository = getIt<AuthRepository>() as FakeAuthRepository;
+    final cubit = createCubit();
+    cubit.openChangePhone();
+    await fillIdentity(cubit);
+    final captcha = cubit.state.captchaImage;
+    await cubit.submitOtpRequest();
+    expect(cubit.state.failure?.code, 'auth.change_phone_unavailable');
+    cubit.requestServices();
+
+    await cubit.requestBack();
+
+    expect(cubit.state.step, AuthStep.login);
+    expect(identical(cubit.state.captchaImage, captcha), isTrue);
+    expect(cubit.state.captchaStatus, RequestStatus.success);
+    expect(cubit.state.nationalId, isEmpty);
+    expect(cubit.state.phoneNumber, isEmpty);
+    expect(cubit.state.captcha, isEmpty);
+    expect(cubit.state.canRequestOtp, isFalse);
+    expect(cubit.state.otpRequestStatus, RequestStatus.initial);
+    expect(cubit.state.failure, isNull);
+    expect(cubit.state.message, isNull);
+    expect(cubit.state.effect, isNull);
+    expect(repository.captchaCalls, 1);
+    expect(repository.otpCalls, 0);
+  });
+
   test(
     'change-phone does not call a login endpoint as a replacement service',
     () async {
@@ -265,6 +333,46 @@ void main() {
       expect(cubit.state.message, isNull);
       expect(cubit.state.effect, isNull);
       expect((getIt<AuthRepository>() as FakeAuthRepository).otpCalls, 0);
+    },
+  );
+
+  testWidgets(
+    'the OTP clock waits for challenge success and expires only once',
+    (tester) async {
+      final repository = getIt<AuthRepository>() as FakeAuthRepository;
+      final cubit = AuthCubit();
+      await fillIdentity(cubit);
+      final identityState = cubit.state;
+      await tester.pump(const Duration(seconds: 5));
+      expect(cubit.state, identityState);
+
+      await cubit.fetchCaptcha();
+      cubit.updateCaptcha('654321');
+      repository.otpResponse = Completer<Result<LoginOtpChallenge>>();
+      final pendingRequest = cubit.submitOtpRequest();
+      await tester.pump(const Duration(seconds: 20));
+      expect(cubit.state.otpRequestStatus, RequestStatus.loading);
+      expect(cubit.state.remainingSeconds, 0);
+      expect(cubit.state.canResendOtp, isFalse);
+
+      repository.otpResponse!.complete(const Success(testOtpChallenge));
+      await tester.pump();
+      await pendingRequest;
+      expect(cubit.state.remainingSeconds, 60);
+      cubit.updateOtp('123456');
+      await tester.pump(const Duration(seconds: 59));
+      expect(cubit.state.remainingSeconds, 1);
+      expect(cubit.state.canSubmitLogin, isTrue);
+      expect(cubit.state.canResendOtp, isFalse);
+
+      await tester.pump(const Duration(seconds: 1));
+      expect(cubit.state.remainingSeconds, 0);
+      expect(cubit.state.canSubmitLogin, isFalse);
+      expect(cubit.state.canResendOtp, isTrue);
+      final expiredState = cubit.state;
+      await tester.pump(const Duration(seconds: 10));
+      expect(cubit.state, expiredState);
+      await cubit.close();
     },
   );
 

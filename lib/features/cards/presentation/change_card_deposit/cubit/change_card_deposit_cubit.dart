@@ -49,7 +49,7 @@ class ChangeCardDepositCubit extends Cubit<ChangeCardDepositState> {
             ),
           );
         case Success(:final data):
-          final card = _entryCard(data);
+          final card = _findInitialCard(data);
           final source = data.deposits
               .where((deposit) => deposit.id == card?.depositId)
               .firstOrNull;
@@ -59,9 +59,7 @@ class ChangeCardDepositCubit extends Cubit<ChangeCardDepositState> {
               catalog: data,
               card: card,
               source: source,
-              destinations: data.deposits
-                  .where((deposit) => deposit.id != source?.id)
-                  .toList(),
+              destinations: _destinationDeposits(data.deposits, source),
               isCatalogEmpty: data.cards.isEmpty || data.deposits.isEmpty,
               isEditable: true,
               isWalletSufficient:
@@ -81,9 +79,7 @@ class ChangeCardDepositCubit extends Cubit<ChangeCardDepositState> {
       state.copyWith(
         card: card,
         source: source,
-        destinations: state.catalog!.deposits
-            .where((deposit) => deposit.id != source.id)
-            .toList(),
+        destinations: _destinationDeposits(state.catalog!.deposits, source),
         destination: null,
         termsAccepted: false,
         canSubmit: false,
@@ -112,11 +108,7 @@ class ChangeCardDepositCubit extends Cubit<ChangeCardDepositState> {
     emit(
       state.copyWith(
         termsAccepted: accepted,
-        canSubmit:
-            state.card != null &&
-            state.destination != null &&
-            accepted &&
-            state.isWalletSufficient,
+        canSubmit: _canSubmitDepositChange(termsAccepted: accepted),
       ),
     );
   }
@@ -149,7 +141,9 @@ class ChangeCardDepositCubit extends Cubit<ChangeCardDepositState> {
                 state.copyWith(
                   submissionStatus: RequestStatus.failure,
                   isEditable: true,
-                  canSubmit: state.termsAccepted && state.isWalletSufficient,
+                  canSubmit: _canSubmitDepositChange(
+                    termsAccepted: state.termsAccepted,
+                  ),
                   failure: failure,
                   message: getRequestErrorMessage(failure),
                 ),
@@ -166,15 +160,9 @@ class ChangeCardDepositCubit extends Cubit<ChangeCardDepositState> {
   }
 
   void requestBack() {
-    final needsConfirmation =
-        state.submissionStatus != RequestStatus.success &&
-        state.catalogStatus == RequestStatus.success &&
-        (state.card != _entryCard(state.catalog!) ||
-            state.destination != null ||
-            state.termsAccepted);
     emit(
       state.copyWith(
-        navigation: needsConfirmation
+        navigation: _needsExitConfirmation()
             ? FlowNavigation.confirmExit
             : FlowNavigation.back,
         message: null,
@@ -191,14 +179,36 @@ class ChangeCardDepositCubit extends Cubit<ChangeCardDepositState> {
     );
   }
 
-  ServiceBankCard? _entryCard(CardServiceCatalog catalog) {
-    final number = _number(initialCardNumber ?? '');
+  bool _canSubmitDepositChange({required bool termsAccepted}) {
+    return state.card != null &&
+        state.destination != null &&
+        termsAccepted &&
+        state.isWalletSufficient;
+  }
+
+  bool _needsExitConfirmation() {
+    return state.submissionStatus != RequestStatus.success &&
+        state.catalogStatus == RequestStatus.success &&
+        (state.card != _findInitialCard(state.catalog!) ||
+            state.destination != null ||
+            state.termsAccepted);
+  }
+
+  List<CardServiceDeposit> _destinationDeposits(
+    List<CardServiceDeposit> deposits,
+    CardServiceDeposit? source,
+  ) {
+    return deposits.where((deposit) => deposit.id != source?.id).toList();
+  }
+
+  ServiceBankCard? _findInitialCard(CardServiceCatalog catalog) {
+    final number = _normalizeCardNumber(initialCardNumber ?? '');
     return catalog.cards
-        .where((card) => _number(card.number) == number)
+        .where((card) => _normalizeCardNumber(card.number) == number)
         .firstOrNull;
   }
 
-  String _number(String value) =>
+  String _normalizeCardNumber(String value) =>
       DigitNormalizer.normalize(value).replaceAll(RegExp(r'[^0-9]'), '');
 
   /// UI has accepted the pending interaction; data and request statuses stay intact.

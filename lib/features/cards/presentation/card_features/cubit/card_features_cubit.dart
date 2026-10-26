@@ -35,23 +35,22 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
       final category = initialCategory ?? state.category;
       emit(
         state.copyWith(
-          cardsStatus: RequestStatus.loading,
-          failure: null,
-          message: null,
           category: category,
           footerAction: _categoryFooterAction(category),
         ),
       );
-    } else {
-      emit(
-        state.copyWith(
-          cardsStatus: RequestStatus.loading,
-          failure: null,
-          message: null,
-        ),
-      );
     }
+    return _fetchCardsForCategory();
+  }
 
+  Future<void> _fetchCardsForCategory() {
+    emit(
+      state.copyWith(
+        cardsStatus: RequestStatus.loading,
+        failure: null,
+        message: null,
+      ),
+    );
     return _loadCards().then((result) {
       switch (result) {
         case Err(:final failure):
@@ -88,10 +87,7 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
       state.copyWith(
         category: value,
         footerAction: _categoryFooterAction(value),
-        effect: CardCategoryRevealRequested(
-          value,
-          scrollToEnd: _isTrailingCategory(value),
-        ),
+        effect: _categoryRevealEffect(value),
         selectedCard: null,
         visibleCards: _filterCards(
           state.cards,
@@ -107,10 +103,7 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
   void requestSelectedCategoryReveal() {
     emit(
       state.copyWith(
-        effect: CardCategoryRevealRequested(
-          state.category,
-          scrollToEnd: _isTrailingCategory(state.category),
-        ),
+        effect: _categoryRevealEffect(state.category),
         message: null,
       ),
     );
@@ -189,7 +182,9 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
     emit(
       state.copyWith(
         draftFilter: CardFilter(
-          status: value == 'all' ? null : CardStatus.values.byName(value),
+          status: _isAllFilterOption(value)
+              ? null
+              : CardStatus.values.byName(value),
           deposit: state.draftFilter!.deposit,
         ),
       ),
@@ -201,7 +196,7 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
       state.copyWith(
         draftFilter: CardFilter(
           status: state.draftFilter!.status,
-          deposit: value == 'all' ? null : value,
+          deposit: _isAllFilterOption(value) ? null : value,
         ),
       ),
     );
@@ -278,6 +273,15 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
         )
         .toList();
   }
+
+  CardCategoryRevealRequested _categoryRevealEffect(CardCategory category) {
+    return CardCategoryRevealRequested(
+      category,
+      scrollToEnd: _isTrailingCategory(category),
+    );
+  }
+
+  bool _isAllFilterOption(String value) => value == 'all';
 
   bool _isTrailingCategory(CardCategory category) {
     return category == CardCategory.coupon || category == CardCategory.family;

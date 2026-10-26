@@ -78,6 +78,26 @@ uses `AuthRemoteDataSource` (Retrofit) and maps DTOs into Equatable entities.
 State remains plain Freezed data with independent CAPTCHA, OTP-request and
 verification statuses. Cubit uses returned `.then` chains.
 
+The Cubit keeps simple input validation and its dependent flags in one action.
+Short eligibility conditions stay directly in `copyWith`. The longer OTP-request
+predicate is calculated by `_canRequestOtp` from fresh/current validity flags and
+the CAPTCHA status; it neither validates again nor constructs/publishes State.
+`submitOtpRequest` chooses between the unavailable guest change-phone path and
+the private login OTP operation, which retains its complete loading/Success/Err
+lifecycle with explicit emits. The clock is attached once during CAPTCHA entry;
+its countdown callback owns tick updates and expiry. The temporary 60-second
+duration has one constant. This readability refactor changes no endpoint, State
+field, public action contract or OTP policy.
+
+Opening change-phone and returning from that identity form to Login now directly
+emit `AuthState.initial`, explicitly retaining the current CAPTCHA image/SessionId
+pair and its request status. Form inputs, validation, OTP/challenge/countdown,
+request errors and pending commands receive their defaults. In particular, these
+reset events clear an old effect instead of retaining it implicitly. They do not
+fetch another CAPTCHA or cancel the flow-owned clock; the cleared `otpStartTick`
+keeps it idle. Resend and Back from OTP still preserve identity data through their
+existing partial updates and fetch a fresh CAPTCHA.
+
 A five-response reliability check found one Base64 layer in every response, but
 four decoded JPEGs were missing their terminal EOI byte(s) and failed Flutter
 image decoding. Completing only the JPEG EOI marker allowed all five to decode.

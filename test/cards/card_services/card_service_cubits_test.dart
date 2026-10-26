@@ -407,6 +407,9 @@ void main() {
     expect(cubit.state.isEditable, isFalse);
     cubit.removeSelectedCard(cubit.state.selectedCards[2]);
     expect(cubit.state.totalRial, 4000000);
+    expect(cubit.state.isEditable, isFalse);
+    expect(cubit.state.canContinue, isFalse);
+    expect(cubit.state.canReviewSelection, isFalse);
     cubit.applyReviewResult(null);
     expect(cubit.state.step, GiftBalanceStep.selection);
     expect(cubit.state.canContinue, isTrue);

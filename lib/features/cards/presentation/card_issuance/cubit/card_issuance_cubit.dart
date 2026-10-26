@@ -7,6 +7,7 @@ import 'package:pishkhan_mobile/core/flow/flow_navigation.dart';
 import 'package:pishkhan_mobile/core/result/failure.dart';
 import 'package:pishkhan_mobile/core/result/result.dart';
 import 'package:pishkhan_mobile/core/validators/validators.dart';
+import 'package:pishkhan_mobile/core/validators/required_text_validator.dart';
 
 import '../../../domain/entities/issuance_data.dart';
 import '../../../domain/entities/issuance_draft.dart';
@@ -58,9 +59,6 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
           final draft = _initialDraft(data);
           final fees = _issuanceFees(data, draft.noPhysicalCard);
           final total = _totalRial(fees);
-          final isSelectionComplete = _selectionComplete(draft);
-          final isDeliveryComplete = _deliveryComplete(draft, false, false);
-          final isCatalogEmpty = data.deposits.isEmpty || data.types.isEmpty;
           emit(
             state.copyWith(
               catalogStatus: RequestStatus.success,
@@ -79,11 +77,11 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
               fees: fees,
               totalRial: total,
               isWalletSufficient: data.walletBalanceRial >= total,
-              isSelectionComplete: isSelectionComplete,
-              isDeliveryComplete: isDeliveryComplete,
-              isCatalogEmpty: isCatalogEmpty,
-              isEditable: !isCatalogEmpty,
-              canContinue: isSelectionComplete,
+              isSelectionComplete: _selectionComplete(draft),
+              isDeliveryComplete: _deliveryComplete(draft, false, false),
+              isCatalogEmpty: _isCatalogEmpty(data),
+              isEditable: !_isCatalogEmpty(data),
+              canContinue: _selectionComplete(draft),
             ),
           );
       }
@@ -130,13 +128,9 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
   void requestBack() {
     if (state.submissionStatus == RequestStatus.success ||
         state.step == IssuanceStep.selection) {
-      final needsConfirmation =
-          state.submissionStatus != RequestStatus.success &&
-          state.catalogStatus == RequestStatus.success &&
-          state.draft != _initialDraft(state.catalog!);
       emit(
         state.copyWith(
-          navigation: needsConfirmation
+          navigation: _needsExitConfirmation()
               ? FlowNavigation.confirmExit
               : FlowNavigation.back,
           message: null,
@@ -152,18 +146,14 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
         state.step == IssuanceStep.delivery || state.draft.noPhysicalCard
         ? IssuanceStep.selection
         : IssuanceStep.delivery;
-    final canContinue = _canContinue(
-      previousStep,
-      state.isSelectionComplete,
-      state.isDeliveryComplete,
-      state.draft.termsAccepted,
-      state.isWalletSufficient,
-    );
     emit(
       state.copyWith(
         step: previousStep,
         stepNumber: previousStep.index + 1,
-        canContinue: canContinue,
+        canContinue: _canContinue(
+          previousStep,
+          termsAccepted: state.draft.termsAccepted,
+        ),
         failure: null,
         message: null,
       ),
@@ -184,336 +174,210 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
   }
 
   void selectDeposit(IssuanceDeposit deposit) {
-    final draft = state.draft.copyWith(deposit: deposit, termsAccepted: false);
-    final isSelectionComplete = _selectionComplete(draft);
+    final draft = state.draft.copyWith(deposit: deposit);
     emit(
       state.copyWith(
         draft: draft,
-        isSelectionComplete: isSelectionComplete,
+        isSelectionComplete: _selectionComplete(draft),
         confirmedRequest: null,
-        canContinue: _canContinue(
-          state.step,
-          isSelectionComplete,
-          state.isDeliveryComplete,
-          false,
-          state.isWalletSufficient,
-        ),
-        failure: null,
-        message: null,
       ),
     );
+    updateTermsAcceptance(false);
   }
 
   void selectIssuanceType(IssuanceType type) {
-    final draft = state.draft.copyWith(type: type, termsAccepted: false);
-    final isSelectionComplete = _selectionComplete(draft);
+    final draft = state.draft.copyWith(type: type);
     emit(
       state.copyWith(
         draft: draft,
-        isSelectionComplete: isSelectionComplete,
+        isSelectionComplete: _selectionComplete(draft),
         confirmedRequest: null,
-        canContinue: _canContinue(
-          state.step,
-          isSelectionComplete,
-          state.isDeliveryComplete,
-          false,
-          state.isWalletSufficient,
-        ),
-        failure: null,
-        message: null,
       ),
     );
+    updateTermsAcceptance(false);
   }
 
   void updatePhysicalCardOmission(bool value) {
-    final draft = state.draft.copyWith(
-      noPhysicalCard: value,
-      termsAccepted: false,
-    );
+    final draft = state.draft.copyWith(noPhysicalCard: value);
     final fees = _issuanceFees(state.catalog!, value);
     final total = _totalRial(fees);
-    final isWalletSufficient = state.catalog!.walletBalanceRial >= total;
-    final isDeliveryComplete = _deliveryComplete(
-      draft,
-      state.isRecipientValid,
-      state.isAgentValid,
-    );
     emit(
       state.copyWith(
         draft: draft,
         fees: fees,
         totalRial: total,
-        isWalletSufficient: isWalletSufficient,
-        isDeliveryComplete: isDeliveryComplete,
-        confirmedRequest: null,
-        canContinue: _canContinue(
-          state.step,
-          state.isSelectionComplete,
-          isDeliveryComplete,
-          false,
-          isWalletSufficient,
+        isWalletSufficient: state.catalog!.walletBalanceRial >= total,
+        isDeliveryComplete: _deliveryComplete(
+          draft,
+          state.isRecipientValid,
+          state.isAgentValid,
         ),
-        failure: null,
-        message: null,
+        confirmedRequest: null,
       ),
     );
+    updateTermsAcceptance(false);
   }
 
   void selectAddress(IssuanceAddress address) {
-    final draft = state.draft.copyWith(address: address, termsAccepted: false);
-    final isDeliveryComplete = _deliveryComplete(
-      draft,
-      state.isRecipientValid,
-      state.isAgentValid,
-    );
+    final draft = state.draft.copyWith(address: address);
     emit(
       state.copyWith(
         draft: draft,
-        isDeliveryComplete: isDeliveryComplete,
-        confirmedRequest: null,
-        canContinue: _canContinue(
-          state.step,
-          state.isSelectionComplete,
-          isDeliveryComplete,
-          false,
-          state.isWalletSufficient,
+        isDeliveryComplete: _deliveryComplete(
+          draft,
+          state.isRecipientValid,
+          state.isAgentValid,
         ),
-        failure: null,
-        message: null,
+        confirmedRequest: null,
       ),
     );
+    updateTermsAcceptance(false);
   }
 
   void updateOtherRecipient(bool value) {
-    final draft = state.draft.copyWith(
-      otherRecipient: value,
-      termsAccepted: false,
-    );
-    final isDeliveryComplete = _deliveryComplete(
-      draft,
-      state.isRecipientValid,
-      state.isAgentValid,
-    );
+    final draft = state.draft.copyWith(otherRecipient: value);
     emit(
       state.copyWith(
         draft: draft,
-        isDeliveryComplete: isDeliveryComplete,
-        confirmedRequest: null,
-        canContinue: _canContinue(
-          state.step,
-          state.isSelectionComplete,
-          isDeliveryComplete,
-          false,
-          state.isWalletSufficient,
+        isDeliveryComplete: _deliveryComplete(
+          draft,
+          state.isRecipientValid,
+          state.isAgentValid,
         ),
-        failure: null,
-        message: null,
+        confirmedRequest: null,
       ),
     );
+    updateTermsAcceptance(false);
   }
 
   void updateAgentInclusion(bool value) {
-    final draft = state.draft.copyWith(
-      includeAgent: value,
-      termsAccepted: false,
-    );
-    final isDeliveryComplete = _deliveryComplete(
-      draft,
-      state.isRecipientValid,
-      state.isAgentValid,
-    );
+    final draft = state.draft.copyWith(includeAgent: value);
     emit(
       state.copyWith(
         draft: draft,
-        isDeliveryComplete: isDeliveryComplete,
-        confirmedRequest: null,
-        canContinue: _canContinue(
-          state.step,
-          state.isSelectionComplete,
-          isDeliveryComplete,
-          false,
-          state.isWalletSufficient,
+        isDeliveryComplete: _deliveryComplete(
+          draft,
+          state.isRecipientValid,
+          state.isAgentValid,
         ),
-        failure: null,
-        message: null,
+        confirmedRequest: null,
       ),
     );
+    updateTermsAcceptance(false);
   }
 
   void updateRecipientName(String value) {
-    final isValid = value.trim().isNotEmpty;
-    final isRecipientValid =
-        isValid &&
-        state.isRecipientNationalIdValid &&
-        state.isRecipientMobileValid;
+    final isValid = RequiredTextValidator.isValid(value);
     final draft = state.draft.copyWith(
       recipient: state.draft.recipient.copyWith(name: value),
-      termsAccepted: false,
-    );
-    final isDeliveryComplete = _deliveryComplete(
-      draft,
-      isRecipientValid,
-      state.isAgentValid,
     );
     emit(
       state.copyWith(
         draft: draft,
         isRecipientNameValid: isValid,
-        isRecipientValid: isRecipientValid,
-        isDeliveryComplete: isDeliveryComplete,
-        confirmedRequest: null,
-        canContinue: _canContinue(
-          state.step,
-          state.isSelectionComplete,
-          isDeliveryComplete,
-          false,
-          state.isWalletSufficient,
+        isRecipientValid: _isRecipientComplete(isNameValid: isValid),
+        isDeliveryComplete: _deliveryComplete(
+          draft,
+          _isRecipientComplete(isNameValid: isValid),
+          state.isAgentValid,
         ),
-        failure: null,
-        message: null,
+        confirmedRequest: null,
       ),
     );
+    updateTermsAcceptance(false);
   }
 
   void updateRecipientNationalId(String value) {
     final isValid = NationalCodeValidator.isValid(value);
-    final isRecipientValid =
-        isValid && state.isRecipientNameValid && state.isRecipientMobileValid;
     final draft = state.draft.copyWith(
       recipient: state.draft.recipient.copyWith(nationalId: value),
-      termsAccepted: false,
-    );
-    final isDeliveryComplete = _deliveryComplete(
-      draft,
-      isRecipientValid,
-      state.isAgentValid,
     );
     emit(
       state.copyWith(
         draft: draft,
         isRecipientNationalIdValid: isValid,
-        isRecipientValid: isRecipientValid,
-        isDeliveryComplete: isDeliveryComplete,
-        confirmedRequest: null,
-        canContinue: _canContinue(
-          state.step,
-          state.isSelectionComplete,
-          isDeliveryComplete,
-          false,
-          state.isWalletSufficient,
+        isRecipientValid: _isRecipientComplete(isNationalIdValid: isValid),
+        isDeliveryComplete: _deliveryComplete(
+          draft,
+          _isRecipientComplete(isNationalIdValid: isValid),
+          state.isAgentValid,
         ),
-        failure: null,
-        message: null,
+        confirmedRequest: null,
       ),
     );
+    updateTermsAcceptance(false);
   }
 
   void updateRecipientMobile(String value) {
     final isValid = PhoneNumberValidator.isValid(value);
-    final isRecipientValid =
-        isValid &&
-        state.isRecipientNameValid &&
-        state.isRecipientNationalIdValid;
     final draft = state.draft.copyWith(
       recipient: state.draft.recipient.copyWith(mobile: value),
-      termsAccepted: false,
-    );
-    final isDeliveryComplete = _deliveryComplete(
-      draft,
-      isRecipientValid,
-      state.isAgentValid,
     );
     emit(
       state.copyWith(
         draft: draft,
         isRecipientMobileValid: isValid,
-        isRecipientValid: isRecipientValid,
-        isDeliveryComplete: isDeliveryComplete,
-        confirmedRequest: null,
-        canContinue: _canContinue(
-          state.step,
-          state.isSelectionComplete,
-          isDeliveryComplete,
-          false,
-          state.isWalletSufficient,
+        isRecipientValid: _isRecipientComplete(isMobileValid: isValid),
+        isDeliveryComplete: _deliveryComplete(
+          draft,
+          _isRecipientComplete(isMobileValid: isValid),
+          state.isAgentValid,
         ),
-        failure: null,
-        message: null,
+        confirmedRequest: null,
       ),
     );
+    updateTermsAcceptance(false);
   }
 
   void updateAgentName(String value) {
-    final isValid = value.trim().isNotEmpty;
-    final isAgentValid = isValid && state.isAgentCodeValid;
+    final isValid = RequiredTextValidator.isValid(value);
     final draft = state.draft.copyWith(
       agent: state.draft.agent.copyWith(name: value),
-      termsAccepted: false,
-    );
-    final isDeliveryComplete = _deliveryComplete(
-      draft,
-      state.isRecipientValid,
-      isAgentValid,
     );
     emit(
       state.copyWith(
         draft: draft,
         isAgentNameValid: isValid,
-        isAgentValid: isAgentValid,
-        isDeliveryComplete: isDeliveryComplete,
-        confirmedRequest: null,
-        canContinue: _canContinue(
-          state.step,
-          state.isSelectionComplete,
-          isDeliveryComplete,
-          false,
-          state.isWalletSufficient,
+        isAgentValid: _isAgentComplete(isNameValid: isValid),
+        isDeliveryComplete: _deliveryComplete(
+          draft,
+          state.isRecipientValid,
+          _isAgentComplete(isNameValid: isValid),
         ),
-        failure: null,
-        message: null,
+        confirmedRequest: null,
       ),
     );
+    updateTermsAcceptance(false);
   }
 
   void updateAgentCode(String value) {
-    final isValid = value.trim().isNotEmpty;
-    final isAgentValid = isValid && state.isAgentNameValid;
+    final isValid = RequiredTextValidator.isValid(value);
     final draft = state.draft.copyWith(
       agent: state.draft.agent.copyWith(code: value),
-      termsAccepted: false,
-    );
-    final isDeliveryComplete = _deliveryComplete(
-      draft,
-      state.isRecipientValid,
-      isAgentValid,
     );
     emit(
       state.copyWith(
         draft: draft,
         isAgentCodeValid: isValid,
-        isAgentValid: isAgentValid,
-        isDeliveryComplete: isDeliveryComplete,
-        confirmedRequest: null,
-        canContinue: _canContinue(
-          state.step,
-          state.isSelectionComplete,
-          isDeliveryComplete,
-          false,
-          state.isWalletSufficient,
+        isAgentValid: _isAgentComplete(isCodeValid: isValid),
+        isDeliveryComplete: _deliveryComplete(
+          draft,
+          state.isRecipientValid,
+          _isAgentComplete(isCodeValid: isValid),
         ),
-        failure: null,
-        message: null,
+        confirmedRequest: null,
       ),
     );
+    updateTermsAcceptance(false);
   }
 
   void updateAddressTitle(String value) {
-    final isValid = value.trim().isNotEmpty;
+    final isValid = RequiredTextValidator.isValid(value);
     emit(state.copyWith(addressTitle: value, isAddressTitleValid: isValid));
   }
 
   void updateAddressDetail(String value) {
-    final isValid = value.trim().isNotEmpty;
+    final isValid = RequiredTextValidator.isValid(value);
     emit(state.copyWith(addressDetail: value, isAddressDetailValid: isValid));
   }
 
@@ -528,9 +392,7 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
   }
 
   void submitAddress() {
-    if (state.isAddressTitleValid &&
-        state.isAddressDetailValid &&
-        state.isAddressPostalCodeValid) {
+    if (_isAddressComplete()) {
       final address = IssuanceAddress(
         id: 'local-address-${++_addressCounter}',
         title: state.addressTitle.trim(),
@@ -541,33 +403,21 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
         ...state.catalog!.addresses,
         address,
       ]);
-      final draft = state.draft.copyWith(
-        address: address,
-        termsAccepted: false,
-      );
-      final isDeliveryComplete = _deliveryComplete(
-        draft,
-        state.isRecipientValid,
-        state.isAgentValid,
-      );
+      final draft = state.draft.copyWith(address: address);
       emit(
         state.copyWith(
           catalog: catalog,
           draft: draft,
           isAddressFormError: false,
-          isDeliveryComplete: isDeliveryComplete,
-          confirmedRequest: null,
-          canContinue: _canContinue(
-            state.step,
-            state.isSelectionComplete,
-            isDeliveryComplete,
-            false,
-            state.isWalletSufficient,
+          isDeliveryComplete: _deliveryComplete(
+            draft,
+            state.isRecipientValid,
+            state.isAgentValid,
           ),
-          failure: null,
-          message: null,
+          confirmedRequest: null,
         ),
       );
+      updateTermsAcceptance(false);
     } else {
       emit(state.copyWith(isAddressFormError: true));
     }
@@ -579,43 +429,27 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
     );
     final draft = state.draft.copyWith(
       clearAddress: state.draft.address?.id == addressId,
-      termsAccepted: false,
-    );
-    final isDeliveryComplete = _deliveryComplete(
-      draft,
-      state.isRecipientValid,
-      state.isAgentValid,
     );
     emit(
       state.copyWith(
         catalog: catalog,
         draft: draft,
-        isDeliveryComplete: isDeliveryComplete,
-        confirmedRequest: null,
-        canContinue: _canContinue(
-          state.step,
-          state.isSelectionComplete,
-          isDeliveryComplete,
-          false,
-          state.isWalletSufficient,
+        isDeliveryComplete: _deliveryComplete(
+          draft,
+          state.isRecipientValid,
+          state.isAgentValid,
         ),
-        failure: null,
-        message: null,
+        confirmedRequest: null,
       ),
     );
+    updateTermsAcceptance(false);
   }
 
   void updateTermsAcceptance(bool value) {
     emit(
       state.copyWith(
         draft: state.draft.copyWith(termsAccepted: value),
-        canContinue: _canContinue(
-          state.step,
-          state.isSelectionComplete,
-          state.isDeliveryComplete,
-          value,
-          state.isWalletSufficient,
-        ),
+        canContinue: _canContinue(state.step, termsAccepted: value),
         failure: null,
         message: null,
       ),
@@ -641,41 +475,32 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
         stepNumber: nextStep.index + 1,
         canContinue: _canContinue(
           nextStep,
-          state.isSelectionComplete,
-          state.isDeliveryComplete,
-          state.draft.termsAccepted,
-          state.isWalletSufficient,
+          termsAccepted: state.draft.termsAccepted,
         ),
       ),
     );
   }
 
   Future<void> submitCardIssuance() {
-    final request =
-        state.confirmedRequest ?? _createIssuanceRequest(state.draft);
     if (state.confirmedRequest == null) {
       emit(
-        state.copyWith(
-          confirmedRequest: request,
-          submissionStatus: RequestStatus.loading,
-          isEditable: false,
-          canContinue: false,
-          failure: null,
-          message: null,
-        ),
-      );
-    } else {
-      emit(
-        state.copyWith(
-          submissionStatus: RequestStatus.loading,
-          isEditable: false,
-          canContinue: false,
-          failure: null,
-          message: null,
-        ),
+        state.copyWith(confirmedRequest: _createIssuanceRequest(state.draft)),
       );
     }
-    return _submitCardIssuance(request).then((result) {
+    return _submitConfirmedIssuance();
+  }
+
+  Future<void> _submitConfirmedIssuance() {
+    emit(
+      state.copyWith(
+        submissionStatus: RequestStatus.loading,
+        isEditable: false,
+        canContinue: false,
+        failure: null,
+        message: null,
+      ),
+    );
+    return _submitCardIssuance(state.confirmedRequest!).then((result) {
       switch (result) {
         case Err(:final failure):
           emit(
@@ -684,10 +509,7 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
               isEditable: !state.isCatalogEmpty,
               canContinue: _canContinue(
                 state.step,
-                state.isSelectionComplete,
-                state.isDeliveryComplete,
-                state.draft.termsAccepted,
-                state.isWalletSufficient,
+                termsAccepted: state.draft.termsAccepted,
               ),
               failure: failure,
               message: getRequestErrorMessage(failure),
@@ -698,11 +520,16 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
             state.copyWith(
               submissionStatus: RequestStatus.success,
               receipt: data,
-              canContinue: false,
             ),
           );
       }
     });
+  }
+
+  bool _needsExitConfirmation() {
+    return state.submissionStatus != RequestStatus.success &&
+        state.catalogStatus == RequestStatus.success &&
+        state.draft != _initialDraft(state.catalog!);
   }
 
   IssuanceRequest _createIssuanceRequest(IssuanceDraft draft) {
@@ -719,17 +546,42 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
   }
 
   IssuanceDraft _initialDraft(IssuanceCatalog catalog) {
+    final depositNumber = _normalizeDigits(initialDepositNumber ?? '');
     return IssuanceDraft(
       deposit: initialDepositNumber == null
           ? null
           : catalog.deposits
                 .where(
                   (deposit) =>
-                      _normalizeDigits(deposit.number) ==
-                      _normalizeDigits(initialDepositNumber!),
+                      _normalizeDigits(deposit.number) == depositNumber,
                 )
                 .lastOrNull,
     );
+  }
+
+  bool _isRecipientComplete({
+    bool? isNameValid,
+    bool? isNationalIdValid,
+    bool? isMobileValid,
+  }) {
+    return (isNameValid ?? state.isRecipientNameValid) &&
+        (isNationalIdValid ?? state.isRecipientNationalIdValid) &&
+        (isMobileValid ?? state.isRecipientMobileValid);
+  }
+
+  bool _isAgentComplete({bool? isNameValid, bool? isCodeValid}) {
+    return (isNameValid ?? state.isAgentNameValid) &&
+        (isCodeValid ?? state.isAgentCodeValid);
+  }
+
+  bool _isAddressComplete() {
+    return state.isAddressTitleValid &&
+        state.isAddressDetailValid &&
+        state.isAddressPostalCodeValid;
+  }
+
+  bool _isCatalogEmpty(IssuanceCatalog catalog) {
+    return catalog.deposits.isEmpty || catalog.types.isEmpty;
   }
 
   bool _selectionComplete(IssuanceDraft draft) {
@@ -747,19 +599,15 @@ class CardIssuanceCubit extends Cubit<CardIssuanceState> {
             (!draft.includeAgent || isAgentValid));
   }
 
-  bool _canContinue(
-    IssuanceStep step,
-    bool isSelectionComplete,
-    bool isDeliveryComplete,
-    bool termsAccepted,
-    bool isWalletSufficient,
-  ) {
-    return isSelectionComplete &&
+  bool _canContinue(IssuanceStep step, {required bool termsAccepted}) {
+    return state.isSelectionComplete &&
         switch (step) {
           IssuanceStep.selection => true,
-          IssuanceStep.delivery => isDeliveryComplete,
+          IssuanceStep.delivery => state.isDeliveryComplete,
           IssuanceStep.confirmation =>
-            isDeliveryComplete && termsAccepted && isWalletSufficient,
+            state.isDeliveryComplete &&
+                termsAccepted &&
+                state.isWalletSufficient,
         };
   }
 
