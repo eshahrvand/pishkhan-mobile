@@ -21,7 +21,7 @@ abstract class AddressesState with _$AddressesState {
     Failure? failure,
     String? message,
 
-    @Default({}) Map<String, Failure> reviewFailures,
+    @Default({}) Map<String, RequestStatus> reviewStatuses,
     ProfileAddress? selectedAddress,
     @Default(false) bool retainHomeAddress,
     AddressEffect? effect,

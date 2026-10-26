@@ -126,6 +126,13 @@ including unexpected exceptions, must be returned as `Err`.
 
 ## Verification
 
+Address residence reviews keep a separate `RequestStatus` per address in
+`reviewStatuses`. Each attempt publishes loading and clears the shared latest
+failure/message before calling the repository. Success and failure update only
+that address's request status; concurrent reviews retain their independent
+results. The screen notifies on each entering-failure transition, including
+identical failures after retry, without a duplicate inline request-error message.
+
 Tests cover live validation, normalization, challenge invalidation and expiry,
 consent/wallet gating, retry identity, single mock charging, address inquiry and
 mutations, editor contact restoration, occupation conflicts/operator review,

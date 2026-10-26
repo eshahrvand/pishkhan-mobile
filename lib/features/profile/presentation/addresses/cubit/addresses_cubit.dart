@@ -184,8 +184,12 @@ class AddressesCubit extends Cubit<AddressesState> {
             else
               item,
         ],
-        reviewFailures: Map.of(state.reviewFailures)
-          ..remove(address.address.id),
+        reviewStatuses: {
+          ...state.reviewStatuses,
+          address.address.id: RequestStatus.loading,
+        },
+        failure: null,
+        message: null,
       ),
     );
     return repository.reviewAddress(address.address).then((result) {
@@ -200,6 +204,10 @@ class AddressesCubit extends Cubit<AddressesState> {
                   else
                     item,
               ],
+              reviewStatuses: {
+                ...state.reviewStatuses,
+                address.address.id: RequestStatus.success,
+              },
             ),
           );
         case Err(:final failure):
@@ -212,10 +220,12 @@ class AddressesCubit extends Cubit<AddressesState> {
                   else
                     item,
               ],
-              reviewFailures: {
-                ...state.reviewFailures,
-                address.address.id: failure,
+              reviewStatuses: {
+                ...state.reviewStatuses,
+                address.address.id: RequestStatus.failure,
               },
+              failure: failure,
+              message: getRequestErrorMessage(failure),
             ),
           );
       }

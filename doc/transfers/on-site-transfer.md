@@ -113,6 +113,12 @@ atomic fee execution and durable server-side idempotency.
 
 ## Verification
 
+Each system file-picker attempt resets `uploadStatus` to `initial` and clears
+the previous failure/message before opening the picker. This allows consecutive
+picker failures to notify again without showing upload loading before a file is
+selected. Cancelling a replacement restores the successful upload status when
+the previous file is still available for Review.
+
 - `test/transfers/on_site_transfer_cubit_test.dart`: validation, multiple entries,
   cancellation/stale completions, file approval, retry identity and Back.
 - `test/transfers/on_site_transfer_screen_test.dart`: all stages, manual entry,

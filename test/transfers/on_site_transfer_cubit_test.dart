@@ -231,6 +231,52 @@ void main() {
     expect(cubit.state.effect, OnSiteTransferEffect.confirmExit);
     await pending;
   });
+  test(
+    'each picker attempt clears the previous error without upload loading',
+    () async {
+      final states = <OnSiteTransferState>[];
+      final subscription = cubit.stream.listen(states.add);
+      addTearDown(subscription.cancel);
+      for (var attempt = 0; attempt < 2; attempt++) {
+        cubit.requestFilePicker();
+        expect(cubit.state.uploadStatus, RequestStatus.initial);
+        expect(cubit.state.failure, isNull);
+        expect(cubit.state.message, isNull);
+        cubit.consumeOnSiteTransferInteraction();
+        cubit.applyFilePickerFailure(cubit.state.filePickerRequestId);
+        expect(cubit.state.uploadStatus, RequestStatus.failure);
+        expect(cubit.state.message, isNotNull);
+      }
+      await Future<void>.delayed(Duration.zero);
+      expect(
+        states.where((state) => state.uploadStatus == RequestStatus.failure),
+        hasLength(2),
+      );
+    },
+  );
+  test(
+    'cancelling the picker retains a previously uploaded file for review',
+    () async {
+      await readyForDestinations();
+      cubit.requestUploadSheet();
+      cubit.requestFilePicker();
+      await cubit.applyFileSelection(
+        SelectedDocument(name: 'salary.xls', bytes: Uint8List(100)),
+        requestId: cubit.state.filePickerRequestId,
+      );
+      final attachment = cubit.state.pendingAttachment;
+      cubit.requestFilePicker();
+      await cubit.applyFileSelection(
+        null,
+        requestId: cubit.state.filePickerRequestId,
+      );
+      expect(cubit.state.uploadStatus, RequestStatus.success);
+      expect(cubit.state.pendingAttachment, attachment);
+      expect(cubit.state.canReviewFile, isTrue);
+      cubit.applyUploadSheetResult(true);
+      expect(cubit.state.confirmedRequest!.attachment, attachment);
+    },
+  );
   test('file limits are enforced; cancelling and replacing an upload rejects old completion', () async {
     await readyForDestinations();
     cubit.requestUploadSheet();

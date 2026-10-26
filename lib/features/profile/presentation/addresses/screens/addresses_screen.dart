@@ -111,7 +111,12 @@ class AddressesScreen extends StatelessWidget {
                 (previous.saveStatus != current.saveStatus &&
                     current.saveStatus == RequestStatus.failure) ||
                 (previous.deletionStatus != current.deletionStatus &&
-                    current.deletionStatus == RequestStatus.failure)),
+                    current.deletionStatus == RequestStatus.failure) ||
+                current.reviewStatuses.entries.any(
+                  (review) =>
+                      previous.reviewStatuses[review.key] != review.value &&
+                      review.value == RequestStatus.failure,
+                )),
         listener: _handleEffect,
         child: Directionality(
           textDirection: TextDirection.rtl,

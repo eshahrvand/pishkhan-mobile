@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
 import 'package:pishkhan_mobile/core/domain/entities/delivery_address.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/result/result.dart';
+import 'package:pishkhan_mobile/core/result/failure.dart';
 import 'package:pishkhan_mobile/features/address/presentation/editor/cubit/address_editor_cubit.dart';
 import 'package:pishkhan_mobile/features/profile/data/repositories/mock_personal_information_repository.dart';
 import 'package:pishkhan_mobile/features/profile/domain/entities/personal_information.dart';
@@ -158,6 +161,69 @@ void main() {
       expect(cubit.state.addresses.last.status, ResidenceStatus.missing);
     },
   );
+  test('address review retries clear errors and keep concurrent results independent', () async {
+    final controlled = ControlledAddressReviewRepository();
+    await getIt.unregister<PersonalInformationRepository>();
+    getIt.registerSingleton<PersonalInformationRepository>(controlled);
+    final cubit = AddressesCubit();
+    addTearDown(cubit.close);
+    await cubit.fetchAddresses();
+    await cubit.applyAddressEditor(
+      const DeliveryAddress(
+        id: 'second-home',
+        title: 'Second home',
+        detail: 'Synthetic address',
+        postalCode: '1234567890',
+      ),
+    );
+    final first = cubit.state.addresses[1];
+    final second = cubit.state.addresses.last;
+    final firstRequest = cubit.submitAddressReview(first);
+    final secondRequest = cubit.submitAddressReview(second);
+    expect(cubit.state.reviewStatuses[first.address.id], RequestStatus.loading);
+    expect(
+      cubit.state.reviewStatuses[second.address.id],
+      RequestStatus.loading,
+    );
+    controlled.reviews[second.address.id]!.complete(
+      const Err(DataFailure('review.failed')),
+    );
+    await secondRequest;
+    expect(cubit.state.reviewStatuses[first.address.id], RequestStatus.loading);
+    expect(
+      cubit.state.reviewStatuses[second.address.id],
+      RequestStatus.failure,
+    );
+    expect(cubit.state.message, isNotNull);
+    final retry = cubit.submitAddressReview(second);
+    expect(
+      cubit.state.reviewStatuses[second.address.id],
+      RequestStatus.loading,
+    );
+    expect(cubit.state.failure, isNull);
+    expect(cubit.state.message, isNull);
+    controlled.reviews[first.address.id]!.complete(
+      const Success(ResidenceStatus.valid),
+    );
+    await firstRequest;
+    expect(cubit.state.reviewStatuses[first.address.id], RequestStatus.success);
+    expect(
+      cubit.state.reviewStatuses[second.address.id],
+      RequestStatus.loading,
+    );
+    controlled.reviews[second.address.id]!.complete(
+      const Err(DataFailure('review.failed')),
+    );
+    await retry;
+    expect(
+      cubit.state.reviewStatuses[second.address.id],
+      RequestStatus.failure,
+    );
+    expect(cubit.state.failure, const DataFailure('review.failed'));
+    expect(cubit.state.message, isNotNull);
+    expect(cubit.state.addresses[1].status, ResidenceStatus.valid);
+    expect(cubit.state.addresses.last.status, ResidenceStatus.unchecked);
+  });
   test('address edits preserve identity, reset inquiry; dismissed sheets do not mutate', () async {
     final cubit = AddressesCubit();
     addTearDown(cubit.close);
@@ -336,6 +402,18 @@ void main() {
     await cubit.submitDeletion(cubit.state.selectedOccupation!);
     expect(cubit.state.occupations.single.kind, OccupationKind.teacher);
   });
+}
+
+class ControlledAddressReviewRepository
+    extends MockPersonalInformationRepository {
+  final reviews = <String, Completer<Result<ResidenceStatus>>>{};
+
+  @override
+  Future<Result<ResidenceStatus>> reviewAddress(DeliveryAddress address) {
+    final pending = Completer<Result<ResidenceStatus>>();
+    reviews[address.id] = pending;
+    return pending.future;
+  }
 }
 
 class ShortChallengeRepository extends MockPersonalInformationRepository {

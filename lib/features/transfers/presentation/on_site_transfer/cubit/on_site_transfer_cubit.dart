@@ -330,8 +330,10 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
   void requestFilePicker() {
     emit(
       state.copyWith(
+        uploadStatus: RequestStatus.initial,
         filePickerRequestId: ++_uploadRequestId,
         effect: OnSiteTransferEffect.pickFile,
+        failure: null,
         message: null,
       ),
     );
@@ -344,6 +346,9 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
     // The system picker can finish after its upload sheet was dismissed/reopened.
     if (requestId != _uploadRequestId) return Future.value();
     switch (file) {
+      case null when state.pendingAttachment != null:
+        emit(state.copyWith(uploadStatus: RequestStatus.success));
+        return Future.value();
       case null:
         return Future.value();
       default:

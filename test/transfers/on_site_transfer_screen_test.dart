@@ -124,6 +124,32 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
+  testWidgets('repeated picker errors each display a notification', (
+    tester,
+  ) async {
+    const channel = MethodChannel('pishkhan/document_picker');
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, (_) async {
+          throw PlatformException(code: 'picker.failed');
+        });
+    addTearDown(
+      () => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(channel, null),
+    );
+    await mountCertificate(tester, const OnSiteTransferScreen());
+    await reachDestinations(tester);
+    await tester.tap(find.text(S.current.transferUploadExcel));
+    await tester.pumpAndSettle();
+    for (var attempt = 0; attempt < 2; attempt++) {
+      await tester.tap(find.text(S.current.transferUploadAction));
+      await tester.pumpAndSettle();
+      expect(find.byType(SnackBar), findsOneWidget);
+      await tester.pump(const Duration(seconds: 5));
+      await tester.pumpAndSettle();
+      expect(find.byType(SnackBar), findsNothing);
+    }
+    expect(tester.takeException(), isNull);
+  });
   testWidgets(
     'actual picker contract shows upload progress; Review advances to confirmation',
     (tester) async {

@@ -23,6 +23,7 @@ import 'package:pishkhan_mobile/shared/widgets/app_delete_address_sheet.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_decision_sheet.dart';
 import 'package:pishkhan_mobile/features/profile/presentation/occupations/widgets/occupations_list.dart';
 import 'package:pishkhan_mobile/core/result/result.dart';
+import 'package:pishkhan_mobile/core/result/failure.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_occupation_card.dart';
 
 import '../deposits/certificate_test_support.dart';
@@ -44,6 +45,25 @@ void main() {
     await captureCertificate(tester, 'profile-$name');
   }
 
+  testWidgets('each failed address review notifies again after retry', (
+    tester,
+  ) async {
+    await getIt.unregister<PersonalInformationRepository>();
+    getIt.registerSingleton<PersonalInformationRepository>(
+      FailingAddressReviewRepository(),
+    );
+    await mountCertificate(tester, const AddressesScreen());
+    for (var attempt = 0; attempt < 2; attempt++) {
+      await tester.tap(find.text(S.current.profileReview));
+      await tester.pumpAndSettle();
+      expect(find.byType(SnackBar), findsOneWidget);
+      expect(find.text(S.current.profileReviewError), findsNothing);
+      await tester.pump(const Duration(seconds: 5));
+      await tester.pumpAndSettle();
+      expect(find.byType(SnackBar), findsNothing);
+    }
+    expect(tester.takeException(), isNull);
+  });
   testWidgets(
     'all three services open through the registry and back returns to the caller',
     (tester) async {
@@ -510,6 +530,13 @@ void main() {
       }
     },
   );
+}
+
+class FailingAddressReviewRepository extends MockPersonalInformationRepository {
+  @override
+  Future<Result<ResidenceStatus>> reviewAddress(DeliveryAddress address) {
+    return Future.value(const Err(DataFailure('review.failed')));
+  }
 }
 
 class EmptyOccupationsRepository extends MockPersonalInformationRepository {

@@ -106,12 +106,6 @@ class AddressesList extends StatelessWidget {
                           ],
                         ),
                 ),
-                if (state.reviewFailures.containsKey(address.address.id))
-                  Text(
-                    S.current.profileReviewError,
-                    style: Theme.of(context).textTheme.bodySmall
-                        ?.copyWith(color: context.colors.error),
-                  ),
                 const SizedBox(height: 20),
               ],
               if (state.saveStatus == RequestStatus.loading ||
