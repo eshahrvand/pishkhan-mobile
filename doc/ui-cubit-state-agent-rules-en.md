@@ -82,9 +82,9 @@ unsolicited rewrite of untouched code.
 10. **Target level of simplicity.** One `emit` per user event, except an action
     that delegates to its operation's owner action and so accepts a second
     synchronous emit (Section 6.10); direct `state.x!`
-    reads for fields the UI flow guarantees; a returned `.then` chain for async
-    work; no guards. Not part of the target style: `catchError` in Cubit, nested
-    `.then` pyramids, `dynamic` setters, and storage or connectivity calls
+    reads for fields the UI flow guarantees; `async/await` for async work; no guards.
+    Not part of the target style: `catchError` in Cubit, `.then` chains, nested
+    async pyramids, `dynamic` setters, and storage or connectivity calls
     inside the Cubit.
 11. **Request ID only for real overlap.** Add `if (requestId != _requestId) return;`
     at the top of one callback **only** when two responses of the same operation
@@ -510,7 +510,7 @@ source implementation exceptions as target rules.
 | Construction | Construct Cubit directly in screen/feature-flow BlocProvider.create and invoke an explicit initial action there only when the feature has a real fetch or entry resolution. Keep its supplied/default initial State unchanged during construction. | Route-owned screen Cubit, _createCubit helpers, hidden construction wrappers, constructor emit/load/timer/derived-State initialization |
 | Lifetime | Provider.create owns closing. Existing flow consumers read the shared instance. Provider.value only exposes an existing instance across a real boundary such as a modal. | New Cubit in value, manually closing a borrowed Cubit or duplicate construction on ordinary rebuilds |
 | Actions | Specific typed actions own transferable calculations, validation, request construction and flow decisions. Write emit(state.copyWith(...)) in the action. Publish dependent values consistently. | Generic string/index field dispatch, State publication intermediaries, UI reconstruction of requests or hidden State getters |
-| Async | Operations that callers can await return Future<void> through a returned `.then` chain (no async/await, no catchError in Cubit); handle Result with a switch inside `.then`; no isClosed anywhere; a request-id check only for a real overlapping-response case; UI controls interaction availability; keep server idempotency. | Copying nested void Future chains, any isClosed check, catchError for expected failures, or defensive guards that repeat what UI/validation already guarantees |
+| Async | Operations that callers can await return `Future<void>` with `async/await` (no `.then` chains, no `catchError` in Cubit); handle Result with a switch after the `await`; no isClosed anywhere; a request-id check only for a real overlapping-response case; UI controls interaction availability; keep server idempotency. | `.then` chains, any isClosed check, catchError for expected failures, or defensive guards that repeat what UI/validation already guarantees |
 | Rendering | BlocBuilder renders a cohesive changing section. A child receiving the parent's selected State MUST NOT add a duplicate subscription to the same data. Rendering MUST NOT start requests. | Load/submit/analytics in build, ceremonial builder per Text/Icon, duplicate nested builders or business rules hidden in buildWhen |
 | Effects | BlocListener executes prepared Flutter effects. BlocConsumer is used when the same section needs both rendering and a side effect. MultiBlocListener groups actually independent effects. | Flow decisions in listeners, mandatory Consumer/MultiBlocListener everywhere or a new generic effect framework without a concrete need |
 | Listener methods | Every multi-case effect switch and substantial async listener body MUST be a named widget/State method referenced by listener. Keep its focused listenWhen adjacent. | An inline multi-case listener or moving eligibility/request/navigation-intent decisions into the named UI method |

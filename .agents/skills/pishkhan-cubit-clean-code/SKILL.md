@@ -30,15 +30,15 @@ Short working rules for writing a clean Cubit. The full contract is `ui-cubit-st
 
 ## The core rule: one operation, one owner
 
-The dependency call, the `.then` chain, the `switch (result)`, the request-ID handling and the loading reset group exist **once per operation**.
+The dependency call, the `await` expression, the `switch (result)`, the request-ID handling and the loading reset group exist **once per operation**.
 
 ```dart
-Future<void> selectDeposit(VirtualCardDeposit deposit) {
+Future<void> selectDeposit(VirtualCardDeposit deposit) async {
   emit(state.copyWith(deposit: deposit));
-  return fetchQuote(); // delegate; never copy the request
+  await fetchQuote(); // delegate; never copy the request
 }
 
-Future<void> fetchQuote() {
+Future<void> fetchQuote() async {
   final requestId = ++_quoteRequestId;
   final canQuote = state.deposit != null && state.isCountValid;
 
@@ -53,17 +53,16 @@ Future<void> fetchQuote() {
     ),
   );
 
-  if (!canQuote) return Future.value(); // real flow decision, lives only here
+  if (!canQuote) return; // real flow decision, lives only here
 
-  return QuoteVirtualCards(_repository)(state.deposit!.id, state.count!).then((result) {
-    if (requestId != _quoteRequestId) return;
-    switch (result) {
-      case Err(:final failure):
-        emit(state.copyWith(quoteStatus: RequestStatus.failure, failure: failure, message: getRequestErrorMessage(failure)));
-      case Success(:final data):
-        emit(state.copyWith(quoteStatus: RequestStatus.success, quote: data));
-    }
-  });
+  final result = await QuoteVirtualCards(_repository)(state.deposit!.id, state.count!);
+  if (requestId != _quoteRequestId) return;
+  switch (result) {
+    case Err(:final failure):
+      emit(state.copyWith(quoteStatus: RequestStatus.failure, failure: failure, message: getRequestErrorMessage(failure)));
+    case Success(:final data):
+      emit(state.copyWith(quoteStatus: RequestStatus.success, quote: data));
+  }
 }
 ```
 
@@ -153,7 +152,9 @@ A condition used only **once**: one/two lines stay inline in `copyWith`; longer 
 
 ## Always (Minimal Cubit Rules)
 
-- No `isClosed`, no `BaseCubit`/`safeEmit`, no `catchError`/`try-catch`, no `async/await` in Cubit actions. Return a `.then` chain.
+- No `isClosed`, no `BaseCubit`/`safeEmit`, no `catchError`/`try-catch` in Cubit actions. Use `async/await`; do not use `.then` chains.
+- A private method is extracted only when it owns a truly independent responsibility or a calculation used in 2+ places. Do not split a single operation into `submitX` → `_submitXRequest` just to shorten methods.
+- A one-line boolean expression used only once stays inline in `copyWith`. Extract it to a named `_canX(...)` only when it appears in 2+ places.
 - No defensive `if (...) return;` on UI-guaranteed preconditions. A start-or-skip decision based on real data is allowed, once, in the owner action.
 - Pass the rendered object or a non-null value, never an ID the Cubit must find again.
 - `updateX` runs only X's own validator, once, and stores `isXValid` and `isXError`. Aggregates read stored `isXValid` flags.
@@ -164,7 +165,7 @@ A condition used only **once**: one/two lines stay inline in `copyWith`; longer 
 
 ## Duplication review (before reporting done)
 
-1. Search the Cubit for each dependency call and for `.then(`: each must appear once per operation.
+1. Search the Cubit for each dependency call and for `await`: each must appear once per operation.
 2. Search for `switch (result)`: once per operation.
 3. Compare the `copyWith` blocks of all actions: no group of 3+ identical fields in 2+ actions.
 4. Look for any boolean expression written twice.
