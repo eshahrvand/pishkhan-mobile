@@ -76,7 +76,8 @@ IP policy and CAPTCHA session binding:
 through GetIt. Domain use cases call `AuthRepository`; `RemoteAuthRepository`
 uses `AuthRemoteDataSource` (Retrofit) and maps DTOs into Equatable entities.
 State remains plain Freezed data with independent CAPTCHA, OTP-request and
-verification statuses. Cubit uses returned `.then` chains.
+verification statuses. Cubit async actions target the `async/await` baseline
+(transitioning from legacy returned `.then` chains upon cubit rewrite).
 
 The Cubit keeps simple input validation and its dependent flags in one action.
 Short eligibility conditions stay directly in `copyWith`. The longer OTP-request

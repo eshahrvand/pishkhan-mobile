@@ -257,8 +257,8 @@ remain unchanged.
    permits repeated identical failures without a sequence counter.
    Clearing message or unrelated State updates must not replay the effect. No
    separate message Listener/counter or new handling for unconnected services.
-5. Keep `Future<Result<T>>` at the Repository boundary and the returned `.then`
-   plus Success/Err switch in Cubit. HTTP 200 does not establish bank success.
+5. Keep `Future<Result<T>>` at the Repository boundary and use `async/await` with
+   a `switch (result)` in Cubit. HTTP 200 does not establish bank success.
    Data maps `status: -1, message: WRONG_CAPTCHA` to
    `Err(DataFailure('auth.wrong_captcha'))`; raw server messages are not displayed.
    Unknown business rejection retains the generic failure/fallback. Do not turn
@@ -420,7 +420,7 @@ The supplied style example is a style reference; it does not define this project
 | `S.current` | Approved direct localization access; implementation belongs to a separate task |
 | A shared enum containing `otpSubmitting` and `authLoading` | Independent operations use independent statuses with the existing `RequestStatus` |
 | Two emits for an input and button eligibility | Prefer one emit for a complete, consistent snapshot |
-| `void ... async` | Awaitable operations use `Future<void>` and the project's returned `.then` style (Section 8.1) |
+| `void ... async` | Awaitable operations use `Future<void>` with `async/await` (Section 8.1) |
 | `isClosed` check after await | Not used anywhere in this project (owner decision 2026-10-18); the Cubit is released with its screen (Section 8.3) |
 | Controllers in StatelessWidget and static focus nodes | A StatefulWidget owns the lifecycle and disposes resources |
 | Printing OTPs or PINs | Prohibited; sensitive data must not enter logs |
@@ -1233,8 +1233,8 @@ The owner approved the two complementary forms below.
 
 The request action owns the complete request lifecycle: publish loading and clear
 the previous failure/message, call the dependency, then publish success or failure.
-These are parts of one operation. Keep them together with a returned `.then`
-chain and explicit `emit(state.copyWith(...))` calls.
+These are parts of one operation. Keep them together with `async/await`
+and explicit `emit(state.copyWith(...))` calls.
 
 A repeated or substantial calculation may have its own specifically named pure
 function. For example, the fee total can be reused when a catalog arrives and
@@ -1244,17 +1244,16 @@ when an option changes the applicable fees:
 
 ```dart
 // Prohibited: the action hides its State changes behind other functions.
-Future<void> fetchIssuanceCatalog() {
+Future<void> fetchIssuanceCatalog() async {
   _publishCatalogLoading();
 
-  return _loadIssuanceCatalog().then((result) {
-    switch (result) {
-      case Success(:final data):
-        _publishCatalogSuccess(data);
-      case Err(:final failure):
-        _publishCatalogFailure(failure);
-    }
-  });
+  final result = await _loadIssuanceCatalog();
+  switch (result) {
+    case Success(:final data):
+      _publishCatalogSuccess(data);
+    case Err(:final failure):
+      _publishCatalogFailure(failure);
+  }
 }
 
 void _publishCatalogLoading() {
@@ -1290,7 +1289,7 @@ int _calculateTotalFee(List<IssuanceFee> fees) {
   return fees.fold<int>(0, (total, fee) => total + fee.amountRial);
 }
 
-Future<void> fetchIssuanceCatalog() {
+Future<void> fetchIssuanceCatalog() async {
   emit(
     state.copyWith(
       catalogStatus: RequestStatus.loading,
@@ -1299,30 +1298,29 @@ Future<void> fetchIssuanceCatalog() {
     ),
   );
 
-  return _loadIssuanceCatalog().then((result) {
-    switch (result) {
-      case Success(:final data):
-        final totalFee = _calculateTotalFee(data.fees);
+  final result = await _loadIssuanceCatalog();
+  switch (result) {
+    case Success(:final data):
+      final totalFee = _calculateTotalFee(data.fees);
 
-        emit(
-          state.copyWith(
-            catalogStatus: RequestStatus.success,
-            catalog: data,
-            fees: data.fees,
-            totalRial: totalFee,
-            isWalletSufficient: data.walletBalanceRial >= totalFee,
-          ),
-        );
-      case Err(:final failure):
-        emit(
-          state.copyWith(
-            catalogStatus: RequestStatus.failure,
-            failure: failure,
-            message: getRequestErrorMessage(failure),
-          ),
-        );
-    }
-  });
+      emit(
+        state.copyWith(
+          catalogStatus: RequestStatus.success,
+          catalog: data,
+          fees: data.fees,
+          totalRial: totalFee,
+          isWalletSufficient: data.walletBalanceRial >= totalFee,
+        ),
+      );
+    case Err(:final failure):
+      emit(
+        state.copyWith(
+          catalogStatus: RequestStatus.failure,
+          failure: failure,
+          message: getRequestErrorMessage(failure),
+        ),
+      );
+  }
 }
 ```
 
@@ -1624,13 +1622,13 @@ The short working checklist for this section is the project skill
    exactly one owner action.
 2. **One lifecycle per operation.** The owner action contains the complete
    lifecycle once: the loading emit (with the clearing of stale data), the
-   dependency call and the `.then` with the `Success`/`Err` switch. No other
+   dependency call and the `await` with the `Success`/`Err` switch. No other
    action may contain that dependency call or that switch. This is the same
    lifecycle that Section 6.8.1 keeps together; this rule only forbids writing
    it more than once.
 3. **Trigger actions record their input and delegate.** An action that only
    changes an input of an existing operation emits its own input fields and then
-   `return`s the owner action (`return fetchQuote();`). It does not start the
+   awaits the owner action (`await fetchQuote();`). It does not start the
    request itself and does not repeat the owner's reset fields.
 4. **Intermediate emits caused by delegation are approved.** This is an explicit
    exception to the one-emit-per-event preference of Section 6.3 and Minimal
@@ -1640,7 +1638,7 @@ The short working checklist for this section is the project skill
 5. **A start-or-skip decision is a flow decision, not a defensive guard.** When
    the owner action must decide whether the request can start at all (for
    example: no deposit selected or an invalid count), that decision exists once,
-   inside the owner action, and its skip branch returns `Future.value()`. It is
+   inside the owner action, and its skip branch returns early (`return;`). It is
    not a Minimal Cubit Rule 2 violation because it depends on real data, not on a
    UI-guaranteed precondition.
 6. **Request ID lives only in the owner.** `++_requestId` and the `requestId`
@@ -1702,12 +1700,12 @@ Future<void> selectDeposit(VirtualCardDeposit deposit) {
 #### 6.10.3 Write instead — one owner, trigger actions delegate
 
 ```dart
-Future<void> selectDeposit(VirtualCardDeposit deposit) {
+Future<void> selectDeposit(VirtualCardDeposit deposit) async {
   emit(state.copyWith(deposit: deposit));
-  return fetchQuote();
+  await fetchQuote();
 }
 
-Future<void> updateCount(String text) {
+Future<void> updateCount(String text) async {
   final countText = DigitNormalizer.normalize(text).trim();
   final count = VirtualCardCountValidator.parseValidCount(
     countText,
@@ -1722,11 +1720,11 @@ Future<void> updateCount(String text) {
       isCountError: countText.isNotEmpty && count == null,
     ),
   );
-  return fetchQuote();
+  await fetchQuote();
 }
 
 /// Owner of the quote operation. Used by deposit change, count change and retry.
-Future<void> fetchQuote() {
+Future<void> fetchQuote() async {
   // The ID is incremented before the start-or-skip decision, so an in-flight
   // response loses even when the form has just become invalid.
   final requestId = ++_quoteRequestId;
@@ -1745,28 +1743,27 @@ Future<void> fetchQuote() {
     ),
   );
 
-  if (!canQuote) return Future.value();
+  if (!canQuote) return;
 
-  return QuoteVirtualCards(_repository)(
+  final result = await QuoteVirtualCards(_repository)(
     state.deposit!.id,
     state.count!,
-  ).then((result) {
-    if (requestId != _quoteRequestId) return;
-    switch (result) {
-      case Err(:final failure):
-        emit(
-          state.copyWith(
-            quoteStatus: RequestStatus.failure,
-            retryAction: VirtualCardRetryAction.quote,
-            canRetry: true,
-            failure: failure,
-            message: getRequestErrorMessage(failure),
-          ),
-        );
-      case Success(:final data):
-        emit(state.copyWith(quoteStatus: RequestStatus.success, quote: data));
-    }
-  });
+  );
+  if (requestId != _quoteRequestId) return;
+  switch (result) {
+    case Err(:final failure):
+      emit(
+        state.copyWith(
+          quoteStatus: RequestStatus.failure,
+          retryAction: VirtualCardRetryAction.quote,
+          canRetry: true,
+          failure: failure,
+          message: getRequestErrorMessage(failure),
+        ),
+      );
+    case Success(:final data):
+      emit(state.copyWith(quoteStatus: RequestStatus.success, quote: data));
+  }
 }
 
 /// Used by updateTermsAcceptance, _canRetry and the submission failure branch.
@@ -1898,17 +1895,17 @@ isLoading: state.submissionStatus == RequestStatus.loading,
 
 ## 8. Async Operations, Failures and Stale Responses
 
-### 8.1 Readable Loading Pattern: `.then` Without `catchError`
+### 8.1 Readable Loading Pattern: `async/await` Without `catchError`
 
-**Owner decision, 2026-10-17:** the project's baseline async style in Cubit is a
-returned `.then(...)` chain. Cubit does **not** use `async/await`, `try/catch` or
-`catchError` for operations that return `Result`. `Err` is a value, not an
-exception, so the failure branch is the `case Err` of the `switch` inside `.then`.
+**Owner decision, 2026-10-31:** the project's baseline async style in Cubit is
+`async/await`. Cubit does **not** use `.then` chains or `catchError`
+for operations that return `Result`. `Err` is a value, not an
+exception, so the failure branch is the `case Err` of the `switch` after the `await`.
 
 This example uses the actual `CardServicesRepository` and `LoadCardServiceCatalog` contracts. The proposed State contains `catalogStatus`, `catalog` and `catalogFailure`.
 
 ```dart
-Future<void> fetchCatalog() {
+Future<void> fetchCatalog() async {
   emit(
     state.copyWith(
       catalogStatus: RequestStatus.loading,
@@ -1916,35 +1913,32 @@ Future<void> fetchCatalog() {
     ),
   );
 
-  return LoadCardServiceCatalog(repository)().then((result) {
-    switch (result) {
-      case Success(:final data):
-        emit(
-          state.copyWith(
-            catalogStatus: RequestStatus.success,
-            catalog: data,
-            catalogFailure: null,
-          ),
-        );
-      case Err(:final failure):
-        emit(
-          state.copyWith(
-            catalogStatus: RequestStatus.failure,
-            catalogFailure: failure,
-          ),
-        );
-    }
-  });
+  final result = await LoadCardServiceCatalog(repository)();
+  switch (result) {
+    case Success(:final data):
+      emit(
+        state.copyWith(
+          catalogStatus: RequestStatus.success,
+          catalog: data,
+        ),
+      );
+    case Err(:final failure):
+      emit(
+        state.copyWith(
+          catalogStatus: RequestStatus.failure,
+          catalogFailure: failure,
+        ),
+      );
+  }
 }
 ```
 
 Required shape:
 
-- The method is not marked `async` and contains no `await`.
-- The chain is **returned**. Without `return`, the method completes immediately and callers lose the result.
-- There is no guard of any kind in the callback: no `isClosed`, no request ID (Section 8.3).
-- Heavy or branching calculations are moved to pure helpers (Section 6.4) so the callback body is only `emit` calls.
-- Do not add an early completed Future merely to repeat UI loading/eligibility gates.
+- The method is marked `async` and uses `await` before the use case call.
+- There is no guard of any kind after the `await`: no `isClosed`; a request-ID check (`if (requestId != _requestId) return;`) is permitted only for genuine overlapping responses (Section 8.3 and Minimal Cubit Rule 11), never by default.
+- Heavy or branching calculations are moved to pure helpers (Section 6.4) so the switch body is only `emit` calls.
+- Do not add an early return merely to repeat UI loading/eligibility gates.
 
 **Boundary guarantee (required):** because Cubit has no `catchError`, the
 Repository/UseCase boundary must convert **every** exception, including
@@ -1964,7 +1958,7 @@ operation status at `loading` indefinitely.
 ### 8.2 Submission: UI Owns Invocation Availability
 
 ```dart
-Future<void> submit() {
+Future<void> submit() async {
   final request = createSubmissionRequest();
 
   emit(
@@ -1974,25 +1968,24 @@ Future<void> submit() {
     ),
   );
 
-  return submitUseCase(request).then((result) {
-    switch (result) {
-      case Success(:final data):
-        emit(
-          state.copyWith(
-            submissionStatus: RequestStatus.success,
-            receipt: data,
-            canSubmit: false,
-          ),
-        );
-      case Err(:final failure):
-        emit(
-          state.copyWith(
-            submissionStatus: RequestStatus.failure,
-            submissionFailure: failure,
-          ),
-        );
-    }
-  });
+  final result = await submitUseCase(request);
+  switch (result) {
+    case Success(:final data):
+      emit(
+        state.copyWith(
+          submissionStatus: RequestStatus.success,
+          receipt: data,
+          canSubmit: false,
+        ),
+      );
+    case Err(:final failure):
+      emit(
+        state.copyWith(
+          submissionStatus: RequestStatus.failure,
+          submissionFailure: failure,
+        ),
+      );
+  }
 }
 ```
 
@@ -2004,10 +1997,10 @@ duplicate status or eligibility guard. Async completion has no disposal check (S
 
 ### 8.3 Mandatory Async Rules
 
-- Awaitable operations return `Future<void>`; do not write `void async`.
-- Baseline style is `return useCase(...).then((result) { ... })`. Do not use `async/await` in Cubit actions that return `Result`.
+- Awaitable operations return `Future<void>`; write `async` on the method.
+- Baseline style is `async/await` with a `switch (result)` after the `await`. Do not use `.then` chains in Cubit actions.
 - Scope: this style applies to Cubit actions. UI-side modal launchers and effect handlers that must await a Flutter API keep `async/await` and the `context.mounted` guard (Section 19.6); they are Flutter-only adapters, not flow logic.
-- Do not add `catchError`, `try/catch` or `onError` in Cubit for expected failures. `Err` is handled by the `switch` inside `.then` (Section 8.1).
+- Do not add `catchError`, `try/catch` or `onError` in Cubit for expected failures. `Err` is handled by the `switch` after the `await` (Section 8.1).
 - Set the status to loading before starting the Future.
 - **No `isClosed`, anywhere (owner decision 2026-10-18).** Do not write `isClosed` in a synchronous action, at the start of an async method, in a `.then` callback, in a Timer/stream callback or in a UI `finally`. Do not hide it in `safeEmit`, an overridden `emit` or a BaseCubit (none exists in this project). The Cubit is owned by the screen's `BlocProvider` and is released from memory when the screen leaves the tree.
     - **Accepted consequence (owner-approved):** a response that arrives after the screen closed makes its `emit` throw a `StateError`, which shows up as an uncaught async error in logs/crash reporting and changes nothing visible. Agents MUST NOT add a guard to avoid it.
@@ -2018,7 +2011,7 @@ duplicate status or eligibility guard. Async completion has no disposal check (S
 - Retrying the same banking request preserves the same idempotency key.
 - Changing the payload after failure refreshes request identity according to the service contract.
 - Client idempotency does not replace the server guarantee.
-- Keep the `.then` callback free of anything that can throw (see the boundary guarantee in Section 8.1); calculations belong in pure helpers.
+- Keep the `switch (result)` block free of anything that can throw (see the boundary guarantee in Section 8.1); calculations belong in pure helpers.
 
 ### 8.4 Error Message Ownership
 
@@ -3698,13 +3691,13 @@ redundant hook must preserve the needed initial reveal/focus behavior.
 Instead of repeating submit/next decisions in several UI callbacks:
 
 ```dart
-Future<void> continueFlow() {
+Future<void> continueFlow() async {
   if (state.step == IssuanceStep.confirmation) {
-    return submit();
+    await submit();
+    return;
   }
 
   nextStep();
-  return Future.value();
 }
 ```
 
@@ -3976,9 +3969,9 @@ introduced/modified code violates an applicable rule.
 14. Check the public avp_ui API first; do not invent nonexistent components.
 15. UI owns controllers/focus/scroll, Cubit owns timers; dispose/close them correctly.
 16. UI owns repeat-click/edit gating. Do not duplicate its entry preconditions in Cubit. Preserve server idempotency.
-    Async style: Future<void> methods return `useCase(...).then((result) { ... })`;
-    no async/await and no catchError/try-catch in Cubit. Handle Result with a switch
-    inside .then (Err is a value, not an exception). Repository/UseCase must convert
+    Async style: `Future<void>` methods use `async/await`;
+    no `.then` chains and no `catchError`/`try-catch` in Cubit. Handle Result with a switch
+    after `await` (Err is a value, not an exception). Repository/UseCase must convert
     all exceptions to Err. NEVER write `isClosed` anywhere (no BaseCubit/safeEmit either);
     a request-id check only for a real overlapping-response case. Do not invent an
     unexpected-exception Failure type; report it as a pending decision.
@@ -4016,10 +4009,10 @@ introduced/modified code violates an applicable rule.
     no dead methods/State fields, verb vocabulary and State naming from Section 6.6.
 30. One operation, one owner (Section 6.10). Before editing a Cubit, read the
     pishkhan-cubit-clean-code skill and list each request operation and the actions
-    that trigger it. The dependency call, the .then chain, the Success/Err switch,
+    that trigger it. The dependency call, the await expression, the Success/Err switch,
     the request-ID handling and the loading reset group exist exactly once per
     operation, in the owner action. Trigger actions emit their own input and
-    return the owner action. Never copy these blocks, and never fix duplication
+    await the owner action. Never copy these blocks, and never fix duplication
     with a function that builds or emits State.
 31. A boolean condition used two or more times becomes a private pure _canX(...)
     function that returns bool, whatever its length. A condition used once stays
@@ -4052,7 +4045,7 @@ This text is a compact summary of the mandatory contract, not an alternative to 
 - [ ] A condition used once and fitting one/two lines is a direct `copyWith` argument; longer conditions and any condition used two or more times use named calculation functions outside the action, not local eligibility aliases.
 - [ ] Operation inventory written before coding: each request operation has exactly one owner action and a list of its trigger actions (Section 6.10).
 - [ ] No dependency call (`UseCase(`, `_repository.`) appears in more than one action for the same operation.
-- [ ] `.then(` and `switch (result)` each appear once per operation.
+- [ ] `await` and `switch (result)` each appear once per operation.
 - [ ] No group of three or more identical `copyWith` fields appears in two or more actions.
 - [ ] No boolean condition appears two or more times without a `_canX(...)` helper.
 - [ ] Request-ID increment and comparison exist only in the owner action.
@@ -4068,11 +4061,11 @@ This text is a compact summary of the mandatory contract, not an alternative to 
 - [ ] Independent operations have independent statuses.
 - [ ] UI loading/eligibility gates are not repeated as Cubit entry guards; selected inputs use meaningful non-null contracts.
 - [ ] Loading is recorded before the Future starts.
-- [ ] Async methods return a `.then` chain: no `async`/`await`, no `catchError`/`try-catch`, and the chain is returned.
+- [ ] Async methods use `async/await`: no `.then` chains, no `catchError`/`try-catch` in Cubit actions.
 - [ ] There is no `isClosed` anywhere; a request-id check exists only for a real overlapping-response case.
 - [ ] Each `updateX` runs only X's validator; other fields are read from stored `isXValid` flags.
 - [ ] No `if (...) return;` guard exists in any action, no field is re-emitted with its default/current value, and every method/State field has a caller/reader in the same change.
-- [ ] The `.then` callback contains only `emit` calls and pure helper calls that cannot throw.
+- [ ] The `switch (result)` after `await` contains only `emit` calls and pure helper calls that cannot throw.
 - [ ] Retrying the same payload uses an appropriate stable key.
 - [ ] Cubit-owned timers/subscriptions are released in close.
 - [ ] Sensitive information is neither logged nor exposed in generated toString output.
@@ -4161,7 +4154,7 @@ Cubit and reports the result in its final message in one line, for example:
 `Duplication review: 3 repeated blocks found, 3 resolved (quote request →
 fetchQuote, reset group → fetchQuote, canSubmit predicate → _canSubmit)`.
 
-1. Search the Cubit for each dependency call and for `.then(`. Count occurrences
+1. Search the Cubit for each dependency call and for `await`. Count occurrences
    per operation.
 2. Search for `switch (result)`. Count occurrences per operation.
 3. Compare the `copyWith` blocks of all actions. Look for repeated groups of three
@@ -4202,8 +4195,8 @@ it catches what the agent misses.
 | setState | Some current forms keep display/error state locally | Owner instruction: display state and errors belong in State; agents cannot waive the prohibition; an impossible case is reported as blocked |
 | Fixed forms | Some forms use parallel arrays | Explicit fields like the owner's examples; no renderer or index-based dispatch |
 | Builder level | “Lowest subtree” could be read absolutely | Meaningful changing sections; higher-level grouping is allowed for readability |
-| Async style in Cubit | Section 8 baseline was `async/await`; `.then` was merely allowed | Owner decision 2026-10-17: returned `.then` chain, no `catchError`/`try-catch` in Cubit; Repository/UseCase must convert all exceptions to `Err` |
-| `isClosed` placement | One guard at the top of each `.then`/Timer callback (2026-10-17) | Removed entirely (owner decision 2026-10-18) |
+| Async style in Cubit | Earlier guidance prescribed returned `.then` chains | Owner decision 2026-10-31: baseline style is `async/await` with `switch (result)` after `await`; no `.then` chains and no `catchError`/`try-catch` in Cubit; Repository/UseCase converts all exceptions to `Err` |
+| `isClosed` placement | One guard at the top of each async/Timer callback (2026-10-17) | Removed entirely (owner decision 2026-10-18) |
 | Unexpected-exception Failure | Not defined in architecture Section 11.2 | Pending owner decision; agents must not add a Failure type on their own |
 | BaseCubit | Listed in the architecture tree (`core/cubit/base_cubit.dart`) | Removed (owner decision 2026-10-18) |
 | Field validation | Aggregate flags re-ran every validator on every change | Validate once per field; aggregates read stored `isXValid` flags |

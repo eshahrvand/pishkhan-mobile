@@ -142,7 +142,7 @@ Same check for loading emits: a field that is still at its initial value (nothin
 
 | Duplicated thing | Do | Never |
 |---|---|---|
-| Same request / `.then` / switch in several actions | Delegate to the owner action | Copy it; `_publishSuccess`; pass the switch as a callback |
+| Same request / `await` / switch in several actions | Delegate to the owner action | Copy it; `_publishSuccess`; pass the switch as a callback |
 | 3+ identical `copyWith` fields in 2+ actions | They are one operation: delegate | `_resetX()` or any function that builds/emits State |
 | Same boolean condition 2+ times (even one line) | Private pure `bool _canX(...)` | A local alias in each action |
 | Same calculation | Private pure helper returning the value | A helper that returns State |

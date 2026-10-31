@@ -994,7 +994,7 @@ an unsuccessful operation. Data reads the response status/message; the supplied
 `Err(DataFailure('auth.wrong_captcha'))`. Missing/unknown rejection codes use the
 existing generic failure. Do not display raw server text or turn this rejection
 into a DioException. Network/parse exceptions are still converted to Err in Data.
-Repository APIs retain Future<Result<T>>; Cubit retains a returned .then and a
+Repository APIs retain Future<Result<T>>; Cubit uses async/await and a
 Success/Err switch, without catchError.
 
 All request-driven flows keep independent operation statuses and one latest
@@ -1068,7 +1068,7 @@ refactors, not a claim that every existing Cubit already complies.
 * Cubit constructors accept an initial State and real entry parameters only. A Cubit resolves its registered Repository, service and UseCase dependencies from GetIt in its own fields; dependencies are not passed through Cubit constructors, screen constructors, route arguments or child widgets. Cubit/Bloc are never registered in GetIt. Do not copy the other application's models or imports. See the UI/Cubit/State contract, Section 2.2.
 * Keep defaults non-null for known values (`bool`, counters, lists and statuses). Use nullable fields when absence is meaningful. Do not copy nullable defaults mechanically from the reference.
 * Keep controllers, focus nodes and `BuildContext` in UI lifecycle owners. No global mutable feature caches. Preserve UI loading/enablement and server request identity.
-* Async Cubit actions return `Future<void>` through a returned `.then` chain; they do not use `async`/`await`, `try/catch` or `catchError`. `Err` is a value handled by a `switch` inside `.then`, and the Repository/UseCase boundary converts every exception to `Err`. No async action checks `isClosed` (Section 12.4). See the UI/Cubit/State contract, Section 8.
+* Async Cubit actions return `Future<void>` using `async/await`; they do not use `.then` chains, `try/catch` or `catchError`. `Err` is a value handled by a `switch` after `await`, and the Repository/UseCase boundary converts every exception to `Err`. No async action checks `isClosed` (Section 12.4). See the UI/Cubit/State contract, Section 8.
 * Do not log credentials, OTPs, PINs or authentication tokens. Sensitive State types retain disabled generated `toString` output.
 
 ```dart
@@ -1159,17 +1159,16 @@ Actions resolve dependencies in Cubit-owned fields (Section 12.2) and return
 their async work. They trust the UI interaction contract without duplicate entry guards. There is no BaseCubit in this project (removed 2026-10-18); do not add `safeEmit` or any other wrapper around `emit`.
 
 ```dart
-Future<void> fetchCardServiceCatalog() {
+Future<void> fetchCardServiceCatalog() async {
   emit(state.copyWith(status: RequestStatus.loading, failure: null));
 
-  return LoadCardServiceCatalog(repository)().then((result) {
-    switch (result) {
-      case Err(:final failure):
-        emit(state.copyWith(status: RequestStatus.failure, failure: failure));
-      case Success(:final data):
-        emit(state.copyWith(status: RequestStatus.success, catalog: data));
-    }
-  });
+  final result = await LoadCardServiceCatalog(repository)();
+  switch (result) {
+    case Err(:final failure):
+      emit(state.copyWith(status: RequestStatus.failure, failure: failure));
+    case Success(:final data):
+      emit(state.copyWith(status: RequestStatus.success, catalog: data));
+  }
 }
 ```
 
