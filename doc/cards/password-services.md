@@ -44,6 +44,8 @@ validation, mock KYC, and submission contracts are preserved.
 **Status:** Feature 1 implemented with a mock repository and real sample-video playback. Bank password changes, KYC capture and SMS execution are unconnected.  
 **Scope:** First-time second-password setup, forgotten second-password recovery and change-password requests share the same flow. Recovery/change add an operation selector; change asks for the current PIN and submits directly from the password form. First-PIN handling remains outside this implementation.
 
+Reviewed: 2026-11-01 — phase 4, contract v1.21.
+
 ## 1. Architectural Goals and Principles
 
 Presentation composes existing shared/package widgets. Immutable Freezed state owns selection, draft and transitions; pure PIN/serial validation lives in core/validators. Domain use cases form the repository/error boundary. The video player has no bank logic. The explicit request to simulate Phase 6 takes precedence over the recorded-video picture.
@@ -85,28 +87,28 @@ video_player is flutter.dev-published, BSD-3-Clause and supplies the actual plat
 lib/features/cards/
   domain/entities/password_data.dart         immutable summaries and request payload
   domain/repositories/password_services_repository.dart
-  domain/usecases/password_services.dart     load/status/submit exception boundaries
+  domain/usecases/password_services_usecase.dart     load/status/submit exception boundaries
   data/repositories/mock_password_repository.dart
   presentation/password_services/
     password_services.dart                   flow exports
-    cubit/second_password_cubit.dart          state, gates and async guards
+    cubit/second_password_cubit.dart          State, gates and operation owners
     cubit/second_password_state.dart          Freezed state
     screens/second_password_screen.dart       lifecycle and navigation
     widgets/                                 forms, sections and sheets
 test/cards/presentation/flows/password_services/
 lib/core/validators/second_password_validator.dart
 lib/core/router/app_routes.dart             AppRoutes.cardPasswords
-lib/core/router/app_router.dart             GoRoute, route arguments and mock repository lifetime
+lib/core/router/app_router.dart             GoRoute and typed route arguments
 lib/core/router/card_features_navigation.dart allowlisted entry
 avp_ui/lib/widgets/media/app_video_player.dart
 avp_ui/example/lib/figma_name_mapper.dart      searchable package mapping and preview
 ```
 
-Dashboard card summaries remain separate. `ServiceRegistry` forwards card-password services to the central card-password route. `createAppRouter` owns the prototype mock status repository across entries; it retains receipts only, never passwords/serials. The app-side Figma-name mapping is doc/shared-component-figma-mapping.md.
+Dashboard card summaries remain separate. `ServiceRegistry` forwards card-password services to the central card-password route. `core/di` registers the prototype mock status repository across entries; it retains receipts only, never passwords/serials. The app-side Figma-name mapping is doc/shared-component-figma-mapping.md.
 
 ## 7. Layering Pattern
 
-Screen -> Cubit -> LoadPasswordCatalog/CheckPasswordRequest/SubmitSecondPassword -> PasswordServicesRepository -> mock adapter. Domain files have no Flutter/avp_ui imports. The adapter must supply stable account IDs, eligibility, known birth/expiry PIN candidates, fees/balance, status and tracking. UI controllers are created/disposed in views, not state. Unexpected repository exceptions become coded UnexpectedFailure.
+Screen -> Cubit -> LoadPasswordCatalogUseCase/CheckPasswordRequestUseCase/SubmitSecondPasswordUseCase -> PasswordServicesRepository -> mock adapter. Domain files have no Flutter/avp_ui imports. The adapter must supply stable account IDs, eligibility, known birth/expiry PIN candidates, fees/balance, status and tracking. UI controllers are created/disposed in views, not state. Unexpected repository exceptions become coded UnexpectedFailure.
 
 ## 8. Service Flow and Request Lifecycle
 
@@ -123,13 +125,13 @@ This is a connected prototype, not the final bank ServiceFlow/resumption contrac
 
 ## 9. Security and Privacy
 
-PINs are truly obscured by the underlying TextField; visibility toggles are local UI state. Autocorrection, suggestions and IME personalized learning are disabled. Sensitive state disables Equatable stringification; payload toString is redacted. PIN, confirmation and serial are cleared after successful mock submission. Runtime introduces no financial persistence, logging or analytics.
+PINs are truly obscured by the underlying TextField; visibility toggles are fields in Freezed State with specific Cubit actions. Autocorrection, suggestions and IME personalized learning are disabled. Sensitive Freezed State disables generated toString output; payload toString is redacted. PIN, confirmation and serial are cleared after successful mock submission. Runtime introduces no financial persistence, logging or analytics.
 
 Phase 6 never opens a camera or microphone; it confirms a labeled static sample. The resulting kycReference is explicitly mock-kyc. A production adapter must reject mock evidence and receive genuine verified evidence through an agreed bank KYC contract before executing anything. Visual eligibility is not authorization.
 
 ## 10. Network and Authentication
 
-Only the sample HTTPS MP4 is streamed. The bank repository has no invented endpoint or authentication. Replace load/status/submit through an injected PasswordServicesRepository after defining the OpenAPI contract and genuine KYC orchestration. Active validation is bank/user policy; cardId supplies request context and must not be mistaken for an authoritative user-level eligibility rule. Fee/balance display is a hint; server quote/authorization remains required.
+Only the sample HTTPS MP4 is streamed. The bank repository has no invented endpoint or authentication. Replace load/status/submit through the registered PasswordServicesRepository at the DI boundary after defining the OpenAPI contract and genuine KYC orchestration. Active validation is bank/user policy; cardId supplies request context and must not be mistaken for an authoritative user-level eligibility rule. Fee/balance display is a hint; server quote/authorization remains required.
 
 ## 11. Error Handling
 
@@ -137,7 +139,13 @@ Load rejects duplicate/blank IDs and negative monetary values. Err and thrown ex
 
 ## 12. State Management and Validation
 
-Statuses: initial/loading/ready/checking/submitting/failed/empty/submitted. Steps: selection/password/serial/instruction/recording. Outer builds track structural state; fields/rules/footer use limited Bloc rebuilds and controllers stay view-owned. Generation counters reject stale load/status/submit completions and completions after close. Checking/submitting lock edits and Back. Status is set before awaiting, preventing duplicate sends.
+Independent catalogStatus, existingRequestStatus and submissionStatus use the
+shared RequestStatus initial/loading/success/failure enum. Steps remain
+selection/password/serial/instruction/recording; data/empty/receipt outcomes are
+separate State fields. There are no generation/disposal guards or effect counters.
+UI loading/enabled controls gate duplicate taps, edits and Back. Cubit publishes
+loading before awaiting but does not repeat those UI preconditions. Each request
+has one owner and one async/await Result switch.
 
 PIN rules: 4–6 Latin digits, no whole ascending/descending sequence (including wraparound), no repeated digit/block pattern, and no exact match in adapter-provided known-date candidates. This does not infer a birth date. A production bank validator must provide authoritative rules and date candidates. Persian/Arabic digits normalize before validation. Confirmation must match; edits clear consent. Errors appear on focus loss; indicators update immediately.
 
@@ -196,7 +204,7 @@ Figma `27997:12254` is the empty operation selector, `27997:12269` its two-optio
 
 `PasswordOperation` contains setSecondPassword, changePassword and forgotPassword. The recovery selector offers Change password and Forgot password, as authored. Forgot password follows the existing serial/video/mock KYC steps. Change password uses the current/new/confirmation form and submits directly from that step (see the change-password section below). The operation is required before Next and is passed to both status reads and `SetSecondPasswordRequest.operation`. Existing payload constructors and status calls default to setup. Repository adapters must accept the optional named operation on `status` and dispatch the submission using its operation.
 
-Card adapters supply `canSetSecondPassword` for first-time setup and `canResetSecondPassword` for recovery/change (the demo defaults to true). Existing PIN ownership alone cannot prevent recovery. Card/kind changes clear operation selection; operation changes clear credentials, terms, recording confirmation, status/failure and the idempotency key. Busy state prevents operation changes. Mock status is scoped to card and operation; neither credentials nor video are retained. Approved/pending receipts remain readable before eligibility and wallet checks, as in setup.
+Card adapters supply `canSetSecondPassword` for first-time setup and `canResetSecondPassword` for recovery/change (the demo defaults to true). Existing PIN ownership alone cannot prevent recovery. Card/kind changes clear operation selection; operation changes use the explicit existing State.initial reset to clear credentials, terms, recording confirmation, latest error and retry identity while preserving the listed catalog/flow context and operation statuses. Busy state prevents operation changes. Mock status is scoped to card and operation; neither credentials nor video are retained. Approved/pending receipts remain readable before eligibility and wallet checks, as in setup.
 
 The operation field begins at y434 and is 70px tall, with an 8px label gap, 44px input and 20px spacing. Its sheet begins at y552 in a 375×812 view with 24/40px system insets. Chevron/divider artwork is byte-identical to existing assets; the authored operation-sheet scrim is stored as password_operation_scrim.svg and combined with the shared native blur. These three selection states use the white Figma surface. The two “Operation type” labels reproduce the provided frames. Next is disabled until operation selection, even though the empty design depicts a blue button. The sheet design shows a partially obscured legacy fee while its operation is empty; the implementation consistently shows the shared invoice only after a valid operation selection.
 
@@ -222,7 +230,7 @@ The shared operation selector now connects to a complete Change password branch.
 
 The change selection omits the fee invoice and wallet gate, matching 27997:11844. Change uses card reset eligibility and the same request-status read before starting. The white form begins at y104; current PIN/new PIN/confirmation inputs start at y144/y228/y292, each44px tall, with the existing zero-height dashed divider after current PIN. All three are secure fields with independently controlled visibility, Latin numeric values, Persian/Arabic normalization, max6 digits, disabled keyboard suggestions/autocorrection/personalized learning. Current PIN needs4–6 digits; the new PIN also satisfies existing sequence/repetition/known-date rules. Current input changes clear terms and retry identity. The filled+accepted form labels its primary action Submit request. There is no serial or instructional/recording video stage for change in this supplied sequence.
 
-`SetSecondPasswordRequest.currentPassword` is optional for other operations and required for change. Change sends empty serial and KYC-reference strings with its operation; production adapters must route this to their actual change-password endpoint. Both PINs remain ephemeral and redacted from diagnostics and are cleared after success. The mock checks current PIN format only: it does not compare against a bank PIN, send SMS or change credentials. It retains only the card/operation status and receipt. Retry/duplicate-send/disposal guards remain shared.
+`SetSecondPasswordRequest.currentPassword` is optional for other operations and required for change. Change sends empty serial and KYC-reference strings with its operation; production adapters must route this to their actual change-password endpoint. Both PINs remain ephemeral and redacted from diagnostics and are cleared after success. The mock checks current PIN format only: it does not compare against a bank PIN, send SMS or change credentials. It retains only the card/operation status and receipt. Retry identity remains shared; UI owns duplicate-send/edit gating and no disposal guard exists.
 
 Newly submitted change requests show the authored success bottom sheet (57.0045×59.9961 badge; y476 badge in a375×812 viewport), localized change-success body and tracking code. Dismissal exits. A later status read for the selected change operation renders `PasswordStatusContent` in the existing screen, with no bottom sheet. Pending uses the authored registration/pending-SMS copy; approved uses change-success copy. It has a95.0099×99.9961 original badge at y124,40px gap to title,20px content gaps, subtle44px tracking row and footer Understood. Back/Understood exit to the parent. Selecting the operation on a returning route is still required; a selected Dashboard card is normalized and prefilled as before.
 
@@ -232,7 +240,25 @@ Static current-field eye/check/divider and sheet badge SVGs are byte-identical t
 
 ## Cubit/State coding convention
 
-Follow [architecture Section 12](../architecture-smart-virtual-counter-v2-en.md#12-state-management-with-cubit) for new work and refactors. State is a plain Freezed data class with defaults and independent request statuses. Cubits accept an initial State, compute UI data and eligibility, and emit immutable snapshots through `copyWith`. UI reads those fields directly; no custom State/Cubit getters or UI-facing rules facade is used. Dependencies remain injectable and lifecycle/duplicate-request safeguards stay in place.
+Follow the authoritative [UI/Cubit/State contract v1.21](../ui-cubit-state-agent-rules-en.md)
+and [clean-code skill](../../.agents/skills/pishkhan-cubit-clean-code/SKILL.md).
+Keep the plain Freezed `State.initial` / `part of` structure and independent
+operation statuses. Cubit owns requests, form calculations and modal-result
+interpretation, with explicit copyWith/emit and async/await followed by Result
+switches. Each operation has one owner. No `.then`, isClosed, defensive action
+entry checks or State publication helpers are introduced.
+
+GetIt registers dependencies, never Cubits. Existing UseCases have the `UseCase`
+class suffix and `_usecase.dart` filename suffix, are wired in core/di and are
+resolved once in final Cubit fields. Provider.create directly constructs Cubit
+and calls its real fetch action. UI/router do not forward data dependencies.
+
+Screen-level MultiBlocListener groups independent request feedback, effects,
+navigation and completion. BlocBuilder renders; coherent local controller/modal
+Consumers remain at their resource owner. Each entering-failure listener displays
+the prepared text from that snapshot; effect handlers never gate on retained
+message presence. Failure/message may remain after recovery. Existing success
+behavior, Back gates, typed payloads and command consumption are preserved.
 
 ## Bottom-sheet transition update
 
@@ -240,3 +266,39 @@ Card and password sheets now use the shared AppServiceSheetRoute. The dim layer
 belongs to the stationary modal barrier; only the content panel slides from the
 bottom. The original dark color, panel styling, safe-area spacing and modal
 results are retained. Outside taps and system Back use the route dismissal path.
+
+## Phase-4 flow review
+
+| Operation | Owner | Trigger |
+|---|---|---|
+| Catalog | `fetchCatalog` | Provider entry; failed/empty catalog Retry |
+| Existing request | `_fetchExistingRequest` | Selection branch of `submitCurrentStep`; retry |
+| Password submit | `_submitPassword` | Change-password form or setup/recovery recording branch; retry |
+
+The three existing UseCases are named LoadPasswordCatalogUseCase,
+CheckPasswordRequestUseCase and SubmitSecondPasswordUseCase. They live together
+in `password_services_usecase.dart`, are wired/registered in DI and resolved into
+final Cubit fields. No Repository is passed from Cubit to their constructors.
+
+| Step | State read / retained | Next / lifetime |
+|---|---|---|
+| Selection | catalog/card/kind/type/operation and eligibility | Card/kind/operation changes are real subform resets through State.initial |
+| Existing status | status and returned record | Existing receipts stay readable before new-request eligibility/wallet gates; change uses status page, other operations use sheet |
+| Password | current/new/confirmation, stored rule flags, visibility, consent, primaryAction | Edits atomically invalidate consent/form eligibility and recording approval; raw input validates once |
+| Serial/instruction/recording | normalized serial/validity, explicit mock confirmation | Back retains values; visibility/errors reset on defined reentry boundaries |
+| Submit/retry | exact payload fields, operation, key and submissionStatus | Failure retains PIN/serial/key; actual payload changes invalidate key |
+| Successful record | record/effect and cleared sensitive fields | Receipt opens while Cubit is still alive; onSubmitted runs once; dismissal requests home |
+| Exit confirmation | typed effect plus existing form | Cancel/dismiss preserves input; authorized exit effect stays until pop |
+
+Three PIN input actions no longer publish a second terms/eligibility emit.
+Successful submission retains the existing immediate credential purge (new/current
+PIN, confirmation and serial) with its corresponding validity/consent/visibility
+reset. This is the established security boundary while the live flow publishes
+and displays its record, not cleanup added to home navigation or close. Setup,
+forgot and change retain their original payloads and mock KYC rules.
+
+The screen has four independent listeners (three entering-failure subscriptions
+and typed effects) under MultiBlocListener with BlocBuilder rendering. Local
+scroll/controller consumers remain local. Removed 34 blanket failure/message
+clears; actual State.initial subform resets and secret clearing remain unchanged.
+See [phase-4 verification](phase-4-review.md).

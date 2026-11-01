@@ -31,16 +31,15 @@ class ChangeCardDepositScreen extends StatefulWidget {
 }
 
 class _ChangeCardDepositScreenState extends State<ChangeCardDepositScreen> {
+  void _showRequestFailure(BuildContext context, ChangeCardDepositState state) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(state.message!)));
+  }
+
   Future<void> _handleNavigation(
     BuildContext context,
     ChangeCardDepositState state,
   ) async {
-    if (state.message != null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(state.message!)));
-      return;
-    }
-
     switch (state.navigation) {
       case FlowNavigation.confirmExit:
         context
@@ -70,24 +69,38 @@ class _ChangeCardDepositScreenState extends State<ChangeCardDepositScreen> {
       create: (_) =>
           ChangeCardDepositCubit(initialCardNumber: widget.initialCardNumber)
             ..fetchCatalog(),
-      child: BlocListener<ChangeCardDepositCubit, ChangeCardDepositState>(
-        listenWhen: (previous, current) =>
-            (previous.navigation != current.navigation &&
-                current.navigation != null) ||
-            ((previous.catalogStatus != current.catalogStatus &&
-                    current.catalogStatus == RequestStatus.failure) ||
-                (previous.submissionStatus != current.submissionStatus &&
-                    current.submissionStatus == RequestStatus.failure)),
-        listener: _handleNavigation,
-        child: Directionality(
-          textDirection: TextDirection.rtl,
-          child: BlocConsumer<ChangeCardDepositCubit, ChangeCardDepositState>(
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<ChangeCardDepositCubit, ChangeCardDepositState>(
+            listenWhen: (previous, current) =>
+                previous.catalogStatus != current.catalogStatus &&
+                current.catalogStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<ChangeCardDepositCubit, ChangeCardDepositState>(
+            listenWhen: (previous, current) =>
+                previous.submissionStatus != current.submissionStatus &&
+                current.submissionStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<ChangeCardDepositCubit, ChangeCardDepositState>(
+            listenWhen: (previous, current) =>
+                previous.navigation != current.navigation &&
+                current.navigation != null,
+            listener: _handleNavigation,
+          ),
+          BlocListener<ChangeCardDepositCubit, ChangeCardDepositState>(
             listenWhen: (previous, current) =>
                 previous.submissionStatus != current.submissionStatus &&
                 current.submissionStatus == RequestStatus.success,
             listener: (context, state) {
               widget.onCompleted?.call(state.receipt!);
             },
+          ),
+        ],
+        child: Directionality(
+          textDirection: TextDirection.rtl,
+          child: BlocBuilder<ChangeCardDepositCubit, ChangeCardDepositState>(
             builder: (context, state) {
               return PopScope(
                 canPop:

@@ -67,16 +67,15 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
     super.dispose();
   }
 
+  void _showRequestFailure(BuildContext context, SecondPasswordState state) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(state.message!)));
+  }
+
   Future<void> _handleEffect(
     BuildContext context,
     SecondPasswordState state,
   ) async {
-    if (state.message != null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(state.message!)));
-      return;
-    }
-
     switch (state.effect) {
       case PasswordUnsupportedRequested():
         context.read<SecondPasswordCubit>().consumeSecondPasswordInteraction();
@@ -126,18 +125,33 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
       )..fetchCatalog(),
       child: Directionality(
         textDirection: TextDirection.rtl,
-        child: BlocListener<SecondPasswordCubit, SecondPasswordState>(
-          listenWhen: (previous, current) =>
-              (previous.effect != current.effect &&
-                  current.effect != null) ||
-              ((previous.catalogStatus != current.catalogStatus &&
-                      current.catalogStatus == RequestStatus.failure) ||
-                  (previous.existingRequestStatus !=
-                          current.existingRequestStatus &&
-                      current.existingRequestStatus == RequestStatus.failure) ||
-                  (previous.submissionStatus != current.submissionStatus &&
-                      current.submissionStatus == RequestStatus.failure)),
-          listener: _handleEffect,
+        child: MultiBlocListener(
+          listeners: [
+            BlocListener<SecondPasswordCubit, SecondPasswordState>(
+              listenWhen: (previous, current) =>
+                  previous.catalogStatus != current.catalogStatus &&
+                  current.catalogStatus == RequestStatus.failure,
+              listener: _showRequestFailure,
+            ),
+            BlocListener<SecondPasswordCubit, SecondPasswordState>(
+              listenWhen: (previous, current) =>
+                  previous.existingRequestStatus !=
+                      current.existingRequestStatus &&
+                  current.existingRequestStatus == RequestStatus.failure,
+              listener: _showRequestFailure,
+            ),
+            BlocListener<SecondPasswordCubit, SecondPasswordState>(
+              listenWhen: (previous, current) =>
+                  previous.submissionStatus != current.submissionStatus &&
+                  current.submissionStatus == RequestStatus.failure,
+              listener: _showRequestFailure,
+            ),
+            BlocListener<SecondPasswordCubit, SecondPasswordState>(
+              listenWhen: (previous, current) =>
+                  previous.effect != current.effect && current.effect != null,
+              listener: _handleEffect,
+            ),
+          ],
           child: BlocBuilder<SecondPasswordCubit, SecondPasswordState>(
             builder: (context, state) {
               return PopScope<void>(

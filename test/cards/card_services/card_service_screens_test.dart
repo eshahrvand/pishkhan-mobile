@@ -1,3 +1,6 @@
+import 'package:pishkhan_mobile/core/presentation/mappers/request_error_message_mapper.dart';
+import 'package:pishkhan_mobile/core/result/failure.dart';
+
 import 'dart:async';
 import 'dart:io';
 import 'dart:ui' as ui;
@@ -115,20 +118,10 @@ void main() {
     await t.pumpAndSettle();
   }
 
-  ChangeCardDepositCubit changeCubit(WidgetTester t) => t
-      .element(
-        find.byType(
-          BlocConsumer<ChangeCardDepositCubit, ChangeCardDepositState>,
-        ),
-      )
-      .read<ChangeCardDepositCubit>();
-  ExpiredGiftBalanceCubit giftCubit(WidgetTester t) => t
-      .element(
-        find.byType(
-          BlocConsumer<ExpiredGiftBalanceCubit, ExpiredGiftBalanceState>,
-        ),
-      )
-      .read<ExpiredGiftBalanceCubit>();
+  ChangeCardDepositCubit changeCubit(WidgetTester t) =>
+      t.element(find.byType(AppTopBar)).read<ChangeCardDepositCubit>();
+  ExpiredGiftBalanceCubit giftCubit(WidgetTester t) =>
+      t.element(find.byType(AppTopBar)).read<ExpiredGiftBalanceCubit>();
 
   testWidgets(
     'change deposit follows empty, card selected, and complete forms',
@@ -639,4 +632,91 @@ void main() {
       expect(cubit.isClosed, isTrue);
     },
   );
+  for (final gift in [false, true]) {
+    testWidgets(
+      '${gift ? 'gift' : 'deposit'} repeats errors, opens its interaction and completes retry once',
+      (t) async {
+        const failure = DataFailure('offline');
+        final repository = TestCardServicesRepository()..failSubmit = true;
+        var completions = 0;
+        await mount(
+          t,
+          gift
+              ? ExpiredGiftBalanceScreen(onCompleted: (_) => completions++)
+              : ChangeCardDepositScreen(onCompleted: (_) => completions++),
+          repository: repository,
+        );
+        Future<void> submit() async {
+          if (gift) {
+            await giftCubit(t).submitCurrentStep();
+          } else {
+            await changeCubit(t).submitDepositChange();
+          }
+          await t.pumpAndSettle();
+        }
+
+        Future<void> dismissMessage() async {
+          t
+              .state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger))
+              .clearSnackBars();
+          await t.pumpAndSettle();
+        }
+
+        if (gift) {
+          final cubit = giftCubit(t);
+          cubit.toggleCard(cubit.state.visibleCards.first);
+          cubit.requestReview(advance: true);
+          await t.pumpAndSettle();
+          await t.tap(button(S.current.backLabel));
+          await t.pumpAndSettle();
+          cubit.selectDestination(cubit.state.catalog!.deposits.last);
+          cubit.updateTermsAcceptance(true);
+        } else {
+          final cubit = changeCubit(t);
+          cubit.selectCard(cubit.state.catalog!.cards.first);
+          cubit.selectDestination(cubit.state.destinations.first);
+          cubit.updateTermsAcceptance(true);
+        }
+        final message = getRequestErrorMessage(failure);
+        await submit();
+        expect(find.text(message), findsOneWidget);
+        await dismissMessage();
+        if (gift) {
+          giftCubit(t).requestReview();
+          await t.pumpAndSettle();
+          expect(find.byType(GiftBalanceReviewSheet), findsOneWidget);
+          expect(find.text(message), findsNothing);
+          await t.binding.handlePopRoute();
+        } else {
+          changeCubit(t).requestBack();
+          await t.pumpAndSettle();
+          expect(find.byType(AlertDialog), findsOneWidget);
+          expect(find.text(message), findsNothing);
+          await t.tap(button(S.current.passwordStay));
+        }
+        await t.pumpAndSettle();
+        await submit();
+        expect(find.text(message), findsOneWidget);
+        await dismissMessage();
+        repository.failSubmit = false;
+        await submit();
+        expect(completions, 1);
+        expect(find.text(message), findsNothing);
+        if (gift) {
+          expect(
+            repository.transfers.map((r) => r.idempotencyKey).toSet(),
+            hasLength(1),
+          );
+          expect(giftCubit(t).state.message, message);
+        } else {
+          expect(
+            repository.changes.map((r) => r.idempotencyKey).toSet(),
+            hasLength(1),
+          );
+          expect(changeCubit(t).state.message, message);
+        }
+        expect(t.takeException(), isNull);
+      },
+    );
+  }
 }

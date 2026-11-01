@@ -1,3 +1,6 @@
+import 'package:pishkhan_mobile/core/result/failure.dart';
+import 'package:pishkhan_mobile/core/presentation/mappers/request_error_message_mapper.dart';
+
 import 'dart:async';
 
 import 'package:pishkhan_mobile/core/result/result.dart';
@@ -792,4 +795,78 @@ void main() {
       false,
     );
   });
+  testWidgets(
+    'password retries repeated failures and opens unsupported and receipt effects with retained error',
+    (t) async {
+      const failure = DataFailure('network.offline');
+      final repository = ControlledPasswordRepository()
+        ..statusFailure = failure;
+      var completions = 0;
+      await usePasswordRepository(repository);
+      await t.pumpWidget(
+        subject(
+          SecondPasswordScreen(
+            selectOperation: true,
+            instructionVideoUrl: null,
+            onSubmitted: (_) => completions++,
+          ),
+        ),
+      );
+      await t.pumpAndSettle();
+      final cubit = c(t);
+      select(cubit);
+      cubit.selectOperationType(PasswordOperation.changePassword);
+      final message = getRequestErrorMessage(failure);
+      Future<void> dismissMessage() async {
+        t
+            .state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger))
+            .clearSnackBars();
+        await t.pumpAndSettle();
+      }
+
+      for (var i = 0; i < 2; i++) {
+        await cubit.submitCurrentStep();
+        await t.pumpAndSettle();
+        expect(find.text(message), findsOneWidget);
+        await dismissMessage();
+      }
+      cubit.selectPasswordType(PasswordType.first);
+      await t.pumpAndSettle();
+      expect(find.text(S.current.passwordUnsupported), findsOneWidget);
+      expect(find.text(message), findsNothing);
+      await dismissMessage();
+      repository.statusFailure = null;
+      await cubit.submitCurrentStep();
+      await t.pumpAndSettle();
+      expect(cubit.state.step, SecondPasswordStep.password);
+      expect(cubit.state.message, message);
+      expect(find.text(message), findsNothing);
+      cubit.updateCurrentPassword('1234');
+      cubit.updatePassword('829164');
+      cubit.updateConfirmation('829164');
+      cubit.updateTermsAcceptance(true);
+      repository.submitFailure = failure;
+      for (var i = 0; i < 2; i++) {
+        await cubit.submitCurrentStep();
+        await t.pumpAndSettle();
+        expect(find.text(message), findsOneWidget);
+        await dismissMessage();
+      }
+      repository.submitFailure = null;
+      await cubit.submitCurrentStep();
+      await t.pumpAndSettle();
+      expect(completions, 1);
+      expect(cubit.state.record, isNotNull);
+      expect(cubit.state.password, isEmpty);
+      expect(cubit.state.currentPassword, isEmpty);
+      expect(
+        repository.requests.map((r) => r.idempotencyKey).toSet(),
+        hasLength(1),
+      );
+      expect(find.text(message), findsNothing);
+      expect(t.takeException(), isNull);
+      await t.binding.handlePopRoute();
+      await t.pumpAndSettle();
+    },
+  );
 }

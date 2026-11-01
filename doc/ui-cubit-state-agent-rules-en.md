@@ -1,7 +1,7 @@
 # UI, Cubit and State Coding Contract for the Team and Agents
 
 **Project:** Smart Virtual Counter — `pishkhan_mobile`  
-**Version:** 1.21 — Independent listeners and rendering boundaries<br>
+**Version:** 1.22 — Scoped flow verification<br>
 **Date:** 2026-11-01<br>
 **Scope:** Presentation coding style, State management and readability rules  
 **Status:** Authoritative coding contract. Historical examples do not override the mandatory ownership rules or the owner amendments below. Implementation status is recorded in the feature documentation.
@@ -33,6 +33,16 @@ Cubit submission/edit guards throughout this document and architecture Section 1
 
 Actual behavior remains explicit: form validation, choosing a step/action, Apply versus Cancel and optional entry-data resolution are calculations/flow decisions. Server authorization/idempotency remains at its existing boundary. There is no async disposal check of any kind (owner decision 2026-10-18; Section 8.3). A modal may directly bind its Confirm button to a Cubit
 action; Cancel and dismissal simply close it without invoking that action.
+
+## Mandatory Owner Update, 2026-11-01: Scoped Test Execution
+
+Run tests for the changed flow(s) and directly related consumers/dependencies.
+Choose the relevant regression files for a shared change. Do not run the complete
+application test suite or unscoped `flutter test` unless the owner explicitly
+requests it. This supersedes broader automatic migration/verification plans;
+historical full-suite results do not authorize another full run. Report the
+actual scoped command and result. Relevant analysis and the mandatory style,
+duplication and flow reviews still apply.
 
 ## Mandatory Owner Amendment, 2026-11-01: Status-Driven Notifications
 
@@ -4443,6 +4453,10 @@ These numbers refer to the supplementary review list in the conversation, not th
 Open item 7 does not permit array-driven fixed forms or index-based field actions; item 2 explicitly prohibits them. Acceptance of empty button callbacks under item 10 does not permit empty Listeners or fabricated APIs. These are separate concerns.
 
 ### 25.2 Consolidation Status
+
+Version 1.22 (2026-11-01) records the owner's test-scope instruction: changed
+flows and directly related regressions only; complete application tests require
+an explicit owner request. Previous full-suite results remain historical.
 
 Version 1.21 (2026-11-01) records the owner-approved listener composition:
 independent screen/flow listeners share MultiBlocListener and rendering uses

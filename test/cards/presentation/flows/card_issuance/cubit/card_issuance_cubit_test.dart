@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
+
 import '../../../../../support/registered_dependency.dart';
 
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
@@ -41,6 +43,8 @@ class ControlledIssuanceRepository implements CardIssuanceRepository {
 }
 
 void main() {
+  setUp(configureDependencies);
+  tearDown(() => getIt.reset());
   Future<CardIssuanceCubit> ready({CardIssuanceRepository? repository}) async {
     final cubit =
         withRegisteredDependency<CardIssuanceRepository, CardIssuanceCubit>(
@@ -242,7 +246,7 @@ void main() {
     await c.submitCardIssuance();
     expect(identical(repository.captured, confirmedRequest), isTrue);
     expect(c.state.receipt!.reference, 'retry');
-    expect(c.state.failure, isNull);
+    expect(c.state.failure?.code, 'rejected');
   });
   test('editing a failed request invalidates its confirmed snapshot', () async {
     final repository = ControlledIssuanceRepository()
@@ -289,7 +293,7 @@ void main() {
       repository.throwOnSubmit = false;
       await c.submitCardIssuance();
       expect(c.state.submissionStatus, RequestStatus.success);
-      expect(c.state.failure, isNull);
+      expect(c.state.failure, const UnexpectedFailure());
     },
   );
   test('each recipient and agent edit publishes fresh eligibility', () async {

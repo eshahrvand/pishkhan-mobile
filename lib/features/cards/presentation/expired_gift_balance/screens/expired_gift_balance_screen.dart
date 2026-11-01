@@ -32,6 +32,14 @@ class ExpiredGiftBalanceScreen extends StatefulWidget {
 }
 
 class _ExpiredGiftBalanceScreenState extends State<ExpiredGiftBalanceScreen> {
+  void _showRequestFailure(
+    BuildContext context,
+    ExpiredGiftBalanceState state,
+  ) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(state.message!)));
+  }
+
   Future<void> _handleNavigation(
     BuildContext context,
     ExpiredGiftBalanceState state,
@@ -63,12 +71,6 @@ class _ExpiredGiftBalanceScreenState extends State<ExpiredGiftBalanceScreen> {
     BuildContext context,
     ExpiredGiftBalanceState state,
   ) async {
-    if (state.message != null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(state.message!)));
-      return;
-    }
-
     switch (state.effect) {
       case GiftBalanceEffect.filter:
         context
@@ -105,30 +107,39 @@ class _ExpiredGiftBalanceScreenState extends State<ExpiredGiftBalanceScreen> {
         listeners: [
           BlocListener<ExpiredGiftBalanceCubit, ExpiredGiftBalanceState>(
             listenWhen: (previous, current) =>
-                (previous.navigation != current.navigation &&
-                current.navigation != null),
+                previous.catalogStatus != current.catalogStatus &&
+                current.catalogStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<ExpiredGiftBalanceCubit, ExpiredGiftBalanceState>(
+            listenWhen: (previous, current) =>
+                previous.submissionStatus != current.submissionStatus &&
+                current.submissionStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<ExpiredGiftBalanceCubit, ExpiredGiftBalanceState>(
+            listenWhen: (previous, current) =>
+                previous.navigation != current.navigation &&
+                current.navigation != null,
             listener: _handleNavigation,
           ),
           BlocListener<ExpiredGiftBalanceCubit, ExpiredGiftBalanceState>(
             listenWhen: (previous, current) =>
-                (previous.effect != current.effect &&
-                    current.effect != null) ||
-                ((previous.catalogStatus != current.catalogStatus &&
-                        current.catalogStatus == RequestStatus.failure) ||
-                    (previous.submissionStatus != current.submissionStatus &&
-                        current.submissionStatus == RequestStatus.failure)),
+                previous.effect != current.effect && current.effect != null,
             listener: _handleEffect,
           ),
-        ],
-        child: Directionality(
-          textDirection: TextDirection.rtl,
-          child: BlocConsumer<ExpiredGiftBalanceCubit, ExpiredGiftBalanceState>(
+          BlocListener<ExpiredGiftBalanceCubit, ExpiredGiftBalanceState>(
             listenWhen: (previous, current) =>
                 previous.submissionStatus != current.submissionStatus &&
                 current.submissionStatus == RequestStatus.success,
             listener: (context, state) {
               widget.onCompleted?.call(state.receipt!);
             },
+          ),
+        ],
+        child: Directionality(
+          textDirection: TextDirection.rtl,
+          child: BlocBuilder<ExpiredGiftBalanceCubit, ExpiredGiftBalanceState>(
             builder: (context, state) {
               return PopScope(
                 canPop:

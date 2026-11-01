@@ -12,7 +12,7 @@ import 'package:pishkhan_mobile/core/result/result.dart';
 
 import '../../../domain/entities/card_service_data.dart';
 import '../../../domain/repositories/card_services_repository.dart';
-import '../../../domain/usecases/card_services.dart';
+import '../../../domain/usecases/card_services_usecase.dart';
 import '../models/gift_balance_deposit_filter.dart';
 
 export 'package:pishkhan_mobile/core/flow/flow_navigation.dart';
@@ -26,56 +26,44 @@ class ExpiredGiftBalanceCubit extends Cubit<ExpiredGiftBalanceState> {
         const ExpiredGiftBalanceState.initial(),
   }) : super(initialState);
 
+  final loadCardServiceCatalogUseCase = getIt<LoadCardServiceCatalogUseCase>();
   final _repository = getIt<CardServicesRepository>();
   String? _idempotencyKey;
 
-  Future<void> fetchCatalog() {
-    emit(
-      state.copyWith(
-        catalogStatus: RequestStatus.loading,
-        failure: null,
-        message: null,
-      ),
-    );
-    return LoadCardServiceCatalog(_repository)().then((result) {
-      switch (result) {
-        case Err(:final failure):
-          emit(
-            state.copyWith(
-              catalogStatus: RequestStatus.failure,
-              failure: failure,
-              message: getRequestErrorMessage(failure),
+  Future<void> fetchCatalog() async {
+    emit(state.copyWith(catalogStatus: RequestStatus.loading));
+    final result = await loadCardServiceCatalogUseCase();
+    switch (result) {
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            catalogStatus: RequestStatus.failure,
+            failure: failure,
+            message: getRequestErrorMessage(failure),
+          ),
+        );
+      case Success(:final data):
+        emit(
+          state.copyWith(
+            catalogStatus: RequestStatus.success,
+            catalog: data,
+            visibleCards: _filterGiftCards(
+              data,
+              state.activeFilter,
+              state.query,
             ),
-          );
-        case Success(:final data):
-          final depositsById = {
-            for (final deposit in data.deposits) deposit.id: deposit,
-          };
-          emit(
-            state.copyWith(
-              catalogStatus: RequestStatus.success,
-              catalog: data,
-              visibleCards: _filterGiftCards(
-                data,
-                state.activeFilter,
-                state.query,
-              ),
-              depositsByGiftId: {
-                for (final gift in data.gifts)
-                  gift.id: depositsById[gift.depositId]!,
-              },
-              filterOptions: [
-                const GiftBalanceDepositFilter.all(),
-                for (final deposit in data.deposits)
-                  GiftBalanceDepositFilter.forDeposit(deposit),
-              ],
-              isFilterAvailable: data.deposits.length >= 2,
-              isCatalogEmpty: data.gifts.isEmpty || data.deposits.isEmpty,
-              isEditable: true,
-            ),
-          );
-      }
-    });
+            depositsByGiftId: _depositsByGiftId(data),
+            filterOptions: [
+              const GiftBalanceDepositFilter.all(),
+              for (final deposit in data.deposits)
+                GiftBalanceDepositFilter.forDeposit(deposit),
+            ],
+            isFilterAvailable: data.deposits.length >= 2,
+            isCatalogEmpty: data.gifts.isEmpty || data.deposits.isEmpty,
+            isEditable: true,
+          ),
+        );
+    }
   }
 
   void updateSearchQuery(String query) {
@@ -95,7 +83,18 @@ class ExpiredGiftBalanceCubit extends Cubit<ExpiredGiftBalanceState> {
         : state.catalog!.gifts
               .where((gift) => gift == card || _isCardSelected(gift))
               .toList();
-    _selectGiftCards(selected);
+    _idempotencyKey = null;
+    emit(
+      state.copyWith(
+        selectedCards: selected,
+        totalRial: _totalBalance(selected),
+        isAllVisibleSelected: _allVisibleSelected(state.visibleCards, selected),
+        canContinue: _canEditSelection(selected),
+        canReviewSelection: _canEditSelection(selected),
+        termsAccepted: false,
+        submissionStatus: RequestStatus.initial,
+      ),
+    );
   }
 
   void selectAllVisible(bool selected) {
@@ -106,10 +105,6 @@ class ExpiredGiftBalanceCubit extends Cubit<ExpiredGiftBalanceState> {
               : _isCardSelected(card) && !state.visibleCards.contains(card),
         )
         .toList();
-    _selectGiftCards(cards);
-  }
-
-  void _selectGiftCards(List<ExpiredGiftCard> cards) {
     _idempotencyKey = null;
     emit(
       state.copyWith(
@@ -120,8 +115,6 @@ class ExpiredGiftBalanceCubit extends Cubit<ExpiredGiftBalanceState> {
         canReviewSelection: _canEditSelection(cards),
         termsAccepted: false,
         submissionStatus: RequestStatus.initial,
-        failure: null,
-        message: null,
       ),
     );
   }
@@ -134,7 +127,6 @@ class ExpiredGiftBalanceCubit extends Cubit<ExpiredGiftBalanceState> {
         canContinue: false,
         canReviewSelection: false,
         effect: GiftBalanceEffect.filter,
-        message: null,
       ),
     );
   }
@@ -183,7 +175,6 @@ class ExpiredGiftBalanceCubit extends Cubit<ExpiredGiftBalanceState> {
         canReviewSelection: false,
         effect: GiftBalanceEffect.review,
         advanceAfterReview: advance,
-        message: null,
       ),
     );
   }
@@ -192,7 +183,18 @@ class ExpiredGiftBalanceCubit extends Cubit<ExpiredGiftBalanceState> {
     final selected = state.selectedCards
         .where((selected) => selected != card)
         .toList();
-    _selectGiftCards(selected);
+    _idempotencyKey = null;
+    emit(
+      state.copyWith(
+        selectedCards: selected,
+        totalRial: _totalBalance(selected),
+        isAllVisibleSelected: _allVisibleSelected(state.visibleCards, selected),
+        canContinue: _canEditSelection(selected),
+        canReviewSelection: _canEditSelection(selected),
+        termsAccepted: false,
+        submissionStatus: RequestStatus.initial,
+      ),
+    );
   }
 
   void applyReviewResult(bool? proceed) {
@@ -216,8 +218,6 @@ class ExpiredGiftBalanceCubit extends Cubit<ExpiredGiftBalanceState> {
         termsAccepted: false,
         canContinue: false,
         submissionStatus: RequestStatus.initial,
-        failure: null,
-        message: null,
       ),
     );
   }
@@ -234,17 +234,18 @@ class ExpiredGiftBalanceCubit extends Cubit<ExpiredGiftBalanceState> {
     );
   }
 
-  Future<void> submitCurrentStep() {
+  Future<void> submitCurrentStep() async {
     switch (state.step) {
       case GiftBalanceStep.selection:
         requestReview(advance: true);
-        return Future.value();
+        return;
       case GiftBalanceStep.destination:
-        return _submitTransfer();
+        await _submitTransfer();
+        return;
     }
   }
 
-  Future<void> _submitTransfer() {
+  Future<void> _submitTransfer() async {
     _idempotencyKey ??= List.generate(
       16,
       (_) => Random.secure().nextInt(256).toRadixString(16).padLeft(2, '0'),
@@ -260,33 +261,31 @@ class ExpiredGiftBalanceCubit extends Cubit<ExpiredGiftBalanceState> {
         isEditable: false,
         canContinue: false,
         canReviewSelection: false,
-        failure: null,
-        message: null,
       ),
     );
-    return cardServiceBoundary(() => _repository.transferGiftBalance(request))
-        .then((result) {
-          switch (result) {
-            case Err(:final failure):
-              emit(
-                state.copyWith(
-                  submissionStatus: RequestStatus.failure,
-                  isEditable: true,
-                  canReviewSelection: _hasSelection(),
-                  canContinue: _canContinueAtStep(state.step),
-                  failure: failure,
-                  message: getRequestErrorMessage(failure),
-                ),
-              );
-            case Success(:final data):
-              emit(
-                state.copyWith(
-                  submissionStatus: RequestStatus.success,
-                  receipt: data,
-                ),
-              );
-          }
-        });
+    final result = await cardServiceBoundary(
+      () => _repository.transferGiftBalance(request),
+    );
+    switch (result) {
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            submissionStatus: RequestStatus.failure,
+            isEditable: true,
+            canReviewSelection: _hasSelection(),
+            canContinue: _canContinueAtStep(state.step),
+            failure: failure,
+            message: getRequestErrorMessage(failure),
+          ),
+        );
+      case Success(:final data):
+        emit(
+          state.copyWith(
+            submissionStatus: RequestStatus.success,
+            receipt: data,
+          ),
+        );
+    }
   }
 
   void requestBack() {
@@ -306,7 +305,6 @@ class ExpiredGiftBalanceCubit extends Cubit<ExpiredGiftBalanceState> {
           navigation: _needsExitConfirmation()
               ? FlowNavigation.confirmExit
               : FlowNavigation.back,
-          message: null,
         ),
       );
     }
@@ -316,7 +314,6 @@ class ExpiredGiftBalanceCubit extends Cubit<ExpiredGiftBalanceState> {
     emit(
       state.copyWith(
         navigation: confirmed == true ? FlowNavigation.back : null,
-        message: null,
       ),
     );
   }
@@ -342,6 +339,17 @@ class ExpiredGiftBalanceCubit extends Cubit<ExpiredGiftBalanceState> {
     return state.submissionStatus != RequestStatus.success &&
         state.catalogStatus == RequestStatus.success &&
         (_hasSelection() || state.destination != null || state.termsAccepted);
+  }
+
+  Map<String, CardServiceDeposit> _depositsByGiftId(
+    CardServiceCatalog catalog,
+  ) {
+    final depositsById = {
+      for (final deposit in catalog.deposits) deposit.id: deposit,
+    };
+    return {
+      for (final gift in catalog.gifts) gift.id: depositsById[gift.depositId]!,
+    };
   }
 
   List<ExpiredGiftCard> _filterGiftCards(

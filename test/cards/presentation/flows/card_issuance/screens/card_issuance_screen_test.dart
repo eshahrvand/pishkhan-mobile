@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/core/presentation/mappers/request_error_message_mapper.dart';
+
 import 'dart:async';
 
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
@@ -95,9 +97,8 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  CardIssuanceCubit controller(WidgetTester tester) => tester
-      .element(find.byType(BlocConsumer<CardIssuanceCubit, CardIssuanceState>))
-      .read<CardIssuanceCubit>();
+  CardIssuanceCubit controller(WidgetTester tester) =>
+      tester.element(find.byType(AppTopBar)).read<CardIssuanceCubit>();
   void selection(CardIssuanceCubit c) {
     c.selectDeposit(c.state.catalog!.deposits.first);
     c.selectIssuanceType(IssuanceType.newNumber);
@@ -548,6 +549,60 @@ void main() {
       expect(find.byType(CardIssuanceScreen), findsNothing);
       expect(find.byType(CardListScreen), findsNothing);
       expect(find.text('cards'), findsOneWidget);
+    },
+  );
+  testWidgets(
+    'issuance repeats errors, executes terms after error and completes retry once',
+    (tester) async {
+      const failure = DataFailure('network.offline');
+      final repository = ControlledIssuanceRepository()
+        ..submitResult = const Err(failure);
+      var terms = 0, completions = 0;
+      await mount(
+        tester,
+        CardIssuanceScreen(
+          onTermsRequested: () => terms++,
+          onCompleted: (_) => completions++,
+        ),
+        repository: repository,
+      );
+      final cubit = controller(tester);
+      selection(cubit);
+      cubit.updatePhysicalCardOmission(true);
+      cubit.selectNextStep();
+      cubit.updateTermsAcceptance(true);
+      final message = getRequestErrorMessage(failure);
+      Future<void> dismissMessage() async {
+        tester
+            .state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger))
+            .clearSnackBars();
+        await tester.pumpAndSettle();
+      }
+
+      await cubit.submitCardIssuance();
+      await tester.pumpAndSettle();
+      expect(find.text(message), findsOneWidget);
+      final request = repository.captured;
+      await dismissMessage();
+      cubit.requestTerms();
+      await tester.pumpAndSettle();
+      expect(terms, 1);
+      expect(find.text(message), findsNothing);
+      expect(cubit.state.message, message);
+      await cubit.submitCardIssuance();
+      await tester.pumpAndSettle();
+      expect(find.text(message), findsOneWidget);
+      await dismissMessage();
+      repository.submitResult = const Success(
+        IssuanceReceipt(reference: 'retry', isMock: true),
+      );
+      await cubit.submitCardIssuance();
+      await tester.pumpAndSettle();
+      expect(completions, 1);
+      expect(repository.captured, same(request));
+      expect(cubit.state.message, message);
+      expect(find.text(message), findsNothing);
+      expect(tester.takeException(), isNull);
     },
   );
 }

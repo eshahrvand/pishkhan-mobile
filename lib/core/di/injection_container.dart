@@ -1,3 +1,6 @@
+import 'package:pishkhan_mobile/features/cards/domain/usecases/password_services_usecase.dart';
+import 'package:pishkhan_mobile/features/cards/domain/usecases/card_services_usecase.dart';
+import 'package:pishkhan_mobile/features/cards/domain/usecases/card_issuance_usecase.dart';
 import 'package:pishkhan_mobile/core/network/data/dio_factory.dart';
 import 'package:pishkhan_mobile/core/security/access_token_store.dart';
 import 'package:pishkhan_mobile/features/postal_offices/data/repositories/mock_postal_offices_repository.dart';
@@ -147,6 +150,28 @@ void configureDependencies({GetIt? container}) {
   );
   dependencies.registerFactory<QuoteVirtualCardsUseCase>(
     () => QuoteVirtualCardsUseCase(dependencies<VirtualCardRepository>()),
+  );
+
+  dependencies.registerFactory<LoadIssuanceCatalogUseCase>(
+    () => LoadIssuanceCatalogUseCase(dependencies<CardIssuanceRepository>()),
+  );
+  dependencies.registerFactory<SubmitCardIssuanceUseCase>(
+    () => SubmitCardIssuanceUseCase(dependencies<CardIssuanceRepository>()),
+  );
+  dependencies.registerFactory<LoadCardServiceCatalogUseCase>(
+    () => LoadCardServiceCatalogUseCase(dependencies<CardServicesRepository>()),
+  );
+  dependencies.registerFactory<LoadPasswordCatalogUseCase>(
+    () =>
+        LoadPasswordCatalogUseCase(dependencies<PasswordServicesRepository>()),
+  );
+  dependencies.registerFactory<CheckPasswordRequestUseCase>(
+    () =>
+        CheckPasswordRequestUseCase(dependencies<PasswordServicesRepository>()),
+  );
+  dependencies.registerFactory<SubmitSecondPasswordUseCase>(
+    () =>
+        SubmitSecondPasswordUseCase(dependencies<PasswordServicesRepository>()),
   );
 
   dependencies.registerLazySingleton<DashboardHomeRepository>(

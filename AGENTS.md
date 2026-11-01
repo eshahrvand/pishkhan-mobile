@@ -65,3 +65,12 @@ authorized work without implementing a forbidden workaround.
 
 Apply these requirements within the authorized task. They do not authorize
 unrelated rewrites, dependency installation or design-system changes.
+
+## Test Execution Scope
+
+Owner instruction, 2026-11-01: run tests only for changed flows and directly
+related consumers/dependencies. Select relevant regression files when a shared
+change affects them. Do not run an unscoped `flutter test` or the complete
+application suite unless the owner explicitly requests it. Historical full-suite
+results are not permission to repeat that run. Report the actual scoped command
+and result; keep required code/style reviews and relevant analysis.

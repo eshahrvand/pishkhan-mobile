@@ -12,8 +12,8 @@ Future<Result<T>> _boundary<T>(Future<Result<T>> Function() call) async {
   }
 }
 
-class LoadPasswordCatalog {
-  const LoadPasswordCatalog(this.repository);
+class LoadPasswordCatalogUseCase {
+  const LoadPasswordCatalogUseCase(this.repository);
   final PasswordServicesRepository repository;
   Future<Result<PasswordCatalog>> call() async {
     final result = await _boundary(repository.load);
@@ -30,8 +30,8 @@ class LoadPasswordCatalog {
   }
 }
 
-class CheckPasswordRequest {
-  const CheckPasswordRequest(this.repository);
+class CheckPasswordRequestUseCase {
+  const CheckPasswordRequestUseCase(this.repository);
   final PasswordServicesRepository repository;
   Future<Result<PasswordRequestRecord>> call(
     String cardId, {
@@ -39,8 +39,8 @@ class CheckPasswordRequest {
   }) => _boundary(() => repository.status(cardId, operation: operation));
 }
 
-class SubmitSecondPassword {
-  const SubmitSecondPassword(this.repository);
+class SubmitSecondPasswordUseCase {
+  const SubmitSecondPasswordUseCase(this.repository);
   final PasswordServicesRepository repository;
   Future<Result<PasswordRequestRecord>> call(
     SetSecondPasswordRequest request,

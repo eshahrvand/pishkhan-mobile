@@ -16,8 +16,8 @@ Any proposal outside approved rules requires separate owner approval.
 |---|---|---|---|
 | 1 | AuthCubit | login/development.md; auth/login-api-integration.md | Reviewed; committed in 197b4e5; notification follow-up in 3fb09b1 |
 | 2 | HomeCubit and four tabs | dashboard/development.md; cards/my-cards.md; loans/development.md | Reviewed; committed in 645433a; notification follow-up in 3fb09b1 |
-| 3 | CardFeaturesCubit; VirtualCardCubit | cards/card-services.md; cards/virtual-card-request.md | Reviewed/approved; 56 focused tests and 750 full-suite tests passed (1 Web-only skip); v1.21 follow-up passed 385 tests |
-| 4 | CardIssuanceCubit; ChangeCardDepositCubit; ExpiredGiftBalanceCubit; SecondPasswordCubit | Corresponding doc/cards/ flow documents | Not started |
+| 3 | CardFeaturesCubit; VirtualCardCubit | cards/card-services.md; cards/virtual-card-request.md | Reviewed/approved; 56 focused tests and 750 full-suite tests passed (1 Web-only skip); v1.21 follow-up passed 385 tests; committed in 5092e02 |
+| 4 | CardIssuanceCubit; ChangeCardDepositCubit; ExpiredGiftBalanceCubit; SecondPasswordCubit | Corresponding doc/cards/ flow documents | Implemented under v1.21; 200 focused / 754 full-suite tests passed (1 Web-only skip), clean analysis; reviewed/approved; see cards/phase-4-review.md |
 | 5 | AddressEditorCubit; AddressesCubit; OccupationsCubit; ChangePhoneCubit; NotificationsCubit | profile/personal-information.md and address-consumer references | Not started |
 | 6 | DepositListCubit; DepositRestrictionCubit; CloseSurplusDepositsCubit; ProxyDepositCubit | deposits/development.md and corresponding flow docs | Not started |
 | 7 | AverageBalanceCubit; FinancialCertificateCubit; AgentCubit; AgentSettingsCubit | Average balance, financial certificate, agent and agent-settings docs | Not started |
@@ -42,3 +42,10 @@ focused local Consumers for controller/modal effects remain at their actual
 owner. Preserve all predicates, command consumption, lifecycle and behavior.
 The composition follow-up passed 385 relevant tests. See its current verification in
 [cards/virtual-card-request.md](cards/virtual-card-request.md#listener-composition-follow-up-verification).
+
+## Owner update — test scope
+
+From phase 5 onward, run changed-flow tests and directly related regression
+files only. Full-application testing waits for an explicit owner request; do not
+run unscoped `flutter test` automatically. Preserve historical full-suite counts
+as dated evidence and report the actual scoped checks for each new phase.

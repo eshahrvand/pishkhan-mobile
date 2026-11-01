@@ -12,7 +12,7 @@ import 'package:pishkhan_mobile/core/result/result.dart';
 
 import '../../../domain/entities/card_service_data.dart';
 import '../../../domain/repositories/card_services_repository.dart';
-import '../../../domain/usecases/card_services.dart';
+import '../../../domain/usecases/card_services_usecase.dart';
 
 export 'package:pishkhan_mobile/core/flow/flow_navigation.dart';
 
@@ -26,48 +26,42 @@ class ChangeCardDepositCubit extends Cubit<ChangeCardDepositState> {
     this.initialCardNumber,
   }) : super(initialState);
 
+  final loadCardServiceCatalogUseCase = getIt<LoadCardServiceCatalogUseCase>();
   final _repository = getIt<CardServicesRepository>();
   final String? initialCardNumber;
   String? _idempotencyKey;
 
-  Future<void> fetchCatalog() {
-    emit(
-      state.copyWith(
-        catalogStatus: RequestStatus.loading,
-        failure: null,
-        message: null,
-      ),
-    );
-    return LoadCardServiceCatalog(_repository)().then((result) {
-      switch (result) {
-        case Err(:final failure):
-          emit(
-            state.copyWith(
-              catalogStatus: RequestStatus.failure,
-              failure: failure,
-              message: getRequestErrorMessage(failure),
-            ),
-          );
-        case Success(:final data):
-          final card = _findInitialCard(data);
-          final source = data.deposits
-              .where((deposit) => deposit.id == card?.depositId)
-              .firstOrNull;
-          emit(
-            state.copyWith(
-              catalogStatus: RequestStatus.success,
-              catalog: data,
-              card: card,
-              source: source,
-              destinations: _destinationDeposits(data.deposits, source),
-              isCatalogEmpty: data.cards.isEmpty || data.deposits.isEmpty,
-              isEditable: true,
-              isWalletSufficient:
-                  data.walletBalanceRial >= data.changeDepositFeeRial,
-            ),
-          );
-      }
-    });
+  Future<void> fetchCatalog() async {
+    emit(state.copyWith(catalogStatus: RequestStatus.loading));
+    final result = await loadCardServiceCatalogUseCase();
+    switch (result) {
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            catalogStatus: RequestStatus.failure,
+            failure: failure,
+            message: getRequestErrorMessage(failure),
+          ),
+        );
+      case Success(:final data):
+        final card = _findInitialCard(data);
+        final source = data.deposits
+            .where((deposit) => deposit.id == card?.depositId)
+            .firstOrNull;
+        emit(
+          state.copyWith(
+            catalogStatus: RequestStatus.success,
+            catalog: data,
+            card: card,
+            source: source,
+            destinations: _destinationDeposits(data.deposits, source),
+            isCatalogEmpty: data.cards.isEmpty || data.deposits.isEmpty,
+            isEditable: true,
+            isWalletSufficient:
+                data.walletBalanceRial >= data.changeDepositFeeRial,
+          ),
+        );
+    }
   }
 
   void selectCard(ServiceBankCard card) {
@@ -84,8 +78,6 @@ class ChangeCardDepositCubit extends Cubit<ChangeCardDepositState> {
         termsAccepted: false,
         canSubmit: false,
         submissionStatus: RequestStatus.initial,
-        failure: null,
-        message: null,
       ),
     );
   }
@@ -98,8 +90,6 @@ class ChangeCardDepositCubit extends Cubit<ChangeCardDepositState> {
         termsAccepted: false,
         canSubmit: false,
         submissionStatus: RequestStatus.initial,
-        failure: null,
-        message: null,
       ),
     );
   }
@@ -113,7 +103,7 @@ class ChangeCardDepositCubit extends Cubit<ChangeCardDepositState> {
     );
   }
 
-  Future<void> submitDepositChange() {
+  Future<void> submitDepositChange() async {
     _idempotencyKey ??= List.generate(
       16,
       (_) => Random.secure().nextInt(256).toRadixString(16).padLeft(2, '0'),
@@ -129,34 +119,32 @@ class ChangeCardDepositCubit extends Cubit<ChangeCardDepositState> {
         submissionStatus: RequestStatus.loading,
         isEditable: false,
         canSubmit: false,
-        failure: null,
-        message: null,
       ),
     );
-    return cardServiceBoundary(() => _repository.changeDeposit(request))
-        .then((result) {
-          switch (result) {
-            case Err(:final failure):
-              emit(
-                state.copyWith(
-                  submissionStatus: RequestStatus.failure,
-                  isEditable: true,
-                  canSubmit: _canSubmitDepositChange(
-                    termsAccepted: state.termsAccepted,
-                  ),
-                  failure: failure,
-                  message: getRequestErrorMessage(failure),
-                ),
-              );
-            case Success(:final data):
-              emit(
-                state.copyWith(
-                  submissionStatus: RequestStatus.success,
-                  receipt: data,
-                ),
-              );
-          }
-        });
+    final result = await cardServiceBoundary(
+      () => _repository.changeDeposit(request),
+    );
+    switch (result) {
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            submissionStatus: RequestStatus.failure,
+            isEditable: true,
+            canSubmit: _canSubmitDepositChange(
+              termsAccepted: state.termsAccepted,
+            ),
+            failure: failure,
+            message: getRequestErrorMessage(failure),
+          ),
+        );
+      case Success(:final data):
+        emit(
+          state.copyWith(
+            submissionStatus: RequestStatus.success,
+            receipt: data,
+          ),
+        );
+    }
   }
 
   void requestBack() {
@@ -165,7 +153,6 @@ class ChangeCardDepositCubit extends Cubit<ChangeCardDepositState> {
         navigation: _needsExitConfirmation()
             ? FlowNavigation.confirmExit
             : FlowNavigation.back,
-        message: null,
       ),
     );
   }
@@ -174,7 +161,6 @@ class ChangeCardDepositCubit extends Cubit<ChangeCardDepositState> {
     emit(
       state.copyWith(
         navigation: confirmed == true ? FlowNavigation.back : null,
-        message: null,
       ),
     );
   }

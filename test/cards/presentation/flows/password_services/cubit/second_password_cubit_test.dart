@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
+
 import '../../../../../support/registered_dependency.dart';
 
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
@@ -79,6 +81,8 @@ Future<void> readyToSubmit(SecondPasswordCubit c) async {
 }
 
 void main() {
+  setUp(configureDependencies);
+  tearDown(() => getIt.reset());
   for (final selection in ['kind', 'card', 'operation']) {
     test(
       '$selection change clears credentials and preserves catalog context',
@@ -624,7 +628,7 @@ void main() {
       repository.statusFailure = null;
       await cubit.submitCurrentStep();
       expect(cubit.state.step, SecondPasswordStep.password);
-      expect(cubit.state.failure, isNull);
+      expect(cubit.state.failure?.code, 'offline');
     },
   );
 

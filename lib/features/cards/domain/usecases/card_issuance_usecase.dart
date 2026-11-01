@@ -4,8 +4,8 @@ import 'package:pishkhan_mobile/core/result/failure.dart';
 import '../entities/issuance_data.dart';
 import '../repositories/card_issuance_repository.dart';
 
-class LoadIssuanceCatalog {
-  const LoadIssuanceCatalog(this.repository);
+class LoadIssuanceCatalogUseCase {
+  const LoadIssuanceCatalogUseCase(this.repository);
   final CardIssuanceRepository repository;
   Future<Result<IssuanceCatalog>> call() async {
     try {
@@ -16,8 +16,8 @@ class LoadIssuanceCatalog {
   }
 }
 
-class SubmitCardIssuance {
-  const SubmitCardIssuance(this.repository);
+class SubmitCardIssuanceUseCase {
+  const SubmitCardIssuanceUseCase(this.repository);
   final CardIssuanceRepository repository;
   Future<Result<IssuanceReceipt>> call(IssuanceRequest request) async {
     try {

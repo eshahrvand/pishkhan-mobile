@@ -14,8 +14,8 @@ Future<Result<T>> cardServiceBoundary<T>(
   }
 }
 
-class LoadCardServiceCatalog {
-  const LoadCardServiceCatalog(this.repository);
+class LoadCardServiceCatalogUseCase {
+  const LoadCardServiceCatalogUseCase(this.repository);
   final CardServicesRepository repository;
   Future<Result<CardServiceCatalog>> call() async {
     final result = await cardServiceBoundary(repository.load);

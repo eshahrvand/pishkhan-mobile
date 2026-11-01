@@ -45,6 +45,11 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
     super.dispose();
   }
 
+  void _showRequestFailure(BuildContext context, CardIssuanceState state) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(state.message!)));
+  }
+
   Future<void> _handleNavigation(
     BuildContext context,
     CardIssuanceState state,
@@ -72,12 +77,6 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
     BuildContext context,
     CardIssuanceState state,
   ) async {
-    if (state.message != null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(state.message!)));
-      return;
-    }
-
     switch (state.effect) {
       case IssuanceTermsRequested():
         context.read<CardIssuanceCubit>().consumeCardIssuanceInteraction();
@@ -135,152 +134,163 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
       create: (_) =>
           CardIssuanceCubit(initialDepositNumber: widget.initialDepositNumber)
             ..fetchIssuanceCatalog(),
-      child: BlocListener<CardIssuanceCubit, CardIssuanceState>(
-        listenWhen: (previous, current) =>
-            (previous.navigation != current.navigation &&
-            current.navigation != null),
-        listener: _handleNavigation,
-        child: BlocListener<CardIssuanceCubit, CardIssuanceState>(
-          listenWhen: (previous, current) =>
-              (previous.effect != current.effect &&
-                  current.effect != null) ||
-              ((previous.catalogStatus != current.catalogStatus &&
-                      current.catalogStatus == RequestStatus.failure) ||
-                  (previous.submissionStatus != current.submissionStatus &&
-                      current.submissionStatus == RequestStatus.failure)),
-          listener: _handleEffect,
-          child: Directionality(
-            textDirection: TextDirection.rtl,
-            child: BlocConsumer<CardIssuanceCubit, CardIssuanceState>(
-              listenWhen: (previous, current) =>
-                  previous.step != current.step ||
-                  (previous.catalogStatus != current.catalogStatus &&
-                      current.catalogStatus != RequestStatus.loading) ||
-                  (previous.submissionStatus != current.submissionStatus &&
-                      current.submissionStatus != RequestStatus.loading),
-              listener: _handleProgress,
-              builder: (context, state) {
-                return PopScope<void>(
-                  canPop:
-                      (state.catalogStatus != RequestStatus.loading &&
-                          state.submissionStatus != RequestStatus.loading) &&
-                      (state.navigation == FlowNavigation.back),
-                  onPopInvokedWithResult: (didPop, _) {
-                    if (!didPop &&
-                        state.catalogStatus != RequestStatus.loading &&
-                        state.submissionStatus != RequestStatus.loading) {
-                      context.read<CardIssuanceCubit>().requestBack();
-                    }
-                  },
-                  child: Scaffold(
-                    backgroundColor: context.colors.surfaceSubtle,
-                    body: SafeArea(
-                      child: Column(
-                        children: [
-                          AppTopBar(
-                            title: S.current.issuanceTitle,
-                            showLeadingActions: false,
-                            trailingIcon: issuanceIcon(
-                              '${AppConstants.baseImage}card_features_back.svg',
-                              size: 24,
-                            ),
-                            trailingTooltip: S.current.backLabel,
-                            onTrailingPressed:
-                                (state.catalogStatus != RequestStatus.loading &&
-                                    state.submissionStatus !=
-                                        RequestStatus.loading)
-                                ? () => context
-                                      .read<CardIssuanceCubit>()
-                                      .requestBack()
-                                : null,
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<CardIssuanceCubit, CardIssuanceState>(
+            listenWhen: (previous, current) =>
+                previous.catalogStatus != current.catalogStatus &&
+                current.catalogStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<CardIssuanceCubit, CardIssuanceState>(
+            listenWhen: (previous, current) =>
+                previous.submissionStatus != current.submissionStatus &&
+                current.submissionStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<CardIssuanceCubit, CardIssuanceState>(
+            listenWhen: (previous, current) =>
+                previous.navigation != current.navigation &&
+                current.navigation != null,
+            listener: _handleNavigation,
+          ),
+          BlocListener<CardIssuanceCubit, CardIssuanceState>(
+            listenWhen: (previous, current) =>
+                previous.effect != current.effect && current.effect != null,
+            listener: _handleEffect,
+          ),
+          BlocListener<CardIssuanceCubit, CardIssuanceState>(
+            listenWhen: (previous, current) =>
+                previous.step != current.step ||
+                (previous.catalogStatus != current.catalogStatus &&
+                    current.catalogStatus != RequestStatus.loading) ||
+                (previous.submissionStatus != current.submissionStatus &&
+                    current.submissionStatus != RequestStatus.loading),
+            listener: _handleProgress,
+          ),
+        ],
+        child: Directionality(
+          textDirection: TextDirection.rtl,
+          child: BlocBuilder<CardIssuanceCubit, CardIssuanceState>(
+            builder: (context, state) {
+              return PopScope<void>(
+                canPop:
+                    (state.catalogStatus != RequestStatus.loading &&
+                        state.submissionStatus != RequestStatus.loading) &&
+                    (state.navigation == FlowNavigation.back),
+                onPopInvokedWithResult: (didPop, _) {
+                  if (!didPop &&
+                      state.catalogStatus != RequestStatus.loading &&
+                      state.submissionStatus != RequestStatus.loading) {
+                    context.read<CardIssuanceCubit>().requestBack();
+                  }
+                },
+                child: Scaffold(
+                  backgroundColor: context.colors.surfaceSubtle,
+                  body: SafeArea(
+                    child: Column(
+                      children: [
+                        AppTopBar(
+                          title: S.current.issuanceTitle,
+                          showLeadingActions: false,
+                          trailingIcon: issuanceIcon(
+                            '${AppConstants.baseImage}card_features_back.svg',
+                            size: 24,
                           ),
-                          Expanded(
-                            // The assistant and footer overlay the scroll viewport; a Column
-                            // would change its height and the scroll/empty-state geometry.
-                            child: Stack(
-                              children: [
-                                Column(
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.fromLTRB(
-                                        16,
-                                        16,
-                                        16,
-                                        26,
-                                      ),
-                                      child: AppStepper(
-                                        currentStep: state.stepNumber,
-                                        totalSteps: 3,
-                                        progress: switch (state.step) {
-                                          IssuanceStep.selection => .3,
-                                          IssuanceStep.delivery => .6,
-                                          IssuanceStep.confirmation => 1,
-                                        },
-                                        title: getIssuanceStepTitle(state.step),
-                                        supportingText:
-                                            getIssuanceSupportingText(
-                                              state.step,
-                                              state.draft.noPhysicalCard,
-                                            ),
-                                        semanticLabel: S.current
-                                            .issuanceStepSemantic(
-                                              state.stepNumber,
-                                              3,
-                                              getIssuanceStepTitle(state.step),
-                                            ),
-                                      ),
+                          trailingTooltip: S.current.backLabel,
+                          onTrailingPressed:
+                              (state.catalogStatus != RequestStatus.loading &&
+                                  state.submissionStatus !=
+                                      RequestStatus.loading)
+                              ? () => context
+                                    .read<CardIssuanceCubit>()
+                                    .requestBack()
+                              : null,
+                        ),
+                        Expanded(
+                          // The assistant and footer overlay the scroll viewport; a Column
+                          // would change its height and the scroll/empty-state geometry.
+                          child: Stack(
+                            children: [
+                              Column(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(
+                                      16,
+                                      16,
+                                      16,
+                                      26,
                                     ),
-                                    Expanded(
-                                      child: IssuanceContent(
-                                        scroll: scroll,
-                                        onDeleteAddress: context
-                                            .read<CardIssuanceCubit>()
-                                            .requestDeleteAddress,
+                                    child: AppStepper(
+                                      currentStep: state.stepNumber,
+                                      totalSteps: 3,
+                                      progress: switch (state.step) {
+                                        IssuanceStep.selection => .3,
+                                        IssuanceStep.delivery => .6,
+                                        IssuanceStep.confirmation => 1,
+                                      },
+                                      title: getIssuanceStepTitle(state.step),
+                                      supportingText: getIssuanceSupportingText(
+                                        state.step,
+                                        state.draft.noPhysicalCard,
                                       ),
-                                    ),
-                                  ],
-                                ),
-                                if (state.catalogStatus ==
-                                        RequestStatus.success &&
-                                    state.submissionStatus !=
-                                        RequestStatus.success &&
-                                    !state.isCatalogEmpty) ...[
-                                  Positioned(
-                                    left: 16,
-                                    bottom:
-                                        (state.step ==
-                                            IssuanceStep.confirmation)
-                                        ? 136
-                                        : 76,
-                                    child: AppAssistantButton(
-                                      onPressed:
-                                          widget.onAssistantPressed ??
-                                          () => context
-                                              .read<CardIssuanceCubit>()
-                                              .requestBack(),
+                                      semanticLabel: S.current
+                                          .issuanceStepSemantic(
+                                            state.stepNumber,
+                                            3,
+                                            getIssuanceStepTitle(state.step),
+                                          ),
                                     ),
                                   ),
-                                  Positioned(
-                                    left: 0,
-                                    right: 0,
-                                    bottom: 0,
-                                    child: IssuanceFooter(
-                                      onTermsRequested: context
+                                  Expanded(
+                                    child: IssuanceContent(
+                                      scroll: scroll,
+                                      onDeleteAddress: context
                                           .read<CardIssuanceCubit>()
-                                          .requestTerms,
+                                          .requestDeleteAddress,
                                     ),
                                   ),
                                 ],
+                              ),
+                              if (state.catalogStatus ==
+                                      RequestStatus.success &&
+                                  state.submissionStatus !=
+                                      RequestStatus.success &&
+                                  !state.isCatalogEmpty) ...[
+                                Positioned(
+                                  left: 16,
+                                  bottom:
+                                      (state.step == IssuanceStep.confirmation)
+                                      ? 136
+                                      : 76,
+                                  child: AppAssistantButton(
+                                    onPressed:
+                                        widget.onAssistantPressed ??
+                                        () => context
+                                            .read<CardIssuanceCubit>()
+                                            .requestBack(),
+                                  ),
+                                ),
+                                Positioned(
+                                  left: 0,
+                                  right: 0,
+                                  bottom: 0,
+                                  child: IssuanceFooter(
+                                    onTermsRequested: context
+                                        .read<CardIssuanceCubit>()
+                                        .requestTerms,
+                                  ),
+                                ),
                               ],
-                            ),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
-                );
-              },
-            ),
+                ),
+              );
+            },
           ),
         ),
       ),
