@@ -47,6 +47,8 @@ import 'package:pishkhan_mobile/features/cards/data/repositories/mock_card_servi
 import 'package:pishkhan_mobile/features/cards/data/repositories/mock_password_repository.dart';
 import 'package:pishkhan_mobile/features/cards/data/repositories/mock_virtual_card_repository.dart';
 import 'package:pishkhan_mobile/features/cards/domain/repositories/cards_repository.dart';
+import 'package:pishkhan_mobile/features/cards/domain/usecases/card_features_usecase.dart';
+import 'package:pishkhan_mobile/features/cards/domain/usecases/virtual_card_request_usecase.dart';
 import 'package:pishkhan_mobile/features/cards/domain/repositories/card_issuance_repository.dart';
 import 'package:pishkhan_mobile/features/cards/domain/repositories/card_services_repository.dart';
 import 'package:pishkhan_mobile/features/cards/domain/repositories/password_services_repository.dart';
@@ -124,6 +126,9 @@ void configureDependencies({GetIt? container}) {
     MockFinancialCertificateRepository.new,
   );
   dependencies.registerLazySingleton<CardsRepository>(MockCardsRepository.new);
+  dependencies.registerFactory<LoadCardsUseCase>(
+    () => LoadCardsUseCase(dependencies<CardsRepository>()),
+  );
   dependencies.registerLazySingleton<CardIssuanceRepository>(
     MockCardIssuanceRepository.new,
   );
@@ -135,6 +140,13 @@ void configureDependencies({GetIt? container}) {
   );
   dependencies.registerLazySingleton<VirtualCardRepository>(
     MockVirtualCardRepository.new,
+  );
+
+  dependencies.registerFactory<LoadVirtualCardCatalogUseCase>(
+    () => LoadVirtualCardCatalogUseCase(dependencies<VirtualCardRepository>()),
+  );
+  dependencies.registerFactory<QuoteVirtualCardsUseCase>(
+    () => QuoteVirtualCardsUseCase(dependencies<VirtualCardRepository>()),
   );
 
   dependencies.registerLazySingleton<DashboardHomeRepository>(

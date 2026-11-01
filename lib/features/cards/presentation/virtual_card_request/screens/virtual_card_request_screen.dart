@@ -38,16 +38,15 @@ class _VirtualCardRequestScreenState extends State<VirtualCardRequestScreen> {
     super.dispose();
   }
 
+  void _showRequestFailure(BuildContext context, VirtualCardState state) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(state.message!)));
+  }
+
   Future<void> _handleNavigation(
     BuildContext context,
     VirtualCardState state,
   ) async {
-    if (state.message != null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(state.message!)));
-      return;
-    }
-
     switch (state.navigation) {
       case FlowNavigation.confirmExit:
         context.read<VirtualCardCubit>().consumeVirtualCardInteraction();
@@ -76,74 +75,97 @@ class _VirtualCardRequestScreenState extends State<VirtualCardRequestScreen> {
             ..fetchCatalog(),
       child: Directionality(
         textDirection: TextDirection.rtl,
-        child: BlocConsumer<VirtualCardCubit, VirtualCardState>(
-          listenWhen: (previous, current) =>
-              (previous.navigation != current.navigation &&
-                  current.navigation != null) ||
-              ((previous.catalogStatus != current.catalogStatus &&
-                      current.catalogStatus == RequestStatus.failure) ||
-                  (previous.quoteStatus != current.quoteStatus &&
-                      current.quoteStatus == RequestStatus.failure) ||
-                  (previous.submissionStatus != current.submissionStatus &&
-                      current.submissionStatus == RequestStatus.failure)),
-          listener: _handleNavigation,
-          builder: (context, state) {
-            return PopScope<void>(
-              canPop:
-                  (state.catalogStatus != RequestStatus.loading &&
+        child: MultiBlocListener(
+          listeners: [
+            BlocListener<VirtualCardCubit, VirtualCardState>(
+              listenWhen: (previous, current) =>
+                  previous.catalogStatus != current.catalogStatus &&
+                  current.catalogStatus == RequestStatus.failure,
+              listener: _showRequestFailure,
+            ),
+            BlocListener<VirtualCardCubit, VirtualCardState>(
+              listenWhen: (previous, current) =>
+                  previous.quoteStatus != current.quoteStatus &&
+                  current.quoteStatus == RequestStatus.failure,
+              listener: _showRequestFailure,
+            ),
+            BlocListener<VirtualCardCubit, VirtualCardState>(
+              listenWhen: (previous, current) =>
+                  previous.submissionStatus != current.submissionStatus &&
+                  current.submissionStatus == RequestStatus.failure,
+              listener: _showRequestFailure,
+            ),
+            BlocListener<VirtualCardCubit, VirtualCardState>(
+              listenWhen: (previous, current) =>
+                  previous.navigation != current.navigation &&
+                  current.navigation != null,
+              listener: _handleNavigation,
+            ),
+          ],
+          child: BlocBuilder<VirtualCardCubit, VirtualCardState>(
+            builder: (context, state) {
+              return PopScope<void>(
+                canPop:
+                    (state.catalogStatus != RequestStatus.loading &&
+                        state.quoteStatus != RequestStatus.loading &&
+                        state.submissionStatus != RequestStatus.loading) &&
+                    (state.navigation == FlowNavigation.back),
+                onPopInvokedWithResult: (didPop, _) {
+                  if (!didPop &&
+                      state.catalogStatus != RequestStatus.loading &&
                       state.quoteStatus != RequestStatus.loading &&
-                      state.submissionStatus != RequestStatus.loading) &&
-                  (state.navigation == FlowNavigation.back),
-              onPopInvokedWithResult: (didPop, _) {
-                if (!didPop &&
-                    state.catalogStatus != RequestStatus.loading &&
-                    state.quoteStatus != RequestStatus.loading &&
-                    state.submissionStatus != RequestStatus.loading) {
-                  context.read<VirtualCardCubit>().requestBack();
-                }
-              },
-              child: Scaffold(
-                backgroundColor: context.colors.surfaceSubtle,
-                body: SafeArea(
-                  child: Column(
-                    children: [
-                      AppTopBar(
-                        title: S.current.virtualRequestTitle,
-                        showLeadingActions: false,
-                        trailingIcon: SizedBox.square(
-                          dimension: 24,
-                          child: AvpImage(
-                            image:
-                                '${AppConstants.baseImage}virtual_request_back.svg',
+                      state.submissionStatus != RequestStatus.loading) {
+                    context.read<VirtualCardCubit>().requestBack();
+                  }
+                },
+                child: Scaffold(
+                  backgroundColor: context.colors.surfaceSubtle,
+                  body: SafeArea(
+                    child: Column(
+                      children: [
+                        AppTopBar(
+                          title: S.current.virtualRequestTitle,
+                          showLeadingActions: false,
+                          trailingIcon: SizedBox.square(
+                            dimension: 24,
+                            child: AvpImage(
+                              image:
+                                  '${AppConstants.baseImage}virtual_request_back.svg',
+                            ),
+                          ),
+                          trailingTooltip: S.current.backLabel,
+                          onTrailingPressed:
+                              (state.catalogStatus != RequestStatus.loading &&
+                                  state.quoteStatus != RequestStatus.loading &&
+                                  state.submissionStatus !=
+                                      RequestStatus.loading)
+                              ? () => context
+                                    .read<VirtualCardCubit>()
+                                    .requestBack()
+                              : null,
+                        ),
+                        Expanded(
+                          child: SingleChildScrollView(
+                            padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
+                            child: VirtualCardContent(
+                              count: count,
+                              state: state,
+                            ),
                           ),
                         ),
-                        trailingTooltip: S.current.backLabel,
-                        onTrailingPressed:
-                            (state.catalogStatus != RequestStatus.loading &&
-                                state.quoteStatus != RequestStatus.loading &&
-                                state.submissionStatus != RequestStatus.loading)
-                            ? () =>
-                                  context.read<VirtualCardCubit>().requestBack()
-                            : null,
-                      ),
-                      Expanded(
-                        child: SingleChildScrollView(
-                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
-                          child: VirtualCardContent(count: count, state: state),
-                        ),
-                      ),
-                      if (state.catalog != null &&
-                          state.catalog?.deposits.isNotEmpty == true)
-                        VirtualCardFooter(
-                          state: state,
-                          onTermsRequested: widget.onTermsRequested,
-                        ),
-                    ],
+                        if (state.catalog != null &&
+                            state.catalog?.deposits.isNotEmpty == true)
+                          VirtualCardFooter(
+                            state: state,
+                            onTermsRequested: widget.onTermsRequested,
+                          ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
     );

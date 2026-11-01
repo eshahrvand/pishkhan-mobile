@@ -1,8 +1,8 @@
 # Cards Features Development Document
 
 **Project:** Pishkhan AI / Smart Virtual Counter  
-**Version:** 1.0.0  
-**Date:** 2026-10-09  
+**Version:** 1.1.0<br>
+**Date:** 2026-11-01<br>
 **Status:** Connected UI flow with mock repository; bank execution is not connected.  
 **Architecture reference:** [Project architecture](../architecture-smart-virtual-counter-v2-en.md)  
 
@@ -10,7 +10,7 @@ This document follows the project's 21 architecture sections. This is the standa
 
 ## 1. Architectural Goals and Principles
 
-All six phases form one Cards flow: five categories share search, filtering, list rows and contextual actions. Details and filter sheets operate within the same route. No duplicate list, input, button or sheet-header component is created.
+The six original design states form one Cards flow: five categories share search, filtering, list rows and contextual actions. Details and filter sheets operate within the same route. No duplicate list, input, button or sheet-header component is created.
 
 The component decision was reviewed before code. The user chose compatible variants/parameters and the missing package Chips component. Existing defaults are preserved; the colored list/header and compact filter styling are opt-in.
 
@@ -38,7 +38,7 @@ Flutter Material composition, flutter_bloc Cubit, Equatable domain entities and 
 
 ## 4. Development Environment and Versions
 
-Existing pubspec.yaml/pubspec.lock and analysis_options.yaml govern versions. avp_ui is the sibling path dependency ../avp_ui. ARBs are generated through flutter gen-l10n. The feature uses the current repository's Flutter SDK; no SDK migration or platform build is part of this change.
+Existing pubspec.yaml/pubspec.lock and analysis_options.yaml govern versions. avp_ui is the sibling path dependency ../avp_ui. ARB localization is consumed through generated `S.current`; generation follows the current project configuration. The feature uses the current repository's Flutter SDK; no SDK migration or platform build is part of this change.
 
 ## 5. Third-Party Dependency Governance
 
@@ -48,48 +48,42 @@ Existing dependencies suffice. New package APIs are additive, public-barrel expo
 
 ```text
 lib/features/cards/
-  cards.dart                                      public feature exports
-  domain/
-    entities/listed_card.dart                     ListedCard, CardCategory, CardStatus
-    repositories/cards_repository.dart            CardsRepository.getCards
-    usecases/load_cards.dart                      Result boundary + ID validation
-  data/mock/mock_cards_repository.dart             mock summaries and async adapter
-  presentation/
-    card_list_screen.dart                     route composition, view resources
-    card_feature_actions.dart                     typed action enum/request contract
-    card_features_ui.dart                         labels, assets, category/type mapping
-    cubit/card_features_state.dart                immutable data, filter/query/selection
-    cubit/card_features_cubit.dart                 loading and UI state operations
-    widgets/card_feature_sheets.dart               actions/details/filter composition
-lib/core/router/card_features_navigation.dart      allowlisted standalone route bridge
-lib/shared/widgets/app_cards_list.dart             coloredHeader opt-in variant
-lib/shared/widgets/app_top_bar.dart                optional trailing/back widget/callback
-lib/shared/widgets/app_bottom_sheet_header.dart    optional text-action color
-lib/core/config/constant.dart                     shared image prefix
-lib/l10n/app_{fa,en,ar}.arb                         feature copy
-lib/l10n/generated/                                generated output
-test/cards/card_features_cubit_test.dart           four state/repository unit cases
-test/cards/card_list_screen_test.dart          twelve flow/render/accessibility cases
-test/cards/support/test_cards_repository.dart      controllable service fake
-doc/cards/card-services.md             this document
+  cards.dart
+  domain/entities/                              ListedCard, CardFilter
+  domain/repositories/cards_repository.dart      CardsRepository.getCards
+  domain/usecases/card_features_usecase.dart     LoadCardsUseCase
+  data/repositories/mock_cards_repository.dart   mock summaries and Result adapter
+  presentation/card_features/
+    card_feature_action.dart                    typed action/request contract
+    cubit/card_features_cubit.dart               operation, inputs, pure calculations
+    cubit/card_features_state.dart               part of Cubit, plain Freezed State
+    cubit/card_features_effect.dart              prepared typed interactions
+    screens/card_list_screen.dart                Provider, listeners, route composition
+    widgets/                                    filters, list, sheets and display helpers
+lib/core/di/injection_container.dart             Repository and UseCase registration
+lib/core/router/card_features_navigation.dart    allowlisted route bridge
+lib/shared/widgets/                             shared app composition
+lib/generated/l10n.dart                          generated S localization access
+lib/l10n/app_{fa,en,ar}.arb                       feature copy
+test/cards/presentation/flows/card_features/      Cubit, widget and repository fixtures
 ```
 
 Dashboard entities/actions/Cubits stay under features/dashboard. ListedCard is a standalone list summary, not Dashboard BankCard. Common visuals remain shared or package-owned. Dashboard calls the core routing bridge instead of directly importing standalone feature UI.
 
 ## 7. Layering Pattern (Clean Architecture)
 
-**Domain:** ListedCard and the category/status enums have no Flutter imports. ListedCard extends Equatable and is immutable. Repository returns Future<Result<List<ListedCard>>>. LoadCards catches unexpected transport exceptions and rejects duplicate/blank IDs before returning an immutable list.
+**Domain:** ListedCard and the category/status enums have no Flutter imports. ListedCard extends Equatable and is immutable. Repository returns Future<Result<List<ListedCard>>>. LoadCardsUseCase catches unexpected transport exceptions and rejects duplicate/blank IDs before returning an immutable list.
 
 **Data:** MockCardsRepository implements the interface. Defaults create 4 Resalat, 4 Gift, 4 Virtual, 2 Bon and 2 Family cards. Cards at index3 have another linked deposit and blocked status to make filtering observable; other mock cards are active. These are samples, not actual user accounts. Numbers and dates remain display-ready prototype strings.
 
-**State:** CardFeaturesCubit invokes LoadCards. CardFeaturesState and CardFilter use value equality and immutable card lists. Controls derive content from the state rather than widget-local business variables.
+**State:** CardFeaturesCubit invokes LoadCardsUseCase. CardFeaturesState and CardFilter use value equality and immutable card lists. Controls derive content from the state rather than widget-local business variables.
 
-**UI:** Screen/sheets compose public AppButton, AppChips, AppSearchField, AppSelect, AppCardsList, AppTopBar, AppBottomSheetHeader and AppAssistantButton. TextEditingController, ScrollController and modal resources remain in the view. No manual widget keys are created in Cards presentation. Category visibility uses a local Builder context with Scrollable.ensureVisible. Screens whose entry changes restart the flow own and close their Cubit explicitly and expose it through BlocProvider.value, rather than forcing recreation with ValueKey. Password steps reset scrolling through a focused listener. Tests locate controls by public widget properties, content and structure.
+**UI:** Screen/sheets compose public AppButton, AppChips, AppSearchField, AppSelect, AppCardsList, AppTopBar, AppBottomSheetHeader and AppAssistantButton. TextEditingController, ScrollController and modal resources remain in the view. No manual widget keys are created in Cards presentation. Category visibility uses a local Builder context with Scrollable.ensureVisible. `CardListScreen` directly constructs Cubit in `BlocProvider.create` and calls `fetchCards`; Provider owns closing. `BlocProvider.value` only shares that instance with the filter sheet. Ordinary rebuilds retain the same flow. Tests locate controls by public widget properties, content and structure.
 
 ```text
 MockCardsRepository / future live adapter
   -> CardsRepository
-  -> LoadCards
+  -> LoadCardsUseCase
   -> CardFeaturesCubit
   -> immutable CardFeaturesState
   -> CardListScreen + sheet composition
@@ -110,16 +104,19 @@ filter button -> draft copy of committed filter
   Apply -> commit filter -> close sheet -> list changes
   Remove filter -> clear draft -> Apply commits clearing
   system back/outside tap -> discard draft
-row More -> select card ID -> actions sheet
+row More -> requestCardActions(rendered card) -> actions sheet
   Details -> details sheet -> Back -> list
   other action -> CardFeatureRequest(action, card, category) -> host
 category footer -> CardFeatureRequest(action, category, card:null) -> host
 assistant -> host override / return to dashboard prompt
 ```
 
-The screen exposes initialCategory, onActionRequested and onAssistantPressed. Cubit resolves its registered CardsRepository internally; no repository is passed through the screen. Initial category is applied on the first fetch only; subsequent category choices belong to Cubit and survive retries.
+The screen exposes initialCategory, onActionRequested and onAssistantPressed. Cubit resolves its registered `LoadCardsUseCase` once in a final field; DI wires `CardsRepository` into the UseCase; no repository is passed through the screen. Initial category is applied on the first fetch only; subsequent category choices belong to Cubit and survive retries.
 
-Reissue/change-deposit/block are integration events, not implemented transaction wizards. No designs for their subsequent pages were supplied. Missing action handlers display a localized unavailable message rather than falsely reporting success. Gift transfer and virtual request are category-level events and intentionally have no arbitrarily chosen card. The virtual request footer now opens the implemented request form when no host callback is supplied; see [virtual card requests](virtual-card-request.md).
+Reissue, change-deposit, expired-gift and virtual-request use their existing
+mock service routes when no host override is supplied. Block remains unavailable
+without host integration. Category footer requests have no arbitrarily selected
+card. These paths do not claim live bank execution; see their individual flow docs.
 
 No suspended bank request or idempotent submission is implemented. Filter drafts are local UI transactions.
 
@@ -150,17 +147,35 @@ No remote icon renderer, metadata-driven visual template or permission filter is
 
 ## 11. Error Handling Pattern (Result & Failure)
 
-LoadCards preserves Err failures and maps unexpected exceptions to UnexpectedFailure. Invalid IDs produce DataFailure('cards.invalid'). Failure codes are not displayed directly; the UI uses localized generic error and retry. Initial/loading, empty repository and zero search/filter results are separate outcomes. Error content hides old list/action rows rather than implying stale eligibility.
+LoadCardsUseCase preserves Err failures and maps unexpected exceptions to UnexpectedFailure. Invalid IDs produce DataFailure('cards.invalid'). Cubit publishes `cardsStatus: failure`, the Failure and `getRequestErrorMessage(failure)` together. A focused status listener displays that prepared text; codes are never shown directly. Failure/message retain the latest recorded error after loading, recovery and commands. They do not describe current request status or gate typed effects. Initial/loading, empty repository and zero search/filter results are separate outcomes. Error content hides old list/action rows rather than implying stale eligibility.
 
 ## 12. State Management with Cubit
 
-CardFeaturesState stores status, immutable cards, category, query, committed filter, nullable draftFilter, selectedId and nullable Failure. RequestStatus is initial/loading/success/failure. visibleCards combines category AND committed filter AND normalized query. The repository's empty state is distinct from a loaded dataset with no matches.
+The plain Freezed `CardFeaturesState.initial` stores `cardsStatus`, immutable cards, category, searchQuery, committed filter, nullable draftFilter, selectedCard, footerAction, typed effect and shared latest failure/message. Its `part of` organization is preserved. RequestStatus is initial/loading/success/failure. visibleCards combines category AND committed filter AND normalized query. The repository's empty state is distinct from a loaded dataset with no matches.
 
 CardFilter contains nullable status/deposit; null means All. Dropdown selections use stable enum names/raw deposit values, not localized strings. Persian and Arabic digits normalize to Latin; spaces, hyphens, dots and ZWNJ are ignored for search. Original display values remain unchanged. Search applies to card number and linked deposit.
 
-Cubit's monotonically increasing request token makes the newest fetch win and suppresses completion after close. Selection survives reload while its ID remains; category/filter changes clear it. Modal menus/details hold the tapped card snapshot, so later callbacks do not accidentally refer to another row. requestFilter, field-specific draft actions, handleFilterSheetResult and resetDraftFilter keep edits isolated until Apply; dismissal discards the draft.
+`fetchCards` owns the complete async/await lifecycle and `switch (result)`.
+It resolves the entry category/footer on the first fetch only. On completion it
+filters with the current category/query/committed filter, resolves the selected
+card from fresh data by ID and prepares sorted unique deposit numbers. Retry
+preserves user selections. There is no list-fetch request ID or disposal guard;
+normal UI exposes retry after failure. Do not claim newest-fetch-wins semantics
+for arbitrary overlapping programmatic list reloads.
 
-Category chips are horizontally scrollable. Resalat/Gift/Virtual use the initial strip position when visible; Bon/Family reveal the end of the strip, matching the supplied frames. Narrow layouts additionally reveal a selected chip when needed. The chip scroll viewport includes 4px top/bottom padding so its shadow is not clipped. Outer top spacing and the following gap are each12px, preserving the chip-face/search/list positions while providing room for the shadow. Cubit does not own scroll controllers. The route disposes its Cubit and both controllers.
+Category/filter changes clear the old selectedCard because the active list has
+changed. Apply commits the draft and clears it; cancellation clears only the draft.
+`requestFilter`, the field-specific draft actions, `applyFilterSheetResult` and
+`resetDraftFilter` keep edits isolated. Outside tap and system Back return null and
+discard the draft. Action/details effects carry the tapped card snapshot.
+
+The screen groups independent cards-failure and typed-effect listeners in one
+MultiBlocListener, with BlocBuilder rendering the existing screen tree. `CardFeaturesFilters` separately owns category-reveal effects and its
+category rendering subscription. Effects are consumed before awaiting Flutter
+APIs, so repeated sheets work without counters. No effect handler checks old
+message presence. No new success toast is introduced.
+
+Category chips are horizontally scrollable. Resalat/Gift/Virtual use the initial strip position when visible; Bon/Family reveal the end of the strip, matching the supplied frames. Narrow layouts additionally reveal a selected chip when needed. The chip scroll viewport includes 4px top/bottom padding so its shadow is not clipped. Outer top spacing and the following gap are each12px, preserving the chip-face/search/list positions while providing room for the shadow. Cubit does not own scroll controllers. Provider disposes Cubit when the route is removed; the filter widget disposes both controllers.
 
 ## 13. Design System Package (avp_ui)
 
@@ -234,15 +249,20 @@ Back pops the standalone route and preserves Dashboard state. Assistant returns 
 
 ## 16. Testing Strategy
 
-Four Cubit unit cases cover immutable data, category/selection, all digit sets, transactional filters, combined search/filter, reset, empty/error/retry, invalid IDs, unexpected repository exceptions, out-of-order responses and completion after disposal.
-
-Twelve widget cases cover five native frames, action/detail context, sheet origins, filter Apply/cancel/Remove, search/category/footer context, Dashboard entry/back, empty data, delayed load/error/retry/repository replacement, and320px/1.4-scale reachability. Package tests cover chips semantics/height, compact selects, instance button style versus disabled behavior and narrow label bounds. Existing shared-component tests verify default compatibility.
+Current tests exercise immutable data, category/query preservation, fresh selected
+records on reload, digit normalization, transactional filters, empty/error/retry,
+invalid IDs and exception-to-Err conversion. Widget tests cover authored geometry,
+selected card callbacks, Apply/Remove/cancel/outside dismissal/system Back,
+post-layout category reveal, ordinary rebuilds, route entry and narrow/large text.
+Phase 3 additionally covers identical failure notifications, filter opening with
+a retained error, recovery without message replay and service callbacks after error.
+No tests require completion after Cubit disposal or a runtime repository setter.
 
 Reference geometry:375px width,24px top safe area,40px bottom; list row starts y236 and measures343×116; features sheet y464/h308; details y284/h488; filter y424/h348. Gift/Virtual reference height854; other frame height812.
 
 No bank endpoint, native device/release build, transaction or advanced SVG filter equivalence is validated by these tests.
 
-Validation results: full application suite: 135 passed; final Cards flow suite after the typography adjustment: 12 passed; full avp_ui suite: 107 passed. Both analyzers report no issues. Both git diff --check commands pass.
+Historical design implementation results (2026-10-09, not phase-3 evidence): full application suite: 135 passed; final Cards flow suite after the typography adjustment: 12 passed; full avp_ui suite: 107 passed. Both analyzers report no issues. Both git diff --check commands pass.
 
 ## 17. Development and Code Review Process
 
@@ -271,58 +291,59 @@ The existing assistant visual invokes a callback or returns from the route. No n
 
 | Version | Date | Change |
 | --- | --- | --- |
+| 1.1.0 | 2026-11-01 | Phase-3 Cubit/UseCase/GetIt and status-notification migration; preserve existing UI and banking behavior; current verification below |
 | 1.0.0 | 2026-10-09 | Implement six-phase standalone Cards flow, connected sheets, Cubit/mock repository, allowlisted routes and reviewed compatible shared/package variants; add tests and nine rendered review states |
 
 ## Resalat issuance integration (2026-10-09)
 
 Without a supplied onActionRequested callback, the reissue sheet action opens CardIssuanceScreen with linkedDeposit context. Explicit host callbacks retain precedence. The nested assistant path pops issuance and then invokes the Cards host callback. See [complete flow architecture and component audit](card-issuance.md).
 
-## Cubit/State coding convention
+## Phase 3 — Cubit contract adoption (2026-11-01)
 
-Follow the authoritative [UI/Cubit/State contract](../ui-cubit-state-agent-rules-en.md),
-especially Section 6.6 for action names and method responsibilities and Section 8
-for returned `.then` chains and lifecycle checks. State remains a plain Freezed
-data class; actions publish dependent fields explicitly through `copyWith`.
-Cubit resolves registered dependencies internally. UI reads State directly and
-executes prepared effects.
+The authoritative [UI/Cubit/State contract](../ui-cubit-state-agent-rules-en.md)
+and [clean-code skill](../../.agents/skills/pishkhan-cubit-clean-code/SKILL.md)
+control this migration. There are no `.then` chains, `isClosed`, Cubit-side
+UseCase construction or State publication helpers in this Cubit.
+`LoadCardsUseCase` lives in `card_features_usecase.dart`, is registered in GetIt
+and is resolved once in a final Cubit field. GetIt never registers Cubit.
 
-CardFeaturesCubit now uses `fetchCards`, `updateSearchQuery`, `requestCardActions`,
-`handleCardActionSelection` and `requestSelectedCategoryReveal`. Details and
-service requests have focused actions. Reused lookups, deposit-number extraction,
-footer selection, service IDs and filtering are private pure calculations;
-State publication remains explicit in each action. The fetch returns its `.then`
-chain and checks disposal/request identity once at callback entry. Synchronous
-actions have no `isClosed` or duplicate UI-precondition guards. Row actions receive the rendered card directly; known card/draft/footer data are not defensively revalidated. The unused repository replacement, selection
-setter and generic filter setup/setter APIs have been removed.
+| Operation | Owner | Triggers |
+|---|---|---|
+| Card list | `fetchCards` | Provider entry, visible failure Retry |
 
-## Card list interaction ownership (2026-10-17)
+| Step | Reads | Next / return / lifetime |
+|---|---|---|
+| Loading/failure | cardsStatus, message at failure transition | Retry in the same live scope; Back unavailable while loading |
+| List/search/category | cards, visibleCards, category, query, footerAction | Same screen; selections/query survive reload |
+| Filter sheet | draftFilter and depositNumbers; committed filter stays unchanged | Apply commits; dismiss/cancel discards draft; Cubit stays alive |
+| Actions/details | selected card snapshot in effect | Details or existing service/host callback; modal shares route lifetime |
+| Service / route exit | prepared request and serviceId | Navigation/host runs independently of retained error; Provider closes on removal |
 
-`CardListScreen` delegates card selection, menu/detail requests, service request
-construction, destination service IDs, footer selection and category reveal
-requests to `CardFeaturesCubit`. Plain State carries `footerAction`, a typed
-`CardFeaturesEffect`. Reusable commands are consumed by the UI before awaiting
-them, so repeated interactions are delivered without counters. A filtered `BlocConsumer` listener executes navigation, host
-callbacks, sheets, messages and scrolling; sheet selections return to Cubit.
+Repeated calculations remain pure helpers: filtering, deposit-number extraction,
+footer choice, service ID and category reveal. Independent search/category/Apply
+emits stay explicit even when they touch overlapping fields. The private
+`_fetchCardsForCategory` pass-through split was removed so the real operation is
+readable in `fetchCards` itself. No request lifecycle was duplicated.
 
-There is no `didChangeDependencies` hook or initial-reveal flag. The provider
-schedules a single post-layout Cubit reveal action, guarded against disposal.
-Search/scroll controllers and chip contexts remain UI-owned layout resources
-and are released with the screen. The initial and subsequent category reveals
-use the same effect path. The builder reads the footer action directly from State.
+Flow review: removed 8 blanket failure/message clears. Existing selectedCard,
+draftFilter and consumed-effect clears retain their actual list/modal readers.
+Category reveal still runs once after initial listener attachment/layout and on
+subsequent selection. No request payload, route, bank adapter or visual token changed.
 
-## UI/Cubit contract adoption (2026-10-17)
+Phase-3 verification is recorded in [virtual-card-request.md](virtual-card-request.md#phase-3-verification).
 
-CardFeaturesCubit preserves its supplied initial State during construction.
-Its explicit fetchCards action resolves the initial category and footer. Plain card
-interaction types are in presentation/card_features/card_feature_action.dart,
-independent of widgets. Flow Back decisions, gift review/filter continuation and
-password receipt/exit decisions are Cubit-owned; UI listeners execute their
-intents. See the adoption report for the complete scope and validation.
+## Phases 1–3 listener-composition follow-up
 
-### Dependency and listener clarification (2026-10-17)
+The owner-approved [contract v1.21](../ui-cubit-state-agent-rules-en.md#116-choose-builder-listener-or-consumer-by-responsibility)
+groups independent listeners at each screen/flow boundary and uses BlocBuilder
+for rendering there. CardListScreen now has two focused listeners in one
+MultiBlocListener: entering cards failure and non-reveal typed effects.
+CardFeaturesFilters keeps its local Consumer for category rendering and scrolling
+through its own ScrollController; it remains the sole category-reveal consumer.
 
-The screen/feature-flow widget owns BlocProvider.create, including Home in
-DashboardScreen; GoRouter only selects the destination. Cubits resolve existing
-Repository/service/UseCase registrations through GetIt fields, without dependency
-constructor arguments from UI. Multi-case and substantial async listeners use
-named widget/State methods with the existing listenWhen filter.
+The former outer Listener/inner Consumer has only been recomposed. Existing
+predicates, named callbacks, sheet results/consumption, post-layout reveal,
+Provider ownership, Back behavior and widget-tree content are unchanged. No
+Cubit/State/dependency or request changes are part of this follow-up.
+Verification for this follow-up is recorded in
+[virtual-card-request.md](virtual-card-request.md#listener-composition-follow-up-verification).

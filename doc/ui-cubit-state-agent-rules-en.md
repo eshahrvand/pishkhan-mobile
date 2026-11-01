@@ -1,7 +1,7 @@
 # UI, Cubit and State Coding Contract for the Team and Agents
 
 **Project:** Smart Virtual Counter — `pishkhan_mobile`  
-**Version:** 1.20 — Status-driven request notifications<br>
+**Version:** 1.21 — Independent listeners and rendering boundaries<br>
 **Date:** 2026-11-01<br>
 **Scope:** Presentation coding style, State management and readability rules  
 **Status:** Authoritative coding contract. Historical examples do not override the mandatory ownership rules or the owner amendments below. Implementation status is recorded in the feature documentation.
@@ -77,6 +77,30 @@ must be reviewed alongside behavioral tests for repeated failures, retry-success
 effects after errors and concurrent operation results. Older phase test totals
 are historical evidence, not verification of a later notification migration.
 See Sections 8.4 and 11.3–11.4 for the target examples.
+
+## Mandatory Owner Clarification, 2026-11-01: Listener Composition
+
+The owner approved grouping independent screen/flow listeners in
+`MultiBlocListener` and using `BlocBuilder` for rendering at that boundary.
+When request feedback and typed effect/navigation are independent, put each
+focused `BlocListener` in the same list. Do not retain another screen-level
+`BlocConsumer` for effect/navigation under that listener group, or express the
+same independent responsibilities as `BlocListener -> BlocConsumer`.
+
+This does not prohibit every Consumer beneath a MultiBlocListener ancestor.
+A distinct local section that owns both rendering and its related Flutter effect
+may keep `BlocConsumer`: for example a sheet that closes on its selection, a
+carousel that synchronizes its own PageController, or a filter strip that owns
+category scrolling. Keep these resource/modal effects at their actual owner;
+do not move them into a screen handler merely to eliminate Consumer widgets.
+A boundary with only one effect may use a single BlocListener with BlocBuilder;
+MultiBlocListener is not mandatory without multiple independent effects.
+
+When migrating composition only, preserve listenWhen/buildWhen predicates,
+callback responsibilities, command consumption, initial attachment/layout timing,
+Provider lifetime and all rendering/subscription boundaries. Do not merge error
+feedback with typed effects or subscribe twice to the same command. Section 11.6
+records the selection rule. Phases 1–3 are reviewed under this clarification.
 
 ## Mandatory Owner Clarification, 2026-11-01: Independent Events and Repeated Fields
 
@@ -591,7 +615,7 @@ source implementation exceptions as target rules.
 | Actions | Specific typed actions own transferable calculations, validation, request construction and flow decisions. Write emit(state.copyWith(...)) in the action. Publish dependent values consistently. | Generic string/index field dispatch, State publication intermediaries, UI reconstruction of requests or hidden State getters |
 | Async | Operations that callers can await return `Future<void>` with `async/await` (no `.then` chains, no `catchError` in Cubit); handle Result with a switch after the `await`; no isClosed anywhere; a request-id check only for a real overlapping-response case; UI controls interaction availability; keep server idempotency. | `.then` chains, any isClosed check, catchError for expected failures, or defensive guards that repeat what UI/validation already guarantees |
 | Rendering | BlocBuilder renders a cohesive changing section. A child receiving the parent's selected State MUST NOT add a duplicate subscription to the same data. Rendering MUST NOT start requests. | Load/submit/analytics in build, ceremonial builder per Text/Icon, duplicate nested builders or business rules hidden in buildWhen |
-| Effects | BlocListener executes prepared Flutter effects. BlocConsumer is used when the same section needs both rendering and a side effect. MultiBlocListener groups actually independent effects. | Flow decisions in listeners, mandatory Consumer/MultiBlocListener everywhere or a new generic effect framework without a concrete need |
+| Effects | Independent screen/flow listeners share MultiBlocListener with BlocBuilder rendering at that boundary. A focused local section may use BlocConsumer for its rendering and related controller/modal effect. | A second screen-level Consumer for the same effect boundary; flow decisions in listeners; mandatory Consumer/MultiBlocListener everywhere; a new generic effect framework |
 | Listener methods | Every multi-case effect switch and substantial async listener body MUST be a named widget/State method referenced by listener. Keep its focused listenWhen adjacent. | An inline multi-case listener or moving eligibility/request/navigation-intent decisions into the named UI method |
 | UI structure | Use explicit widget composition and block-bodied build methods. Fixed forms show each field's label, value, error and specific action together. | Widget-tree helper methods, private Screen/View wrappers, schema/array/map/record renderers for fixed forms or compression hiding responsibilities |
 | Widget boundaries | Extract substantial responsibilities or actual reuse into public, meaningfully named widgets in their own files. Preserve their subscription/resource boundaries. | A new widget/file for every title, spacer or icon; arbitrary fragmentation; treating source line counts as a mandatory exact limit |
@@ -2587,10 +2611,25 @@ If `buildWhen` needs 15–20 fields, review the subtree boundary first. Do not c
 
 - Use BlocBuilder when the section only needs State-driven rendering.
 - Use BlocListener when it only needs to execute a Flutter side effect.
-- Use BlocConsumer when the same section meaningfully needs both, such as a
-  submission button that displays loading and whose result closes its sheet.
+- Use BlocConsumer when a focused local section meaningfully needs both, such
+  as a submission button that displays loading and whose result closes its sheet.
 - Use MultiBlocListener for genuinely independent side effects, not as a
   compulsory screen template. It does not create additional Cubits.
+
+**Screen/flow composition:** when there are multiple independent listeners,
+use `MultiBlocListener(listeners: [...], child: BlocBuilder(...))` at that
+boundary. The list contains both request-result and typed-effect/navigation
+listeners. Do not leave the latter in a screen-level Consumer beneath the group
+or split the same screen responsibility into Listener → Consumer. Named handlers
+and their existing focused predicates remain unchanged.
+
+**Local Consumer:** a nested section may still use Consumer when it owns its
+rendering plus a related Flutter effect. A surrounding screen listener group
+alone does not make it redundant. Existing examples in phases 2–3 include modal
+selection closing its own sheet, carousel controller synchronization, the Home
+panel’s prompt-focus effects and filter-strip category scrolling. Their local
+resource ownership differs from the screen’s request feedback/navigation.
+Preserve those boundaries; do not centralize controllers or duplicate listeners.
 
 A substantial async listener or a multi-case effect switch belongs in a named
 widget/State method such as `_handleEffect`, referenced directly by listener.
@@ -4260,6 +4299,7 @@ This text is a compact summary of the mandatory contract, not an alternative to 
 ### 24.5 While Writing UI
 
 - [ ] Request feedback follows each operation's terminal status transition. Typed-effect handlers do not gate effects on message/failure presence; success feedback uses localized success copy, not retained failure text. Cover repeated failures, success after retry, effects after errors and concurrent results.
+- [ ] At a screen/flow boundary with independent listeners, MultiBlocListener contains them all and BlocBuilder renders; no second screen-level Consumer for that same effect responsibility. Coherent local Consumers keep their actual resource/modal ownership.
 
 - [ ] Provider placement is clear and ownership uses create.
 - [ ] The Cubit constructor and initial action are directly visible in Provider.create; no locator resolution of Cubit or custom creation helper.
@@ -4403,6 +4443,11 @@ These numbers refer to the supplementary review list in the conversation, not th
 Open item 7 does not permit array-driven fixed forms or index-based field actions; item 2 explicitly prohibits them. Acceptance of empty button callbacks under item 10 does not permit empty Listeners or fabricated APIs. These are separate concerns.
 
 ### 25.2 Consolidation Status
+
+Version 1.21 (2026-11-01) records the owner-approved listener composition:
+independent screen/flow listeners share MultiBlocListener and rendering uses
+BlocBuilder at that boundary; coherent local Consumers remain allowed. Phases
+1–3 adopt it without changing predicates, effects or user behavior.
 
 Version 1.20 (2026-11-01) records the approved status-driven notification model:
 no blanket failure/message clearing, distinct request-result/effect subscriptions,

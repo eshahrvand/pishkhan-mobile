@@ -1,3 +1,11 @@
+import 'package:pishkhan_mobile/features/cards/domain/usecases/card_features_usecase.dart';
+import 'package:pishkhan_mobile/features/cards/domain/usecases/virtual_card_request_usecase.dart';
+import 'package:pishkhan_mobile/features/cards/domain/entities/virtual_card_data.dart';
+
+import '../../cards/presentation/flows/card_features/support/test_cards_repository.dart';
+import '../../cards/presentation/flows/virtual_card_request/cubit/virtual_card_cubit_test.dart'
+    show TestVirtualRepository;
+
 import '../../support/registered_dependency.dart';
 import '../../support/auth_test_dependencies.dart';
 
@@ -106,6 +114,33 @@ void main() {
     );
     expect(repository.loginCalls, 1);
   });
+
+  test(
+    'card use cases resolve the repositories from their own container',
+    () async {
+      final cards = FakeCardsRepository()..result = const Success([]);
+      await container.unregister<CardsRepository>();
+      container.registerSingleton<CardsRepository>(cards);
+      final listed = await container<LoadCardsUseCase>()();
+      expect((listed as Success<List<ListedCard>>).data, isEmpty);
+
+      final virtual = TestVirtualRepository()..wallet = 42;
+      await container.unregister<VirtualCardRepository>();
+      container.registerSingleton<VirtualCardRepository>(virtual);
+      final catalog = await container<LoadVirtualCardCatalogUseCase>()();
+      expect(
+        (catalog as Success<VirtualCardCatalog>).data,
+        same(virtual.catalog),
+      );
+      final quote = await container<QuoteVirtualCardsUseCase>()(
+        virtual.catalog.deposits.first.id,
+        4,
+      );
+      expect((quote as Success<VirtualCardQuote>).data.walletBalanceRial, 42);
+      expect(quote.data.depositId, virtual.catalog.deposits.first.id);
+      expect(quote.data.count, 4);
+    },
+  );
 
   test(
     'provider-created feature scopes start independently and can be reopened',

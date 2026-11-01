@@ -1155,6 +1155,13 @@ belong directly in the owning screen/feature-flow widget (Section 12.6), without
 an extra Screen/View wrapper. Complete coding examples belong to the coding
 contract rather than introducing another screen template here.
 
+Independent screen/flow request-result and typed-effect/navigation listeners
+share one `MultiBlocListener`; its rendering child is a `BlocBuilder`, without
+another screen-level Consumer for the same effects. A distinct local section
+may keep Consumer for its rendering and related controller/modal effect. Preserve
+its actual resource ownership and existing predicates; do not move controllers
+or duplicate effects. See coding-contract v1.21 Section 11.6.
+
 ### 12.3 Code Generation Policy
 
 | Case | Tool | Reason |

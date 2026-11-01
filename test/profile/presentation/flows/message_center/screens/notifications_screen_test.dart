@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
+
 import 'package:pishkhan_mobile/features/profile/presentation/message_center/widgets/notification_card.dart';
 import 'package:pishkhan_mobile/features/profile/presentation/message_center/widgets/notification_header.dart';
 import 'package:pishkhan_mobile/features/profile/presentation/message_center/screens/notification_detail_screen.dart';
@@ -18,6 +20,8 @@ import 'package:pishkhan_mobile/features/profile/presentation/message_center/scr
 import 'package:pishkhan_mobile/generated/l10n.dart';
 
 void main() {
+  setUp(configureDependencies);
+  tearDown(() => getIt.reset());
   setUpAll(() async {
     final font = FontLoader(AppTypography.defaultFontFamily)
       ..addFont(

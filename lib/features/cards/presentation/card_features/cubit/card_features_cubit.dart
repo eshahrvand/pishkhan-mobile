@@ -8,8 +8,7 @@ import 'package:pishkhan_mobile/core/result/result.dart';
 
 import '../../../domain/entities/card_filter.dart';
 import '../../../domain/entities/listed_card.dart';
-import '../../../domain/repositories/cards_repository.dart';
-import '../../../domain/usecases/card_features.dart';
+import '../../../domain/usecases/card_features_usecase.dart';
 import '../card_feature_action.dart';
 import 'card_features_effect.dart';
 
@@ -27,10 +26,9 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
 
   final CardCategory? initialCategory;
 
-  final _repository = getIt<CardsRepository>();
-  late final _loadCards = LoadCards(_repository);
+  final loadCardsUseCase = getIt<LoadCardsUseCase>();
 
-  Future<void> fetchCards() {
+  Future<void> fetchCards() async {
     if (state.cardsStatus == RequestStatus.initial) {
       final category = initialCategory ?? state.category;
       emit(
@@ -40,46 +38,36 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
         ),
       );
     }
-    return _fetchCardsForCategory();
-  }
 
-  Future<void> _fetchCardsForCategory() {
-    emit(
-      state.copyWith(
-        cardsStatus: RequestStatus.loading,
-        failure: null,
-        message: null,
-      ),
-    );
-    return _loadCards().then((result) {
-      switch (result) {
-        case Err(:final failure):
-          emit(
-            state.copyWith(
-              cardsStatus: RequestStatus.failure,
-              failure: failure,
-              message: getRequestErrorMessage(failure),
+    emit(state.copyWith(cardsStatus: RequestStatus.loading));
+    final result = await loadCardsUseCase();
+    switch (result) {
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            cardsStatus: RequestStatus.failure,
+            failure: failure,
+            message: getRequestErrorMessage(failure),
+          ),
+        );
+      case Success(:final data):
+        emit(
+          state.copyWith(
+            cardsStatus: RequestStatus.success,
+            cards: data,
+            selectedCard: data
+                .where((card) => card.id == state.selectedCard?.id)
+                .firstOrNull,
+            visibleCards: _filterCards(
+              data,
+              state.category,
+              state.filter,
+              state.searchQuery,
             ),
-          );
-        case Success(:final data):
-          emit(
-            state.copyWith(
-              cardsStatus: RequestStatus.success,
-              cards: data,
-              selectedCard: data
-                  .where((card) => card.id == state.selectedCard?.id)
-                  .firstOrNull,
-              visibleCards: _filterCards(
-                data,
-                state.category,
-                state.filter,
-                state.searchQuery,
-              ),
-              depositNumbers: _depositNumbers(data),
-            ),
-          );
-      }
-    });
+            depositNumbers: _depositNumbers(data),
+          ),
+        );
+    }
   }
 
   void selectCategory(CardCategory value) {
@@ -95,27 +83,17 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
           state.filter,
           state.searchQuery,
         ),
-        message: null,
       ),
     );
   }
 
   void requestSelectedCategoryReveal() {
-    emit(
-      state.copyWith(
-        effect: _categoryRevealEffect(state.category),
-        message: null,
-      ),
-    );
+    emit(state.copyWith(effect: _categoryRevealEffect(state.category)));
   }
 
   void requestCardActions(ListedCard card) {
     emit(
-      state.copyWith(
-        selectedCard: card,
-        effect: CardActionsRequested(card),
-        message: null,
-      ),
+      state.copyWith(selectedCard: card, effect: CardActionsRequested(card)),
     );
   }
 
@@ -131,7 +109,7 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
   }
 
   void requestCardDetails(ListedCard card) {
-    emit(state.copyWith(effect: CardDetailsRequested(card), message: null));
+    emit(state.copyWith(effect: CardDetailsRequested(card)));
   }
 
   void requestCardService(CardFeatureAction action, {ListedCard? card}) {
@@ -145,7 +123,6 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
           ),
           serviceId: _cardServiceId(action),
         ),
-        message: null,
       ),
     );
   }
@@ -173,7 +150,6 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
       state.copyWith(
         draftFilter: state.filter,
         effect: const CardFilterRequested(),
-        message: null,
       ),
     );
   }

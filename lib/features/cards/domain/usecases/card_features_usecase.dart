@@ -4,8 +4,8 @@ import 'package:pishkhan_mobile/core/result/failure.dart';
 import '../entities/listed_card.dart';
 import '../repositories/cards_repository.dart';
 
-class LoadCards {
-  const LoadCards(this.repository);
+class LoadCardsUseCase {
+  const LoadCardsUseCase(this.repository);
   final CardsRepository repository;
   Future<Result<List<ListedCard>>> call() async {
     try {

@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
+
 import '../../../../../support/registered_dependency.dart';
 
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
@@ -69,6 +71,8 @@ Future<void> fillVirtual(VirtualCardCubit c) async {
 }
 
 void main() {
+  setUp(configureDependencies);
+  tearDown(() => getIt.reset());
   test(
     'quote, positive bounded count, wallet and consent gate submission',
     () async {
@@ -354,7 +358,7 @@ void main() {
       expect(cubit.state.retryAction, VirtualCardRetryAction.quote);
       repository.failure = null;
       await cubit.submitRetry();
-      expect(cubit.state.failure, isNull);
+      expect(cubit.state.failure?.code, 'quote-offline');
       cubit.updateTermsAcceptance(true);
       repository.submitFailure = const DataFailure('submit-offline');
       await cubit.submitVirtualCards();

@@ -22,6 +22,15 @@ typed effects execute independently of retained message text. Existing success
 behavior is preserved without adding new success toasts. Earlier phase test
 results below remain historical; the notification migration has its own checks.
 
+Under [contract v1.21](../ui-cubit-state-agent-rules-en.md#116-choose-builder-listener-or-consumer-by-responsibility),
+AuthScreen already groups CAPTCHA, OTP-request and login failure listeners plus
+the typed-effect listener in MultiBlocListener. Existing BlocBuilders render the
+step and form sections; there is no Consumer for a second screen-effect path.
+The phase-1 composition required no code change. Guest inline feedback, command
+consumption, success callback, initial attachment and existing build/listen
+predicates remain intact.
+
+
 ## Confirmed bank contract
 
 The owner supplied request/response samples and confirmed the raw token header
@@ -235,3 +244,10 @@ Generated files are not hand-edited. Run the complete build_runner generator
 when generation is needed: a filtered run can remove cached ignored Freezed
 outputs outside its filter. Phase 1 changes neither State's shape nor DTOs and
 needs no regeneration.
+
+### Listener-composition follow-up verification — 2026-11-01
+
+The shared phase-1/2/3 regression command passed 385 tests after the card-list and
+virtual-request screen composition change. This flow’s existing composition and
+local resource/modal consumers were preserved. See the command and final checks
+in [the follow-up report](../cards/virtual-card-request.md#listener-composition-follow-up-verification).

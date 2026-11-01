@@ -14,8 +14,8 @@ Future<Result<T>> virtualCardBoundary<T>(
   }
 }
 
-class LoadVirtualCardCatalog {
-  const LoadVirtualCardCatalog(this.repository);
+class LoadVirtualCardCatalogUseCase {
+  const LoadVirtualCardCatalogUseCase(this.repository);
   final VirtualCardRepository repository;
   Future<Result<VirtualCardCatalog>> call() async {
     final result = await virtualCardBoundary(repository.load);
@@ -34,8 +34,8 @@ class LoadVirtualCardCatalog {
   }
 }
 
-class QuoteVirtualCards {
-  const QuoteVirtualCards(this.repository);
+class QuoteVirtualCardsUseCase {
+  const QuoteVirtualCardsUseCase(this.repository);
   final VirtualCardRepository repository;
   Future<Result<VirtualCardQuote>> call(String depositId, int count) async {
     final result = await virtualCardBoundary(

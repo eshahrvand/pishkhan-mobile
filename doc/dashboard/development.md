@@ -28,6 +28,16 @@ typed effects execute independently of retained message text. Existing success
 behavior is preserved without adding new success toasts. Earlier phase test
 results below remain historical; the notification migration has its own checks.
 
+Under [contract v1.21](../ui-cubit-state-agent-rules-en.md#116-choose-builder-listener-or-consumer-by-responsibility),
+DashboardScreen already groups its four request-failure listeners and screen
+effects in MultiBlocListener, with BlocBuilder rendering below it. There is no
+additional screen-level Consumer for those effects. Local Consumers retain
+focused responsibilities: Home-panel prompt focus, card/deposit/loan carousel
+controller synchronization, drawer selection and service-sheet selection. These
+widgets own their Flutter resources/modal result and do not duplicate the screen
+error/effect listeners. Their predicates and ownership remain unchanged.
+
+
 ## 1. Ownership and scope
 
 DashboardScreen directly constructs HomeCubit and calls `fetchDashboard()` in
@@ -460,3 +470,10 @@ The comparison uses freshly retrieved Figma design context and screenshots, then
 ### 13.8 Standalone Cards flow integration (2026-10-09)
 
 The dedicated Cards flow now lives under features/cards, separately from Dashboard's carousel. The core routing bridge opens it for card-list/card-virtual/card-expired-gift when no host service override is supplied. Reviewed additive shared/package parameters preserve existing Dashboard defaults. See [Cards architecture and current component audit](../cards/card-services.md) for the new colored AppCardsList variant, configurable back/sheet actions, compact selectors/search, AppChips, footer styling and recorded backdrop SVG limitation.
+
+### Listener-composition follow-up verification — 2026-11-01
+
+The shared phase-1/2/3 regression command passed 385 tests after the card-list and
+virtual-request screen composition change. This flow’s existing composition and
+local resource/modal consumers were preserved. See the command and final checks
+in [the follow-up report](../cards/virtual-card-request.md#listener-composition-follow-up-verification).

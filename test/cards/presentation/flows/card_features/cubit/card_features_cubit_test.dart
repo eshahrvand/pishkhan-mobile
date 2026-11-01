@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
+
 import '../../../../../support/registered_dependency.dart';
 
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
@@ -14,6 +16,8 @@ import 'package:pishkhan_mobile/features/cards/presentation/card_features/cubit/
 import '../support/test_cards_repository.dart';
 
 void main() {
+  setUp(configureDependencies);
+  tearDown(() => getIt.reset());
   test(
     'interaction effects retain card context and repeat identical requests',
     () async {
