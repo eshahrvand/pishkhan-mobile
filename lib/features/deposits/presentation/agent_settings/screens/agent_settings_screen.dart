@@ -28,16 +28,15 @@ class AgentSettingsScreen extends StatelessWidget {
   final String? initialDepositNumber;
   final VoidCallback? onAssistantPressed;
 
+  void _showRequestFailure(BuildContext context, AgentSettingsState state) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(state.message!)));
+  }
+
   Future<void> _handleEffect(
     BuildContext context,
     AgentSettingsState state,
   ) async {
-    if (state.message != null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(state.message!)));
-      return;
-    }
-
     switch (state.effect) {
       case AgentDepositFilterRequested():
         context.read<AgentSettingsCubit>().consumeAgentSettingsInteraction();
@@ -93,77 +92,87 @@ class AgentSettingsScreen extends StatelessWidget {
       create: (_) =>
           AgentSettingsCubit(initialDepositNumber: initialDepositNumber)
             ..fetchAgents(),
-      child: BlocConsumer<AgentSettingsCubit, AgentSettingsState>(
-        listenWhen: (previous, current) =>
-            (previous.effect != current.effect && current.effect != null) ||
-            ((previous.agentsStatus != current.agentsStatus &&
-                current.agentsStatus == RequestStatus.failure)),
-        listener: _handleEffect,
-        builder: (context, state) {
-          return Directionality(
-            textDirection: TextDirection.rtl,
-            child: PopScope(
-              canPop:
-                  (state.agentsStatus != RequestStatus.loading) &&
-                  (state.effect is AgentBackRequested),
-              onPopInvokedWithResult: (didPop, result) {
-                if (!didPop && state.agentsStatus != RequestStatus.loading) {
-                  context.read<AgentSettingsCubit>().requestBack();
-                }
-              },
-              child: Scaffold(
-                backgroundColor: context.colors.surfaceSubtle,
-                body: SafeArea(
-                  child: Column(
-                    children: [
-                      AppTopBar(
-                        title: state.details == null
-                            ? S.current.dashboardAgentSettings
-                            : S.current.agentSettingsDetails,
-                        showLeadingActions: false,
-                        leadingAction: state.details == null
-                            ? null
-                            : AppButton(
-                                icon: const SizedBox.square(
-                                  dimension: 24,
-                                  child: Center(
-                                    child: AvpImage(
-                                      image:
-                                          '${AppConstants.baseImage}agent_cancel.svg',
-                                      color: AppPalette.error500,
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<AgentSettingsCubit, AgentSettingsState>(
+            listenWhen: (previous, current) =>
+                previous.agentsStatus != current.agentsStatus &&
+                current.agentsStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<AgentSettingsCubit, AgentSettingsState>(
+            listenWhen: (previous, current) =>
+                previous.effect != current.effect && current.effect != null,
+            listener: _handleEffect,
+          ),
+        ],
+        child: BlocBuilder<AgentSettingsCubit, AgentSettingsState>(
+          builder: (context, state) {
+            return Directionality(
+              textDirection: TextDirection.rtl,
+              child: PopScope(
+                canPop:
+                    (state.agentsStatus != RequestStatus.loading) &&
+                    (state.effect is AgentBackRequested),
+                onPopInvokedWithResult: (didPop, result) {
+                  if (!didPop && state.agentsStatus != RequestStatus.loading) {
+                    context.read<AgentSettingsCubit>().requestBack();
+                  }
+                },
+                child: Scaffold(
+                  backgroundColor: context.colors.surfaceSubtle,
+                  body: SafeArea(
+                    child: Column(
+                      children: [
+                        AppTopBar(
+                          title: state.details == null
+                              ? S.current.dashboardAgentSettings
+                              : S.current.agentSettingsDetails,
+                          showLeadingActions: false,
+                          leadingAction: state.details == null
+                              ? null
+                              : AppButton(
+                                  icon: const SizedBox.square(
+                                    dimension: 24,
+                                    child: Center(
+                                      child: AvpImage(
+                                        image:
+                                            '${AppConstants.baseImage}agent_cancel.svg',
+                                        color: AppPalette.error500,
+                                      ),
                                     ),
                                   ),
+                                  tooltip: S.current.agentSettingsCancel,
+                                  variant: AppButtonVariant.text,
+                                  onPressed: context
+                                      .read<AgentSettingsCubit>()
+                                      .requestCancellation,
                                 ),
-                                tooltip: S.current.agentSettingsCancel,
-                                variant: AppButtonVariant.text,
-                                onPressed: context
-                                    .read<AgentSettingsCubit>()
-                                    .requestCancellation,
-                              ),
-                        trailingIcon: const AvpImage(
-                          image:
-                              '${AppConstants.baseImage}deposit_list_back.svg',
-                          width: 24,
-                          height: 24,
+                          trailingIcon: const AvpImage(
+                            image:
+                                '${AppConstants.baseImage}deposit_list_back.svg',
+                            width: 24,
+                            height: 24,
+                          ),
+                          trailingTooltip: S.current.backLabel,
+                          onTrailingPressed:
+                              (state.agentsStatus != RequestStatus.loading)
+                              ? context.read<AgentSettingsCubit>().requestBack
+                              : null,
                         ),
-                        trailingTooltip: S.current.backLabel,
-                        onTrailingPressed:
-                            (state.agentsStatus != RequestStatus.loading)
-                            ? context.read<AgentSettingsCubit>().requestBack
-                            : null,
-                      ),
-                      Expanded(
-                        child: state.details == null
-                            ? AgentSettingsContent(state: state)
-                            : AgentDetails(agent: state.details!),
-                      ),
-                    ],
+                        Expanded(
+                          child: state.details == null
+                              ? AgentSettingsContent(state: state)
+                              : AgentDetails(agent: state.details!),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }

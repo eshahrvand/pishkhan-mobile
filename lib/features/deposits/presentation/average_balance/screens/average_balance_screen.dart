@@ -31,16 +31,15 @@ class AverageBalanceScreen extends StatelessWidget {
   final String? initialDepositNumber;
   final AverageBalanceState initialState;
   final ValueChanged<CertificateReceipt>? onCompleted;
+  void _showRequestFailure(BuildContext context, AverageBalanceState state) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(state.message!)));
+  }
+
   Future<void> _handleEffect(
     BuildContext context,
     AverageBalanceState state,
   ) async {
-    if (state.message != null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(state.message!)));
-      return;
-    }
-
     switch (state.effect) {
       case CertificateAddressRequested():
         context.read<AverageBalanceCubit>().consumeAverageBalanceInteraction();
@@ -117,21 +116,35 @@ class AverageBalanceScreen extends StatelessWidget {
         initialDepositNumber: initialDepositNumber,
         initialState: initialState,
       )..fetchCatalog(),
-      child: BlocListener<AverageBalanceCubit, AverageBalanceState>(
-        listenWhen: (previous, current) =>
-            (previous.effect != current.effect && current.effect != null) ||
-            (previous.navigation != current.navigation &&
-                current.navigation != null) ||
-            ((previous.catalogStatus != current.catalogStatus &&
-                    current.catalogStatus == RequestStatus.failure) ||
-                (previous.submissionStatus != current.submissionStatus &&
-                    current.submissionStatus == RequestStatus.failure)),
-        listener: _handleEffect,
-        child: BlocConsumer<AverageBalanceCubit, AverageBalanceState>(
-          listenWhen: (previous, current) =>
-              previous.submissionStatus != current.submissionStatus &&
-              current.submissionStatus == RequestStatus.success,
-          listener: _handleReceipt,
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<AverageBalanceCubit, AverageBalanceState>(
+            listenWhen: (previous, current) =>
+                previous.catalogStatus != current.catalogStatus &&
+                current.catalogStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<AverageBalanceCubit, AverageBalanceState>(
+            listenWhen: (previous, current) =>
+                previous.submissionStatus != current.submissionStatus &&
+                current.submissionStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<AverageBalanceCubit, AverageBalanceState>(
+            listenWhen: (previous, current) =>
+                (previous.effect != current.effect && current.effect != null) ||
+                (previous.navigation != current.navigation &&
+                    current.navigation != null),
+            listener: _handleEffect,
+          ),
+          BlocListener<AverageBalanceCubit, AverageBalanceState>(
+            listenWhen: (previous, current) =>
+                previous.submissionStatus != current.submissionStatus &&
+                current.submissionStatus == RequestStatus.success,
+            listener: _handleReceipt,
+          ),
+        ],
+        child: BlocBuilder<AverageBalanceCubit, AverageBalanceState>(
           buildWhen: (previous, current) =>
               previous.catalogStatus != current.catalogStatus ||
               previous.submissionStatus != current.submissionStatus ||

@@ -31,16 +31,18 @@ class FinancialCertificateScreen extends StatelessWidget {
   final String? initialDepositNumber;
   final FinancialCertificateState initialState;
   final ValueChanged<CertificateReceipt>? onCompleted;
+  void _showRequestFailure(
+    BuildContext context,
+    FinancialCertificateState state,
+  ) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(state.message!)));
+  }
+
   Future<void> _handleEffect(
     BuildContext context,
     FinancialCertificateState state,
   ) async {
-    if (state.message != null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(state.message!)));
-      return;
-    }
-
     switch (state.effect) {
       case CertificateAddressRequested():
         context
@@ -125,21 +127,35 @@ class FinancialCertificateScreen extends StatelessWidget {
         initialDepositNumber: initialDepositNumber,
         initialState: initialState,
       )..fetchCatalog(),
-      child: BlocListener<FinancialCertificateCubit, FinancialCertificateState>(
-        listenWhen: (previous, current) =>
-            (previous.effect != current.effect && current.effect != null) ||
-            (previous.navigation != current.navigation &&
-                current.navigation != null) ||
-            ((previous.catalogStatus != current.catalogStatus &&
-                    current.catalogStatus == RequestStatus.failure) ||
-                (previous.submissionStatus != current.submissionStatus &&
-                    current.submissionStatus == RequestStatus.failure)),
-        listener: _handleEffect,
-        child: BlocConsumer<FinancialCertificateCubit, FinancialCertificateState>(
-          listenWhen: (previous, current) =>
-              previous.submissionStatus != current.submissionStatus &&
-              current.submissionStatus == RequestStatus.success,
-          listener: _handleReceipt,
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<FinancialCertificateCubit, FinancialCertificateState>(
+            listenWhen: (previous, current) =>
+                previous.catalogStatus != current.catalogStatus &&
+                current.catalogStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<FinancialCertificateCubit, FinancialCertificateState>(
+            listenWhen: (previous, current) =>
+                previous.submissionStatus != current.submissionStatus &&
+                current.submissionStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<FinancialCertificateCubit, FinancialCertificateState>(
+            listenWhen: (previous, current) =>
+                (previous.effect != current.effect && current.effect != null) ||
+                (previous.navigation != current.navigation &&
+                    current.navigation != null),
+            listener: _handleEffect,
+          ),
+          BlocListener<FinancialCertificateCubit, FinancialCertificateState>(
+            listenWhen: (previous, current) =>
+                previous.submissionStatus != current.submissionStatus &&
+                current.submissionStatus == RequestStatus.success,
+            listener: _handleReceipt,
+          ),
+        ],
+        child: BlocBuilder<FinancialCertificateCubit, FinancialCertificateState>(
           buildWhen: (previous, current) =>
               previous.catalogStatus != current.catalogStatus ||
               previous.submissionStatus != current.submissionStatus ||

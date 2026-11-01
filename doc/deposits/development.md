@@ -106,7 +106,9 @@ legal document or bank success.
 Run the changed flow's unit/widget tests and directly related consumers only;
 full application testing requires an explicit owner request. Phase 6 covers the
 list, restrictions, surplus closure and proxy flows; its exact commands/results
-are in [phase 6 review](phase-6-review.md). This migration also checks the agent
+are in [phase 6 review](phase-6-review.md). Certificates, agent introduction
+and agent settings are migrated in [phase 7 review](phase-7-review.md), with
+separate scoped verification. This migration also checks the agent
 flow's direct consumption of the renamed shared list UseCase, without beginning
 its phase-7 rewrite. Historical broad verification commands are not instructions
 to rerun all deposit/application tests.

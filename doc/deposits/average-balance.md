@@ -31,14 +31,15 @@ The adapter supplies print/delivery fees and wallet balance. The sample costs
 official tariffs, real documents and wallet execution are not connected.
 Mock submission returns a clearly marked demo receipt without charging or
 issuing a certificate. Submission locks edits and duplicate requests; unchanged
-retry retains its idempotency key. Request-ID checks cover genuinely overlapping catalog responses. Provider owns
+retry retains its idempotency key. Catalog controls gate invocation; no
+speculative request ID or disposal guard is used. Provider owns
 the Cubit lifetime under the current UI/Cubit contract.
 
 ## Validation
 
 `test/deposits/average_balance_*_test.dart` covers six frame states, complete
 navigation/submission, nullable dates, recipient requirements, optional agent
-data, hidden-field omission, wallet gates, retry identity, overlapping fetches and Provider ownership,
+data, hidden-field omission, wallet gates, retry identity and Provider ownership,
 service routing and 320px screens with larger text in fa/en/ar.
 
 Optional captures use `CAPTURE_CERTIFICATE_PREVIEWS=1` and write PNGs into
@@ -79,3 +80,35 @@ this editor's postal-code validation.
 Shared address editor migration is recorded in [phase 5](../profile/phase-5-review.md). Its
 `ServiceRegistry.openAddressEditor` entry/result contract and this flow’s existing
 address inputs, cancellation and validation remain unchanged.
+
+## Phase 7 adoption and current verification
+
+Under [contract v1.23](../ui-cubit-state-agent-rules-en.md), every request owner
+uses async/await and a Result switch. Repository and UseCase fields are final,
+without leading underscores; UseCase fields carry the full lowerCamelCase class
+name including `UseCase`. Used UseCase classes/files have the required suffixes
+and are resolved from GetIt; UI/router do not forward dependencies.
+
+Independent request-failure, typed-effect/navigation and receipt listeners share
+`MultiBlocListener` with `BlocBuilder` rendering. Each failure publishes status,
+Failure and prepared text together. Notifications observe entering failure for
+that operation, including identical retries. Latest failure/message remain
+through loading, success and commands; effects do not gate on their presence.
+Success uses the existing receipt instead of displaying retained failure text.
+Actual form/draft/selection resets, validation, request identity and navigation
+remain. See [phase 7 review](phase-7-review.md) for flow readers, dependency wiring,
+consumer-driven clears and the final scoped commands/results. Historical broad
+verification statements are not permission to run the full application suite.
+
+The shared `LoadCertificateCatalogUseCase`, in `average_balance_usecase.dart`,
+has two named GetIt registrations: `average-balance` uses
+`DepositCertificatesRepository`; `financial-certificate` uses
+`FinancialCertificateRepository`. Each Cubit resolves its own registration in
+`loadCertificateCatalogUseCase`. This preserves the existing shared catalog
+validation without adding wrappers or another submission layer. The repository
+field remains for the existing submission operation through `certificateBoundary`;
+that operation returns Result and maps unexpected exceptions at the existing
+application boundary. Catalog validation is covered by that failure policy too.
+Catalog entry still resolves supplied initial data and derives its validity;
+subsequent input actions validate only the changed field and use stored sibling
+flags. No additional passport-expiry or date policy was introduced.

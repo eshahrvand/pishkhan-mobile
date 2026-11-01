@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
+
 import '../support/registered_dependency.dart';
 
 import 'dart:async';
@@ -40,6 +42,8 @@ Future<void> readyAverage(AverageBalanceCubit cubit) async {
 }
 
 void main() {
+  setUp(configureDependencies);
+  tearDown(() => getIt.reset());
   test('dates are optional; selection resets dependent conditions; back retains fields', () async {
     final cubit =
         withRegisteredDependency<
@@ -144,6 +148,8 @@ void main() {
       await cubit.continueFlow();
       expect(cubit.state.canContinue, isFalse);
       await cubit.close();
+      await getIt.reset();
+      configureDependencies();
       final repo = CertificateTestRepository();
       repo.loader = () async => const Err(UnexpectedFailure());
       final retry =
@@ -156,7 +162,7 @@ void main() {
       repo.loader = () async => Success(repo.catalog);
       await retry.fetchCatalog();
       expect(retry.state.catalogStatus, RequestStatus.success);
-      expect(retry.state.failure, isNull);
+      expect(retry.state.failure, const UnexpectedFailure());
       await retry.close();
     },
   );

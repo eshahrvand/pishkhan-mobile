@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/features/deposits/domain/usecases/submit_agents_usecase.dart';
 import 'package:pishkhan_mobile/features/deposits/domain/usecases/deposit_list_usecase.dart';
 
 import 'dart:async';
@@ -46,6 +47,9 @@ void main() {
     repository = RecordingAgentRepository();
     getIt.registerSingleton<DepositsRepository>(MockDepositsRepository());
     getIt.registerSingleton<AgentRepository>(repository);
+    getIt.registerLazySingleton<SubmitAgentsUseCase>(
+      () => SubmitAgentsUseCase(getIt<AgentRepository>()),
+    );
     cubit = AgentCubit();
   });
   tearDown(() async {
@@ -219,6 +223,9 @@ void main() {
         () => LoadDepositsUseCase(getIt<DepositsRepository>()),
       );
       getIt.registerSingleton<AgentRepository>(repository);
+      getIt.registerLazySingleton<SubmitAgentsUseCase>(
+        () => SubmitAgentsUseCase(getIt<AgentRepository>()),
+      );
       getIt.registerSingleton<DepositsRepository>(
         MockDepositsRepository(
           deposits: [

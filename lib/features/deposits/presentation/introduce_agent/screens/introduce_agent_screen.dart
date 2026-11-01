@@ -21,13 +21,12 @@ class IntroduceAgentScreen extends StatelessWidget {
   const IntroduceAgentScreen({super.key, this.initialDepositNumber});
   final String? initialDepositNumber;
 
-  Future<void> _handleEffect(BuildContext context, AgentState state) async {
-    if (state.message != null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(state.message!)));
-      return;
-    }
+  void _showRequestFailure(BuildContext context, AgentState state) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(state.message!)));
+  }
 
+  Future<void> _handleEffect(BuildContext context, AgentState state) async {
     switch (state.effect) {
       case AgentEffect.addNext:
         context.read<AgentCubit>().consumeAgentInteraction();
@@ -62,21 +61,33 @@ class IntroduceAgentScreen extends StatelessWidget {
       create: (_) =>
           AgentCubit(initialDepositNumber: initialDepositNumber)
             ..fetchDeposits(),
-      child: BlocListener<AgentCubit, AgentState>(
-        listenWhen: (previous, current) =>
-            previous.submissionStatus != current.submissionStatus &&
-            current.submissionStatus == RequestStatus.success,
-        listener: _handleReceipt,
-        child: BlocConsumer<AgentCubit, AgentState>(
-          listenWhen: (previous, current) =>
-              (previous.effect != current.effect &&
-                  current.effect != null) ||
-              ((previous.depositsStatus != current.depositsStatus &&
-                      current.depositsStatus == RequestStatus.failure) ||
-                  (previous.submissionStatus != current.submissionStatus &&
-                      current.submissionStatus == RequestStatus.failure)),
-          listener: _handleEffect,
-
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<AgentCubit, AgentState>(
+            listenWhen: (previous, current) =>
+                previous.depositsStatus != current.depositsStatus &&
+                current.depositsStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<AgentCubit, AgentState>(
+            listenWhen: (previous, current) =>
+                previous.submissionStatus != current.submissionStatus &&
+                current.submissionStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<AgentCubit, AgentState>(
+            listenWhen: (previous, current) =>
+                previous.effect != current.effect && current.effect != null,
+            listener: _handleEffect,
+          ),
+          BlocListener<AgentCubit, AgentState>(
+            listenWhen: (previous, current) =>
+                previous.submissionStatus != current.submissionStatus &&
+                current.submissionStatus == RequestStatus.success,
+            listener: _handleReceipt,
+          ),
+        ],
+        child: BlocBuilder<AgentCubit, AgentState>(
           builder: (context, state) {
             return Directionality(
               textDirection: TextDirection.rtl,

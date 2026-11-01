@@ -1,3 +1,11 @@
+import 'package:pishkhan_mobile/features/deposits/domain/usecases/average_balance_usecase.dart';
+import 'package:pishkhan_mobile/features/deposits/domain/entities/certificate_data.dart';
+
+import '../../deposits/average_balance_cubit_test.dart'
+    show CertificateTestRepository;
+import '../../deposits/financial_certificate_cubit_test.dart'
+    show FinancialTestRepository;
+
 import 'package:pishkhan_mobile/features/cards/domain/usecases/card_features_usecase.dart';
 import 'package:pishkhan_mobile/features/cards/domain/usecases/virtual_card_request_usecase.dart';
 import 'package:pishkhan_mobile/features/cards/domain/entities/virtual_card_data.dart';
@@ -84,6 +92,46 @@ void main() {
     expect(container.isRegistered<DepositListCubit>(), isFalse);
     expect(container.isRegistered<AverageBalanceCubit>(), isFalse);
     expect(container.isRegistered<FinancialCertificateCubit>(), isFalse);
+  });
+
+  test('named certificate catalog use cases keep the two service repositories separate', () async {
+    final average = CertificateTestRepository(
+      catalog: CertificateCatalog(
+        deposits: const [],
+        addresses: const [],
+        walletBalanceRial: 17,
+      ),
+    );
+    final financial = FinancialTestRepository(
+      catalog: CertificateCatalog(
+        deposits: const [],
+        addresses: const [],
+        walletBalanceRial: 29,
+      ),
+    );
+    await container.unregister<DepositCertificatesRepository>();
+    container.registerSingleton<DepositCertificatesRepository>(average);
+    await container.unregister<FinancialCertificateRepository>();
+    container.registerSingleton<FinancialCertificateRepository>(financial);
+    final averageUseCase = container<LoadCertificateCatalogUseCase>(
+      instanceName: 'average-balance',
+    );
+    final financialUseCase = container<LoadCertificateCatalogUseCase>(
+      instanceName: 'financial-certificate',
+    );
+    final first = await averageUseCase() as Success<CertificateCatalog>;
+    final second = await financialUseCase() as Success<CertificateCatalog>;
+    expect(first.data.walletBalanceRial, 17);
+    expect(second.data.walletBalanceRial, 29);
+    expect(
+      averageUseCase,
+      same(
+        container<LoadCertificateCatalogUseCase>(
+          instanceName: 'average-balance',
+        ),
+      ),
+    );
+    expect(financialUseCase, isNot(same(averageUseCase)));
   });
 
   test('registered login use cases use their container repository', () async {

@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/core/validators/required_text_validator.dart';
+
 import 'dart:math';
 
 import 'package:avp_ui/avp_ui.dart';
@@ -14,7 +16,7 @@ import 'package:pishkhan_mobile/core/validators/national_code_validator.dart';
 import '../../../domain/entities/certificate_data.dart';
 import '../../../domain/entities/listed_deposit.dart';
 import '../../../domain/repositories/deposit_certificates_repository.dart';
-import '../../../domain/usecases/average_balance.dart';
+import '../../../domain/usecases/average_balance_usecase.dart';
 import '../../shared/certificate_effect.dart';
 
 export 'package:pishkhan_mobile/core/flow/flow_navigation.dart';
@@ -31,6 +33,9 @@ class AverageBalanceCubit extends Cubit<AverageBalanceState> {
   }) : super(initialState);
 
   final repository = getIt<DepositCertificatesRepository>();
+  final loadCertificateCatalogUseCase = getIt<LoadCertificateCatalogUseCase>(
+    instanceName: 'average-balance',
+  );
   final String? initialDepositNumber;
   int _localAddress = 0;
   // The last sent payload owns its key; editing the form does not create a request.
@@ -39,12 +44,7 @@ class AverageBalanceCubit extends Cubit<AverageBalanceState> {
   AverageBalanceState? _entryState;
 
   void requestAddAddress() {
-    emit(
-      state.copyWith(
-        effect: const CertificateAddressRequested(),
-        message: null,
-      ),
-    );
+    emit(state.copyWith(effect: const CertificateAddressRequested()));
   }
 
   void applyAddressSelection(CertificateAddress? address) {
@@ -55,18 +55,12 @@ class AverageBalanceCubit extends Cubit<AverageBalanceState> {
     emit(
       state.copyWith(
         effect: CertificateAddressRemovalRequested(state.address!),
-        message: null,
       ),
     );
   }
 
   void requestAgentLookup() {
-    emit(
-      state.copyWith(
-        effect: const CertificateAgentUnavailable(),
-        message: null,
-      ),
-    );
+    emit(state.copyWith(effect: const CertificateAgentUnavailable()));
   }
 
   void requestBack() {
@@ -77,11 +71,7 @@ class AverageBalanceCubit extends Cubit<AverageBalanceState> {
             step: AverageBalanceStep.delivery,
             stepNumber: 2,
             progress: .6,
-            canContinue:
-                state.address != null &&
-                (!state.isOtherRecipient ||
-                    (state.isRecipientNameValid &&
-                        state.isRecipientNationalIdValid)),
+            canContinue: _canContinueDelivery(state.address),
           ),
         );
       case AverageBalanceStep.delivery:
@@ -90,37 +80,16 @@ class AverageBalanceCubit extends Cubit<AverageBalanceState> {
             step: AverageBalanceStep.conditions,
             stepNumber: 1,
             progress: .3,
-            canContinue:
-                state.deposit != null &&
-                state.language != null &&
-                state.turnover != null,
+            canContinue: _areConditionsComplete(state.deposit),
           ),
         );
       case AverageBalanceStep.conditions:
-        final needsConfirmation =
-            state.submissionStatus != RequestStatus.success &&
-            state.catalogStatus == RequestStatus.success &&
-            (state.deposit != _entryState?.deposit ||
-                state.language != _entryState?.language ||
-                state.turnover != _entryState?.turnover ||
-                state.fromDate != _entryState?.fromDate ||
-                state.toDate != _entryState?.toDate ||
-                state.address != _entryState?.address ||
-                state.recipientName != (_entryState?.recipientName ?? '') ||
-                state.recipientNationalId !=
-                    (_entryState?.recipientNationalId ?? '') ||
-                state.isIncludeAgent !=
-                    (_entryState?.isIncludeAgent ?? false) ||
-                state.isOtherRecipient !=
-                    (_entryState?.isOtherRecipient ?? false) ||
-                state.agentIdentifier != (_entryState?.agentIdentifier ?? ''));
         emit(
           state.copyWith(
-            navigation: needsConfirmation
+            navigation: _requiresExitConfirmation()
                 ? FlowNavigation.confirmExit
                 : FlowNavigation.back,
             effect: null,
-            message: null,
           ),
         );
     }
@@ -131,32 +100,19 @@ class AverageBalanceCubit extends Cubit<AverageBalanceState> {
       state.copyWith(
         navigation: confirmed == true ? FlowNavigation.back : null,
         effect: null,
-        message: null,
       ),
     );
   }
 
   void requestHome() {
-    emit(
-      state.copyWith(
-        navigation: FlowNavigation.home,
-        effect: null,
-        message: null,
-      ),
-    );
+    emit(state.copyWith(navigation: FlowNavigation.home, effect: null));
   }
 
   void applyReceiptDismissal() {
-    emit(
-      state.copyWith(
-        navigation: FlowNavigation.home,
-        effect: null,
-        message: null,
-      ),
-    );
+    emit(state.copyWith(navigation: FlowNavigation.home, effect: null));
   }
 
-  Future<void> continueFlow() {
+  Future<void> continueFlow() async {
     switch (state.step) {
       case AverageBalanceStep.conditions:
         emit(
@@ -164,11 +120,7 @@ class AverageBalanceCubit extends Cubit<AverageBalanceState> {
             step: AverageBalanceStep.delivery,
             stepNumber: 2,
             progress: .6,
-            canContinue:
-                state.address != null &&
-                (!state.isOtherRecipient ||
-                    (state.isRecipientNameValid &&
-                        state.isRecipientNationalIdValid)),
+            canContinue: _canContinueDelivery(state.address),
           ),
         );
       case AverageBalanceStep.delivery:
@@ -181,86 +133,58 @@ class AverageBalanceCubit extends Cubit<AverageBalanceState> {
           ),
         );
       case AverageBalanceStep.confirmation:
-        return submitCertificate();
+        await submitCertificate();
     }
-    return Future.value();
   }
 
-  Future<void> fetchCatalog() {
+  Future<void> fetchCatalog() async {
     emit(
-      state.copyWith(
-        catalogStatus: RequestStatus.loading,
-        canContinue: false,
-        failure: null,
-        message: null,
-      ),
+      state.copyWith(catalogStatus: RequestStatus.loading, canContinue: false),
     );
-    return LoadCertificateCatalog(repository)().then((result) {
-      switch (result) {
-        case Err(:final failure):
-          emit(
-            state.copyWith(
-              catalogStatus: RequestStatus.failure,
-              failure: failure,
-              message: getRequestErrorMessage(failure),
+    final result = await loadCertificateCatalogUseCase();
+    switch (result) {
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            catalogStatus: RequestStatus.failure,
+            failure: failure,
+            message: getRequestErrorMessage(failure),
+          ),
+        );
+      case Success(:final data):
+        final deposit = _resolveDeposit(data.deposits);
+        final total = data.printFeeRial + data.deliveryFeeRial;
+        final nameValid = RequiredTextValidator.isValid(state.recipientName);
+        final nationalIdValid = NationalCodeValidator.isValid(
+          state.recipientNationalId,
+        );
+        emit(
+          state.copyWith(
+            catalogStatus: RequestStatus.success,
+            catalog: data,
+            deposit: deposit,
+            addresses: data.addresses,
+            totalRial: total,
+            isWalletSufficient: _isWalletSufficient(data, total),
+            isRecipientNameValid: nameValid,
+            isRecipientNationalIdValid: nationalIdValid,
+            canCheckAgent: RequiredTextValidator.isValid(state.agentIdentifier),
+            stepNumber: state.step.index + 1,
+            progress: switch (state.step) {
+              AverageBalanceStep.conditions => .3,
+              AverageBalanceStep.delivery => .6,
+              AverageBalanceStep.confirmation => 1,
+            },
+            canContinue: _canContinueAfterCatalog(
+              deposit,
+              nameValid,
+              nationalIdValid,
+              _isWalletSufficient(data, total),
             ),
-          );
-        case Success(:final data):
-          final number = DigitNormalizer.normalize(initialDepositNumber ?? '')
-              .replaceAll(RegExp(r'[^0-9]'), '');
-          final deposit = data.deposits
-              .where(
-                (deposit) =>
-                    deposit.id == state.deposit?.id ||
-                    (number.isNotEmpty &&
-                        DigitNormalizer.normalize(deposit.number)
-                                .replaceAll(RegExp(r'[^0-9]'), '') ==
-                            number),
-              )
-              .firstOrNull;
-          final total = data.printFeeRial + data.deliveryFeeRial;
-          final sufficient = data.walletBalanceRial >= total;
-          final nameValid = state.recipientName.trim().isNotEmpty;
-          final nationalIdValid = NationalCodeValidator.isValid(
-            state.recipientNationalId,
-          );
-          final conditionsComplete =
-              deposit != null &&
-              state.language != null &&
-              state.turnover != null;
-          final deliveryComplete =
-              state.address != null &&
-              (!state.isOtherRecipient || (nameValid && nationalIdValid));
-          emit(
-            state.copyWith(
-              catalogStatus: RequestStatus.success,
-              catalog: data,
-              deposit: deposit,
-              addresses: data.addresses,
-              totalRial: total,
-              isWalletSufficient: sufficient,
-              isRecipientNameValid: nameValid,
-              isRecipientNationalIdValid: nationalIdValid,
-              canCheckAgent: state.agentIdentifier.trim().isNotEmpty,
-              stepNumber: state.step.index + 1,
-              progress: switch (state.step) {
-                AverageBalanceStep.conditions => .3,
-                AverageBalanceStep.delivery => .6,
-                AverageBalanceStep.confirmation => 1,
-              },
-              canContinue:
-                  conditionsComplete &&
-                  switch (state.step) {
-                    AverageBalanceStep.conditions => true,
-                    AverageBalanceStep.delivery => deliveryComplete,
-                    AverageBalanceStep.confirmation =>
-                      deliveryComplete && sufficient,
-                  },
-            ),
-          );
-          _entryState = state;
-      }
-    });
+          ),
+        );
+        _entryState = state;
+    }
   }
 
   void selectDeposit(ListedDeposit deposit) {
@@ -272,31 +196,19 @@ class AverageBalanceCubit extends Cubit<AverageBalanceState> {
         fromDate: null,
         toDate: null,
         canContinue: false,
-        failure: null,
-        message: null,
       ),
     );
   }
 
   void selectLanguage(CertificateLanguage language) {
     emit(
-      state.copyWith(
-        language: language,
-        canContinue: state.turnover != null,
-        failure: null,
-        message: null,
-      ),
+      state.copyWith(language: language, canContinue: state.turnover != null),
     );
   }
 
   void selectTurnover(StatementTurnover turnover) {
     emit(
-      state.copyWith(
-        turnover: turnover,
-        canContinue: state.language != null,
-        failure: null,
-        message: null,
-      ),
+      state.copyWith(turnover: turnover, canContinue: state.language != null),
     );
   }
 
@@ -304,11 +216,7 @@ class AverageBalanceCubit extends Cubit<AverageBalanceState> {
     emit(
       state.copyWith(
         address: address,
-        canContinue:
-            !state.isOtherRecipient ||
-            (state.isRecipientNameValid && state.isRecipientNationalIdValid),
-        failure: null,
-        message: null,
+        canContinue: _canContinueDelivery(address),
       ),
     );
   }
@@ -324,9 +232,7 @@ class AverageBalanceCubit extends Cubit<AverageBalanceState> {
       state.copyWith(
         addresses: [...state.addresses, local],
         address: local,
-        canContinue:
-            !state.isOtherRecipient ||
-            (state.isRecipientNameValid && state.isRecipientNationalIdValid),
+        canContinue: _canContinueDelivery(local),
       ),
     );
   }
@@ -347,25 +253,24 @@ class AverageBalanceCubit extends Cubit<AverageBalanceState> {
     emit(
       state.copyWith(
         isOtherRecipient: value,
-        canContinue:
-            state.address != null &&
-            (!value ||
-                (state.isRecipientNameValid &&
-                    state.isRecipientNationalIdValid)),
+        canContinue: _canContinueDelivery(
+          state.address,
+          isOtherRecipient: value,
+        ),
       ),
     );
   }
 
   void updateRecipientName(String value) {
-    final valid = value.trim().isNotEmpty;
+    final valid = RequiredTextValidator.isValid(value);
     emit(
       state.copyWith(
         recipientName: value,
         isRecipientNameValid: valid,
-        canContinue:
-            state.address != null &&
-            (!state.isOtherRecipient ||
-                (valid && state.isRecipientNationalIdValid)),
+        canContinue: _canContinueDelivery(
+          state.address,
+          isRecipientNameValid: valid,
+        ),
       ),
     );
   }
@@ -377,9 +282,10 @@ class AverageBalanceCubit extends Cubit<AverageBalanceState> {
       state.copyWith(
         recipientNationalId: normalized,
         isRecipientNationalIdValid: valid,
-        canContinue:
-            state.address != null &&
-            (!state.isOtherRecipient || (state.isRecipientNameValid && valid)),
+        canContinue: _canContinueDelivery(
+          state.address,
+          isRecipientNationalIdValid: valid,
+        ),
       ),
     );
   }
@@ -393,7 +299,7 @@ class AverageBalanceCubit extends Cubit<AverageBalanceState> {
     emit(
       state.copyWith(
         agentIdentifier: normalized,
-        canCheckAgent: normalized.trim().isNotEmpty,
+        canCheckAgent: RequiredTextValidator.isValid(normalized),
       ),
     );
   }
@@ -406,40 +312,34 @@ class AverageBalanceCubit extends Cubit<AverageBalanceState> {
     emit(state.copyWith(isInvoiceExpanded: value));
   }
 
-  Future<void> submitCertificate() {
+  Future<void> submitCertificate() async {
     var request = _createRequest(_submittedRequest?.idempotencyKey);
     if (_submittedRequest != null && request != _submittedRequest) {
       request = _createRequest(null);
     }
     _submittedRequest = request;
-    emit(
-      state.copyWith(
-        submissionStatus: RequestStatus.loading,
-        failure: null,
-        message: null,
-      ),
+    emit(state.copyWith(submissionStatus: RequestStatus.loading));
+    final result = await certificateBoundary(
+      () => repository.submitAverageBalance(request),
     );
-    return certificateBoundary(() => repository.submitAverageBalance(request))
-        .then((result) {
-          switch (result) {
-            case Err(:final failure):
-              emit(
-                state.copyWith(
-                  submissionStatus: RequestStatus.failure,
-                  failure: failure,
-                  message: getRequestErrorMessage(failure),
-                ),
-              );
-            case Success(:final data):
-              emit(
-                state.copyWith(
-                  submissionStatus: RequestStatus.success,
-                  receipt: data,
-                  canContinue: false,
-                ),
-              );
-          }
-        });
+    switch (result) {
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            submissionStatus: RequestStatus.failure,
+            failure: failure,
+            message: getRequestErrorMessage(failure),
+          ),
+        );
+      case Success(:final data):
+        emit(
+          state.copyWith(
+            submissionStatus: RequestStatus.success,
+            receipt: data,
+            canContinue: false,
+          ),
+        );
+    }
   }
 
   AverageBalanceRequest _createRequest(String? idempotencyKey) {
@@ -455,7 +355,8 @@ class AverageBalanceCubit extends Cubit<AverageBalanceState> {
           ? state.recipientNationalId
           : null,
       agentIdentifier:
-          state.isIncludeAgent && state.agentIdentifier.trim().isNotEmpty
+          state.isIncludeAgent &&
+              RequiredTextValidator.isValid(state.agentIdentifier)
           ? state.agentIdentifier
           : null,
       idempotencyKey:
@@ -466,6 +367,82 @@ class AverageBalanceCubit extends Cubit<AverageBalanceState> {
                 Random.secure().nextInt(256).toRadixString(16).padLeft(2, '0'),
           ).join(),
     );
+  }
+
+  ListedDeposit? _resolveDeposit(List<ListedDeposit> deposits) {
+    final number = _normalizeDepositNumber(initialDepositNumber ?? '');
+    return deposits
+        .where(
+          (deposit) =>
+              deposit.id == state.deposit?.id ||
+              (number.isNotEmpty &&
+                  _normalizeDepositNumber(deposit.number) == number),
+        )
+        .firstOrNull;
+  }
+
+  String _normalizeDepositNumber(String number) =>
+      DigitNormalizer.normalize(number).replaceAll(RegExp(r'[^0-9]'), '');
+
+  bool _canContinueDelivery(
+    CertificateAddress? address, {
+    bool? isOtherRecipient,
+    bool? isRecipientNameValid,
+    bool? isRecipientNationalIdValid,
+  }) {
+    return address != null &&
+        (!(isOtherRecipient ?? state.isOtherRecipient) ||
+            ((isRecipientNameValid ?? state.isRecipientNameValid) &&
+                (isRecipientNationalIdValid ??
+                    state.isRecipientNationalIdValid)));
+  }
+
+  bool _areConditionsComplete(ListedDeposit? deposit) =>
+      deposit != null && state.language != null && state.turnover != null;
+
+  bool _canContinueAfterCatalog(
+    ListedDeposit? deposit,
+    bool nameValid,
+    bool nationalIdValid,
+    bool isWalletSufficient,
+  ) {
+    return _areConditionsComplete(deposit) &&
+        switch (state.step) {
+          AverageBalanceStep.conditions => true,
+          AverageBalanceStep.delivery => _canContinueDelivery(
+            state.address,
+            isRecipientNameValid: nameValid,
+            isRecipientNationalIdValid: nationalIdValid,
+          ),
+          AverageBalanceStep.confirmation =>
+            _canContinueDelivery(
+                  state.address,
+                  isRecipientNameValid: nameValid,
+                  isRecipientNationalIdValid: nationalIdValid,
+                ) &&
+                isWalletSufficient,
+        };
+  }
+
+  bool _isWalletSufficient(CertificateCatalog catalog, int totalRial) =>
+      catalog.walletBalanceRial >= totalRial;
+
+  bool _requiresExitConfirmation() {
+    return state.submissionStatus != RequestStatus.success &&
+        state.catalogStatus == RequestStatus.success &&
+        (state.deposit != _entryState?.deposit ||
+            state.language != _entryState?.language ||
+            state.turnover != _entryState?.turnover ||
+            state.fromDate != _entryState?.fromDate ||
+            state.toDate != _entryState?.toDate ||
+            state.address != _entryState?.address ||
+            state.recipientName != (_entryState?.recipientName ?? '') ||
+            state.recipientNationalId !=
+                (_entryState?.recipientNationalId ?? '') ||
+            state.isIncludeAgent != (_entryState?.isIncludeAgent ?? false) ||
+            state.isOtherRecipient !=
+                (_entryState?.isOtherRecipient ?? false) ||
+            state.agentIdentifier != (_entryState?.agentIdentifier ?? ''));
   }
 
   /// UI has accepted the pending interaction; data and request statuses stay intact.

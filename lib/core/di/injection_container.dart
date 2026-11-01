@@ -1,3 +1,6 @@
+import 'package:pishkhan_mobile/features/deposits/domain/usecases/average_balance_usecase.dart';
+import 'package:pishkhan_mobile/features/deposits/domain/usecases/submit_agents_usecase.dart';
+import 'package:pishkhan_mobile/features/deposits/domain/usecases/agent_settings_usecase.dart';
 import 'package:pishkhan_mobile/features/deposits/domain/usecases/deposit_list_usecase.dart';
 import 'package:pishkhan_mobile/features/deposits/domain/usecases/deposit_restrictions_usecase.dart';
 import 'package:pishkhan_mobile/features/deposits/domain/usecases/close_surplus_deposits_usecase.dart';
@@ -167,6 +170,25 @@ void configureDependencies({GetIt? container}) {
     MockDepositsRepository.new,
   );
   dependencies.registerLazySingleton<AgentRepository>(MockAgentRepository.new);
+  // The shared catalog operation validates two distinct service repositories.
+  dependencies.registerLazySingleton<LoadCertificateCatalogUseCase>(
+    () => LoadCertificateCatalogUseCase(
+      dependencies<DepositCertificatesRepository>(),
+    ),
+    instanceName: 'average-balance',
+  );
+  dependencies.registerLazySingleton<LoadCertificateCatalogUseCase>(
+    () => LoadCertificateCatalogUseCase(
+      dependencies<FinancialCertificateRepository>(),
+    ),
+    instanceName: 'financial-certificate',
+  );
+  dependencies.registerLazySingleton<SubmitAgentsUseCase>(
+    () => SubmitAgentsUseCase(dependencies<AgentRepository>()),
+  );
+  dependencies.registerLazySingleton<FetchAgentsUseCase>(
+    () => FetchAgentsUseCase(dependencies<AgentSettingsRepository>()),
+  );
   dependencies.registerLazySingleton<DepositCertificatesRepository>(
     MockDepositCertificatesRepository.new,
   );
