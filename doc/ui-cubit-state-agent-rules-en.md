@@ -1,8 +1,8 @@
 # UI, Cubit and State Coding Contract for the Team and Agents
 
 **Project:** Smart Virtual Counter — `pishkhan_mobile`  
-**Version:** 1.16 — One operation, one owner<br>
-**Date:** 2026-10-26<br>
+**Version:** 1.17 — Registered, explicitly named UseCases<br>
+**Date:** 2026-11-01<br>
 **Scope:** Presentation coding style, State management and readability rules  
 **Status:** Authoritative coding contract. Historical examples do not override the mandatory ownership rules or the owner amendments below. Implementation status is recorded in the feature documentation.
 
@@ -33,6 +33,22 @@ Cubit submission/edit guards throughout this document and architecture Section 1
 
 Actual behavior remains explicit: form validation, choosing a step/action, Apply versus Cancel and optional entry-data resolution are calculations/flow decisions. Server authorization/idempotency remains at its existing boundary. There is no async disposal check of any kind (owner decision 2026-10-18; Section 8.3). A modal may directly bind its Confirm button to a Cubit
 action; Cancel and dismissal simply close it without invoking that action.
+
+## Mandatory Owner Clarification, 2026-11-01: UseCase Naming and Registration
+
+Every UseCase class name MUST end in `UseCase`, for example
+`FetchLoginCaptchaUseCase`, `RequestLoginOtpUseCase` and `VerifyLoginOtpUseCase`.
+Every UseCase used by a Cubit MUST be registered in GetIt and resolved into a
+final Cubit field. Actions invoke that instance; they do not construct UseCases
+or forward Repository/service dependencies to UseCase constructors. Wiring belongs
+in `core/di`, where the UseCase receives its registered dependencies.
+
+Domain remains independent of GetIt and Flutter. Constructor injection inside
+Domain remains valid; the DI composition root supplies it. This clarification
+does not require creating extra UseCases for flows that have none. It supersedes
+older permissive wording and examples that construct UseCases in Cubit, including
+architecture Section 12.7's former `late final` construction example. Existing
+flows adopt it within their authorized migration phase; Login is aligned now.
 
 ## Mandatory Owner Amendment, 2026-10-18: Minimal Cubit Rules (override every example below)
 
@@ -506,7 +522,7 @@ source implementation exceptions as target rules.
 | Area | Mandatory rule | Prohibited interpretation |
 | --- | --- | --- |
 | Architecture | One screen/feature-flow owns its Provider; its actual shared steps consume the same Cubit. UI renders State and sends specific actions. Domain retains reusable business rules. | Extra Cubits per child, UI flow coordinators, request-building callbacks or unnecessary new layers |
-| GetIt | Register only actual Repository, service/API, DAO or UseCase dependencies. Resolve required dependencies in Cubit fields. Immutable dependency references MUST use final unless replacement is an actual authorized behavior. | Cubit/Bloc registration of any lifetime; resolving Cubit from GetIt; dependency arguments in UI or Cubit constructors; UI/router data lookups |
+| GetIt | Register only actual Repository, service/API, DAO or UseCase dependencies. Every used UseCase has the UseCase suffix and is registered and resolved in a final Cubit field; DI wires its constructor dependencies. Immutable dependency references MUST use final unless replacement is an actual authorized behavior. | Cubit/Bloc registration of any lifetime; resolving Cubit from GetIt; constructing UseCases or forwarding Repository dependencies to them in Cubit; dependency arguments in UI or Cubit constructors; UI/router data lookups |
 | Construction | Construct Cubit directly in screen/feature-flow BlocProvider.create and invoke an explicit initial action there only when the feature has a real fetch or entry resolution. Keep its supplied/default initial State unchanged during construction. | Route-owned screen Cubit, _createCubit helpers, hidden construction wrappers, constructor emit/load/timer/derived-State initialization |
 | Lifetime | Provider.create owns closing. Existing flow consumers read the shared instance. Provider.value only exposes an existing instance across a real boundary such as a modal. | New Cubit in value, manually closing a borrowed Cubit or duplicate construction on ordinary rebuilds |
 | Actions | Specific typed actions own transferable calculations, validation, request construction and flow decisions. Write emit(state.copyWith(...)) in the action. Publish dependent values consistently. | Generic string/index field dispatch, State publication intermediaries, UI reconstruction of requests or hidden State getters |
@@ -528,9 +544,11 @@ independent operations; do not add ceremonial fields to operations that do not
 exist. This preserves structure, not a guarantee of every historical update.
 
 **Dependency setup in tests:** install controlled dependency registrations
-before constructing Cubit, then close test-owned Cubits and reset the test
-locator afterward. Replacing a registration does not replace an instance already
-retained in a Cubit field. Tests MUST NOT add production repository constructor
+before resolving UseCases or constructing Cubit, then close test-owned Cubits
+and reset the test locator afterward. Replacing a registration does not replace
+an instance already retained in a Cubit field or in a resolved lazy-singleton
+UseCase. A fresh Cubit alone does not rewire that existing UseCase; reset the test
+scope before installing a different dependency graph. Tests MUST NOT add production repository constructor
 overrides, register Cubits or introduce production Cubit factories for convenience.
 This does not require tests for every trivial edit or runtime dependency-replacement
 APIs throughout the application.
@@ -867,8 +885,9 @@ class AuthCubit extends Cubit<AuthState> {
     AuthState initialState = const AuthState.initial(),
   }) : super(initialState);
 
-  final requestOtpUseCase = getIt<RequestOtpUseCase>();
-  final submitLoginUseCase = getIt<SubmitLoginUseCase>();
+  final fetchLoginCaptchaUseCase = getIt<FetchLoginCaptchaUseCase>();
+  final requestLoginOtpUseCase = getIt<RequestLoginOtpUseCase>();
+  final verifyLoginOtpUseCase = getIt<VerifyLoginOtpUseCase>();
 
   Timer? _timer;
 }
@@ -877,6 +896,23 @@ class AuthCubit extends Cubit<AuthState> {
 `initialState` remains for compatibility with the project's contract and tests. Ordinary UI need not pass the default State every time. A real entry parameter such as `initialDepositNumber` is different from a complete State snapshot.
 
 Adopt the plain State structure, explicit methods and Cubit-local GetIt lookup style from the reference, using only this project’s registered dependencies.
+
+UseCase registration and dependency wiring live in `core/di`, not in Cubit:
+
+```dart
+dependencies.registerLazySingleton<FetchLoginCaptchaUseCase>(
+  () => FetchLoginCaptchaUseCase(dependencies<AuthRepository>()),
+);
+
+// Inside the owning Cubit action, using its final field above:
+final result = await fetchLoginCaptchaUseCase();
+```
+
+UseCase names require the `UseCase` suffix. Do not write
+`FetchLoginCaptchaUseCase(repository)()` or initialize a UseCase from a Repository
+field in Cubit. When a flow uses a UseCase, resolve the UseCase itself from GetIt;
+do not also retain a Repository solely to construct that UseCase. Domain UseCases
+keep ordinary constructor dependencies supplied by DI and do not import GetIt.
 
 ### 6.1.1 Constructors Preserve Initial State
 
@@ -1681,7 +1717,7 @@ Future<void> selectDeposit(VirtualCardDeposit deposit) {
     ),
   );
   return state.isCountValid
-      ? QuoteVirtualCards(_repository)(deposit.id, state.count!).then((result) {
+      ? quoteVirtualCardsUseCase(deposit.id, state.count!).then((result) {
           if (requestId != _quoteRequestId) return;
           switch (result) {
             case Err(:final failure): /* emit failure */
@@ -1700,6 +1736,9 @@ Future<void> selectDeposit(VirtualCardDeposit deposit) {
 #### 6.10.3 Write instead — one owner, trigger actions delegate
 
 ```dart
+// Cubit field; its UseCase is registered and wired in core/di.
+final quoteVirtualCardsUseCase = getIt<QuoteVirtualCardsUseCase>();
+
 Future<void> selectDeposit(VirtualCardDeposit deposit) async {
   emit(state.copyWith(deposit: deposit));
   await fetchQuote();
@@ -1745,7 +1784,7 @@ Future<void> fetchQuote() async {
 
   if (!canQuote) return;
 
-  final result = await QuoteVirtualCards(_repository)(
+  final result = await quoteVirtualCardsUseCase(
     state.deposit!.id,
     state.count!,
   );
@@ -1902,7 +1941,9 @@ isLoading: state.submissionStatus == RequestStatus.loading,
 for operations that return `Result`. `Err` is a value, not an
 exception, so the failure branch is the `case Err` of the `switch` after the `await`.
 
-This example uses the actual `CardServicesRepository` and `LoadCardServiceCatalog` contracts. The proposed State contains `catalogStatus`, `catalog` and `catalogFailure`.
+This example uses a registered `LoadCardServiceCatalogUseCase` resolved in the
+Cubit field `loadCardServiceCatalogUseCase`. The State fields below illustrate
+request publication; the project-wide shared failure/message amendment still applies.
 
 ```dart
 Future<void> fetchCatalog() async {
@@ -1913,7 +1954,7 @@ Future<void> fetchCatalog() async {
     ),
   );
 
-  final result = await LoadCardServiceCatalog(repository)();
+  final result = await loadCardServiceCatalogUseCase();
   switch (result) {
     case Success(:final data):
       emit(
@@ -2119,8 +2160,9 @@ field, lookup or constructor argument. Real entry inputs such as
 `initialDepositNumber` still go directly to Cubit. A dependency-free Cubit is
 created in exactly the same way: `create: (_) => AuthCubit()`.
 
-Registered UseCases may be resolved in Cubit fields when actually needed; do
-not add layers just because the reference app registers them. Tests register
+Every used UseCase must have the `UseCase` suffix, be registered and be resolved
+in a final Cubit field; Cubit does not construct it from a Repository. Do not add
+layers just because the reference app registers them. Tests register
 controlled dependencies before constructing Cubit or mounting its screen and
 reset the locator afterward. Test helpers may install a dependency around direct
 construction; production Cubit creation stays inline in BlocProvider.create.
@@ -4037,6 +4079,7 @@ This text is a compact summary of the mandatory contract, not an alternative to 
 
 ### 24.3 While Writing Cubit
 
+- [ ] Each used UseCase has the `UseCase` suffix, is registered in GetIt and is resolved into a final Cubit field; no Cubit-side UseCase construction or Repository forwarding to its constructor. Dependency wiring stays in core/di and Domain has no GetIt import.
 - [ ] Cubit resolves its dependencies from GetIt fields; there are no Repository/service/UseCase constructor arguments or UI/router lookups.
 - [ ] Every action names its verb and subject; names distinguish input updates, fetching, effect requests and returned results (Section 6.6).
 - [ ] Method boundaries follow real operations; repeated calculations are private pure helpers, without generic State-publication methods (Sections 6.4–6.7).
@@ -4225,6 +4268,11 @@ These numbers refer to the supplementary review list in the conversation, not th
 Open item 7 does not permit array-driven fixed forms or index-based field actions; item 2 explicitly prohibits them. Acceptance of empty button callbacks under item 10 does not permit empty Listeners or fabricated APIs. These are separate concerns.
 
 ### 25.2 Consolidation Status
+
+Version 1.17 (2026-11-01) records the owner's explicit UseCase suffix and mandatory
+GetIt registration. Cubit resolves the UseCase instance; DI wires its constructor
+dependencies. Older Cubit-side UseCase construction examples are superseded.
+Login is migrated; remaining flows follow their authorized migration phases.
 
 Version 1.6 consolidates all approved principles from reference Sections 2, 3,
 4, 6, 7 and 8 into this contract, preserves existing State conventions, and adds

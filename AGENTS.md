@@ -23,6 +23,10 @@ Core boundaries that must remain visible during implementation:
 - GetIt registers actual data/application dependencies, never Cubit/Bloc.
   Cubits resolve required dependencies in their own fields; UI/router and Cubit
   construction do not forward Repository/service/UseCase arguments.
+  UseCase class names end in `UseCase`. Register each used UseCase in GetIt;
+  Cubit resolves it into a final field and invokes that instance. Cubit must not
+  construct a UseCase or pass a Repository/service into its constructor. Wire
+  UseCase constructor dependencies in `core/di`; keep Domain free of GetIt.
 - Screen/feature-flow widgets construct Cubit directly in BlocProvider.create
   and call the explicit initial action there. GoRouter only selects destinations.
   No creation helper, private Screen/View wrapper or constructor emit/load.

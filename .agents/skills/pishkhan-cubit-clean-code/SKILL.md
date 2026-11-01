@@ -7,6 +7,18 @@ description: Use when writing, refactoring or reviewing a Cubit or its State in 
 
 Short working rules for writing a clean Cubit. The full contract is `ui-cubit-state-agent-rules-en.md`; read it for anything not covered here. When this file and the contract disagree, the contract wins — report the disagreement.
 
+## UseCase naming and dependency access
+
+Owner clarification, 2026-11-01: every UseCase class name ends in `UseCase`.
+Register each used UseCase in GetIt. Resolve it once in a final Cubit field;
+invoke that instance in its operation owner. Never construct a UseCase inside
+Cubit or pass a Repository/service from Cubit to a UseCase constructor. Wire
+constructor dependencies in `core/di`; Domain stays independent of GetIt.
+This does not require adding a new UseCase layer to a flow that has none.
+Tests install replacements before resolving UseCases/Cubit and reset the test
+scope afterward; replacing a Repository does not rewire an already-resolved
+lazy-singleton UseCase.
+
 ## Workflow (do these in order)
 
 1. **Inventory.** Before writing code, list every request operation in the feature and every user event that triggers it:
@@ -33,6 +45,9 @@ Short working rules for writing a clean Cubit. The full contract is `ui-cubit-st
 The dependency call, the `await` expression, the `switch (result)`, the request-ID handling and the loading reset group exist **once per operation**.
 
 ```dart
+// Cubit field; core/di registers and wires QuoteVirtualCardsUseCase.
+final quoteVirtualCardsUseCase = getIt<QuoteVirtualCardsUseCase>();
+
 Future<void> selectDeposit(VirtualCardDeposit deposit) async {
   emit(state.copyWith(deposit: deposit));
   await fetchQuote(); // delegate; never copy the request
@@ -55,7 +70,7 @@ Future<void> fetchQuote() async {
 
   if (!canQuote) return; // real flow decision, lives only here
 
-  final result = await QuoteVirtualCards(_repository)(state.deposit!.id, state.count!);
+  final result = await quoteVirtualCardsUseCase(state.deposit!.id, state.count!);
   if (requestId != _quoteRequestId) return;
   switch (result) {
     case Err(:final failure):
@@ -164,6 +179,9 @@ A condition used only **once**: one/two lines stay inline in `copyWith`; longer 
 - `emit(state.copyWith(...))` is written inside the action. No State-building or State-publishing helper, public or private, whatever its name.
 
 ## Duplication review (before reporting done)
+
+Check that UseCase classes have the suffix, are registered in GetIt and are
+resolved into final Cubit fields, with no Cubit-side UseCase construction.
 
 1. Search the Cubit for each dependency call and for `await`: each must appear once per operation.
 2. Search for `switch (result)`: once per operation.

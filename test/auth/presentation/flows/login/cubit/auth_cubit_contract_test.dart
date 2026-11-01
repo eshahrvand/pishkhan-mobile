@@ -5,6 +5,7 @@ import 'package:pishkhan_mobile/core/di/injection_container.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/result/failure.dart';
 import 'package:pishkhan_mobile/core/result/result.dart';
+import 'package:pishkhan_mobile/features/auth/domain/entities/login_captcha.dart';
 import 'package:pishkhan_mobile/features/auth/domain/entities/login_identity.dart';
 import 'package:pishkhan_mobile/features/auth/domain/repositories/auth_repository.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/login/cubit/auth_cubit.dart';
@@ -256,6 +257,86 @@ void main() {
       expect(cubit.state.challenge, isNull);
       expect(cubit.state.captcha, isEmpty);
       expect(cubit.state.nationalId, '0081234562');
+    },
+  );
+
+  test(
+    'Back awaits a fresh CAPTCHA and the next challenge starts with empty OTP',
+    () async {
+      final repository = getIt<AuthRepository>() as FakeAuthRepository;
+      final cubit = createCubit();
+      await fillIdentity(cubit);
+      final captcha = cubit.state.captchaImage!;
+      await cubit.submitOtpRequest();
+      cubit.consumeAuthInteraction();
+      cubit.updateOtp('123456');
+      expect(cubit.state.canSubmitLogin, isTrue);
+
+      repository.captchaResponse = Completer<Result<LoginCaptcha>>();
+      var backCompleted = false;
+      final back = cubit.requestBack().whenComplete(() => backCompleted = true);
+      expect(cubit.state.step, AuthStep.login);
+      expect(cubit.state.captchaStatus, RequestStatus.loading);
+      expect(cubit.state.captchaImage, isNull);
+      expect(cubit.state.challenge, isNull);
+      expect(cubit.state.otpStartTick, isNull);
+      expect(cubit.state.otp, isEmpty);
+      expect(cubit.state.isOtpValid, isFalse);
+      expect(cubit.state.canSubmitLogin, isFalse);
+      expect(cubit.state.canResendOtp, isFalse);
+      expect(cubit.state.nationalId, testLoginIdentity.nationalCode);
+      expect(cubit.state.phoneNumber, testLoginIdentity.mobile);
+      expect(repository.captchaCalls, 2);
+      expect(backCompleted, isFalse);
+
+      repository.captchaResponse!.complete(
+        Success(LoginCaptcha(captcha.bytes, sessionId: 'next-session')),
+      );
+      await back;
+      expect(backCompleted, isTrue);
+      expect(cubit.state.canRequestOtp, isFalse);
+      cubit.updateCaptcha('654321');
+      await cubit.submitOtpRequest();
+      expect(repository.otpCalls, 2);
+      expect(repository.lastOtpIdentity!.sessionId, 'next-session');
+      expect(cubit.state.step, AuthStep.loginOtp);
+      expect(cubit.state.otp, isEmpty);
+      expect(cubit.state.isOtpValid, isFalse);
+      expect(cubit.state.canSubmitLogin, isFalse);
+      expect(cubit.state.remainingSeconds, 60);
+    },
+  );
+
+  test(
+    'verification publishes loading before completion and retains retry data',
+    () async {
+      final repository = getIt<AuthRepository>() as FakeAuthRepository;
+      final cubit = createCubit();
+      await fillIdentity(cubit);
+      await cubit.submitOtpRequest();
+      cubit.consumeAuthInteraction();
+      cubit.updateOtp('123456');
+      final challenge = cubit.state.challenge!;
+      repository.loginResponse = Completer<Result<AuthenticatedCustomer>>();
+
+      final verification = cubit.submitLogin(challenge);
+      expect(repository.loginCalls, 1);
+      expect(cubit.state.loginStatus, RequestStatus.loading);
+      expect(cubit.state.failure, isNull);
+      expect(cubit.state.message, isNull);
+      expect(cubit.state.effect, isNull);
+      expect(cubit.state.challenge, challenge);
+      expect(cubit.state.otp, '123456');
+
+      repository.loginResponse!.complete(
+        const Err(DataFailure('auth.otp_rejected')),
+      );
+      await verification;
+      expect(cubit.state.loginStatus, RequestStatus.failure);
+      expect(cubit.state.challenge, challenge);
+      expect(cubit.state.otp, '123456');
+      expect(cubit.state.canSubmitLogin, isTrue);
+      expect(cubit.state.effect, isNull);
     },
   );
 

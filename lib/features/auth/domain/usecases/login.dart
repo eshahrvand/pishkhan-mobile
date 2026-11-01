@@ -4,23 +4,23 @@ import '../entities/login_captcha.dart';
 import '../entities/login_identity.dart';
 import '../repositories/auth_repository.dart';
 
-class FetchLoginCaptcha {
-  const FetchLoginCaptcha(this.repository);
+class FetchLoginCaptchaUseCase {
+  const FetchLoginCaptchaUseCase(this.repository);
 
   final AuthRepository repository;
 
   Future<Result<LoginCaptcha>> call() => repository.fetchCaptcha();
 }
 
-class RequestLoginOtp {
-  const RequestLoginOtp(this.repository);
+class RequestLoginOtpUseCase {
+  const RequestLoginOtpUseCase(this.repository);
   final AuthRepository repository;
   Future<Result<LoginOtpChallenge>> call(LoginIdentity identity) =>
       repository.requestOtp(identity);
 }
 
-class VerifyLoginOtp {
-  const VerifyLoginOtp(this.repository);
+class VerifyLoginOtpUseCase {
+  const VerifyLoginOtpUseCase(this.repository);
   final AuthRepository repository;
   Future<Result<AuthenticatedCustomer>> call(
     LoginOtpChallenge challenge,

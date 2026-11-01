@@ -1,4 +1,11 @@
 import '../../support/registered_dependency.dart';
+import '../../support/auth_test_dependencies.dart';
+
+import 'package:pishkhan_mobile/core/result/result.dart';
+import 'package:pishkhan_mobile/features/auth/domain/entities/login_captcha.dart';
+import 'package:pishkhan_mobile/features/auth/domain/entities/login_identity.dart';
+import 'package:pishkhan_mobile/features/auth/domain/repositories/auth_repository.dart';
+import 'package:pishkhan_mobile/features/auth/domain/usecases/login.dart';
 
 import 'package:pishkhan_mobile/features/deposits/domain/repositories/proxy_deposits_repository.dart';
 import 'package:pishkhan_mobile/features/deposits/presentation/proxy_deposit/cubit/proxy_deposit_cubit.dart';
@@ -69,6 +76,35 @@ void main() {
     expect(container.isRegistered<DepositListCubit>(), isFalse);
     expect(container.isRegistered<AverageBalanceCubit>(), isFalse);
     expect(container.isRegistered<FinancialCertificateCubit>(), isFalse);
+  });
+
+  test('registered login use cases use their container repository', () async {
+    final repository = FakeAuthRepository();
+    await container.unregister<AuthRepository>();
+    container.registerSingleton<AuthRepository>(repository);
+
+    final captchaResult = await container<FetchLoginCaptchaUseCase>()();
+    final captcha = (captchaResult as Success<LoginCaptcha>).data;
+    expect(captcha.sessionId, 'server-captcha-1');
+    expect(repository.captchaCalls, 1);
+
+    final otpResult = await container<RequestLoginOtpUseCase>()(
+      testLoginIdentity,
+    );
+    final challenge = (otpResult as Success<LoginOtpChallenge>).data;
+    expect(challenge.identity, testLoginIdentity);
+    expect(repository.lastOtpIdentity, testLoginIdentity);
+    expect(repository.otpCalls, 1);
+
+    final loginResult = await container<VerifyLoginOtpUseCase>()(
+      challenge,
+      '123456',
+    );
+    expect(
+      (loginResult as Success<AuthenticatedCustomer>).data.nationalCode,
+      testLoginIdentity.nationalCode,
+    );
+    expect(repository.loginCalls, 1);
   });
 
   test(

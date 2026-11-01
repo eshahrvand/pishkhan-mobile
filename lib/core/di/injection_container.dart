@@ -5,6 +5,7 @@ import 'package:pishkhan_mobile/features/postal_offices/domain/repositories/post
 import 'package:pishkhan_mobile/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:pishkhan_mobile/features/auth/data/repositories/remote_auth_repository.dart';
 import 'package:pishkhan_mobile/features/auth/domain/repositories/auth_repository.dart';
+import 'package:pishkhan_mobile/features/auth/domain/usecases/login.dart';
 import 'package:pishkhan_mobile/features/profile/domain/repositories/personal_information_repository.dart';
 import 'package:pishkhan_mobile/features/profile/data/repositories/mock_personal_information_repository.dart';
 import 'package:pishkhan_mobile/features/transfers/domain/repositories/on_site_transfer_repository.dart';
@@ -65,6 +66,15 @@ void configureDependencies({GetIt? container}) {
   );
   dependencies.registerLazySingleton<AuthRepository>(
     () => RemoteAuthRepository(dependencies(), dependencies()),
+  );
+  dependencies.registerLazySingleton<FetchLoginCaptchaUseCase>(
+    () => FetchLoginCaptchaUseCase(dependencies<AuthRepository>()),
+  );
+  dependencies.registerLazySingleton<RequestLoginOtpUseCase>(
+    () => RequestLoginOtpUseCase(dependencies<AuthRepository>()),
+  );
+  dependencies.registerLazySingleton<VerifyLoginOtpUseCase>(
+    () => VerifyLoginOtpUseCase(dependencies<AuthRepository>()),
   );
   dependencies.registerLazySingleton<ModernBankingRepository>(
     MockModernBankingRepository.new,

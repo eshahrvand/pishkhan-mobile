@@ -488,6 +488,12 @@ IBAN validation (IR + 24 digits, mod-97 check) and national ID validation (10-di
 
 ### 7.4 Sample Use Case
 
+**Owner clarification, 2026-11-01:** UseCase class names end in `UseCase`.
+Register every used UseCase in GetIt. Cubit resolves it into a final field and
+calls it; Cubit never constructs it or passes a Repository/service to its
+constructor. Constructor dependency wiring belongs in `core/di`. Domain remains
+pure: its constructor receives the repository and never imports GetIt.
+
 ```dart
 class BlockCardUseCase {
   final CardsRepository _repository;
@@ -497,6 +503,18 @@ class BlockCardUseCase {
     return _repository.blockCard(params);
   }
 }
+```
+
+```dart
+// core/di: use the composition root's container for every dependency.
+dependencies.registerLazySingleton<BlockCardUseCase>(
+  () => BlockCardUseCase(dependencies<CardsRepository>()),
+);
+
+// Cubit field, not a constructor parameter:
+final blockCardUseCase = getIt<BlockCardUseCase>();
+// Owning action:
+final result = await blockCardUseCase(params);
 ```
 
 > [!NOTE]
@@ -1159,10 +1177,13 @@ Actions resolve dependencies in Cubit-owned fields (Section 12.2) and return
 their async work. They trust the UI interaction contract without duplicate entry guards. There is no BaseCubit in this project (removed 2026-10-18); do not add `safeEmit` or any other wrapper around `emit`.
 
 ```dart
+// Cubit field; registered and wired in core/di.
+final loadCardServiceCatalogUseCase = getIt<LoadCardServiceCatalogUseCase>();
+
 Future<void> fetchCardServiceCatalog() async {
   emit(state.copyWith(status: RequestStatus.loading, failure: null));
 
-  final result = await LoadCardServiceCatalog(repository)();
+  final result = await loadCardServiceCatalogUseCase();
   switch (result) {
     case Err(:final failure):
       emit(state.copyWith(status: RequestStatus.failure, failure: failure));
@@ -1216,14 +1237,19 @@ abstract class LoanRequestFormState with _$LoanRequestFormState {
 * Public actions model real screen/flow events and operations. Pure calculations
   used only inside Cubit stay private. Tests exercise the production interaction
   path rather than requiring parallel generic setters or extra initialization APIs.
-* Resolve registered dependencies into final Cubit fields. A UseCase constructed
-  from a dependency may be `late final` when needed for initialization order.
+* Resolve registered dependencies into final Cubit fields. Every used UseCase
+  has the `UseCase` suffix and its own GetIt registration. Cubit resolves that
+  instance; it does not construct a UseCase from a Repository/service field,
+  including with `late final`. Constructor wiring belongs in `core/di`, while
+  Domain stays independent of GetIt. Do not add extra UseCases to flows that
+  have none solely for this rule.
   Runtime dependency replacement needs an actual authorized product requirement;
   tests alone do not justify `changeRepository`, mutable loaders or Repository
   parameters on screens/Cubit constructors.
-* Tests install controlled GetIt registrations before construction and reset them
-  afterward. Replacing a registration does not replace a dependency already held
-  by an existing Cubit. Create a fresh scope when testing a different dependency.
+* Tests install controlled GetIt registrations before resolving UseCases or
+  constructing Cubit and reset them afterward. Replacing a Repository registration
+  does not rewire a resolved lazy-singleton UseCase or an existing Cubit. Create
+  a fresh test scope when testing a different dependency graph.
 * A style refactor preserves the current plain State structure, initial snapshot,
   request identity, typed effect delivery, actual
   validation and flow choices; do not add redundant action-entry checks. Removing an unused API requires updating its consumers and behavior
@@ -1942,6 +1968,13 @@ The complete list is provided in the separate document "Bank Requirements and De
 ---
 
 ## 21. Change Log
+
+**2026-11-01 owner clarification:** UseCase class names end in `UseCase` and
+every used UseCase is registered in GetIt. Cubit resolves final UseCase fields
+and invokes them instead of constructing UseCases from Repository fields. DI
+wires constructor dependencies; Domain has no GetIt dependency. This supersedes
+the earlier Section 12.7 permission for Cubit-side `late final` UseCase
+construction. Login is aligned; other flows migrate in their authorized phases.
 
 **2026-10-25 owner amendment:** project-wide shared latest Failure/prepared message,
 independent operation-status listeners, no effect/navigation/message sequence IDs,

@@ -10,7 +10,6 @@ import 'package:pishkhan_mobile/core/validators/validators.dart';
 
 import '../../../domain/entities/login_captcha.dart';
 import '../../../domain/entities/login_identity.dart';
-import '../../../domain/repositories/auth_repository.dart';
 import '../../../domain/usecases/login.dart';
 
 import 'auth_effect.dart';
@@ -30,10 +29,12 @@ class AuthCubit extends Cubit<AuthState> {
   // Temporary countdown until the bank supplies OTP expiry metadata.
   static const _otpValiditySeconds = 60;
 
-  final repository = getIt<AuthRepository>();
+  final fetchLoginCaptchaUseCase = getIt<FetchLoginCaptchaUseCase>();
+  final requestLoginOtpUseCase = getIt<RequestLoginOtpUseCase>();
+  final verifyLoginOtpUseCase = getIt<VerifyLoginOtpUseCase>();
   Timer? _otpClock;
 
-  Future<void> fetchCaptcha() {
+  Future<void> fetchCaptcha() async {
     // Attach once during the explicit initial action; retries reuse this clock.
     _otpClock ??= Timer.periodic(
       const Duration(seconds: 1),
@@ -51,25 +52,24 @@ class AuthCubit extends Cubit<AuthState> {
         message: null,
       ),
     );
-    return FetchLoginCaptcha(repository)().then((result) {
-      switch (result) {
-        case Success(:final data):
-          emit(
-            state.copyWith(
-              captchaStatus: RequestStatus.success,
-              captchaImage: data,
-            ),
-          );
-        case Err(:final failure):
-          emit(
-            state.copyWith(
-              captchaStatus: RequestStatus.failure,
-              failure: failure,
-              message: getAuthErrorMessage(failure),
-            ),
-          );
-      }
-    });
+    final result = await fetchLoginCaptchaUseCase();
+    switch (result) {
+      case Success(:final data):
+        emit(
+          state.copyWith(
+            captchaStatus: RequestStatus.success,
+            captchaImage: data,
+          ),
+        );
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            captchaStatus: RequestStatus.failure,
+            failure: failure,
+            message: getAuthErrorMessage(failure),
+          ),
+        );
+    }
   }
 
   void requestServices() {
@@ -149,7 +149,7 @@ class AuthCubit extends Cubit<AuthState> {
     );
   }
 
-  Future<void> submitOtpRequest() {
+  Future<void> submitOtpRequest() async {
     switch (state.step) {
       case AuthStep.changePhone:
       case AuthStep.changePhoneOtp:
@@ -159,57 +159,49 @@ class AuthCubit extends Cubit<AuthState> {
             otpRequestStatus: RequestStatus.failure,
           ),
         );
-        return Future.value();
+        break;
       case AuthStep.login:
       case AuthStep.loginOtp:
-        return _submitLoginOtpRequest();
+        final identity = LoginIdentity(
+          nationalCode: state.nationalId,
+          mobile: state.phoneNumber,
+          captcha: state.captcha,
+          sessionId: state.captchaImage!.sessionId,
+        );
+        final maskedPhone =
+            '${identity.mobile.substring(0, 4)}*******${identity.mobile.substring(9)}';
+
+        emit(
+          state.copyWith(
+            otpRequestStatus: RequestStatus.loading,
+            failure: null,
+            message: null,
+          ),
+        );
+        final result = await requestLoginOtpUseCase(identity);
+        switch (result) {
+          case Success(:final data):
+            emit(
+              state.copyWith(
+                otpRequestStatus: RequestStatus.success,
+                challenge: data,
+                step: AuthStep.loginOtp,
+                maskedPhone: maskedPhone,
+                remainingSeconds: _otpValiditySeconds,
+                otpStartTick: _otpClock!.tick,
+                effect: const AuthOtpRequested(),
+              ),
+            );
+          case Err(:final failure):
+            emit(
+              state.copyWith(
+                otpRequestStatus: RequestStatus.failure,
+                failure: failure,
+                message: getAuthErrorMessage(failure),
+              ),
+            );
+        }
     }
-  }
-
-  Future<void> _submitLoginOtpRequest() {
-    final identity = LoginIdentity(
-      nationalCode: state.nationalId,
-      mobile: state.phoneNumber,
-      captcha: state.captcha,
-      sessionId: state.captchaImage!.sessionId,
-    );
-    final maskedPhone =
-        '${identity.mobile.substring(0, 4)}*******${identity.mobile.substring(9)}';
-
-    emit(
-      state.copyWith(
-        otpRequestStatus: RequestStatus.loading,
-        failure: null,
-        message: null,
-      ),
-    );
-    return RequestLoginOtp(repository)(identity).then((result) {
-      switch (result) {
-        case Success(:final data):
-          emit(
-            state.copyWith(
-              otpRequestStatus: RequestStatus.success,
-              challenge: data,
-              step: AuthStep.loginOtp,
-              maskedPhone: maskedPhone,
-              otp: '',
-              isOtpValid: false,
-              remainingSeconds: _otpValiditySeconds,
-              otpStartTick: _otpClock!.tick,
-              canSubmitLogin: false,
-              effect: const AuthOtpRequested(),
-            ),
-          );
-        case Err(:final failure):
-          emit(
-            state.copyWith(
-              otpRequestStatus: RequestStatus.failure,
-              failure: failure,
-              message: getAuthErrorMessage(failure),
-            ),
-          );
-      }
-    });
   }
 
   void updateOtp(String value) {
@@ -225,7 +217,7 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   /// No resend endpoint was supplied. A fresh CAPTCHA avoids reusing a consumed one.
-  Future<void> submitOtpResend() {
+  Future<void> submitOtpResend() async {
     emit(
       state.copyWith(
         step: state.step == AuthStep.changePhoneOtp
@@ -240,10 +232,10 @@ class AuthCubit extends Cubit<AuthState> {
         remainingSeconds: 0,
       ),
     );
-    return fetchCaptcha();
+    await fetchCaptcha();
   }
 
-  Future<void> submitLogin(LoginOtpChallenge challenge) {
+  Future<void> submitLogin(LoginOtpChallenge challenge) async {
     emit(
       state.copyWith(
         loginStatus: RequestStatus.loading,
@@ -251,26 +243,25 @@ class AuthCubit extends Cubit<AuthState> {
         message: null,
       ),
     );
-    return VerifyLoginOtp(repository)(challenge, state.otp).then((result) {
-      switch (result) {
-        case Success():
-          emit(
-            state.copyWith(
-              loginStatus: RequestStatus.success,
-              canSubmitLogin: false,
-              effect: const AuthCompleted(),
-            ),
-          );
-        case Err(:final failure):
-          emit(
-            state.copyWith(
-              loginStatus: RequestStatus.failure,
-              failure: failure,
-              message: getAuthErrorMessage(failure),
-            ),
-          );
-      }
-    });
+    final result = await verifyLoginOtpUseCase(challenge, state.otp);
+    switch (result) {
+      case Success():
+        emit(
+          state.copyWith(
+            loginStatus: RequestStatus.success,
+            canSubmitLogin: false,
+            effect: const AuthCompleted(),
+          ),
+        );
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            loginStatus: RequestStatus.failure,
+            failure: failure,
+            message: getAuthErrorMessage(failure),
+          ),
+        );
+    }
   }
 
   void openChangePhone() {
@@ -283,13 +274,13 @@ class AuthCubit extends Cubit<AuthState> {
     );
   }
 
-  Future<void> requestBack() {
+  Future<void> requestBack() async {
     switch (state.step) {
       case AuthStep.login:
-        return Future.value();
+        break;
       case AuthStep.loginOtp:
       case AuthStep.changePhoneOtp:
-        return submitOtpResend();
+        await submitOtpResend();
       case AuthStep.changePhone:
         emit(
           AuthState.initial(
@@ -297,7 +288,7 @@ class AuthCubit extends Cubit<AuthState> {
             captchaStatus: state.captchaStatus,
           ),
         );
-        return Future.value();
+        break;
     }
   }
 

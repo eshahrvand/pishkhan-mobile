@@ -1,145 +1,172 @@
-# Login Development
+# Login development and review
 
-Current bank-login and token-storage behavior is documented in
-[Login API integration](../auth/login-api-integration.md). The prototype notes
-below are historical: the boolean marker no longer authenticates users.
-Android now persists the final bank login token in secure storage and resumes it
-without server validation under the owner's temporary decision. Web remains
-memory-only. No refresh token or validation endpoint exists in the supplied contract.
+Reviewed: 2026-11-01 — Cubit migration, phase 1 and UseCase DI correction.
 
-## Remembered prototype login (2026-10-19)
+Login uses the bank CAPTCHA, check-cif and check-sms endpoints. Guest
+change-phone remains unconnected. The [API integration document](../auth/login-api-integration.md)
+records the confirmed wire contract, token handling and temporary bank decisions.
 
-App startup restores a local `prototype.authenticated.v1` boolean through
-`RouterSession.restorePrototype()`. Completing the existing mock login writes
-that marker with `shared_preferences`; subsequent app launches pass through the
-existing splash/guard to Home. Signing out removes the marker and pending route
-data. No OTP, national ID, phone number, bank token or credentials are persisted.
+The [UI/Cubit/State contract](../ui-cubit-state-agent-rules-en.md), including its
+owner amendments, is authoritative. The
+[Cubit clean-code skill](../../.agents/skills/pishkhan-cubit-clean-code/SKILL.md)
+provides the operation inventory, flow review and duplication review workflow.
+This document describes current implementation; it introduces no new rules.
 
-This is explicitly temporary prototype behavior requested for testing. It does
-not implement real token storage, token validation, refresh or banking sessions;
-replace it with the authentication adapter when bank APIs become available.
-RouterSession's ordinary constructor remains in memory for isolated scopes.
+## Ownership and files
 
-`test/core/router/router_session_test.dart` covers first entry, restored entry,
-logout, isolation and recreating the app after login. `shared_preferences` is a
-Flutter-maintained BSD dependency selected for this non-sensitive boolean;
-secure storage is reserved for real credentials rather than this mock marker.
+| Location under `lib/features/auth/` | Responsibility |
+| --- | --- |
+| `presentation/login/cubit/auth_cubit.dart` | Specific input, request, countdown, guest-selection and Back actions |
+| `presentation/login/cubit/auth_state.dart` | Plain Freezed `.initial`, part of Cubit; independent CAPTCHA, OTP-request and login statuses; latest failure/message and typed effect; generated State string output disabled |
+| `presentation/login/screens/auth_screen.dart` | Provider, named filtered effect listener, overall composition and Back gate |
+| `presentation/login/widgets/auth_identity_form.dart` | Explicit identity inputs, change-phone notice, CAPTCHA and request button |
+| `presentation/login/widgets/auth_captcha_field.dart` | Controlled CAPTCHA answer, refresh and in-memory image |
+| `presentation/login/widgets/auth_otp_form.dart` | Controlled OTP, countdown/resend and submit |
+| `presentation/login/widgets/auth_request_error.dart` | Existing inline unavailable feedback for guest change-phone |
+| `presentation/login/widgets/auth_header.dart`, `auth_form_shared.dart`, `auth_services_sheet.dart`, `auth_services_grid.dart` | Header, shared heading and guest-service UI |
 
-## UI structure after the auth refactor
+AuthScreen directly creates `AuthCubit(initialState: initialState)..fetchCaptcha()`
+in `BlocProvider.create`. That Provider owns closing; ordinary rebuilds retain
+its instance. GetIt registers data dependencies, never Cubit. The Cubit resolves
+three final UseCase fields internally: `FetchLoginCaptchaUseCase`,
+`RequestLoginOtpUseCase` and `VerifyLoginOtpUseCase`. Each is registered in
+`core/di`; that composition root supplies AuthRepository to its constructor.
+Cubit neither holds a Repository nor constructs UseCases. UI/router do not
+receive or forward these dependencies. Construction preserves the supplied/default State unchanged and
+starts no request or timer.
 
-`AuthScreen` lives in
-`lib/features/auth/presentation/login/screens/auth_screen.dart`. Its `widgets/`
-folder contains six files:
+## Operation inventory
 
-- `auth_header.dart`: bank header and menu action.
-- `auth_identity_form.dart`: explicit identity inputs, change-phone notice,
-  CAPTCHA and request-code button.
-- `auth_otp_form.dart`: OTP input, independently subscribed countdown/resend
-  control and submission button.
-- `auth_form_shared.dart`: the heading reused by identity and OTP forms.
-- `auth_services_sheet.dart`: guest-service sheet composition and section titles.
-- `auth_services_grid.dart`: responsive service rows and their tile composition.
+| Operation | Owner action | Triggers | Result |
+| --- | --- | --- | --- |
+| Fetch CAPTCHA | `fetchCaptcha` | Provider entry, refresh, resend; OTP Back delegates to resend | Image/SessionId pair or prepared failure |
+| Request login OTP | `submitOtpRequest` | Identity button or keyboard | Challenge, OTP step, masked mobile and countdown start, or prepared failure |
+| Verify login OTP | `submitLogin` | OTP button or keyboard, with the non-null challenge | Completion effect after token persistence, or prepared failure |
 
-Small field icons, CAPTCHA rows, countdown controls and service labels/tiles
-remain inline in their owning section. The identity form is intentionally larger
-than the usual 200-line review point so the complete fixed form is readable in
-one file. Existing focused subscriptions, validation callbacks, geometry and
-flow-transition keys are preserved. The authoritative style rules are the
-[UI/Cubit/State contract](../ui-cubit-state-agent-rules-en.md).
+Each owner contains its dependency call, await, Result switch and explicit
+loading/success/failure emits once. `submitOtpRequest` also selects the existing
+unavailable change-phone branch without calling a bank endpoint. The former
+private login-OTP request wrapper is removed; the lifecycle is visible in the
+specific action. No generic dispatcher or State-publication helper was added.
 
-The login section is implemented from the Mobile Figma file
-`nYQNyZdSs98lwymCpt5Sag`. Screens share the bank header and background artwork;
-form and OTP values are controlled by `AuthCubit`.
+## User path and State consumers
 
-| Phase | State | Figma node |
+| Step/event | Readers and data | Continuation and retention |
 | --- | --- | --- |
-| 1 | Empty login | `27847:4237` |
-| 1 | Filled login | `27847:4802` |
-| 1 | Waiting for OTP | `27847:4900` |
-| 1 | Entered OTP | `27847:4988` |
-| 2 | Guest services | `27847:4724` |
-| 3 | Empty change-phone form | `27847:4335` |
-| 3 | Filled change-phone form | `27847:4441` |
-| 3 | Waiting for OTP | `27847:4548` |
-| 3 | Entered OTP | `27847:4636` |
+| Login identity | Identity form reads values/errors; CAPTCHA reads image/answer/status; button reads eligibility/status | Failure preserves identity. Success opens OTP in the same Cubit. |
+| CAPTCHA refresh | CAPTCHA input/image and request button read the cleared answer, image pair, validity/error and eligibility | Retains national ID/mobile; the old answer cannot enable a request against a new session. |
+| Login OTP | OTP form reads challenge, masked mobile, code, countdown, eligibility and login status | Failure preserves challenge/code for retry. Success asks the host/router to complete login. |
+| OTP Back or resend | `requestBack` delegates to `submitOtpResend`, then `fetchCaptcha` | Returns to identity, retains national ID/mobile, clears the old challenge/code/countdown and fetches a fresh CAPTCHA. Both Futures await that fetch. |
+| Guest change-phone | Identity inputs, CAPTCHA and inline unavailable feedback | Request stays on the form and calls no login endpoint. Back resets to Login. |
+| Open/leave change-phone | Explicit `AuthState.initial(...)` | Retains CAPTCHA image/SessionId pair and status; other fields, errors and effects take their defaults. |
+| Guest menu | Listener opens sheet; raw nullable ID returns to `selectGuestService` | Dismissal does nothing; Cubit selects change-phone or a typed host-callback effect. |
 
-## Components and composition
+OTP-request success no longer repeats `otp: ''`, `isOtpValid: false` and
+`canSubmitLogin: false`: normal entry already has these values, and return/resend
+clears them before another challenge. Final login success still disables submit
+while the host completes navigation. CAPTCHA invalidation, resend resets,
+loading failure/message clears and actual form resets retain their owners.
 
-- `AuthHeader`: 56px header, 24px menu at the physical right, bank logo at the
-  physical left, and the exported divider.
-- `AuthSectionHeading`: exported 10×20px mark, 16px DemiBold title,
-  8px gap, and 14px/20px supporting text.
-- Login, CAPTCHA, and OTP use the public `AppTextField` directly with 14px/20px
-  typography, Persian/Arabic digit normalization, numeric filtering and explicit
-  limits. Optional `value` and `onFocusLost` parameters provide controlled text
-  and focus-loss validation. Empty and filled text stays RTL with
-  `TextAlign.start`. The intermediary `AuthNumericField` has been removed.
-- `AppButton`: 40px send-code action and 44px OTP submission. The send-code
-  action uses `isActive: state.formValid` and remains disabled until the national
-  ID checksum, mobile format and six-digit CAPTCHA format are valid. CAPTCHA
-  correctness remains server-owned. `isLoading` reads the request status and
-  displays the package spinner while blocking interaction. Keyboard submission
-  also respects the Cubit's loading guard. OTP submission is disabled until four
-  digits are present and the code has not expired.
-- CAPTCHA and timer slots are 148px wide, separated from the field by 7px.
-- `AuthServicesSheet`: 528px at the reference viewport, 56px shared header,
-  20px/32px body insets, 104px service rows, and 24px/12px section gaps.
-  Content scrolls when the available height is smaller; service tiles wrap on
-  narrow viewports.
-- Login and change-phone OTP screens use the same title and submit label, as in
-  the supplied frames. System back returns to the preceding form and retains
-  its entered values; back from change-phone returns to login.
-- `AppLoginColors` is exported by `avp_ui` for the exact login-specific
-  notice and service-label tokens. `AppTextField.textAlign` is an additive
-  public parameter; existing callers retain `TextAlign.start`.
+## Validation, requests and effects
 
-## Assets
+National-ID and mobile updates each run their central validator once and publish
+the fresh value, stored validity and typing error. Every nonempty invalid input
+shows its error immediately; focus-loss actions read stored validity. CAPTCHA
+checks six-digit syntax; editing clears its shown syntax error and focus loss
+reads stored validity. Its actual answer is server-validated. OTP also uses six
+digits. Aggregate eligibility reads other stored flags; repeated predicates are
+private calculations returning values, never State.
 
-The background PNG is an export of the background artwork node
-`27847:4238`, not a screenshot of the screen. All visible login SVGs and
-the CAPTCHA example are downloaded from the supplied frames and registered
-using `AppConstants.baseImage`. Existing asset paths are reused.
+Request actions return `Future<void>` with async/await and a Result switch after
+await. Data converts transport, mapping and storage exceptions to Err. Loading
+clears failure/message; failures publish operation status and text prepared by
+`getAuthErrorMessage`. The Listener observes entering-failure transitions, so
+identical retry failures notify again without counters or duplicate inline API
+messages. Unconnected change-phone keeps its separate inline feedback.
 
-## Interaction and integration
+UI owns loading/disabled controls and system/in-screen Back gating. Actions do
+not repeat these preconditions. Loading buttons use `isLoading` and the relevant
+eligibility flag; keyboard callbacks also gate loading because they lack a
+loading-button API. The listener consumes reusable interactions before executing
+Flutter effects, checks `context.mounted` after sheets and returns raw selections
+to Cubit. Completion invokes the existing host callback.
 
-This remains a UI prototype. OTP issuance, verification, and CAPTCHA challenge
-generation are not connected to bank APIs; the bundled CAPTCHA is the Figma
-example. Refresh clears its entered value. The UI does not claim a completed
-server authentication.
+The existing 60-second countdown starts from the successful challenge's clock
+tick. Its periodic clock attaches once in the explicit CAPTCHA action, stays idle
+when `otpStartTick` is null and is cancelled in `close()`. Expiry disables
+verification and enables resend. No disposal guards, overlap counters, new timing
+policy or new effect framework were introduced.
 
-`AuthScreen.onAuthenticated` is the completion callback for either OTP path.
-`onGuestServiceRequested` reports service and related-link IDs to the caller.
-Selecting change-phone in the guest sheet opens its form directly.
+## UI and reference frames
 
-Validation runs on focus loss and submit, and an error clears on editing.
-`BlocSelector` isolates field, button, and countdown rebuilds.
-Resend becomes available after expiry and clears the previous OTP.
+UI uses Persian `S.current`, RTL, `AppTheme.light()` and public avp_ui controls.
+Inputs are controlled by State. This phase preserves existing artwork, geometry,
+theme overrides, focused subscriptions and form-transition keys. CAPTCHA uses
+`Image.memory` because AvpImage has no in-memory byte input. The identity form
+stays cohesive despite exceeding the usual file-size review point.
+
+Reference file: `nYQNyZdSs98lwymCpt5Sag`.
+
+| Frame | Figma node |
+| --- | --- |
+| Empty / filled Login | `27847:4237` / `27847:4802` |
+| Waiting / entered Login OTP | `27847:4900` / `27847:4988` |
+| Guest services | `27847:4724` |
+| Empty / filled change-phone | `27847:4335` / `27847:4441` |
+| Waiting / entered change-phone OTP design | `27847:4548` / `27847:4636` |
+
+Change-phone OTP frames are design states, not a connected change-phone API.
+App artwork uses `AppConstants.baseImage`. The bundled CAPTCHA is a design/test
+asset; live challenges come from the bank.
 
 ## Verification
 
-`test/auth_screen_test.dart` covers all nine frame states, reference geometry,
-localized validation, Persian numeric input, disabled OTP submission, resend,
-back navigation with retained values, and guest-service callbacks.
+Relevant suites cover response mapping, six-digit OTP, identity validation,
+CAPTCHA replacement, loading/Back gates, repeated notifications, countdown,
+resets, token persistence and router completion/return paths. Phase 1 adds
+regressions for pending Back/CAPTCHA completion followed by a fresh challenge,
+and pending verification followed by a failure retaining retry data.
 
-package's Persian fonts. Native status/navigation bars and the operating
-system's keyboard are excluded; their dimensions are supplied as viewport
-insets. Golden tests are not introduced.
+```sh
+flutter analyze
+flutter test test/auth test/core/router test/core/security test/core/network test/core/di
+```
 
-## Cubit/State coding convention
+The Web token-store test is skipped by native runs and needs a browser run.
+Tests use synthetic identities, fake repositories/transports and storage channels;
+they submit no real identity/OTP. Native secure-storage and live-device acceptance
+remain separate from these automated checks. See the API document for integration
+limits and generation commands.
 
-Follow [architecture Section 12](../architecture-smart-virtual-counter-v2-en.md#12-state-management-with-cubit) for new work and refactors. State is a plain Freezed data class with defaults and independent request statuses. Cubits accept an initial State, compute UI data and eligibility, and emit immutable snapshots through `copyWith`. UI reads those fields directly; no custom State/Cubit getters or UI-facing rules facade is used. Dependencies remain injectable and lifecycle/duplicate-request safeguards stay in place.
+### Phase-1 verification — 2026-11-01
 
-## UI/Cubit contract adoption (2026-10-17)
+| Check | Before refactor | After refactor |
+| --- | --- | --- |
+| `flutter analyze` | No issues | No issues |
+| Relevant native suites above | 119 passed, 1 skipped | 121 passed, 1 skipped |
+| Skipped case | Web-only token store | Same Web-only token-store case |
 
-AuthCubit is constructed directly in BlocProvider.create and disposed with its scope. GetIt contains data dependencies only; it never registers Cubits.
-OTP completion, OTP focus intent and guest-service selection are Cubit actions;
-a filtered listener executes typed AuthEffect values. The guest sheet returns a
-raw service ID; it no longer chooses the change-phone flow. No bank API is added.
+The two additional cases exercise Back awaiting CAPTCHA and retaining verification
+retry data. No browser run, live-bank call or device acceptance was performed.
+State shape, UI, API payloads, storage policy and countdown policy are unchanged.
 
-### Dependency and listener clarification (2026-10-17)
+Duplication review: 1 repeated field group found, 1 resolved (OTP defaults are
+already owned by resend). All 3 request lifecycles have one owner. Flow review:
+3 repeated clears removed from OTP-request success.
 
-The screen/feature-flow widget owns BlocProvider.create, including Home in
-DashboardScreen; GoRouter only selects the destination. Cubits resolve existing
-Repository/service/UseCase registrations through GetIt fields, without dependency
-constructor arguments from UI. Multi-case and substantial async listeners use
-named widget/State methods with the existing listenWhen filter.
+### UseCase DI correction — 2026-11-01
+
+The three Login UseCases now have explicit `UseCase` suffixes and lazy-singleton
+registrations. AuthCubit resolves those registered instances into final fields;
+Repository constructor wiring occurs only in core/di. The DI regression test
+replaces AuthRepository in an isolated container before first UseCase resolution,
+then exercises CAPTCHA, OTP request and verification through that container's
+UseCases. Tests reset registrations between scopes; replacing a Repository does
+not rewire an already-resolved lazy-singleton UseCase.
+
+After this correction, `flutter analyze` reports no issues and the same native
+suites pass 122 tests with the same single Web-only skip. No flow behavior or
+State fields were changed by this correction.
+
+Duplication review: 0 repeated blocks introduced; all 3 request operations still
+have one owner. Flow review: 0 clears added or removed by the DI correction.
