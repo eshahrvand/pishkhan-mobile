@@ -365,8 +365,8 @@ pishkhan_project/
             │   │   ├── entities/
             │   │   ├── repositories/
             │   │   └── usecases/        # One file per service use case
-            │   │       ├── block_card.dart
-            │   │       └── issue_card.dart
+            │   │       ├── block_card_usecase.dart
+            │   │       └── issue_card_usecase.dart
             │   ├── data/
             │   │   ├── datasources/
             │   │   ├── models/
@@ -400,8 +400,8 @@ Following the granularity principle (Section 6.1):
 
 1. **The top-level folders under `app/lib/features/` are exactly the features listed in Section 6.2.** A service never gets its own top-level folder; it lives inside the feature of its category (for example, card issuance and virtual card services live inside `cards`).
 2. **Entities, repositories, mappers, and DTOs stay at the feature level** and are shared by the services of that feature. The use case and the presentation flow are per service.
-3. **Each service uses one folder name** (`snake_case`, English), identical in `domain/usecases/<service>.dart` and `presentation/<service>/`.
-4. **`presentation/<service>/` holds only the UI layer of that service** (`cubit/`, `screens/`, `widgets/`); its use cases live in the same-named file under `domain/usecases/`, and entities and repositories live at the feature level. A service with no domain logic (for example, a catalog screen) has only the presentation folder.
+3. **Each service uses one base name** (`snake_case`, English): `presentation/<service>/` and `domain/usecases/<service>_usecase.dart`. The UseCase file suffix is mandatory; for example `home_usecase.dart`, never an ambiguous `home.dart` under usecases.
+4. **`presentation/<service>/` holds only the UI layer of that service** (`cubit/`, `screens/`, `widgets/`); its use cases live in the corresponding `_usecase.dart` file under `domain/usecases/`, and entities and repositories live at the feature level. A service with no domain logic (for example, a catalog screen) has only the presentation folder. Existing cohesive UseCase groups need not be split solely for this naming rule.
 
 ---
 
@@ -489,6 +489,7 @@ IBAN validation (IR + 24 digits, mod-97 check) and national ID validation (10-di
 ### 7.4 Sample Use Case
 
 **Owner clarification, 2026-11-01:** UseCase class names end in `UseCase`.
+Their Dart filenames use snake_case and end in `_usecase.dart`.
 Register every used UseCase in GetIt. Cubit resolves it into a final field and
 calls it; Cubit never constructs it or passes a Repository/service to its
 constructor. Constructor dependency wiring belongs in `core/di`. Domain remains
@@ -1968,6 +1969,17 @@ The complete list is provided in the separate document "Bank Requirements and De
 ---
 
 ## 21. Change Log
+
+**2026-11-01 UseCase filename clarification:** source filenames must end in
+`_usecase.dart`. Login and Dashboard use `login_usecase.dart` and
+`home_usecase.dart`; imports and documents are updated together. No extra layer
+or automatic one-class-per-file split is required.
+
+**2026-11-01 independent-event clarification:** repeated State field names alone
+do not make distinct events one operation. Keep explicit emits for independent
+events and extract shared pure calculations/predicates. Genuinely shared request
+lifecycles retain one owner with delegation; State-publication helpers remain
+prohibited. See coding-contract v1.18.
 
 **2026-11-01 owner clarification:** UseCase class names end in `UseCase` and
 every used UseCase is registered in GetIt. Cubit resolves final UseCase fields

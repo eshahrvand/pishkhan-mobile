@@ -204,7 +204,7 @@ class _DashboardHomePanelState extends State<DashboardHomePanel> {
                                             DashboardBankServices(
                                               onEdit: () => context
                                                   .read<HomeCubit>()
-                                                  .beginFavoritesEditing(),
+                                                  .openFavoritesEditing(),
                                               onAllServices: context
                                                   .read<HomeCubit>()
                                                   .requestAllServices,

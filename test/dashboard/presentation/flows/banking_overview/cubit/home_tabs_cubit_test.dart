@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
+
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/dashboard_drawer_group.dart';
 
 import '../../../../../support/registered_dependency.dart';
@@ -81,6 +83,9 @@ void selectItem(HomeCubit cubit, String tab, int index) {
 }
 
 void main() {
+  setUp(configureDependencies);
+  tearDown(getIt.reset);
+
   test('drawer expansion, search normalization and selection preserve flow ordering', () async {
     final cubit = withRegisteredDependency<DashboardRepositories, HomeCubit>(
       defaultDashboardTestRepositories,
@@ -230,7 +235,7 @@ void main() {
         ),
       );
       await Future<void>.delayed(Duration.zero);
-      cubit.beginFavoritesEditing();
+      cubit.openFavoritesEditing();
       cubit.addFavorite(DashboardService.cardDeposit);
       cubit.selectTab(AppPrimaryTab.deposits);
       loans.complete(const Success([DashboardMockData.singleLoan]));

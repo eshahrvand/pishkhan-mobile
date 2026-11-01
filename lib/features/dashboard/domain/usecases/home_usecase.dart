@@ -5,8 +5,8 @@ import '../entities/dashboard_home_data.dart';
 import '../repositories/dashboard_repositories.dart';
 import '../entities/dashboard_item.dart';
 
-class LoadDashboardHome {
-  const LoadDashboardHome(this.repository);
+class LoadDashboardHomeUseCase {
+  const LoadDashboardHomeUseCase(this.repository);
   final DashboardHomeRepository repository;
   Future<Result<DashboardHomeData?>> call() async {
     try {
@@ -18,8 +18,8 @@ class LoadDashboardHome {
 }
 
 /// Validates a dashboard snapshot without presentation or network dependencies.
-class LoadDashboardItems<T extends DashboardItem> {
-  const LoadDashboardItems(this.fetch);
+class LoadDashboardItemsUseCase<T extends DashboardItem> {
+  const LoadDashboardItemsUseCase(this.fetch);
   final Future<Result<List<T>>> Function() fetch;
   Future<Result<List<T>>> call() async {
     try {

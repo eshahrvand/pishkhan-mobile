@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
+
 import 'package:pishkhan_mobile/features/dashboard/domain/entities/bank_card.dart';
 import 'package:pishkhan_mobile/features/dashboard/domain/entities/bank_deposit.dart';
 
@@ -35,6 +37,32 @@ HomeCubit createHome({DashboardHomeRepository? repository}) {
 }
 
 void main() {
+  setUp(configureDependencies);
+  tearDown(getIt.reset);
+
+  test(
+    'fresh Home scopes keep their own resolved use cases and repositories',
+    () async {
+      final first = createHome(
+        repository: const MockDashboardHomeRepository(
+          favorites: ['card-issue'],
+        ),
+      );
+      final second = createHome(
+        repository: const MockDashboardHomeRepository(
+          favorites: ['deposit-statement'],
+        ),
+      );
+
+      await Future.wait([first.fetchHome(), second.fetchHome()]);
+
+      expect(first.state.homeData!.favorites, ['card-issue']);
+      expect(first.state.favoriteServices, [DashboardService.issue]);
+      expect(second.state.homeData!.favorites, ['deposit-statement']);
+      expect(second.state.favoriteServices, [DashboardService.statement]);
+    },
+  );
+
   test('concurrent failures notify independently and an identical retry notifies again', () async {
     final repository = TestRepositories();
     final cards = Completer<Result<List<BankCard>>>();
@@ -128,7 +156,7 @@ void main() {
         ),
       );
       await cubit.fetchHome();
-      cubit.beginFavoritesEditing();
+      cubit.openFavoritesEditing();
       cubit.requestFavoritePicker();
       expect(cubit.state.effect, isA<HomeFavoritePickerRequested>());
       expect(
@@ -187,7 +215,7 @@ void main() {
         ),
       );
       await cubit.fetchHome();
-      cubit.beginFavoritesEditing();
+      cubit.openFavoritesEditing();
       final additions = DashboardService.values
           .where((service) => service != DashboardService.issue)
           .take(7);
@@ -202,11 +230,11 @@ void main() {
       expect(cubit.state.canAddFavorite, isTrue);
       cubit.applyFavorites();
       final saved = cubit.state.homeData!.favorites;
-      cubit.beginFavoritesEditing();
+      cubit.openFavoritesEditing();
       cubit.removeFavorite(cubit.state.favoriteServices.first);
       cubit.cancelFavorites();
       expect(cubit.state.favoriteServices.map((service) => service.id), saved);
-      cubit.beginFavoritesEditing();
+      cubit.openFavoritesEditing();
       cubit.resetFavorites();
       expect(cubit.state.homeData!.favorites, isEmpty);
       expect(cubit.state.favoriteServices, isEmpty);
@@ -217,7 +245,7 @@ void main() {
   test('suggestions remain uncommitted until confirmation', () async {
     final cubit = createHome();
     await cubit.fetchHome();
-    cubit.beginFavoritesEditing();
+    cubit.openFavoritesEditing();
     expect(cubit.state.homeData!.favorites, isEmpty);
     expect(cubit.state.favoriteServices, [
       DashboardService.issue,
@@ -226,7 +254,7 @@ void main() {
     ]);
     cubit.cancelFavorites();
     expect(cubit.state.favoriteServices, isEmpty);
-    cubit.beginFavoritesEditing();
+    cubit.openFavoritesEditing();
     cubit.applyFavorites();
     expect(cubit.state.homeData!.favorites, [
       'card-issue',

@@ -16,6 +16,7 @@ This document describes current implementation; it introduces no new rules.
 
 | Location under `lib/features/auth/` | Responsibility |
 | --- | --- |
+| `domain/usecases/login_usecase.dart` | FetchLoginCaptchaUseCase, RequestLoginOtpUseCase and VerifyLoginOtpUseCase; registered in core/di |
 | `presentation/login/cubit/auth_cubit.dart` | Specific input, request, countdown, guest-selection and Back actions |
 | `presentation/login/cubit/auth_state.dart` | Plain Freezed `.initial`, part of Cubit; independent CAPTCHA, OTP-request and login statuses; latest failure/message and typed effect; generated State string output disabled |
 | `presentation/login/screens/auth_screen.dart` | Provider, named filtered effect listener, overall composition and Back gate |
@@ -170,3 +171,24 @@ State fields were changed by this correction.
 
 Duplication review: 0 repeated blocks introduced; all 3 request operations still
 have one owner. Flow review: 0 clears added or removed by the DI correction.
+
+### Phase-1 and phase-2 re-review after filename clarification
+
+The owner's filename rule is now recorded in contract v1.19: UseCase source
+filenames end in `_usecase.dart`. Login is renamed to `login_usecase.dart`, with
+imports in Cubit, DI and its DI test updated. Existing class grouping is retained.
+The Dashboard group likewise uses `home_usecase.dart`. No operation or State
+shape changes accompany these renames.
+
+Both phases were re-reviewed for the class/file suffixes, GetIt registration and
+constructor wiring, final Cubit dependency fields, direct Provider construction,
+independent statuses, one request owner per operation, explicit State publication,
+pure calculations, validation, effects and flow-aware clearing. The approved
+independent-event rule still applies to favorite actions. The DI test now checks
+fresh-scope behavior through State/fetching, without its old isClosed assertion.
+
+Combined native regression run: 218 passed, 1 Web-only skip. `flutter analyze`
+and `git diff --check` passed. No live-bank or browser run was performed.
+
+Duplication review: 0 new repeated blocks found, 0 resolved. Flow review: 0 new
+clears added or removed in this re-review.

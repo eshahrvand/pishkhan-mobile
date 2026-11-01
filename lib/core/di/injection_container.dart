@@ -5,7 +5,7 @@ import 'package:pishkhan_mobile/features/postal_offices/domain/repositories/post
 import 'package:pishkhan_mobile/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:pishkhan_mobile/features/auth/data/repositories/remote_auth_repository.dart';
 import 'package:pishkhan_mobile/features/auth/domain/repositories/auth_repository.dart';
-import 'package:pishkhan_mobile/features/auth/domain/usecases/login.dart';
+import 'package:pishkhan_mobile/features/auth/domain/usecases/login_usecase.dart';
 import 'package:pishkhan_mobile/features/profile/domain/repositories/personal_information_repository.dart';
 import 'package:pishkhan_mobile/features/profile/data/repositories/mock_personal_information_repository.dart';
 import 'package:pishkhan_mobile/features/transfers/domain/repositories/on_site_transfer_repository.dart';
@@ -37,6 +37,10 @@ import 'package:pishkhan_mobile/features/deposits/data/repositories/mock_agent_r
 import 'package:pishkhan_mobile/features/deposits/domain/repositories/agent_repository.dart';
 import 'package:pishkhan_mobile/features/dashboard/data/repositories/mock_dashboard_repositories.dart';
 import 'package:pishkhan_mobile/features/dashboard/domain/repositories/dashboard_repositories.dart';
+import 'package:pishkhan_mobile/features/dashboard/domain/entities/bank_card.dart';
+import 'package:pishkhan_mobile/features/dashboard/domain/entities/bank_deposit.dart';
+import 'package:pishkhan_mobile/features/dashboard/domain/entities/bank_loan.dart';
+import 'package:pishkhan_mobile/features/dashboard/domain/usecases/home_usecase.dart';
 import 'package:pishkhan_mobile/features/cards/data/repositories/mock_cards_repository.dart';
 import 'package:pishkhan_mobile/features/cards/data/repositories/mock_card_issuance_repository.dart';
 import 'package:pishkhan_mobile/features/cards/data/repositories/mock_card_services_repository.dart';
@@ -151,6 +155,24 @@ void configureDependencies({GetIt? container}) {
       cards: dependencies<DashboardCardsRepository>(),
       deposits: dependencies<DashboardDepositsRepository>(),
       loans: dependencies<DashboardLoansRepository>(),
+    ),
+  );
+  dependencies.registerFactory<LoadDashboardHomeUseCase>(
+    () => LoadDashboardHomeUseCase(dependencies<DashboardRepositories>().home),
+  );
+  dependencies.registerFactory<LoadDashboardItemsUseCase<BankCard>>(
+    () => LoadDashboardItemsUseCase(
+      dependencies<DashboardRepositories>().cards.getCards,
+    ),
+  );
+  dependencies.registerFactory<LoadDashboardItemsUseCase<BankDeposit>>(
+    () => LoadDashboardItemsUseCase(
+      dependencies<DashboardRepositories>().deposits.getDeposits,
+    ),
+  );
+  dependencies.registerFactory<LoadDashboardItemsUseCase<BankLoan>>(
+    () => LoadDashboardItemsUseCase(
+      dependencies<DashboardRepositories>().loans.getLoans,
     ),
   );
 }

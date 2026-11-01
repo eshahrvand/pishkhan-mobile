@@ -10,7 +10,7 @@ import 'package:pishkhan_mobile/core/validators/validators.dart';
 
 import '../../../domain/entities/login_captcha.dart';
 import '../../../domain/entities/login_identity.dart';
-import '../../../domain/usecases/login.dart';
+import '../../../domain/usecases/login_usecase.dart';
 
 import 'auth_effect.dart';
 import 'auth_error_messages.dart';

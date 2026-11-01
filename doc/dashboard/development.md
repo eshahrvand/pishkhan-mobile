@@ -1,770 +1,274 @@
-# Dashboard Development Document — Smart Virtual Counter
+# Dashboard development and review
 
-## Test access to implemented services (2026-10-19)
+Reviewed: 2026-11-01 — Cubit migration, phase 2.
 
-The existing tab grids now expose all implemented card and deposit flows. Their
-widgets, spacing, colors and navigation remain the same; additional items wrap
-onto additional rows using the existing grid behavior. Implemented entries come
-before the existing integration placeholders.
+The dashboard owns Home and the Cards, Deposits and Loans summary tabs. All four
+share one HomeCubit/HomeState. Dedicated card/deposit/cheque and other service
+flows retain their own feature scopes. Dashboard data still comes from mock
+repositories; this phase adds no endpoint, banking operation or assistant backend.
 
-- Cards: card list, virtual-card list, change linked deposit, reissue, second
-  password setup/change/recovery, issuance, virtual-card request and expired gift
-  balance. The second sample dashboard card permits second-password setup; the
-  first retains the existing recovery-only eligibility.
-- Deposits: deposit list, average balance, financial certificate, introduce
-  agent, agent settings, block/unblock, close surplus deposits and proxy deposit,
-  plus the existing card issuance and virtual-card shortcuts.
-- Loans: existing entries remain; there is no implemented standalone loan flow
-  to add at this stage.
+The [UI/Cubit/State contract](../ui-cubit-state-agent-rules-en.md), including the
+2026-11-01 UseCase and independent-event clarifications, is authoritative.
+Apply the [Cubit clean-code skill](../../.agents/skills/pishkhan-cubit-clean-code/SKILL.md).
+Historical multi-Cubit layouts, repository constructor parameters, generation
+counters, disposal guards and `.then` examples are superseded by the code and
+rules described here.
 
-The lists remain local prototype data until service availability is supplied by
-the backend. All entries dispatch through the central route table and preserve
-the selected card/deposit input. The deposit-list service is now connected in
-ServiceRegistry as well.
+## 1. Ownership and scope
 
-`test/dashboard/implemented_services_navigation_test.dart` exercises each
-implemented tab entry through the real DashboardScreen and router.
+DashboardScreen directly constructs HomeCubit and calls `fetchDashboard()` in
+BlocProvider.create. The router only selects the destination. Provider owns
+closing; ordinary rebuilds preserve the instance and IndexedStack retains the
+four tab widgets. Screen/panel/tab constructors take only super.key; data
+repositories and UseCases are not passed through widgets or routes.
 
-**Project:** Pishkhan AI / Resalat Smart Virtual Counter mobile application
+HomeCubit owns loaded summaries, selected records, privacy visibility, available
+operation lists, favorites, drawer/picker search, prompt state and hint timing.
+Flutter focus, PageControllers, image resources and background animation remain
+owned by their widgets. State is plain data and contains no handwritten logic.
 
-**Framework:** Flutter / Dart
+## 2. Files and dependencies
 
-**Document version:** 2.0.0
-
-**Date:** 2026-10-09
-
-**Status:** Repository-backed mock UI and Cubit migration implemented; live bank services are not connected
-
-**Scope:** dashboard module, dashboard page, Cards tab integration, Deposits phases 1–2, Loans phases 1–2, notification navigation
-
-**Architecture reference:** [architecture-smart-virtual-counter-v2-en.md](../architecture-smart-virtual-counter-v2-en.md)
-
-This feature document follows all 21 sections of the project's architecture document in the same order. It records the current code separately from proposed architecture and server integration. The architecture document is a revised draft; listing a planned library or layer there does not mean it exists in this application.
-
-## Table of Contents
-
-1. Architectural Goals and Principles
-2. Product Scope and Target Platforms
-3. Technology Stack
-4. Development Environment and Versions
-5. Third-Party Dependency Governance
-6. Project Structure and Modularization
-7. Layering Pattern
-8. Service Flow Pattern and Suspended Requests
-9. Security and Compliance Layer
-10. Network and Authentication Layer
-11. Error Handling Pattern
-12. State Management with Cubit
-13. Design System Package
-14. Localization, Persian Support, and Dates
-15. Routing and Guards
-16. Testing Strategy
-17. Development and Code Review Process
-18. Environments, CI/CD, and Release
-19. AI Assistant and Agent Layer
-20. Open Items and Dependencies
-21. Change Log
-
-## 1. Architectural Goals and Principles
-
-The dashboard module owns its navigation, Home content and Cards/Deposits/Loans tabs. A tab is a dashboard summary, not a standalone banking feature page. Dashboard-specific entities, actions, fixtures, repositories and Cubits now live under `lib/features/dashboard/`; future full Card, Deposit and Loan pages can use their dedicated feature folders without inheriting tab layout or selection state.
-
-The dependency direction is presentation -> use case -> domain repository contract; the mock data layer implements those contracts. UI and Cubits consume the same interface that a future live repository will implement. No service request, authentication or banking transaction is executed by this prototype.
-
-The earlier component decision explicitly required existing shared components unchanged. The subsequent progress-fix request authorized a focused correction to the existing progress primitive and its AppLoanCard callsite. This restructuring preserves those decisions. Section 13 records exact card/navigation differences and the expanded component-by-component Figma audit, including unresolved states rather than claiming complete pixel equality.
-
-## 2. Product Scope and Target Platforms
-
-### 2.1 Implemented screens, tabs and phases
-
-| Surface | Implemented states / behavior | Source |
-| --- | --- | --- |
-| App entry | Persian locale, enforced RTL, prototype login completion switches to dashboard | `lib/main.dart` |
-| Dashboard page | Wallet example, Reso prompt, eight fixed services, empty favorites, draft editing, saved favorites, eight-item limit, reset confirmation | `lib/features/dashboard/presentation/dashboard_screen.dart`, `shared/widgets/dashboard_bank_services.dart` |
-| Dashboard phase 1 | Default dashboard and starting customization | Figma nodes `27902:80847`, `27902:81083` |
-| Dashboard phase 2 | Add-service sheet and grouped search | `27902:81228`, `27902:81468` |
-| Dashboard phase 3 | Six/eight draft favorites and reset | `27902:81700`, `27902:81873`, `27902:82066` |
-| Dashboard phase 4 | Saved favorites and separate all-services page | `27902:80947`, `27902:82267` |
-| Cards tab | Single/multiple card layouts, selected card, per-card visibility, copy, selected-card action callbacks | `lib/features/dashboard/presentation/tabs/cards/cards_tab.dart`; `27902:82533`, `27902:82561` |
-| Deposits phase 1 | Single 335×202 deposit card, deposit operations, cheque operations when eligible, quick access | `lib/features/dashboard/presentation/tabs/deposits/deposits_tab.dart`; [27902:82476](https://www.figma.com/design/nYQNyZdSs98lwymCpt5Sag/Pishkhan-AI-Mobile?node-id=27902-82476) |
-| Deposits phase 2 | Multiple 316×191 deposit cards, snapping RTL carousel, neighboring previews, indicators, selected-deposit actions | Same screen; [27902:82503](https://www.figma.com/design/nYQNyZdSs98lwymCpt5Sag/Pishkhan-AI-Mobile?node-id=27902-82503) |
-| Deposits empty | Localized empty message and usable dashboard controls | `DepositsTab(repository: MockDashboardDepositsRepository(deposits: []))` |
-| Loans phase 1 | Single 335×236 loan card, four operations and two quick actions | `lib/features/dashboard/presentation/tabs/loans/loans_tab.dart`; [27902:82623](https://www.figma.com/design/nYQNyZdSs98lwymCpt5Sag/Pishkhan-AI-Mobile?node-id=27902-82623) |
-| Loans phase 2 | Multiple 316×236 loan cards, snapping RTL carousel, neighboring previews and selected-loan callbacks | Same screen; [27902:82592](https://www.figma.com/design/nYQNyZdSs98lwymCpt5Sag/Pishkhan-AI-Mobile?node-id=27902-82592) |
-| Loans empty | Localized empty message; controls remain usable; no selected lookup/action groups | `LoansTab(repository: MockDashboardLoansRepository(loans: []))` |
-| Notifications | Bell pushes list; opening marks read; Read all; detail; read state retained during dashboard lifetime | `lib/features/notifications/presentation/` |
-
-Single versus multiple deposit layout is determined by list length. Cheque visibility is determined by `BankDeposit.hasChequeOperations`, independently of length. One deposit can have no cheque section; an eligible deposit in a multi-deposit list can have one. The default single example is eligible; all three default multi examples are ineligible, matching the supplied states.
-
-The single frame has eight deposit operations, three cheque operations and eight quick actions. The multiple frame has eight deposit operations and eight quick actions. This implementation does not equate “multiple deposits” with “cheques unavailable.”
-
-### 2.2 Platform scope
-
-The architectural product targets Android, iOS and mobile Safari as the iOS fallback. This work is Flutter UI and adds no platform package. Clipboard copying uses `flutter/services.dart`. Native status/navigation bars and keyboards are excluded from review PNGs. No native device build or web deployment is claimed by these widget tests.
-
-## 3. Technology Stack
-
-| Concern | Installed/current implementation | Future integration |
-| --- | --- | --- |
-| Widgets | Flutter Material, public avp_ui primitives and existing shared widgets | Dedicated banking pages and reviewed variants |
-| State | flutter_bloc; DashboardCubit, DashboardNavigationCubit, CardsCubit, DepositsCubit, LoansCubit | Same Cubits with service-backed repositories |
-| Equality | Equatable 2.0.7 domain entities; Freezed State and immutable collections | Keep immutable state contracts |
-| Domain | Dashboard summary entities, repository interfaces and loading use cases | Validated service DTO mapping |
-| Data | Async mock repository implementations and centralized mock fixtures | Remote datasources, transport DTOs, mappers and live repositories |
-| Localization/artwork | fa/en/ar ARBs, local AppConstants.baseImage paths, flutter_svg and PNGs | Optional remote icon resolver/cache |
-| Routing | IndexedStack, Navigator; core notification navigation adapter | Service registry and authenticated guards |
-| Errors | Typed Result/Failure with coded failures | Transport/auth/contract failures mapped by data layer |
-| Testing | flutter_test unit/widget/geometry tests | Service contract and device tests |
-
-`pubspec.yaml` uses `avp_ui: path: ../avp_ui`. This resolves the existing sibling package while removing the absolute Windows path and its analyzer portability warning. Application widgets import its public barrel, `package:avp_ui/avp_ui.dart`.
-
-## 4. Development Environment and Versions
-
-The project Dart constraint is `^3.13.3` in `pubspec.yaml`. The architecture document's Flutter/FVM selection is a policy proposal, not a completed pin in this repository. Do not infer an exact Flutter version from this feature document.
-
-Configuration files are `pubspec.yaml`, `pubspec.lock`, `analysis_options.yaml` and `l10n.yaml`. Current analysis uses `flutter_lints`; the architectural custom import lints are not installed. Generated localization output is under `lib/l10n/generated/`.
-
-The local SDK requires access to its cache outside the repository when generating localization or running tests. That execution requirement does not authorize changing SDK versions or shared-package source.
-
-## 5. Third-Party Dependency Governance
-
-Equatable `^2.0.7` provides domain entity equality; all Cubit State classes use Freezed and generated `copyWith`/equality. The selected versions are recorded in pubspec.lock. Existing flutter_bloc is retained. No HTTP, DI, image-caching or routing dependency is introduced.
-
-A future remote icon implementation still needs an approved caching strategy. Existing SVG and artwork asset callsites do not accept arbitrary URLs. Introducing repository contracts does not by itself implement remote images, API decoding or durable storage.
-
-## 6. Project Structure and Modularization
-
-### 6.1 File and folder map
-
-All paths are repository-relative; `avp_ui` sources are in the sibling package.
-
-```text
-lib/features/dashboard/
-  dashboard.dart                           public feature exports
-  domain/
-    entities/
-      dashboard_item.dart                  immutable/equality item contract
-      bank_card.dart                       BankCard, BankCardKind
-      bank_deposit.dart                    BankDeposit, cheque capability
-      bank_loan.dart                       BankLoan, numeric count/progress getters
-      dashboard_home_data.dart             wallet + saved/fixed/suggested IDs
-    repositories/dashboard_repositories.dart
-                                           4 contracts + DashboardRepositories bundle
-    usecases/
-      load_dashboard_items.dart            snapshot, ID validation, failure boundary
-      load_dashboard_home.dart             Home result boundary
-  data/mock/
-    dashboard_mock_data.dart               single/multiple fixtures (no entity statics)
-    mock_dashboard_repositories.dart       4 async mock implementations
-  presentation/
-    dashboard_screen.dart                  composition root and IndexedStack
-    cubit/
-      dashboard_cubit.dart                 Home load + favorite transactions
-      dashboard_state.dart                 Home lifecycle states
-      dashboard_navigation_cubit.dart      primary-tab selection state/Cubit
-      dashboard_tab_cubit.dart             common async item load/selection behavior
-      dashboard_tab_state.dart             common item lifecycle and layout states
-    tabs/
-      cards/
-        cards_tab.dart                     CardsTab; card/carousel composition
-        card_actions.dart                  CardAction, CardActionRequest
-        cubit/cards_cubit.dart              CardsCubit + visibility operations
-        cubit/cards_state.dart              CardsState alias, CardsLoaded visibility map
-      deposits/
-        deposits_tab.dart                  DepositsTab; cheque/operation/quick groups
-        deposit_actions.dart               DepositAction, DepositActionRequest
-        cubit/deposits_cubit.dart           DepositsCubit
-        cubit/deposits_state.dart           DepositsState alias, DepositsLoaded
-      loans/
-        loans_tab.dart                     LoansTab; summary/operations/quick groups
-        loan_actions.dart                  LoanAction, LoanActionRequest
-        cubit/loans_cubit.dart              LoansCubit
-        cubit/loans_state.dart              LoansState alias, LoansLoaded
-    shared/
-      dashboard_services.dart              46 local service IDs and nine categories
-      widgets/
-        dashboard_async_view.dart          loading/error/retry/empty composition
-        dashboard_bank_services.dart       fixed grid and favorite editor
-        dashboard_service_tile.dart        service artwork/icon composition
-        dashboard_reset_sheet.dart         reset confirmation sheet
-        dashboard_all_services_screen.dart full catalog and category heading
-        dashboard_reso_banner.dart         prompt resources/animation/lifecycle
-        dashboard_header.dart              shared top bar wrapper
-lib/core/result/
-  result.dart                              Result<T>, Success<T>, Err<T>
-  failure.dart                             Failure, DataFailure, UnexpectedFailure
-lib/core/router/
-  dashboard_notifications_navigation.dart  standalone notification navigation/cache
-lib/core/config/
-  constant.dart                            direct app image prefix
-lib/shared/
-  widgets/                                 reusable visual widgets; see Section 13
-lib/l10n/                                  fa/en/ar ARBs + generated localizations
-test/dashboard/
-  dashboard_tab_cubits_test.dart            lifecycle, selection, immutable/race tests
-  dashboard_async_ui_test.dart              status rendering/retry/disposal/integration
-  support/dashboard_test_repositories.dart  controllable repository fake
-test/{cards,deposits,loans}_screen_test.dart tab behavior/frame/geometry regressions
-test/dashboard_cubit_test.dart              Home favorites regression
-test/bank_loan_test.dart                    installment ratio guard tests
-doc/dashboard/development.md     this architecture document
-```
-
-Screen test filenames are retained for compatibility with existing preview commands; their subjects now instantiate *Tab classes. Entities no longer contain `.examples`/`.singleExample`; fixtures belong exclusively to DashboardMockData. There are no live DTOs, HTTP clients or API mappers yet.
-
-### 6.2 Move and module boundaries
-
-| Former dashboard-owned file | Current canonical file |
+| Source | Responsibility |
 | --- | --- |
-| features/cards/models/bank_card.dart | features/dashboard/domain/entities/bank_card.dart |
-| features/cards/presentation/cards_screen.dart | features/dashboard/presentation/tabs/cards/cards_tab.dart |
-| features/deposits/models/bank_deposit.dart | features/dashboard/domain/entities/bank_deposit.dart |
-| features/deposits/presentation/deposits_screen.dart | features/dashboard/presentation/tabs/deposits/deposits_tab.dart |
-| features/deposits/presentation/shared/deposit_actions.dart | features/dashboard/presentation/tabs/deposits/deposit_actions.dart |
-| features/loans/models/bank_loan.dart | features/dashboard/domain/entities/bank_loan.dart |
-| features/loans/presentation/loans_screen.dart | features/dashboard/presentation/tabs/loans/loans_tab.dart |
-| features/loans/presentation/shared/loan_actions.dart | features/dashboard/presentation/tabs/loans/loan_actions.dart |
+| `lib/features/dashboard/domain/entities/` | Immutable summary entities, Home data and snapshot contract |
+| `domain/repositories/dashboard_repositories.dart` | Four repository interfaces and the existing DashboardRepositories bundle |
+| `domain/usecases/home_usecase.dart` | LoadDashboardHomeUseCase and typed LoadDashboardItemsUseCase |
+| `data/datasources/dashboard_mock_data.dart` | Local fixtures |
+| `data/repositories/mock_dashboard_repositories.dart` | Four mock adapters |
+| `presentation/home/cubit/` | HomeCubit, plain part-of HomeState.initial and typed HomeEffect |
+| `presentation/home/screens/` | DashboardScreen, catalog page and three banking tabs |
+| `presentation/home/widgets/` | Home composition, carousels, service groups, drawer and favorite picker |
+| `presentation/shared/` | Service/action/category definitions and shared dashboard visuals |
+| `lib/core/di/injection_container.dart` | Dependency registration and UseCase constructor wiring |
 
-No compatibility re-exports are left in dedicated feature folders. App entry imports dashboard.dart. Standalone Notifications remains its own feature; the core navigation adapter owns the cross-feature presentation import and temporary read-state cache.
+The four repository interfaces and bundle remain lazy singletons. The two
+UseCase classes have explicit UseCase suffixes. DI registers Home plus three
+typed item UseCases (BankCard, BankDeposit and BankLoan). Their factory lifetime
+matches the previous per-Cubit UseCase construction: each new Home scope resolves
+its own stateless instances and retains them in final fields. A retained Cubit is
+not rewired by changing a registration. Cubit no longer holds the repository
+bundle or constructs UseCases; Domain has no GetIt dependency.
 
-AppResalatCard, AppDepositCard, AppLoanCard, AppPrimaryNavigation, top bar, service grids, artwork tiles and assistant button stay in `lib/shared/widgets/`. They are reusable visual components with existing consumers/tests, not dashboard-specific business state. The package progress/button/input primitives stay in avp_ui. A future dedicated page can reuse these common visuals without importing a Dashboard tab or its Cubit. A shared full banking domain model may need a separate common contract later; the current summary models are owned by Dashboard.
+Tests configure production registrations, install controlled repositories before
+Cubit construction, close test-owned Cubits and reset GetIt. There is no
+production changeRepository API or Cubit factory/registration for tests.
 
-## 7. Layering Pattern (Clean Architecture)
+## 3. Operation inventory
 
-### 7.1 Current layers
+| Operation | Owner | Triggers and publication |
+| --- | --- | --- |
+| Home content | fetchHome | Initial fetchDashboard and Home retry; homeStatus, data and service lists |
+| Cards | fetchCards | Initial fetchDashboard and Cards retry; cardsStatus, immutable cards, selection/actions/privacy |
+| Deposits | fetchDeposits | Initial fetchDashboard and Deposits retry; depositsStatus, selection/actions/cheque capability |
+| Loans | fetchLoans | Initial fetchDashboard and Loans retry; loansStatus, selection and action lists |
 
-**UI:** DashboardScreen composes the dashboard and injects repository instances. Each tab owns its Cubit lifecycle and observes typed state through BlocConsumer. Views pass loaded entity fields into existing shared visuals; they do not load fixtures or call transport services. PageController, FocusNode, text controller and animations remain view resources. Cards' privacy visibility and selected item are state, not controller fields.
+fetchDashboard awaits Future.wait of these four owners, preserving concurrent
+startup. Each owner has one UseCase call, one await and one Result switch. Loading
+is emitted before invoking the UseCase. Each completion copies the current State,
+so another operation's response, selected tab or favorite edit is not overwritten.
+There are no request-ID counters: no new overlap policy is introduced.
 
-**Presentation/state:** DashboardCubit owns asynchronous Home content and transactional favorites; DashboardNavigationCubit owns primary-tab selection. CardsCubit, DepositsCubit and LoansCubit own loading outcomes and selected IDs. Common behavior is factored once in DashboardTabCubit; typed loaded classes carry each tab's entity and card visibility. All states use Equatable and immutable collection snapshots.
+## 4. User path and State readers
 
-**Domain:** Pure Dart entities, repository contracts and use cases have no Flutter imports. BankLoan derives footer and progress from one numeric count pair. LoadDashboardItems validates unique/nonblank IDs and detaches collection data before emitting it. These are dashboard summary/read models; formatted amounts and dates are still inherited prototype strings, not a complete banking domain agent.
+| Step/event | Readers | Retention and next step |
+| --- | --- | --- |
+| Enter dashboard | Status-driven Home and tab sections | Four independent reads start; one failure does not erase another section's data/status. |
+| Open a banking tab | Tab, carousel and service groups | selectedTab changes; other selections, drafts and privacy survive. |
+| Retry banking data | Tab loading/empty/error branches and selection reconciliation | Old visible list/selection/actions are invalidated by the owner; success restores the prior selection by ID when available, otherwise first item. |
+| Select a card/deposit/loan | Carousel and operation groups | Cubit stores the rendered object and its index together; the next action uses that selected record. |
+| Edit favorites | Home service editor, limit notice and add control | Saved favorites remain in homeData; draft list and flags change. Empty saved favorites start from suggestions, capped at eight. |
+| Apply / Cancel / Reset | Home service section | Apply commits draft locally; Cancel restores saved IDs; confirmed Reset clears saved/draft favorites. No server save exists. |
+| Favorite picker | Home-owned sheet query, groups, collapse and selection | Opening resets picker inputs; selected favorites are disabled; dismissal retains the draft. |
+| Drawer | Home-owned groups/query/selection | Opening resets the drawer; raw result returns to Cubit for Home/service intent. |
+| Prompt / motion | Banner input, typing hint and background animation | Cubit owns eligibility/typing; UI executes focus and animation using prepared State and Flutter lifecycle inputs. |
+| Navigate/copy/open sheet | Focused HomeEffect listeners | Reusable commands are consumed before Flutter work; no sequence counters. |
 
-**Data:** DashboardMockData holds samples; four mock repositories asynchronously return typed Result values. It is the only implemented data source. The dashboard's default composition explicitly creates mocks; passing DashboardRepositories replaces them. This is a small explicit composition root, not an installed get_it/injectable container.
+Home loading now omits five redundant clears: homeData, favoriteServices,
+fixedServices, canAddFavorite and isFavoritesLimitReached. Home content is gated
+by homeStatus while pending/failed, and the success action replaces all five
+before the next content step reads them. isEditingFavorites still resets at the
+fetch boundary. Banking invalidation remains because selection reconciliation,
+action availability and the carousel depend on a consistent loading snapshot.
 
-### 7.2 Dependency direction and future adapters
+## 5. Favorites and independent events
 
-```text
-today: DashboardMockData -> MockDashboard*Repository
-                                  implements domain repository interface
-                                              ^
-                                     LoadDashboard* use case
-                                              ^
-                                         tab/Home Cubit
-                                              |
-                                       immutable states
-                                              v
-                                      view -> shared/avp_ui
+`openFavoritesEditing`, `addFavorite`, `removeFavorite`, `applyFavorites`,
+`cancelFavorites` and `resetFavorites` are specific actions. The former
+beginFavoritesEditing name and all callers now use the approved open vocabulary.
 
-future: API -> remote datasource -> DTO -> validated mapper
-                                          -> live repository
-                                             implements the SAME interface
+The owner explicitly approved retaining their individual emits even where field
+names overlap. Fetching, opening, adding, removing and cancelling are independent
+events; they are not routed through a fabricated publication action. Repeated
+capacity predicates use `_canAddFavorite` and `_isFavoritesLimitReached`.
+Calculations return values, never State. The same rule applies to future phases.
+
+The limit stays eight. Unsupported/duplicate IDs and ordering retain existing
+behavior. Picker results and reset confirmation are interpreted in Cubit. No
+new persistence or server capability is inferred from local customization.
+
+## 6. Selection, privacy and actions
+
+The shared pure `_findRetainedSelection` calculation keeps a matching ID or
+selects the first remaining record. `_selectedItemIndex` returns its list index
+or the empty default. `_hasSelection` supplies repeated availability predicates.
+No helper constructs or publishes State.
+
+Card visibility remains per ID and is reconciled against the fetched cards;
+single-card data defaults visible and multi-card data defaults hidden. The
+selected card's canSetSecondPin determines its PIN operations. Cheque operations
+follow the selected deposit's hasChequeOperations, independently of list length.
+Loan operations retain selected BankLoan context. Copy effects carry original
+number/IBAN strings; UI executes Clipboard.setData.
+
+## 7. Prompt and lifecycle
+
+Prompt submission stores trimmed text and a typed effect, retaining the existing
+unavailable feedback. It does not contact an assistant service. Drawer and picker
+normalization/filtering remain in Cubit and keep their existing search behavior.
+
+The hint clock preserves its 90ms grapheme-aware typing/erasing cadence and hold
+periods. Pure predicates determine motion permission, foreground availability and
+whether typing may run without focus/input. These results are explicitly emitted
+by the input/lifecycle actions. The timer helper only starts/cancels its resource;
+close cancels it. UI retains focus, reduced-motion/TickerMode observations, image
+decoding resources and background animation. No closed/disposed guard or parallel
+flow notifier is introduced.
+
+## 8. Failures and loading
+
+Independent home/cards/deposits/loans statuses use the existing RequestStatus.
+Loading clears the shared latest failure/message. Err publishes its own failure
+status and Persian message prepared by the core Presentation mapper. Listeners
+observe entering-failure status transitions, so concurrent failures and repeated
+identical retries each notify. Other typed commands clear an old message.
+
+UseCases preserve repository Err values and catch unexpected exceptions through
+the existing UnexpectedFailure boundary. Item loads reject blank/duplicate IDs
+and detach immutable snapshots. Empty lists and Home Success(null) remain valid
+empty results. There is no fabricated sample fallback on failure.
+
+UI owns pending interaction and Back gates; Cubit does not repeat them. State
+continues to have a single `.initial` Freezed factory, part-of layout, generated
+equality and disabled generated string output. There are no State getters or
+new status aliases.
+
+## 9. Navigation and integration limits
+
+Home effects request sheets, clipboard, focus and supported service destinations.
+The central AppRoutes/GoRouter and existing service navigation adapter translate
+those intents into routes, retaining selected card/deposit input. System Back
+from a banking tab returns to Home; Back during favorite editing cancels its
+draft. All pending operations gate Back through UI. Unsupported service/profile,
+loan-detail and assistant actions keep their existing unavailable behavior.
+
+Notifications retain the existing Home-owned list and raw change callback through
+the core navigation adapter. Their separate profile feature is migrated in its
+own phase. Dashboard data/favorites remain local mock state; no durable favorite
+save, remote catalog, icon policy, extra guards or bank endpoint is implemented.
+
+## 10. UI, assets and localization
+
+Use package:avp_ui/avp_ui.dart and AppTheme.light. UI reads S.current from generated
+intl_utils resources in lib/generated; fa/en/ar ARBs are under lib/l10n. App assets
+use AppConstants.baseImage. Controls, numeric copying, carousel geometry and
+semantic colors retain their current behavior. Financial summaries still contain
+prototype display strings; live money/date mapping needs a confirmed bank schema.
+
+Known source/Figma differences are preserved in Section 13. This refactor changes
+no shared component, asset, spacing, typography or design-system default.
+
+## 11. Verification
+
+Baseline: 116 tests passed using test/dashboard, test/core/di, test/core/router
+and test/app_drawer_test.dart. Final validation also includes Login, token storage
+and network regressions because the shared DI registrations changed.
+
+```sh
+flutter analyze
+flutter test test/dashboard test/core/di test/core/router test/app_drawer_test.dart test/auth test/core/security test/core/network
 ```
 
-Recommended new adapter paths are `lib/features/dashboard/data/datasources/`, `data/dto/`, `data/mappers/` and `data/repositories/`. These do not exist yet. Summary fetch mapping belongs in Dashboard data, not in the dedicated Loan/Deposit page folders. Prefer validated raw money/date values plus a consistent display mapper when the bank schema is known; the present formatted summaries can be produced at the repository boundary without changing views/Cubits. Broader domain agent changes should be reviewed separately.
+The additional scope-isolation test constructs two Home Cubits with different
+repositories, then fetches both after the second registration. Each must use its
+own retained UseCases. Existing tests cover concurrent responses, repeated errors,
+selection/reorder/empty/retry, favorite transactions, picker search/collapse,
+clipboard, navigation, loading/Back, prompt motion and RTL/geometry.
 
-## 8. Service Flow Pattern and Suspended Requests
+No real banking request, device/release run, browser execution or fresh Figma
+comparison is part of this verification. The native suite skips the existing
+Web-only token-store case.
 
-### 8.1 Current flow contract
+### Phase-2 verification results — 2026-11-01
 
-DashboardScreen, DashboardHomePanel, CardsTab, DepositsTab and LoansTab expose only `super.key`.
-DashboardScreen constructs HomeCubit directly in its BlocProvider.create.
-HomeCubit resolves DashboardRepositories internally from GetIt; the router only selects the screen.
-All four tabs render HomeState and send interactions to HomeCubit actions.
-Services, prompt submissions, profile/notifications, menu, favorite dialogs, copy and
-typed banking operations are represented by HomeEffect values. UI listeners execute
-navigation, sheets, focus and clipboard; no host callback is passed through the dashboard.
-Favorite changes and selected banking records live in HomeState. There is no live favorite
-persistence, assistant backend, profile destination or loan-detail destination yet.
-Animation preference is a HomeState field; platform reduced-motion is also respected.
-
-### 8.2 Deposit-dependent features
-
-`BankDeposit.hasChequeOperations` is the only current per-deposit action capability. DepositsTab reads it from `DepositsLoaded.selected` on each loaded build; it inserts/removes the entire cheque group and gap. Other groups are fixed lists in DepositAction. Action requests always include the selected BankDeposit.
-
-A server can supply `capabilities.chequeOperations`, or, more flexibly, a per-deposit `availableFeatureIds` list mapped into this flag today. A future presentation model should expose allowed/enabled action sets rather than infer them from account count or account type. Backend authorization must still validate every request.
-
-### 8.3 Suspended requests and drafts
-
-The UI has no suspended-request persistence/resumption. Favorites drafts are a different concept: a local editing transaction, not a submitted banking request. The architecture's request ID, idempotency, resumption and final confirmation belong to future service flows.
-
-## 9. Security and Compliance Layer
-
-No new security implementation is introduced. This is a UI prototype; logging into the demo does not verify bank credentials. Deposit examples are static and copy operations return caller-provided original strings.
-
-The loan payment tile only emits a UI callback; no installment payment or money movement is performed. Neither visual hiding nor omission of a service is authorization. Server capabilities/permissions are for presentation; production APIs must enforce identity, ownership, service eligibility and platform restrictions. Cached catalog metadata must not grant a capability after it has been revoked.
-
-Do not persist deposit numbers, IBANs, user prompts or tokens merely to implement catalog icon caching. Financial data storage follows the separate architecture's platform/security decisions.
-
-## 10. Network and Authentication Layer
-
-### 10.1 Current feature data sources, field by field
-
-Dashboard services are instances of a compile-time enum, not records decoded from JSON. Category membership/order remain compile-time lists. Fixed/recommended order, saved favorites and wallet text come from DashboardHomeData through the Home repository/Cubit. Mock values are local fixtures; favorite editing remains local. Category membership and full catalog content still use the enum. There is no server feature response yet.
-
-| Field / behavior | Actual current source | Dynamic today? | Server feasibility and required code change |
-| --- | --- | --- | --- |
-| ID | DashboardService.id, DepositAction.id, LoanAction.id, CardAction.id | Fixed supported IDs; favorites choose among them | Server may select known IDs. Add DTO parsing/registry resolution; unknown IDs must not reach firstWhere |
-| Title | DashboardService.label/catalogLabel, DepositAction.label, CardsTab._label -> ARB getters | Locale-dependent, not arbitrary server copy | Add localized text map and optional known localization key; server text wins only with defined fallback |
-| Description/supporting text | Reso banner and wallet ARBs; service item has no description field | Localized constants | Extend feature presentation model and an approved existing-component slot/variant before showing description |
-| Icon | Enum asset switches + direct local image paths | Selection of fixed/editing/saved variants is dynamic; source is local | Server iconKey resolver is easiest; URLs require renderer, cache, fallback and geometry contract |
-| Item order | Home repository supplies fixedServiceIds/suggestedServiceIds; enum category and deposit/loan lists remain local | Repository and favorite ordering dynamic; mock defaults hard-coded | Sort validated server rank with stable ID tie-break; permit groups and ordered feature ID arrays |
-| Category/group | DashboardCategory.services; deposit groups in screen | Filtered by query/category and deposit flag | Server can assign supported category keys/groups; unknown group types require fallback or omission |
-| Visible | Fixed enum inclusion; search/category filtering; hasChequeOperations; nonempty lists | Local filters and deposit data only | Map explicit visibility/capabilities to view model; filter before building widgets |
-| Enabled | AppServiceGridItem.enabled defaults true; sheet excludes already-selected favorites | Sheet duplicates disabled; deposit actions all enabled | Add per-feature enabled + disabled reason; preserve disabled callback/semantics policy |
-| Route/action | Known enum ID passed to callbacks; local Navigator only for known screens | Host callbacks are injected | Server can name an allowlisted action target; it cannot create navigation code or execute arbitrary route strings |
-| Action parameters | CardActionRequest.selected card; DepositActionRequest.selected deposit | Yes, current selection supplied | Merge whitelisted server params with trusted selected entity context; avoid trusting arbitrary IDs |
-| Badge | No per-service badge in DashboardService/DepositAction/AppServiceGridItem; deposit type chip is separate | No feature badge support | Server may propose badge text/tone/count; add typed presentation field and approved visual support; it is not already rendered |
-| Permissions | No role/permission model in service enums | No | DTO capability hints can filter UI; actual permission checks remain server-side |
-| Platform eligibility | No per-feature platform metadata | No | Map platform lists and bank restriction policy to supported features; server is authoritative |
-| Loading/error | Home and per-tab sealed Cubit states via Result-returning repositories | Yes; initial/loading/loaded/empty/error/retry | Live adapters return same Result types; offline/stale-cache policy remains future work |
-| Favorites | DashboardState.favorites/draft; initialFavorites and callback | Yes, locally and via caller | Server can supply saved IDs and accept confirmed/reset changes; define conflict/order/max-length policy |
-| Favorite limit | DashboardCubit.maxFavorites = 8 | Fixed | Server can advertise limit, but app must constrain supported layouts and behavior; not currently configurable |
-| Tooltip/accessibility | Local semantics from localized label and helper controls | Localized/user data | Accept optional localized accessibility text; retain safe local labels; do not remove accessibility semantics |
-| Style/size/layout | App tokens, shared widget defaults, fixed 64px tiles and 72px item widths | Some supported component parameters | Supported semantic template/tone keys only; arbitrary CSS/colors/spacing cannot fully replace the design system |
-| Search text | Sheet searches normalized local catalogLabel | User query dynamic | Build searchable local view models from resolved remote labels/keywords; server search needs debounce, cancellation and async states |
-
-The shared AppServiceGridItem fields are exactly `id`, `label`, `icon` (a Widget), `iconSize`, `onTap` and `enabled`. They are UI parameters, not a transport schema: Widgets and callbacks cannot be deserialized from a response. A mapper must construct them from validated data.
-
-### 10.2 Exact icon sources and mappings
-
-All feature artwork is local under the flat `assets/images/` folder, referenced directly using `AppConstants.baseImage` from `lib/core/config/constant.dart`, and bundled by `pubspec.yaml`'s `assets/images/` entry. Feature icons are SVGs rendered by flutter_svg, not an icon font or a Material icon catalog. The application uses the package's IRANYekan font for text only.
-
-The dashboard mapping is in `lib/features/dashboard/presentation/shared/dashboard_services.dart`:
-- `catalogAsset`: full catalog and fallback tiles.
-- `fixedAsset`: fixed service block.
-- `optionAsset`: compact/search sheet rows.
-- `tileAsset(editing:, full:)`: precomposed favorite artwork when available. The current `full` argument does not alter its switch result.
-- `DashboardCategory.asset/activeAsset`: category icons.
-
-`DashboardServiceTile` in `presentation/shared/widgets/dashboard_service_tile.dart` chooses precomposed AppServiceArtworkTile or a local wave + catalog icon. Cheque issuance has a specific `${AppConstants.baseImage}dashboard_favorite_cheque_icon.svg` composition. The fixed assistant uses shared `AppAssistantIcon`, composed from `dashboardAssistantSpark` and `dashboardAssistantStar`; the inventory table's fallback star path is not the whole fixed assistant visual.
-
-Favorite artwork mappings:
-| Service | Saved file | Editing file |
-| --- | --- | --- |
-| card-deposit | `assets/images/dashboard_favorite_card_deposit.svg` | `assets/images/dashboard_favorite_card_deposit_edit.svg` |
-| loan-consolidate | `assets/images/dashboard_favorite_consolidation.svg` | `assets/images/dashboard_favorite_consolidation_edit.svg` |
-| card-issue | `assets/images/dashboard_favorite_issue.svg` | `assets/images/dashboard_favorite_issue_edit.svg` |
-| deposit-proxy | `assets/images/dashboard_favorite_proxy.svg` | `assets/images/dashboard_favorite_proxy_edit.svg` |
-| modern-mobile | `assets/images/dashboard_favorite_mobile.svg` | `assets/images/dashboard_favorite_mobile_edit.svg` |
-| modern-internet | Fallback wave + catalog icon | `assets/images/dashboard_favorite_internet_edit.svg` |
-| loan-deposit | Fallback wave + catalog icon | `assets/images/dashboard_favorite_loan_deposit_edit.svg` |
-| Other services | Fallback wave + catalog icon | Same fallback, inside editor wrapper |
-
-Fallback wave: `assets/images/dashboard_tile_wave.svg`. Decorative/banner images: `dashboard_reso.png`, `dashboard_texture.png`, local glows and prompt arrow via direct AppConstants.baseImage paths in DashboardResoBanner. Header pattern and header-action paths use the same AppConstants.baseImage prefix. These are app dashboard artwork, not backend feature-item icons.
-
-The complete compile-time service inventory follows; the table resolves the actual switch fallbacks, including generic “more” artwork. It lists all 46 enum values; the nine-category catalog contains 45 entries because assistant is outside those category lists.
-
-| Enum / action ID | Persian label key | Fixed icon file | Catalog icon file | Sheet icon file |
-| --- | --- | --- | --- | --- |
-| `assistant` / `assistant` | `dashboardAssistant` | `assets/images/dashboard_assistant_star.svg` | `assets/images/dashboard_assistant_star.svg` | `assets/images/dashboard_option_more.svg` |
-| `statement` / `deposit-statement` | `balanceAverageStatement` | `assets/images/dashboard_fixed_statement.svg` | `assets/images/dashboard_catalog_statement.svg` | `assets/images/dashboard_option_more.svg` |
-| `certificate` / `deposit-certificate` | `financialCertificate` | `assets/images/dashboard_fixed_certificate.svg` | `assets/images/dashboard_catalog_certificate.svg` | `assets/images/dashboard_option_more.svg` |
-| `representative` / `deposit-representative` | `introduceRepresentative` | `assets/images/dashboard_fixed_representative.svg` | `assets/images/dashboard_catalog_representative.svg` | `assets/images/dashboard_option_more.svg` |
-| `sms` / `deposit-sms` | `smsSettings` | `assets/images/dashboard_fixed_sms.svg` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_option_more.svg` |
-| `issue` / `card-issue` | `issueResalatCard` | `assets/images/dashboard_catalog_issue.svg` | `assets/images/dashboard_catalog_issue.svg` | `assets/images/dashboard_option_issue.svg` |
-| `password` / `card-password` | `cardPasswordIssue` | `assets/images/dashboard_fixed_password.svg` | `assets/images/dashboard_catalog_password.svg` | `assets/images/dashboard_option_password.svg` |
-| `cardDeposit` / `card-deposit` | `changeCardDeposit` | `assets/images/dashboard_catalog_card_deposit.svg` | `assets/images/dashboard_catalog_card_deposit.svg` | `assets/images/dashboard_option_card_deposit.svg` |
-| `block` / `card-block` | `blockCard` | `assets/images/dashboard_fixed_block.svg` | `assets/images/dashboard_catalog_block.svg` | `assets/images/dashboard_option_block.svg` |
-| `estimate` / `loan-estimate` | `loanEstimate` | `assets/images/dashboard_fixed_estimate.svg` | `assets/images/dashboard_catalog_estimate.svg` | `assets/images/dashboard_option_more.svg` |
-| `introduce` / `loan-introduce` | `introduceLoan` | `assets/images/dashboard_catalog_introduce.svg` | `assets/images/dashboard_catalog_introduce.svg` | `assets/images/dashboard_option_more.svg` |
-| `consolidation` / `loan-consolidate` | `consolidateDepositCredit` | `assets/images/dashboard_catalog_consolidation.svg` | `assets/images/dashboard_catalog_consolidation.svg` | `assets/images/dashboard_option_more.svg` |
-| `loanDeposit` / `loan-deposit` | `changeInstallmentDeposit` | `assets/images/dashboard_catalog_loan_deposit.svg` | `assets/images/dashboard_catalog_loan_deposit.svg` | `assets/images/dashboard_option_more.svg` |
-| `phoneBank` / `modern-phone` | `dashboardPhoneBank` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_option_more.svg` |
-| `mobileBank` / `modern-mobile` | `mobileBankSettings` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_option_more.svg` |
-| `internetBank` / `modern-internet` | `internetBankSettings` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_option_more.svg` |
-| `cardsList` / `card-list` | `dashboardCardsList` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_option_more.svg` |
-| `virtualCard` / `card-virtual` | `dashboardVirtualCard` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_option_more.svg` |
-| `unblockCard` / `card-unblock` | `dashboardUnblockCard` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_option_more.svg` |
-| `expiredGift` / `card-expired-gift` | `dashboardExpiredGift` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_option_more.svg` |
-| `issueCheque` / `cheque-issue` | `issueChequeBook` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_option_more.svg` |
-| `clearCheque` / `cheque-clear` | `dashboardClearCheque` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_option_more.svg` |
-| `cancelCheque` / `cheque-cancel` | `dashboardCancelCheque` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_option_more.svg` |
-| `localTransfer` / `transfer-local` | `dashboardLocalTransfer` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_option_more.svg` |
-| `myLoans` / `loan-list` | `dashboardMyLoans` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_option_more.svg` |
-| `loanReport` / `loan-report` | `dashboardLoanReport` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_option_more.svg` |
-| `correctInstallments` / `loan-correct-installments` | `dashboardCorrectInstallments` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_option_more.svg` |
-| `deferLoan` / `loan-defer` | `dashboardDeferLoan` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_option_more.svg` |
-| `depositsList` / `deposit-list` | `dashboardDepositsList` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_option_more.svg` |
-| `openCurrent` / `deposit-open-current` | `dashboardOpenCurrent` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_option_more.svg` |
-| `closeExtras` / `deposit-close-extras` | `dashboardCloseExtras` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_option_more.svg` |
-| `representationSettings` / `deposit-representation-settings` | `dashboardRepresentationSettings` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_option_more.svg` |
-| `proxy` / `deposit-proxy` | `proxyDeposit` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_option_more.svg` |
-| `unblockDeposit` / `deposit-unblock` | `dashboardUnblockDeposit` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_option_more.svg` |
-| `blockDeposit` / `deposit-block` | `dashboardBlockDeposit` | `assets/images/dashboard_catalog_representative.svg` | `assets/images/dashboard_catalog_representative.svg` | `assets/images/dashboard_option_more.svg` |
-| `walletInfo` / `wallet-info` | `dashboardWalletInfo` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_option_more.svg` |
-| `walletCharge` / `wallet-charge` | `dashboardWalletCharge` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_option_more.svg` |
-| `walletWithdraw` / `wallet-withdraw` | `dashboardWalletWithdraw` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_option_more.svg` |
-| `walletTransfer` / `wallet-transfer` | `dashboardWalletTransfer` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_option_more.svg` |
-| `walletHistory` / `wallet-history` | `dashboardWalletHistory` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_option_more.svg` |
-| `walletDeposit` / `wallet-deposit` | `dashboardWalletDeposit` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_option_more.svg` |
-| `changeIdentity` / `identity-change` | `dashboardChangeIdentity` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_option_more.svg` |
-| `occupation` / `identity-occupation` | `dashboardOccupation` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_option_more.svg` |
-| `addresses` / `identity-addresses` | `dashboardAddresses` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_option_more.svg` |
-| `changePhone` / `identity-phone` | `dashboardChangePhone` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_catalog_more.svg` | `assets/images/dashboard_option_more.svg` |
-| `requests` / `requests-list` | `dashboardRequests` | `assets/images/dashboard_catalog_requests.svg` | `assets/images/dashboard_catalog_requests.svg` | `assets/images/dashboard_option_more.svg` |
-
-Deposit icon mapping is in `lib/features/dashboard/presentation/tabs/deposits/deposit_actions.dart` (`DepositAction.asset`), not DashboardService.catalogAsset. New deposit files are original Figma SVGs. The cheque issuance asset was exported from the actual `cheque_request` instance because the generated reference incorrectly pointed to Chat. The SMS asset was also exported from its original Chat instance after visual verification found an identity icon in the generated alias.
-
-| Action / integration ID | ARB title key | Local icon file | Group |
-| --- | --- | --- | --- |
-| `statement` / `deposit-statement` | `balanceAverageStatement` | `assets/images/deposits_statement.svg` | Deposit operations |
-| `certificate` / `deposit-certificate` | `financialCertificate` | `assets/images/deposits_certificate.svg` | Deposit operations |
-| `sms` / `deposit-sms` | `smsSettings` | `assets/images/deposits_sms.svg` | Deposit operations |
-| `block` / `deposit-block` | `dashboardBlockDeposit` | `assets/images/deposits_block.svg` | Deposit operations |
-| `representative` / `deposit-representation-settings` | `depositsRepresentative` | `assets/images/deposits_representative.svg` | Deposit operations |
-| `virtualCard` / `card-virtual` | `dashboardVirtualCard` | `assets/images/deposits_virtual.svg` | Deposit operations |
-| `linkedCards` / `deposit-linked-cards` | `depositsLinkedCards` | `assets/images/deposits_cards.svg` | Deposit operations |
-| `linkedLoans` / `deposit-linked-loans` | `depositsLinkedLoans` | `assets/images/deposits_loans.svg` | Deposit operations |
-| `issueCheque` / `cheque-issue` | `issueChequeBook` | `assets/images/deposits_cheque_issue.svg` | Cheque operations |
-| `cancelCheque` / `cheque-cancel` | `dashboardCancelCheque` | `assets/images/deposits_cheque_cancel.svg` | Cheque operations |
-| `clearCheque` / `cheque-clear` | `dashboardClearCheque` | `assets/images/deposits_cheque_clear.svg` | Cheque operations |
-| `issueCard` / `card-issue` | `issueResalatCard` | `assets/images/deposits_quick_issue.svg` | Quick access |
-| `localTransfer` / `transfer-local` | `depositsLocalTransfer` | `assets/images/deposits_quick_transfer.svg` | Quick access |
-| `estimateLoan` / `loan-estimate` | `loanEstimate` | `assets/images/deposits_quick_estimate.svg` | Quick access |
-| `introduceLoan` / `loan-introduce` | `introduceLoan` | `assets/images/deposits_quick_introduce.svg` | Quick access |
-| `proxy` / `deposit-proxy` | `proxyDeposit` | `assets/images/deposits_quick_proxy.svg` | Quick access |
-| `mobileBank` / `modern-mobile` | `depositsMobileBank` | `assets/images/deposits_quick_mobile.svg` | Quick access |
-| `internetBank` / `modern-internet` | `internetBank` | `assets/images/deposits_quick_internet.svg` | Quick access |
-| `phoneBank` / `modern-phone` | `dashboardPhoneBank` | `assets/images/deposits_quick_phone.svg` | Quick access |
-
-| Category | Current icon file |
+| Check | Result |
 | --- | --- |
-| `modern` | `assets/images/dashboard_catalog_category_modern.svg` |
-| `cards` | `assets/images/dashboard_catalog_category_card.svg` |
-| `cheque` | `assets/images/dashboard_catalog_category_cheque.svg` |
-| `transfers` | `assets/images/dashboard_catalog_category_transfer.svg` |
-| `loans` | `assets/images/dashboard_catalog_category_loan.svg` |
-| `deposits` | `assets/images/dashboard_catalog_category_deposit.svg` |
-| `wallet` | `assets/images/dashboard_catalog_category_wallet.svg` |
-| `identity` | `assets/images/dashboard_catalog_category_identity.svg` |
-| `requests` | `assets/images/dashboard_catalog_category_requests.svg` |
+| Baseline dashboard/DI/router/drawer suites | 116 passed |
+| Expanded dashboard + auth/security/network regression suites | 218 passed, 1 Web-only skip |
+| Final Home/banking Cubit rerun after shared search normalization extraction | 23 passed |
+| Final flutter analyze | No issues |
+| git diff --check | Passed |
 
-The Cards category active file is `assets/images/dashboard_category_card_active.svg`. Search headings use `assets/images/dashboard_search_card.svg`, `dashboard_search_wallet.svg` and `dashboard_search_identity.svg` for those three categories; all other headings use the category mapping above. Category dividers are resolved by DashboardCategoryHeading in the same all-services source.
+The final focused rerun uses
+`flutter test test/dashboard/presentation/flows/home/cubit test/dashboard/presentation/flows/banking_overview/cubit`.
+The additional test verifies dependency isolation between two Home scopes.
 
-Cards use `CardsTab._asset(CardAction)` in `lib/features/dashboard/presentation/tabs/cards/cards_tab.dart`, resolving `cards_action_*.svg` and `cards_quick_*.svg` under the same image prefix. Notifications use `notification_*.svg` and `notification_security.png`. Shared navigation owns dashboard_nav_*.svg and cards_nav_*.svg. None of these callsites is currently a network renderer.
+### Phase-1 and phase-2 re-review after filename clarification
 
-### 10.3 Could icons come from the server?
+Contract v1.19 makes `_usecase.dart` mandatory for UseCase source filenames.
+Dashboard now uses `domain/usecases/home_usecase.dart` and Login uses
+`domain/usecases/login_usecase.dart`; Cubit, DI and test imports are updated.
+The class grouping, registered UseCases and their lifetimes remain unchanged.
 
-**Known icon keys:** Yes, with a modest mapping layer. Return a stable key such as `deposit.statement`; map it to supported local image paths. This removes server dependence on local file names and permits controlled fallback. It does not add a new glyph when the app has not shipped it.
+Both phases were re-reviewed against the updated contract and skill: naming,
+DI boundaries, Provider ownership, plain State structure, independent statuses,
+single request owners, explicit emits, pure calculations, effects, validation,
+flow-aware clearing and the approved independent-event rule. The existing DI
+test's isClosed assertion was removed in favor of its State/fetch behavior checks.
 
-**Remote URLs:** Possible, but not supported by current service widgets without adapter changes. Add a typed icon descriptor (`key`, `url`, `format`, `version`, optional digest); remote loader; timeout/error fallback; bounded memory/disk cache; and a renderer that chooses SVG versus PNG/WebP. Prefer HTTPS on approved asset hosts. Validate declared and actual content types; do not execute arbitrary scripts. SVG gets vector rendering, raster gets ImageProvider/Image with fit behavior. Unsupported formats should show a local fallback.
+The combined native suites above passed 218 tests with the same one Web-only
+skip; flutter analyze and git diff --check passed. No further request or State
+changes were needed for the filename correction. Future phases apply the same
+filename suffix within their authorized scope.
 
-Preserve the design slot: 32×32 for ordinary operations, 64×64 for quick artwork, 20px for headers. Precomposed quick SVGs include the wave and export bounds (70×70.5 with shadow margin), so a bare icon URL cannot automatically substitute for that artwork. Either specify a supported bare-icon template and compose the tile, or supply complete approved artwork. Do not modify AppServiceArtworkTile silently; it currently draws the local 64px tile/shadow and places the original export at (-3,-2).
+Duplication review: 0 new repeated blocks found, 0 resolved. Flow review: 0 new
+clears added or removed in this re-review.
 
-Required code changes: new catalog DTO/model/mapper, icon resolver, async image component, and conversion of enum-centric iteration/filtering into resolved presentation records. Existing `AppServiceGridItem.icon` can accept a renderer Widget, but AppServiceArtworkTile.asset and DashboardService enum switches remain local-only.
+### Phase-2 duplication and flow review
 
-Caching should key by icon key + version/content hash; use bounded storage, invalidation, offline fallback and deterministic tests. Feature metadata freshness and icon freshness are separate policies. Failed icon loading must not remove known authorized actions or blank the whole dashboard.
+| Repeated responsibility | Resolution |
+| --- | --- |
+| Retain selection by ID / first-item fallback | `_findRetainedSelection` |
+| Empty-aware selected index | `_selectedItemIndex` |
+| Selection-dependent action availability | `_hasSelection` |
+| Favorite add capacity | `_canAddFavorite` |
+| Favorite limit notice | `_isFavoritesLimitReached` |
+| Hint typing eligibility | `_canTypeHint` |
+| Motion availability in foreground | `_isMotionEnabled` |
+| Persian/Arabic search-character normalization | `_normalizeSearchCharacters`, with each search's trim/case/whitespace order preserved |
 
-### 10.4 Proposed server response contract (not implemented)
+Overlapping favorite field groups remain explicit under the owner's approved
+independent-event clarification. Each of the four requests has one owner, one
+UseCase call and one Result switch. No State-publication intermediary exists.
 
-This is a proposal for review against the bank's OpenAPI specification, not an existing endpoint or parser.
-
-```json
-{
-  "schemaVersion": 1,
-  "catalogVersion": "2026-10-09.1",
-  "expiresAt": "2026-10-10T00:00:00Z",
-  "favoriteLimit": 8,
-  "favoriteIds": ["card-issue", "deposit-statement"],
-  "groups": [
-    {
-      "id": "deposits",
-      "type": "service_grid",
-      "title": {"fa": "عملیات سپرده", "en": "Deposit operations", "ar": "عمليات الودائع"},
-      "iconKey": "category.deposits",
-      "order": 10,
-      "visible": true,
-      "featureIds": ["deposit-statement", "cheque-issue"]
-    }
-  ],
-  "features": [
-    {
-      "id": "deposit-statement",
-      "type": "service",
-      "title": {"fa": "صورت‌حساب / معدل موجودی", "en": "Statement / average balance"},
-      "localizationKey": "balanceAverageStatement",
-      "description": {"fa": "مشاهده گزارش سپرده"},
-      "icon": {
-        "key": "deposit.statement",
-        "url": "https://assets.bank.example/icons/deposit-statement.svg",
-        "format": "svg",
-        "version": "2",
-        "sha256": null,
-        "template": "operation_icon"
-      },
-      "order": 10,
-      "visible": true,
-      "enabled": true,
-      "disabledReason": null,
-      "badge": {"text": {"fa": "جدید", "en": "New"}, "tone": "info", "count": null},
-      "permissions": ["deposit.statement.read"],
-      "platforms": ["android", "ios", "web"],
-      "action": {
-        "kind": "service",
-        "target": "deposit-statement",
-        "requiresSelectedDeposit": true,
-        "parameters": {"reportKind": "statement"}
-      },
-      "accessibilityLabel": {"fa": "مشاهده صورت‌حساب سپرده"},
-      "searchKeywords": {"fa": ["گردش", "معدل"]},
-      "minAppVersion": "1.0.0",
-      "favoriteEligible": true
-    },
-    {
-      "id": "cheque-issue",
-      "type": "service",
-      "title": {"fa": "صدور دسته چک"},
-      "icon": {"key": "cheque.issue", "format": "svg", "template": "operation_icon"},
-      "order": 20,
-      "visible": true,
-      "enabled": true,
-      "requiredDepositCapability": "chequeOperations",
-      "action": {"kind": "service", "target": "cheque-issue", "requiresSelectedDeposit": true}
-    }
-  ],
-  "deposits": [
-    {
-      "id": "dep-1",
-      "type": "personal_current",
-      "typeLabel": {"fa": "جاری حقیقی", "en": "Personal current"},
-      "number": "10.12003456.1",
-      "iban": "IR550700010001112003761001",
-      "openedAt": "2024-09-14",
-      "capabilities": {"chequeOperations": true},
-      "availableFeatureIds": ["deposit-statement", "cheque-issue"],
-      "disabledFeatureIds": []
-    }
-  ]
-}
-```
-
-The example host is illustrative. `sha256` must contain a real digest if used, not an invented placeholder. Permission strings are illustrative bank-owned contract keys.
-
-Parsing policy:
-1. Validate schema version, supported feature type, group type, icon template and action kind.
-2. Resolve title by current locale, known localization key, then a defined fallback; never use a getter name for reflection.
-3. Resolve target through an app-owned ServiceRegistry/allowlist; a server ID cannot instantiate Dart classes.
-4. Drop unknown or unsupported action targets from actionable lists; optionally show a non-actionable “update required” item if product design specifies it. Do not silently open a different service.
-5. Ignore unknown optional JSON fields for forward compatibility. Preserve/log unsupported IDs without personal data for diagnostics.
-6. Filter unsupported platform/version/permission hints and per-deposit capabilities; deduplicate IDs; clamp sizes/counts; stable-sort.
-7. Map raw deposit data separately; use openedAt in the domain and format a Jalali openingDate in presentation.
-8. Filter favorites against the resolved supported catalog before building any firstWhere lookup.
-9. Server eligibility remains a hint until request authorization. Revalidate on action execution.
-
-`description`, badge, permissions, remote icon, availableFeatureIds and feature-level enabled fields in this proposal are not currently represented/rendered by DepositAction. Implementing this response requires real model and mapper work, not merely swapping a list.
-
-### 10.5 BankDeposit fields and transport readiness
-
-| Field | Current source/use | Server path and conversion |
-| --- | --- | --- |
-| id | Caller/static fixture; stable selection across reorder and callback context | Stable opaque deposit ID; must be unique within list |
-| typeLabel | Caller display string; default Persian “جاری حقیقی”; shown in existing chip | Resolve localized typeLabel or known deposit type to local copy |
-| number | Caller/static original string; displayed and copied verbatim | Preserve source string; no numeric parsing or lost leading zeros |
-| iban | Caller/static original string; displayed and copied verbatim | Preserve raw IBAN separately from optional display formatting |
-| openingDate | Caller formatted display string | DTO Gregorian openedAt -> domain date -> Jalali presentation label |
-| hasChequeOperations | Caller boolean; controls cheque group only | Map bank capability/available-action data, never derive from deposit count |
-
-### 10.6 BankLoan fields and transport readiness
-
-Current model: `lib/features/dashboard/domain/entities/bank_loan.dart`. It is a pure Dart Dashboard summary entity, not an OpenAPI DTO. LoansTab receives it through DashboardLoansRepository/LoadDashboardItems/LoansCubit. Single/multi fixtures are in data/mock/dashboard_mock_data.dart, with count-derived proportions. The mock repository exists; live DTO mapping does not.
-
-| Field | Current source / use | Proposed server mapping |
-| --- | --- | --- |
-| id | Required caller/fixture string; stable selection across reorder and callback identity | Stable opaque loan ID, unique within the input list |
-| title | Nullable caller display string; null resolves `loansDefaultName` through context.l10n | Localized product/title map; resolve locale or known product key in presentation |
-| number | Original caller string; shown and copied without conversion | Preserve raw string and leading zeros; do not parse as an integer |
-| total | Caller-formatted amount string | Domain monetary amount and currency; a presentation mapper formats Persian grouping |
-| installmentAmount | Caller-formatted amount string | Domain installment amount and currency; presentation formatting |
-| paidInstallments | Caller/fixture integer paid count | Map installmentsPaidCount as a validated nonnegative integer |
-| totalInstallments | Caller/fixture integer total count | Map installmentCount as a validated nonnegative integer |
-| installmentsPaid | Derived footer string from the same counts, e.g. 3/10; FaNum displays Persian digits | Format the same numeric counts for the locale; never parse translated labels to calculate progress |
-| nextInstallment | Caller-formatted Jalali date label | Parse server date in domain; use presentation Jalali formatting |
-| progress | Derived paidInstallments / totalInstallments, bounded to [0,1]; zero total yields zero | Compute from validated counts; do not trust a separate inconsistent catalog percentage |
-
-The single fixture uses 500,000,000 total, 50,000,000 installment, ۴/۱۰ and progress .4. Multi fixtures in RTL selection order are:
-
-| ID | Original number | Total / installment | Paid display | Due-date display | Progress |
-| --- | --- | --- | --- | --- | --- |
-| loan-1 | 10-122-1234567-1 | 800,000,000 / 80,000,000 | ۳/۱۰ | ۱۴۰۴/۱۰/۰۳ | .3 |
-| loan-2 | 10-122-1234567-2 | 500,000,000 / 50,000,000 | ۷/۱۰ | ۱۴۰۴/۱۰/۰۱ | .7 |
-| loan-3 | 10-122-1234567-3 | 400,000,000 / 40,000,000 | ۹/۱۰ | ۱۴۰۴/۱۰/۰۸ | .9 |
-
-The earlier prototype preserved Figma percentages independently of count labels. The progress-fix request makes counts authoritative: widths are now derived from paid/total. Figma styling and physical-left origin are preserved; old inconsistent percentages are historical evidence in Section 13.6.
-
-LoanAction in `lib/features/dashboard/presentation/tabs/loans/loan_actions.dart` maps all six supported UI actions:
-
-| Enum / integration ID | ARB title key | Exact local asset | Group |
-| --- | --- | --- | --- |
-| payInstallments / loan-pay-installments | loansPayInstallments | `assets/images/loans_pay.svg` | Operations |
-| defer / loan-defer | dashboardDeferLoan | `assets/images/loans_defer.svg` | Operations |
-| correctInstallments / loan-correct-installments | dashboardCorrectInstallments | `assets/images/loans_correct_installments.svg` | Operations |
-| changeDeposit / loan-deposit | loansChangeDeposit | `assets/images/loans_change_deposit.svg` | Operations |
-| relationships / loan-relationships | loansRelationships | `assets/images/loans_quick_relationships.svg` | Quick access |
-| consolidate / loan-consolidate | consolidateDepositCredit | `assets/images/loans_quick_consolidate.svg` | Quick access |
-
-All are referenced using `AppConstants.baseImage` from `lib/core/config/constant.dart`. Operations SVG roots are 32×32; quick exports are 70×70.5 with export shadow margin, rendered in the existing 64×64 AppServiceArtworkTile. The quick header reuses `${AppConstants.baseImage}deposits_quick_access.svg` -> `assets/images/deposits_quick_access.svg` (the same Figma asset reference), and the new pattern is `${AppConstants.baseImage}loans_pattern_up.svg` -> `assets/images/loans_pattern_up.svg` (375×122). Binary hash comparison found no exact existing matches for the seven newly downloaded files; no SVG was redrawn or edited.
-
-The loan summary itself uses existing `${AppConstants.baseImage}loan_card_copy.svg`, `loanCardDividerSingle`, `loanCardDividerMulti`, and `arrowButtonArrowLeft` through AppLoanCard/AppArrowButton, not feature-local replacement icons. Navigation uses the existing `dashboardNavLoan`.
-
-Loan feature fields are currently:
-- **Title/icon/ID/group/order:** compile-time enum mapping and localized ARBs; move to a server catalog only through the supported action registry.
-- **Visibility:** all six actions render when at least one loan exists. There is no capability-dependent filtering in BankLoan yet.
-- **Enabled:** all six items use AppServiceGridItem's default enabled=true. A callback may be absent; that does not represent bank eligibility.
-- **Permissions/badges/disabled reason:** absent from BankLoan and LoanAction; not silently inferred from repayment progress or loan count.
-- **Route/action:** known ID and selected loan are passed in LoanActionRequest. The arrow passes that card's BankLoan through onDetailsRequested. No server route string or detail screen is constructed.
-- **Selected summary:** title, amounts, counts, dates and normalized progress change with the selected BankLoan. Every operation and quick action reports the selected loan.
-- **Future server icons:** the key/URL/cache/fallback approach in Section 10.3 applies to LoanAction too. Changing its String asset switch alone cannot load a URL.
-
-Proposed loan extension to the Section 10.4 response (illustrative; not an endpoint/parser implemented by this work):
-
-```json
-{
-  "loans": [
-    {
-      "id": "loan-api-1",
-      "number": "10-122-1234567-1",
-      "productKey": "qarz_standard_no_fee",
-      "title": {"fa": "تسهیلات قرض الحسنه عادی (بدون کارمزد)"},
-      "totalAmount": "800000000",
-      "installmentAmount": "80000000",
-      "currency": "IRR",
-      "installmentsPaidCount": 3,
-      "installmentCount": 10,
-      "nextInstallmentDate": "2026-10-09",
-      "progress": 0.3,
-      "progressBasis": "installment_count",
-      "availableActionIds": ["loan-defer", "loan-deposit"],
-      "disabledActionIds": ["loan-pay-installments"],
-      "disabledReasons": {"loan-pay-installments": {"fa": "فعلاً در دسترس نیست"}}
-    }
-  ],
-  "features": [
-    {
-      "id": "loan-defer",
-      "type": "service",
-      "title": {"fa": "امهال وام"},
-      "icon": {"key": "loan.defer", "format": "svg", "template": "operation_icon"},
-      "order": 20,
-      "visible": true,
-      "enabled": true,
-      "action": {
-        "kind": "service",
-        "target": "loan-defer",
-        "requiresSelectedLoan": true
-      }
-    }
-  ]
-}
-```
-
-A future `lib/features/dashboard/data/mappers/` mapper would validate dates/money/progress/IDs and construct domain entities; mapping would construct the current BankLoan summary and resolved feature items. availableActionIds/disabledActionIds are proposed and are not current model fields. Unknown actions must be omitted or disabled under an approved fallback policy, never routed to a similar service. Real payment handling, ownership checks, permission enforcement, authentication and final confirmation remain app/domain/API work. This task only implements the payment tile and callback.
-
-### 10.7 What remains in the app
-
-Navigation targets, authentication guards, service use cases, entity validation, final confirmation, transaction/request idempotency, approved visual templates, RTL rules, safe icon rendering and fallback behavior require shipped app code. Server metadata cannot introduce a new executable feature flow.
-
-Titles, descriptions (once supported), known icon choices or approved remote artwork, order, category membership, visibility, enabled hints, badges (once supported), saved favorites, account data and action eligibility can be server-driven through a validated contract. They still need client rendering and mapping. Adding a feature of a known supported action/type can be metadata-only; adding a new flow, layout type or capability semantics needs an app release.
-
-### 10.8 Replacing mock repositories with real services
-
-The migration already supplies an asynchronous interface per surface in `domain/repositories/dashboard_repositories.dart`: getHome returns Result<DashboardHomeData?>; getCards/getDeposits/getLoans return Result<List<BankCard/BankDeposit/BankLoan>>. Mock constructors can seed one item, many or an empty list. A bank request failure must return Err, not Success([]).
-
-Implement the corresponding interfaces under `data/repositories/`, backed by a transport datasource and validated DTO mapper under Dashboard data. Replace their registrations in `core/di/injection_container.dart`. HomeCubit resolves its repository bundle internally from GetIt and is constructed in DashboardScreen’s BlocProvider.create. All dashboard tab constructors are parameterless except for super.key. View builds do not change when the implementation changes.
-
-| Service integration task | Changes required | Changes not required |
-| --- | --- | --- |
-| Endpoint/auth/request handling | Remote datasource, authenticated client/core configuration, timeout/error classification | Tab widgets or selection algorithm |
-| JSON/schema conversion | DTOs/mappers validate IDs, amount/date strings, counts and capabilities; return current dashboard summaries | AppDepositCard/AppLoanCard layout |
-| Selected deposit cheque eligibility | Map server account capability into BankDeposit.hasChequeOperations | Existing cheque section composition |
-| Item count/order/selection | Return ordered validated list; stable IDs retained by Cubit | Single/multiple UI branches or PageController API |
-| Home wallet/fixed/recommended IDs | Produce DashboardHomeData; unsupported service IDs handled by mapper/local registry | Home Cubit loading interface |
-| Favorite writes | Add repository save/use case, pending save/conflict/error states and persistence policy | Not implemented merely by swapping a read repository |
-| Remote icons/badges/per-action permissions | Add typed catalog/view mapping, approved visual support and resolver/cache described in10.3–10.4 | Cannot be implemented solely by returning current local enum IDs |
-
-All four tabs currently start their reads when IndexedStack mounts. Live services may prefer lazy load, batching, cache freshness or refresh-on-resume; those are policies to define before production. Request tokens protect state order; they do not cancel the underlying network call. No endpoint response has been guessed or wired during this migration.
-
-## 11. Error Handling Pattern (Result & Failure)
-
-`lib/core/result/result.dart` defines sealed Result<T>, Success<T> and Err<T>. `failure.dart` defines equality-based coded Failure, DataFailure and UnexpectedFailure. Failures contain no localized message or BuildContext.
-
-Both loading use cases catch unexpected repository exceptions into UnexpectedFailure. Explicit repository Err values are preserved. LoadDashboardItems rejects duplicate/blank identifiers with `dashboard.items.invalid`; a successful empty list produces Empty, never Error. Home Success(null) produces DashboardEmpty, whereas a Home object with no favorites is normal DashboardLoaded.
-
-Views localize a generic loading/failure/empty message and offer retry for Error. They do not display raw exception bodies or replace failed loads with sample data. Tab Loading/Error can retain a previous loaded snapshot for ID/visibility reconciliation, but stale cards/actions are hidden while those states are displayed. No offline-cache, permissions, transaction-error or field-level validation UI is claimed.
+Duplication review: 8 repeated calculation/predicate families found, 8 resolved;
+independent-event emits retained under owner approval. Flow review: 5 redundant
+Home loading clears removed; banking selection/action invalidation preserved.
 
 ## 12. State Management with Cubit
 
-### 12.1 One owner for all four tabs
-
-The dashboard/Home, Cards, Deposits and Loans tabs share one `HomeCubit` and
-one plain Freezed `HomeState.initial` under
-`lib/features/dashboard/presentation/home/cubit/`. The former Dashboard,
-Cards, Deposits, Loans and DashboardNavigation Cubit/State pairs are removed.
-This section supersedes earlier state-family and directory snapshots elsewhere
-in this document. There are no nested tab State objects or compatibility Cubits.
-
-`DashboardScreen` owns one `BlocProvider<HomeCubit>` and directly constructs
-`HomeCubit()..load()` in create. HomeCubit resolves DashboardRepositories in its own field.
-The Cubit invokes the loading use cases and manages data.
-DashboardScreen, DashboardHomePanel and all three banking tabs have only `super.key`
-and resolve the shared scope. They accept no repository or host callback parameters.
-
-`main()` calls `configureDependencies()` before `runApp`. The four Home repository
-interfaces and their bundle are lazy singletons. Cubits are never registered in GetIt.
-Each DashboardScreen lifetime constructs independent State and BlocProvider owns disposal.
-GetIt registrations stay in dependency composition; dependency lookups stay in Cubit fields. UI and routing never resolve data dependencies. Other feature dependency wiring is unchanged by this Home task.
-Tests can configure an isolated `GetIt.asNewInstance()` and reset it after use.
-
-### 12.2 Flat State and independent request lifecycles
-
-| Concern | State and behavior |
-| --- | --- |
-| Tab selection | `selectedTab`; IndexedStack retains all tab widgets |
-| Home | `homeStatus`, `homeData`, `homeFailure`; draft/committed favorites, fixed and favorite service lists |
-| Cards | `cardsStatus`, `cardsFailure`, cards/visibleCards, selected ID/index/entity, per-card visibility and prepared operation lists |
-| Deposits | `depositsStatus`, `depositsFailure`, deposits/visibleDeposits, selected ID/index/entity and prepared operations including cheque eligibility |
-| Loans | `loansStatus`, `loansFailure`, loans/visibleLoans, selected ID/index/entity and prepared operation lists |
-
-`load()` starts all four reads concurrently. `loadHome`, `loadCards`,
-`loadDeposits` and `loadLoans` each update only their fields, use an independent
-generation counter and reject obsolete/disposed completions. Actions emit
-`state.copyWith(...)` directly, preserving the current data of other tabs.
-Failure in one surface does not block another. Reloads reconcile selection by
-stable ID, falling back to the first remaining record. Empty catalogs clear
-selection and actions. State collections remain immutable.
-
-`changeRepositories` reloads only changed adapters. Replacing a card adapter
-does not reset Home favorite edits, the active tab or deposit/loan selection.
-
-### 12.3 Explicit actions and UI subscriptions
-
-Favorite actions (`editFavorites`, `addFavorite`, `removeFavorite`,
-`confirmFavorites`, `cancelFavorites` and `resetFavorites`) operate on loaded
-Home data. Suggestions are read inside the Cubit. Selection, eligibility and
-request construction use specific card/deposit/loan actions. Cheque availability
-depends on the selected deposit capability, independently of catalog length.
-
-Builders and carousel listeners compare only the fields they consume. An update
-to a card visibility flag does not subscribe deposit or loan content to that
-change. PageController, focus, scroll, layout measurement and animations remain
-owned by UI lifecycle objects; they are not State fields.
-
-### 12.4 Effects and integration
-
-`HomeEffect` values describe typed operation requests, selection notifications,
-copy, details, menu, assistant and tab changes. Reusable commands are consumed
-when the listener accepts them, so identical interactions can run again without counters. The dashboard's single listener executes navigation,
-clipboard and sheets. HomePanel listens for focus effects. Cubit holds no
-BuildContext, controllers or UI callback fields. Services use the existing registry
-and retain the selected card/deposit context. Unsupported destinations retain their
-previous behavior; prompt text is stored in State without inventing an assistant backend.
-
-The service picker (its sheet and group widgets under `presentation/home/widgets`)
-is owned by HomeCubit; the animated
-prompt retains its own UI lifecycle under `presentation/shared`; they do not own any of the four tab
-catalogs, repository reads or selected banking records. Dedicated standalone
-Cards/Deposits banking service features are outside this dashboard scope.
+This section preserves the previous documentation link target. HomeCubit and
+HomeState under presentation/home/cubit own all four tabs. Independent request
+owners and final registered UseCase fields are described in Sections 2–3;
+State readers and retention are in Section 4. There are no per-tab Cubits,
+nested State families, changeRepositories action or constructor initialization.
 
 ## 13. Design System Package (`avp_ui`)
+
+The detailed comparison below is retained historical evidence from 2026-10-09.
+Phase 2 changes no shared visuals or package APIs and performs no new Figma audit.
+Do not read historical verification claims as results of this Cubit refactor.
+Current component source and the integration guide remain the API authority.
 
 ### 13.1 Ownership and reuse
 
@@ -774,15 +278,15 @@ Cards/Deposits banking service features are outside this dashboard scope.
 | avp_ui | AppButton, AppSearchField; shared components also compose package primitives | Public `package:avp_ui/avp_ui.dart` |
 | App shared | AppLoanCard, AppArrowButton; loan card composes avp_ui AppProgressIndicator | `lib/shared/widgets/app_loan_card.dart`, `app_arrow_button.dart` |
 | App shared | AppDepositCard | `lib/shared/widgets/app_deposit_card.dart` |
-| App shared | AppPrimaryNavigation / AppPrimaryTab | `lib/shared/widgets/app_primary_navigation.dart` |
+| App shared | AppPrimaryNavigation / AppPrimaryTab | `lib/features/dashboard/presentation/shared/widgets/app_primary_navigation.dart` |
 | App shared | AppTopBar | `lib/shared/widgets/app_top_bar.dart` |
 | App shared | AppServiceGridCard, AppServiceGridItem, AppServiceGridItemView | `lib/shared/widgets/app_service_grid_card.dart` |
 | App shared | AppServiceArtworkTile | `lib/shared/widgets/app_service_artwork_tile.dart` |
 | App shared | AppAssistantButton, AppAssistantIcon | `lib/shared/widgets/app_assistant_button.dart` |
 | App shared | AppWalletCard, AppBottomSheetHeader, AppResalatCard | Corresponding files in `lib/shared/widgets/` |
 | Feature local | DashboardBankServices, DashboardServiceTile, DashboardResoBanner, catalog/sheet headings | `lib/features/dashboard/presentation/shared/widgets/` |
-| Feature local | DepositsTab group/carousel composition, DepositAction mappings | `lib/features/dashboard/presentation/tabs/deposits/` |
-| Feature local | LoansTab group/carousel composition, LoanAction mappings | `lib/features/dashboard/presentation/tabs/loans/` |
+| Feature local | DepositsTab group/carousel composition, DepositAction mappings | `lib/features/dashboard/presentation/home/screens/` and `home/widgets/` |
+| Feature local | LoansTab group/carousel composition, LoanAction mappings | `lib/features/dashboard/presentation/home/screens/` and `home/widgets/` |
 
 No duplicate deposit card or navigation component was created. Narrow screens wrap the existing card in a FittedBox with its native aspect ratio. That scales the existing component as a whole; it does not change its gradient, shadow, fonts or fixed native dimensions.
 
@@ -819,7 +323,7 @@ Recommendation: allow a reviewed shadow/visual variant in AppDepositCard that us
 
 ### 13.4 Known issue: AppPrimaryNavigation selected Deposits icon
 
-Source: `lib/shared/widgets/app_primary_navigation.dart`. The deposit branch always resolves `${AppConstants.baseImage}dashboard_nav_deposit.svg` -> `assets/images/dashboard_nav_deposit.svg`. There is no active/inactive branch for that tab.
+Source: `lib/features/dashboard/presentation/shared/widgets/app_primary_navigation.dart`. The deposit branch always resolves `${AppConstants.baseImage}dashboard_nav_deposit.svg` -> `assets/images/dashboard_nav_deposit.svg`. There is no active/inactive branch for that tab.
 
 The selected tab already gets the blue AppDashboardColors.navActive surface, white label and DemiBold text, but the bundled deposit icon remains gray. Both new frames require a white money-bill icon in the active deposit tab. This was deliberately preserved.
 
@@ -896,211 +400,10 @@ The comparison uses freshly retrieved Figma design context and screenshots, then
 | AppDashboardColors — avp_ui/lib/tokens/app_dashboard_colors.dart | Dashboard27902:80847, favorite editing27902:81700, all-services27902:82267 and shared nav frames. Verified service #181D27, section #24292E, tile gray25 #FDFDFD; favorites blueGray50 #F8F9FC, border blueGray200 #D5D9EB, action blueGray600 #3E4784, optionText blueGray700 #363F72, categorySearch blueGray500 #4E5BA6, muted gray500 #717680; hero brand900 #194185, gray600 #535862; nav brand500 #2E90FA; assistant pink500 #EE46BC; editor warning25 #FFFCF5/warning200 #FEDF89; add success50 #ECFDF3/success400 #32D583/success500 #12B76A. | This token file has no sizes, icon geometry or gradients of its own. Hero haze animation colors are semantic inputs; they do not reproduce the exported baked artwork's full gradient/lighting exactly. Scrim #101828 is an overlay input with instance opacity/blur; screenshot resemblance alone does not certify compositing. Existing shared nav/card differences remain. |
 | AppLoginColors — avp_ui/lib/tokens/app_login_colors.dart | Earlier integration touched login colors; inspected Login27847:4237 and guest-services27847:4724. Canvas gray25 #FDFDFD, notice warning100, notice text #383F45, muted service gray600 #535862 and section #24292E correspond to instance design colors. | serviceLabel #394047 is a sampled/custom instance color rather than a named palette style in the retrieved set. These tokens have no geometry/state/gradient of their own; this review does not certify every auth screen state. Existing login UI remains outside this Dashboard migration. |
 
-**Changed parameters in actual consumers.** DashboardBankServices uses foregroundColor for blue-gray favorites actions and horizontalPadding2/8/0 for compact text controls; the service sheet injects the registered search/clear SVGs. AuthOtpForm uses horizontalPadding4. These additive overrides leave other package defaults intact. The file inventory and enum/icon tables in Section10 remain the exact runtime mapping.
+**Changed parameters in actual consumers.** DashboardBankServices uses foregroundColor for blue-gray favorites actions and horizontalPadding2/8/0 for compact text controls; the service sheet injects the registered search/clear SVGs. AuthOtpForm uses horizontalPadding4. These additive overrides leave other package defaults intact. Current asset switches live in presentation/shared/dashboard_services.dart and the card/deposit/loan action files; inspect those sources for runtime mappings.
 
 **Conclusion and follow-up scope.** The progress repair and the bankCard token values are verified for their target instances. Remaining button/input/progress-label state differences and shared card/nav issues are explicitly open. This task neither replaces existing components nor introduces duplicate Figma-only components. Future fixes should add reviewed variants/parameters, validate both old and new consumers, and update this audit after source and rendered comparisons. No claim that the whole avp_ui library is “exactly Figma” is supported by the inspected evidence.
 
 ### 13.8 Standalone Cards flow integration (2026-10-09)
 
-The dedicated Cards flow now lives under features/cards, separately from Dashboard's carousel. The core routing bridge opens it for card-list/card-virtual/card-expired-gift when no host service override is supplied. Reviewed additive shared/package parameters preserve existing Dashboard defaults. See [Cards architecture and current component audit](../cards/card-services.md) and the  for the new colored AppCardsList variant, configurable back/sheet actions, compact selectors/search, AppChips, footer styling and recorded backdrop SVG limitation.
-
-## 14. Localization, Persian Support, and Dates
-
-The app installs AppTheme.light and forces RTL in the MaterialApp builder, including future languages. Screens also establish RTL explicitly. ARBs are fa/en/ar and generated through l10n.yaml.
-
-Loans adds loansOperations, loansEmpty, loansPayInstallments, loansRelationships, loansDefaultName and loansChangeDeposit in all three ARBs. It reuses dashboardMyLoans, dashboardDeferLoan, dashboardCorrectInstallments and consolidateDepositCredit. Loan title uses the caller string when supplied and localized loansDefaultName otherwise. Shared card labels/currency remain Persian because their API has no label parameters.
-
-New keys include depositsMyTitle, depositsOperations, depositsChequeOperations, depositsEmpty, depositsAgent, depositsLinkedCards, depositsLinkedLoans, depositsLocalTransfer, depositsMobileBank and depositsCopyNumber. Existing ARB keys cover statement, certificate, SMS, blocking, cheque actions, quick access and modern banking.
-
-Action order is expressed from the RTL start: statement/certificate/SMS/block; agent/virtual card/linked cards/linked loans. Quick actions start with card issuance, local transfer, estimate and introduce loan; next proxy/mobile/internet/phone. Numeric strings are passed unchanged; AppDepositCard sets LTR for numeric values and RTL for labels. Copy callbacks return original number/IBAN, not formatted numeric conversions.
-
-BankDeposit.openingDate is currently preformatted display data. Server openedAt should be parsed as a date and converted in presentation, respecting the architecture's Gregorian/UTC domain rule and Jalali UI requirement. The static typeLabel default is Persian; server/caller should supply a localized label for another locale.
-
-Fonts are owned by avp_ui, not duplicated in pubspec. Test previews explicitly load Regular/Medium/DemiBold/Bold from package assets. Existing shared card scaling/label limits remain documented accessibility limitations rather than redesigned components.
-
-## 15. Routing and Guards
-
-DashboardScreen's IndexedStack now retains all four children in AppPrimaryTab order: dashboard/cards/deposits/loans. Every tab selects its screen; Loans selection no longer opens a service sheet. The Loans menu fallback still opens the loan-filtered catalog.
-
-Back from Cards, Deposits or Loans selects Dashboard. Back while editing dashboard favorites cancels the draft. Bell navigation and all-services pages use Navigator.push. No go_router auth/platform/security guard was added.
-
-Deposit menu uses the supplied onMenuPressed if available; otherwise the dashboard opens the existing deposits-filtered service sheet. The assistant on either Deposits or Loans switches to Dashboard and triggers the assistant service (or focuses the prompt if no service callback is supplied).
-
-Routes are app-owned code. A future server action target must resolve through an allowlist/service registry and pass domain guards. Arbitrary paths/URLs from feature JSON are not implemented here.
-
-## 16. Testing Strategy
-
-### 16.1 Focused verification
-
-`test/deposits_screen_test.dart` checks:
-- Native single/multi card variants and unchanged shared-component reuse.
-- Deposit operations start at y=341 for the 375px reference viewport with simulated 24px status inset.
-- RTL ordering of the operation tiles.
-- Cheque visibility for default frames and mixed capability data.
-- Indicator selection and swipe selection.
-- Selected deposit in action callbacks.
-- Original values through copy overrides and platform clipboard fallback.
-- Stable selection after reordered data; fallback after selected removal; empty data.
-- Retained selection across Cards/Deposits tab switches and system-back navigation.
-- Service-ID fallback, menu callback, assistant transition and navigation into the dedicated Loans tab.
-- Narrow 320px viewport with 1.4 text scale and reachable quick action.
-
-Existing dashboard/card/notification/widget and asset integrity tests remain regression coverage. The image asset integrity test verifies referenced files are bundled and non-empty; static asset metadata and rendered slots are checked against design context. The original cheque-plus instance export is used, not the incorrect generated Chat alias.
-
-### 16.3 Results and limits
-
-- `flutter test test/deposits_screen_test.dart`: 9 tests passed; final preview generation passed after the original SMS export was installed.
-- `flutter test`: all 119 tests passed after the Dashboard tab/Cubit migration, including auth, cards, dashboard, deposits, loans, notifications, shared widgets and asset integrity tests.
-- `flutter analyze`: no issues found. The sibling avp_ui dependency now uses a POSIX relative path.
-- `git diff --check`: passed. Shared changes in this follow-up are limited to progress sizing/alignment.
-- Final single and multi PNGs inspected; every new SVG is non-empty with expected root dimensions (32×32 operations, 20×20 quick header, 70×70.5 quick artwork, 375×122 pattern).
-- flutter_svg emits its existing unsupported `<filter/>` warning for exported artwork. AppServiceArtworkTile already draws the tile shadow in Flutter; that shared behavior was preserved.
-
-No bank API, request execution, release build, emulator/device run or remote icon loading is validated by this UI suite. Large text within the unmodified fixed-size card, unusual long type labels and extreme viewport heights need future accessibility review.
-
-### 16.5 Folder/state migration verification
-
-The migration preserves existing frame geometry and selected action/copy/detail contracts. All 119 application tests pass; all 102 avp_ui tests pass. Both application and package `flutter analyze` complete with no issues. `git diff --check` passes.
-
-Seven new unit cases in `test/dashboard/dashboard_tab_cubits_test.dart` cover all three item-tab lifecycle transitions, single/multiple classification, selection retention after reorder, empty/error/retry, immutable input snapshots/visibility, invalid IDs, thrown repository exceptions, latest-response ordering, completion after disposal and Home favorite transactions. Five new widget cases in `test/dashboard/dashboard_async_ui_test.dart` verify tab error/retry/empty rendering, usable navigation, delayed loan loading, repository replacement, safe disposal and switching to another tab while Home is failing. The UI test harness loads the actual package fonts.
-
-Existing card/deposit/loan suites now inject MockDashboard*Repository objects instead of raw lists; the root seed convenience API remains covered. Dedicated feature folders contain no dashboard code/import shims.
-
-These results do not validate a real endpoint, transport cancellation, persisted preference writes, permissions, remote icon loading or device font rasterization. The remaining Figma differences are registered in13.2–13.7.
-
-## 17. Development and Code Review Process
-
-The decision gate was completed before coding: both Figma frames were compared to shared AppDepositCard and AppPrimaryNavigation; the differences were disclosed; the user selected reuse without modification.
-
-The current change moves Dashboard-owned files, adds domain/data/use-case/state layers, updates composition and tests, and relocates this document. Registered artwork and shared visual defaults are preserved. The progress follow-up changes only the shared progress primitive and AppLoanCard alignment; remaining retained differences are documented above.
-
-Review should confirm:
-- Action eligibility follows selected-deposit data, not number of cards.
-- Dedicated callbacks preserve selected context.
-- Unknown catalog IDs cannot be treated as valid navigation.
-- No temporary Figma URLs appear in runtime code.
-- ARB source and generated output agree.
-- Component issues are accurately recorded, not silently corrected.
-
-Existing review docs remain useful design evidence: [dashboard](development.md), [cards](../cards/my-cards.md), [login](../login/development.md) and [shared mapping](../shared-component-figma-mapping.md).
-
-## 18. Environments, CI/CD, and Release
-
-Current entry point is lib/main.dart; this feature does not add development/staging/production entry points, secrets, environment configuration or a CI pipeline.
-
-Run flutter gen-l10n after ARB changes, flutter analyze, and flutter test. Preview regeneration is opt-in by environment variable and should not run automatically in release packaging. The sibling package path is now relative and the analyzer portability warning is resolved.
-
-Production release requires the architecture's API, authentication, platform security and bank approval work; UI completion alone is not release readiness.
-
-## 19. AI Assistant and Agent Layer
-
-DashboardResoBanner owns the prompt text controller. Submitting trims the text and calls onPromptSubmitted only when nonempty. Animated hints never write into user input. Hint typing/erasing is 90ms per grapheme; background layers travel outward and return over9 seconds; circles use a faster7.5-second loop. Motion stops for reduced motion, disabled TickerMode and background lifecycle.
-
-Shared assistant buttons delegate to the caller. The deposit assistant returns to the dashboard prompt/service path. No AI inference, voice handling, tool execution or conversational banking backend is added.
-
-A future assistant and form flow must use the same bank service contract/registry and authorization rather than interpreting server dashboard metadata as executable instructions.
-
-## 20. Open Items and Dependencies
-
-### 20.1 Open product / bank questions
-
-1. Supply authoritative deposit types and capabilities; decide whether cheque actions differ individually rather than as one group.
-2. Define localized deposit type names, Jalali dates and account display/copy rules.
-3. Approve catalog response schema, action keys, unknown-ID policy, icon delivery and metadata freshness.
-4. Define disabled reasons, badges, permissions and favorite synchronization/conflicts.
-5. Define selected-deposit persistence and whether selection callbacks must also fire on data replacement.
-6. Confirm scope of local transfer UI: this design contains a tile, while the architecture limits request-based versus payment execution. No execution was added.
-7. Loans phase 1/2 designs are implemented. Supply loan detail/service-flow designs and authoritative eligibility, payment scope and progress semantics.
-
-### 20.2 Recorded technical debt and risks
-
-| Item | Impact | Recommended follow-up |
-| --- | --- | --- |
-| Deposit gradient/shadow mismatch | Accepted design difference | Opt-in reviewed variant/parameters; use existing bankCard shadow |
-| Active deposit icon gray | Accepted navigation difference | Optional active asset mapping without replacing defaults |
-| Persian labels inside shared card | Partial multilingual card support | Reviewed label/semantic parameters in shared component |
-| Fixed shared card dimensions/text | Constrained large-text/long-string support | Shared accessibility review with focused tests |
-| Enum-centric service catalog | New unknown actions cannot be rendered/executed automatically | Typed server catalog + allowlisted registry + fallback policy |
-| Mock bank data behind repositories | Loading/error/empty contracts implemented; accounts still samples | Implement validated remote repositories and authentication |
-| Fallback string service callback | Loses selected-deposit context | Require DepositActionRequest handler for real operations |
-| Dashboard ownership | Tab cross-feature imports removed; standalone notifications routed through core | Keep dedicated feature pages independent of tab state |
-| No persistent favorites/notifications/selection | State lasts only for widget lifetime | Caller/repository storage with privacy policy |
-| Sibling avp_ui path dependency | Relative path is portable with expected sibling checkout; not a published package pin | Define workspace/package release setup for CI |
-
-Loan progress sizing and physical-left alignment are fixed. Remaining follow-ups: review optional bankCard shadow, header geometry and blue arrow; add an active white Loans navigation asset; provide authoritative installment counts and action eligibility. The folder ownership and state/repository gaps are now resolved. Remaining package state/geometry differences from the new audit (13.7), live transport, server catalog mapping and persistence are open.
-
-## 21. Change Log
-
-| Version | Date | Changes |
-| --- | --- | --- |
-| 2.0.0 | 2026-10-09 | Move all tabs/entities/actions under Dashboard; introduce mock repositories, Result/use cases and immutable Equatable Cubits/states; move this document to doc/dashboard and repair links; audit every recently touched package visual/token and record remaining differences |
-| 1.2.0 | 2026-10-09 | Fix shared foreground sizing; derive progress from paid/total; select physical-left loan fill; add model/geometry regressions and regenerate previews |
-| 1.1.0 | 2026-10-09 | Add Loans phases 1–2, fourth retained tab, selected-loan callback/copy/detail contracts, original artwork inventory, transport readiness and shared-component issue register |
-| 1.0.0 | 2026-10-09 | Register Dashboard current architecture; add Deposits phases 1–2 and selection-driven cheque UI; record shared component exceptions, exact icon sources, server-readiness matrix, proposed contract, state/data flows and verification |
-
-## Resalat issuance route integration (2026-10-09)
-
-The core card service bridge now also allowlists card-issue/card-reissue. The standalone flow lives in lib/features/card_issuance, rather than inside Dashboard. Existing service/card/deposit callbacks retain precedence; default deposit entry forwards its selected deposit number for an exact normalized catalog match. See [issuance architecture and remaining component differences](../cards/card-issuance.md). Dashboard components and its earlier Figma issue register are unchanged.
-
-## Password services entry (2026-10-10)
-
-The core bridge allowlists `card-password` and `card-pin-second-set` for the standalone first-time second-password flow. The dashboard action forwards the selected BankCard.number; preselection requires an exact normalized catalog match. Host service/action callbacks retain precedence. First-PIN change and forgotten-password IDs are not redirected to this flow. See [password-services architecture](../cards/password-services.md).
-
-### AI banner background-layer motion (2026-10-10)
-
-The supplied layers are `28051:9218` (343×194 gradient), `28051:9221` (overlay rectangle with expanded368.957×219.957 export) and `28051:9220` (98.2649px bottom-right ellipse, expanded213.216px export). The repeated top-left URL points to the rectangle; its intended glow is taken from `27902:81708` in the full reference card `27902:81700` (183.551px ellipse, expanded487.616px export). Motion context for the composed banner returns no authored timelines. The movement is implemented from the user's explicit outward-and-return request using the 9-second controller, rather than claiming a Figma keyframe export.
-
-At rest the gradient keeps its authored112.62564746° angle and .051/.461 color alphas. During the loop its shader translates up to14px right/12px down, avoiding exposed edges or hue changes. The existing soft-light texture and extracted overlay travel16px right/10px up. The top-left glow travels175px right/55px down toward the center; the bottom-right glow travels105px left/72px up. Separate cosine progress drives the circles over7.5seconds and the other layers over9seconds. The top-left circle center reaches x198.175px in the343px card, past the card center, before returning. Both periods share a45-second controller repeat for seamless looping. Width-dependent offsets scale to the card width. All background layers stay clipped to the existing16px radius and ignore pointers.
-
-Original SVGs are stored locally as dashboard_reso_overlay.svg, dashboard_glow_large.svg and dashboard_glow_small.svg. SVG Gaussian blur is reproduced with native ImageFiltered at76.0162/28.7378 sigma; the overlay's backdrop blur is handled natively at.927 sigma. flutter_svg does not execute SVG foreignObject/fractal-noise/displacement filters; its original shape plus the existing original soft-light texture provides the overlay appearance without modifying SVG paths. The person/robot image, caption, prompt field, arrow, padding and height calculation stay outside the animated subtree. Live hints continue to type/erase without touching the user's controller text. Existing reduced-motion, TickerMode and background lifecycle gates stop/reset the loop.
-
-The motion test checks actual foreground bounds across the7.5-second circle loop and checks the overlay return at9seconds, verifies both glows and overlay move and return, and retains the typing/user-input/reduced-motion regression. No screenshot is used as a runtime asset.
-
-## Home Composition and Interaction Details
-
-### Component Composition
-
-- Wallet card and bottom-sheet header reuse the existing shared components.
-- The base micro-service component remains a 72px item with a 64px tile, 32px icon, 8px gap and 10px/16px Regular label. Its public view now accepts instance width and tile size. The all-services page uses four flexible columns and 12px/18px Medium labels; the editor uses 66px tiles.
-- Micro-service tiles use only GestureDetector for touch/click, without custom mouse cursors, keyboard focus handling, hover highlights, press highlights, or ink ripples. Button semantics and disabled behavior are preserved for the mobile app and mobile web app.
-- The eight fixed services and the selected-services card are separate compositions. The selected card has an empty action, three suggested services, editing, saved, eight-item limit, and reset states.
-- The compact service choices named “Deposit Card” in the sheet are ordinary frames, not the existing bank deposit card. They are implemented directly from the page frames; no extra component link is required.
-- Public `avp_ui` additions: `AppDashboardColors`, `AppButton.foregroundColor` and `AppSearchField.clearIcon`. Defaults remain compatible with existing consumers.
-- Original Figma SVGs are local and referenced with `AppConstants.baseImage`. The original header and back icons were exported from their instance nodes because the design-context connector returned the menu SVG for multiple distinct icons. SVG blur/shadow filters are reproduced with Flutter effects where the SVG renderer cannot render them.
-
-### Behavior
-
-“View all” opens a separate page with 45 services across nine categories.
-The add-service sheet has compact choices, a collapsible cards group, searchable grouped results, and disabled choices for services already selected.
-Search normalizes Persian/Arabic yeh and kaf and zero-width spaces.
-
-Customization allows at most eight unique services. Draft additions/removals do not alter saved choices until Confirm. Cancel discards the draft; confirmed Reset clears the selection. Starting from the empty action suggests issuance, credit consolidation and changing the linked card deposit.
-
-`initialFavorites` supplies saved IDs; `onFavoritesChanged` reports confirmed/reset selections.
-`onServiceRequested`, `onPromptSubmitted`, `onMenuPressed` and `onProfilePressed` remain caller integration points. Durable storage and banking service execution belong to the caller.
-
-The search frame repeats the card-deposit text under Wallet, while the all-services frame labels it as the wallet deposit. The implementation keeps the wallet-specific catalog label and service ID in search.
-
-## Cubit/State coding convention
-
-Follow [architecture Section 12](../architecture-smart-virtual-counter-v2-en.md#12-state-management-with-cubit) for new work and refactors. State is a plain Freezed data class with defaults and independent request statuses. Cubits accept an initial State, compute UI data and eligibility, and emit immutable snapshots through `copyWith`. UI reads those fields directly; no custom State/Cubit getters or UI-facing rules facade is used. Dependencies remain injectable and lifecycle/duplicate-request safeguards stay in place.
-
-## UI/Cubit contract adoption (2026-10-17)
-
-HomeCubit interprets catalog selections and reset confirmations. Favorite picker
-effects carry excluded IDs. The Reso Cubit publishes submitted prompt data with
-a submission ID; a listener forwards it to Home. Home, Reso and the services-sheet
-Cubit are constructed directly inside BlocProvider.create. Each Cubit resolves its registered dependencies internally; the UI never forwards them.
-
-The services sheet publishes an accepted selection and selectionId in State;
-a filtered listener returns that value through Navigator. Notification message
-read status is retained in HomeState for the dashboard flow lifetime, while the
-router adapter only forwards data and the change callback.
-
-### Dependency and listener clarification (2026-10-17)
-
-The screen/feature-flow widget owns BlocProvider.create, including Home in
-DashboardScreen; GoRouter only selects the destination. Cubits resolve existing
-Repository/service/UseCase registrations through GetIt fields, without dependency
-constructor arguments from UI. Multi-case and substantial async listeners use
-named widget/State methods with the existing listenWhen filter.
+The dedicated Cards flow now lives under features/cards, separately from Dashboard's carousel. The core routing bridge opens it for card-list/card-virtual/card-expired-gift when no host service override is supplied. Reviewed additive shared/package parameters preserve existing Dashboard defaults. See [Cards architecture and current component audit](../cards/card-services.md) for the new colored AppCardsList variant, configurable back/sheet actions, compact selectors/search, AppChips, footer styling and recorded backdrop SVG limitation.

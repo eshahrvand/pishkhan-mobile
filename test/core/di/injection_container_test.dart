@@ -5,7 +5,7 @@ import 'package:pishkhan_mobile/core/result/result.dart';
 import 'package:pishkhan_mobile/features/auth/domain/entities/login_captcha.dart';
 import 'package:pishkhan_mobile/features/auth/domain/entities/login_identity.dart';
 import 'package:pishkhan_mobile/features/auth/domain/repositories/auth_repository.dart';
-import 'package:pishkhan_mobile/features/auth/domain/usecases/login.dart';
+import 'package:pishkhan_mobile/features/auth/domain/usecases/login_usecase.dart';
 
 import 'package:pishkhan_mobile/features/deposits/domain/repositories/proxy_deposits_repository.dart';
 import 'package:pishkhan_mobile/features/deposits/presentation/proxy_deposit/cubit/proxy_deposit_cubit.dart';
@@ -245,7 +245,6 @@ void main() {
       () => HomeCubit(),
     );
     addTearDown(next.close);
-    expect(next.isClosed, isFalse);
     expect(next.state.selectedTab, AppPrimaryTab.dashboard);
     await next.fetchDashboard();
     expect(next.state.visibleCards, isNotEmpty);

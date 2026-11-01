@@ -23,7 +23,8 @@ Core boundaries that must remain visible during implementation:
 - GetIt registers actual data/application dependencies, never Cubit/Bloc.
   Cubits resolve required dependencies in their own fields; UI/router and Cubit
   construction do not forward Repository/service/UseCase arguments.
-  UseCase class names end in `UseCase`. Register each used UseCase in GetIt;
+  UseCase class names end in `UseCase`; their snake_case Dart filenames end in
+  `_usecase.dart` (for example `home_usecase.dart`). Register each used UseCase in GetIt;
   Cubit resolves it into a final field and invokes that instance. Cubit must not
   construct a UseCase or pass a Repository/service into its constructor. Wire
   UseCase constructor dependencies in `core/di`; keep Domain free of GetIt.
@@ -37,6 +38,9 @@ Core boundaries that must remain visible during implementation:
   callbacks, listeners, lifecycle hooks or router adapters.
 - Use explicit actions and emit(state.copyWith(...)); no generic field dispatch
   or State preparation/publication intermediaries.
+  Shared request operations have one owner with delegation. Repeated fields
+  alone do not make independent events one operation; keep their explicit emits
+  and share pure calculations/predicates (owner clarification, 2026-11-01).
 - Builder renders; Listener executes prepared Flutter effects; Consumer is for
   a section needing both. Multi-case/substantial listener bodies use named UI
   methods with focused listenWhen. No requests or analytics in build.

@@ -1,74 +1,78 @@
-# Dashboard Cards Development
+# Dashboard Cards development and review
 
-| Screen | Figma node |
+Reviewed: 2026-11-01 — Cubit migration, phase 2.
+
+CardsTab is the retained Cards summary tab of DashboardScreen. It shares
+HomeCubit/HomeState with Home, Deposits and Loans. The standalone card-list and
+card-service flows belong to features/cards and are migrated separately.
+The [UI/Cubit/State contract](../ui-cubit-state-agent-rules-en.md) governs new
+work; [Dashboard development](../dashboard/development.md) records current
+ownership, operation/flow maps and validation.
+
+## Ownership and data
+
+DashboardScreen directly creates HomeCubit in BlocProvider.create and calls
+fetchDashboard. CardsTab takes only super.key and reads the shared Provider.
+There are no repository/callback constructor parameters or runtime repository
+replacement API on either widget. HomeCubit receives no Repository arguments.
+
+DI registers `LoadDashboardItemsUseCase<BankCard>`; HomeCubit resolves it into a
+final field and calls it from fetchCards. Repository constructor wiring stays in
+core/di. The existing mock repository supplies DashboardMockData until the bank
+provides a real schema/adapter. No Cubit is registered in GetIt.
+
+fetchCards explicitly emits loading before awaiting its one UseCase call, then
+switches on Result for success/failure. It retains a previous selection snapshot
+for ID reconciliation and invalidates current list/selection/actions while
+loading. Success preserves a matching ID after reorder, otherwise selects the
+first record; empty results clear selection/actions. Pure shared calculations
+resolve selection/index and availability; emits stay visible in the action.
+
+## User behavior
+
+- One card uses the single layout; several use a snapping RTL carousel with
+  neighboring previews and indicators. Selection survives tab switching.
+- Each card has independent visibility. Hidden details mask expiry/CVV2 while
+  number/IBAN remain visible. Reload reconciles privacy by card ID; single data
+  defaults visible and multiple data defaults hidden.
+- Cubit prepares cardActions, pinActions and cardQuickActions from the selected
+  record. canSetSecondPin controls the setup operation; changed capabilities are
+  re-evaluated even if the record ID is unchanged.
+- requestCardAction constructs CardActionRequest from the selected BankCard.
+  UI availability controls invocation; Cubit does not repeat eligibility or
+  loading checks. The existing navigation adapter receives the prepared request.
+- Copy effects preserve original strings. The Home listener executes clipboard
+  and other Flutter effects; reusable commands are consumed before execution.
+- Loading, error and empty UI expose no banking operations. Retry uses fetchCards.
+  Failure notifications use the shared prepared-message/status-transition path.
+- Back/loading, menu, assistant and supported service entries retain the common
+  dashboard behavior. Unsupported actions keep unavailable feedback.
+
+Flutter PageController ownership, attachment/reposition scheduling and disposal
+remain in the carousel widget. They are not Cubit/State resources. No new keys,
+UI wrappers, package variants, request counters or disposal guards were added.
+
+## Components and design references
+
+| Frame | Figma node |
 | --- | --- |
-| Multiple cards | [27902:82561](https://www.figma.com/design/nYQNyZdSs98lwymCpt5Sag/Pishkhan-AI-Mobile?node-id=27902-82561&m=dev) |
-| Single card | [27902:82533](https://www.figma.com/design/nYQNyZdSs98lwymCpt5Sag/Pishkhan-AI-Mobile?node-id=27902-82533&m=dev) |
+| Multiple cards | `27902:82561` |
+| Single card | `27902:82533` |
 
-## Reused components
+Reference file: nYQNyZdSs98lwymCpt5Sag. Existing AppResalatCard single/multi
+variants, AppTopBar, service grids, artwork tiles, assistant and primary navigation
+are retained. UI uses public avp_ui primitives/tokens, S.current, RTL and direct
+AppConstants.baseImage paths. Shared assets are not copied or redrawn.
 
-- `AppResalatCard`: existing 335 × 202 single and 316 × 191 multi variants. Refined the gradient, security-field geometry, Medium/DemiBold detail weights, visibility masking, semantic labels and responsive width/text sizing.
-- `AppServiceGridCard` and `AppServiceGridItemView`: existing service and quick-access variants. The new optional `stretchItems: false` preserves the 72px micro-service width, 6px gaps, and RTL alignment used by these frames. Existing callers retain their previous defaults.
-- `AppTopBar`, `AppPrimaryNavigation`, `AppAssistantButton`, `AppAssistantIcon` and `AppServiceArtworkTile`: extracted the compatible dashboard visuals into shared widgets. Dashboard compatibility names remain available, and its existing notifications, search and customization interactions are retained.
-- `AppShadows.bankCard` in `avp_ui`: reproduces the card instance's two shadow layers. The existing general-purpose `md` token remains separate.
+Historical component comparisons and known visual differences remain in
+[Dashboard Section 13](../dashboard/development.md#13-design-system-package-avp_ui).
+Phase 2 does not claim a new pixel comparison or package-wide visual approval.
 
-All static assets are local and referenced with `AppConstants.baseImage`. The virtual-card artwork was exported from the original quick-access instance because the generated asset reference returned an identity icon. No screenshots are used as UI assets.
+## Verification
 
-## Behavior and integration
-
-The second primary tab now opens `CardsTab` from `DashboardScreen`.
-Single-card data automatically selects the single layout; multiple cards use a snapping RTL carousel with neighboring-card previews and indicators.
-
-Each card keeps its own visibility state. Hidden details mask expiry and CVV2 while retaining the card number and IBAN, matching Figma.
-Copy actions preserve the original card number/IBAN and use the system clipboard unless the caller supplies an override.
-
-Actions return `CardActionRequest`, including the selected `BankCard` and action.
-The selected card's `canSetSecondPin` determines whether the middle PIN operation is “Set second PIN” (single frame) or “Forgot second PIN” (multi frame).
-`HomeCubit` prepares `cardActions`, `pinActions` and `cardQuickActions` together
-with the selected card in one State update. `CardsTab` renders these lists
-directly; it does not decide which PIN operation applies or construct request
-payloads. `requestCardAction` validates the current loaded selection and action
-before returning a typed request for the UI's host callback. Loading, failure
-and empty data expose no operations. Reloading re-evaluates changed card
-capabilities, even when the selected card ID is unchanged.
-The more/menu actions have caller callbacks; additional menu/service screens are outside these two supplied frames.
-
-Supply `DashboardScreen.repositories`, `onCardActionRequested` and `onCardMorePressed` for integration.
-The existing `onServiceRequested` remains a fallback for action IDs.
-`CardsTab` has only `const CardsTab({super.key})`. It reads an ancestor
-`HomeCubit` through BlocBuilder and sends interactions to Cubit actions.
-`DashboardScreen` creates and disposes that Cubit through BlocProvider and
-updates its repository when injected dependencies change. Default data come
-from DashboardMockData through MockDashboardCardsRepository.
-
-Typed `HomeEffect` values carry action, more, selection, copy, tab, menu and
-assistant requests. BlocListener accepts and consumes reusable commands before
-awaiting them, allowing repeated identical interactions without counters. DashboardScreen owns the listener that
-executes clipboard/navigation/menu effects and host callbacks. Cubit contains
-no BuildContext, platform clipboard calls or UI callback fields. Standalone
-tests/hosts supply the same Provider/Listener scope around `const CardsTab()`;
-the tab has no Repository or callback constructor parameters.
-
-Tab switching retains dashboard favorites and card state. Back from Cards returns to Dashboard.
-Deposits and Loans now open their retained feature tabs; see [Deposits development](../deposits/development.md) and [Loans development](../loans/development.md). Their menu fallbacks still open the respective service catalogs.
-
-## Validation
-
-Focused tests check both frame layouts, RTL ordering, carousel selection, per-card visibility, original-value copying, service callbacks, tab switching/back, enlarged text/small screens and empty data.
-The dashboard and notification regression tests are included because navigation and header visuals are now shared.
-
-Native status/navigation bars are excluded from the PNGs.
-
-The [Dashboard architecture document](../dashboard/development.md) records the folder move, mock repository/Cubit design and complete component audit. All 119 app tests and 102 avp_ui tests pass; both analyzers report no issues.
-
-## Cubit/State coding convention
-
-Follow [architecture Section 12](../architecture-smart-virtual-counter-v2-en.md#12-state-management-with-cubit) for new work and refactors. State is a plain Freezed data class with defaults and independent request statuses. Cubits accept an initial State, compute UI data and eligibility, and emit immutable snapshots through `copyWith`. UI reads those fields directly; no custom State/Cubit getters or UI-facing rules facade is used. Dependencies remain injectable and lifecycle/duplicate-request safeguards stay in place.
-
-## Unified Home ownership (2026-10-16)
-
-All four dashboard tabs now share `HomeCubit`/`HomeState` at
-`presentation/home/cubit/home_cubit.dart` and `home_state.dart`.
-`DashboardScreen` provides the single scope and injects the repository bundle.
-The tab constructors accept only `super.key`; load, selection, operation lists
-and typed effects belong to Home. See [current state contract](../dashboard/development.md#12-state-management-with-cubit).
+Tests under test/dashboard cover single/multiple/empty/error/loading, selection,
+privacy, original-value copying, capability changes, service navigation, retained
+state across tabs, small viewports and enlarged text. Domain tests also verify
+immutable snapshots, invalid IDs and unexpected repository errors. Relevant
+commands and current phase results are in Dashboard development; old 119/102
+suite totals are not current validation claims.

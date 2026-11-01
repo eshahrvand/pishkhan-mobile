@@ -10,6 +10,9 @@ Short working rules for writing a clean Cubit. The full contract is `ui-cubit-st
 ## UseCase naming and dependency access
 
 Owner clarification, 2026-11-01: every UseCase class name ends in `UseCase`.
+UseCase Dart filenames use snake_case and end in `_usecase.dart`, for example
+`login_usecase.dart` and `home_usecase.dart`. Update imports and documentation
+when renaming. This naming update leaves the existing file grouping unchanged.
 Register each used UseCase in GetIt. Resolve it once in a final Cubit field;
 invoke that instance in its operation owner. Never construct a UseCase inside
 Cubit or pass a Repository/service from Cubit to a UseCase constructor. Wire
@@ -43,6 +46,13 @@ lazy-singleton UseCase.
 ## The core rule: one operation, one owner
 
 The dependency call, the `await` expression, the `switch (result)`, the request-ID handling and the loading reset group exist **once per operation**.
+
+**Owner clarification, 2026-11-01:** repeated fields alone do not make independent
+events one operation. Add/remove/cancel favorites may each show their own explicit
+emit, even when they update the same three or more fields. Extract shared
+calculations/predicates into pure functions; do not introduce State-publication
+helpers or artificial delegation. A genuinely shared request lifecycle still
+has exactly one owner and its trigger actions delegate.
 
 ```dart
 // Cubit field; core/di registers and wires QuoteVirtualCardsUseCase.
@@ -158,7 +168,7 @@ Same check for loading emits: a field that is still at its initial value (nothin
 | Duplicated thing | Do | Never |
 |---|---|---|
 | Same request / `await` / switch in several actions | Delegate to the owner action | Copy it; `_publishSuccess`; pass the switch as a callback |
-| 3+ identical `copyWith` fields in 2+ actions | They are one operation: delegate | `_resetX()` or any function that builds/emits State |
+| 3+ identical `copyWith` fields in 2+ actions | Check ownership: delegate a shared operation; keep independent events' explicit emits and share pure calculations | State-publication helpers or artificial delegation based only on field overlap |
 | Same boolean condition 2+ times (even one line) | Private pure `bool _canX(...)` | A local alias in each action |
 | Same calculation | Private pure helper returning the value | A helper that returns State |
 | Reset of the whole form | `emit(State.initial(...))` in the action (Section 6.9) | A reset helper or extra State factory |
@@ -180,12 +190,12 @@ A condition used only **once**: one/two lines stay inline in `copyWith`; longer 
 
 ## Duplication review (before reporting done)
 
-Check that UseCase classes have the suffix, are registered in GetIt and are
+Check that UseCase classes have the suffix, filenames end in `_usecase.dart`, are registered in GetIt and are
 resolved into final Cubit fields, with no Cubit-side UseCase construction.
 
 1. Search the Cubit for each dependency call and for `await`: each must appear once per operation.
 2. Search for `switch (result)`: once per operation.
-3. Compare the `copyWith` blocks of all actions: no group of 3+ identical fields in 2+ actions.
+3. Compare `copyWith` blocks: repeated fields require review, not automatic delegation. Shared operations delegate; independent events keep explicit emits with shared pure calculations.
 4. Look for any boolean expression written twice.
 5. Fix every finding as above. If something cannot be fixed within the contract, report the exact location and the rule pair that collides. Do not invent a new pattern.
 

@@ -14,8 +14,8 @@ import '../../../domain/entities/bank_card.dart';
 import '../../../domain/entities/bank_deposit.dart';
 import '../../../domain/entities/bank_loan.dart';
 import '../../../domain/entities/dashboard_home_data.dart';
-import '../../../domain/repositories/dashboard_repositories.dart';
-import '../../../domain/usecases/home.dart';
+import '../../../domain/entities/dashboard_item.dart';
+import '../../../domain/usecases/home_usecase.dart';
 import '../../shared/card_actions.dart';
 import '../../shared/dashboard_drawer_group.dart';
 import '../../shared/deposit_actions.dart';
@@ -41,23 +41,23 @@ class HomeCubit extends Cubit<HomeState> {
   final Map<DashboardService, String> drawerServiceLabels;
   final Map<DashboardService, String> servicePickerLabels;
 
-  final _repositories = getIt<DashboardRepositories>();
-  late final _loadHome = LoadDashboardHome(_repositories.home);
-  late final _loadCards = LoadDashboardItems(_repositories.cards.getCards);
-  late final _loadDeposits = LoadDashboardItems(
-    _repositories.deposits.getDeposits,
-  );
-  late final _loadLoans = LoadDashboardItems(_repositories.loans.getLoans);
+  final loadDashboardHomeUseCase = getIt<LoadDashboardHomeUseCase>();
+  final loadDashboardCardsUseCase =
+      getIt<LoadDashboardItemsUseCase<BankCard>>();
+  final loadDashboardDepositsUseCase =
+      getIt<LoadDashboardItemsUseCase<BankDeposit>>();
+  final loadDashboardLoansUseCase =
+      getIt<LoadDashboardItemsUseCase<BankLoan>>();
 
   static const maxFavorites = 8;
 
-  Future<void> fetchDashboard() {
-    return Future.wait([
+  Future<void> fetchDashboard() async {
+    await Future.wait([
       fetchHome(),
       fetchCards(),
       fetchDeposits(),
       fetchLoans(),
-    ]).then((_) {});
+    ]);
   }
 
   void selectTab(AppPrimaryTab tab) {
@@ -126,12 +126,16 @@ class HomeCubit extends Cubit<HomeState> {
     );
   }
 
-  String _normalizeDrawerQuery(String query) => query
-      .toLowerCase()
-      .replaceAll('ي', 'ی')
-      .replaceAll('ك', 'ک')
-      .replaceAll('\u200c', ' ')
-      .trim();
+  String _normalizeDrawerQuery(String query) {
+    return _normalizeSearchCharacters(query.toLowerCase()).trim();
+  }
+
+  String _normalizeSearchCharacters(String value) {
+    return value
+        .replaceAll('ي', 'ی')
+        .replaceAll('ك', 'ک')
+        .replaceAll('\u200c', ' ');
+  }
 
   void selectDrawerSection(DashboardDrawerSection section) {
     switch (section) {
@@ -302,12 +306,10 @@ class HomeCubit extends Cubit<HomeState> {
     ];
   }
 
-  String _normalizeServicePickerQuery(String value) => value
-      .trim()
-      .replaceAll('ي', 'ی')
-      .replaceAll('ك', 'ک')
-      .replaceAll('\u200c', ' ')
-      .replaceAll(RegExp(r'\s+'), ' ');
+  String _normalizeServicePickerQuery(String value) {
+    return _normalizeSearchCharacters(value.trim())
+        .replaceAll(RegExp(r'\s+'), ' ');
+  }
 
   void requestFavoritesReset() {
     emit(
@@ -326,50 +328,52 @@ class HomeCubit extends Cubit<HomeState> {
     if (confirmed == true) resetFavorites();
   }
 
-  Future<void> fetchHome() {
+  Future<void> fetchHome() async {
     emit(
       state.copyWith(
         homeStatus: RequestStatus.loading,
-        homeData: null,
         isEditingFavorites: false,
-        favoriteServices: const [],
-        fixedServices: const [],
-        canAddFavorite: true,
-        isFavoritesLimitReached: false,
         failure: null,
         message: null,
       ),
     );
-    return _loadHome().then((result) {
-      switch (result) {
-        case Err(:final failure):
-          emit(
-            state.copyWith(
-              homeStatus: RequestStatus.failure,
-              failure: failure,
-              message: getRequestErrorMessage(failure),
-            ),
-          );
-        case Success(:final data):
-          final home = data?.withFavorites(
-            data.favorites.toSet().take(maxFavorites),
-          );
-          final services = _servicesForIds(home?.favorites ?? const []);
-          emit(
-            state.copyWith(
-              homeStatus: RequestStatus.success,
-              homeData: home,
-              favoriteServices: services,
-              fixedServices: _servicesForIds(home?.fixedServiceIds ?? const []),
-              canAddFavorite: services.length < maxFavorites,
-              isFavoritesLimitReached: services.length == maxFavorites,
-            ),
-          );
-      }
-    });
+    final result = await loadDashboardHomeUseCase();
+    switch (result) {
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            homeStatus: RequestStatus.failure,
+            failure: failure,
+            message: getRequestErrorMessage(failure),
+          ),
+        );
+      case Success(:final data):
+        final home = data?.withFavorites(
+          data.favorites.toSet().take(maxFavorites),
+        );
+        final services = _servicesForIds(home?.favorites ?? const []);
+        emit(
+          state.copyWith(
+            homeStatus: RequestStatus.success,
+            homeData: home,
+            favoriteServices: services,
+            fixedServices: _servicesForIds(home?.fixedServiceIds ?? const []),
+            canAddFavorite: _canAddFavorite(services),
+            isFavoritesLimitReached: _isFavoritesLimitReached(services),
+          ),
+        );
+    }
   }
 
-  void beginFavoritesEditing() {
+  bool _canAddFavorite(List<DashboardService> services) {
+    return services.length < maxFavorites;
+  }
+
+  bool _isFavoritesLimitReached(List<DashboardService> services) {
+    return services.length == maxFavorites;
+  }
+
+  void openFavoritesEditing() {
     final services = _servicesForIds(
       state.homeData!.favorites.isEmpty
           ? state.homeData!.suggestedServiceIds.toSet().take(maxFavorites)
@@ -379,8 +383,8 @@ class HomeCubit extends Cubit<HomeState> {
       state.copyWith(
         isEditingFavorites: true,
         favoriteServices: services,
-        canAddFavorite: services.length < maxFavorites,
-        isFavoritesLimitReached: services.length == maxFavorites,
+        canAddFavorite: _canAddFavorite(services),
+        isFavoritesLimitReached: _isFavoritesLimitReached(services),
       ),
     );
   }
@@ -390,8 +394,8 @@ class HomeCubit extends Cubit<HomeState> {
     emit(
       state.copyWith(
         favoriteServices: services,
-        canAddFavorite: services.length < maxFavorites,
-        isFavoritesLimitReached: services.length == maxFavorites,
+        canAddFavorite: _canAddFavorite(services),
+        isFavoritesLimitReached: _isFavoritesLimitReached(services),
       ),
     );
   }
@@ -403,8 +407,8 @@ class HomeCubit extends Cubit<HomeState> {
     emit(
       state.copyWith(
         favoriteServices: services,
-        canAddFavorite: services.length < maxFavorites,
-        isFavoritesLimitReached: services.length == maxFavorites,
+        canAddFavorite: _canAddFavorite(services),
+        isFavoritesLimitReached: _isFavoritesLimitReached(services),
       ),
     );
   }
@@ -426,8 +430,8 @@ class HomeCubit extends Cubit<HomeState> {
       state.copyWith(
         isEditingFavorites: false,
         favoriteServices: services,
-        canAddFavorite: services.length < maxFavorites,
-        isFavoritesLimitReached: services.length == maxFavorites,
+        canAddFavorite: _canAddFavorite(services),
+        isFavoritesLimitReached: _isFavoritesLimitReached(services),
       ),
     );
   }
@@ -480,7 +484,7 @@ class HomeCubit extends Cubit<HomeState> {
     CardAction.forgotFirstPin,
   ];
 
-  Future<void> fetchCards() {
+  Future<void> fetchCards() async {
     final previous = state.selectedCard;
     final visibility = state.cardVisibility;
     emit(
@@ -496,37 +500,54 @@ class HomeCubit extends Cubit<HomeState> {
         message: null,
       ),
     );
-    return _loadCards().then((result) {
-      switch (result) {
-        case Err(:final failure):
-          emit(
-            state.copyWith(
-              cardsStatus: RequestStatus.failure,
-              failure: failure,
-              message: getRequestErrorMessage(failure),
-            ),
-          );
-        case Success(:final data):
-          final selected =
-              data.where((item) => item.id == previous?.id).firstOrNull ??
-              data.firstOrNull;
-          emit(
-            state.copyWith(
-              cardsStatus: RequestStatus.success,
-              visibleCards: data,
-              selectedCard: selected,
-              selectedCardIndex: selected == null ? 0 : data.indexOf(selected),
-              cardActions: selected == null ? const [] : _cardActions,
-              pinActions: selected == null ? const [] : _pinActions(selected),
-              cardQuickActions: selected == null ? const [] : _quickActions,
-              cardVisibility: {
-                for (final card in data)
-                  card.id: visibility[card.id] ?? data.length == 1,
-              },
-            ),
-          );
-      }
-    });
+    final result = await loadDashboardCardsUseCase();
+    switch (result) {
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            cardsStatus: RequestStatus.failure,
+            failure: failure,
+            message: getRequestErrorMessage(failure),
+          ),
+        );
+      case Success(:final data):
+        final selected = _findRetainedSelection(data, previous?.id);
+        emit(
+          state.copyWith(
+            cardsStatus: RequestStatus.success,
+            visibleCards: data,
+            selectedCard: selected,
+            selectedCardIndex: _selectedItemIndex(data, selected),
+            cardActions: _hasSelection(selected) ? _cardActions : const [],
+            pinActions: _hasSelection(selected)
+                ? _pinActions(selected!)
+                : const [],
+            cardQuickActions: _hasSelection(selected)
+                ? _quickActions
+                : const [],
+            cardVisibility: {
+              for (final card in data)
+                card.id: visibility[card.id] ?? data.length == 1,
+            },
+          ),
+        );
+    }
+  }
+
+  T? _findRetainedSelection<T extends DashboardItem>(
+    List<T> items,
+    String? previousId,
+  ) {
+    return items.where((item) => item.id == previousId).firstOrNull ??
+        items.firstOrNull;
+  }
+
+  bool _hasSelection(DashboardItem? selected) {
+    return selected != null;
+  }
+
+  int _selectedItemIndex<T extends DashboardItem>(List<T> items, T? selected) {
+    return _hasSelection(selected) ? items.indexOf(selected!) : 0;
   }
 
   void selectCard(BankCard card) {
@@ -569,7 +590,7 @@ class HomeCubit extends Cubit<HomeState> {
     );
   }
 
-  Future<void> fetchDeposits() {
+  Future<void> fetchDeposits() async {
     final previous = state.selectedDeposit;
 
     emit(
@@ -585,41 +606,36 @@ class HomeCubit extends Cubit<HomeState> {
         message: null,
       ),
     );
-    return _loadDeposits().then((result) {
-      switch (result) {
-        case Err(:final failure):
-          emit(
-            state.copyWith(
-              depositsStatus: RequestStatus.failure,
-              failure: failure,
-              message: getRequestErrorMessage(failure),
-            ),
-          );
-        case Success(:final data):
-          final selected =
-              data.where((item) => item.id == previous?.id).firstOrNull ??
-              data.firstOrNull;
-          emit(
-            state.copyWith(
-              depositsStatus: RequestStatus.success,
-              visibleDeposits: data,
-              selectedDeposit: selected,
-              selectedDepositIndex: selected == null
-                  ? 0
-                  : data.indexOf(selected),
-              depositActions: selected == null
-                  ? const []
-                  : DepositAction.operations,
-              depositQuickActions: selected == null
-                  ? const []
-                  : DepositAction.quick,
-              depositChequeActions: selected?.hasChequeOperations == true
-                  ? DepositAction.cheques
-                  : const [],
-            ),
-          );
-      }
-    });
+    final result = await loadDashboardDepositsUseCase();
+    switch (result) {
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            depositsStatus: RequestStatus.failure,
+            failure: failure,
+            message: getRequestErrorMessage(failure),
+          ),
+        );
+      case Success(:final data):
+        final selected = _findRetainedSelection(data, previous?.id);
+        emit(
+          state.copyWith(
+            depositsStatus: RequestStatus.success,
+            visibleDeposits: data,
+            selectedDeposit: selected,
+            selectedDepositIndex: _selectedItemIndex(data, selected),
+            depositActions: _hasSelection(selected)
+                ? DepositAction.operations
+                : const [],
+            depositQuickActions: _hasSelection(selected)
+                ? DepositAction.quick
+                : const [],
+            depositChequeActions: selected?.hasChequeOperations == true
+                ? DepositAction.cheques
+                : const [],
+          ),
+        );
+    }
   }
 
   void selectDeposit(BankDeposit deposit) {
@@ -667,7 +683,7 @@ class HomeCubit extends Cubit<HomeState> {
     );
   }
 
-  Future<void> fetchLoans() {
+  Future<void> fetchLoans() async {
     final previous = state.selectedLoan;
 
     emit(
@@ -682,32 +698,33 @@ class HomeCubit extends Cubit<HomeState> {
         message: null,
       ),
     );
-    return _loadLoans().then((result) {
-      switch (result) {
-        case Err(:final failure):
-          emit(
-            state.copyWith(
-              loansStatus: RequestStatus.failure,
-              failure: failure,
-              message: getRequestErrorMessage(failure),
-            ),
-          );
-        case Success(:final data):
-          final selected =
-              data.where((item) => item.id == previous?.id).firstOrNull ??
-              data.firstOrNull;
-          emit(
-            state.copyWith(
-              loansStatus: RequestStatus.success,
-              visibleLoans: data,
-              selectedLoan: selected,
-              selectedLoanIndex: selected == null ? 0 : data.indexOf(selected),
-              loanActions: selected == null ? const [] : LoanAction.operations,
-              loanQuickActions: selected == null ? const [] : LoanAction.quick,
-            ),
-          );
-      }
-    });
+    final result = await loadDashboardLoansUseCase();
+    switch (result) {
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            loansStatus: RequestStatus.failure,
+            failure: failure,
+            message: getRequestErrorMessage(failure),
+          ),
+        );
+      case Success(:final data):
+        final selected = _findRetainedSelection(data, previous?.id);
+        emit(
+          state.copyWith(
+            loansStatus: RequestStatus.success,
+            visibleLoans: data,
+            selectedLoan: selected,
+            selectedLoanIndex: _selectedItemIndex(data, selected),
+            loanActions: _hasSelection(selected)
+                ? LoanAction.operations
+                : const [],
+            loanQuickActions: _hasSelection(selected)
+                ? LoanAction.quick
+                : const [],
+          ),
+        );
+    }
   }
 
   void selectLoan(BankLoan loan) {
@@ -769,8 +786,7 @@ class HomeCubit extends Cubit<HomeState> {
         prompt: value,
         isInputPresent: value.isNotEmpty,
         canSubmitPrompt: value.trim().isNotEmpty,
-        isHintTyping:
-            state.isMotionEnabled && !state.isInputFocused && value.isEmpty,
+        isHintTyping: _canTypeHint(isInputPresent: value.isNotEmpty),
       ),
     );
     _syncTypingTimer();
@@ -793,12 +809,13 @@ class HomeCubit extends Cubit<HomeState> {
   }
 
   void updateForeground(bool foreground) {
-    final enabled = state.isMotionAllowed && foreground;
     emit(
       state.copyWith(
         isForeground: foreground,
-        isMotionEnabled: enabled,
-        isHintTyping: enabled && !state.isInputFocused && !state.isInputPresent,
+        isMotionEnabled: _isMotionEnabled(isForeground: foreground),
+        isHintTyping: _canTypeHint(
+          isMotionEnabled: _isMotionEnabled(isForeground: foreground),
+        ),
       ),
     );
     _syncTypingTimer();
@@ -810,17 +827,57 @@ class HomeCubit extends Cubit<HomeState> {
     required bool tickerEnabled,
     required bool hasFocus,
   }) {
-    final allowed = enabled && !animationsDisabled && tickerEnabled;
-    final motion = allowed && state.isForeground;
     emit(
       state.copyWith(
-        isMotionAllowed: allowed,
-        isMotionEnabled: motion,
+        isMotionAllowed: _isMotionAllowed(
+          enabled,
+          animationsDisabled,
+          tickerEnabled,
+        ),
+        isMotionEnabled: _isMotionEnabled(
+          isMotionAllowed: _isMotionAllowed(
+            enabled,
+            animationsDisabled,
+            tickerEnabled,
+          ),
+        ),
         isInputFocused: hasFocus,
-        isHintTyping: motion && !hasFocus && !state.isInputPresent,
+        isHintTyping: _canTypeHint(
+          isMotionEnabled: _isMotionEnabled(
+            isMotionAllowed: _isMotionAllowed(
+              enabled,
+              animationsDisabled,
+              tickerEnabled,
+            ),
+          ),
+          isInputFocused: hasFocus,
+        ),
       ),
     );
     _syncTypingTimer();
+  }
+
+  bool _isMotionAllowed(
+    bool enabled,
+    bool animationsDisabled,
+    bool tickerEnabled,
+  ) {
+    return enabled && !animationsDisabled && tickerEnabled;
+  }
+
+  bool _isMotionEnabled({bool? isMotionAllowed, bool? isForeground}) {
+    return (isMotionAllowed ?? state.isMotionAllowed) &&
+        (isForeground ?? state.isForeground);
+  }
+
+  bool _canTypeHint({
+    bool? isMotionEnabled,
+    bool? isInputFocused,
+    bool? isInputPresent,
+  }) {
+    return (isMotionEnabled ?? state.isMotionEnabled) &&
+        !(isInputFocused ?? state.isInputFocused) &&
+        !(isInputPresent ?? state.isInputPresent);
   }
 
   // Own only the timer resource here; each action publishes its own State.

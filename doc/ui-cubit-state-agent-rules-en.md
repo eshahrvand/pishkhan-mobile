@@ -1,7 +1,7 @@
 # UI, Cubit and State Coding Contract for the Team and Agents
 
 **Project:** Smart Virtual Counter — `pishkhan_mobile`  
-**Version:** 1.17 — Registered, explicitly named UseCases<br>
+**Version:** 1.19 — Explicit UseCase filenames<br>
 **Date:** 2026-11-01<br>
 **Scope:** Presentation coding style, State management and readability rules  
 **Status:** Authoritative coding contract. Historical examples do not override the mandatory ownership rules or the owner amendments below. Implementation status is recorded in the feature documentation.
@@ -34,10 +34,26 @@ Cubit submission/edit guards throughout this document and architecture Section 1
 Actual behavior remains explicit: form validation, choosing a step/action, Apply versus Cancel and optional entry-data resolution are calculations/flow decisions. Server authorization/idempotency remains at its existing boundary. There is no async disposal check of any kind (owner decision 2026-10-18; Section 8.3). A modal may directly bind its Confirm button to a Cubit
 action; Cancel and dismissal simply close it without invoking that action.
 
+## Mandatory Owner Clarification, 2026-11-01: Independent Events and Repeated Fields
+
+The owner approved retaining explicit emits for independent events even when
+three or more copyWith fields repeat. Field overlap alone does not establish a
+shared operation. For example, fetching Home, opening favorite editing, adding,
+removing and cancelling favorites have distinct responsibilities. Keep their
+changes visible and extract repeated calculations/predicates into pure helpers.
+Do not invent State-publication helpers or artificial event delegation to remove
+field names. A genuinely shared request lifecycle still has exactly one owner;
+its trigger actions delegate under Section 6.10. This supersedes the older
+absolute three-field duplication rule in that section and its checklists.
+
 ## Mandatory Owner Clarification, 2026-11-01: UseCase Naming and Registration
 
 Every UseCase class name MUST end in `UseCase`, for example
 `FetchLoginCaptchaUseCase`, `RequestLoginOtpUseCase` and `VerifyLoginOtpUseCase`.
+UseCase Dart filenames MUST be snake_case and end in `_usecase.dart`, such as
+`login_usecase.dart` and `home_usecase.dart`. The suffix identifies the file's
+responsibility. Rename imports and document references with the file. The Login
+and Dashboard filename correction preserves their existing UseCase grouping.
 Every UseCase used by a Cubit MUST be registered in GetIt and resolved into a
 final Cubit field. Actions invoke that instance; they do not construct UseCases
 or forward Repository/service dependencies to UseCase constructors. Wiring belongs
@@ -1681,11 +1697,12 @@ The short working checklist for this section is the project skill
    comparison appear only in the owner action. If the form can become invalid
    while a request is in flight, the owner action still increments the ID before
    it decides to skip, so the older response loses (Minimal Cubit Rule 11).
-7. **Repeated field group.** If a group of three or more `copyWith` fields
-   appears in two or more actions, those actions are the same operation. Fix it
-   with delegation (rule 3). Do not fix it with `_resetX()`, `_clearQuote()`, a
-   mixin or any function that builds or publishes State (Section 6.4 still
-   applies).
+7. **Repeated field group.** Three or more repeated `copyWith` fields trigger
+   an ownership review. When they belong to the same operation, use delegation
+   (rule 3). When they belong to independent events, keep each explicit emit and
+   share pure calculations/predicates. Field overlap alone does not make the
+   events one operation. No `_resetX()`, `_clearQuote()`, mixin or function that
+   builds/publishes State; Section 6.4 still applies.
 8. **Repeated predicate.** A boolean condition that appears two or more times in
    one Cubit becomes a private pure `_canX(...)` function that returns `bool`,
    even if each occurrence is only one line. The function reads State or its
@@ -1845,7 +1862,7 @@ or mutate. `_canRetry` already follows the same pattern in the current code.
 | Duplicated thing | Required fix | Prohibited fix |
 |---|---|---|
 | Same dependency call and Success/Err switch in several actions | Delegate to the owner action | Copying; `_publishQuoteSuccess`; passing the switch as a callback |
-| Group of 3+ `copyWith` fields in 2+ actions | The actions are one operation: delegate | `_resetQuoteState()`; any function that builds or emits State |
+| Group of 3+ `copyWith` fields in 2+ actions | Review ownership: shared operations delegate; independent events retain explicit emits and share pure calculations | State-publication helpers or artificial delegation based only on shared fields |
 | Same boolean condition 2+ times | Private pure `_canX(...)` returning `bool` | A local alias in each action |
 | Same calculation | Private pure helper returning the value | A helper that returns State |
 | Reset of the whole form | Section 6.9 | A reset helper or a new State factory |
@@ -4079,6 +4096,7 @@ This text is a compact summary of the mandatory contract, not an alternative to 
 
 ### 24.3 While Writing Cubit
 
+- [ ] UseCase source filenames end in `_usecase.dart`; imports and feature documents refer to the current names.
 - [ ] Each used UseCase has the `UseCase` suffix, is registered in GetIt and is resolved into a final Cubit field; no Cubit-side UseCase construction or Repository forwarding to its constructor. Dependency wiring stays in core/di and Domain has no GetIt import.
 - [ ] Cubit resolves its dependencies from GetIt fields; there are no Repository/service/UseCase constructor arguments or UI/router lookups.
 - [ ] Every action names its verb and subject; names distinguish input updates, fetching, effect requests and returned results (Section 6.6).
@@ -4089,7 +4107,7 @@ This text is a compact summary of the mandatory contract, not an alternative to 
 - [ ] Operation inventory written before coding: each request operation has exactly one owner action and a list of its trigger actions (Section 6.10).
 - [ ] No dependency call (`UseCase(`, `_repository.`) appears in more than one action for the same operation.
 - [ ] `await` and `switch (result)` each appear once per operation.
-- [ ] No group of three or more identical `copyWith` fields appears in two or more actions.
+- [ ] Repeated groups of three or more copyWith fields have been reviewed: shared operations delegate; independent events retain explicit emits and share pure calculations.
 - [ ] No boolean condition appears two or more times without a `_canX(...)` helper.
 - [ ] Request-ID increment and comparison exist only in the owner action.
 - [ ] Readability improves through clear responsibilities, names and control flow; comments and method reshuffling are not the only changes.
@@ -4200,8 +4218,10 @@ fetchQuote, reset group → fetchQuote, canSubmit predicate → _canSubmit)`.
 1. Search the Cubit for each dependency call and for `await`. Count occurrences
    per operation.
 2. Search for `switch (result)`. Count occurrences per operation.
-3. Compare the `copyWith` blocks of all actions. Look for repeated groups of three
-   or more fields.
+3. Compare the `copyWith` blocks for groups of three or more repeated fields.
+   Review operation ownership: delegate shared operations; preserve explicit
+   emits for independent events and share pure calculations. Field overlap alone
+   is not a violation.
 4. Look for any boolean expression that appears twice.
 5. Fix each finding with Section 6.10 before reporting. A finding that cannot be
    fixed within the contract is reported with its exact location and reason.
@@ -4268,6 +4288,15 @@ These numbers refer to the supplementary review list in the conversation, not th
 Open item 7 does not permit array-driven fixed forms or index-based field actions; item 2 explicitly prohibits them. Acceptance of empty button callbacks under item 10 does not permit empty Listeners or fabricated APIs. These are separate concerns.
 
 ### 25.2 Consolidation Status
+
+Version 1.19 (2026-11-01) records the owner's mandatory `_usecase.dart` file suffix,
+in addition to the class suffix and GetIt registration. Login and Dashboard file
+imports are migrated together; remaining features follow their migration phases.
+
+Version 1.18 (2026-11-01) records the owner's approval that repeated fields alone
+do not establish a shared operation. Independent events retain explicit emits
+with shared pure calculations; shared request lifecycles still delegate. No
+State-publication helper is permitted.
 
 Version 1.17 (2026-11-01) records the owner's explicit UseCase suffix and mandatory
 GetIt registration. Cubit resolves the UseCase instance; DI wires its constructor

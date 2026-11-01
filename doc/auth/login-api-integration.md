@@ -62,6 +62,10 @@ device IP. Bank confirmation is still needed before changing that policy.
 
 ## Layers, operations and failures
 
+The three Login UseCases are defined in
+`lib/features/auth/domain/usecases/login_usecase.dart`; the `_usecase.dart`
+suffix follows the owner's filename clarification and contract v1.19.
+
 AuthScreen directly constructs AuthCubit in its Provider and calls fetchCaptcha.
 Cubit resolves `FetchLoginCaptchaUseCase`, `RequestLoginOtpUseCase` and
 `VerifyLoginOtpUseCase` through final GetIt fields. All three are registered in
