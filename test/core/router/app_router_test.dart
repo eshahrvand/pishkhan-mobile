@@ -90,7 +90,7 @@ void main() {
         AppRoutes.messageDetail,
         AppRoutes.changePhone,
         AppRoutes.addresses,
-        AppRoutes.occupations,
+        AppRoutes.jobInformation,
       ],
       '/cheque/': [
         AppRoutes.chequeClearance,
@@ -147,7 +147,7 @@ void main() {
         AppRoutes.allServices,
         AppRoutes.changePhone,
         AppRoutes.addresses,
-        AppRoutes.occupations,
+        AppRoutes.jobInformation,
       ]) {
         expect(validatedReturnLocation(value), value);
       }

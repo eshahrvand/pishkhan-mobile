@@ -75,3 +75,7 @@ See [Deposits development](development.md) and
 [Cheque development](../cheque/development.md) for current routing, mock boundaries
 and address reuse. The cheque postal-office helper finds offices; it does not own
 this editor's postal-code validation.
+
+Shared address editor migration is recorded in [phase 5](../profile/phase-5-review.md). Its
+`ServiceRegistry.openAddressEditor` entry/result contract and this flow’s existing
+address inputs, cancellation and validation remain unchanged.

@@ -9,6 +9,7 @@ import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
 import 'package:pishkhan_mobile/shared/widgets/flow_exit_dialog.dart';
 
+import '../../shared/profile_submission_dialog.dart';
 import '../cubit/change_phone_cubit.dart';
 import '../widgets/change_phone_form.dart';
 import '../widgets/change_phone_footer.dart';
@@ -16,16 +17,15 @@ import '../widgets/change_phone_footer.dart';
 class ChangePhoneScreen extends StatelessWidget {
   const ChangePhoneScreen({super.key, this.onAssistantPressed});
   final VoidCallback? onAssistantPressed;
+  void _showRequestFailure(BuildContext context, ChangePhoneState state) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(state.message!)));
+  }
+
   Future<void> _handleEffect(
     BuildContext context,
     ChangePhoneState state,
   ) async {
-    if (state.message != null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(state.message!)));
-      return;
-    }
-
     switch (state.effect) {
       case ChangePhoneEffect.confirmExit:
         context.read<ChangePhoneCubit>().consumeChangePhoneInteraction();
@@ -52,17 +52,8 @@ class ChangePhoneScreen extends StatelessWidget {
         context.read<ChangePhoneCubit>().consumeChangePhoneInteraction();
         await showDialog<void>(
           context: context,
-          builder: (context) => AlertDialog(
-            content: Text(S.current.profilePhoneSubmitted),
-            actions: [
-              AppButton(
-                label: S.current.backLabel,
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          ),
+          builder: (context) =>
+              ProfileSubmissionDialog(message: S.current.profilePhoneSubmitted),
         );
         if (context.mounted) {
           context.read<ChangePhoneCubit>().applySubmissionDismissal();
@@ -76,89 +67,106 @@ class ChangePhoneScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => ChangePhoneCubit()..fetchSettings(),
-      child: BlocConsumer<ChangePhoneCubit, ChangePhoneState>(
-        listenWhen: (previous, current) =>
-            (previous.effect != current.effect && current.effect != null) ||
-            ((previous.settingsStatus != current.settingsStatus &&
-                    current.settingsStatus == RequestStatus.failure) ||
-                (previous.otpRequestStatus != current.otpRequestStatus &&
-                    current.otpRequestStatus == RequestStatus.failure) ||
-                (previous.submissionStatus != current.submissionStatus &&
-                    current.submissionStatus == RequestStatus.failure)),
-        listener: _handleEffect,
-
-        builder: (context, state) {
-          return Directionality(
-            textDirection: TextDirection.rtl,
-            child: PopScope(
-              canPop:
-                  (state.settingsStatus != RequestStatus.loading &&
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<ChangePhoneCubit, ChangePhoneState>(
+            listenWhen: (previous, current) =>
+                previous.settingsStatus != current.settingsStatus &&
+                current.settingsStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<ChangePhoneCubit, ChangePhoneState>(
+            listenWhen: (previous, current) =>
+                previous.otpRequestStatus != current.otpRequestStatus &&
+                current.otpRequestStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<ChangePhoneCubit, ChangePhoneState>(
+            listenWhen: (previous, current) =>
+                previous.submissionStatus != current.submissionStatus &&
+                current.submissionStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<ChangePhoneCubit, ChangePhoneState>(
+            listenWhen: (previous, current) =>
+                previous.effect != current.effect && current.effect != null,
+            listener: _handleEffect,
+          ),
+        ],
+        child: BlocBuilder<ChangePhoneCubit, ChangePhoneState>(
+          builder: (context, state) {
+            return Directionality(
+              textDirection: TextDirection.rtl,
+              child: PopScope(
+                canPop:
+                    (state.settingsStatus != RequestStatus.loading &&
+                        state.otpRequestStatus != RequestStatus.loading &&
+                        state.submissionStatus != RequestStatus.loading) &&
+                    (state.effect == ChangePhoneEffect.back),
+                onPopInvokedWithResult: (didPop, _) {
+                  if (!didPop &&
+                      state.settingsStatus != RequestStatus.loading &&
                       state.otpRequestStatus != RequestStatus.loading &&
-                      state.submissionStatus != RequestStatus.loading) &&
-                  (state.effect == ChangePhoneEffect.back),
-              onPopInvokedWithResult: (didPop, _) {
-                if (!didPop &&
-                    state.settingsStatus != RequestStatus.loading &&
-                    state.otpRequestStatus != RequestStatus.loading &&
-                    state.submissionStatus != RequestStatus.loading) {
-                  context.read<ChangePhoneCubit>().requestBack();
-                }
-              },
-              child: Scaffold(
-                backgroundColor: context.colors.surfaceSubtle,
-                body: SafeArea(
-                  child: Stack(
-                    children: [
-                      Column(
-                        children: [
-                          AppTopBar(
-                            title: S.current.profileChangePhone,
-                            showLeadingActions: false,
-                            leadingAction: const SizedBox.shrink(),
-                            trailingIcon: AvpImage(
-                              image:
-                                  '${AppConstants.baseImage}deposit_list_back.svg',
-                              width: 24,
-                              height: 24,
+                      state.submissionStatus != RequestStatus.loading) {
+                    context.read<ChangePhoneCubit>().requestBack();
+                  }
+                },
+                child: Scaffold(
+                  backgroundColor: context.colors.surfaceSubtle,
+                  body: SafeArea(
+                    child: Stack(
+                      children: [
+                        Column(
+                          children: [
+                            AppTopBar(
+                              title: S.current.profileChangePhone,
+                              showLeadingActions: false,
+                              leadingAction: const SizedBox.shrink(),
+                              trailingIcon: AvpImage(
+                                image:
+                                    '${AppConstants.baseImage}deposit_list_back.svg',
+                                width: 24,
+                                height: 24,
+                              ),
+                              trailingTooltip: S.current.backLabel,
+                              onTrailingPressed:
+                                  (state.settingsStatus !=
+                                          RequestStatus.loading &&
+                                      state.otpRequestStatus !=
+                                          RequestStatus.loading &&
+                                      state.submissionStatus !=
+                                          RequestStatus.loading)
+                                  ? () {
+                                      context
+                                          .read<ChangePhoneCubit>()
+                                          .requestBack();
+                                    }
+                                  : null,
                             ),
-                            trailingTooltip: S.current.backLabel,
-                            onTrailingPressed:
-                                (state.settingsStatus !=
-                                        RequestStatus.loading &&
-                                    state.otpRequestStatus !=
-                                        RequestStatus.loading &&
-                                    state.submissionStatus !=
-                                        RequestStatus.loading)
-                                ? () {
-                                    context
-                                        .read<ChangePhoneCubit>()
-                                        .requestBack();
-                                  }
-                                : null,
-                          ),
-                          Expanded(child: const ChangePhoneForm()),
-                          const ChangePhoneFooter(),
-                        ],
-                      ),
-                      if (MediaQuery.viewInsetsOf(context).bottom == 0)
-                        Positioned(
-                          left: 16,
-                          bottom: 76,
-                          child: AppAssistantButton(
-                            onPressed: () {
-                              context
-                                  .read<ChangePhoneCubit>()
-                                  .requestAssistant();
-                            },
-                          ),
+                            Expanded(child: const ChangePhoneForm()),
+                            const ChangePhoneFooter(),
+                          ],
                         ),
-                    ],
+                        if (MediaQuery.viewInsetsOf(context).bottom == 0)
+                          Positioned(
+                            left: 16,
+                            bottom: 76,
+                            child: AppAssistantButton(
+                              onPressed: () {
+                                context
+                                    .read<ChangePhoneCubit>()
+                                    .requestAssistant();
+                              },
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }

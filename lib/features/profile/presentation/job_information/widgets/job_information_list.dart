@@ -3,41 +3,41 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/widgets/app_occupation_card.dart';
+import 'package:pishkhan_mobile/shared/widgets/app_job_information_card.dart';
 
 import '../../shared/profile_labels.dart';
-import '../cubit/occupations_cubit.dart';
+import '../cubit/job_information_cubit.dart';
 
-class OccupationsList extends StatelessWidget {
-  const OccupationsList({super.key});
+class JobInformationList extends StatelessWidget {
+  const JobInformationList({super.key});
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<OccupationsCubit, OccupationsState>(
+    return BlocBuilder<JobInformationCubit, JobInformationState>(
       buildWhen: (previous, current) =>
-          previous.occupations != current.occupations ||
-          previous.occupationsStatus != current.occupationsStatus ||
+          previous.jobInformation != current.jobInformation ||
+          previous.jobInformationStatus != current.jobInformationStatus ||
           previous.deletionStatus != current.deletionStatus ||
           previous.submissionStatus != current.submissionStatus,
       builder: (context, state) {
-        if (state.occupationsStatus == RequestStatus.initial ||
-            state.occupationsStatus == RequestStatus.loading) {
+        if (state.jobInformationStatus == RequestStatus.initial ||
+            state.jobInformationStatus == RequestStatus.loading) {
           return const Center(child: CircularProgressIndicator());
         }
-        if (state.occupationsStatus == RequestStatus.failure) {
+        if (state.jobInformationStatus == RequestStatus.failure) {
           return Center(
             child: AppButton(
-              isLoading: state.occupationsStatus == RequestStatus.loading,
+              isLoading: state.jobInformationStatus == RequestStatus.loading,
               label: S.current.dashboardRetry,
               onPressed: () {
-                context.read<OccupationsCubit>().fetchOccupations();
+                context.read<JobInformationCubit>().fetchJobInformation();
               },
             ),
           );
         }
-        if (state.occupations.isEmpty) {
+        if (state.jobInformation.isEmpty) {
           return Center(
             child: Text(
-              S.current.profileOccupationsEmpty,
+              S.current.profileJobInformationEmpty,
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium
                   ?.copyWith(color: context.colors.textSecondary),
@@ -47,11 +47,11 @@ class OccupationsList extends StatelessWidget {
         return ListView(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 76),
           children: [
-            for (final occupation in state.occupations) ...[
-              AppOccupationCard(
+            for (final jobInformation in state.jobInformation) ...[
+              AppJobInformationCard(
                 outlined: true,
-                title: occupationLabel(occupation.kind),
-                description: occupation.description,
+                title: jobInformationLabel(jobInformation.kind),
+                description: jobInformation.description,
                 titleLabel: S.current.profileTitle,
                 descriptionLabel: S.current.profileDescription,
                 onMoreTap:
@@ -59,8 +59,8 @@ class OccupationsList extends StatelessWidget {
                         state.submissionStatus != RequestStatus.loading
                     ? () {
                         context
-                            .read<OccupationsCubit>()
-                            .requestOccupationActions(occupation);
+                            .read<JobInformationCubit>()
+                            .requestJobInformationActions(jobInformation);
                       }
                     : null,
               ),

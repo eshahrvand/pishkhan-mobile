@@ -34,16 +34,22 @@ class NotificationsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => NotificationsCubit()..openInbox(messages),
-      child: BlocListener<NotificationsCubit, NotificationsState>(
-        listenWhen: (previous, current) =>
-            previous.detailMessage != current.detailMessage &&
-            current.detailMessage != null,
-        listener: _handleDetail,
-        child: BlocConsumer<NotificationsCubit, NotificationsState>(
-          listenWhen: (previous, current) =>
-              previous.messages != current.messages,
-          listener: (context, state) =>
-              onChanged?.call(List.unmodifiable(state.messages)),
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<NotificationsCubit, NotificationsState>(
+            listenWhen: (previous, current) =>
+                previous.detailMessage != current.detailMessage &&
+                current.detailMessage != null,
+            listener: _handleDetail,
+          ),
+          BlocListener<NotificationsCubit, NotificationsState>(
+            listenWhen: (previous, current) =>
+                previous.messages != current.messages,
+            listener: (context, state) =>
+                onChanged?.call(List.unmodifiable(state.messages)),
+          ),
+        ],
+        child: BlocBuilder<NotificationsCubit, NotificationsState>(
           buildWhen: (previous, current) =>
               previous.unreadMessages.isEmpty != current.unreadMessages.isEmpty,
           builder: (context, state) {

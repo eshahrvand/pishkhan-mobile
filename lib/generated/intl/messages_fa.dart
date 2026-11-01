@@ -609,6 +609,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("مانی عزیز، صبح بخیر"),
         "dashboardIdentityServices":
             MessageLookupByLibrary.simpleMessage("اطلاعات فردی"),
+        "dashboardJobInformation":
+            MessageLookupByLibrary.simpleMessage("مدیریت شغل"),
         "dashboardLoadError":
             MessageLookupByLibrary.simpleMessage("دریافت اطلاعات انجام نشد"),
         "dashboardLoading":
@@ -625,8 +627,6 @@ class MessageLookup extends MessageLookupByLibrary {
         "dashboardMyLoans": MessageLookupByLibrary.simpleMessage("وام‌های من"),
         "dashboardNoServices":
             MessageLookupByLibrary.simpleMessage("خدمتی پیدا نشد"),
-        "dashboardOccupation":
-            MessageLookupByLibrary.simpleMessage("مدیریت شغل"),
         "dashboardOpenCurrent":
             MessageLookupByLibrary.simpleMessage("افتتاح سپرده جاری"),
         "dashboardPhoneBank": MessageLookupByLibrary.simpleMessage("تلفن بانک"),
@@ -1248,7 +1248,7 @@ class MessageLookup extends MessageLookupByLibrary {
             "شماره باید با کد ملی دارنده حساب مطابقت داشته باشد"),
         "profileAddAddress":
             MessageLookupByLibrary.simpleMessage("افزودن آدرس جدید"),
-        "profileAddOccupation":
+        "profileAddJobInformation":
             MessageLookupByLibrary.simpleMessage("افزودن شغل جدید"),
         "profileAddressType": MessageLookupByLibrary.simpleMessage("نوع آدرس"),
         "profileAddressesEmpty":
@@ -1259,44 +1259,44 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("شماره فعلی"),
         "profileDeleteAddress":
             MessageLookupByLibrary.simpleMessage("حذف آدرس"),
-        "profileDeleteOccupation":
+        "profileDeleteJobInformation":
             MessageLookupByLibrary.simpleMessage("حذف شغل"),
-        "profileDeleteOccupationPrompt": m8,
+        "profileDeleteJobInformationPrompt": m8,
         "profileDescription": MessageLookupByLibrary.simpleMessage("شرح"),
         "profileDescriptionRequired":
             MessageLookupByLibrary.simpleMessage("شرح شغل را وارد کنید"),
         "profileDesigner": MessageLookupByLibrary.simpleMessage("طراح"),
         "profileEditAddress":
             MessageLookupByLibrary.simpleMessage("ویرایش آدرس"),
-        "profileEditOccupation":
+        "profileEditJobInformation":
             MessageLookupByLibrary.simpleMessage("ویرایش شغل"),
         "profileHome": MessageLookupByLibrary.simpleMessage("خانه"),
         "profileHomemaker": MessageLookupByLibrary.simpleMessage("خانه‌دار"),
+        "profileJobInformation": MessageLookupByLibrary.simpleMessage("شغل"),
+        "profileJobInformationConflict": m9,
+        "profileJobInformationDescription":
+            MessageLookupByLibrary.simpleMessage("شرح شغل"),
+        "profileJobInformationDescriptionHint":
+            MessageLookupByLibrary.simpleMessage("شرح شغل خود را وارد کنید"),
+        "profileJobInformationEmpty":
+            MessageLookupByLibrary.simpleMessage("شغلی ثبت نشده است"),
+        "profileJobInformationHint":
+            MessageLookupByLibrary.simpleMessage("شغل خود را انتخاب کنید"),
+        "profileJobInformationNotice": MessageLookupByLibrary.simpleMessage(
+            "حداکثر تا ۳ ساعت پس از ثبت درخواست شغل جدید قابل مشاهده خواهد بود"),
+        "profileJobInformationQueued": MessageLookupByLibrary.simpleMessage(
+            "درخواست شغل ثبت شد و پس از بررسی قابل مشاهده خواهد بود."),
+        "profileJobInformationReview": m10,
         "profileLabel": MessageLookupByLibrary.simpleMessage("پروفایل"),
         "profileMinimumAddress": MessageLookupByLibrary.simpleMessage(
             "وجود حداقل یک آدرس خانه در پیشخوان الزامی‌است. لطفا ابتدا آدرس خانه خود را ثبت کرده سپس اقدام به ویرایش یا حذف این آدرس کنید."),
-        "profileMinimumOccupation": MessageLookupByLibrary.simpleMessage(
+        "profileMinimumJobInformation": MessageLookupByLibrary.simpleMessage(
             "وجود حداقل یک شغل ثبت شده در پیشخوان الزامی‌است. شما می‌توانید بجای حذف این شغل آن را ویرایش کنید."),
         "profileMissingResidence":
             MessageLookupByLibrary.simpleMessage("فاقد اسکان و املاک"),
         "profileNewPhone": MessageLookupByLibrary.simpleMessage("شماره جدید"),
         "profileNewPhoneHint":
             MessageLookupByLibrary.simpleMessage("شماره جدید خود را وارد کنید"),
-        "profileOccupation": MessageLookupByLibrary.simpleMessage("شغل"),
-        "profileOccupationConflict": m9,
-        "profileOccupationDescription":
-            MessageLookupByLibrary.simpleMessage("شرح شغل"),
-        "profileOccupationDescriptionHint":
-            MessageLookupByLibrary.simpleMessage("شرح شغل خود را وارد کنید"),
-        "profileOccupationHint":
-            MessageLookupByLibrary.simpleMessage("شغل خود را انتخاب کنید"),
-        "profileOccupationNotice": MessageLookupByLibrary.simpleMessage(
-            "حداکثر تا ۳ ساعت پس از ثبت درخواست شغل جدید قابل مشاهده خواهد بود"),
-        "profileOccupationQueued": MessageLookupByLibrary.simpleMessage(
-            "درخواست شغل ثبت شد و پس از بررسی قابل مشاهده خواهد بود."),
-        "profileOccupationReview": m10,
-        "profileOccupationsEmpty":
-            MessageLookupByLibrary.simpleMessage("شغلی ثبت نشده است"),
         "profileOperationError": MessageLookupByLibrary.simpleMessage(
             "عملیات انجام نشد؛ دوباره تلاش کنید"),
         "profileOtpExpired": MessageLookupByLibrary.simpleMessage(

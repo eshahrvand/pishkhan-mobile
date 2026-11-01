@@ -157,7 +157,7 @@
   "dashboardWalletHistory": "سجل المحفظة",
   "dashboardWalletDeposit": "تغيير الوديعة المرتبطة بالمحفظة",
   "dashboardChangeIdentity": "تغيير بيانات الهوية",
-  "dashboardOccupation": "إدارة الوظيفة",
+  "dashboardJobInformation": "إدارة الوظيفة",
   "dashboardAddresses": "إدارة العناوين",
   "dashboardChangePhone": "تغيير رقم الهاتف",
   "dashboardRequests": "طلباتي",
@@ -770,17 +770,17 @@
   "profileAddressesEmpty": "لا توجد عناوين",
   "profileReviewError": "تعذر الاستعلام؛ حاول مجدداً",
   "profileOperationError": "تعذرت العملية؛ حاول مجدداً",
-  "profileAddOccupation": "إضافة مهنة جديدة",
-  "profileEditOccupation": "تعديل المهنة",
-  "profileDeleteOccupation": "حذف المهنة",
-  "profileOccupation": "المهنة",
-  "profileOccupationHint": "اختر مهنتك",
-  "profileOccupationDescription": "وصف المهنة",
-  "profileOccupationDescriptionHint": "أدخل وصف مهنتك",
+  "profileAddJobInformation": "إضافة مهنة جديدة",
+  "profileEditJobInformation": "تعديل المهنة",
+  "profileDeleteJobInformation": "حذف المهنة",
+  "profileJobInformation": "المهنة",
+  "profileJobInformationHint": "اختر مهنتك",
+  "profileJobInformationDescription": "وصف المهنة",
+  "profileJobInformationDescriptionHint": "أدخل وصف مهنتك",
   "profileDescriptionRequired": "أدخل وصف المهنة",
-  "profileOccupationNotice": "ستظهر المهنة الجديدة خلال ٣ ساعات من تسجيل الطلب.",
-  "profileOccupationConflict": "المهنة المختارة ({selected}) غير متوافقة مع مهنتك الحالية ({existing}).",
-  "@profileOccupationConflict": {
+  "profileJobInformationNotice": "ستظهر المهنة الجديدة خلال ٣ ساعات من تسجيل الطلب.",
+  "profileJobInformationConflict": "المهنة المختارة ({selected}) غير متوافقة مع مهنتك الحالية ({existing}).",
+  "@profileJobInformationConflict": {
     "placeholders": {
       "selected": {
         "type": "String"
@@ -790,8 +790,8 @@
       }
     }
   },
-  "profileOccupationReview": "يتطلب التغيير من {previous} إلى {selected} مراجعة الموظف وستظهر التغييرات بعد الموافقة.",
-  "@profileOccupationReview": {
+  "profileJobInformationReview": "يتطلب التغيير من {previous} إلى {selected} مراجعة الموظف وستظهر التغييرات بعد الموافقة.",
+  "@profileJobInformationReview": {
     "placeholders": {
       "previous": {
         "type": "String"
@@ -801,8 +801,8 @@
       }
     }
   },
-  "profileOccupationQueued": "تم تسجيل طلب المهنة وسيظهر بعد المراجعة.",
-  "profileOccupationsEmpty": "لا توجد مهن مسجلة",
+  "profileJobInformationQueued": "تم تسجيل طلب المهنة وسيظهر بعد المراجعة.",
+  "profileJobInformationEmpty": "لا توجد مهن مسجلة",
   "profileTitle": "العنوان",
   "profileDescription": "الوصف",
   "profileDesigner": "مصمم",
@@ -812,15 +812,15 @@
   "profileSubmit": "تسجيل الطلب",
   "profileResidenceRegistry": " نظام الإقامة والعقارات",
   "profileResidenceRegistered": ".",
-  "profileDeleteOccupationPrompt": "هل أنت متأكد من حذف مهنتك ({occupation})؟",
-  "@profileDeleteOccupationPrompt": {
+  "profileDeleteJobInformationPrompt": "هل أنت متأكد من حذف مهنتك ({occupation})؟",
+  "@profileDeleteJobInformationPrompt": {
     "placeholders": {
       "occupation": {
         "type": "String"
       }
     }
   },
-  "profileMinimumOccupation": "يجب وجود مهنة مسجلة واحدة على الأقل. يمكنك تعديل هذه المهنة بدلاً من حذفها.",
+  "profileMinimumJobInformation": "يجب وجود مهنة مسجلة واحدة على الأقل. يمكنك تعديل هذه المهنة بدلاً من حذفها.",
   "profileMinimumAddress": "يجب وجود عنوان منزل واحد على الأقل. سجّل عنوان منزل آخر قبل تغيير هذا العنوان إلى عنوان عمل أو حذفه.",
   "modernActivate": "تفعيل الخدمات المصرفية عبر الهاتف",
   "modernActivationIntro": "يلزم تفعيل الخدمات المصرفية عبر الهاتف قبل تسجيل الدخول.",

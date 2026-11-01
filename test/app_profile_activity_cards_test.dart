@@ -1,7 +1,7 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:pishkhan_mobile/shared/widgets/app_occupation_card.dart';
+import 'package:pishkhan_mobile/shared/widgets/app_job_information_card.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_request_report_card.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_transaction_card.dart';
 
@@ -16,7 +16,7 @@ void main() {
   ) async {
     var tapped = false;
     await tester.pumpWidget(
-      subject(AppOccupationCard(onMoreTap: () => tapped = true)),
+      subject(AppJobInformationCard(onMoreTap: () => tapped = true)),
     );
 
     expect(find.text('طراح'), findsOneWidget);

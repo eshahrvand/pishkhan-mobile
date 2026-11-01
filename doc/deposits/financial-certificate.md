@@ -86,3 +86,7 @@ See [Deposits development](development.md) for current service routing, mock
 boundaries and verification commands, and [Cheque development](../cheque/development.md)
 for cheque-book reuse of the same address feature. Postal-office lookup belongs
 to cheque presentation and does not own this address form's postal code.
+
+Shared address editor migration is recorded in [phase 5](../profile/phase-5-review.md). Its
+`ServiceRegistry.openAddressEditor` entry/result contract and this flow’s existing
+address inputs, cancellation and validation remain unchanged.

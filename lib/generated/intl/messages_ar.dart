@@ -494,6 +494,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("صباح الخير، ماني"),
         "dashboardIdentityServices":
             MessageLookupByLibrary.simpleMessage("المعلومات الشخصية"),
+        "dashboardJobInformation":
+            MessageLookupByLibrary.simpleMessage("إدارة الوظيفة"),
         "dashboardLoadError":
             MessageLookupByLibrary.simpleMessage("تعذر تحميل المعلومات"),
         "dashboardLoading":
@@ -510,8 +512,6 @@ class MessageLookup extends MessageLookupByLibrary {
         "dashboardMyLoans": MessageLookupByLibrary.simpleMessage("قروضي"),
         "dashboardNoServices":
             MessageLookupByLibrary.simpleMessage("لم يتم العثور على خدمات"),
-        "dashboardOccupation":
-            MessageLookupByLibrary.simpleMessage("إدارة الوظيفة"),
         "dashboardOpenCurrent":
             MessageLookupByLibrary.simpleMessage("فتح حساب جارٍ"),
         "dashboardPhoneBank":
@@ -1155,7 +1155,7 @@ class MessageLookup extends MessageLookupByLibrary {
             "يجب أن يتطابق الرقم مع الرقم الوطني لصاحب الحساب"),
         "profileAddAddress":
             MessageLookupByLibrary.simpleMessage("إضافة عنوان جديد"),
-        "profileAddOccupation":
+        "profileAddJobInformation":
             MessageLookupByLibrary.simpleMessage("إضافة مهنة جديدة"),
         "profileAddressType":
             MessageLookupByLibrary.simpleMessage("نوع العنوان"),
@@ -1167,44 +1167,44 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("الرقم الحالي"),
         "profileDeleteAddress":
             MessageLookupByLibrary.simpleMessage("حذف العنوان"),
-        "profileDeleteOccupation":
+        "profileDeleteJobInformation":
             MessageLookupByLibrary.simpleMessage("حذف المهنة"),
-        "profileDeleteOccupationPrompt": m8,
+        "profileDeleteJobInformationPrompt": m8,
         "profileDescription": MessageLookupByLibrary.simpleMessage("الوصف"),
         "profileDescriptionRequired":
             MessageLookupByLibrary.simpleMessage("أدخل وصف المهنة"),
         "profileDesigner": MessageLookupByLibrary.simpleMessage("مصمم"),
         "profileEditAddress":
             MessageLookupByLibrary.simpleMessage("تعديل العنوان"),
-        "profileEditOccupation":
+        "profileEditJobInformation":
             MessageLookupByLibrary.simpleMessage("تعديل المهنة"),
         "profileHome": MessageLookupByLibrary.simpleMessage("المنزل"),
         "profileHomemaker": MessageLookupByLibrary.simpleMessage("ربة منزل"),
+        "profileJobInformation": MessageLookupByLibrary.simpleMessage("المهنة"),
+        "profileJobInformationConflict": m9,
+        "profileJobInformationDescription":
+            MessageLookupByLibrary.simpleMessage("وصف المهنة"),
+        "profileJobInformationDescriptionHint":
+            MessageLookupByLibrary.simpleMessage("أدخل وصف مهنتك"),
+        "profileJobInformationEmpty":
+            MessageLookupByLibrary.simpleMessage("لا توجد مهن مسجلة"),
+        "profileJobInformationHint":
+            MessageLookupByLibrary.simpleMessage("اختر مهنتك"),
+        "profileJobInformationNotice": MessageLookupByLibrary.simpleMessage(
+            "ستظهر المهنة الجديدة خلال ٣ ساعات من تسجيل الطلب."),
+        "profileJobInformationQueued": MessageLookupByLibrary.simpleMessage(
+            "تم تسجيل طلب المهنة وسيظهر بعد المراجعة."),
+        "profileJobInformationReview": m10,
         "profileLabel": MessageLookupByLibrary.simpleMessage("الملف الشخصي"),
         "profileMinimumAddress": MessageLookupByLibrary.simpleMessage(
             "يجب وجود عنوان منزل واحد على الأقل. سجّل عنوان منزل آخر قبل تغيير هذا العنوان إلى عنوان عمل أو حذفه."),
-        "profileMinimumOccupation": MessageLookupByLibrary.simpleMessage(
+        "profileMinimumJobInformation": MessageLookupByLibrary.simpleMessage(
             "يجب وجود مهنة مسجلة واحدة على الأقل. يمكنك تعديل هذه المهنة بدلاً من حذفها."),
         "profileMissingResidence":
             MessageLookupByLibrary.simpleMessage("غير مسجل في سجل الإقامة"),
         "profileNewPhone": MessageLookupByLibrary.simpleMessage("الرقم الجديد"),
         "profileNewPhoneHint":
             MessageLookupByLibrary.simpleMessage("أدخل رقم الهاتف الجديد"),
-        "profileOccupation": MessageLookupByLibrary.simpleMessage("المهنة"),
-        "profileOccupationConflict": m9,
-        "profileOccupationDescription":
-            MessageLookupByLibrary.simpleMessage("وصف المهنة"),
-        "profileOccupationDescriptionHint":
-            MessageLookupByLibrary.simpleMessage("أدخل وصف مهنتك"),
-        "profileOccupationHint":
-            MessageLookupByLibrary.simpleMessage("اختر مهنتك"),
-        "profileOccupationNotice": MessageLookupByLibrary.simpleMessage(
-            "ستظهر المهنة الجديدة خلال ٣ ساعات من تسجيل الطلب."),
-        "profileOccupationQueued": MessageLookupByLibrary.simpleMessage(
-            "تم تسجيل طلب المهنة وسيظهر بعد المراجعة."),
-        "profileOccupationReview": m10,
-        "profileOccupationsEmpty":
-            MessageLookupByLibrary.simpleMessage("لا توجد مهن مسجلة"),
         "profileOperationError":
             MessageLookupByLibrary.simpleMessage("تعذرت العملية؛ حاول مجدداً"),
         "profileOtpExpired": MessageLookupByLibrary.simpleMessage(

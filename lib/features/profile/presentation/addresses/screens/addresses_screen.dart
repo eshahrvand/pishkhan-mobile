@@ -22,13 +22,12 @@ import '../widgets/addresses_list.dart';
 class AddressesScreen extends StatelessWidget {
   const AddressesScreen({super.key, this.onAssistantPressed});
   final VoidCallback? onAssistantPressed;
-  Future<void> _handleEffect(BuildContext context, AddressesState state) async {
-    if (state.message != null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(state.message!)));
-      return;
-    }
+  void _showRequestFailure(BuildContext context, AddressesState state) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(state.message!)));
+  }
 
+  Future<void> _handleEffect(BuildContext context, AddressesState state) async {
     switch (state.effect) {
       case AddressEffect.actions:
         context.read<AddressesCubit>().consumeAddressesInteraction();
@@ -103,21 +102,41 @@ class AddressesScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => AddressesCubit()..fetchAddresses(),
-      child: BlocListener<AddressesCubit, AddressesState>(
-        listenWhen: (previous, current) =>
-            (previous.effect != current.effect && current.effect != null) ||
-            ((previous.addressesStatus != current.addressesStatus &&
-                    current.addressesStatus == RequestStatus.failure) ||
-                (previous.saveStatus != current.saveStatus &&
-                    current.saveStatus == RequestStatus.failure) ||
-                (previous.deletionStatus != current.deletionStatus &&
-                    current.deletionStatus == RequestStatus.failure) ||
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<AddressesCubit, AddressesState>(
+            listenWhen: (previous, current) =>
+                previous.addressesStatus != current.addressesStatus &&
+                current.addressesStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<AddressesCubit, AddressesState>(
+            listenWhen: (previous, current) =>
+                previous.saveStatus != current.saveStatus &&
+                current.saveStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<AddressesCubit, AddressesState>(
+            listenWhen: (previous, current) =>
+                previous.deletionStatus != current.deletionStatus &&
+                current.deletionStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<AddressesCubit, AddressesState>(
+            listenWhen: (previous, current) =>
                 current.reviewStatuses.entries.any(
                   (review) =>
                       previous.reviewStatuses[review.key] != review.value &&
                       review.value == RequestStatus.failure,
-                )),
-        listener: _handleEffect,
+                ),
+            listener: _showRequestFailure,
+          ),
+          BlocListener<AddressesCubit, AddressesState>(
+            listenWhen: (previous, current) =>
+                previous.effect != current.effect && current.effect != null,
+            listener: _handleEffect,
+          ),
+        ],
         child: Directionality(
           textDirection: TextDirection.rtl,
           child: BlocBuilder<AddressesCubit, AddressesState>(
@@ -126,7 +145,8 @@ class AddressesScreen extends StatelessWidget {
                 canPop:
                     state.addressesStatus != RequestStatus.loading &&
                     state.saveStatus != RequestStatus.loading &&
-                    state.deletionStatus != RequestStatus.loading,
+                    state.deletionStatus != RequestStatus.loading &&
+                    !state.reviewStatuses.containsValue(RequestStatus.loading),
                 child: Scaffold(
                   backgroundColor: context.colors.surfaceSubtle,
                   body: SafeArea(
@@ -151,7 +171,10 @@ class AddressesScreen extends StatelessWidget {
                                       state.saveStatus !=
                                           RequestStatus.loading &&
                                       state.deletionStatus !=
-                                          RequestStatus.loading)
+                                          RequestStatus.loading &&
+                                      !state.reviewStatuses.containsValue(
+                                        RequestStatus.loading,
+                                      ))
                                   ? () {
                                       context
                                           .read<AddressesCubit>()
@@ -186,32 +209,20 @@ class AddressesScreen extends StatelessWidget {
                         ),
                         Padding(
                           padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                          child: BlocBuilder<AddressesCubit, AddressesState>(
-                            buildWhen: (previous, current) =>
-                                previous.saveStatus != current.saveStatus ||
-                                previous.deletionStatus !=
-                                    current.deletionStatus ||
-                                previous.addressesStatus !=
-                                    current.addressesStatus,
-                            builder: (context, state) {
-                              return AppButton(
-                                label: S.current.profileAddAddress,
-                                size: AppButtonSize.lg,
-                                isLoading:
-                                    state.saveStatus == RequestStatus.loading ||
-                                    state.deletionStatus ==
-                                        RequestStatus.loading,
-                                onPressed:
-                                    state.addressesStatus ==
-                                        RequestStatus.success
-                                    ? () {
-                                        context
-                                            .read<AddressesCubit>()
-                                            .requestNewAddress();
-                                      }
-                                    : null,
-                              );
-                            },
+                          child: AppButton(
+                            label: S.current.profileAddAddress,
+                            size: AppButtonSize.lg,
+                            isLoading:
+                                state.saveStatus == RequestStatus.loading ||
+                                state.deletionStatus == RequestStatus.loading,
+                            onPressed:
+                                state.addressesStatus == RequestStatus.success
+                                ? () {
+                                    context
+                                        .read<AddressesCubit>()
+                                        .requestNewAddress();
+                                  }
+                                : null,
                           ),
                         ),
                       ],

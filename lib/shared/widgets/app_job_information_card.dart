@@ -1,15 +1,15 @@
 import 'package:pishkhan_mobile/core/config/constant.dart';
 
-import 'app_occupation_card_detail_row.dart';
+import 'app_job_information_card_detail_row.dart';
 
 import 'dart:math' as math;
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 
-/// Figma occupation summary card used by the personal-information flow.
-class AppOccupationCard extends StatelessWidget {
-  const AppOccupationCard({
+/// Figma job information summary card used by the personal-information flow.
+class AppJobInformationCard extends StatelessWidget {
+  const AppJobInformationCard({
     super.key,
     this.title = 'طراح',
     this.description = 'UI / UX Designer',
@@ -104,9 +104,9 @@ class AppOccupationCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 8),
-            AppOccupationCardDetailRow(value: title, label: titleLabel),
+            AppJobInformationCardDetailRow(value: title, label: titleLabel),
             const SizedBox(height: 8),
-            AppOccupationCardDetailRow(
+            AppJobInformationCardDetailRow(
               value: description,
               label: descriptionLabel,
             ),

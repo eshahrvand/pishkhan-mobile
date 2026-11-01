@@ -47,7 +47,7 @@ abstract final class ServiceRegistry {
         switch (id) {
           'identity-phone' => AppRoutes.changePhone,
           'identity-addresses' => AppRoutes.addresses,
-          _ => AppRoutes.occupations,
+          _ => AppRoutes.jobInformation,
         },
         extra: PersonalInformationRouteArguments(
           onAssistantPressed: onAssistantPressed,

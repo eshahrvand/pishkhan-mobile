@@ -8,42 +8,45 @@ import 'package:pishkhan_mobile/shared/widgets/certificate_fields.dart';
 import '../../../domain/entities/personal_information.dart';
 import '../../shared/profile_labels.dart';
 import '../../shared/profile_notice.dart';
-import '../cubit/occupations_cubit.dart';
+import '../cubit/job_information_cubit.dart';
 
-class OccupationForm extends StatelessWidget {
-  const OccupationForm({super.key});
+class JobInformationForm extends StatelessWidget {
+  const JobInformationForm({super.key});
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<OccupationsCubit, OccupationsState>(
+    return BlocBuilder<JobInformationCubit, JobInformationState>(
       builder: (context, state) {
         return SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 76),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              ProfileNotice(message: S.current.profileOccupationNotice),
+              ProfileNotice(message: S.current.profileJobInformationNotice),
               const SizedBox(height: 20),
-              CertificateSelect<OccupationKind>(
-                label: S.current.profileOccupation,
-                hint: S.current.profileOccupationHint,
+              CertificateSelect<JobInformationKind>(
+                label: S.current.profileJobInformation,
+                hint: S.current.profileJobInformationHint,
                 value: state.kind,
                 enabled:
                     state.submissionStatus != RequestStatus.loading &&
                     state.submissionStatus != RequestStatus.success,
                 options: [
-                  for (final kind in OccupationKind.values)
-                    AppSelectOption(value: kind, label: occupationLabel(kind)),
+                  for (final kind in JobInformationKind.values)
+                    AppSelectOption(
+                      value: kind,
+                      label: jobInformationLabel(kind),
+                    ),
                 ],
                 onChanged: (value) {
-                  context.read<OccupationsCubit>().selectKind(value);
+                  context.read<JobInformationCubit>().selectKind(value);
                 },
               ),
-              if (state.conflictingOccupation != null) ...[
+              if (state.conflictingJobInformation != null) ...[
                 const SizedBox(height: 20),
                 ProfileNotice(
-                  message: S.current.profileOccupationConflict(
-                    occupationLabel(state.kind!),
-                    occupationLabel(state.conflictingOccupation!.kind),
+                  message: S.current.profileJobInformationConflict(
+                    jobInformationLabel(state.kind!),
+                    jobInformationLabel(state.conflictingJobInformation!.kind),
                   ),
                   isError: true,
                 ),
@@ -51,16 +54,16 @@ class OccupationForm extends StatelessWidget {
               if (state.requiresOperatorReview) ...[
                 const SizedBox(height: 20),
                 ProfileNotice(
-                  message: S.current.profileOccupationReview(
-                    occupationLabel(state.selectedOccupation!.kind),
-                    occupationLabel(state.kind!),
+                  message: S.current.profileJobInformationReview(
+                    jobInformationLabel(state.selectedJobInformation!.kind),
+                    jobInformationLabel(state.kind!),
                   ),
                 ),
               ],
               const SizedBox(height: 20),
               CertificateInput(
-                label: S.current.profileOccupationDescription,
-                hint: S.current.profileOccupationDescriptionHint,
+                label: S.current.profileJobInformationDescription,
+                hint: S.current.profileJobInformationDescriptionHint,
                 value: state.description,
                 enabled:
                     state.submissionStatus != RequestStatus.loading &&
@@ -69,7 +72,7 @@ class OccupationForm extends StatelessWidget {
                     ? S.current.profileDescriptionRequired
                     : null,
                 onChanged: (value) {
-                  context.read<OccupationsCubit>().updateDescription(value);
+                  context.read<JobInformationCubit>().updateDescription(value);
                 },
               ),
             ],

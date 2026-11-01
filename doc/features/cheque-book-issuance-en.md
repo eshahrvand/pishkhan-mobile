@@ -53,3 +53,7 @@ Figma file `nYQNyZdSs98lwymCpt5Sag`, node prefix `28060:`:
 
 The production bank/registry/document/payment adapters remain unconnected.
 A complete mock UI flow does not imply that actual bank issuance is available.
+
+Shared address editor migration is recorded in [phase 5](../profile/phase-5-review.md). Its
+`ServiceRegistry.openAddressEditor` entry/result contract and this flow’s existing
+address inputs, cancellation and validation remain unchanged.

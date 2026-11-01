@@ -58,7 +58,7 @@ enum DashboardService {
   walletHistory('wallet-history'),
   walletDeposit('wallet-deposit'),
   changeIdentity('identity-change'),
-  occupation('identity-occupation'),
+  jobInformation('identity-occupation'),
   addresses('identity-addresses'),
   changePhone('identity-phone'),
   requests('requests-list');
@@ -124,7 +124,7 @@ enum DashboardService {
   static const identities = [
     changePhone,
     addresses,
-    occupation,
+    jobInformation,
     changeIdentity,
   ];
   static const requestServices = [requests];
@@ -178,7 +178,7 @@ enum DashboardService {
     walletHistory => S.current.dashboardWalletHistory,
     walletDeposit => S.current.dashboardWalletDeposit,
     changeIdentity => S.current.dashboardChangeIdentity,
-    occupation => S.current.dashboardOccupation,
+    jobInformation => S.current.dashboardJobInformation,
     addresses => S.current.dashboardAddresses,
     changePhone => S.current.dashboardChangePhone,
     requests => S.current.dashboardRequests,

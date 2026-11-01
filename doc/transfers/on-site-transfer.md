@@ -142,3 +142,7 @@ Optional visual captures: `CAPTURE_CERTIFICATE_PREVIEWS=1 flutter test
 selection result; successful builds are not a claim that the native document
 picker or Safari file chooser was exercised on a device. iOS device execution
 remains unverified.
+
+Shared address editor migration is recorded in [phase 5](../profile/phase-5-review.md). Its
+`ServiceRegistry.openAddressEditor` entry/result contract and this flow’s existing
+address inputs, cancellation and validation remain unchanged.

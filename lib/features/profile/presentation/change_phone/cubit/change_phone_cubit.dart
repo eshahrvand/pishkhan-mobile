@@ -22,34 +22,27 @@ class ChangePhoneCubit extends Cubit<ChangePhoneState> {
   }) : super(initialState);
   final repository = getIt<PersonalInformationRepository>();
   Timer? _timer;
-  Future<void> fetchSettings() {
-    emit(
-      state.copyWith(
-        settingsStatus: RequestStatus.loading,
-        failure: null,
-        message: null,
-      ),
-    );
-    return repository.fetchPhoneSettings().then((result) {
-      switch (result) {
-        case Success(:final data):
-          emit(
-            state.copyWith(
-              settingsStatus: RequestStatus.success,
-              settings: data,
-              walletSufficient: data.walletBalanceRial >= data.feeRial,
-            ),
-          );
-        case Err(:final failure):
-          emit(
-            state.copyWith(
-              settingsStatus: RequestStatus.failure,
-              failure: failure,
-              message: getRequestErrorMessage(failure),
-            ),
-          );
-      }
-    });
+  Future<void> fetchSettings() async {
+    emit(state.copyWith(settingsStatus: RequestStatus.loading));
+    final result = await repository.fetchPhoneSettings();
+    switch (result) {
+      case Success(:final data):
+        emit(
+          state.copyWith(
+            settingsStatus: RequestStatus.success,
+            settings: data,
+            walletSufficient: data.walletBalanceRial >= data.feeRial,
+          ),
+        );
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            settingsStatus: RequestStatus.failure,
+            failure: failure,
+            message: getRequestErrorMessage(failure),
+          ),
+        );
+    }
   }
 
   void updatePhoneNumber(String value) {
@@ -73,8 +66,6 @@ class ChangePhoneCubit extends Cubit<ChangePhoneState> {
         canRequestOtp: valid,
         canSubmit: false,
         idempotencyKey: null,
-        failure: null,
-        message: null,
       ),
     );
   }
@@ -95,14 +86,12 @@ class ChangePhoneCubit extends Cubit<ChangePhoneState> {
         submissionStatus: RequestStatus.initial,
         isOtpValid: valid,
         isOtpError: normalized.isNotEmpty && !valid,
-        canSubmit:
-            valid &&
-            state.remainingSeconds > 0 &&
-            state.termsAccepted &&
-            state.walletSufficient,
+        canSubmit: _canSubmitOtp(
+          isOtpValid: valid,
+          termsAccepted: state.termsAccepted,
+          remainingSeconds: state.remainingSeconds,
+        ),
         idempotencyKey: null,
-        failure: null,
-        message: null,
       ),
     );
   }
@@ -112,53 +101,47 @@ class ChangePhoneCubit extends Cubit<ChangePhoneState> {
       state.copyWith(
         termsAccepted: value,
         canSubmit:
-            value &&
-            state.isOtpValid &&
-            state.remainingSeconds > 0 &&
             state.isPhoneNumberValid &&
-            state.walletSufficient,
+            _canSubmitOtp(
+              isOtpValid: state.isOtpValid,
+              termsAccepted: value,
+              remainingSeconds: state.remainingSeconds,
+            ),
       ),
     );
   }
 
-  Future<void> submitOtpRequest() {
-    emit(
-      state.copyWith(
-        otpRequestStatus: RequestStatus.loading,
-        failure: null,
-        message: null,
-      ),
-    );
-    return repository.requestPhoneOtp(state.phoneNumber).then((result) {
-      switch (result) {
-        case Success(:final data):
-          emit(
-            state.copyWith(
-              otpRequestStatus: RequestStatus.success,
-              challenge: data,
-              remainingSeconds: _remainingSeconds(data.expiresAt),
-              canRequestOtp: false,
-              otp: '',
-              isOtpValid: false,
-              isOtpError: false,
-              canSubmit: false,
-              idempotencyKey: null,
-            ),
-          );
-          _timer?.cancel();
-          _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-            _refreshOtpTime();
-          });
-        case Err(:final failure):
-          emit(
-            state.copyWith(
-              otpRequestStatus: RequestStatus.failure,
-              failure: failure,
-              message: getRequestErrorMessage(failure),
-            ),
-          );
-      }
-    });
+  Future<void> submitOtpRequest() async {
+    emit(state.copyWith(otpRequestStatus: RequestStatus.loading));
+    final result = await repository.requestPhoneOtp(state.phoneNumber);
+    switch (result) {
+      case Success(:final data):
+        emit(
+          state.copyWith(
+            otpRequestStatus: RequestStatus.success,
+            challenge: data,
+            remainingSeconds: _remainingSeconds(data.expiresAt),
+            canRequestOtp: false,
+            otp: '',
+            isOtpValid: false,
+            isOtpError: false,
+            canSubmit: false,
+            idempotencyKey: null,
+          ),
+        );
+        _timer?.cancel();
+        _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+          _refreshOtpTime();
+        });
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            otpRequestStatus: RequestStatus.failure,
+            failure: failure,
+            message: getRequestErrorMessage(failure),
+          ),
+        );
+    }
   }
 
   void _refreshOtpTime() {
@@ -169,18 +152,32 @@ class ChangePhoneCubit extends Cubit<ChangePhoneState> {
     emit(
       state.copyWith(
         remainingSeconds: remaining,
-        canRequestOtp:
-            remaining == 0 &&
-            state.isPhoneNumberValid &&
-            state.submissionStatus != RequestStatus.loading &&
-            state.submissionStatus != RequestStatus.success,
-        canSubmit:
-            remaining > 0 &&
-            state.isOtpValid &&
-            state.termsAccepted &&
-            state.walletSufficient,
+        canRequestOtp: _canRequestOtp(remaining, state.submissionStatus),
+        canSubmit: _canSubmitOtp(
+          isOtpValid: state.isOtpValid,
+          termsAccepted: state.termsAccepted,
+          remainingSeconds: remaining,
+        ),
       ),
     );
+  }
+
+  bool _canSubmitOtp({
+    required bool isOtpValid,
+    required bool termsAccepted,
+    required int remainingSeconds,
+  }) {
+    return isOtpValid &&
+        remainingSeconds > 0 &&
+        termsAccepted &&
+        state.walletSufficient;
+  }
+
+  bool _canRequestOtp(int remainingSeconds, RequestStatus submissionStatus) {
+    return remainingSeconds == 0 &&
+        state.isPhoneNumberValid &&
+        submissionStatus != RequestStatus.loading &&
+        submissionStatus != RequestStatus.success;
   }
 
   int _remainingSeconds(DateTime deadline) {
@@ -190,7 +187,7 @@ class ChangePhoneCubit extends Cubit<ChangePhoneState> {
     return milliseconds <= 0 ? 0 : (milliseconds / 1000).ceil();
   }
 
-  Future<void> submitPhoneChange() {
+  Future<void> submitPhoneChange() async {
     final key =
         state.idempotencyKey ??
         'phone-${DateTime.now().microsecondsSinceEpoch}';
@@ -199,66 +196,62 @@ class ChangePhoneCubit extends Cubit<ChangePhoneState> {
         submissionStatus: RequestStatus.loading,
         canRequestOtp: false,
         idempotencyKey: key,
-        failure: null,
-        message: null,
       ),
     );
-    return repository
-        .changePhone(
-          phoneNumber: state.phoneNumber,
-          otp: state.otp,
-          challengeId: state.challenge!.id,
-          idempotencyKey: key,
-        )
-        .then((result) {
-          switch (result) {
-            case Success():
-              _timer?.cancel();
-              emit(
-                state.copyWith(
-                  submissionStatus: RequestStatus.success,
-                  canSubmit: false,
-                  canRequestOtp: false,
-                  otp: '',
-                  isOtpValid: false,
-                  effect: ChangePhoneEffect.submitted,
-                  message: null,
-                ),
-              );
-            case Err(:final failure):
-              emit(
-                state.copyWith(
-                  submissionStatus: RequestStatus.failure,
-                  canRequestOtp:
-                      state.remainingSeconds == 0 && state.isPhoneNumberValid,
-                  failure: failure,
-                  message: getRequestErrorMessage(failure),
-                ),
-              );
-          }
-        });
+    final result = await repository.changePhone(
+      phoneNumber: state.phoneNumber,
+      otp: state.otp,
+      challengeId: state.challenge!.id,
+      idempotencyKey: key,
+    );
+    switch (result) {
+      case Success():
+        _timer?.cancel();
+        emit(
+          state.copyWith(
+            submissionStatus: RequestStatus.success,
+            canSubmit: false,
+            canRequestOtp: false,
+            otp: '',
+            isOtpValid: false,
+            effect: ChangePhoneEffect.submitted,
+          ),
+        );
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            submissionStatus: RequestStatus.failure,
+            canRequestOtp: _canRequestOtp(
+              state.remainingSeconds,
+              RequestStatus.failure,
+            ),
+            failure: failure,
+            message: getRequestErrorMessage(failure),
+          ),
+        );
+    }
   }
 
   void requestBack() {
-    emit(state.copyWith(effect: ChangePhoneEffect.confirmExit, message: null));
+    emit(state.copyWith(effect: ChangePhoneEffect.confirmExit));
   }
 
   void applyExitConfirmation(bool? confirmed) {
     if (confirmed == true) {
-      emit(state.copyWith(effect: ChangePhoneEffect.back, message: null));
+      emit(state.copyWith(effect: ChangePhoneEffect.back));
     }
   }
 
   void applySubmissionDismissal() {
-    emit(state.copyWith(effect: ChangePhoneEffect.home, message: null));
+    emit(state.copyWith(effect: ChangePhoneEffect.home));
   }
 
   void requestTerms() {
-    emit(state.copyWith(effect: ChangePhoneEffect.terms, message: null));
+    emit(state.copyWith(effect: ChangePhoneEffect.terms));
   }
 
   void requestAssistant() {
-    emit(state.copyWith(effect: ChangePhoneEffect.assistant, message: null));
+    emit(state.copyWith(effect: ChangePhoneEffect.assistant));
   }
 
   @override

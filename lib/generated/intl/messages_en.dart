@@ -621,6 +621,8 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Good morning, Mani"),
         "dashboardIdentityServices":
             MessageLookupByLibrary.simpleMessage("Personal information"),
+        "dashboardJobInformation":
+            MessageLookupByLibrary.simpleMessage("Manage occupation"),
         "dashboardLoadError": MessageLookupByLibrary.simpleMessage(
             "Could not load your information"),
         "dashboardLoading": MessageLookupByLibrary.simpleMessage("Loading…"),
@@ -636,8 +638,6 @@ class MessageLookup extends MessageLookupByLibrary {
         "dashboardMyLoans": MessageLookupByLibrary.simpleMessage("My loans"),
         "dashboardNoServices":
             MessageLookupByLibrary.simpleMessage("No services found"),
-        "dashboardOccupation":
-            MessageLookupByLibrary.simpleMessage("Manage occupation"),
         "dashboardOpenCurrent":
             MessageLookupByLibrary.simpleMessage("Open current account"),
         "dashboardPhoneBank":
@@ -1284,7 +1284,7 @@ class MessageLookup extends MessageLookupByLibrary {
             "The number must match the account holder\'s national ID"),
         "profileAddAddress":
             MessageLookupByLibrary.simpleMessage("Add new address"),
-        "profileAddOccupation":
+        "profileAddJobInformation":
             MessageLookupByLibrary.simpleMessage("Add new occupation"),
         "profileAddressType":
             MessageLookupByLibrary.simpleMessage("Address type"),
@@ -1296,9 +1296,9 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("Current number"),
         "profileDeleteAddress":
             MessageLookupByLibrary.simpleMessage("Delete address"),
-        "profileDeleteOccupation":
+        "profileDeleteJobInformation":
             MessageLookupByLibrary.simpleMessage("Delete occupation"),
-        "profileDeleteOccupationPrompt": m8,
+        "profileDeleteJobInformationPrompt": m8,
         "profileDescription":
             MessageLookupByLibrary.simpleMessage("Description"),
         "profileDescriptionRequired": MessageLookupByLibrary.simpleMessage(
@@ -1306,36 +1306,37 @@ class MessageLookup extends MessageLookupByLibrary {
         "profileDesigner": MessageLookupByLibrary.simpleMessage("Designer"),
         "profileEditAddress":
             MessageLookupByLibrary.simpleMessage("Edit address"),
-        "profileEditOccupation":
+        "profileEditJobInformation":
             MessageLookupByLibrary.simpleMessage("Edit occupation"),
         "profileHome": MessageLookupByLibrary.simpleMessage("Home"),
         "profileHomemaker": MessageLookupByLibrary.simpleMessage("Homemaker"),
+        "profileJobInformation":
+            MessageLookupByLibrary.simpleMessage("Occupation"),
+        "profileJobInformationConflict": m9,
+        "profileJobInformationDescription":
+            MessageLookupByLibrary.simpleMessage("Occupation description"),
+        "profileJobInformationDescriptionHint":
+            MessageLookupByLibrary.simpleMessage(
+                "Enter your occupation description"),
+        "profileJobInformationEmpty":
+            MessageLookupByLibrary.simpleMessage("No occupations yet"),
+        "profileJobInformationHint":
+            MessageLookupByLibrary.simpleMessage("Select your occupation"),
+        "profileJobInformationNotice": MessageLookupByLibrary.simpleMessage(
+            "Your new occupation will be visible within 3 hours after submitting the request."),
+        "profileJobInformationQueued": MessageLookupByLibrary.simpleMessage(
+            "Your occupation request was submitted and will appear after review."),
+        "profileJobInformationReview": m10,
         "profileLabel": MessageLookupByLibrary.simpleMessage("Profile"),
         "profileMinimumAddress": MessageLookupByLibrary.simpleMessage(
             "At least one home address is required. Register another home address before changing this address to work or deleting it."),
-        "profileMinimumOccupation": MessageLookupByLibrary.simpleMessage(
+        "profileMinimumJobInformation": MessageLookupByLibrary.simpleMessage(
             "At least one registered occupation is required. You can edit this occupation instead of deleting it."),
         "profileMissingResidence":
             MessageLookupByLibrary.simpleMessage("Not in residence registry"),
         "profileNewPhone": MessageLookupByLibrary.simpleMessage("New number"),
         "profileNewPhoneHint": MessageLookupByLibrary.simpleMessage(
             "Enter your new mobile number"),
-        "profileOccupation": MessageLookupByLibrary.simpleMessage("Occupation"),
-        "profileOccupationConflict": m9,
-        "profileOccupationDescription":
-            MessageLookupByLibrary.simpleMessage("Occupation description"),
-        "profileOccupationDescriptionHint":
-            MessageLookupByLibrary.simpleMessage(
-                "Enter your occupation description"),
-        "profileOccupationHint":
-            MessageLookupByLibrary.simpleMessage("Select your occupation"),
-        "profileOccupationNotice": MessageLookupByLibrary.simpleMessage(
-            "Your new occupation will be visible within 3 hours after submitting the request."),
-        "profileOccupationQueued": MessageLookupByLibrary.simpleMessage(
-            "Your occupation request was submitted and will appear after review."),
-        "profileOccupationReview": m10,
-        "profileOccupationsEmpty":
-            MessageLookupByLibrary.simpleMessage("No occupations yet"),
         "profileOperationError": MessageLookupByLibrary.simpleMessage(
             "The operation failed. Please try again."),
         "profileOtpExpired": MessageLookupByLibrary.simpleMessage(

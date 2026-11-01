@@ -12,7 +12,7 @@ import 'package:pishkhan_mobile/features/profile/domain/entities/personal_inform
 import 'package:pishkhan_mobile/features/profile/domain/repositories/personal_information_repository.dart';
 import 'package:pishkhan_mobile/features/profile/presentation/addresses/cubit/addresses_cubit.dart';
 import 'package:pishkhan_mobile/features/profile/presentation/change_phone/cubit/change_phone_cubit.dart';
-import 'package:pishkhan_mobile/features/profile/presentation/occupations/cubit/occupations_cubit.dart';
+import 'package:pishkhan_mobile/features/profile/presentation/job_information/cubit/job_information_cubit.dart';
 
 void main() {
   late MockPersonalInformationRepository repository;
@@ -27,16 +27,20 @@ void main() {
     const addressesState = AddressesState.initial(
       effect: AddressEffect.minimumAddress,
     );
-    const occupationsState = OccupationsState.initial(description: 'draft');
+    const jobInformationState = JobInformationState.initial(
+      description: 'draft',
+    );
     final phone = ChangePhoneCubit(initialState: phoneState);
     final addresses = AddressesCubit(initialState: addressesState);
-    final occupations = OccupationsCubit(initialState: occupationsState);
+    final jobInformation = JobInformationCubit(
+      initialState: jobInformationState,
+    );
     expect(phone.state, phoneState);
     expect(addresses.state, addressesState);
-    expect(occupations.state, occupationsState);
+    expect(jobInformation.state, jobInformationState);
     await phone.close();
     await addresses.close();
-    await occupations.close();
+    await jobInformation.close();
   });
   test('phone validates live, rejects unchanged number, and resets challenge on change', () async {
     final cubit = ChangePhoneCubit();
@@ -161,7 +165,7 @@ void main() {
       expect(cubit.state.addresses.last.status, ResidenceStatus.missing);
     },
   );
-  test('address review retries clear errors and keep concurrent results independent', () async {
+  test('address review retries retain the latest error and keep concurrent results independent', () async {
     final controlled = ControlledAddressReviewRepository();
     await getIt.unregister<PersonalInformationRepository>();
     getIt.registerSingleton<PersonalInformationRepository>(controlled);
@@ -200,8 +204,8 @@ void main() {
       cubit.state.reviewStatuses[second.address.id],
       RequestStatus.loading,
     );
-    expect(cubit.state.failure, isNull);
-    expect(cubit.state.message, isNull);
+    expect(cubit.state.failure, const DataFailure('review.failed'));
+    expect(cubit.state.message, isNotNull);
     controlled.reviews[first.address.id]!.complete(
       const Success(ResidenceStatus.valid),
     );
@@ -259,27 +263,29 @@ void main() {
     );
   });
   test('last occupation cannot be removed in the flow or repository', () async {
-    final cubit = OccupationsCubit();
+    final cubit = JobInformationCubit();
     addTearDown(cubit.close);
-    await cubit.fetchOccupations();
-    final first = cubit.state.occupations.first;
-    cubit.requestOccupationActions(first);
-    cubit.applyOccupationAction(OccupationAction.delete);
-    expect(cubit.state.effect, OccupationEffect.confirmDeletion);
+    await cubit.fetchJobInformation();
+    final first = cubit.state.jobInformation.first;
+    cubit.requestJobInformationActions(first);
+    cubit.applyJobInformationAction(JobInformationAction.delete);
+    expect(cubit.state.effect, JobInformationEffect.confirmDeletion);
     expect(
-      (await repository.fetchOccupations() as Success<List<ProfileOccupation>>)
+      (await repository.fetchJobInformation()
+              as Success<List<ProfileJobInformation>>)
           .data,
       hasLength(2),
     );
     await cubit.submitDeletion(first);
-    final last = cubit.state.occupations.single;
-    cubit.requestOccupationActions(last);
-    cubit.applyOccupationAction(OccupationAction.delete);
-    expect(cubit.state.effect, OccupationEffect.minimumOccupation);
-    expect(cubit.state.occupations.single, last);
-    expect(await repository.deleteOccupation(last.id), isA<Err<void>>());
+    final last = cubit.state.jobInformation.single;
+    cubit.requestJobInformationActions(last);
+    cubit.applyJobInformationAction(JobInformationAction.delete);
+    expect(cubit.state.effect, JobInformationEffect.minimumJobInformation);
+    expect(cubit.state.jobInformation.single, last);
+    expect(await repository.deleteJobInformation(last.id), isA<Err<void>>());
     expect(
-      (await repository.fetchOccupations() as Success<List<ProfileOccupation>>)
+      (await repository.fetchJobInformation()
+              as Success<List<ProfileJobInformation>>)
           .data
           .single,
       last,
@@ -358,49 +364,49 @@ void main() {
   test(
     'new occupation conflict blocks submit; editing homemaker requests review',
     () async {
-      final cubit = OccupationsCubit();
+      final cubit = JobInformationCubit();
       addTearDown(cubit.close);
-      await cubit.fetchOccupations();
-      cubit.requestNewOccupation();
-      cubit.selectKind(OccupationKind.homemaker);
+      await cubit.fetchJobInformation();
+      cubit.requestNewJobInformation();
+      cubit.selectKind(JobInformationKind.homemaker);
       cubit.updateDescription('test');
       cubit.updateTerms(true);
-      expect(cubit.state.conflictingOccupation, isNotNull);
+      expect(cubit.state.conflictingJobInformation, isNotNull);
       expect(cubit.state.canSubmit, isFalse);
-      cubit.selectKind(OccupationKind.professor);
-      expect(cubit.state.conflictingOccupation, isNull);
+      cubit.selectKind(JobInformationKind.professor);
+      expect(cubit.state.conflictingJobInformation, isNull);
       expect(cubit.state.canSubmit, isTrue);
-      cubit.requestOccupationActions(cubit.state.occupations.last);
-      cubit.applyOccupationAction(OccupationAction.edit);
+      cubit.requestJobInformationActions(cubit.state.jobInformation.last);
+      cubit.applyJobInformationAction(JobInformationAction.edit);
       expect(cubit.state.description, 'مدرس تجربه کاربری');
       expect(cubit.state.canSubmit, isFalse);
-      cubit.selectKind(OccupationKind.homemaker);
+      cubit.selectKind(JobInformationKind.homemaker);
       cubit.updateTerms(true);
       expect(cubit.state.requiresOperatorReview, isTrue);
-      expect(cubit.state.conflictingOccupation, isNull);
+      expect(cubit.state.conflictingJobInformation, isNull);
       expect(cubit.state.canSubmit, isTrue);
     },
   );
   test('occupation submission queues review and returns to list; delete removes selected record', () async {
-    final cubit = OccupationsCubit();
+    final cubit = JobInformationCubit();
     addTearDown(cubit.close);
-    await cubit.fetchOccupations();
-    cubit.requestNewOccupation();
-    cubit.selectKind(OccupationKind.professor);
+    await cubit.fetchJobInformation();
+    cubit.requestNewJobInformation();
+    cubit.selectKind(JobInformationKind.professor);
     cubit.updateDescription('استاد');
     cubit.updateTerms(true);
-    await cubit.submitOccupation();
-    expect(cubit.state.effect, OccupationEffect.submitted);
+    await cubit.submitJobInformation();
+    expect(cubit.state.effect, JobInformationEffect.submitted);
     expect(cubit.state.canSubmit, isFalse);
-    expect(cubit.state.occupations, hasLength(2));
+    expect(cubit.state.jobInformation, hasLength(2));
     cubit.applySubmissionDismissal();
-    expect(cubit.state.step, OccupationStep.list);
-    cubit.requestOccupationActions(cubit.state.occupations.first);
-    cubit.applyOccupationAction(OccupationAction.delete);
-    expect(cubit.state.effect, OccupationEffect.confirmDeletion);
-    expect(cubit.state.occupations, hasLength(2));
-    await cubit.submitDeletion(cubit.state.selectedOccupation!);
-    expect(cubit.state.occupations.single.kind, OccupationKind.teacher);
+    expect(cubit.state.step, JobInformationStep.list);
+    cubit.requestJobInformationActions(cubit.state.jobInformation.first);
+    cubit.applyJobInformationAction(JobInformationAction.delete);
+    expect(cubit.state.effect, JobInformationEffect.confirmDeletion);
+    expect(cubit.state.jobInformation, hasLength(2));
+    await cubit.submitDeletion(cubit.state.selectedJobInformation!);
+    expect(cubit.state.jobInformation.single.kind, JobInformationKind.teacher);
   });
 }
 

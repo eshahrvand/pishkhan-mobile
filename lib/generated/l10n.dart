@@ -1621,10 +1621,10 @@ class S {
   }
 
   /// `مدیریت شغل`
-  String get dashboardOccupation {
+  String get dashboardJobInformation {
     return Intl.message(
       'مدیریت شغل',
-      name: 'dashboardOccupation',
+      name: 'dashboardJobInformation',
       desc: '',
       args: [],
     );
@@ -8121,70 +8121,70 @@ class S {
   }
 
   /// `افزودن شغل جدید`
-  String get profileAddOccupation {
+  String get profileAddJobInformation {
     return Intl.message(
       'افزودن شغل جدید',
-      name: 'profileAddOccupation',
+      name: 'profileAddJobInformation',
       desc: '',
       args: [],
     );
   }
 
   /// `ویرایش شغل`
-  String get profileEditOccupation {
+  String get profileEditJobInformation {
     return Intl.message(
       'ویرایش شغل',
-      name: 'profileEditOccupation',
+      name: 'profileEditJobInformation',
       desc: '',
       args: [],
     );
   }
 
   /// `حذف شغل`
-  String get profileDeleteOccupation {
+  String get profileDeleteJobInformation {
     return Intl.message(
       'حذف شغل',
-      name: 'profileDeleteOccupation',
+      name: 'profileDeleteJobInformation',
       desc: '',
       args: [],
     );
   }
 
   /// `شغل`
-  String get profileOccupation {
+  String get profileJobInformation {
     return Intl.message(
       'شغل',
-      name: 'profileOccupation',
+      name: 'profileJobInformation',
       desc: '',
       args: [],
     );
   }
 
   /// `شغل خود را انتخاب کنید`
-  String get profileOccupationHint {
+  String get profileJobInformationHint {
     return Intl.message(
       'شغل خود را انتخاب کنید',
-      name: 'profileOccupationHint',
+      name: 'profileJobInformationHint',
       desc: '',
       args: [],
     );
   }
 
   /// `شرح شغل`
-  String get profileOccupationDescription {
+  String get profileJobInformationDescription {
     return Intl.message(
       'شرح شغل',
-      name: 'profileOccupationDescription',
+      name: 'profileJobInformationDescription',
       desc: '',
       args: [],
     );
   }
 
   /// `شرح شغل خود را وارد کنید`
-  String get profileOccupationDescriptionHint {
+  String get profileJobInformationDescriptionHint {
     return Intl.message(
       'شرح شغل خود را وارد کنید',
-      name: 'profileOccupationDescriptionHint',
+      name: 'profileJobInformationDescriptionHint',
       desc: '',
       args: [],
     );
@@ -8201,50 +8201,50 @@ class S {
   }
 
   /// `حداکثر تا ۳ ساعت پس از ثبت درخواست شغل جدید قابل مشاهده خواهد بود`
-  String get profileOccupationNotice {
+  String get profileJobInformationNotice {
     return Intl.message(
       'حداکثر تا ۳ ساعت پس از ثبت درخواست شغل جدید قابل مشاهده خواهد بود',
-      name: 'profileOccupationNotice',
+      name: 'profileJobInformationNotice',
       desc: '',
       args: [],
     );
   }
 
   /// `عنوان شغلی انتخاب شده ({selected}) از گروه فاقدین شغل است و با شغل قبلی شما ({existing}) نمی‌تواند به صورت همزمان انتخاب شود.`
-  String profileOccupationConflict(String selected, String existing) {
+  String profileJobInformationConflict(String selected, String existing) {
     return Intl.message(
       'عنوان شغلی انتخاب شده ($selected) از گروه فاقدین شغل است و با شغل قبلی شما ($existing) نمی‌تواند به صورت همزمان انتخاب شود.',
-      name: 'profileOccupationConflict',
+      name: 'profileJobInformationConflict',
       desc: '',
       args: [selected, existing],
     );
   }
 
   /// `برای تغییر از عنوان شغلی {previous} به {selected} نیاز به بررسی اپراتور است که پس از تایید تغییرات در پنل کاربری شما قابل مشاهده خواهد بود.`
-  String profileOccupationReview(String previous, String selected) {
+  String profileJobInformationReview(String previous, String selected) {
     return Intl.message(
       'برای تغییر از عنوان شغلی $previous به $selected نیاز به بررسی اپراتور است که پس از تایید تغییرات در پنل کاربری شما قابل مشاهده خواهد بود.',
-      name: 'profileOccupationReview',
+      name: 'profileJobInformationReview',
       desc: '',
       args: [previous, selected],
     );
   }
 
   /// `درخواست شغل ثبت شد و پس از بررسی قابل مشاهده خواهد بود.`
-  String get profileOccupationQueued {
+  String get profileJobInformationQueued {
     return Intl.message(
       'درخواست شغل ثبت شد و پس از بررسی قابل مشاهده خواهد بود.',
-      name: 'profileOccupationQueued',
+      name: 'profileJobInformationQueued',
       desc: '',
       args: [],
     );
   }
 
   /// `شغلی ثبت نشده است`
-  String get profileOccupationsEmpty {
+  String get profileJobInformationEmpty {
     return Intl.message(
       'شغلی ثبت نشده است',
-      name: 'profileOccupationsEmpty',
+      name: 'profileJobInformationEmpty',
       desc: '',
       args: [],
     );
@@ -8341,20 +8341,20 @@ class S {
   }
 
   /// `از حذف شغل خود ({occupation}) مطمئن هستید؟`
-  String profileDeleteOccupationPrompt(String occupation) {
+  String profileDeleteJobInformationPrompt(String occupation) {
     return Intl.message(
       'از حذف شغل خود ($occupation) مطمئن هستید؟',
-      name: 'profileDeleteOccupationPrompt',
+      name: 'profileDeleteJobInformationPrompt',
       desc: '',
       args: [occupation],
     );
   }
 
   /// `وجود حداقل یک شغل ثبت شده در پیشخوان الزامی‌است. شما می‌توانید بجای حذف این شغل آن را ویرایش کنید.`
-  String get profileMinimumOccupation {
+  String get profileMinimumJobInformation {
     return Intl.message(
       'وجود حداقل یک شغل ثبت شده در پیشخوان الزامی‌است. شما می‌توانید بجای حذف این شغل آن را ویرایش کنید.',
-      name: 'profileMinimumOccupation',
+      name: 'profileMinimumJobInformation',
       desc: '',
       args: [],
     );

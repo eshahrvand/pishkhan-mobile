@@ -164,7 +164,7 @@
   "dashboardWalletHistory": "گردش کیف پول",
   "dashboardWalletDeposit": "تغییر سپرده متصل به کیف",
   "dashboardChangeIdentity": "تغییر مشخصات هویتی",
-  "dashboardOccupation": "مدیریت شغل",
+  "dashboardJobInformation": "مدیریت شغل",
   "dashboardAddresses": "مدیریت آدرس",
   "dashboardChangePhone": "تغییر شماره تلفن همراه",
   "dashboardRequests": "درخواست‌های من",
@@ -869,17 +869,17 @@
   "profileAddressesEmpty": "آدرسی ثبت نشده است",
   "profileReviewError": "استعلام انجام نشد؛ دوباره بررسی کنید",
   "profileOperationError": "عملیات انجام نشد؛ دوباره تلاش کنید",
-  "profileAddOccupation": "افزودن شغل جدید",
-  "profileEditOccupation": "ویرایش شغل",
-  "profileDeleteOccupation": "حذف شغل",
-  "profileOccupation": "شغل",
-  "profileOccupationHint": "شغل خود را انتخاب کنید",
-  "profileOccupationDescription": "شرح شغل",
-  "profileOccupationDescriptionHint": "شرح شغل خود را وارد کنید",
+  "profileAddJobInformation": "افزودن شغل جدید",
+  "profileEditJobInformation": "ویرایش شغل",
+  "profileDeleteJobInformation": "حذف شغل",
+  "profileJobInformation": "شغل",
+  "profileJobInformationHint": "شغل خود را انتخاب کنید",
+  "profileJobInformationDescription": "شرح شغل",
+  "profileJobInformationDescriptionHint": "شرح شغل خود را وارد کنید",
   "profileDescriptionRequired": "شرح شغل را وارد کنید",
-  "profileOccupationNotice": "حداکثر تا ۳ ساعت پس از ثبت درخواست شغل جدید قابل مشاهده خواهد بود",
-  "profileOccupationConflict": "عنوان شغلی انتخاب شده ({selected}) از گروه فاقدین شغل است و با شغل قبلی شما ({existing}) نمی‌تواند به صورت همزمان انتخاب شود.",
-  "@profileOccupationConflict": {
+  "profileJobInformationNotice": "حداکثر تا ۳ ساعت پس از ثبت درخواست شغل جدید قابل مشاهده خواهد بود",
+  "profileJobInformationConflict": "عنوان شغلی انتخاب شده ({selected}) از گروه فاقدین شغل است و با شغل قبلی شما ({existing}) نمی‌تواند به صورت همزمان انتخاب شود.",
+  "@profileJobInformationConflict": {
     "placeholders": {
       "selected": {
         "type": "String"
@@ -889,8 +889,8 @@
       }
     }
   },
-  "profileOccupationReview": "برای تغییر از عنوان شغلی {previous} به {selected} نیاز به بررسی اپراتور است که پس از تایید تغییرات در پنل کاربری شما قابل مشاهده خواهد بود.",
-  "@profileOccupationReview": {
+  "profileJobInformationReview": "برای تغییر از عنوان شغلی {previous} به {selected} نیاز به بررسی اپراتور است که پس از تایید تغییرات در پنل کاربری شما قابل مشاهده خواهد بود.",
+  "@profileJobInformationReview": {
     "placeholders": {
       "previous": {
         "type": "String"
@@ -900,8 +900,8 @@
       }
     }
   },
-  "profileOccupationQueued": "درخواست شغل ثبت شد و پس از بررسی قابل مشاهده خواهد بود.",
-  "profileOccupationsEmpty": "شغلی ثبت نشده است",
+  "profileJobInformationQueued": "درخواست شغل ثبت شد و پس از بررسی قابل مشاهده خواهد بود.",
+  "profileJobInformationEmpty": "شغلی ثبت نشده است",
   "profileTitle": "عنوان",
   "profileDescription": "شرح",
   "profileDesigner": "طراح",
@@ -911,15 +911,15 @@
   "profileSubmit": "ثبت درخواست",
   "profileResidenceRegistry": " سامانه اسکان و املاک",
   "profileResidenceRegistered": " ثبت شده باشند.",
-  "profileDeleteOccupationPrompt": "از حذف شغل خود ({occupation}) مطمئن هستید؟",
-  "@profileDeleteOccupationPrompt": {
+  "profileDeleteJobInformationPrompt": "از حذف شغل خود ({occupation}) مطمئن هستید؟",
+  "@profileDeleteJobInformationPrompt": {
     "placeholders": {
       "occupation": {
         "type": "String"
       }
     }
   },
-  "profileMinimumOccupation": "وجود حداقل یک شغل ثبت شده در پیشخوان الزامی‌است. شما می‌توانید بجای حذف این شغل آن را ویرایش کنید.",
+  "profileMinimumJobInformation": "وجود حداقل یک شغل ثبت شده در پیشخوان الزامی‌است. شما می‌توانید بجای حذف این شغل آن را ویرایش کنید.",
   "profileMinimumAddress": "وجود حداقل یک آدرس خانه در پیشخوان الزامی‌است. لطفا ابتدا آدرس خانه خود را ثبت کرده سپس اقدام به ویرایش یا حذف این آدرس کنید.",
   "modernActivate": "فعالسازی موبایل بانک",
   "modernActivationIntro": "برای ورود به همراه بانک رسالت نیاز به فعالسازی آن دارید.",
