@@ -204,7 +204,10 @@ void main() {
         }
         await loadTab(cubit, tab);
         expect(snapshot(cubit.state, tab).items, hasLength(1));
-        expect(snapshot(cubit.state, tab).failure, isNull);
+        expect(
+          snapshot(cubit.state, tab).failure,
+          const DataFailure('offline'),
+        );
         expect(cubit.state.homeStatus, RequestStatus.initial);
       },
     );

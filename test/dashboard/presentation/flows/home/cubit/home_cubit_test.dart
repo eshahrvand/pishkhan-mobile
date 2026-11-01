@@ -101,8 +101,8 @@ void main() {
     final retry = Completer<Result<List<BankDeposit>>>();
     repository.depositQueue.add(retry);
     final pending = cubit.fetchDeposits();
-    expect(cubit.state.message, isNull);
-    expect(cubit.state.failure, isNull);
+    expect(cubit.state.message, 'درخواست انجام نشد. دوباره تلاش کنید.');
+    expect(cubit.state.failure, const DataFailure('unknown-bank-code'));
     expect(cubit.state.cardsStatus, RequestStatus.failure);
     retry.complete(const Err(DataFailure('unknown-bank-code')));
     await pending;
@@ -110,7 +110,7 @@ void main() {
     expect(notifications, hasLength(3));
     expect(notifications.last, notifications[1]);
     cubit.requestFavoritePicker();
-    expect(cubit.state.message, isNull);
+    expect(cubit.state.message, 'درخواست انجام نشد. دوباره تلاش کنید.');
     expect(cubit.state.effect, isA<HomeFavoritePickerRequested>());
     cubit.consumeHomeInteraction();
     expect(cubit.state.effect, isNull);
@@ -201,7 +201,7 @@ void main() {
       empty.complete(const Success(null));
       await retry;
       expect(cubit.state.homeStatus, RequestStatus.success);
-      expect(cubit.state.failure, isNull);
+      expect(cubit.state.failure, const DataFailure('offline'));
       expect(cubit.state.homeData, isNull);
     },
   );

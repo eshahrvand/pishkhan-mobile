@@ -127,8 +127,12 @@ including unexpected exceptions, must be returned as `Err`.
 ## Verification
 
 Address residence reviews keep a separate `RequestStatus` per address in
-`reviewStatuses`. Each attempt publishes loading and clears the shared latest
-failure/message before calling the repository. Success and failure update only
+`reviewStatuses`. Current code publishes loading and clears failure/message
+before calling the repository. Those clears support the legacy message-first
+handler, not repeated-error detection. Under
+[contract v1.20](../ui-cubit-state-agent-rules-en.md), migrate listeners and real
+consumers together; notification follows each address's own status transition,
+with no blanket clearing requirement. Success and failure update only
 that address's request status; concurrent reviews retain their independent
 results. The screen notifies on each entering-failure transition, including
 identical failures after retry, without a duplicate inline request-error message.

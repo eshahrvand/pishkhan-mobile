@@ -14,6 +14,20 @@ Historical multi-Cubit layouts, repository constructor parameters, generation
 counters, disposal guards and `.then` examples are superseded by the code and
 rules described here.
 
+## Approved notification model — implemented for this flow
+
+The owner-approved [contract v1.20](../ui-cubit-state-agent-rules-en.md) uses
+per-operation terminal status transitions for request feedback and independent
+typed-effect execution. Failure/message may retain the latest recorded error;
+there is no blanket clearing requirement. Success feedback, when required, uses
+localized UI success text. Clears remain only for a real consumer/reset need.
+
+The initial documentation-first rule is now implemented for this flow. Each
+request-failure listener observes only its operation's entering-failure transition;
+typed effects execute independently of retained message text. Existing success
+behavior is preserved without adding new success toasts. Earlier phase test
+results below remain historical; the notification migration has its own checks.
+
 ## 1. Ownership and scope
 
 DashboardScreen directly constructs HomeCubit and calls `fetchDashboard()` in
@@ -138,10 +152,13 @@ flow notifier is introduced.
 ## 8. Failures and loading
 
 Independent home/cards/deposits/loans statuses use the existing RequestStatus.
-Loading clears the shared latest failure/message. Err publishes its own failure
-status and Persian message prepared by the core Presentation mapper. Listeners
+Loading retains the latest failure/message. Err publishes its own failure status
+and Persian message prepared by the core Presentation mapper. Four focused failure
+listeners
 observe entering-failure status transitions, so concurrent failures and repeated
-identical retries each notify. Other typed commands clear an old message.
+identical retries each notify. The independent typed-effect listener executes
+commands without reading or clearing an old message. HomeCubit now has no
+failure/message null-clears; unrelated data/selection resets are unchanged.
 
 UseCases preserve repository Err values and catch unexpected exceptions through
 the existing UnexpectedFailure boundary. Item loads reject blank/duplicate IDs
@@ -254,6 +271,42 @@ UseCase call and one Result switch. No State-publication intermediary exists.
 Duplication review: 8 repeated calculation/predicate families found, 8 resolved;
 independent-event emits retained under owner approval. Flow review: 5 redundant
 Home loading clears removed; banking selection/action invalidation preserved.
+
+## Status-driven notification migration — phases 1 and 2
+
+The approved v1.20 model is now implemented for Login and Dashboard. Each request
+has its own focused entering-failure subscription, while the existing typed-effect
+listener executes independently of retained error text. No success toast was added;
+Login completion and existing service feedback retain their previous behavior.
+State structure, UseCases, payloads, routing and unrelated resets are unchanged.
+
+Across the two Cubits, 35 legacy null-clears were removed. CAPTCHA's existing
+failure clear is retained to dismiss guest change-phone's inline notice; the
+inline-only unavailable branch now explicitly clears message so it cannot reuse
+an earlier API message when its legacy OTP failure status changes. The Auth
+failure-display method accepts the absent payload only after a status-triggered
+subscription. Its effect handler never inspects message. Final explicit null
+assignments for failure/message total 2, down from 36.
+
+Behavioral checks cover identical retry errors, retained text without replay on
+input/loading/success, OTP focus and completion after failure, menu opening after
+failure, concurrent dashboard errors followed by another operation's success,
+and guest inline feedback/refresh. The dashboard test scope was updated to keep
+request feedback separate from adapted host effects as well.
+
+Verification: 76 focused tests passed; the expanded phase-1/phase-2 regression
+command passed 220 tests with 1 Web-only skip. Flutter analyze reported no issues;
+git diff --check passed. Synthetic transports/repositories were used; no live-bank,
+browser or device acceptance run is claimed.
+
+```sh
+flutter test test/dashboard test/core/di test/core/router test/app_drawer_test.dart test/auth test/core/security test/core/network
+flutter analyze
+```
+
+Duplication review: 0 new repeated operations found, 0 resolved; all 7 request
+owners remain unique. Flow review: 35 clears removed, 1 inline-feedback clear
+retained and 1 inline-only payload clear added. No other reset group was changed.
 
 ## 12. State Management with Cubit
 

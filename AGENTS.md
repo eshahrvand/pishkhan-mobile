@@ -41,6 +41,11 @@ Core boundaries that must remain visible during implementation:
   Shared request operations have one owner with delegation. Repeated fields
   alone do not make independent events one operation; keep their explicit emits
   and share pure calculations/predicates (owner clarification, 2026-11-01).
+- Request feedback follows per-operation terminal status transitions. Each failure
+  publishes its status, failure and prepared message together; retained error text
+  is not an event. Typed effects execute independently of message presence. Do not
+  routinely clear failure/message on loading, success or commands; preserve actual
+  consumer/reset needs. Migrate listeners before removing their legacy clears.
 - Builder renders; Listener executes prepared Flutter effects; Consumer is for
   a section needing both. Multi-case/substantial listener bodies use named UI
   methods with focused listenWhen. No requests or analytics in build.

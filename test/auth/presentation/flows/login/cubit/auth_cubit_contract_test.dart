@@ -103,7 +103,7 @@ void main() {
     await cubit.fetchCaptcha();
     expect(cubit.state.captchaStatus, RequestStatus.success);
     expect(cubit.state.failure, isNull);
-    expect(cubit.state.message, isNull);
+    expect(cubit.state.message, 'ارتباط با سرور برقرار نشد. دوباره تلاش کنید.');
     expect(cubit.state.effect, isNull);
   });
 
@@ -124,49 +124,46 @@ void main() {
     expect(cubit.state.effect, isNull);
   });
 
-  test(
-    'repeated OTP rejection publishes each message and retry clears it',
-    () async {
-      final repository = getIt<AuthRepository>() as FakeAuthRepository;
-      repository.otpFailure = const DataFailure('auth.wrong_captcha');
-      final cubit = createCubit();
-      await fillIdentity(cubit);
+  test('repeated OTP rejection notifies by status and retry retains the last error', () async {
+    final repository = getIt<AuthRepository>() as FakeAuthRepository;
+    repository.otpFailure = const DataFailure('auth.wrong_captcha');
+    final cubit = createCubit();
+    await fillIdentity(cubit);
 
-      final notifications = <String>[];
-      var previous = cubit.state;
-      final subscription = cubit.stream.listen((current) {
-        if (previous.otpRequestStatus != current.otpRequestStatus &&
-            current.otpRequestStatus == RequestStatus.failure) {
-          notifications.add(current.message!);
-        }
-        previous = current;
-      });
-      addTearDown(subscription.cancel);
+    final notifications = <String>[];
+    var previous = cubit.state;
+    final subscription = cubit.stream.listen((current) {
+      if (previous.otpRequestStatus != current.otpRequestStatus &&
+          current.otpRequestStatus == RequestStatus.failure) {
+        notifications.add(current.message!);
+      }
+      previous = current;
+    });
+    addTearDown(subscription.cancel);
 
-      await cubit.submitOtpRequest();
-      expect(cubit.state.message, 'کد امنیتی اشتباه است.');
-      cubit.updateCaptcha('654321');
-      await Future<void>.delayed(Duration.zero);
-      expect(notifications, ['کد امنیتی اشتباه است.']);
+    await cubit.submitOtpRequest();
+    expect(cubit.state.message, 'کد امنیتی اشتباه است.');
+    cubit.updateCaptcha('654321');
+    await Future<void>.delayed(Duration.zero);
+    expect(notifications, ['کد امنیتی اشتباه است.']);
 
-      await cubit.submitOtpRequest();
-      expect(cubit.state.message, 'کد امنیتی اشتباه است.');
-      await Future<void>.delayed(Duration.zero);
-      expect(notifications, ['کد امنیتی اشتباه است.', 'کد امنیتی اشتباه است.']);
+    await cubit.submitOtpRequest();
+    expect(cubit.state.message, 'کد امنیتی اشتباه است.');
+    await Future<void>.delayed(Duration.zero);
+    expect(notifications, ['کد امنیتی اشتباه است.', 'کد امنیتی اشتباه است.']);
 
-      repository.otpResponse = Completer<Result<LoginOtpChallenge>>();
-      final retry = cubit.submitOtpRequest();
-      expect(cubit.state.failure, isNull);
-      expect(cubit.state.message, isNull);
-      expect(cubit.state.otpRequestStatus, RequestStatus.loading);
-      repository.otpResponse!.complete(const Success(testOtpChallenge));
-      await retry;
-      expect(cubit.state.step, AuthStep.loginOtp);
-      expect(cubit.state.message, isNull);
-      expect(cubit.state.effect, isA<AuthOtpRequested>());
-      expect(notifications, hasLength(2));
-    },
-  );
+    repository.otpResponse = Completer<Result<LoginOtpChallenge>>();
+    final retry = cubit.submitOtpRequest();
+    expect(cubit.state.failure, const DataFailure('auth.wrong_captcha'));
+    expect(cubit.state.message, 'کد امنیتی اشتباه است.');
+    expect(cubit.state.otpRequestStatus, RequestStatus.loading);
+    repository.otpResponse!.complete(const Success(testOtpChallenge));
+    await retry;
+    expect(cubit.state.step, AuthStep.loginOtp);
+    expect(cubit.state.message, 'کد امنیتی اشتباه است.');
+    expect(cubit.state.effect, isA<AuthOtpRequested>());
+    expect(notifications, hasLength(2));
+  });
 
   test(
     'unknown rejection prepares a generic message without exposing its code',

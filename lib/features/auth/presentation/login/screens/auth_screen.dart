@@ -25,13 +25,15 @@ class AuthScreen extends StatelessWidget {
   final VoidCallback? onAuthenticated;
   final ValueChanged<String>? onGuestServiceRequested;
 
-  Future<void> _handleEffect(BuildContext context, AuthState state) async {
+  void _showRequestFailure(BuildContext context, AuthState state) {
+    // Guest change-phone keeps its existing inline-only failure outcome.
     if (state.message != null) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(state.message!)));
-      return;
     }
+  }
 
+  Future<void> _handleEffect(BuildContext context, AuthState state) async {
     switch (state.effect) {
       case AuthServicesRequested():
         context.read<AuthCubit>().consumeAuthInteraction();
@@ -59,16 +61,32 @@ class AuthScreen extends StatelessWidget {
     final colors = context.colors;
     return BlocProvider(
       create: (_) => AuthCubit(initialState: initialState)..fetchCaptcha(),
-      child: BlocListener<AuthCubit, AuthState>(
-        listenWhen: (previous, current) =>
-            (previous.effect != current.effect && current.effect != null) ||
-            ((previous.captchaStatus != current.captchaStatus &&
-                    current.captchaStatus == RequestStatus.failure) ||
-                (previous.otpRequestStatus != current.otpRequestStatus &&
-                    current.otpRequestStatus == RequestStatus.failure) ||
-                (previous.loginStatus != current.loginStatus &&
-                    current.loginStatus == RequestStatus.failure)),
-        listener: _handleEffect,
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<AuthCubit, AuthState>(
+            listenWhen: (previous, current) =>
+                previous.captchaStatus != current.captchaStatus &&
+                current.captchaStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<AuthCubit, AuthState>(
+            listenWhen: (previous, current) =>
+                previous.otpRequestStatus != current.otpRequestStatus &&
+                current.otpRequestStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<AuthCubit, AuthState>(
+            listenWhen: (previous, current) =>
+                previous.loginStatus != current.loginStatus &&
+                current.loginStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<AuthCubit, AuthState>(
+            listenWhen: (previous, current) =>
+                previous.effect != current.effect && current.effect != null,
+            listener: _handleEffect,
+          ),
+        ],
         child: Theme(
           data: Theme.of(context).copyWith(
             extensions: [

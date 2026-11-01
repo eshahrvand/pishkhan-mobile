@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/features/auth/presentation/login/widgets/auth_services_sheet.dart';
 import 'package:pishkhan_mobile/core/config/constant.dart';
 
 import 'dart:async';
@@ -377,7 +378,10 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(cubit.state.failure, isNull);
-      expect(cubit.state.message, isNull);
+      expect(
+        cubit.state.message,
+        'ارتباط با سرور برقرار نشد. دوباره تلاش کنید.',
+      );
       expect(cubit.state.captchaImage, isNotNull);
       expect(find.byType(SnackBar), findsNothing);
       await tester.pumpWidget(const SizedBox.shrink());
@@ -429,10 +433,18 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text(S.current.authOtpRejected), findsOneWidget);
       expect(completed, 0);
+      ScaffoldMessenger.of(tester.element(find.byType(Scaffold)))
+          .clearSnackBars();
+      await tester.pumpAndSettle();
       repository.loginResponse = null;
       await tester.tap(authControl(tester, 'submit_otp_button'));
       await tester.pumpAndSettle();
       expect(completed, 1);
+      expect(
+        cubit.state.message,
+        'رمز تأیید صحیح نیست یا اعتبار آن تمام شده است.',
+      );
+      expect(find.byType(SnackBar), findsNothing);
       await tester.pumpWidget(const SizedBox.shrink());
     },
   );
@@ -453,6 +465,42 @@ void main() {
   });
 
   testWidgets(
+    'guest inline feedback replaces an old API message and refresh dismisses it',
+    (tester) async {
+      final repository = getIt<AuthRepository>() as FakeAuthRepository;
+      final cubit = await mount(tester, state: changePhone, keyboard: false);
+      repository.captchaFailure = const DataFailure('network.connection');
+      await cubit.fetchCaptcha();
+      await tester.pumpAndSettle();
+      expect(find.byType(SnackBar), findsOneWidget);
+      ScaffoldMessenger.of(tester.element(find.byType(Scaffold)))
+          .clearSnackBars();
+      await tester.pumpAndSettle();
+
+      repository.captchaFailure = null;
+      await cubit.fetchCaptcha();
+      cubit.updateCaptcha('123456');
+      await tester.pumpAndSettle();
+      expect(
+        cubit.state.message,
+        'ارتباط با سرور برقرار نشد. دوباره تلاش کنید.',
+      );
+      await tester.tap(authControl(tester, 'request_otp_button'));
+      await tester.pumpAndSettle();
+      expect(repository.otpCalls, 0);
+      expect(cubit.state.message, isNull);
+      expect(find.byType(SnackBar), findsNothing);
+      expect(find.text(S.current.authChangePhoneUnavailable), findsOneWidget);
+
+      await cubit.fetchCaptcha();
+      await tester.pumpAndSettle();
+      expect(find.text(S.current.authChangePhoneUnavailable), findsNothing);
+      expect(find.byType(SnackBar), findsNothing);
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
+
+  testWidgets(
     'request messages are shown once per event, including identical retries',
     (tester) async {
       final repository = getIt<AuthRepository>() as FakeAuthRepository;
@@ -467,6 +515,15 @@ void main() {
       ScaffoldMessenger.of(tester.element(find.byType(Scaffold)))
           .removeCurrentSnackBar();
       await tester.pumpAndSettle();
+      await tester.tap(authControl(tester, 'auth_menu_button'));
+      await tester.pumpAndSettle();
+      expect(find.byType(AuthServicesSheet), findsOneWidget);
+      expect(cubit.state.message, 'کد امنیتی اشتباه است.');
+      expect(find.byType(SnackBar), findsNothing);
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      expect(find.byType(AuthServicesSheet), findsNothing);
+
       cubit.updateCaptcha('654321');
       await tester.pumpAndSettle();
       expect(find.byType(SnackBar), findsNothing);

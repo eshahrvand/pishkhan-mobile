@@ -48,8 +48,8 @@ class AuthCubit extends Cubit<AuthState> {
         isCaptchaValid: false,
         isCaptchaError: false,
         canRequestOtp: false,
+        // A new CAPTCHA attempt dismisses guest change-phone's inline notice.
         failure: null,
-        message: null,
       ),
     );
     final result = await fetchLoginCaptchaUseCase();
@@ -73,7 +73,7 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   void requestServices() {
-    emit(state.copyWith(effect: const AuthServicesRequested(), message: null));
+    emit(state.copyWith(effect: const AuthServicesRequested()));
   }
 
   /// A null sheet result is dismissal, rather than a selected service.
@@ -84,12 +84,7 @@ class AuthCubit extends Cubit<AuthState> {
       case 'identity.changePhone':
         openChangePhone();
       default:
-        emit(
-          state.copyWith(
-            effect: AuthGuestServiceRequested(serviceId),
-            message: null,
-          ),
-        );
+        emit(state.copyWith(effect: AuthGuestServiceRequested(serviceId)));
     }
   }
 
@@ -156,6 +151,8 @@ class AuthCubit extends Cubit<AuthState> {
         emit(
           state.copyWith(
             failure: const DataFailure('auth.change_phone_unavailable'),
+            // This existing outcome is inline-only, never an API notification.
+            message: null,
             otpRequestStatus: RequestStatus.failure,
           ),
         );
@@ -171,13 +168,7 @@ class AuthCubit extends Cubit<AuthState> {
         final maskedPhone =
             '${identity.mobile.substring(0, 4)}*******${identity.mobile.substring(9)}';
 
-        emit(
-          state.copyWith(
-            otpRequestStatus: RequestStatus.loading,
-            failure: null,
-            message: null,
-          ),
-        );
+        emit(state.copyWith(otpRequestStatus: RequestStatus.loading));
         final result = await requestLoginOtpUseCase(identity);
         switch (result) {
           case Success(:final data):
@@ -236,13 +227,7 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   Future<void> submitLogin(LoginOtpChallenge challenge) async {
-    emit(
-      state.copyWith(
-        loginStatus: RequestStatus.loading,
-        failure: null,
-        message: null,
-      ),
-    );
+    emit(state.copyWith(loginStatus: RequestStatus.loading));
     final result = await verifyLoginOtpUseCase(challenge, state.otp);
     switch (result) {
       case Success():

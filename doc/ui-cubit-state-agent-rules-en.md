@@ -1,7 +1,7 @@
 # UI, Cubit and State Coding Contract for the Team and Agents
 
 **Project:** Smart Virtual Counter — `pishkhan_mobile`  
-**Version:** 1.19 — Explicit UseCase filenames<br>
+**Version:** 1.20 — Status-driven request notifications<br>
 **Date:** 2026-11-01<br>
 **Scope:** Presentation coding style, State management and readability rules  
 **Status:** Authoritative coding contract. Historical examples do not override the mandatory ownership rules or the owner amendments below. Implementation status is recorded in the feature documentation.
@@ -33,6 +33,50 @@ Cubit submission/edit guards throughout this document and architecture Section 1
 
 Actual behavior remains explicit: form validation, choosing a step/action, Apply versus Cancel and optional entry-data resolution are calculations/flow decisions. Server authorization/idempotency remains at its existing boundary. There is no async disposal check of any kind (owner decision 2026-10-18; Section 8.3). A modal may directly bind its Confirm button to a Cubit
 action; Cancel and dismissal simply close it without invoking that action.
+
+## Mandatory Owner Amendment, 2026-11-01: Status-Driven Notifications
+
+The owner approved the following notification model. This supersedes the older
+blanket requirement to clear failure/message at request start and before every
+UI command; it does not authorize changing unrelated State resets or data groups.
+
+- Per-operation status transitions trigger notifications. Message presence,
+  failure presence, or a change in message text is not the notification event.
+- Every request failure publishes its operation's failure status, Failure and
+  prepared message together. A retry still passes through loading, so identical
+  failures notify again through failure → loading → failure without nulling text,
+  message counters, effect IDs or a new notifier.
+- The shared failure/message fields represent the latest recorded request
+  failure and its prepared text. They may remain after loading or success. Read
+  an operation's status to determine its current outcome; non-null failure alone
+  does not mean that operation is currently failing.
+- There is no blanket failure/message clearing on loading, success, input
+  changes or commands. Clear a value only for a real consumer/reset whose
+  behavior requires it. Existing inline business feedback, such as unavailable
+  guest change-phone, must retain its required clearing behavior.
+- Request-result notification and typed-effect execution are independent listener
+  responsibilities with focused listenWhen predicates. An effect handler must
+  not display/return early because state.message is non-null. Each independent
+  operation observes its own status transition; an old failure status from another
+  operation must not replay a notification on an unrelated effect or result.
+- Failure UI displays the message prepared for that failure snapshot. When the
+  defined flow calls for success feedback, UI uses localized success text; it
+  must not reuse the last failure message. Success feedback is not mandatory for
+  every request. A success that navigates immediately may show feedback at the
+  destination. Existing prepared navigation/modal payloads remain unchanged.
+- Named multi-case handlers and command consumption still follow existing rules.
+  MultiBlocListener can group the distinct subscriptions; no generic effect
+  framework, State publisher or extra State fields are introduced.
+
+**Adoption status:** the documentation-first amendment is now implemented in
+Login (phase 1) and Dashboard (phase 2): focused request-failure listeners are
+separate from typed effects and legacy blanket clears are removed. Other flows
+still require their authorized migration. Do not remove their clears in code
+alone: update listener responsibilities and real consumers together. Existing tests asserting null values
+must be reviewed alongside behavioral tests for repeated failures, retry-success,
+effects after errors and concurrent operation results. Older phase test totals
+are historical evidence, not verification of a later notification migration.
+See Sections 8.4 and 11.3–11.4 for the target examples.
 
 ## Mandatory Owner Clarification, 2026-11-01: Independent Events and Repeated Fields
 
@@ -199,7 +243,8 @@ terminal request status, saved data or an explicitly consumed command instead.
 
 - Request failures publish the shared latest failure and prepared message.
   Focused listenWhen predicates compare each operation's previous/current status
-  and react when it enters failure. A loading emit clears the previous message.
+  and react when it enters failure. Loading does not require clearing the
+  previous message under the status-driven notification amendment.
   Do not create a message effect or a message counter for request failures.
 - Sheets, dialogs, share and navigation react to actual changes in their typed
   effect/destination fields. Listeners ignore null/consumed commands. The flow
@@ -211,9 +256,9 @@ terminal request status, saved data or an explicitly consumed command instead.
   State-publication wrapper. Exit intents that authorize PopScope remain set
   until navigation disposes the flow; never clear them before the authorized pop.
   Raw modal results still return to the existing specific Cubit action.
-- Every new UI command clears an old display message, so a navigation/sheet event
-  cannot replay a previous request-error notification. Concurrent requests retain
-  independent statuses and each entering-failure transition is observed.
+- UI commands execute independently of stored failure text; a navigation/sheet
+  event cannot replay a previous request-error notification. Concurrent requests
+  retain independent statuses and each entering-failure transition is observed.
 - Cubits do not live under shared. A reusable service used by multiple flows has
   its own feature/flow folder. Logic used only by a parent service belongs to its
   owning flow rather than an incidental shared Cubit. Postal office lookup is
@@ -241,10 +286,10 @@ Presentation message rules in Sections 3, 6.6, 8.4, 13.0 and 21.6.
   Repeated identical failures must notify again. Concurrent operation responses
   keep their own statuses and each failure delivers its own message snapshot.
 - Reuse actual operation/effect State changes. Do not introduce generic State-publication wrappers,
-  a separate message counter or a parallel notifier. Clear failure/message when
-  starting a request without publishing a message effect. Other effects must not
-  replay an old message. UI listeners only display prepared text, and remove
-  duplicate inline API-error notifications while retaining retry/empty sections,
+  a separate message counter or a parallel notifier. Request start does not
+  require clearing failure/message. Observe each operation's status transition;
+  typed effects execute independently and must not replay old text. UI error
+  listeners display prepared failure text; remove duplicate inline API-error notifications while retaining retry/empty sections,
   actual field validation and meaningful business outcomes.
 - All request-driven flows gate system and in-screen Back while any of their
   operations is loading. The UI owns this gate; do not add Cubit action guards.
@@ -267,7 +312,7 @@ remain unchanged.
 
 1. Keep independent CAPTCHA, OTP-request and verification statuses, but retain
    **one shared `Failure? failure`**: the latest failure of the Login flow.
-   Starting a new request clears the previous failure and prepared message.
+   Under the status-driven amendment, a new request need not clear these fields.
    Separate `<operation>Failure` fields are not required in Login.
 2. Add `String? message` to the plain Freezed State, without a separate message
    counter. On each API failure notification, Cubit explicitly emits the failure,
@@ -287,8 +332,10 @@ remain unchanged.
    message for request failures. It does not map codes, translate the message or
    render a second inline copy of the same API error. Loading between attempts
    permits repeated identical failures without a sequence counter.
-   Clearing message or unrelated State updates must not replay the effect. No
-   separate message Listener/counter or new handling for unconnected services.
+   Clearing message or unrelated State updates must not replay the effect.
+   Separate focused request-result and typed-effect listeners under the approved
+   notification model; no message-presence listener, counter or new handling for
+   unconnected services.
 5. Keep `Future<Result<T>>` at the Repository boundary and use `async/await` with
    a `switch (result)` in Cubit. HTTP 200 does not establish bank success.
    Data maps `status: -1, message: WRONG_CAPTCHA` to
@@ -804,8 +851,8 @@ abstract class AuthState with _$AuthState {
     @Default(false) bool canRequestOtp,
     @Default(false) bool canSubmitLogin,
     @Default(0) int remainingSeconds,
-    Failure? otpRequestFailure,
-    Failure? loginFailure,
+    Failure? failure,
+    String? message,
   }) = _AuthState;
 }
 ```
@@ -1283,8 +1330,9 @@ The owner approved the two complementary forms below.
 
 #### 6.8.1 A Request Operation and Its Calculation Have Separate Responsibilities
 
-The request action owns the complete request lifecycle: publish loading and clear
-the previous failure/message, call the dependency, then publish success or failure.
+The request action owns the complete request lifecycle: publish loading, call the
+dependency, then publish success or failure. Failure/message clearing is not a
+mandatory lifecycle step; it needs a real consumer/reset reason.
 These are parts of one operation. Keep them together with `async/await`
 and explicit `emit(state.copyWith(...))` calls.
 
@@ -1312,8 +1360,6 @@ void _publishCatalogLoading() {
   emit(
     state.copyWith(
       catalogStatus: RequestStatus.loading,
-      failure: null,
-      message: null,
     ),
   );
 }
@@ -1345,8 +1391,6 @@ Future<void> fetchIssuanceCatalog() async {
   emit(
     state.copyWith(
       catalogStatus: RequestStatus.loading,
-      failure: null,
-      message: null,
     ),
   );
 
@@ -1729,8 +1773,6 @@ Future<void> selectDeposit(VirtualCardDeposit deposit) {
       canSubmit: false,
       retryAction: null,
       canRetry: false,
-      failure: null,
-      message: null,
     ),
   );
   return state.isCountValid
@@ -1794,8 +1836,6 @@ Future<void> fetchQuote() async {
       canSubmit: false,
       retryAction: null,
       canRetry: false,
-      failure: null,
-      message: null,
     ),
   );
 
@@ -1911,7 +1951,6 @@ void selectCards(Set<String> selectedIds) {
       termsAccepted: false,
       canContinue: selectedCards.isNotEmpty,
       canSubmit: false,
-      failure: null,
     ),
   );
 }
@@ -1967,7 +2006,6 @@ Future<void> fetchCatalog() async {
   emit(
     state.copyWith(
       catalogStatus: RequestStatus.loading,
-      catalogFailure: null,
     ),
   );
 
@@ -1984,7 +2022,8 @@ Future<void> fetchCatalog() async {
       emit(
         state.copyWith(
           catalogStatus: RequestStatus.failure,
-          catalogFailure: failure,
+          failure: failure,
+          message: getRequestErrorMessage(failure),
         ),
       );
   }
@@ -2022,7 +2061,6 @@ Future<void> submit() async {
   emit(
     state.copyWith(
       submissionStatus: RequestStatus.loading,
-      submissionFailure: null,
     ),
   );
 
@@ -2040,7 +2078,8 @@ Future<void> submit() async {
       emit(
         state.copyWith(
           submissionStatus: RequestStatus.failure,
-          submissionFailure: failure,
+          failure: failure,
+          message: getRequestErrorMessage(failure),
         ),
       );
   }
@@ -2080,6 +2119,12 @@ previous/current status and only displays the prepared message. There is no
 message effect or sequence counter. Preserve retry sections and field errors, without a second inline
 copy of the API notification. Ordinary labels/validation text use S.current.
 Domain/Data never produce display text, and UI never inspects DioException or DTOs.
+
+The failure/message snapshot may survive loading and success. Notification
+listeners use per-operation transitions, not null checks or text equality.
+Effect handlers must execute their typed command without checking old message
+presence. Inline feedback and actual reset actions retain their concrete clearing
+requirements. Do not remove code-side clears until these consumers are migrated.
 
 ## 9. BlocProvider Inside the Screen
 
@@ -2398,63 +2443,129 @@ This builder is not sensitive to timer ticks unless a tick changes `canSubmitLog
 
 ### 11.3 Failure and Success Listener Example
 
+This example illustrates the owner-approved model and optional success feedback.
+AuthScreen now has separate failure/effect listeners; its existing success effect
+still completes login without adding a new success toast. Inside the owning widget, successMessage denotes localized UI text supplied by
+its existing display composition (S.current in the actual implementation). It
+is illustrative here, not an existing AuthScreen property or an invented ARB key.
+Failure text is the prepared payload; success text is not stored in the failure
+message field.
+
 ```dart
 BlocListener<AuthCubit, AuthState>(
   listenWhen: (previous, current) {
-    return previous.loginStatus != current.loginStatus;
+    return previous.loginStatus != current.loginStatus &&
+        (current.loginStatus == RequestStatus.failure ||
+            current.loginStatus == RequestStatus.success);
   },
-  listener: (context, state) {
-    if (state.loginStatus == RequestStatus.failure) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(S.current.dashboardLoadError),
-        ),
-      );
-    }
-
-    if (state.loginStatus == RequestStatus.success) {
-      onAuthenticated?.call();
-    }
-  },
+  listener: _showLoginResult,
   child: ...,
 ),
+
+void _showLoginResult(BuildContext context, AuthState state) {
+  switch (state.loginStatus) {
+    case RequestStatus.failure:
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(state.message!)),
+      );
+    case RequestStatus.success:
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(successMessage)),
+      );
+    default:
+      break;
+  }
+}
 ```
 
-Listener is appropriate for navigation, dialogs and messages. It does not invoke its callback for initial state on attachment; a pre-existing state requires a separate design. [Official BlocListener reference](https://pub.dev/documentation/flutter_bloc/latest/flutter_bloc/BlocListener-class.html)
+The focused predicate identifies this operation's new terminal result. Keeping
+an old message does not notify during loading, a field edit, a command or another
+operation's success. Identical failures notify again through loading → failure;
+no null reset or new identifier is needed. With concurrent operations, give each
+its own focused status subscription so an old failure in another operation is
+not mistaken for the current event.
 
-For two consecutive failures, the action must go through `failure → loading → failure`. If a special design produces a new event without changing status, status comparison alone is insufficient; an identifier for that operation's result is needed. Do not introduce a generic event system without a real need.
+The corresponding Cubit keeps status/result publication explicit:
 
-### 11.4 MultiBlocListener for Independent Effects
+```dart
+Future<void> submitLogin(LoginOtpChallenge challenge) async {
+  emit(state.copyWith(loginStatus: RequestStatus.loading));
+
+  final result = await verifyLoginOtpUseCase(challenge, state.otp);
+  switch (result) {
+    case Err(:final failure):
+      emit(
+        state.copyWith(
+          loginStatus: RequestStatus.failure,
+          failure: failure,
+          message: getAuthErrorMessage(failure),
+        ),
+      );
+    case Success():
+      emit(
+        state.copyWith(
+          loginStatus: RequestStatus.success,
+          canSubmitLogin: false,
+          effect: const AuthCompleted(),
+        ),
+      );
+  }
+}
+```
+
+The failure branch always assigns fresh failure/message together. Success need
+not clear them because request feedback follows status and effects are separate.
+A navigation effect such as AuthCompleted keeps its existing owner. If it leaves
+the screen immediately, deliver success feedback on the destination when the
+flow requires it; do not add a competing navigation call to the message listener.
+
+A BlocListener does not replay the initial State on attachment; initial result
+delivery retains its explicit attachment/lifecycle design. This amendment adds
+no replay mechanism or sequence counter.
+
+### 11.4 Independent Request Feedback and Typed Effects
 
 ```dart
 MultiBlocListener(
   listeners: [
     BlocListener<AuthCubit, AuthState>(
       listenWhen: (previous, current) {
-        return previous.otpRequestStatus != current.otpRequestStatus;
+        return previous.loginStatus != current.loginStatus &&
+            (current.loginStatus == RequestStatus.failure ||
+                current.loginStatus == RequestStatus.success);
       },
-      listener: (context, state) {
-        if (state.otpRequestStatus == RequestStatus.failure) {
-          // Display this operation's failure message.
-        }
-      },
+      listener: _showLoginResult,
     ),
     BlocListener<AuthCubit, AuthState>(
       listenWhen: (previous, current) {
-        return previous.loginStatus != current.loginStatus;
+        return previous.effect != current.effect && current.effect != null;
       },
-      listener: (context, state) {
-        if (state.loginStatus == RequestStatus.success) {
-          onAuthenticated?.call();
-        }
-      },
+      listener: _handleAuthEffect,
     ),
   ],
   child: ...,
 ),
 ```
 
-One Listener is sufficient for one simple effect. Do not add MultiBlocListener just to mimic the example. Empty or placeholder listeners are prohibited in final code.
+The existing named effect handler retains its actual menu, focus and completion
+cases, consumes reusable commands and checks mounted after awaits. It must not
+start with `if (state.message != null) { showMessage(...); return; }`.
+The code above illustrates Login verification. AuthScreen has focused CAPTCHA,
+OTP-request and verification failure listeners alongside its effect listener.
+Preserve every existing interaction rather than replacing the effect handler
+with a placeholder.
+
+Guest change-phone keeps its pre-existing inline-only outcome and legacy OTP
+status. That Cubit branch explicitly sets message to null so an earlier CAPTCHA
+message cannot be reused for this outcome. The failure-display method checks for
+an absent payload after its status-triggered subscription; message presence is
+not the trigger and it never gates effect execution. CAPTCHA loading retains
+failure: null to dismiss the inline unavailable notice read by AuthRequestError.
+These are concrete consumer requirements, not a restored blanket clearing rule.
+
+This uses MultiBlocListener for distinct responsibilities, not a mandatory screen
+template. A section with only request feedback needs only its own Listener.
+No requests, flow decisions or generic publication helpers move into listeners.
 
 ### 11.5 A Dangerous buildWhen Mistake
 
@@ -4096,6 +4207,8 @@ This text is a compact summary of the mandatory contract, not an alternative to 
 
 ### 24.3 While Writing Cubit
 
+- [ ] Request failures publish their status/failure/prepared message together; no habitual null clearing on loading/success/commands. Any remaining clear has a real consumer or reset reason. Migrate listener consumers before removing old code-side clears.
+
 - [ ] UseCase source filenames end in `_usecase.dart`; imports and feature documents refer to the current names.
 - [ ] Each used UseCase has the `UseCase` suffix, is registered in GetIt and is resolved into a final Cubit field; no Cubit-side UseCase construction or Repository forwarding to its constructor. Dependency wiring stays in core/di and Domain has no GetIt import.
 - [ ] Cubit resolves its dependencies from GetIt fields; there are no Repository/service/UseCase constructor arguments or UI/router lookups.
@@ -4145,6 +4258,8 @@ This text is a compact summary of the mandatory contract, not an alternative to 
 - [ ] Models inside State have appropriate equality and immutability.
 
 ### 24.5 While Writing UI
+
+- [ ] Request feedback follows each operation's terminal status transition. Typed-effect handlers do not gate effects on message/failure presence; success feedback uses localized success copy, not retained failure text. Cover repeated failures, success after retry, effects after errors and concurrent results.
 
 - [ ] Provider placement is clear and ownership uses create.
 - [ ] The Cubit constructor and initial action are directly visible in Provider.create; no locator resolution of Cubit or custom creation helper.
@@ -4288,6 +4403,12 @@ These numbers refer to the supplementary review list in the conversation, not th
 Open item 7 does not permit array-driven fixed forms or index-based field actions; item 2 explicitly prohibits them. Acceptance of empty button callbacks under item 10 does not permit empty Listeners or fabricated APIs. These are separate concerns.
 
 ### 25.2 Consolidation Status
+
+Version 1.20 (2026-11-01) records the approved status-driven notification model:
+no blanket failure/message clearing, distinct request-result/effect subscriptions,
+last-recorded failure semantics and consumer-driven clears. Markdown and examples
+were aligned first; Login and Dashboard have since adopted the model with
+behavioral tests. Other flows migrate within their authorized phases.
 
 Version 1.19 (2026-11-01) records the owner's mandatory `_usecase.dart` file suffix,
 in addition to the class suffix and GetIt registration. Login and Dashboard file

@@ -96,17 +96,9 @@ class _HomeTabTestScopeState extends State<HomeTabTestScope> {
       cubit.stream.listen((state) {
         final requested =
             effectPrevious.effect != state.effect && state.effect != null;
-        final failed =
-            (effectPrevious.homeStatus != state.homeStatus &&
-                state.homeStatus == RequestStatus.failure) ||
-            (effectPrevious.cardsStatus != state.cardsStatus &&
-                state.cardsStatus == RequestStatus.failure) ||
-            (effectPrevious.depositsStatus != state.depositsStatus &&
-                state.depositsStatus == RequestStatus.failure) ||
-            (effectPrevious.loansStatus != state.loansStatus &&
-                state.loansStatus == RequestStatus.failure);
         effectPrevious = state;
-        if (requested || failed) _handleEffect(context, state);
+        // DashboardScreen owns request feedback; this observer adapts host effects.
+        if (requested) _handleEffect(context, state);
       }),
     );
     HomeState previous = cubit.state;
@@ -173,18 +165,38 @@ class _HomeTabTestScopeState extends State<HomeTabTestScope> {
     }
     return BlocProvider.value(
       value: _cubit,
-      child: BlocListener<HomeCubit, HomeState>(
-        listenWhen: (previous, current) =>
-            (((previous.effect != current.effect && current.effect != null))) ||
-            ((previous.homeStatus != current.homeStatus &&
-                    current.homeStatus == RequestStatus.failure) ||
-                (previous.cardsStatus != current.cardsStatus &&
-                    current.cardsStatus == RequestStatus.failure) ||
-                (previous.depositsStatus != current.depositsStatus &&
-                    current.depositsStatus == RequestStatus.failure) ||
-                (previous.loansStatus != current.loansStatus &&
-                    current.loansStatus == RequestStatus.failure)),
-        listener: _handleEffect,
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<HomeCubit, HomeState>(
+            listenWhen: (previous, current) =>
+                previous.homeStatus != current.homeStatus &&
+                current.homeStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<HomeCubit, HomeState>(
+            listenWhen: (previous, current) =>
+                previous.cardsStatus != current.cardsStatus &&
+                current.cardsStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<HomeCubit, HomeState>(
+            listenWhen: (previous, current) =>
+                previous.depositsStatus != current.depositsStatus &&
+                current.depositsStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<HomeCubit, HomeState>(
+            listenWhen: (previous, current) =>
+                previous.loansStatus != current.loansStatus &&
+                current.loansStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<HomeCubit, HomeState>(
+            listenWhen: (previous, current) =>
+                previous.effect != current.effect && current.effect != null,
+            listener: _handleEffect,
+          ),
+        ],
         child: BlocListener<HomeCubit, HomeState>(
           listenWhen: (previous, current) =>
               previous.homeData != null &&
@@ -198,13 +210,12 @@ class _HomeTabTestScopeState extends State<HomeTabTestScope> {
     );
   }
 
-  void _handleEffect(BuildContext context, HomeState state) {
-    if (state.message != null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(state.message!)));
-      return;
-    }
+  void _showRequestFailure(BuildContext context, HomeState state) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(state.message!)));
+  }
 
+  void _handleEffect(BuildContext context, HomeState state) {
     switch (state.effect) {
       case HomeCardActionRequested(:final request):
         _cubit.consumeHomeInteraction();

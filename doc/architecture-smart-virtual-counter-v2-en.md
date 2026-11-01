@@ -1025,15 +1025,27 @@ switch helper, with a generic fallback. The reusable mapper lives in
 text. Ordinary labels and field validation continue to use `S.current`.
 
 Focused listeners compare previous/current operation statuses and display the
-prepared message when an operation enters failure. Loading clears failure/message;
-retries therefore deliver identical failures again without `effectId`,
-`navigationId`, `messageId` or a message effect. Independent concurrent operation
-statuses are preserved. UI commands clear old display messages to avoid replay.
+prepared message when that operation enters failure. Repeated errors notify
+through failure → loading → failure without clearing text, effectId,
+navigationId, messageId or a message effect. Failure/message may retain the
+latest recorded failure after loading/success; current outcome is determined by
+that operation's status. Independent concurrent operation statuses are preserved.
+Typed-effect handlers execute independently of retained message presence. There
+is no blanket clearing rule; each clear needs a real consumer/reset reason.
 Reusable typed sheet/dialog/share commands are explicitly consumed before awaiting
 the Flutter operation. Exit intents authorizing PopScope remain until actual exit.
 Unconnected Login guest actions retain their existing unavailable feedback.
 See the mandatory counter-free and project-wide amendments in the
 [UI/Cubit/State contract](ui-cubit-state-agent-rules-en.md).
+
+**Approved notification amendment, 2026-11-01:** request-result feedback and typed
+effects have distinct focused listener responsibilities. Success feedback, when
+required by the flow, uses localized success copy in UI; it never replays retained
+failure text. Inline business feedback retains its actual clearing lifecycle.
+Login and Dashboard now use separate failure/effect listeners and retain error
+snapshots without blanket clears. Other flows keep their legacy handlers until
+their authorized migration updates consumers and Cubit writes together.
+Contract v1.20 Sections 8.4 and 11.3–11.4 provide the target examples.
 
 #### General error mapping
 
@@ -1103,6 +1115,7 @@ abstract class ChangeCardDepositState with _$ChangeCardDepositState {
     @Default(false) bool termsAccepted,
     @Default(false) bool canSubmit,
     Failure? failure,
+    String? message,
   }) = _ChangeCardDepositState;
 }
 
@@ -1118,7 +1131,6 @@ class ChangeCardDepositCubit extends Cubit<ChangeCardDepositState> {
       destination: destination,
       termsAccepted: false,
       canSubmit: false,
-      failure: null,
     ));
   }
 }
@@ -1182,12 +1194,18 @@ their async work. They trust the UI interaction contract without duplicate entry
 final loadCardServiceCatalogUseCase = getIt<LoadCardServiceCatalogUseCase>();
 
 Future<void> fetchCardServiceCatalog() async {
-  emit(state.copyWith(status: RequestStatus.loading, failure: null));
+  emit(state.copyWith(status: RequestStatus.loading));
 
   final result = await loadCardServiceCatalogUseCase();
   switch (result) {
     case Err(:final failure):
-      emit(state.copyWith(status: RequestStatus.failure, failure: failure));
+      emit(
+        state.copyWith(
+          status: RequestStatus.failure,
+          failure: failure,
+          message: getRequestErrorMessage(failure),
+        ),
+      );
     case Success(:final data):
       emit(state.copyWith(status: RequestStatus.success, catalog: data));
   }
@@ -1969,6 +1987,15 @@ The complete list is provided in the separate document "Bank Requirements and De
 ---
 
 ## 21. Change Log
+
+**2026-11-01 status-driven notification amendment:** each operation's terminal
+status transition triggers request feedback; failure/message may retain the
+latest error. Effects execute independently, and failure/message clearing needs
+a real consumer/reset reason. Success copy stays in UI. Documentation/examples
+were updated first; Login/Dashboard have now adopted the listener/Cubit changes,
+while remaining flows migrate in their authorized phases. This supersedes the
+earlier blanket loading/command clearing requirements and changes no other State
+reset or grouping rule.
 
 **2026-11-01 UseCase filename clarification:** source filenames must end in
 `_usecase.dart`. Login and Dashboard use `login_usecase.dart` and

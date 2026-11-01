@@ -45,13 +45,12 @@ class DashboardScreen extends StatelessWidget {
     }
   }
 
-  Future<void> _handleHomeEffect(BuildContext context, HomeState state) async {
-    if (state.message != null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(state.message!)));
-      return;
-    }
+  void _showRequestFailure(BuildContext context, HomeState state) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(state.message!)));
+  }
 
+  Future<void> _handleHomeEffect(BuildContext context, HomeState state) async {
     switch (state.effect) {
       case HomeAllServicesRequested():
         context.read<HomeCubit>().consumeHomeInteraction();
@@ -144,20 +143,41 @@ class DashboardScreen extends StatelessWidget {
         drawerServiceLabels: dashboardDrawerServiceLabels(),
         servicePickerLabels: getDashboardServiceSearchLabels(),
       )..fetchDashboard(),
-      child: BlocListener<HomeCubit, HomeState>(
-        listenWhen: (previous, current) =>
-            ((previous.effect != current.effect && current.effect != null) &&
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<HomeCubit, HomeState>(
+            listenWhen: (previous, current) =>
+                previous.homeStatus != current.homeStatus &&
+                current.homeStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<HomeCubit, HomeState>(
+            listenWhen: (previous, current) =>
+                previous.cardsStatus != current.cardsStatus &&
+                current.cardsStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<HomeCubit, HomeState>(
+            listenWhen: (previous, current) =>
+                previous.depositsStatus != current.depositsStatus &&
+                current.depositsStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<HomeCubit, HomeState>(
+            listenWhen: (previous, current) =>
+                previous.loansStatus != current.loansStatus &&
+                current.loansStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<HomeCubit, HomeState>(
+            listenWhen: (previous, current) =>
+                previous.effect != current.effect &&
+                current.effect != null &&
                 current.effect is! HomeTabRequested &&
-                current.effect is! HomeAssistantRequested) ||
-            ((previous.homeStatus != current.homeStatus &&
-                    current.homeStatus == RequestStatus.failure) ||
-                (previous.cardsStatus != current.cardsStatus &&
-                    current.cardsStatus == RequestStatus.failure) ||
-                (previous.depositsStatus != current.depositsStatus &&
-                    current.depositsStatus == RequestStatus.failure) ||
-                (previous.loansStatus != current.loansStatus &&
-                    current.loansStatus == RequestStatus.failure)),
-        listener: _handleHomeEffect,
+                current.effect is! HomeAssistantRequested,
+            listener: _handleHomeEffect,
+          ),
+        ],
         child: BlocBuilder<HomeCubit, HomeState>(
           builder: (context, state) {
             // Inactive tabs must not duplicate snackbar Heroes during navigation.

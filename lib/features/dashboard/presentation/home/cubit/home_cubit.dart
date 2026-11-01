@@ -61,13 +61,7 @@ class HomeCubit extends Cubit<HomeState> {
   }
 
   void selectTab(AppPrimaryTab tab) {
-    emit(
-      state.copyWith(
-        selectedTab: tab,
-        effect: HomeTabRequested(tab),
-        message: null,
-      ),
-    );
+    emit(state.copyWith(selectedTab: tab, effect: HomeTabRequested(tab)));
   }
 
   void requestMenu() {
@@ -79,7 +73,6 @@ class HomeCubit extends Cubit<HomeState> {
         selectedDrawerSection: DashboardDrawerSection.home,
         drawerSelection: null,
         effect: const HomeMenuRequested(),
-        message: null,
       ),
     );
   }
@@ -185,7 +178,6 @@ class HomeCubit extends Cubit<HomeState> {
       state.copyWith(
         selectedTab: AppPrimaryTab.dashboard,
         effect: const HomeAssistantRequested(),
-        message: null,
       ),
     );
   }
@@ -194,20 +186,16 @@ class HomeCubit extends Cubit<HomeState> {
     if (service == DashboardService.assistant) {
       requestAssistant();
     } else {
-      emit(
-        state.copyWith(effect: HomeServiceRequested(service.id), message: null),
-      );
+      emit(state.copyWith(effect: HomeServiceRequested(service.id)));
     }
   }
 
   void requestAllServices() {
-    emit(
-      state.copyWith(effect: const HomeAllServicesRequested(), message: null),
-    );
+    emit(state.copyWith(effect: const HomeAllServicesRequested()));
   }
 
   void requestProfile() {
-    emit(state.copyWith(effect: const HomeProfileRequested(), message: null));
+    emit(state.copyWith(effect: const HomeProfileRequested()));
   }
 
   void requestNotifications() {
@@ -215,7 +203,6 @@ class HomeCubit extends Cubit<HomeState> {
       state.copyWith(
         messages: state.messages ?? NotificationMessage.examples(),
         effect: const HomeNotificationsRequested(),
-        message: null,
       ),
     );
   }
@@ -233,7 +220,6 @@ class HomeCubit extends Cubit<HomeState> {
         isServicePickerSearching: false,
         pickedService: null,
         effect: const HomeFavoritePickerRequested(),
-        message: null,
       ),
     );
   }
@@ -312,12 +298,7 @@ class HomeCubit extends Cubit<HomeState> {
   }
 
   void requestFavoritesReset() {
-    emit(
-      state.copyWith(
-        effect: const HomeFavoritesResetRequested(),
-        message: null,
-      ),
-    );
+    emit(state.copyWith(effect: const HomeFavoritesResetRequested()));
   }
 
   void applyFavoriteSelection(DashboardService? service) {
@@ -333,8 +314,6 @@ class HomeCubit extends Cubit<HomeState> {
       state.copyWith(
         homeStatus: RequestStatus.loading,
         isEditingFavorites: false,
-        failure: null,
-        message: null,
       ),
     );
     final result = await loadDashboardHomeUseCase();
@@ -496,8 +475,6 @@ class HomeCubit extends Cubit<HomeState> {
         cardActions: const [],
         pinActions: const [],
         cardQuickActions: const [],
-        failure: null,
-        message: null,
       ),
     );
     final result = await loadDashboardCardsUseCase();
@@ -567,27 +544,15 @@ class HomeCubit extends Cubit<HomeState> {
       action: action,
       card: state.selectedCard!,
     );
-    emit(
-      state.copyWith(effect: HomeCardActionRequested(request), message: null),
-    );
+    emit(state.copyWith(effect: HomeCardActionRequested(request)));
   }
 
   void requestCardNumberCopy(BankCard card) {
-    emit(
-      state.copyWith(
-        effect: HomeCardNumberCopyRequested(card.number),
-        message: null,
-      ),
-    );
+    emit(state.copyWith(effect: HomeCardNumberCopyRequested(card.number)));
   }
 
   void requestCardIbanCopy(BankCard card) {
-    emit(
-      state.copyWith(
-        effect: HomeCardIbanCopyRequested(card.iban),
-        message: null,
-      ),
-    );
+    emit(state.copyWith(effect: HomeCardIbanCopyRequested(card.iban)));
   }
 
   Future<void> fetchDeposits() async {
@@ -602,8 +567,6 @@ class HomeCubit extends Cubit<HomeState> {
         depositActions: const [],
         depositQuickActions: const [],
         depositChequeActions: const [],
-        failure: null,
-        message: null,
       ),
     );
     final result = await loadDashboardDepositsUseCase();
@@ -657,30 +620,17 @@ class HomeCubit extends Cubit<HomeState> {
       action: action,
       deposit: state.selectedDeposit!,
     );
-    emit(
-      state.copyWith(
-        effect: HomeDepositActionRequested(request),
-        message: null,
-      ),
-    );
+    emit(state.copyWith(effect: HomeDepositActionRequested(request)));
   }
 
   void requestDepositNumberCopy(BankDeposit deposit) {
     emit(
-      state.copyWith(
-        effect: HomeDepositNumberCopyRequested(deposit.number),
-        message: null,
-      ),
+      state.copyWith(effect: HomeDepositNumberCopyRequested(deposit.number)),
     );
   }
 
   void requestDepositIbanCopy(BankDeposit deposit) {
-    emit(
-      state.copyWith(
-        effect: HomeDepositIbanCopyRequested(deposit.iban),
-        message: null,
-      ),
-    );
+    emit(state.copyWith(effect: HomeDepositIbanCopyRequested(deposit.iban)));
   }
 
   Future<void> fetchLoans() async {
@@ -694,8 +644,6 @@ class HomeCubit extends Cubit<HomeState> {
         selectedLoan: null,
         loanActions: const [],
         loanQuickActions: const [],
-        failure: null,
-        message: null,
       ),
     );
     final result = await loadDashboardLoansUseCase();
@@ -743,18 +691,11 @@ class HomeCubit extends Cubit<HomeState> {
       action: action,
       loan: state.selectedLoan!,
     );
-    emit(
-      state.copyWith(effect: HomeLoanActionRequested(request), message: null),
-    );
+    emit(state.copyWith(effect: HomeLoanActionRequested(request)));
   }
 
   void requestLoanNumberCopy(BankLoan loan) {
-    emit(
-      state.copyWith(
-        effect: HomeLoanNumberCopyRequested(loan.number),
-        message: null,
-      ),
-    );
+    emit(state.copyWith(effect: HomeLoanNumberCopyRequested(loan.number)));
   }
 
   void updateCardVisibility(BankCard card, bool visible) {
@@ -766,11 +707,11 @@ class HomeCubit extends Cubit<HomeState> {
   }
 
   void requestCardMore(BankCard card) {
-    emit(state.copyWith(effect: HomeCardMoreRequested(card), message: null));
+    emit(state.copyWith(effect: HomeCardMoreRequested(card)));
   }
 
   void requestLoanDetails(BankLoan loan) {
-    emit(state.copyWith(effect: HomeLoanDetailsRequested(loan), message: null));
+    emit(state.copyWith(effect: HomeLoanDetailsRequested(loan)));
   }
 
   Timer? _typingTimer;
@@ -798,7 +739,6 @@ class HomeCubit extends Cubit<HomeState> {
       state.copyWith(
         submittedPrompt: prompt,
         effect: HomePromptSubmitted(prompt),
-        message: null,
       ),
     );
   }

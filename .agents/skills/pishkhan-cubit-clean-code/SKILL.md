@@ -22,6 +22,22 @@ Tests install replacements before resolving UseCases/Cubit and reset the test
 scope afterward; replacing a Repository does not rewire an already-resolved
 lazy-singleton UseCase.
 
+## Request notifications and retained errors
+
+Owner-approved model, 2026-11-01: observe each operation's terminal status
+transition for request feedback. Every failure emits its status, Failure and
+prepared message together. Failure/message are the latest recorded failure,
+not the current request status. Repeated identical errors notify through
+failure → loading → failure without clearing text or adding counters.
+
+Typed-effect execution is independent and never returns early because an old
+message exists. Success feedback, when required, uses localized UI success text.
+Do not routinely null failure/message in loading, success or command emits.
+Clear only for an identified consumer/reset; preserve existing inline business
+feedback. Migrate combined listeners and their consumers before removing legacy
+clears. Contract v1.20 records this model. Login and Dashboard are aligned;
+remaining features adopt it within their authorized migration phases.
+
 ## Workflow (do these in order)
 
 1. **Inventory.** Before writing code, list every request operation in the feature and every user event that triggers it:
@@ -73,8 +89,6 @@ Future<void> fetchQuote() async {
       quote: null,
       termsAccepted: false,
       canSubmit: false,
-      failure: null,
-      message: null,
     ),
   );
 
@@ -103,7 +117,6 @@ A Cubit serves the user's path step by step. An emit is not a place to tidy up S
 4. **Is the field already at that value?** If nothing set it since the initial State or since the loading emit, writing it again is noise (Minimal Cubit Rule 5).
 
 **Always allowed (contract-mandated, not "cleanup"):**
-- `failure: null, message: null` in the **loading** emit of a request (starting a request clears the previous failure and message). Do not repeat them in the success emit.
 - `canX: false` in the **success** emit of a request when the screen stays visible until navigation happens (Minimal Cubit Rule 8, prevents a second tap).
 - A real reset event under Section 6.9 (`State.initial(...)`).
 
@@ -118,7 +131,7 @@ case Success(:final data):
       receipt: data,
       retryAction: null, // nobody reads it: the screen navigates away
       navigation: FlowNavigation.home,
-      message: null,     // already cleared by the loading emit
+      message: null,     // no reader requires clearing the recorded failure here
     ),
   );
 
@@ -156,7 +169,7 @@ Same check for loading emits: a field that is still at its initial value (nothin
 | Action | Emit |
 |---|---|
 | Input update | The input, its `isXValid`/`isXError`, and the aggregate flags that depend on it. Nothing else. |
-| Request start | `status: loading`, `failure: null`, `message: null`, plus only the stale **result or flag the still-visible form could act on** (stale quote, `canSubmit`). |
+| Request start | `status: loading`, plus only the stale **result or flag the still-visible form could act on**. No blanket failure/message clearing; any clear needs a real consumer/reset reason. |
 | Success that **leaves** the flow | `status: success`, the result/receipt, `navigation`. Nothing else. |
 | Success that **stays** on screen | `status: success`, the data, and the flags the **next step** needs. |
 | Failure | `status: failure`, `failure`, `message`, and retry fields only if a retry control exists. |
@@ -200,6 +213,11 @@ resolved into final Cubit fields, with no Cubit-side UseCase construction.
 5. Fix every finding as above. If something cannot be fixed within the contract, report the exact location and the rule pair that collides. Do not invent a new pattern.
 
 ## Flow review (before reporting done)
+
+Verify that feedback uses per-operation status transitions and typed effects do
+not inspect old message presence. A retained message is not a reason to clear
+it. Preserve real inline-feedback/reset consumers and test repeated failures,
+retry-success, effects after errors and concurrent results when migrating code.
 
 1. List every field written as `null`, `false`, `''`, `0` or an initial value in an emit you wrote or changed.
 2. For each one, name the step in the flow map that reads the old value. Write the answer in your head or notes; if you cannot name a reader, remove the line.

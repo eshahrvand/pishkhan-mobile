@@ -8,6 +8,20 @@ operation ownership, the user path and the phase-1 review. The
 [UI/Cubit/State contract](../ui-cubit-state-agent-rules-en.md) is authoritative;
 legacy examples prescribing returned `.then` chains do not apply to AuthCubit.
 
+## Approved notification model — implemented for this flow
+
+The owner-approved [contract v1.20](../ui-cubit-state-agent-rules-en.md) uses
+per-operation terminal status transitions for request feedback and independent
+typed-effect execution. Failure/message may retain the latest recorded error;
+there is no blanket clearing requirement. Success feedback, when required, uses
+localized UI success text. Clears remain only for a real consumer/reset need.
+
+The initial documentation-first rule is now implemented for this flow. Each
+request-failure listener observes only its operation's entering-failure transition;
+typed effects execute independently of retained message text. Existing success
+behavior is preserved without adding new success toasts. Earlier phase test
+results below remain historical; the notification migration has its own checks.
+
 ## Confirmed bank contract
 
 The owner supplied request/response samples and confirmed the raw token header
@@ -88,8 +102,9 @@ OTP awaits that same action. The constructor preserves its supplied/default
 initial State; it performs no initialization. State remains one plain Freezed
 `.initial` factory, part of Cubit, with independent operation statuses.
 
-Every request starts by clearing the shared latest failure/message. A pure
-Presentation switch helper, `presentation/login/cubit/auth_error_messages.dart`,
+Requests no longer clear failure/message merely for notification delivery.
+Failure callbacks and typed-effect execution have separate focused subscriptions.
+A pure Presentation switch helper, `presentation/login/cubit/auth_error_messages.dart`,
 prepares approved Persian text with a generic fallback. Focused listeners observe
 entering-failure transitions. Identical failures notify again after loading,
 without effect/navigation/message counters or a parallel notifier. API errors
@@ -101,6 +116,15 @@ generic failure. They do not become DioExceptions. Cubit has no catchError,
 try/catch, defensive loading/eligibility entry guards or closed/disposed checks.
 The existing Data mapper already uses `UnexpectedFailure` for unknown exceptions;
 phase 1 adds no Failure type or change to the shared failure hierarchy.
+
+The notification migration preserves two explicit consumer-driven clears:
+CAPTCHA start clears failure to dismiss the inline guest notice, and the guest
+unavailable branch clears message so it cannot reuse an earlier API error text.
+That branch retains its existing status/inline behavior without a new endpoint.
+All actual API errors still prepare failure/message together. The effect handler
+never checks retained message presence; success completion is unchanged.
+Current migration verification is recorded in Login development: 220 regression
+tests passed with one Web-only skip and analysis reported no issues.
 
 ## Flow behavior retained in phase 1
 

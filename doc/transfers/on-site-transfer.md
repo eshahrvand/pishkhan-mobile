@@ -113,10 +113,13 @@ atomic fee execution and durable server-side idempotency.
 
 ## Verification
 
-Each system file-picker attempt resets `uploadStatus` to `initial` and clears
-the previous failure/message before opening the picker. This allows consecutive
-picker failures to notify again without showing upload loading before a file is
-selected. Cancelling a replacement restores the successful upload status when
+Current code resets uploadStatus to initial and clears failure/message before
+opening the system picker. The initial → failure status transition enables
+consecutive failure notifications; nulling the text is not what makes them repeat.
+Under [contract v1.20](../ui-cubit-state-agent-rules-en.md), migrate the combined
+listener first, then retain clears only for actual consumers. This documentation
+update does not change file-picker code or add loading before file selection.
+Cancelling a replacement restores the successful upload status when
 the previous file is still available for Review.
 
 - `test/transfers/on_site_transfer_cubit_test.dart`: validation, multiple entries,

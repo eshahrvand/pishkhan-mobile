@@ -12,6 +12,20 @@ owner amendments, is authoritative. The
 provides the operation inventory, flow review and duplication review workflow.
 This document describes current implementation; it introduces no new rules.
 
+## Approved notification model — implemented for this flow
+
+The owner-approved [contract v1.20](../ui-cubit-state-agent-rules-en.md) uses
+per-operation terminal status transitions for request feedback and independent
+typed-effect execution. Failure/message may retain the latest recorded error;
+there is no blanket clearing requirement. Success feedback, when required, uses
+localized UI success text. Clears remain only for a real consumer/reset need.
+
+The initial documentation-first rule is now implemented for this flow. Each
+request-failure listener observes only its operation's entering-failure transition;
+typed effects execute independently of retained message text. Existing success
+behavior is preserved without adding new success toasts. Earlier phase test
+results below remain historical; the notification migration has its own checks.
+
 ## Ownership and files
 
 | Location under `lib/features/auth/` | Responsibility |
@@ -66,7 +80,8 @@ OTP-request success no longer repeats `otp: ''`, `isOtpValid: false` and
 `canSubmitLogin: false`: normal entry already has these values, and return/resend
 clears them before another challenge. Final login success still disables submit
 while the host completes navigation. CAPTCHA invalidation, resend resets,
-loading failure/message clears and actual form resets retain their owners.
+actual form resets retain their owners. The notification migration removes
+blanket failure/message clearing while preserving the guest inline-feedback needs.
 
 ## Validation, requests and effects
 
@@ -79,16 +94,18 @@ digits. Aggregate eligibility reads other stored flags; repeated predicates are
 private calculations returning values, never State.
 
 Request actions return `Future<void>` with async/await and a Result switch after
-await. Data converts transport, mapping and storage exceptions to Err. Loading
-clears failure/message; failures publish operation status and text prepared by
-`getAuthErrorMessage`. The Listener observes entering-failure transitions, so
+await. Data converts transport, mapping and storage exceptions to Err. Current
+requests retain the previous message; OTP request/verification also retain the
+last failure. CAPTCHA start still clears failure to dismiss the guest notice.
+Failures publish operation status and text prepared by
+`getAuthErrorMessage`. Separate per-operation listeners observe failure transitions, so
 identical retry failures notify again without counters or duplicate inline API
 messages. Unconnected change-phone keeps its separate inline feedback.
 
 UI owns loading/disabled controls and system/in-screen Back gating. Actions do
 not repeat these preconditions. Loading buttons use `isLoading` and the relevant
 eligibility flag; keyboard callbacks also gate loading because they lack a
-loading-button API. The listener consumes reusable interactions before executing
+loading-button API. The independent effect listener consumes reusable interactions before executing
 Flutter effects, checks `context.mounted` after sheets and returns raw selections
 to Cubit. Completion invokes the existing host callback.
 
@@ -192,3 +209,39 @@ and `git diff --check` passed. No live-bank or browser run was performed.
 
 Duplication review: 0 new repeated blocks found, 0 resolved. Flow review: 0 new
 clears added or removed in this re-review.
+
+## Status-driven notification migration — phases 1 and 2
+
+The approved v1.20 model is now implemented for Login and Dashboard. Each request
+has its own focused entering-failure subscription, while the existing typed-effect
+listener executes independently of retained error text. No success toast was added;
+Login completion and existing service feedback retain their previous behavior.
+State structure, UseCases, payloads, routing and unrelated resets are unchanged.
+
+Across the two Cubits, 35 legacy null-clears were removed. CAPTCHA's existing
+failure clear is retained to dismiss guest change-phone's inline notice; the
+inline-only unavailable branch now explicitly clears message so it cannot reuse
+an earlier API message when its legacy OTP failure status changes. The Auth
+failure-display method accepts the absent payload only after a status-triggered
+subscription. Its effect handler never inspects message. Final explicit null
+assignments for failure/message total 2, down from 36.
+
+Behavioral checks cover identical retry errors, retained text without replay on
+input/loading/success, OTP focus and completion after failure, menu opening after
+failure, concurrent dashboard errors followed by another operation's success,
+and guest inline feedback/refresh. The dashboard test scope was updated to keep
+request feedback separate from adapted host effects as well.
+
+Verification: 76 focused tests passed; the expanded phase-1/phase-2 regression
+command passed 220 tests with 1 Web-only skip. Flutter analyze reported no issues;
+git diff --check passed. Synthetic transports/repositories were used; no live-bank,
+browser or device acceptance run is claimed.
+
+```sh
+flutter test test/dashboard test/core/di test/core/router test/app_drawer_test.dart test/auth test/core/security test/core/network
+flutter analyze
+```
+
+Duplication review: 0 new repeated operations found, 0 resolved; all 7 request
+owners remain unique. Flow review: 35 clears removed, 1 inline-feedback clear
+retained and 1 inline-only payload clear added. No other reset group was changed.
