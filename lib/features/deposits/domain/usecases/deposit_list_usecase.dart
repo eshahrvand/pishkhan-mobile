@@ -4,8 +4,8 @@ import 'package:pishkhan_mobile/core/result/result.dart';
 import '../entities/listed_deposit.dart';
 import '../repositories/deposits_repository.dart';
 
-class LoadDeposits {
-  const LoadDeposits(this.repository);
+class LoadDepositsUseCase {
+  const LoadDepositsUseCase(this.repository);
   final DepositsRepository repository;
   Future<Result<List<ListedDeposit>>> call() async {
     try {

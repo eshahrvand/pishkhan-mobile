@@ -1,3 +1,7 @@
+import 'package:pishkhan_mobile/features/deposits/domain/usecases/deposit_list_usecase.dart';
+import 'package:pishkhan_mobile/features/deposits/domain/usecases/deposit_restrictions_usecase.dart';
+import 'package:pishkhan_mobile/features/deposits/domain/usecases/close_surplus_deposits_usecase.dart';
+import 'package:pishkhan_mobile/features/deposits/domain/usecases/proxy_deposits_usecase.dart';
 import 'package:pishkhan_mobile/features/cards/domain/usecases/password_services_usecase.dart';
 import 'package:pishkhan_mobile/features/cards/domain/usecases/card_services_usecase.dart';
 import 'package:pishkhan_mobile/features/cards/domain/usecases/card_issuance_usecase.dart';
@@ -117,6 +121,47 @@ void configureDependencies({GetIt? container}) {
   );
   dependencies.registerLazySingleton<AgentSettingsRepository>(
     MockAgentSettingsRepository.new,
+  );
+  dependencies.registerLazySingleton<LoadDepositsUseCase>(
+    () => LoadDepositsUseCase(dependencies<DepositsRepository>()),
+  );
+  dependencies.registerLazySingleton<FetchDepositRestrictionCatalogUseCase>(
+    () => FetchDepositRestrictionCatalogUseCase(
+      dependencies<DepositRestrictionsRepository>(),
+    ),
+  );
+  dependencies.registerLazySingleton<SubmitDepositRestrictionUseCase>(
+    () => SubmitDepositRestrictionUseCase(
+      dependencies<DepositRestrictionsRepository>(),
+    ),
+  );
+  dependencies.registerLazySingleton<FetchPrimaryDepositsUseCase>(
+    () =>
+        FetchPrimaryDepositsUseCase(dependencies<SurplusDepositsRepository>()),
+  );
+  dependencies.registerLazySingleton<FetchSurplusDepositsUseCase>(
+    () =>
+        FetchSurplusDepositsUseCase(dependencies<SurplusDepositsRepository>()),
+  );
+  dependencies.registerLazySingleton<SubmitCloseSurplusDepositsUseCase>(
+    () => SubmitCloseSurplusDepositsUseCase(
+      dependencies<SurplusDepositsRepository>(),
+    ),
+  );
+  dependencies.registerLazySingleton<FetchProxyDepositCatalogUseCase>(
+    () => FetchProxyDepositCatalogUseCase(
+      dependencies<ProxyDepositsRepository>(),
+    ),
+  );
+  dependencies.registerLazySingleton<SubmitProxyDepositUseCase>(
+    () => SubmitProxyDepositUseCase(dependencies<ProxyDepositsRepository>()),
+  );
+  // This operation retains a pending reviewed payload: each flow needs its own instance.
+  dependencies.registerFactory<CloseRemainingDepositsUseCase>(
+    () => CloseRemainingDepositsUseCase(
+      dependencies<FetchSurplusDepositsUseCase>(),
+      dependencies<SubmitCloseSurplusDepositsUseCase>(),
+    ),
   );
   dependencies.registerLazySingleton<DepositsRepository>(
     MockDepositsRepository.new,

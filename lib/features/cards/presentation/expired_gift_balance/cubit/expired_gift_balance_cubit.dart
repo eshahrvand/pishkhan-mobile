@@ -27,7 +27,7 @@ class ExpiredGiftBalanceCubit extends Cubit<ExpiredGiftBalanceState> {
   }) : super(initialState);
 
   final loadCardServiceCatalogUseCase = getIt<LoadCardServiceCatalogUseCase>();
-  final _repository = getIt<CardServicesRepository>();
+  final repository = getIt<CardServicesRepository>();
   String? _idempotencyKey;
 
   Future<void> fetchCatalog() async {
@@ -264,7 +264,7 @@ class ExpiredGiftBalanceCubit extends Cubit<ExpiredGiftBalanceState> {
       ),
     );
     final result = await cardServiceBoundary(
-      () => _repository.transferGiftBalance(request),
+      () => repository.transferGiftBalance(request),
     );
     switch (result) {
       case Err(:final failure):

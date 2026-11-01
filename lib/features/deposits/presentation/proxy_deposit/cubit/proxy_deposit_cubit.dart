@@ -11,8 +11,7 @@ import 'package:pishkhan_mobile/core/result/result.dart';
 
 import '../../../domain/entities/listed_deposit.dart';
 import '../../../domain/entities/proxy_deposit.dart';
-import '../../../domain/repositories/proxy_deposits_repository.dart';
-import '../../../domain/usecases/proxy_deposits.dart';
+import '../../../domain/usecases/proxy_deposits_usecase.dart';
 
 part 'proxy_deposit_state.dart';
 part 'proxy_deposit_cubit.freezed.dart';
@@ -23,62 +22,44 @@ class ProxyDepositCubit extends Cubit<ProxyDepositState> {
     ProxyDepositState initialState = const ProxyDepositState.initial(),
   }) : super(initialState);
   final String? initialDepositNumber;
-  final _repository = getIt<ProxyDepositsRepository>();
-  late final _fetchCatalog = FetchProxyDepositCatalog(_repository);
-  late final _submitProxyDeposit = SubmitProxyDeposit(_repository);
+  final fetchProxyDepositCatalogUseCase =
+      getIt<FetchProxyDepositCatalogUseCase>();
+  final submitProxyDepositUseCase = getIt<SubmitProxyDepositUseCase>();
 
-  Future<void> fetchCatalog() {
+  Future<void> fetchCatalog() async {
     emit(
-      state.copyWith(
-        catalogStatus: RequestStatus.loading,
-        isEditable: false,
-        failure: null,
-        message: null,
-      ),
+      state.copyWith(catalogStatus: RequestStatus.loading, isEditable: false),
     );
-    return _fetchCatalog().then((result) {
-      switch (result) {
-        case Err(:final failure):
-          emit(
-            state.copyWith(
-              catalogStatus: RequestStatus.failure,
-              failure: failure,
-              message: getRequestErrorMessage(failure),
-            ),
-          );
-        case Success(:final data):
-          final number = DigitNormalizer.normalize(initialDepositNumber ?? '')
-              .replaceAll(RegExp(r'[^0-9]'), '');
-          final deposit = data.deposits
-              .where(
-                (deposit) =>
-                    DigitNormalizer.normalize(deposit.number)
-                        .replaceAll(RegExp(r'[^0-9]'), '') ==
-                    number,
-              )
-              .firstOrNull;
-          emit(
-            state.copyWith(
-              catalogStatus: RequestStatus.success,
-              catalog: data,
-              subjects: data.subjects,
-              deposits: data.deposits,
-              deposit: deposit,
-              isEditable: true,
-              idempotencyKey: _createRequestKey(),
-            ),
-          );
-      }
-    });
+    final result = await fetchProxyDepositCatalogUseCase();
+    switch (result) {
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            catalogStatus: RequestStatus.failure,
+            failure: failure,
+            message: getRequestErrorMessage(failure),
+          ),
+        );
+      case Success(:final data):
+        emit(
+          state.copyWith(
+            catalogStatus: RequestStatus.success,
+            catalog: data,
+            subjects: data.subjects,
+            deposits: data.deposits,
+            deposit: _resolveInitialDeposit(data.deposits),
+            isEditable: true,
+            idempotencyKey: _createRequestKey(),
+          ),
+        );
+    }
   }
 
   void selectCompany(ProxyCompany company) {
     emit(
       state.copyWith(
         company: company,
-        subjects: state.catalog!.subjects
-            .where((subject) => subject.companyId == company.id)
-            .toList(),
+        subjects: _subjectsForCompany(company),
         subject: null,
         amountToman: null,
         deposits: state.catalog!.deposits,
@@ -86,8 +67,6 @@ class ProxyDepositCubit extends Cubit<ProxyDepositState> {
         canSubmit: false,
         hasChanges: true,
         idempotencyKey: _createRequestKey(),
-        failure: null,
-        message: null,
       ),
     );
   }
@@ -106,9 +85,7 @@ class ProxyDepositCubit extends Cubit<ProxyDepositState> {
       state.copyWith(
         subject: subject,
         company: company,
-        subjects: state.catalog!.subjects
-            .where((option) => option.companyId == company.id)
-            .toList(),
+        subjects: _subjectsForCompany(company),
         deposits: deposits,
         deposit: deposit,
         amountToman: subject.amountRial / 10,
@@ -116,8 +93,6 @@ class ProxyDepositCubit extends Cubit<ProxyDepositState> {
         canSubmit: false,
         hasChanges: true,
         idempotencyKey: _createRequestKey(),
-        failure: null,
-        message: null,
       ),
     );
   }
@@ -130,8 +105,6 @@ class ProxyDepositCubit extends Cubit<ProxyDepositState> {
         canSubmit: false,
         hasChanges: true,
         idempotencyKey: _createRequestKey(),
-        failure: null,
-        message: null,
       ),
     );
   }
@@ -140,17 +113,13 @@ class ProxyDepositCubit extends Cubit<ProxyDepositState> {
     emit(
       state.copyWith(
         termsAccepted: accepted,
-        canSubmit:
-            accepted &&
-            state.company != null &&
-            state.subject != null &&
-            state.deposit != null,
+        canSubmit: _canSubmit(accepted),
         hasChanges: true,
       ),
     );
   }
 
-  Future<void> submitProxyDeposit() {
+  Future<void> submitProxyDeposit() async {
     final request = ProxyDepositRequest(
       companyId: state.company!.id,
       subjectId: state.subject!.id,
@@ -162,41 +131,32 @@ class ProxyDepositCubit extends Cubit<ProxyDepositState> {
       state.copyWith(
         submissionStatus: RequestStatus.loading,
         isEditable: false,
-        failure: null,
-        message: null,
       ),
     );
-    return _submitProxyDeposit(request).then((result) {
-      switch (result) {
-        case Err(:final failure):
-          emit(
-            state.copyWith(
-              submissionStatus: RequestStatus.failure,
-              isEditable: true,
-              failure: failure,
-              message: getRequestErrorMessage(failure),
-            ),
-          );
-        case Success(:final data):
-          emit(
-            state.copyWith(
-              submissionStatus: RequestStatus.success,
-              receipt: data,
-              canSubmit: false,
-              hasChanges: false,
-            ),
-          );
-      }
-    });
+    final result = await submitProxyDepositUseCase(request);
+    switch (result) {
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            submissionStatus: RequestStatus.failure,
+            isEditable: true,
+            failure: failure,
+            message: getRequestErrorMessage(failure),
+          ),
+        );
+      case Success(:final data):
+        emit(
+          state.copyWith(
+            submissionStatus: RequestStatus.success,
+            receipt: data,
+            canSubmit: false,
+          ),
+        );
+    }
   }
 
   void requestTerms() {
-    emit(
-      state.copyWith(
-        effect: ProxyDepositEffect.termsUnavailable,
-        message: null,
-      ),
-    );
+    emit(state.copyWith(effect: ProxyDepositEffect.termsUnavailable));
   }
 
   void requestBack() {
@@ -206,7 +166,6 @@ class ProxyDepositCubit extends Cubit<ProxyDepositState> {
             ? ProxyDepositEffect.confirmExit
             : ProxyDepositEffect.back,
         isExitToAssistant: false,
-        message: null,
       ),
     );
   }
@@ -218,7 +177,6 @@ class ProxyDepositCubit extends Cubit<ProxyDepositState> {
             ? ProxyDepositEffect.confirmExit
             : ProxyDepositEffect.assistant,
         isExitToAssistant: true,
-        message: null,
       ),
     );
   }
@@ -231,13 +189,35 @@ class ProxyDepositCubit extends Cubit<ProxyDepositState> {
                   ? ProxyDepositEffect.assistant
                   : ProxyDepositEffect.back)
             : null,
-        message: null,
       ),
     );
   }
 
   void applyReceiptDismissal() {
-    emit(state.copyWith(effect: ProxyDepositEffect.home, message: null));
+    emit(state.copyWith(effect: ProxyDepositEffect.home));
+  }
+
+  ListedDeposit? _resolveInitialDeposit(List<ListedDeposit> deposits) {
+    final number = _normalizeDepositNumber(initialDepositNumber ?? '');
+    return deposits
+        .where((deposit) => _normalizeDepositNumber(deposit.number) == number)
+        .firstOrNull;
+  }
+
+  String _normalizeDepositNumber(String number) =>
+      DigitNormalizer.normalize(number).replaceAll(RegExp(r'[^0-9]'), '');
+
+  List<ProxySubject> _subjectsForCompany(ProxyCompany company) => state
+      .catalog!
+      .subjects
+      .where((subject) => subject.companyId == company.id)
+      .toList();
+
+  bool _canSubmit(bool termsAccepted) {
+    return termsAccepted &&
+        state.company != null &&
+        state.subject != null &&
+        state.deposit != null;
   }
 
   String _createRequestKey() =>

@@ -1,6 +1,6 @@
 # Deposits: implemented flows and integration
 
-Updated: 2026-10-19. This is the entry document for the deposit module. It describes
+Updated: 2026-11-01. This is the entry document for the deposit module. It describes
 implemented application flows and mock adapters. Bank APIs, real account operations,
 document issuance and payments remain integration work.
 
@@ -39,7 +39,8 @@ card variants.
 
 Each standalone screen directly constructs its Cubit in `BlocProvider.create`
 and calls its required initial fetch. GetIt registers actual dependencies, never
-Cubits. Cubit resolves its repository in a field; UI/router do not forward data
+Cubits. Cubit resolves its registered Repository/UseCase dependencies in final
+fields; UI/router do not forward data
 dependencies through constructors. State remains one plain Freezed `.initial`
 data class with independent operation statuses. Cubit owns decisions, validation
 outcomes, dependent selections, request construction and modal-result interpretation;
@@ -47,7 +48,7 @@ UI renders and executes prepared Flutter effects.
 
 ## Current behavior
 
-- Deposit list: search/filter, account and owner details, supported service actions.
+- Deposit list: account/status filters, account and owner details, supported service actions.
 - Average balance: account/conditions, delivery, confirmation/fees. Dates remain
   optional until the approved calendar picker is available.
 - Financial certificate: five stages, including recipient/currency and Latin
@@ -102,12 +103,13 @@ legal document or bank success.
 
 ## Verification
 
-Tests are under `test/deposits`, `test/address`, shared-card and router suites:
-
-```sh
-flutter test test/deposits test/address test/app_financial_cards_test.dart test/core/router/app_router_test.dart
-flutter analyze
-```
+Run the changed flow's unit/widget tests and directly related consumers only;
+full application testing requires an explicit owner request. Phase 6 covers the
+list, restrictions, surplus closure and proxy flows; its exact commands/results
+are in [phase 6 review](phase-6-review.md). This migration also checks the agent
+flow's direct consumption of the renamed shared list UseCase, without beginning
+its phase-7 rewrite. Historical broad verification commands are not instructions
+to rerun all deposit/application tests.
 
 Screen tests optionally export previews with `CAPTURE_CERTIFICATE_PREVIEWS=1` to
 ignored `build/previews/`. Test counts are not frozen here; use the execution

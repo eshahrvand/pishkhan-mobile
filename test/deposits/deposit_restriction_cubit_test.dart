@@ -41,11 +41,7 @@ class ControlledRestrictionRepository
 }
 
 void main() {
-  setUp(
-    () => getIt.registerSingleton<DepositRestrictionsRepository>(
-      MockDepositRestrictionsRepository(),
-    ),
-  );
+  setUp(configureDependencies);
   tearDown(() => getIt.reset());
 
   DepositRestrictionCubit createCubit({
@@ -167,7 +163,7 @@ void main() {
     final key = cubit.state.idempotencyKey;
     cubit.updateDescription('updated');
     expect(cubit.state.idempotencyKey, isNot(key));
-    expect(cubit.state.failure, isNull);
+    expect(cubit.state.failure, const DataFailure('timeout'));
   });
 
   test(

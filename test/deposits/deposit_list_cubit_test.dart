@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/features/deposits/domain/usecases/deposit_list_usecase.dart';
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
 import 'package:pishkhan_mobile/features/deposits/presentation/deposit_list/deposit_list_action.dart';
 
 import '../support/registered_dependency.dart';
@@ -19,6 +21,12 @@ class _Repository implements DepositsRepository {
 }
 
 void main() {
+  setUp(
+    () => getIt.registerLazySingleton<LoadDepositsUseCase>(
+      () => LoadDepositsUseCase(getIt<DepositsRepository>()),
+    ),
+  );
+  tearDown(() => getIt.reset());
   test(
     'type and status filters combine; clear preserves the other filter',
     () async {

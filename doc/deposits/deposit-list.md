@@ -24,10 +24,11 @@ also close the current sheet.
 The standalone flow lives under `lib/features/deposits/`; dashboard deposit
 summaries stay in `features/dashboard`. `ListedDeposit` and `DepositOwner` are
 immutable Equatable models. `DepositsRepository` returns typed Result values;
-`LoadDeposits` validates stable IDs, numbers and owner fields and maps adapter
+`LoadDepositsUseCase` validates stable IDs, numbers and owner fields and maps adapter
 exceptions to coded failures. `DepositListCubit` uses plain Freezed data and
 explicit `emit(state.copyWith(...))` transitions, with no state-preparation
-wrapper. Overlapping loads and completions after disposal are guarded.
+wrapper. The operation uses async/await and a Result switch. Controls gate
+invocation; there is no disposal guard or speculative request ID.
 
 The initial list filters for Open status, matching the selected Status chip.
 Account type and status filters combine. Pressing a selected chip clears that
@@ -36,10 +37,11 @@ Dismissing options leaves the previous selection unchanged. Loading, error,
 empty catalog and no matching deposits have separate views; errors offer Retry.
 
 Each overflow action opens the operation sheet. Account details opens the
-second sheet for that same deposit. The other seven actions report a typed
-`DepositListActionRequest` to an injected host callback. Without a handler,
-they show a localized integration-unavailable notice. No banking execution,
-block, SMS setting update, transfer or wallet debit is performed.
+second sheet for that same deposit. The other seven actions prepare a typed `DepositListActionRequest`; the optional
+host callback keeps precedence. Without a handler, Statement, Certificate, Block
+and Agent settings open their existing service routes with the selected number.
+Unconnected actions show the localized unavailable notice. The list itself does
+not execute account operations or debit a wallet.
 
 The three default rows and two account owners are illustrative Figma fixtures;
 duplicate display numbers and the sample nine-digit national identifier are
@@ -72,27 +74,25 @@ All new interface copy is in fa/en/ar ARBs, and every locale remains RTL.
 `AppRoutes.depositList` is `/deposits/list`, protected by the existing auth guard
 and included in the validated post-login destination allowlist. The
 `deposit-list` service ID opens it through the existing core service registry;
-explicit dashboard service callbacks keep precedence. The assistant returns to
-Home and invokes the optional originating prompt callback.
+explicit dashboard service callbacks keep precedence. The assistant uses its optional host callback when supplied; otherwise it
+returns Home.
 
-Supply `DepositListScreen.repository` and `onActionRequested` for integration.
-Changing the repository replaces the provider scope; normal rebuilds retain
-the Cubit. Bank API definitions, transport mapping, persistent storage and
+Supply `onActionRequested` for host integration when needed. Repository wiring
+belongs in GetIt; the screen has no repository argument. Provider owns the Cubit;
+normal rebuilds retain it. Bank API definitions, transport mapping, persistent storage and
 operation flows beyond the supplied sheets remain adapter/host work.
 
 ## Verification
 
 Unit and widget suites live under `test/deposits/`. They cover filter
-intersection/clearing, empty/error/retry and invalid contracts, stale loads,
-disposal, selected-deposit action context, distinct sheets, authenticated
+intersection/clearing, empty/error/retry and invalid contracts,
+selected-deposit action context, distinct sheets, authenticated
 routing, reference geometry and 320px screens with larger text in fa/en/ar.
 Existing router, shared deposit row, dashboard and asset tests are regressions.
 
-Final validation: all 292 application tests pass, including nine new deposit
-tests. `flutter analyze` reports only the pre-existing `path_not_posix`
-warning for the user's Windows `avp_ui` path override in `pubspec.yaml`.
-That local dependency override is preserved. No device banking integration or
-production execution is claimed by these unit/widget tests.
+Historical test totals are superseded by the scoped execution recorded in
+[phase 6 review](phase-6-review.md). Unit/widget tests do not claim production
+bank integration.
 
 Optional captures:
 
@@ -106,8 +106,8 @@ PNG previews go to ignored `build/previews/deposits/`, never `doc/`.
 ## UI/Cubit contract adoption (2026-10-17)
 
 The production screen no longer accepts a Repository or creates a Mock adapter.
-GetIt registers only the repository dependency. BlocProvider.create directly
-constructs DepositListCubit with no repository argument and owns disposal. The Cubit resolves its repository internally. Cubit owns
+GetIt registers the repository and `LoadDepositsUseCase` dependencies. BlocProvider.create directly
+constructs DepositListCubit with no repository argument and owns disposal. The Cubit resolves its registered UseCase in a final field. Cubit owns
 filter-menu requests, action/detail requests and prepared service destinations.
 The listener returns raw sheet selections; host callbacks retain precedence.
 
@@ -118,3 +118,16 @@ DashboardScreen; GoRouter only selects the destination. Cubits resolve existing
 Repository/service/UseCase registrations through GetIt fields, without dependency
 constructor arguments from UI. Multi-case and substantial async listeners use
 named widget/State methods with the existing listenWhen filter.
+
+## Phase 6 notification and style adoption
+
+Under [contract v1.22](../ui-cubit-state-agent-rules-en.md), request errors notify
+on each operation's entering-failure transition. Every failure publishes status,
+Failure and its prepared message together. Last failure/message remain through
+loading, success, input and command changes; message presence is not an event.
+Independent failure, typed-effect and receipt subscriptions share
+`MultiBlocListener`; rendering uses `BlocBuilder`. Effects never inspect a retained
+message before executing. Success uses the existing receipt, without replaying
+old failure text. Retry/empty sections, actual validation and loading gates stay.
+See [phase 6 review](phase-6-review.md) for operation ownership, preserved resets,
+UseCase wiring, integration limits and current scoped checks.

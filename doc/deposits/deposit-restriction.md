@@ -23,7 +23,8 @@ Figma file `nYQNyZdSs98lwymCpt5Sag`, nodes `28060:14021`, `28060:14130`,
   button visible and lets the longer form scroll instead of reproducing that overlap.
 - Catalog failures show Retry. Submission failures preserve inputs and allow
   retry with the same request identity. Editing payload fields creates a new
-  request identity. Loading disables form controls; Back remains available.
+  request identity. Loading disables form controls and blocks system/top-bar Back until
+  all catalog/submission requests complete.
 - Back/assistant request exit confirmation after edits. Terms currently show the
   existing unavailable feedback. Completion uses an explicitly simulated receipt.
 
@@ -31,7 +32,8 @@ Figma file `nYQNyZdSs98lwymCpt5Sag`, nodes `28060:14021`, `28060:14130`,
 
 One `DepositRestrictionScreen` owns a directly created `DepositRestrictionCubit`,
 with immutable operation input and a real initial catalog fetch. Cubit resolves
-the repository through GetIt; no presentation class is registered. State is the
+`FetchDepositRestrictionCatalogUseCase` and `SubmitDepositRestrictionUseCase`
+through final GetIt fields. DI supplies their repository; no presentation class is registered. State is the
 existing plain Freezed `.initial` / `part of` pattern, with independent catalog
 and submission statuses. Cubit owns entry resolution, selection, wallet checks,
 request construction, effects and raw exit-result interpretation. Listeners only
@@ -73,3 +75,16 @@ viewports and larger text are checked in fa/en/ar.
 
 Set `CAPTURE_CERTIFICATE_PREVIEWS=1` when running the widget tests to save the four
 state previews under `build/previews/certificates/deposit-restriction-*.png`.
+
+## Phase 6 notification and style adoption
+
+Under [contract v1.22](../ui-cubit-state-agent-rules-en.md), request errors notify
+on each operation's entering-failure transition. Every failure publishes status,
+Failure and its prepared message together. Last failure/message remain through
+loading, success, input and command changes; message presence is not an event.
+Independent failure, typed-effect and receipt subscriptions share
+`MultiBlocListener`; rendering uses `BlocBuilder`. Effects never inspect a retained
+message before executing. Success uses the existing receipt, without replaying
+old failure text. Retry/empty sections, actual validation and loading gates stay.
+See [phase 6 review](phase-6-review.md) for operation ownership, preserved resets,
+UseCase wiring, integration limits and current scoped checks.

@@ -24,13 +24,18 @@ class ChequeBookCubit extends Cubit<ChequeBookState> {
     ChequeBookState initialState = const ChequeBookState.initial(),
   }) : super(initialState);
   final String? initialDepositNumber;
-  final _repository = getIt<ChequeBookRepository>();
-  late final _fetchCatalog = FetchChequeBookCatalog(_repository);
-  late final _checkResidency = CheckChequeBookResidency(_repository);
-  late final _deleteResidence = DeleteChequeBookResidence(_repository);
-  late final _saveDeliveryAddress = SaveChequeBookDeliveryAddress(_repository);
-  late final _fetchQuote = FetchChequeBookQuote(_repository);
-  late final _submitIssuance = SubmitChequeBook(_repository);
+  final repository = getIt<ChequeBookRepository>();
+  late final fetchChequeBookCatalogUseCase = FetchChequeBookCatalog(repository);
+  late final checkChequeBookResidencyUseCase = CheckChequeBookResidency(
+    repository,
+  );
+  late final deleteChequeBookResidenceUseCase = DeleteChequeBookResidence(
+    repository,
+  );
+  late final saveChequeBookDeliveryAddressUseCase =
+      SaveChequeBookDeliveryAddress(repository);
+  late final fetchChequeBookQuoteUseCase = FetchChequeBookQuote(repository);
+  late final submitChequeBookUseCase = SubmitChequeBook(repository);
   int _residencyRequestId = 0;
   int _quoteRequestId = 0;
 
@@ -42,7 +47,7 @@ class ChequeBookCubit extends Cubit<ChequeBookState> {
         message: null,
       ),
     );
-    return _fetchCatalog().then((result) {
+    return fetchChequeBookCatalogUseCase().then((result) {
       switch (result) {
         case Err(:final failure):
           emit(
@@ -148,7 +153,7 @@ class ChequeBookCubit extends Cubit<ChequeBookState> {
         message: null,
       ),
     );
-    return _checkResidency(state.deposit!.id).then((result) {
+    return checkChequeBookResidencyUseCase(state.deposit!.id).then((result) {
       // Returning to selection can start a new check for a different deposit.
       if (requestId != _residencyRequestId) return;
       switch (result) {
@@ -235,7 +240,9 @@ class ChequeBookCubit extends Cubit<ChequeBookState> {
         message: null,
       ),
     );
-    return _deleteResidence(state.deposit!.id, address).then((result) {
+    return deleteChequeBookResidenceUseCase(state.deposit!.id, address).then((
+      result,
+    ) {
       switch (result) {
         case Err(:final failure):
           emit(
@@ -323,7 +330,7 @@ class ChequeBookCubit extends Cubit<ChequeBookState> {
             message: null,
           ),
         );
-        return _saveDeliveryAddress(address).then((result) {
+        return saveChequeBookDeliveryAddressUseCase(address).then((result) {
           switch (result) {
             case Err(:final failure):
               if (state.step == ChequeBookStep.delivery) {
@@ -467,7 +474,7 @@ class ChequeBookCubit extends Cubit<ChequeBookState> {
         message: null,
       ),
     );
-    return _fetchQuote(draft).then((result) {
+    return fetchChequeBookQuoteUseCase(draft).then((result) {
       // Back allows editing and starting a newer quote while this one is pending.
       if (requestId != _quoteRequestId) return;
       switch (result) {
@@ -517,7 +524,7 @@ class ChequeBookCubit extends Cubit<ChequeBookState> {
         message: null,
       ),
     );
-    return _submitIssuance(request).then((result) {
+    return submitChequeBookUseCase(request).then((result) {
       switch (result) {
         case Err(:final failure):
           emit(

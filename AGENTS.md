@@ -25,7 +25,9 @@ Core boundaries that must remain visible during implementation:
   construction do not forward Repository/service/UseCase arguments.
   UseCase class names end in `UseCase`; their snake_case Dart filenames end in
   `_usecase.dart` (for example `home_usecase.dart`). Register each used UseCase in GetIt;
-  Cubit resolves it into a final field and invokes that instance. Cubit must not
+  Cubit resolves it into a final field and invokes that instance. Cubit dependency
+  fields have no leading underscore; a UseCase field uses its complete class
+  name in lowerCamelCase including `UseCase`, as in AuthCubit. Cubit must not
   construct a UseCase or pass a Repository/service into its constructor. Wire
   UseCase constructor dependencies in `core/di`; keep Domain free of GetIt.
 - Screen/feature-flow widgets construct Cubit directly in BlocProvider.create

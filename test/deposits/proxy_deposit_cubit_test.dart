@@ -38,11 +38,7 @@ class ControlledProxyRepository extends MockProxyDepositsRepository {
 }
 
 void main() {
-  setUp(
-    () => getIt.registerSingleton<ProxyDepositsRepository>(
-      MockProxyDepositsRepository(),
-    ),
-  );
+  setUp(configureDependencies);
   tearDown(() => getIt.reset());
   ProxyDepositCubit createCubit({String? number}) {
     final cubit = ProxyDepositCubit(initialDepositNumber: number);

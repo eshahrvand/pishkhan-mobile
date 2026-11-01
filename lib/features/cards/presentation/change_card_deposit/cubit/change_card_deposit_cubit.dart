@@ -27,7 +27,7 @@ class ChangeCardDepositCubit extends Cubit<ChangeCardDepositState> {
   }) : super(initialState);
 
   final loadCardServiceCatalogUseCase = getIt<LoadCardServiceCatalogUseCase>();
-  final _repository = getIt<CardServicesRepository>();
+  final repository = getIt<CardServicesRepository>();
   final String? initialCardNumber;
   String? _idempotencyKey;
 
@@ -122,7 +122,7 @@ class ChangeCardDepositCubit extends Cubit<ChangeCardDepositState> {
       ),
     );
     final result = await cardServiceBoundary(
-      () => _repository.changeDeposit(request),
+      () => repository.changeDeposit(request),
     );
     switch (result) {
       case Err(:final failure):

@@ -29,16 +29,15 @@ class DepositListScreen extends StatelessWidget {
   });
   final ValueChanged<DepositListActionRequest>? onActionRequested;
   final VoidCallback? onAssistantPressed;
+  void _showRequestFailure(BuildContext context, DepositListState state) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(state.message!)));
+  }
+
   Future<void> _handleEffect(
     BuildContext context,
     DepositListState state,
   ) async {
-    if (state.message != null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(state.message!)));
-      return;
-    }
-
     switch (state.effect) {
       case DepositActionsRequested(:final deposit):
         context.read<DepositListCubit>().consumeDepositListInteraction();
@@ -100,6 +99,15 @@ class DepositListScreen extends StatelessWidget {
         if (context.mounted) {
           context.read<DepositListCubit>().applyStatusFilterSelection(value);
         }
+      case DepositListBackRequested():
+        NavigationActions.back(context);
+      case DepositListAssistantRequested():
+        context.read<DepositListCubit>().consumeDepositListInteraction();
+        if (onAssistantPressed != null) {
+          onAssistantPressed!();
+        } else {
+          NavigationActions.returnHome(context);
+        }
       case null:
         break;
     }
@@ -109,12 +117,20 @@ class DepositListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => DepositListCubit()..fetchDeposits(),
-      child: BlocListener<DepositListCubit, DepositListState>(
-        listenWhen: (previous, current) =>
-            (previous.effect != current.effect && current.effect != null) ||
-            ((previous.depositsStatus != current.depositsStatus &&
-                current.depositsStatus == RequestStatus.failure)),
-        listener: _handleEffect,
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<DepositListCubit, DepositListState>(
+            listenWhen: (previous, current) =>
+                previous.depositsStatus != current.depositsStatus &&
+                current.depositsStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<DepositListCubit, DepositListState>(
+            listenWhen: (previous, current) =>
+                previous.effect != current.effect && current.effect != null,
+            listener: _handleEffect,
+          ),
+        ],
         child: Directionality(
           textDirection: TextDirection.rtl,
           child: BlocBuilder<DepositListCubit, DepositListState>(
@@ -135,7 +151,9 @@ class DepositListScreen extends StatelessWidget {
                           trailingTooltip: S.current.backLabel,
                           onTrailingPressed:
                               (state.depositsStatus != RequestStatus.loading)
-                              ? () => NavigationActions.back(context)
+                              ? () => context
+                                    .read<DepositListCubit>()
+                                    .requestBack()
                               : null,
                         ),
                         Expanded(
@@ -175,10 +193,9 @@ class DepositListScreen extends StatelessWidget {
                                 left: 16,
                                 bottom: 16,
                                 child: AppAssistantButton(
-                                  onPressed:
-                                      onAssistantPressed ??
-                                      () =>
-                                          NavigationActions.returnHome(context),
+                                  onPressed: () => context
+                                      .read<DepositListCubit>()
+                                      .requestAssistant(),
                                 ),
                               ),
                             ],

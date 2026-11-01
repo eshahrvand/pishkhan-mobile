@@ -11,8 +11,7 @@ import 'package:pishkhan_mobile/core/result/result.dart';
 
 import '../../../domain/entities/listed_deposit.dart';
 import '../../../domain/entities/surplus_deposit_closure.dart';
-import '../../../domain/repositories/surplus_deposits_repository.dart';
-import '../../../domain/usecases/close_surplus_deposits.dart';
+import '../../../domain/usecases/close_surplus_deposits_usecase.dart';
 
 part 'close_surplus_deposits_state.dart';
 part 'close_surplus_deposits_cubit.freezed.dart';
@@ -25,61 +24,42 @@ class CloseSurplusDepositsCubit extends Cubit<CloseSurplusDepositsState> {
   }) : super(initialState);
 
   final String? initialDepositNumber;
-  final _repository = getIt<SurplusDepositsRepository>();
-  late final _fetchPrimaryDeposits = FetchPrimaryDeposits(_repository);
-  late final _closeRemainingDeposits = CloseRemainingDeposits(_repository);
+  final fetchPrimaryDepositsUseCase = getIt<FetchPrimaryDepositsUseCase>();
+  final closeRemainingDepositsUseCase = getIt<CloseRemainingDepositsUseCase>();
 
-  Future<void> fetchPrimaryDeposits() {
+  Future<void> fetchPrimaryDeposits() async {
     emit(
-      state.copyWith(
-        depositsStatus: RequestStatus.loading,
-        isEditable: false,
-        failure: null,
-        message: null,
-      ),
+      state.copyWith(depositsStatus: RequestStatus.loading, isEditable: false),
     );
-    return _fetchPrimaryDeposits().then((result) {
-      switch (result) {
-        case Err(:final failure):
-          emit(
-            state.copyWith(
-              depositsStatus: RequestStatus.failure,
-              isEditable: true,
-              failure: failure,
-              message: getRequestErrorMessage(failure),
-            ),
-          );
-        case Success(:final data):
-          final number = DigitNormalizer.normalize(initialDepositNumber ?? '')
-              .replaceAll(RegExp(r'[^0-9]'), '');
-          final deposit = data.length > 1
-              ? state.deposit ??
-                    data
-                        .where(
-                          (deposit) =>
-                              DigitNormalizer.normalize(deposit.number)
-                                  .replaceAll(RegExp(r'[^0-9]'), '') ==
-                              number,
-                        )
-                        .firstOrNull
-              : null;
-          emit(
-            state.copyWith(
-              depositsStatus: RequestStatus.success,
-              deposits: data,
-              deposit: deposit,
-              isEditable: true,
-              step: data.length > 1
-                  ? CloseSurplusDepositsStep.primaryDeposit
-                  : CloseSurplusDepositsStep.empty,
-              canContinue:
-                  data.length <= 1 || (deposit != null && state.termsAccepted),
-              idempotencyKey:
-                  'close-surplus-${DateTime.now().microsecondsSinceEpoch}-${Random.secure().nextInt(1 << 32)}',
-            ),
-          );
-      }
-    });
+    final result = await fetchPrimaryDepositsUseCase();
+    switch (result) {
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            depositsStatus: RequestStatus.failure,
+            isEditable: true,
+            failure: failure,
+            message: getRequestErrorMessage(failure),
+          ),
+        );
+      case Success(:final data):
+        final deposit = _resolvePrimaryDeposit(data);
+        emit(
+          state.copyWith(
+            depositsStatus: RequestStatus.success,
+            deposits: data,
+            deposit: deposit,
+            isEditable: true,
+            step: _hasSurplusDeposits(data)
+                ? CloseSurplusDepositsStep.primaryDeposit
+                : CloseSurplusDepositsStep.empty,
+            canContinue:
+                !_hasSurplusDeposits(data) ||
+                (deposit != null && state.termsAccepted),
+            idempotencyKey: _createRequestKey(),
+          ),
+        );
+    }
   }
 
   void selectPrimaryDeposit(ListedDeposit deposit) {
@@ -90,10 +70,7 @@ class CloseSurplusDepositsCubit extends Cubit<CloseSurplusDepositsState> {
         canContinue: false,
         hasChanges: true,
         submissionStatus: RequestStatus.initial,
-        idempotencyKey:
-            'close-surplus-${DateTime.now().microsecondsSinceEpoch}-${Random.secure().nextInt(1 << 32)}',
-        failure: null,
-        message: null,
+        idempotencyKey: _createRequestKey(),
       ),
     );
   }
@@ -108,64 +85,50 @@ class CloseSurplusDepositsCubit extends Cubit<CloseSurplusDepositsState> {
     );
   }
 
-  Future<void> continueFlow() {
+  Future<void> continueFlow() async {
     switch (state.step) {
       case CloseSurplusDepositsStep.primaryDeposit:
-        return submitClosure();
+        await submitClosure();
       case CloseSurplusDepositsStep.empty:
-        emit(
-          state.copyWith(
-            effect: CloseSurplusDepositsEffect.back,
-            message: null,
-          ),
-        );
-        return Future.value();
+        emit(state.copyWith(effect: CloseSurplusDepositsEffect.back));
+        break;
     }
   }
 
-  Future<void> submitClosure() {
+  Future<void> submitClosure() async {
     emit(
       state.copyWith(
         submissionStatus: RequestStatus.loading,
         isEditable: false,
-        failure: null,
-        message: null,
       ),
     );
-    return _closeRemainingDeposits(
+    final result = await closeRemainingDepositsUseCase(
       state.deposit!,
       idempotencyKey: state.idempotencyKey!,
-    ).then((result) {
-      switch (result) {
-        case Err(:final failure):
-          emit(
-            state.copyWith(
-              submissionStatus: RequestStatus.failure,
-              isEditable: true,
-              failure: failure,
-              message: getRequestErrorMessage(failure),
-            ),
-          );
-        case Success(:final data):
-          emit(
-            state.copyWith(
-              submissionStatus: RequestStatus.success,
-              receipt: data,
-              canContinue: false,
-              hasChanges: false,
-            ),
-          );
-      }
-    });
+    );
+    switch (result) {
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            submissionStatus: RequestStatus.failure,
+            isEditable: true,
+            failure: failure,
+            message: getRequestErrorMessage(failure),
+          ),
+        );
+      case Success(:final data):
+        emit(
+          state.copyWith(
+            submissionStatus: RequestStatus.success,
+            receipt: data,
+            canContinue: false,
+          ),
+        );
+    }
   }
 
   void requestTerms() {
-    emit(
-      state.copyWith(
-        effect: CloseSurplusDepositsEffect.termsUnavailable,
-        message: null,
-      ),
-    );
+    emit(state.copyWith(effect: CloseSurplusDepositsEffect.termsUnavailable));
   }
 
   void requestBack() {
@@ -175,7 +138,6 @@ class CloseSurplusDepositsCubit extends Cubit<CloseSurplusDepositsState> {
             ? CloseSurplusDepositsEffect.confirmExit
             : CloseSurplusDepositsEffect.back,
         isExitToAssistant: false,
-        message: null,
       ),
     );
   }
@@ -187,7 +149,6 @@ class CloseSurplusDepositsCubit extends Cubit<CloseSurplusDepositsState> {
             ? CloseSurplusDepositsEffect.confirmExit
             : CloseSurplusDepositsEffect.assistant,
         isExitToAssistant: true,
-        message: null,
       ),
     );
   }
@@ -200,16 +161,34 @@ class CloseSurplusDepositsCubit extends Cubit<CloseSurplusDepositsState> {
                   ? CloseSurplusDepositsEffect.assistant
                   : CloseSurplusDepositsEffect.back)
             : null,
-        message: null,
       ),
     );
   }
 
   void applyReceiptDismissal() {
-    emit(
-      state.copyWith(effect: CloseSurplusDepositsEffect.home, message: null),
-    );
+    emit(state.copyWith(effect: CloseSurplusDepositsEffect.home));
   }
+
+  ListedDeposit? _resolvePrimaryDeposit(List<ListedDeposit> deposits) {
+    final number = _normalizeDepositNumber(initialDepositNumber ?? '');
+    return _hasSurplusDeposits(deposits)
+        ? state.deposit ??
+              deposits
+                  .where(
+                    (deposit) =>
+                        _normalizeDepositNumber(deposit.number) == number,
+                  )
+                  .firstOrNull
+        : null;
+  }
+
+  bool _hasSurplusDeposits(List<ListedDeposit> deposits) => deposits.length > 1;
+
+  String _normalizeDepositNumber(String number) =>
+      DigitNormalizer.normalize(number).replaceAll(RegExp(r'[^0-9]'), '');
+
+  String _createRequestKey() =>
+      'close-surplus-${DateTime.now().microsecondsSinceEpoch}-${Random.secure().nextInt(1 << 32)}';
 
   /// UI has accepted the pending interaction; data and request statuses stay intact.
   void consumeCloseSurplusDepositsInteraction() {

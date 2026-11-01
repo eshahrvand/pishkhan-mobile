@@ -13,9 +13,8 @@ import 'package:pishkhan_mobile/core/validators/national_code_validator.dart';
 
 import '../../../domain/entities/listed_deposit.dart';
 import '../../../domain/entities/agent_request.dart';
-import '../../../domain/repositories/deposits_repository.dart';
 import '../../../domain/repositories/agent_repository.dart';
-import '../../../domain/usecases/deposit_list.dart';
+import '../../../domain/usecases/deposit_list_usecase.dart';
 import '../../../domain/usecases/submit_agents.dart';
 
 part 'agent_state.dart';
@@ -28,10 +27,9 @@ class AgentCubit extends Cubit<AgentState> {
   }) : super(initialState);
 
   final String? initialDepositNumber;
-  final _depositsRepository = getIt<DepositsRepository>();
-  final _agentRepository = getIt<AgentRepository>();
-  late final _fetchDeposits = LoadDeposits(_depositsRepository);
-  late final _submitAgents = SubmitAgents(_agentRepository);
+  final agentRepository = getIt<AgentRepository>();
+  final loadDepositsUseCase = getIt<LoadDepositsUseCase>();
+  late final submitAgentsUseCase = SubmitAgents(agentRepository);
   AgentRequest? _submittedRequest;
 
   Future<void> fetchDeposits() {
@@ -42,7 +40,7 @@ class AgentCubit extends Cubit<AgentState> {
         message: null,
       ),
     );
-    return _fetchDeposits().then((result) {
+    return loadDepositsUseCase().then((result) {
       switch (result) {
         case Err(:final failure):
           emit(
@@ -235,7 +233,7 @@ class AgentCubit extends Cubit<AgentState> {
         message: null,
       ),
     );
-    return _submitAgents(request).then((result) {
+    return submitAgentsUseCase(request).then((result) {
       switch (result) {
         case Err(:final failure):
           emit(

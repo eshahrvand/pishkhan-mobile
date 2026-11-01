@@ -4,8 +4,8 @@ import 'package:pishkhan_mobile/core/result/result.dart';
 import '../entities/proxy_deposit.dart';
 import '../repositories/proxy_deposits_repository.dart';
 
-class FetchProxyDepositCatalog {
-  const FetchProxyDepositCatalog(this.repository);
+class FetchProxyDepositCatalogUseCase {
+  const FetchProxyDepositCatalogUseCase(this.repository);
   final ProxyDepositsRepository repository;
   Future<Result<ProxyDepositCatalog>> call() async {
     try {
@@ -16,8 +16,8 @@ class FetchProxyDepositCatalog {
   }
 }
 
-class SubmitProxyDeposit {
-  const SubmitProxyDeposit(this.repository);
+class SubmitProxyDepositUseCase {
+  const SubmitProxyDepositUseCase(this.repository);
   final ProxyDepositsRepository repository;
   Future<Result<ProxyDepositReceipt>> call(ProxyDepositRequest request) async {
     try {

@@ -27,8 +27,10 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
     OnSiteTransferState initialState = const OnSiteTransferState.initial(),
   }) : super(initialState);
   final String? initialDepositNumber;
-  final _repository = getIt<OnSiteTransferRepository>();
-  late final _upload = UploadTransferDestinations(_repository);
+  final repository = getIt<OnSiteTransferRepository>();
+  late final uploadTransferDestinationsUseCase = UploadTransferDestinations(
+    repository,
+  );
   int _uploadRequestId = 0;
   int _destinationRequestId = 0;
   String? _flowKey;
@@ -46,7 +48,7 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
         message: null,
       ),
     );
-    return _repository.fetchCatalog().then((result) {
+    return repository.fetchCatalog().then((result) {
       switch (result) {
         case Success(:final data):
           emit(
@@ -250,7 +252,7 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
         message: null,
       ),
     );
-    return _repository
+    return repository
         .resolveDestination(
           iban: 'IR${state.ibanInput}',
           amountRial: state.amountRial,
@@ -364,7 +366,7 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
             message: null,
           ),
         );
-        return _upload(file, (progress) {
+        return uploadTransferDestinationsUseCase(file, (progress) {
           if (requestId != _uploadRequestId) return;
           emit(state.copyWith(uploadProgress: progress));
         }).then((result) {
@@ -551,7 +553,7 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
         message: null,
       ),
     );
-    return _repository.submit(state.confirmedRequest!).then((result) {
+    return repository.submit(state.confirmedRequest!).then((result) {
       switch (result) {
         case Success(:final data):
           emit(

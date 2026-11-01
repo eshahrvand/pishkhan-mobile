@@ -1263,7 +1263,9 @@ abstract class LoanRequestFormState with _$LoanRequestFormState {
 * Public actions model real screen/flow events and operations. Pure calculations
   used only inside Cubit stay private. Tests exercise the production interaction
   path rather than requiring parallel generic setters or extra initialization APIs.
-* Resolve registered dependencies into final Cubit fields. Every used UseCase
+* Resolve registered dependencies into final Cubit fields with no leading
+  underscore. UseCase fields use their full lowerCamelCase class name, including
+  `UseCase`, matching AuthCubit (coding contract v1.23). Every used UseCase
   has the `UseCase` suffix and its own GetIt registration. Cubit resolves that
   instance; it does not construct a UseCase from a Repository/service field,
   including with `late final`. Constructor wiring belongs in `core/di`, while

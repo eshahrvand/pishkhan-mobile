@@ -26,16 +26,18 @@ class CloseSurplusDepositsScreen extends StatelessWidget {
   final String? initialDepositNumber;
   final VoidCallback? onAssistantPressed;
 
+  void _showRequestFailure(
+    BuildContext context,
+    CloseSurplusDepositsState state,
+  ) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(state.message!)));
+  }
+
   Future<void> _handleEffect(
     BuildContext context,
     CloseSurplusDepositsState state,
   ) async {
-    if (state.message != null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(state.message!)));
-      return;
-    }
-
     switch (state.effect) {
       case CloseSurplusDepositsEffect.confirmExit:
         context
@@ -87,95 +89,106 @@ class CloseSurplusDepositsScreen extends StatelessWidget {
       create: (_) =>
           CloseSurplusDepositsCubit(initialDepositNumber: initialDepositNumber)
             ..fetchPrimaryDeposits(),
-      child: BlocListener<CloseSurplusDepositsCubit, CloseSurplusDepositsState>(
-        listenWhen: (previous, current) =>
-            previous.submissionStatus != current.submissionStatus &&
-            current.submissionStatus == RequestStatus.success,
-        listener: _handleReceipt,
-        child:
-            BlocConsumer<CloseSurplusDepositsCubit, CloseSurplusDepositsState>(
-              listenWhen: (previous, current) =>
-                  (previous.effect != current.effect &&
-                      current.effect != null) ||
-                  ((previous.depositsStatus != current.depositsStatus &&
-                          current.depositsStatus == RequestStatus.failure) ||
-                      (previous.submissionStatus != current.submissionStatus &&
-                          current.submissionStatus == RequestStatus.failure)),
-              listener: _handleEffect,
-              builder: (context, state) {
-                return Directionality(
-                  textDirection: TextDirection.rtl,
-                  child: PopScope(
-                    canPop:
-                        (state.depositsStatus != RequestStatus.loading &&
-                            state.submissionStatus != RequestStatus.loading) &&
-                        (state.effect == CloseSurplusDepositsEffect.back),
-                    onPopInvokedWithResult: (didPop, _) {
-                      if (!didPop &&
-                          state.depositsStatus != RequestStatus.loading &&
-                          state.submissionStatus != RequestStatus.loading &&
-                          state.isEditable) {
-                        context.read<CloseSurplusDepositsCubit>().requestBack();
-                      }
-                    },
-                    child: Scaffold(
-                      backgroundColor: context.colors.surfaceSubtle,
-                      body: SafeArea(
-                        child: Column(
-                          children: [
-                            AppTopBar(
-                              title: S.current.surplusDepositsTitle,
-                              showLeadingActions: false,
-                              leadingAction: const SizedBox.shrink(),
-                              trailingIcon: depositIcon(
-                                '${AppConstants.baseImage}deposit_list_back.svg',
-                              ),
-                              trailingTooltip: S.current.backLabel,
-                              onTrailingPressed:
-                                  (state.depositsStatus !=
-                                          RequestStatus.loading &&
-                                      state.submissionStatus !=
-                                          RequestStatus.loading)
-                                  ? state.isEditable
-                                        ? context
-                                              .read<CloseSurplusDepositsCubit>()
-                                              .requestBack
-                                        : null
-                                  : null,
-                            ),
-                            Expanded(
-                              child: Stack(
-                                fit: StackFit.expand,
-                                children: [
-                                  if (state.step ==
-                                      CloseSurplusDepositsStep.primaryDeposit)
-                                    CloseSurplusDepositsForm(state: state)
-                                  else
-                                    const SurplusDepositsResult(),
-                                  Positioned(
-                                    left: 16,
-                                    bottom: 16,
-                                    child: IgnorePointer(
-                                      ignoring: !state.isEditable,
-                                      child: AppAssistantButton(
-                                        onPressed: context
-                                            .read<CloseSurplusDepositsCubit>()
-                                            .requestAssistant,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            CloseSurplusDepositsFooter(state: state),
-                          ],
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<CloseSurplusDepositsCubit, CloseSurplusDepositsState>(
+            listenWhen: (previous, current) =>
+                previous.submissionStatus != current.submissionStatus &&
+                current.submissionStatus == RequestStatus.success,
+            listener: _handleReceipt,
+          ),
+          BlocListener<CloseSurplusDepositsCubit, CloseSurplusDepositsState>(
+            listenWhen: (previous, current) =>
+                previous.depositsStatus != current.depositsStatus &&
+                current.depositsStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<CloseSurplusDepositsCubit, CloseSurplusDepositsState>(
+            listenWhen: (previous, current) =>
+                previous.submissionStatus != current.submissionStatus &&
+                current.submissionStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<CloseSurplusDepositsCubit, CloseSurplusDepositsState>(
+            listenWhen: (previous, current) =>
+                previous.effect != current.effect && current.effect != null,
+            listener: _handleEffect,
+          ),
+        ],
+        child: BlocBuilder<CloseSurplusDepositsCubit, CloseSurplusDepositsState>(
+          builder: (context, state) {
+            return Directionality(
+              textDirection: TextDirection.rtl,
+              child: PopScope(
+                canPop:
+                    (state.depositsStatus != RequestStatus.loading &&
+                        state.submissionStatus != RequestStatus.loading) &&
+                    (state.effect == CloseSurplusDepositsEffect.back),
+                onPopInvokedWithResult: (didPop, _) {
+                  if (!didPop &&
+                      state.depositsStatus != RequestStatus.loading &&
+                      state.submissionStatus != RequestStatus.loading &&
+                      state.isEditable) {
+                    context.read<CloseSurplusDepositsCubit>().requestBack();
+                  }
+                },
+                child: Scaffold(
+                  backgroundColor: context.colors.surfaceSubtle,
+                  body: SafeArea(
+                    child: Column(
+                      children: [
+                        AppTopBar(
+                          title: S.current.surplusDepositsTitle,
+                          showLeadingActions: false,
+                          leadingAction: const SizedBox.shrink(),
+                          trailingIcon: depositIcon(
+                            '${AppConstants.baseImage}deposit_list_back.svg',
+                          ),
+                          trailingTooltip: S.current.backLabel,
+                          onTrailingPressed:
+                              (state.depositsStatus != RequestStatus.loading &&
+                                  state.submissionStatus !=
+                                      RequestStatus.loading)
+                              ? state.isEditable
+                                    ? context
+                                          .read<CloseSurplusDepositsCubit>()
+                                          .requestBack
+                                    : null
+                              : null,
                         ),
-                      ),
+                        Expanded(
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              if (state.step ==
+                                  CloseSurplusDepositsStep.primaryDeposit)
+                                CloseSurplusDepositsForm(state: state)
+                              else
+                                const SurplusDepositsResult(),
+                              Positioned(
+                                left: 16,
+                                bottom: 16,
+                                child: IgnorePointer(
+                                  ignoring: !state.isEditable,
+                                  child: AppAssistantButton(
+                                    onPressed: context
+                                        .read<CloseSurplusDepositsCubit>()
+                                        .requestAssistant,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        CloseSurplusDepositsFooter(state: state),
+                      ],
                     ),
                   ),
-                );
-              },
-            ),
+                ),
+              ),
+            );
+          },
+        ),
       ),
     );
   }

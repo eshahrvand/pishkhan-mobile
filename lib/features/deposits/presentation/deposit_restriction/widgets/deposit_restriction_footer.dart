@@ -14,8 +14,7 @@ class DepositRestrictionFooter extends StatelessWidget {
           previous.termsAccepted != current.termsAccepted ||
           previous.isEditable != current.isEditable ||
           previous.canSubmit != current.canSubmit ||
-          previous.submissionStatus != current.submissionStatus ||
-          previous.failure != current.failure,
+          previous.submissionStatus != current.submissionStatus,
       builder: (context, state) {
         return DepositRequestFooter(
           termsAccepted: state.termsAccepted,

@@ -13,6 +13,11 @@ Owner clarification, 2026-11-01: every UseCase class name ends in `UseCase`.
 UseCase Dart filenames use snake_case and end in `_usecase.dart`, for example
 `login_usecase.dart` and `home_usecase.dart`. Update imports and documentation
 when renaming. This naming update leaves the existing file grouping unchanged.
+Cubit Repository/UseCase fields have no leading underscore. A UseCase field
+uses the complete class name in lowerCamelCase, including `UseCase`, for example
+`fetchDepositRestrictionCatalogUseCase`, matching AuthCubit. Repository fields
+use `repository` or a meaningful subject such as `agentRepository`. Private pure
+helpers, request IDs and timers are unaffected.
 Register each used UseCase in GetIt. Resolve it once in a final Cubit field;
 invoke that instance in its operation owner. Never construct a UseCase inside
 Cubit or pass a Repository/service from Cubit to a UseCase constructor. Wire

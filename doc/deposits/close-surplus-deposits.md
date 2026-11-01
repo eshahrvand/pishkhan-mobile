@@ -20,7 +20,8 @@ UI is removed. No particular account number forces the empty state when the
 customer still has multiple accounts.
 
 Changing the primary clears consent and prepares a new request identity. Loading
-disables edits; Back and discard confirmation remain available. Failure preserves
+disables edits and blocks both Back paths during requests. After loading,
+Back and discard confirmation remain available. Failure preserves
 the choice for retry. Official terms currently show unavailable-content feedback.
 The design describes transferring balances and associated items to the primary;
 actual transfers require bank integration.
@@ -28,13 +29,19 @@ actual transfers require bank integration.
 ## Data and ownership
 
 The screen directly creates `CloseSurplusDepositsCubit` in its Provider and calls
-`fetchPrimaryDeposits`. GetIt holds the repository only. Plain Freezed State owns
+`fetchPrimaryDeposits`. GetIt registers the repository and actual UseCases. Cubit resolves
+`FetchPrimaryDepositsUseCase` and `CloseRemainingDepositsUseCase` in final fields. Plain Freezed State owns
 catalog/submission status, selection, consent and effects.
 
-`CloseRemainingDeposits` fetches the surplus review/token and builds the request
+`CloseRemainingDepositsUseCase` fetches the surplus review/token and builds the request
 to close every reviewed account except the selected primary. This is an
 application operation, not an extra UI page. Its flow-scoped pending payload
 preserves the reviewed accounts and idempotency key after an uncertain response.
+GetIt registers it as a factory because it owns that mutable pending payload;
+each Cubit resolves a separate instance. Its existing `FetchSurplusDepositsUseCase`
+and `SubmitCloseSurplusDepositsUseCase` dependencies are wired in DI. All three
+steps return Err for unexpected exceptions. The reviewed payload is not rebuilt
+on an identical retry.
 
 The mock starts with `10.1234567.1`, `.2` and `.3`. Selecting any one retains it
 and closes the other two in that repository's in-memory simulation. Reopening
@@ -56,3 +63,16 @@ count branching, entry resolution, consent/reset, retry identity, mock review
 validation, receipt/exit behavior and compact layouts. Opt-in previews use
 `CAPTURE_CERTIFICATE_PREVIEWS=1` and write
 `build/previews/certificates/surplus-deposits-*.png`.
+
+## Phase 6 notification and style adoption
+
+Under [contract v1.22](../ui-cubit-state-agent-rules-en.md), request errors notify
+on each operation's entering-failure transition. Every failure publishes status,
+Failure and its prepared message together. Last failure/message remain through
+loading, success, input and command changes; message presence is not an event.
+Independent failure, typed-effect and receipt subscriptions share
+`MultiBlocListener`; rendering uses `BlocBuilder`. Effects never inspect a retained
+message before executing. Success uses the existing receipt, without replaying
+old failure text. Retry/empty sections, actual validation and loading gates stay.
+See [phase 6 review](phase-6-review.md) for operation ownership, preserved resets,
+UseCase wiring, integration limits and current scoped checks.

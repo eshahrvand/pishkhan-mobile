@@ -25,8 +25,8 @@ class AgentSettingsCubit extends Cubit<AgentSettingsState> {
   }) : super(initialState);
 
   final String? initialDepositNumber;
-  final _repository = getIt<AgentSettingsRepository>();
-  late final _fetchAgents = FetchAgents(_repository);
+  final repository = getIt<AgentSettingsRepository>();
+  late final fetchAgentsUseCase = FetchAgents(repository);
 
   Future<void> fetchAgents() {
     final resolveEntry = state.depositNumbers.isEmpty;
@@ -37,7 +37,7 @@ class AgentSettingsCubit extends Cubit<AgentSettingsState> {
         message: null,
       ),
     );
-    return _fetchAgents().then((result) {
+    return fetchAgentsUseCase().then((result) {
       switch (result) {
         case Err(:final failure):
           emit(

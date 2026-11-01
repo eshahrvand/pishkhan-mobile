@@ -5,8 +5,8 @@ import '../entities/listed_deposit.dart';
 import '../entities/surplus_deposit_closure.dart';
 import '../repositories/surplus_deposits_repository.dart';
 
-class FetchPrimaryDeposits {
-  const FetchPrimaryDeposits(this.repository);
+class FetchPrimaryDepositsUseCase {
+  const FetchPrimaryDepositsUseCase(this.repository);
   final SurplusDepositsRepository repository;
 
   Future<Result<List<ListedDeposit>>> call() async {
@@ -21,8 +21,8 @@ class FetchPrimaryDeposits {
   }
 }
 
-class FetchSurplusDeposits {
-  const FetchSurplusDeposits(this.repository);
+class FetchSurplusDepositsUseCase {
+  const FetchSurplusDepositsUseCase(this.repository);
   final SurplusDepositsRepository repository;
 
   Future<Result<SurplusDepositReview>> call(
@@ -36,8 +36,8 @@ class FetchSurplusDeposits {
   }
 }
 
-class SubmitCloseSurplusDeposits {
-  const SubmitCloseSurplusDeposits(this.repository);
+class SubmitCloseSurplusDepositsUseCase {
+  const SubmitCloseSurplusDepositsUseCase(this.repository);
   final SurplusDepositsRepository repository;
 
   Future<Result<SurplusDepositClosureReceipt>> call(
@@ -52,9 +52,13 @@ class SubmitCloseSurplusDeposits {
 }
 
 /// One confirmed closure operation, scoped to its feature flow.
-class CloseRemainingDeposits {
-  CloseRemainingDeposits(this.repository);
-  final SurplusDepositsRepository repository;
+class CloseRemainingDepositsUseCase {
+  CloseRemainingDepositsUseCase(
+    this.fetchSurplusDepositsUseCase,
+    this.submitCloseSurplusDepositsUseCase,
+  );
+  final FetchSurplusDepositsUseCase fetchSurplusDepositsUseCase;
+  final SubmitCloseSurplusDepositsUseCase submitCloseSurplusDepositsUseCase;
 
   // An uncertain response must retry the same reviewed payload and key.
   CloseSurplusDepositsRequest? _pendingRequest;
@@ -63,20 +67,24 @@ class CloseRemainingDeposits {
     ListedDeposit primaryDeposit, {
     required String idempotencyKey,
   }) async {
-    if (_pendingRequest?.idempotencyKey != idempotencyKey) {
-      final result = await FetchSurplusDeposits(repository)(primaryDeposit);
-      switch (result) {
-        case Err(:final failure):
-          return Err(failure);
-        case Success(:final data):
-          _pendingRequest = CloseSurplusDepositsRequest(
-            primaryDepositId: primaryDeposit.id,
-            reviewToken: data.token,
-            depositIds: data.deposits.map((deposit) => deposit.id),
-            idempotencyKey: idempotencyKey,
-          );
+    try {
+      if (_pendingRequest?.idempotencyKey != idempotencyKey) {
+        final result = await fetchSurplusDepositsUseCase(primaryDeposit);
+        switch (result) {
+          case Err(:final failure):
+            return Err(failure);
+          case Success(:final data):
+            _pendingRequest = CloseSurplusDepositsRequest(
+              primaryDepositId: primaryDeposit.id,
+              reviewToken: data.token,
+              depositIds: data.deposits.map((deposit) => deposit.id),
+              idempotencyKey: idempotencyKey,
+            );
+        }
       }
+      return await submitCloseSurplusDepositsUseCase(_pendingRequest!);
+    } catch (_) {
+      return const Err(UnexpectedFailure());
     }
-    return SubmitCloseSurplusDeposits(repository)(_pendingRequest!);
   }
 }

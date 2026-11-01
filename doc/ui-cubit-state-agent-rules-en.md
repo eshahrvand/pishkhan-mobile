@@ -1,7 +1,7 @@
 # UI, Cubit and State Coding Contract for the Team and Agents
 
 **Project:** Smart Virtual Counter — `pishkhan_mobile`  
-**Version:** 1.22 — Scoped flow verification<br>
+**Version:** 1.23 — Explicit Cubit dependency field names<br>
 **Date:** 2026-11-01<br>
 **Scope:** Presentation coding style, State management and readability rules  
 **Status:** Authoritative coding contract. Historical examples do not override the mandatory ownership rules or the owner amendments below. Implementation status is recorded in the feature documentation.
@@ -33,6 +33,27 @@ Cubit submission/edit guards throughout this document and architecture Section 1
 
 Actual behavior remains explicit: form validation, choosing a step/action, Apply versus Cancel and optional entry-data resolution are calculations/flow decisions. Server authorization/idempotency remains at its existing boundary. There is no async disposal check of any kind (owner decision 2026-10-18; Section 8.3). A modal may directly bind its Confirm button to a Cubit
 action; Cancel and dismissal simply close it without invoking that action.
+
+## Mandatory Owner Clarification: Cubit Dependency Field Names
+
+Repository and UseCase fields in Cubit have no leading underscore, following
+AuthCubit. A UseCase field uses the complete class name in lowerCamelCase,
+including the UseCase suffix: `fetchDepositRestrictionCatalogUseCase`, not
+`_fetchCatalog` or `fetchCatalog`. For example:
+
+```dart
+final repository = getIt<CardServicesRepository>();
+final fetchDepositRestrictionCatalogUseCase = getIt<FetchDepositRestrictionCatalogUseCase>();
+```
+
+Keep references final and update every call site. Repository fields may retain
+a meaningful subject such as `agentRepository`; removing `_` does not require
+renaming an already-clear `repository` field. Pure implementation helpers,
+request IDs and owned timers keep their existing privacy rules. This naming
+clarification does not authorize broader migration of later-phase operations.
+Their existing UseCase reference fields adopt the suffix now; class/file/DI and
+operation migrations still follow their authorized phases. Domain's constructor
+fields are outside this Cubit-field naming rule.
 
 ## Mandatory Owner Update, 2026-11-01: Scoped Test Execution
 
@@ -1228,7 +1249,9 @@ those decisions in code. The approved before/after examples are in Section 6.7.
   them. Apply architecture Section 12.7 when deciding whether a public setter or
   dependency-replacement action represents actual product behavior; tests alone
   do not establish that requirement.
-- Name internal dependencies by purpose (for example `loadCardsUseCase`, not `_loader`).
+- Cubit dependency fields have no leading underscore. Use the complete lowerCamelCase
+  UseCase class name, including `UseCase` (for example `loadCardsUseCase`, not `_loader`
+  or `_loadCards`). Repository fields use `repository` or a meaningful subject.
   Immutable dependency references use `final`; `late` does not justify mutability.
 - There is no `isClosed` check anywhere (Section 8.3), and no `safeEmit`, overridden `emit` or BaseCubit. Do not repeat UI-guaranteed preconditions. Keep actual validation and flow choices explicit.
 - Apply architecture Section 16.3 when changing tests: tests never justify a disposal guard.
@@ -4267,7 +4290,7 @@ This text is a compact summary of the mandatory contract, not an alternative to 
 - [ ] Each extracted helper has actual reuse, a substantial independent calculation or a boolean predicate exceeding two expression lines (Section 6.8.2); no chains of tiny helpers or long boolean argument lists were added merely to shorten methods.
 - [ ] A condition used once and fitting one/two lines is a direct `copyWith` argument; longer conditions and any condition used two or more times use named calculation functions outside the action, not local eligibility aliases.
 - [ ] Operation inventory written before coding: each request operation has exactly one owner action and a list of its trigger actions (Section 6.10).
-- [ ] No dependency call (`UseCase(`, `_repository.`) appears in more than one action for the same operation.
+- [ ] No dependency call (`UseCase(`, `repository.`) appears in more than one action for the same operation.
 - [ ] `await` and `switch (result)` each appear once per operation.
 - [ ] Repeated groups of three or more copyWith fields have been reviewed: shared operations delegate; independent events retain explicit emits and share pure calculations.
 - [ ] No boolean condition appears two or more times without a `_canX(...)` helper.
@@ -4453,6 +4476,11 @@ These numbers refer to the supplementary review list in the conversation, not th
 Open item 7 does not permit array-driven fixed forms or index-based field actions; item 2 explicitly prohibits them. Acceptance of empty button callbacks under item 10 does not permit empty Listeners or fabricated APIs. These are separate concerns.
 
 ### 25.2 Consolidation Status
+
+Version 1.23 records the owner's AuthCubit-aligned dependency-field naming:
+no leading underscore for Repository/UseCase fields, and the full lowerCamelCase
+UseCase name including its suffix. Naming-only adoption does not start later
+phases or change dependency lifetimes and operation behavior.
 
 Version 1.22 (2026-11-01) records the owner's test-scope instruction: changed
 flows and directly related regressions only; complete application tests require

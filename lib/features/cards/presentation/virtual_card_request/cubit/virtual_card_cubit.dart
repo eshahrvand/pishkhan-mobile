@@ -28,7 +28,7 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
 
   final loadVirtualCardCatalogUseCase = getIt<LoadVirtualCardCatalogUseCase>();
   final quoteVirtualCardsUseCase = getIt<QuoteVirtualCardsUseCase>();
-  final _repository = getIt<VirtualCardRepository>();
+  final repository = getIt<VirtualCardRepository>();
   final String? initialDepositNumber;
   // Count and deposit controls stay available during quoting. Only the latest
   // quote may describe the current form, including when a new count is invalid.
@@ -156,7 +156,7 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
         canRetry: false,
       ),
     );
-    final result = await virtualCardBoundary(() => _repository.submit(request));
+    final result = await virtualCardBoundary(() => repository.submit(request));
     switch (result) {
       case Err(:final failure):
         emit(

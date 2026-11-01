@@ -27,16 +27,18 @@ class DepositRestrictionScreen extends StatelessWidget {
   final String? initialDepositNumber;
   final VoidCallback? onAssistantPressed;
 
+  void _showRequestFailure(
+    BuildContext context,
+    DepositRestrictionState state,
+  ) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(state.message!)));
+  }
+
   Future<void> _handleEffect(
     BuildContext context,
     DepositRestrictionState state,
   ) async {
-    if (state.message != null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(state.message!)));
-      return;
-    }
-
     switch (state.effect) {
       case DepositRestrictionEffect.confirmExit:
         context
@@ -89,21 +91,33 @@ class DepositRestrictionScreen extends StatelessWidget {
         operation: operation,
         initialDepositNumber: initialDepositNumber,
       )..fetchCatalog(),
-      child: BlocListener<DepositRestrictionCubit, DepositRestrictionState>(
-        listenWhen: (previous, current) =>
-            previous.submissionStatus != current.submissionStatus &&
-            current.submissionStatus == RequestStatus.success,
-        listener: _handleReceipt,
-        child: BlocConsumer<DepositRestrictionCubit, DepositRestrictionState>(
-          listenWhen: (previous, current) =>
-              (previous.effect != current.effect &&
-                  current.effect != null) ||
-              ((previous.catalogStatus != current.catalogStatus &&
-                      current.catalogStatus == RequestStatus.failure) ||
-                  (previous.submissionStatus != current.submissionStatus &&
-                      current.submissionStatus == RequestStatus.failure)),
-          listener: _handleEffect,
-
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<DepositRestrictionCubit, DepositRestrictionState>(
+            listenWhen: (previous, current) =>
+                previous.submissionStatus != current.submissionStatus &&
+                current.submissionStatus == RequestStatus.success,
+            listener: _handleReceipt,
+          ),
+          BlocListener<DepositRestrictionCubit, DepositRestrictionState>(
+            listenWhen: (previous, current) =>
+                previous.catalogStatus != current.catalogStatus &&
+                current.catalogStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<DepositRestrictionCubit, DepositRestrictionState>(
+            listenWhen: (previous, current) =>
+                previous.submissionStatus != current.submissionStatus &&
+                current.submissionStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<DepositRestrictionCubit, DepositRestrictionState>(
+            listenWhen: (previous, current) =>
+                previous.effect != current.effect && current.effect != null,
+            listener: _handleEffect,
+          ),
+        ],
+        child: BlocBuilder<DepositRestrictionCubit, DepositRestrictionState>(
           builder: (context, state) {
             return Directionality(
               textDirection: TextDirection.rtl,

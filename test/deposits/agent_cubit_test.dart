@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/features/deposits/domain/usecases/deposit_list_usecase.dart';
+
 import 'dart:async';
 
 import 'package:avp_ui/avp_ui.dart';
@@ -38,6 +40,9 @@ void main() {
   late AgentCubit cubit;
 
   setUp(() {
+    getIt.registerLazySingleton<LoadDepositsUseCase>(
+      () => LoadDepositsUseCase(getIt<DepositsRepository>()),
+    );
     repository = RecordingAgentRepository();
     getIt.registerSingleton<DepositsRepository>(MockDepositsRepository());
     getIt.registerSingleton<AgentRepository>(repository);
@@ -209,7 +214,11 @@ void main() {
     'catalog resolves entry deposit and excludes closed/blocked deposits',
     () async {
       await cubit.close();
-      await getIt.unregister<DepositsRepository>();
+      await getIt.reset();
+      getIt.registerLazySingleton<LoadDepositsUseCase>(
+        () => LoadDepositsUseCase(getIt<DepositsRepository>()),
+      );
+      getIt.registerSingleton<AgentRepository>(repository);
       getIt.registerSingleton<DepositsRepository>(
         MockDepositsRepository(
           deposits: [

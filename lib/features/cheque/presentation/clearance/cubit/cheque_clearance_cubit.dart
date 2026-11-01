@@ -21,9 +21,11 @@ class ChequeClearanceCubit extends Cubit<ChequeClearanceState> {
     ChequeClearanceState initialState = const ChequeClearanceState.initial(),
   }) : super(initialState);
 
-  final _repository = getIt<ChequeClearanceRepository>();
-  late final _fetchCatalog = FetchChequeClearanceCatalog(_repository);
-  late final _submitClearance = SubmitChequeClearance(_repository);
+  final repository = getIt<ChequeClearanceRepository>();
+  late final fetchChequeClearanceCatalogUseCase = FetchChequeClearanceCatalog(
+    repository,
+  );
+  late final submitChequeClearanceUseCase = SubmitChequeClearance(repository);
 
   Future<void> fetchCatalog() {
     emit(
@@ -33,7 +35,7 @@ class ChequeClearanceCubit extends Cubit<ChequeClearanceState> {
         message: null,
       ),
     );
-    return _fetchCatalog().then((result) {
+    return fetchChequeClearanceCatalogUseCase().then((result) {
       switch (result) {
         case Err(:final failure):
           emit(
@@ -187,7 +189,7 @@ class ChequeClearanceCubit extends Cubit<ChequeClearanceState> {
         message: null,
       ),
     );
-    return _submitClearance(request).then((result) {
+    return submitChequeClearanceUseCase(request).then((result) {
       switch (result) {
         case Err(:final failure):
           if (failure.code == 'cheque.not-found') {

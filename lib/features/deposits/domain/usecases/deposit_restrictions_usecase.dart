@@ -4,8 +4,8 @@ import 'package:pishkhan_mobile/core/result/result.dart';
 import '../entities/deposit_restriction.dart';
 import '../repositories/deposit_restrictions_repository.dart';
 
-class FetchDepositRestrictionCatalog {
-  const FetchDepositRestrictionCatalog(this.repository);
+class FetchDepositRestrictionCatalogUseCase {
+  const FetchDepositRestrictionCatalogUseCase(this.repository);
   final DepositRestrictionsRepository repository;
   Future<Result<DepositRestrictionCatalog>> call(
     DepositRestrictionOperation operation,
@@ -18,8 +18,8 @@ class FetchDepositRestrictionCatalog {
   }
 }
 
-class SubmitDepositRestriction {
-  const SubmitDepositRestriction(this.repository);
+class SubmitDepositRestrictionUseCase {
+  const SubmitDepositRestrictionUseCase(this.repository);
   final DepositRestrictionsRepository repository;
   Future<Result<DepositRestrictionReceipt>> call(
     DepositRestrictionRequest request,
