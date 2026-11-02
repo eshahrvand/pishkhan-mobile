@@ -11,7 +11,6 @@ import 'package:pishkhan_mobile/core/result/failure.dart';
 import 'package:pishkhan_mobile/core/result/result.dart';
 
 import '../../../domain/entities/card_service_data.dart';
-import '../../../domain/repositories/card_services_repository.dart';
 import '../../../domain/usecases/card_services_usecase.dart';
 
 export 'package:pishkhan_mobile/core/flow/flow_navigation.dart';
@@ -27,7 +26,8 @@ class ChangeCardDepositCubit extends Cubit<ChangeCardDepositState> {
   }) : super(initialState);
 
   final loadCardServiceCatalogUseCase = getIt<LoadCardServiceCatalogUseCase>();
-  final repository = getIt<CardServicesRepository>();
+  final submitCardDepositChangeUseCase =
+      getIt<SubmitCardDepositChangeUseCase>();
   final String? initialCardNumber;
   String? _idempotencyKey;
 
@@ -121,9 +121,7 @@ class ChangeCardDepositCubit extends Cubit<ChangeCardDepositState> {
         canSubmit: false,
       ),
     );
-    final result = await cardServiceBoundary(
-      () => repository.changeDeposit(request),
-    );
+    final result = await submitCardDepositChangeUseCase(request);
     switch (result) {
       case Err(:final failure):
         emit(

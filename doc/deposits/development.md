@@ -1,5 +1,13 @@
 # Deposits: implemented flows and integration
 
+**Current dependency rule — contract v1.24:** application/data operations follow
+Cubit → registered UseCase → Repository. Cubit imports/resolves UseCases only;
+`core/di` wires their repositories. Any earlier direct-Repository or optional-
+UseCase wording below is historical and superseded. Payloads, Result mapping,
+validation, retry identity and UI behavior remain unchanged. See the
+[UseCase-only migration review](../usecase-only-dependencies-review.md).
+
+
 Updated: 2026-11-01. This is the entry document for the deposit module. It describes
 implemented application flows and mock adapters. Bank APIs, real account operations,
 document issuance and payments remain integration work.
@@ -39,7 +47,7 @@ card variants.
 
 Each standalone screen directly constructs its Cubit in `BlocProvider.create`
 and calls its required initial fetch. GetIt registers actual dependencies, never
-Cubits. Cubit resolves its registered Repository/UseCase dependencies in final
+Cubits. Cubit resolves only its registered UseCase dependencies in final
 fields; UI/router do not forward data
 dependencies through constructors. State remains one plain Freezed `.initial`
 data class with independent operation statuses. Cubit owns decisions, validation

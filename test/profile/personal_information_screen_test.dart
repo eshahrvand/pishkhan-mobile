@@ -36,11 +36,7 @@ import '../deposits/certificate_test_support.dart';
 
 void main() {
   setUpAll(loadCertificateFonts);
-  setUp(() {
-    getIt.registerSingleton<PersonalInformationRepository>(
-      MockPersonalInformationRepository(),
-    );
-  });
+  setUp(configureDependencies);
   tearDown(() => getIt.reset());
   Future<void> capture(WidgetTester tester, String name) async {
     FocusManager.instance.primaryFocus?.unfocus();

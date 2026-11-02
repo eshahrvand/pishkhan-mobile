@@ -1,5 +1,11 @@
 # Phase 10 — Integrated Cubit and documentation review
 
+> Historical migration record. The later owner amendment in contract v1.24
+> withdraws its direct-Repository/optional-UseCase decisions. Current Cubits must
+> use UseCases for all application/data operations. See the
+> [follow-up review](usecase-only-dependencies-review.md).
+
+
 Scope: the owner's ten-phase migration of all 31 current Cubits, integration
 boundaries, and final documentation alignment. Contract v1.23 remains authoritative;
 this phase adds no new coding rules. Phase 9 was committed in `322db5c` first.

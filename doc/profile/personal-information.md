@@ -1,5 +1,13 @@
 # Personal information services
 
+**Current dependency rule — contract v1.24:** application/data operations follow
+Cubit → registered UseCase → Repository. Cubit imports/resolves UseCases only;
+`core/di` wires their repositories. Any earlier direct-Repository or optional-
+UseCase wording below is historical and superseded. Payloads, Result mapping,
+validation, retry identity and UI behavior remain unchanged. See the
+[UseCase-only migration review](../usecase-only-dependencies-review.md).
+
+
 ## Entry points and implementation
 
 The dashboard service catalog and drawer open the existing IDs through
@@ -10,7 +18,7 @@ existing authenticated return-location allowlist.
 
 The implementations live under `features/profile/presentation/change_phone`,
 `addresses`, and `job_information`. Each screen directly creates its own Cubit in
-`BlocProvider.create`. Cubits resolve `PersonalInformationRepository` through
+`BlocProvider.create`. Cubits resolve operation-specific UseCases through
 GetIt; the router only selects the destination. Freezed State contains plain
 values, independent operation statuses and typed effects. UI executes navigation,
 modals and feedback; Cubit interprets modal results and owns validation, request
@@ -157,8 +165,8 @@ The shared address editor resolves optional prefill inside Cubit; creating a new
 address emits no default-State initialization. Its independent notice and modal
 completion listeners are grouped. Phone validation/countdown and job
 eligibility use shared pure calculations; each independent action retains its
-explicit emit. No new UseCase layer or DI registration is required: these flows
-already resolve the actual repository in final Cubit fields. The local inbox has
+explicit emit. Each application/data operation uses its own registered UseCase; Cubits resolve
+final UseCase fields and never import or directly invoke the repository. The local inbox has
 no repository/request and retains its existing inbox-replacement, read-status and
 detail-navigation behavior. See [phase 5 review](phase-5-review.md) for operation
 ownership, flow readers, retained resets and scoped verification.

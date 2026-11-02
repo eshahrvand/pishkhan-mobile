@@ -48,3 +48,31 @@ class LoadCardServiceCatalogUseCase {
     return Success(catalog);
   }
 }
+
+class SubmitCardDepositChangeUseCase {
+  const SubmitCardDepositChangeUseCase(this.repository);
+  final CardServicesRepository repository;
+
+  Future<Result<CardServiceReceipt>> call(
+    ChangeCardDepositRequest request,
+  ) async {
+    try {
+      return await repository.changeDeposit(request);
+    } catch (_) {
+      return const Err(UnexpectedFailure());
+    }
+  }
+}
+
+class TransferGiftBalanceUseCase {
+  const TransferGiftBalanceUseCase(this.repository);
+  final CardServicesRepository repository;
+
+  Future<Result<CardServiceReceipt>> call(GiftBalanceRequest request) async {
+    try {
+      return await repository.transferGiftBalance(request);
+    } catch (_) {
+      return const Err(UnexpectedFailure());
+    }
+  }
+}

@@ -342,7 +342,7 @@ Card Services `card-pin-second-change` enables operation selection on `SecondPas
 
 ### Virtual card requests
 
-`VirtualCardRequestScreen(initialDepositNumber: number)` composes public avp_ui inputs/selects/buttons and the app-owned AppInvoice. `VirtualCardRepository` supplies catalog, bound fee quotes and idempotent submission receipts. Register the adapter and used UseCases in core/di; Cubit resolves final dependencies without Screen/Cubit constructor forwarding. `card-virtual`/`card-virtual-request` open the request form; `card-virtual-list` and card category chips retain list access. The virtual-list footer opens the same form unless a host callback handles it. See [request architecture and mock fee limits](cards/virtual-card-request.md).
+`VirtualCardRequestScreen(initialDepositNumber: number)` composes public avp_ui inputs/selects/buttons and the app-owned AppInvoice. `VirtualCardRepository` supplies catalog, bound fee quotes and idempotent submission receipts. Register the adapter and used UseCases in core/di; Cubit resolves final UseCases only, with no Repository import/lookup and no Screen/Cubit constructor forwarding. `card-virtual`/`card-virtual-request` open the request form; `card-virtual-list` and card category chips retain list access. The virtual-list footer opens the same form unless a host callback handles it. See [request architecture and mock fee limits](cards/virtual-card-request.md).
 
 ## Button activity and loading
 

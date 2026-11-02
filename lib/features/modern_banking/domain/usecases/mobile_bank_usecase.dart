@@ -49,3 +49,46 @@ abstract final class TransferLimitValidator {
         amount <= maximum;
   }
 }
+
+class SubmitMobileBankIdentityUseCase {
+  const SubmitMobileBankIdentityUseCase(this.repository);
+  final ModernBankingRepository repository;
+
+  Future<Result<MobileBankRecord>> call(
+    MobileBankIdentityRequest request,
+  ) async {
+    try {
+      return await repository.submitIdentity(request);
+    } catch (_) {
+      return const Err(UnexpectedFailure());
+    }
+  }
+}
+
+class SubmitTransferLimitsUseCase {
+  const SubmitTransferLimitsUseCase(this.repository);
+  final ModernBankingRepository repository;
+
+  Future<Result<TransferLimits>> call(TransferLimitsRequest request) async {
+    try {
+      return await repository.submitTransferLimits(request);
+    } catch (_) {
+      return const Err(UnexpectedFailure());
+    }
+  }
+}
+
+class SubmitMobileBankDeactivationUseCase {
+  const SubmitMobileBankDeactivationUseCase(this.repository);
+  final ModernBankingRepository repository;
+
+  Future<Result<MobileBankRecord>> call(
+    MobileBankDeactivationRequest request,
+  ) async {
+    try {
+      return await repository.submitDeactivation(request);
+    } catch (_) {
+      return const Err(UnexpectedFailure());
+    }
+  }
+}

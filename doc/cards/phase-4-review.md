@@ -1,5 +1,11 @@
 # Phase 4 — card services migration review
 
+> Historical migration record. The later owner amendment in contract v1.24
+> withdraws its direct-Repository/optional-UseCase decisions. Current Cubits must
+> use UseCases for all application/data operations. See the
+> [follow-up review](../usecase-only-dependencies-review.md).
+
+
 Reviewed: 2026-11-01. Baseline commit: `5092e02`. Governing reference:
 [UI/Cubit/State contract v1.21](../ui-cubit-state-agent-rules-en.md) and the
 [clean-code skill](../../.agents/skills/pishkhan-cubit-clean-code/SKILL.md).

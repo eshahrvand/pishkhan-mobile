@@ -1,5 +1,11 @@
 # Phase 8 — Modern banking, on-site transfer and request reports
 
+> Historical migration record. The later owner amendment in contract v1.24
+> withdraws its direct-Repository/optional-UseCase decisions. Current Cubits must
+> use UseCases for all application/data operations. See the
+> [follow-up review](../usecase-only-dependencies-review.md).
+
+
 Scope/order: MobileBankCubit, MobileBankGuideCubit, TransferLimitsCubit,
 MobileBankDeactivationCubit, OnSiteTransferCubit, RequestReportsCubit.
 Apply contract v1.23 and the current Cubit/UI skills. Phase-7 documentation was

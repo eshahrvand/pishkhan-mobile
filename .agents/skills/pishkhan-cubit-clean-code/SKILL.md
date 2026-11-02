@@ -13,16 +13,16 @@ Owner clarification, 2026-11-01: every UseCase class name ends in `UseCase`.
 UseCase Dart filenames use snake_case and end in `_usecase.dart`, for example
 `login_usecase.dart` and `home_usecase.dart`. Update imports and documentation
 when renaming. This naming update leaves the existing file grouping unchanged.
-Cubit Repository/UseCase fields have no leading underscore. A UseCase field
-uses the complete class name in lowerCamelCase, including `UseCase`, for example
-`fetchDepositRestrictionCatalogUseCase`, matching AuthCubit. Repository fields
-use `repository` or a meaningful subject such as `agentRepository`. Private pure
-helpers, request IDs and timers are unaffected.
-Register each used UseCase in GetIt. Resolve it once in a final Cubit field;
-invoke that instance in its operation owner. Never construct a UseCase inside
-Cubit or pass a Repository/service from Cubit to a UseCase constructor. Wire
-constructor dependencies in `core/di`; Domain stays independent of GetIt.
-This does not require adding a new UseCase layer to a flow that has none.
+Owner amendment — contract v1.24: every application/data operation follows
+Cubit → UseCase → Repository. Cubit must not import Repository interfaces or
+implementations, resolve/retain them, or call them through a boundary/helper.
+A missing UseCase must be added; the former exception for flows without UseCases
+is withdrawn. Pure local form, selection and calculation actions need no
+artificial UseCase. GetIt supplies registered UseCases in final Cubit fields,
+without leading underscores and with their complete lowerCamelCase class name
+including UseCase. DI wires Repository constructor arguments; Domain has no
+GetIt dependency. Do not construct UseCases in Cubit or forward a Repository
+from it. Private helpers, request IDs and timers retain their privacy rules.
 Tests install replacements before resolving UseCases/Cubit and reset the test
 scope afterward; replacing a Repository does not rewire an already-resolved
 lazy-singleton UseCase.
@@ -211,7 +211,7 @@ A condition used only **once**: one/two lines stay inline in `copyWith`; longer 
 Check that UseCase classes have the suffix, filenames end in `_usecase.dart`, are registered in GetIt and are
 resolved into final Cubit fields, with no Cubit-side UseCase construction.
 
-1. Search the Cubit for each dependency call and for `await`: each must appear once per operation.
+1. Verify no Repository import/lookup/field/call exists; then search each UseCase call and `await`: each must appear once per operation.
 2. Search for `switch (result)`: once per operation.
 3. Compare `copyWith` blocks: repeated fields require review, not automatic delegation. Shared operations delegate; independent events keep explicit emits with shared pure calculations.
 4. Look for any boolean expression written twice.

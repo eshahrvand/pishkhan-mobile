@@ -8,7 +8,8 @@ import 'package:pishkhan_mobile/core/result/failure.dart';
 import 'package:pishkhan_mobile/core/result/result.dart';
 
 import '../../../domain/entities/personal_information.dart';
-import '../../../domain/repositories/personal_information_repository.dart';
+import '../../../domain/usecases/personal_information_usecase.dart';
+
 part 'job_information_state.dart';
 part 'job_information_cubit.freezed.dart';
 
@@ -16,10 +17,12 @@ class JobInformationCubit extends Cubit<JobInformationState> {
   JobInformationCubit({
     JobInformationState initialState = const JobInformationState.initial(),
   }) : super(initialState);
-  final repository = getIt<PersonalInformationRepository>();
+  final fetchJobInformationUseCase = getIt<FetchJobInformationUseCase>();
+  final saveJobInformationUseCase = getIt<SaveJobInformationUseCase>();
+  final deleteJobInformationUseCase = getIt<DeleteJobInformationUseCase>();
   Future<void> fetchJobInformation() async {
     emit(state.copyWith(jobInformationStatus: RequestStatus.loading));
-    final result = await repository.fetchJobInformation();
+    final result = await fetchJobInformationUseCase();
     switch (result) {
       case Success(:final data):
         emit(
@@ -197,7 +200,7 @@ class JobInformationCubit extends Cubit<JobInformationState> {
         idempotencyKey: key,
       ),
     );
-    final result = await repository.saveJobInformation(
+    final result = await saveJobInformationUseCase(
       jobInformation,
       idempotencyKey: key,
     );
@@ -227,7 +230,7 @@ class JobInformationCubit extends Cubit<JobInformationState> {
 
   Future<void> submitDeletion(ProfileJobInformation jobInformation) async {
     emit(state.copyWith(deletionStatus: RequestStatus.loading));
-    final result = await repository.deleteJobInformation(jobInformation.id);
+    final result = await deleteJobInformationUseCase(jobInformation.id);
     switch (result) {
       case Success():
         emit(

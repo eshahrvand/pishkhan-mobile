@@ -8,7 +8,6 @@ import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/platform/selected_document.dart';
 import 'package:pishkhan_mobile/core/result/failure.dart';
 import 'package:pishkhan_mobile/core/result/result.dart';
-import 'package:pishkhan_mobile/features/transfers/domain/usecases/on_site_transfer_usecase.dart';
 import 'package:pishkhan_mobile/features/transfers/data/repositories/mock_on_site_transfer_repository.dart';
 import 'package:pishkhan_mobile/features/transfers/domain/repositories/on_site_transfer_repository.dart';
 import 'package:pishkhan_mobile/features/transfers/presentation/on_site_transfer/cubit/on_site_transfer_cubit.dart';
@@ -66,10 +65,8 @@ void main() {
   late ControlledTransferRepository repository;
   late OnSiteTransferCubit cubit;
   setUp(() {
-    getIt.registerLazySingleton<UploadTransferDestinationsUseCase>(
-      () =>
-          UploadTransferDestinationsUseCase(getIt<OnSiteTransferRepository>()),
-    );
+    configureDependencies();
+    getIt.unregister<OnSiteTransferRepository>();
     repository = ControlledTransferRepository();
     getIt.registerSingleton<OnSiteTransferRepository>(repository);
     cubit = OnSiteTransferCubit();

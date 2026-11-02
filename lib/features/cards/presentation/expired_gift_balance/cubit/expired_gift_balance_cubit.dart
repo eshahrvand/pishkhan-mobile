@@ -11,7 +11,6 @@ import 'package:pishkhan_mobile/core/result/failure.dart';
 import 'package:pishkhan_mobile/core/result/result.dart';
 
 import '../../../domain/entities/card_service_data.dart';
-import '../../../domain/repositories/card_services_repository.dart';
 import '../../../domain/usecases/card_services_usecase.dart';
 import '../models/gift_balance_deposit_filter.dart';
 
@@ -27,7 +26,7 @@ class ExpiredGiftBalanceCubit extends Cubit<ExpiredGiftBalanceState> {
   }) : super(initialState);
 
   final loadCardServiceCatalogUseCase = getIt<LoadCardServiceCatalogUseCase>();
-  final repository = getIt<CardServicesRepository>();
+  final transferGiftBalanceUseCase = getIt<TransferGiftBalanceUseCase>();
   String? _idempotencyKey;
 
   Future<void> fetchCatalog() async {
@@ -263,9 +262,7 @@ class ExpiredGiftBalanceCubit extends Cubit<ExpiredGiftBalanceState> {
         canReviewSelection: false,
       ),
     );
-    final result = await cardServiceBoundary(
-      () => repository.transferGiftBalance(request),
-    );
+    final result = await transferGiftBalanceUseCase(request);
     switch (result) {
       case Err(:final failure):
         emit(

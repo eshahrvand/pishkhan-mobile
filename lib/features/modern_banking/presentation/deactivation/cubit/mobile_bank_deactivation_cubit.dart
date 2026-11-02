@@ -10,7 +10,6 @@ import 'package:pishkhan_mobile/core/result/failure.dart';
 import 'package:pishkhan_mobile/core/result/result.dart';
 
 import '../../../domain/entities/mobile_bank.dart';
-import '../../../domain/repositories/modern_banking_repository.dart';
 import '../../../domain/usecases/mobile_bank_usecase.dart';
 
 part 'mobile_bank_deactivation_state.dart';
@@ -21,8 +20,9 @@ class MobileBankDeactivationCubit extends Cubit<MobileBankDeactivationState> {
     MobileBankDeactivationState initialState =
         const MobileBankDeactivationState.initial(),
   }) : super(initialState);
-  final repository = getIt<ModernBankingRepository>();
   final fetchMobileBankCatalogUseCase = getIt<FetchMobileBankCatalogUseCase>();
+  final submitMobileBankDeactivationUseCase =
+      getIt<SubmitMobileBankDeactivationUseCase>();
   MobileBankDeactivationRequest? _submittedRequest;
 
   Future<void> fetchMobileBank() async {
@@ -67,7 +67,7 @@ class MobileBankDeactivationCubit extends Cubit<MobileBankDeactivationState> {
     );
     _submittedRequest = request;
     emit(state.copyWith(submissionStatus: RequestStatus.loading));
-    final result = await repository.submitDeactivation(request);
+    final result = await submitMobileBankDeactivationUseCase(request);
     switch (result) {
       case Success(:final data):
         emit(

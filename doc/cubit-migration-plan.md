@@ -49,3 +49,14 @@ From phase 5 onward, run changed-flow tests and directly related regression
 files only. Full-application testing waits for an explicit owner request; do not
 run unscoped `flutter test` automatically. Preserve historical full-suite counts
 as dated evidence and report the actual scoped checks for each new phase.
+
+## Owner follow-up — mandatory UseCase boundary
+
+After the ten phases, the owner explicitly withdrew the optional-UseCase
+exception. Contract v1.24 now requires Cubit → UseCase → Repository for every
+application/data operation. The [follow-up review](usecase-only-dependencies-review.md)
+records the 23 migrated call sites in 13 Cubits, the all-31-Cubit dependency
+review and its separate scoped verification. Earlier phase results remain
+historical; they are not evidence that the earlier contract already forbade
+direct Repository access. This is the requested correction, not an extra
+unapproved migration phase.

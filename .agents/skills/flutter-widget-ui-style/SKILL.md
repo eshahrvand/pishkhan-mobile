@@ -22,8 +22,11 @@ work, also read [pishkhan-cubit-clean-code](../pishkhan-cubit-clean-code/SKILL.m
   A constructor preserves supplied/default State; there is no creation helper
   or private Screen/View wrapper. Router selects destinations only.
 - GetIt registers data/application dependencies, never Cubit/Bloc. Cubit resolves
-  final Repository/UseCase fields; UI, route and child constructors do not
-  forward them. UseCase class/file naming and DI wiring follow the contract.
+  final UseCase fields only; UI, route and child constructors do not
+  forward dependencies. Cubit must never import, resolve, retain or call a
+  Repository, even through a boundary/helper. Every application/data operation
+  needs a UseCase; local pure form actions do not. DI supplies repositories to
+  UseCases. Class/file naming follows contract v1.24.
 - `Provider.create` owns disposal. Use `BlocProvider.value` to borrow that same
   instance across a real modal boundary; do not construct or close a borrowed
   Cubit there.

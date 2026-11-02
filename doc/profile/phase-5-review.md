@@ -1,5 +1,11 @@
 # Phase 5 — Address editor and profile review
 
+> Historical migration record. The later owner amendment in contract v1.24
+> withdraws its direct-Repository/optional-UseCase decisions. Current Cubits must
+> use UseCases for all application/data operations. See the
+> [follow-up review](../usecase-only-dependencies-review.md).
+
+
 Implemented under [contract v1.22](../ui-cubit-state-agent-rules-en.md), the
 [clean-code skill](../../.agents/skills/pishkhan-cubit-clean-code/SKILL.md) and
 [current flow document](personal-information.md). Phase 4 was committed in

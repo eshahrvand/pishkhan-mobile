@@ -24,3 +24,52 @@ class UploadTransferDestinationsUseCase {
     }
   }
 }
+
+class FetchOnSiteTransferCatalogUseCase {
+  const FetchOnSiteTransferCatalogUseCase(this.repository);
+  final OnSiteTransferRepository repository;
+
+  Future<Result<TransferCatalog>> call() async {
+    try {
+      return await repository.fetchCatalog();
+    } catch (_) {
+      return const Err(UnexpectedFailure());
+    }
+  }
+}
+
+class ResolveTransferDestinationUseCase {
+  const ResolveTransferDestinationUseCase(this.repository);
+  final OnSiteTransferRepository repository;
+
+  Future<Result<TransferDestination>> call({
+    required String iban,
+    required int amountRial,
+    required TransferPurpose purpose,
+    required String description,
+  }) async {
+    try {
+      return await repository.resolveDestination(
+        iban: iban,
+        amountRial: amountRial,
+        purpose: purpose,
+        description: description,
+      );
+    } catch (_) {
+      return const Err(UnexpectedFailure());
+    }
+  }
+}
+
+class SubmitOnSiteTransferUseCase {
+  const SubmitOnSiteTransferUseCase(this.repository);
+  final OnSiteTransferRepository repository;
+
+  Future<Result<TransferReceipt>> call(OnSiteTransferRequest request) async {
+    try {
+      return await repository.submit(request);
+    } catch (_) {
+      return const Err(UnexpectedFailure());
+    }
+  }
+}

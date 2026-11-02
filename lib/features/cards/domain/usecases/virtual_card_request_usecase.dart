@@ -1,8 +1,8 @@
-import 'package:pishkhan_mobile/features/cards/domain/repositories/virtual_card_repository.dart';
 import 'package:pishkhan_mobile/core/result/failure.dart';
 import 'package:pishkhan_mobile/core/result/result.dart';
 
 import '../entities/virtual_card_data.dart';
+import '../repositories/virtual_card_repository.dart';
 
 Future<Result<T>> virtualCardBoundary<T>(
   Future<Result<T>> Function() call,
@@ -52,5 +52,18 @@ class QuoteVirtualCardsUseCase {
       return const Err(DataFailure('virtual.quote.invalid'));
     }
     return Success(data);
+  }
+}
+
+class SubmitVirtualCardsUseCase {
+  const SubmitVirtualCardsUseCase(this.repository);
+  final VirtualCardRepository repository;
+
+  Future<Result<VirtualCardReceipt>> call(VirtualCardRequest request) async {
+    try {
+      return await repository.submit(request);
+    } catch (_) {
+      return const Err(UnexpectedFailure());
+    }
   }
 }

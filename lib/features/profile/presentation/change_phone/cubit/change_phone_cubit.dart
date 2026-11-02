@@ -12,7 +12,8 @@ import 'package:pishkhan_mobile/core/validators/phone_number_validator.dart';
 import 'package:pishkhan_mobile/core/validators/code_validator.dart';
 
 import '../../../domain/entities/personal_information.dart';
-import '../../../domain/repositories/personal_information_repository.dart';
+import '../../../domain/usecases/personal_information_usecase.dart';
+
 part 'change_phone_state.dart';
 part 'change_phone_cubit.freezed.dart';
 
@@ -20,11 +21,13 @@ class ChangePhoneCubit extends Cubit<ChangePhoneState> {
   ChangePhoneCubit({
     ChangePhoneState initialState = const ChangePhoneState.initial(),
   }) : super(initialState);
-  final repository = getIt<PersonalInformationRepository>();
+  final fetchPhoneSettingsUseCase = getIt<FetchPhoneSettingsUseCase>();
+  final requestPhoneChangeOtpUseCase = getIt<RequestPhoneChangeOtpUseCase>();
+  final changePhoneUseCase = getIt<ChangePhoneUseCase>();
   Timer? _timer;
   Future<void> fetchSettings() async {
     emit(state.copyWith(settingsStatus: RequestStatus.loading));
-    final result = await repository.fetchPhoneSettings();
+    final result = await fetchPhoneSettingsUseCase();
     switch (result) {
       case Success(:final data):
         emit(
@@ -113,7 +116,7 @@ class ChangePhoneCubit extends Cubit<ChangePhoneState> {
 
   Future<void> submitOtpRequest() async {
     emit(state.copyWith(otpRequestStatus: RequestStatus.loading));
-    final result = await repository.requestPhoneOtp(state.phoneNumber);
+    final result = await requestPhoneChangeOtpUseCase(state.phoneNumber);
     switch (result) {
       case Success(:final data):
         emit(
@@ -198,7 +201,7 @@ class ChangePhoneCubit extends Cubit<ChangePhoneState> {
         idempotencyKey: key,
       ),
     );
-    final result = await repository.changePhone(
+    final result = await changePhoneUseCase(
       phoneNumber: state.phoneNumber,
       otp: state.otp,
       challengeId: state.challenge!.id,

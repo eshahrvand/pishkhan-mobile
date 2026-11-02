@@ -1,3 +1,6 @@
+import 'package:pishkhan_mobile/features/requests/domain/usecases/request_reports_usecase.dart';
+import 'package:pishkhan_mobile/features/profile/domain/usecases/personal_information_usecase.dart';
+import 'package:pishkhan_mobile/features/deposits/domain/usecases/financial_certificate_usecase.dart';
 import 'package:pishkhan_mobile/features/postal_offices/domain/usecases/lookup_usecase.dart';
 import 'package:pishkhan_mobile/features/cheque/domain/usecases/cheque_clearance_usecase.dart';
 import 'package:pishkhan_mobile/features/cheque/domain/usecases/cheque_cancellation_usecase.dart';
@@ -160,6 +163,107 @@ void configureDependencies({GetIt? container}) {
   );
   dependencies.registerLazySingleton<SubmitChequeBookUseCase>(
     () => SubmitChequeBookUseCase(dependencies<ChequeBookRepository>()),
+  );
+  dependencies.registerFactory<SubmitVirtualCardsUseCase>(
+    () => SubmitVirtualCardsUseCase(dependencies<VirtualCardRepository>()),
+  );
+  dependencies.registerFactory<SubmitCardDepositChangeUseCase>(
+    () =>
+        SubmitCardDepositChangeUseCase(dependencies<CardServicesRepository>()),
+  );
+  dependencies.registerFactory<TransferGiftBalanceUseCase>(
+    () => TransferGiftBalanceUseCase(dependencies<CardServicesRepository>()),
+  );
+  dependencies.registerFactory<SubmitAverageBalanceUseCase>(
+    () => SubmitAverageBalanceUseCase(
+      dependencies<DepositCertificatesRepository>(),
+    ),
+  );
+  dependencies.registerFactory<SubmitFinancialCertificateUseCase>(
+    () => SubmitFinancialCertificateUseCase(
+      dependencies<FinancialCertificateRepository>(),
+    ),
+  );
+  dependencies.registerFactory<SubmitMobileBankIdentityUseCase>(
+    () => SubmitMobileBankIdentityUseCase(
+      dependencies<ModernBankingRepository>(),
+    ),
+  );
+  dependencies.registerFactory<SubmitTransferLimitsUseCase>(
+    () => SubmitTransferLimitsUseCase(dependencies<ModernBankingRepository>()),
+  );
+  dependencies.registerFactory<SubmitMobileBankDeactivationUseCase>(
+    () => SubmitMobileBankDeactivationUseCase(
+      dependencies<ModernBankingRepository>(),
+    ),
+  );
+  dependencies.registerFactory<FetchOnSiteTransferCatalogUseCase>(
+    () => FetchOnSiteTransferCatalogUseCase(
+      dependencies<OnSiteTransferRepository>(),
+    ),
+  );
+  dependencies.registerFactory<ResolveTransferDestinationUseCase>(
+    () => ResolveTransferDestinationUseCase(
+      dependencies<OnSiteTransferRepository>(),
+    ),
+  );
+  dependencies.registerFactory<SubmitOnSiteTransferUseCase>(
+    () => SubmitOnSiteTransferUseCase(dependencies<OnSiteTransferRepository>()),
+  );
+  dependencies.registerFactory<FetchRequestReportsUseCase>(
+    () => FetchRequestReportsUseCase(dependencies<RequestReportsRepository>()),
+  );
+  dependencies.registerFactory<CancelReportedRequestUseCase>(
+    () =>
+        CancelReportedRequestUseCase(dependencies<RequestReportsRepository>()),
+  );
+  dependencies.registerFactory<FetchProfileAddressesUseCase>(
+    () => FetchProfileAddressesUseCase(
+      dependencies<PersonalInformationRepository>(),
+    ),
+  );
+  dependencies.registerFactory<SaveProfileAddressUseCase>(
+    () => SaveProfileAddressUseCase(
+      dependencies<PersonalInformationRepository>(),
+    ),
+  );
+  dependencies.registerFactory<DeleteProfileAddressUseCase>(
+    () => DeleteProfileAddressUseCase(
+      dependencies<PersonalInformationRepository>(),
+    ),
+  );
+  dependencies.registerFactory<ReviewProfileAddressUseCase>(
+    () => ReviewProfileAddressUseCase(
+      dependencies<PersonalInformationRepository>(),
+    ),
+  );
+  dependencies.registerFactory<FetchPhoneSettingsUseCase>(
+    () => FetchPhoneSettingsUseCase(
+      dependencies<PersonalInformationRepository>(),
+    ),
+  );
+  dependencies.registerFactory<RequestPhoneChangeOtpUseCase>(
+    () => RequestPhoneChangeOtpUseCase(
+      dependencies<PersonalInformationRepository>(),
+    ),
+  );
+  dependencies.registerFactory<ChangePhoneUseCase>(
+    () => ChangePhoneUseCase(dependencies<PersonalInformationRepository>()),
+  );
+  dependencies.registerFactory<FetchJobInformationUseCase>(
+    () => FetchJobInformationUseCase(
+      dependencies<PersonalInformationRepository>(),
+    ),
+  );
+  dependencies.registerFactory<SaveJobInformationUseCase>(
+    () => SaveJobInformationUseCase(
+      dependencies<PersonalInformationRepository>(),
+    ),
+  );
+  dependencies.registerFactory<DeleteJobInformationUseCase>(
+    () => DeleteJobInformationUseCase(
+      dependencies<PersonalInformationRepository>(),
+    ),
   );
   dependencies.registerLazySingleton<PersonalInformationRepository>(
     MockPersonalInformationRepository.new,

@@ -401,11 +401,19 @@ Following the granularity principle (Section 6.1):
 1. **The top-level folders under `app/lib/features/` are exactly the features listed in Section 6.2.** A service never gets its own top-level folder; it lives inside the feature of its category (for example, card issuance and virtual card services live inside `cards`).
 2. **Entities, repositories, mappers, and DTOs stay at the feature level** and are shared by the services of that feature. The use case and the presentation flow are per service.
 3. **Each service uses one base name** (`snake_case`, English): `presentation/<service>/` and `domain/usecases/<service>_usecase.dart`. The UseCase file suffix is mandatory; for example `home_usecase.dart`, never an ambiguous `home.dart` under usecases.
-4. **`presentation/<service>/` holds only the UI layer of that service** (`cubit/`, `screens/`, `widgets/`); its use cases live in the corresponding `_usecase.dart` file under `domain/usecases/`, and entities and repositories live at the feature level. A service with no domain logic (for example, a catalog screen) has only the presentation folder. Existing cohesive UseCase groups need not be split solely for this naming rule.
+4. **`presentation/<service>/` holds only the UI layer of that service** (`cubit/`, `screens/`, `widgets/`); its use cases live in the corresponding `_usecase.dart` file under `domain/usecases/`, and entities and repositories live at the feature level. A pure local display with no application/data operation may have only presentation; a catalog fetch requires a UseCase and its Domain contract. Existing cohesive UseCase groups need not be split solely for this naming rule.
 
 ---
 
 ## 7. Layering Pattern (Clean Architecture)
+
+**Owner amendment — contract v1.24:** every Cubit application/data operation
+uses a registered UseCase. The path is Cubit → UseCase → Repository. Cubits never
+import Repository interfaces/implementations, resolve them, retain them or call
+them through a boundary/helper. DI wires repositories into UseCases. Pure local
+form/calculation actions do not require artificial UseCases. Earlier statements
+permitting direct Repository access or skipping a UseCase are superseded.
+
 
 Each module consists of three strictly bounded layers:
 
@@ -1096,7 +1104,7 @@ refactors, not a claim that every existing Cubit already complies.
 * UI reads State fields directly. Check `state.submissionStatus == RequestStatus.loading` directly in widget arguments; do not introduce getter aliases or local `loading`, `empty` or `form` variables in builders.
 * Cubit owns flow decisions, input validation coordination, filtering, selection resolution and request construction; reusable business rules belong in Domain. UI sends events, renders State, executes prepared Flutter effects and returns raw modal results to Cubit. State contains data, not behavior.
 * Store derived results needed by UI in State and update them together with their inputs using explicit `emit(state.copyWith(...))` in the action. Pure helpers return values; they never construct or publish State. No State-preparation/publication intermediary, overridden `emit` or separate rules facade may hide these transitions.
-* Cubit constructors accept an initial State and real entry parameters only. A Cubit resolves its registered Repository, service and UseCase dependencies from GetIt in its own fields; dependencies are not passed through Cubit constructors, screen constructors, route arguments or child widgets. Cubit/Bloc are never registered in GetIt. Do not copy the other application's models or imports. See the UI/Cubit/State contract, Section 2.2.
+* Cubit constructors accept an initial State and real entry parameters only. A Cubit resolves registered UseCases from GetIt in its own fields and never imports/resolves/calls a Repository; dependencies are not passed through Cubit constructors, screen constructors, route arguments or child widgets. Cubit/Bloc are never registered in GetIt. Do not copy the other application's models or imports. See the UI/Cubit/State contract, Section 2.2.
 * Keep defaults non-null for known values (`bool`, counters, lists and statuses). Use nullable fields when absence is meaningful. Do not copy nullable defaults mechanically from the reference.
 * Keep controllers, focus nodes and `BuildContext` in UI lifecycle owners. No global mutable feature caches. Preserve UI loading/enablement and server request identity.
 * Async Cubit actions return `Future<void>` using `async/await`; they do not use `.then` chains, `try/catch` or `catchError`. `Err` is a value handled by a `switch` after `await`, and the Repository/UseCase boundary converts every exception to `Err`. No async action checks `isClosed` (Section 12.4). See the UI/Cubit/State contract, Section 8.
@@ -1124,7 +1132,7 @@ class ChangeCardDepositCubit extends Cubit<ChangeCardDepositState> {
     ChangeCardDepositState initialState = const ChangeCardDepositState.initial(),
   }) : super(initialState);
 
-  final repository = getIt<CardServicesRepository>();
+  final submitCardDepositChangeUseCase = getIt<SubmitCardDepositChangeUseCase>();
 
   void selectDestination(CardServiceDeposit destination) {
     emit(state.copyWith(
@@ -1256,7 +1264,7 @@ abstract class LoanRequestFormState with _$LoanRequestFormState {
 
 * The screen or feature-owned flow widget constructs its Cubit directly in `BlocProvider(create: ...)` and, only if the feature has a real fetch or entry resolution, calls the explicit initial action there. A shared multi-screen flow places this Provider at its actual common feature boundary; child screens reuse it. GoRouter only selects the destination widget and typed inputs, never creates a screen Cubit or wires its data dependencies. The Provider owns disposal; ordinary rebuilds retain the same instance.
 * Constructed directly in `BlocProvider(create: ...)` so each flow entry gets a fresh instance. Cubit/Bloc are never registered in GetIt, with `@injectable`, `@singleton` or any other lifetime.
-* Screens, child widgets and the router must not call `getIt` for data dependencies; the Cubit resolves them in its own fields (Section 12.2).
+* Screens, child widgets and the router must not call `getIt` for data dependencies; the Cubit resolves UseCases in its own fields; Repository access stays behind them (Section 12.2).
 
 ### 12.7 Production API and Dependency Stability
 
@@ -1269,8 +1277,9 @@ abstract class LoanRequestFormState with _$LoanRequestFormState {
   has the `UseCase` suffix and its own GetIt registration. Cubit resolves that
   instance; it does not construct a UseCase from a Repository/service field,
   including with `late final`. Constructor wiring belongs in `core/di`, while
-  Domain stays independent of GetIt. Do not add extra UseCases to flows that
-  have none solely for this rule.
+  Domain stays independent of GetIt. Every application/data operation requires a UseCase, including flows that
+  previously had none. Cubits must not import, resolve or directly call Repository
+  interfaces or implementations; exception-boundary callbacks do not waive this.
   Runtime dependency replacement needs an actual authorized product requirement;
   tests alone do not justify `changeRepository`, mutable loaders or Repository
   parameters on screens/Cubit constructors.
@@ -1644,7 +1653,7 @@ GoRouter createAppRouter({required RouterSession session}) {
 
 `createAppRouter` creates an instance, not a feature route list. The app owns its session and router and disposes both. The implementation retains `homeBuilder` and `initialLocation` injection for tests. Do not replace this lifecycle with a mutable global router/session singleton.
 
-**Route inputs and dependencies:** typed route argument classes live in `app_router.dart`. The router reads path/query parameters and `state.extra` and connects callbacks; it does not create, resolve or inject Repository/service/UseCase dependencies, which Cubits resolve from GetIt in their own fields. Register the prototype password repository once as a lazy singleton in `core/di` so receipts survive route re-entry; do not instantiate it inside a page builder. URL-only helpers belong to `AppRoutes`, accept simple strings and encode dynamic segments/query values; they must not import feature entities. In-memory `extra` values are not a persistent URL payload and do not survive a browser reload by themselves.
+**Route inputs and dependencies:** typed route argument classes live in `app_router.dart`. The router reads path/query parameters and `state.extra` and connects callbacks; it does not create, resolve or inject data dependencies. Cubits resolve UseCases only; core/di wires repositories into them. Register the prototype password repository once as a lazy singleton in `core/di` so receipts survive route re-entry; do not instantiate it inside a page builder. URL-only helpers belong to `AppRoutes`, accept simple strings and encode dynamic segments/query values; they must not import feature entities. In-memory `extra` values are not a persistent URL payload and do not survive a browser reload by themselves.
 
 **Navigation boundaries:** `ServiceRegistry` and existing navigation adapters dispatch through the central paths and argument contracts. Widgets still perform `context.push`, `context.go`, `context.pop` and open local dialogs/sheets where appropriate. Screen/Cubit business logic and widget composition are not moved into the router. Guards and the post-login destination validator remain separate, with one global redirect entry (Sections 15.1–15.2).
 

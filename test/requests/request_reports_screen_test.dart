@@ -32,6 +32,8 @@ import '../deposits/certificate_test_support.dart';
 void main() {
   setUpAll(loadCertificateFonts);
   setUp(() {
+    configureDependencies();
+    getIt.unregister<RequestReportsRepository>();
     getIt.registerSingleton<RequestReportsRepository>(
       MockRequestReportsRepository(
         now: () => DateTime.utc(2026, 10, 20, 4, 42),
@@ -350,6 +352,8 @@ void main() {
     'dismissing a pending cancellation does not close a later filter sheet',
     (tester) async {
       await getIt.reset();
+      configureDependencies();
+      await getIt.unregister<RequestReportsRepository>();
       final repository = DeferredCancellationRepository();
       getIt.registerSingleton<RequestReportsRepository>(repository);
       await mountCertificate(tester, const RequestReportsScreen());

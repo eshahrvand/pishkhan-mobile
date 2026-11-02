@@ -17,8 +17,8 @@ import 'package:pishkhan_mobile/core/validators/passport_validator.dart';
 import '../../../domain/entities/certificate_data.dart';
 import '../../../domain/entities/financial_certificate_data.dart';
 import '../../../domain/entities/listed_deposit.dart';
-import '../../../domain/repositories/financial_certificate_repository.dart';
 import '../../../domain/usecases/average_balance_usecase.dart';
+import '../../../domain/usecases/financial_certificate_usecase.dart';
 import '../../shared/certificate_effect.dart';
 
 export 'package:pishkhan_mobile/core/flow/flow_navigation.dart';
@@ -35,10 +35,11 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
         const FinancialCertificateState.initial(),
   }) : super(initialState);
 
-  final repository = getIt<FinancialCertificateRepository>();
   final loadCertificateCatalogUseCase = getIt<LoadCertificateCatalogUseCase>(
     instanceName: 'financial-certificate',
   );
+  final submitFinancialCertificateUseCase =
+      getIt<SubmitFinancialCertificateUseCase>();
   final String? initialDepositNumber;
   int _localAddress = 0;
   // The last sent payload owns its key; editing the form does not create a request.
@@ -613,9 +614,7 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
     }
     _submittedRequest = request;
     emit(state.copyWith(submissionStatus: RequestStatus.loading));
-    final result = await certificateBoundary(
-      () => repository.submitFinancialCertificate(request),
-    );
+    final result = await submitFinancialCertificateUseCase(request);
     switch (result) {
       case Err(:final failure):
         emit(

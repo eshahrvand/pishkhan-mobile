@@ -16,6 +16,8 @@ void main() {
   late RequestReportsCubit cubit;
 
   setUp(() {
+    configureDependencies();
+    getIt.unregister<RequestReportsRepository>();
     repository = ControlledReportsRepository();
     getIt.registerSingleton<RequestReportsRepository>(repository);
     cubit = RequestReportsCubit();

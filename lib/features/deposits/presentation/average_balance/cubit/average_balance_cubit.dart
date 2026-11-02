@@ -15,7 +15,6 @@ import 'package:pishkhan_mobile/core/validators/national_code_validator.dart';
 
 import '../../../domain/entities/certificate_data.dart';
 import '../../../domain/entities/listed_deposit.dart';
-import '../../../domain/repositories/deposit_certificates_repository.dart';
 import '../../../domain/usecases/average_balance_usecase.dart';
 import '../../shared/certificate_effect.dart';
 
@@ -32,10 +31,10 @@ class AverageBalanceCubit extends Cubit<AverageBalanceState> {
     AverageBalanceState initialState = const AverageBalanceState.initial(),
   }) : super(initialState);
 
-  final repository = getIt<DepositCertificatesRepository>();
   final loadCertificateCatalogUseCase = getIt<LoadCertificateCatalogUseCase>(
     instanceName: 'average-balance',
   );
+  final submitAverageBalanceUseCase = getIt<SubmitAverageBalanceUseCase>();
   final String? initialDepositNumber;
   int _localAddress = 0;
   // The last sent payload owns its key; editing the form does not create a request.
@@ -319,9 +318,7 @@ class AverageBalanceCubit extends Cubit<AverageBalanceState> {
     }
     _submittedRequest = request;
     emit(state.copyWith(submissionStatus: RequestStatus.loading));
-    final result = await certificateBoundary(
-      () => repository.submitAverageBalance(request),
-    );
+    final result = await submitAverageBalanceUseCase(request);
     switch (result) {
       case Err(:final failure):
         emit(

@@ -11,7 +11,6 @@ import 'package:pishkhan_mobile/core/result/result.dart';
 import 'package:pishkhan_mobile/core/validators/second_password_validator.dart';
 
 import '../../../domain/entities/mobile_bank.dart';
-import '../../../domain/repositories/modern_banking_repository.dart';
 import '../../../domain/usecases/mobile_bank_usecase.dart';
 
 part 'mobile_bank_state.dart';
@@ -23,8 +22,9 @@ class MobileBankCubit extends Cubit<MobileBankState> {
     MobileBankState initialState = const MobileBankState.initial(),
   }) : super(initialState);
   final MobileBankOperation operation;
-  final repository = getIt<ModernBankingRepository>();
   final fetchMobileBankCatalogUseCase = getIt<FetchMobileBankCatalogUseCase>();
+  final submitMobileBankIdentityUseCase =
+      getIt<SubmitMobileBankIdentityUseCase>();
   MobileBankIdentityRequest? _submittedRequest;
 
   Future<void> fetchMobileBank() async {
@@ -156,7 +156,7 @@ class MobileBankCubit extends Cubit<MobileBankState> {
     );
     _submittedRequest = request;
     emit(state.copyWith(submissionStatus: RequestStatus.loading));
-    final result = await repository.submitIdentity(request);
+    final result = await submitMobileBankIdentityUseCase(request);
     switch (result) {
       case Success(:final data):
         emit(

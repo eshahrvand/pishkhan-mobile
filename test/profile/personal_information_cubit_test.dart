@@ -17,6 +17,8 @@ import 'package:pishkhan_mobile/features/profile/presentation/job_information/cu
 void main() {
   late MockPersonalInformationRepository repository;
   setUp(() {
+    configureDependencies();
+    getIt.unregister<PersonalInformationRepository>();
     repository = MockPersonalInformationRepository();
     getIt.registerSingleton<PersonalInformationRepository>(repository);
   });

@@ -1,5 +1,13 @@
 # Transfer expired gift card balance
 
+**Current dependency rule — contract v1.24:** application/data operations follow
+Cubit → registered UseCase → Repository. Cubit imports/resolves UseCases only;
+`core/di` wires their repositories. Any earlier direct-Repository or optional-
+UseCase wording below is historical and superseded. Payloads, Result mapping,
+validation, retry identity and UI behavior remain unchanged. See the
+[UseCase-only migration review](../usecase-only-dependencies-review.md).
+
+
 Reviewed: 2026-11-01 — phase 4, contract v1.21.
 
 Status: interactive two-step flow with a registered repository. The default adapter records a demo request without transferring funds.
@@ -85,8 +93,9 @@ behavior, Back gates, typed payloads and command consumption are preserved.
 | Transfer | `_submitTransfer` | Destination branch of `submitCurrentStep`; retry |
 
 `LoadCardServiceCatalogUseCase` is registered/wired in DI and resolved in its
-final Cubit field. It lives in `card_services_usecase.dart`. Transfer retains the
-existing boundary-protected Repository operation and typed request/key.
+final Cubit field. `TransferGiftBalanceUseCase` owns the transfer dependency in
+the same `card_services_usecase.dart` group. DI wires both; Cubit has no
+Repository import/lookup. The existing typed request/key and Result mapping remain.
 
 | Step | State read / retained | Next / lifetime |
 |---|---|---|

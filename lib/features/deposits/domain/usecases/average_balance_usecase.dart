@@ -52,3 +52,16 @@ class LoadCertificateCatalogUseCase {
     }
   }
 }
+
+class SubmitAverageBalanceUseCase {
+  const SubmitAverageBalanceUseCase(this.repository);
+  final DepositCertificatesRepository repository;
+
+  Future<Result<CertificateReceipt>> call(AverageBalanceRequest request) async {
+    try {
+      return await repository.submitAverageBalance(request);
+    } catch (_) {
+      return const Err(UnexpectedFailure());
+    }
+  }
+}

@@ -1,7 +1,9 @@
 # Pishkhan Mobile
 
 Flutter application for the Smart Virtual Counter. Feature screens own their
-Cubit scopes; Domain contains service contracts and business rules, Data contains
+Cubit scopes and resolve UseCases only. Application/data access follows
+Cubit → UseCase → Repository; Cubits never import or directly resolve Repository.
+Domain contains service contracts and business rules, Data contains
 adapters, and `core/di` wires actual dependencies through GetIt. Some flows use
 bank integrations and others use documented mock adapters; each flow document
 records its current boundary.
@@ -42,7 +44,9 @@ request; historical results do not authorize repeating it.
 
 The [migration plan](doc/cubit-migration-plan.md) tracks the ten phases. The
 [phase-10 review](doc/cubit-phase-10-review.md) accounts for all 31 Cubits and
-records current scoped verification separately from historical phase results.
+records its scoped verification separately from historical phase results. The
+[UseCase-only follow-up](doc/usecase-only-dependencies-review.md) records the
+subsequent owner amendment and all-Cubit dependency correction.
 
 ## Flow documentation
 

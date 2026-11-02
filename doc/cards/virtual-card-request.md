@@ -1,5 +1,13 @@
 # Virtual Card Request Development
 
+**Current dependency rule — contract v1.24:** application/data operations follow
+Cubit → registered UseCase → Repository. Cubit imports/resolves UseCases only;
+`core/di` wires their repositories. Any earlier direct-Repository or optional-
+UseCase wording below is historical and superseded. Payloads, Result mapping,
+validation, retry identity and UI behavior remain unchanged. See the
+[UseCase-only migration review](../usecase-only-dependencies-review.md).
+
+
 Reviewed: 2026-11-01 — phase 3, contract v1.20.
 
 ## 1. Purpose
@@ -104,11 +112,11 @@ structure and independent catalog/quote/submission statuses. The constructor
 preserves the supplied snapshot; `BlocProvider.create` directly constructs Cubit
 and calls `fetchCatalog`. UI owns the count controller and disposes it.
 
-The existing UseCases are named `LoadVirtualCardCatalogUseCase` and
-`QuoteVirtualCardsUseCase`, grouped in `virtual_card_request_usecase.dart`.
-GetIt registers/wires them, and Cubit resolves each once in a final field.
-Submission keeps its existing Repository call protected by the Domain
-`virtualCardBoundary`; it has not gained a new UseCase layer or endpoint.
+Catalog, quote and submission use `LoadVirtualCardCatalogUseCase`,
+`QuoteVirtualCardsUseCase` and `SubmitVirtualCardsUseCase`, grouped in
+`virtual_card_request_usecase.dart`. GetIt wires their repository; Cubit resolves
+only final UseCase fields. Submission's unexpected-exception mapping now lives
+inside its UseCase. No endpoint or validation is added.
 Domain has no GetIt dependency. Existing contract validation and exception mapping
 are unchanged; no validation is duplicated in submit or UI.
 

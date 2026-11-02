@@ -1,5 +1,13 @@
 # Change linked card deposit
 
+**Current dependency rule — contract v1.24:** application/data operations follow
+Cubit → registered UseCase → Repository. Cubit imports/resolves UseCases only;
+`core/di` wires their repositories. Any earlier direct-Repository or optional-
+UseCase wording below is historical and superseded. Payloads, Result mapping,
+validation, retry identity and UI behavior remain unchanged. See the
+[UseCase-only migration review](../usecase-only-dependencies-review.md).
+
+
 Reviewed: 2026-11-01 — phase 4, contract v1.21.
 
 Status: implemented with a registered repository and illustrative in-memory data. No bank operation or wallet debit is performed by the default adapter.
@@ -79,8 +87,9 @@ behavior, Back gates, typed payloads and command consumption are preserved.
 
 `loadCardServiceCatalogUseCase` resolves the shared registered
 `LoadCardServiceCatalogUseCase` from `card_services_usecase.dart`. Submission
-keeps its existing `CardServicesRepository.changeDeposit` call protected by
-`cardServiceBoundary`; no new UseCase layer or endpoint is added.
+uses `SubmitCardDepositChangeUseCase` from the same group, wired with the
+repository in core/di. It preserves the request/key and existing exception
+mapping without a Repository dependency in Cubit; no endpoint is added.
 
 | Step | State read / retained | Next / lifetime |
 |---|---|---|

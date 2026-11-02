@@ -14,7 +14,6 @@ import 'package:pishkhan_mobile/core/validators/iban_validator.dart';
 import 'package:pishkhan_mobile/core/validators/jalali_date_parser.dart';
 
 import '../../../domain/entities/on_site_transfer.dart';
-import '../../../domain/repositories/on_site_transfer_repository.dart';
 import '../../../domain/usecases/on_site_transfer_usecase.dart';
 
 export '../../../domain/entities/on_site_transfer.dart';
@@ -27,9 +26,13 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
     OnSiteTransferState initialState = const OnSiteTransferState.initial(),
   }) : super(initialState);
   final String? initialDepositNumber;
-  final repository = getIt<OnSiteTransferRepository>();
   final uploadTransferDestinationsUseCase =
       getIt<UploadTransferDestinationsUseCase>();
+  final fetchOnSiteTransferCatalogUseCase =
+      getIt<FetchOnSiteTransferCatalogUseCase>();
+  final resolveTransferDestinationUseCase =
+      getIt<ResolveTransferDestinationUseCase>();
+  final submitOnSiteTransferUseCase = getIt<SubmitOnSiteTransferUseCase>();
   int _uploadRequestId = 0;
   int _destinationRequestId = 0;
   String? _flowKey;
@@ -41,7 +44,7 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
       List<int>.generate(18, (_) => Random.secure().nextInt(256)),
     );
     emit(state.copyWith(catalogStatus: RequestStatus.loading));
-    final result = await repository.fetchCatalog();
+    final result = await fetchOnSiteTransferCatalogUseCase();
     switch (result) {
       case Success(:final data):
         emit(
@@ -230,7 +233,7 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
   Future<void> submitDestination() async {
     final requestId = ++_destinationRequestId;
     emit(state.copyWith(destinationStatus: RequestStatus.loading));
-    final result = await repository.resolveDestination(
+    final result = await resolveTransferDestinationUseCase(
       iban: 'IR${state.ibanInput}',
       amountRial: state.amountRial,
       purpose: state.purpose!,
@@ -499,7 +502,7 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
 
   Future<void> submitTransfer() async {
     emit(state.copyWith(submissionStatus: RequestStatus.loading));
-    final result = await repository.submit(state.confirmedRequest!);
+    final result = await submitOnSiteTransferUseCase(state.confirmedRequest!);
     switch (result) {
       case Success(:final data):
         emit(

@@ -10,7 +10,6 @@ import 'package:pishkhan_mobile/core/result/failure.dart';
 import 'package:pishkhan_mobile/core/result/result.dart';
 
 import '../../../domain/entities/mobile_bank.dart';
-import '../../../domain/repositories/modern_banking_repository.dart';
 import '../../../domain/usecases/mobile_bank_usecase.dart';
 
 part 'transfer_limits_state.dart';
@@ -20,8 +19,8 @@ class TransferLimitsCubit extends Cubit<TransferLimitsState> {
   TransferLimitsCubit({
     TransferLimitsState initialState = const TransferLimitsState.initial(),
   }) : super(initialState);
-  final repository = getIt<ModernBankingRepository>();
   final fetchMobileBankCatalogUseCase = getIt<FetchMobileBankCatalogUseCase>();
+  final submitTransferLimitsUseCase = getIt<SubmitTransferLimitsUseCase>();
   TransferLimitsRequest? _submittedRequest;
 
   Future<void> fetchLimits() async {
@@ -131,7 +130,7 @@ class TransferLimitsCubit extends Cubit<TransferLimitsState> {
     );
     _submittedRequest = request;
     emit(state.copyWith(submissionStatus: RequestStatus.loading));
-    final result = await repository.submitTransferLimits(request);
+    final result = await submitTransferLimitsUseCase(request);
     switch (result) {
       case Success():
         emit(

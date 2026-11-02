@@ -12,7 +12,6 @@ import 'package:pishkhan_mobile/core/result/result.dart';
 import 'package:pishkhan_mobile/core/validators/virtual_card_count_validator.dart';
 
 import '../../../domain/entities/virtual_card_data.dart';
-import '../../../domain/repositories/virtual_card_repository.dart';
 import '../../../domain/usecases/virtual_card_request_usecase.dart';
 
 export 'package:pishkhan_mobile/core/flow/flow_navigation.dart';
@@ -28,7 +27,7 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
 
   final loadVirtualCardCatalogUseCase = getIt<LoadVirtualCardCatalogUseCase>();
   final quoteVirtualCardsUseCase = getIt<QuoteVirtualCardsUseCase>();
-  final repository = getIt<VirtualCardRepository>();
+  final submitVirtualCardsUseCase = getIt<SubmitVirtualCardsUseCase>();
   final String? initialDepositNumber;
   // Count and deposit controls stay available during quoting. Only the latest
   // quote may describe the current form, including when a new count is invalid.
@@ -156,7 +155,7 @@ class VirtualCardCubit extends Cubit<VirtualCardState> {
         canRetry: false,
       ),
     );
-    final result = await virtualCardBoundary(() => repository.submit(request));
+    final result = await submitVirtualCardsUseCase(request);
     switch (result) {
       case Err(:final failure):
         emit(

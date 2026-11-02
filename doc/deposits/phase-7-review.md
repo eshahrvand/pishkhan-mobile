@@ -1,5 +1,11 @@
 # Phase 7 — Certificates and agents
 
+> Historical migration record. The later owner amendment in contract v1.24
+> withdraws its direct-Repository/optional-UseCase decisions. Current Cubits must
+> use UseCases for all application/data operations. See the
+> [follow-up review](../usecase-only-dependencies-review.md).
+
+
 Scope: AverageBalanceCubit, FinancialCertificateCubit, AgentCubit and
 AgentSettingsCubit, under contract v1.23 and the current clean-code/UI skills.
 Phase 6 and the dependency naming follow-up were committed in `ab7e274` before

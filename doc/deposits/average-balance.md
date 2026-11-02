@@ -1,5 +1,13 @@
 # Statement / average balance request
 
+**Current dependency rule — contract v1.24:** application/data operations follow
+Cubit → registered UseCase → Repository. Cubit imports/resolves UseCases only;
+`core/di` wires their repositories. Any earlier direct-Repository or optional-
+UseCase wording below is historical and superseded. Payloads, Result mapping,
+validation, retry identity and UI behavior remain unchanged. See the
+[UseCase-only migration review](../usecase-only-dependencies-review.md).
+
+
 The three-step `AverageBalanceScreen` implements the six frames
 `28060:13878`, `28060:14966`, `28060:14984`, `28060:15007`,
 `28060:15025` and `28060:15087` in the Mobile Figma file.
@@ -58,7 +66,7 @@ State-owned sibling values. Receipt/dialog results return to Cubit.
 
 The screen/feature-flow widget owns BlocProvider.create, including Home in
 DashboardScreen; GoRouter only selects the destination. Cubits resolve existing
-Repository/service/UseCase registrations through GetIt fields, without dependency
+registered UseCases through final GetIt fields, without dependency
 constructor arguments from UI. Multi-case and substantial async listeners use
 named widget/State methods with the existing listenWhen filter.
 
@@ -84,7 +92,7 @@ address inputs, cancellation and validation remain unchanged.
 ## Phase 7 adoption and current verification
 
 Under [contract v1.23](../ui-cubit-state-agent-rules-en.md), every request owner
-uses async/await and a Result switch. Repository and UseCase fields are final,
+uses async/await and a Result switch. UseCase fields are final,
 without leading underscores; UseCase fields carry the full lowerCamelCase class
 name including `UseCase`. Used UseCase classes/files have the required suffixes
 and are resolved from GetIt; UI/router do not forward dependencies.
@@ -105,10 +113,11 @@ has two named GetIt registrations: `average-balance` uses
 `DepositCertificatesRepository`; `financial-certificate` uses
 `FinancialCertificateRepository`. Each Cubit resolves its own registration in
 `loadCertificateCatalogUseCase`. This preserves the existing shared catalog
-validation without adding wrappers or another submission layer. The repository
-field remains for the existing submission operation through `certificateBoundary`;
-that operation returns Result and maps unexpected exceptions at the existing
-application boundary. Catalog validation is covered by that failure policy too.
+validation. Submission uses `SubmitAverageBalanceUseCase` from `average_balance_usecase.dart`,
+wired to its corresponding repository by core/di. Cubit resolves the UseCase only;
+it neither imports the repository nor passes a repository callback to a boundary.
+The exact submitted request/key and UnexpectedFailure mapping are preserved.
+Catalog validation is covered by the existing failure policy too.
 Catalog entry still resolves supplied initial data and derives its validity;
 subsequent input actions validate only the changed field and use stored sibling
 flags. No additional passport-expiry or date policy was introduced.

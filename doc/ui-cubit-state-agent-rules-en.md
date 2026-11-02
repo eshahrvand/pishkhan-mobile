@@ -1,8 +1,8 @@
 # UI, Cubit and State Coding Contract for the Team and Agents
 
 **Project:** Smart Virtual Counter — `pishkhan_mobile`  
-**Version:** 1.23 — Explicit Cubit dependency field names<br>
-**Date:** 2026-11-01<br>
+**Version:** 1.24 — Mandatory UseCase-only Cubit dependencies<br>
+**Date:** 2026-11-02<br>
 **Scope:** Presentation coding style, State management and readability rules  
 **Status:** Authoritative coding contract. Historical examples do not override the mandatory ownership rules or the owner amendments below. Implementation status is recorded in the feature documentation.
 
@@ -34,26 +34,35 @@ Cubit submission/edit guards throughout this document and architecture Section 1
 Actual behavior remains explicit: form validation, choosing a step/action, Apply versus Cancel and optional entry-data resolution are calculations/flow decisions. Server authorization/idempotency remains at its existing boundary. There is no async disposal check of any kind (owner decision 2026-10-18; Section 8.3). A modal may directly bind its Confirm button to a Cubit
 action; Cancel and dismissal simply close it without invoking that action.
 
-## Mandatory Owner Clarification: Cubit Dependency Field Names
+## Mandatory Owner Amendment: UseCase-only Cubit dependencies
 
-Repository and UseCase fields in Cubit have no leading underscore, following
-AuthCubit. A UseCase field uses the complete class name in lowerCamelCase,
-including the UseCase suffix: `fetchDepositRestrictionCatalogUseCase`, not
-`_fetchCatalog` or `fetchCatalog`. For example:
+The owner requires the dependency path `Cubit → UseCase → Repository` for every
+application/data operation. A Cubit MUST NOT import a Repository, resolve one
+from GetIt, retain one in a field or invoke it directly, including through an
+exception-boundary callback or a helper. This applies to Domain repository
+interfaces as well as Data implementations. Import and resolve the specific
+UseCase instead. A flow or operation with no UseCase must receive one; the old
+exception permitting direct Repository access is withdrawn.
+
+GetIt still registers actual repositories/adapters and UseCases in `core/di`.
+DI supplies the Repository to the UseCase constructor; Domain stays independent
+of GetIt. A boundary helper that catches exceptions does not replace a UseCase.
+Each operation's UseCase preserves its existing payload, result and exception
+mapping; moving this dependency does not add validation or change flow behavior.
+Pure local form/selection/calculation actions need no artificial UseCase.
+
+Cubit UseCase fields are final, have no leading underscore and retain their
+complete class name in lowerCamelCase including `UseCase`. Distinct generic
+instances keep their existing meaningful subject qualifier. For example:
 
 ```dart
-final repository = getIt<CardServicesRepository>();
 final fetchDepositRestrictionCatalogUseCase = getIt<FetchDepositRestrictionCatalogUseCase>();
 ```
 
-Keep references final and update every call site. Repository fields may retain
-a meaningful subject such as `agentRepository`; removing `_` does not require
-renaming an already-clear `repository` field. Pure implementation helpers,
-request IDs and owned timers keep their existing privacy rules. This naming
-clarification does not authorize broader migration of later-phase operations.
-Their existing UseCase reference fields adopt the suffix now; class/file/DI and
-operation migrations still follow their authorized phases. Domain's constructor
-fields are outside this Cubit-field naming rule.
+Private pure helpers, request IDs and owned timers are unaffected. Domain's
+Repository constructor fields remain valid and are outside the Cubit-field rule.
+Review all Cubits for Repository imports, lookup, fields and direct invocation;
+passing tests alone does not establish this architectural boundary.
 
 ## Mandatory Owner Update, 2026-11-01: Scoped Test Execution
 
@@ -162,7 +171,7 @@ in `core/di`, where the UseCase receives its registered dependencies.
 
 Domain remains independent of GetIt and Flutter. Constructor injection inside
 Domain remains valid; the DI composition root supplies it. This clarification
-does not require creating extra UseCases for flows that have none. It supersedes
+requires a UseCase for every application/data operation, including flows that previously had none. It supersedes
 older permissive wording and examples that construct UseCases in Cubit, including
 architecture Section 12.7's former `late final` construction example. Existing
 flows adopt it within their authorized migration phase; Login is aligned now.
@@ -508,7 +517,7 @@ that untouched historical code has already been brought into compliance.
 | Initial action | Only when the feature has a real fetch or entry resolution; otherwise `create: (_) => XCubit()`; never re-emit the default State |
 | `isClosed` / BaseCubit | Prohibited everywhere; no `safeEmit`, no overridden `emit` (Section 8.3) |
 | Validation | Each input action validates only its own field, once; aggregates read stored `isXValid` flags (Section 6.4) |
-| Repository ownership | Register Repository/service/API dependencies in GetIt; Cubit resolves its own dependencies in fields; no dependency parameters in UI or Cubit construction |
+| Repository ownership | DI wires Repository/service/API into UseCases; Cubit imports/resolves UseCases only; no Repository fields/calls or dependency parameters in UI/Cubit construction |
 | Resolving Cubit | `context.read<MyCubit>()` using a context below the Provider |
 | State | One plain Freezed data class, without handwritten getters or logic |
 | Initial value | A readable `State.initial(...)` constructor; only one factory |
@@ -552,7 +561,7 @@ The supplied style example is a style reference; it does not define this project
 
 | Reference pattern | Decision for this project |
 |---|---|
-| Dependency lookup | Resolve registered Repository/service/UseCase inside Cubit fields; never in UI or router |
+| Dependency lookup | Resolve registered UseCases inside Cubit fields; Repository lookup belongs only in DI/UseCase wiring, never UI or router |
 | `S.current` | Approved direct localization access; implementation belongs to a separate task |
 | A shared enum containing `otpSubmitting` and `authLoading` | Independent operations use independent statuses with the existing `RequestStatus` |
 | Two emits for an input and button eligibility | Prefer one emit for a complete, consistent snapshot |
@@ -585,8 +594,9 @@ Cubit per child. `BlocProvider.value` only exposes an existing instance to a
 modal or another consumer; it never creates a replacement.
 
 **Latest owner clarification — supersedes Provider-side injection and the older
-constructor-injection examples:** Repository, REST/service and actual UseCase
-dependencies are resolved inside Cubit fields through the existing GetIt instance.
+constructor-injection examples:** actual UseCase dependencies are resolved
+inside Cubit fields through the existing GetIt instance. Repository/service
+dependencies are wired into those UseCases by core/di and are not imported by Cubit.
 Do not pass them to Cubit constructors, screen constructors, route arguments or
 child widgets. UI and router do not resolve or call data dependencies.
 
@@ -597,7 +607,7 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
     this.initialCategory,
   }) : super(initialState);
 
-  final repository = getIt<CardsRepository>();
+  final loadCardsUseCase = getIt<LoadCardsUseCase>();
   final CardCategory? initialCategory;
 }
 
@@ -642,7 +652,7 @@ source implementation exceptions as target rules.
 | Area | Mandatory rule | Prohibited interpretation |
 | --- | --- | --- |
 | Architecture | One screen/feature-flow owns its Provider; its actual shared steps consume the same Cubit. UI renders State and sends specific actions. Domain retains reusable business rules. | Extra Cubits per child, UI flow coordinators, request-building callbacks or unnecessary new layers |
-| GetIt | Register only actual Repository, service/API, DAO or UseCase dependencies. Every used UseCase has the UseCase suffix and is registered and resolved in a final Cubit field; DI wires its constructor dependencies. Immutable dependency references MUST use final unless replacement is an actual authorized behavior. | Cubit/Bloc registration of any lifetime; resolving Cubit from GetIt; constructing UseCases or forwarding Repository dependencies to them in Cubit; dependency arguments in UI or Cubit constructors; UI/router data lookups |
+| GetIt | Register only actual Repository, service/API, DAO or UseCase dependencies. Every used UseCase has the UseCase suffix and is registered and resolved in a final Cubit field; DI wires its constructor dependencies. Immutable dependency references MUST use final unless replacement is an actual authorized behavior. | Repository import/lookup/call in Cubit; Cubit/Bloc registration of any lifetime; resolving Cubit from GetIt; constructing UseCases or forwarding Repository dependencies to them in Cubit; dependency arguments in UI or Cubit constructors; UI/router data lookups |
 | Construction | Construct Cubit directly in screen/feature-flow BlocProvider.create and invoke an explicit initial action there only when the feature has a real fetch or entry resolution. Keep its supplied/default initial State unchanged during construction. | Route-owned screen Cubit, _createCubit helpers, hidden construction wrappers, constructor emit/load/timer/derived-State initialization |
 | Lifetime | Provider.create owns closing. Existing flow consumers read the shared instance. Provider.value only exposes an existing instance across a real boundary such as a modal. | New Cubit in value, manually closing a borrowed Cubit or duplicate construction on ordinary rebuilds |
 | Actions | Specific typed actions own transferable calculations, validation, request construction and flow decisions. Write emit(state.copyWith(...)) in the action. Publish dependent values consistently. | Generic string/index field dispatch, State publication intermediaries, UI reconstruction of requests or hidden State getters |
@@ -1030,8 +1040,8 @@ final result = await fetchLoginCaptchaUseCase();
 
 UseCase names require the `UseCase` suffix. Do not write
 `FetchLoginCaptchaUseCase(repository)()` or initialize a UseCase from a Repository
-field in Cubit. When a flow uses a UseCase, resolve the UseCase itself from GetIt;
-do not also retain a Repository solely to construct that UseCase. Domain UseCases
+field in Cubit. Every application/data operation uses a registered UseCase; resolve it from GetIt;
+never import or retain a Repository in Cubit for construction or direct operations. Domain UseCases
 keep ordinary constructor dependencies supplied by DI and do not import GetIt.
 
 ### 6.1.1 Constructors Preserve Initial State
@@ -1263,11 +1273,10 @@ those decisions in code. The approved before/after examples are in Section 6.7.
 These comparisons establish implementation style, not a report that application
 Dart has already been changed. **Before** shows the reviewed pattern; **after**
 shows the approved form. Keep the current plain State and typed effects.
-The complete [CardFeaturesCubit comparison](../reports/2026-10-17-card-features-cubit-style-review.md)
-also covers `fetchCards`, its returned `.then` chain, service-action separation
-and call-site updates. The report supplies worked examples; this contract and
-the architecture document contain the rules. Future work does not need to
-depend on the historical report to understand the standard.
+Current CardFeaturesCubit ownership, operations and verification are recorded in
+[Card services](cards/card-services.md). The former external comparison report
+is no longer required or linked; this contract contains the approved examples
+and rules, including the prohibition on returned `.then` chains in Cubit.
 
 #### 6.7.1 Name the Interaction and Remove Synchronous Lifecycle Noise
 
@@ -2276,7 +2285,7 @@ getIt.registerLazySingleton<DepositCertificatesRepository>(
 ```
 
 The screen's Provider constructs `AverageBalanceCubit` directly. The Cubit
-resolves its Repository internally through GetIt; the screen has no repository
+resolves its UseCases internally through GetIt; the screen has no repository
 field, lookup or constructor argument. Real entry inputs such as
 `initialDepositNumber` still go directly to Cubit. A dependency-free Cubit is
 created in exactly the same way: `create: (_) => AuthCubit()`.
@@ -2326,7 +2335,7 @@ Project rules:
   tear-offs or equivalent wrappers to hide Cubit construction/initialization.
   An inline `create` block is allowed for necessary layout scheduling; it must
   still construct Cubit there, not delegate construction to a custom helper.
-- Resolve Repository/service/UseCase in Cubit fields from GetIt. No data dependency
+- Resolve UseCases in Cubit fields from GetIt; never import/resolve a Repository there. No data dependency
   arguments in Cubit creation, screen constructors, router inputs or child props.
 - The screen/feature-flow widget owns the Provider. The central router only
   chooses a destination; it never wraps a screen in a Cubit Provider.
@@ -4162,7 +4171,7 @@ A function returning String, such as `getCardStatusTitle` or an asset path, is a
 | Repeating UI enablement/loading inside Cubit | UI controls invocation; action publishes the requested change |
 | Navigator in Cubit | UI listener/callback |
 | Validation code in a widget | Validator/UseCase, coordinated by Cubit |
-| Repository/UseCase passed through screen and child constructors | Resolve dependencies from GetIt inside Cubit fields |
+| Repository/UseCase passed through screen and child constructors | Resolve UseCases from GetIt inside Cubit fields; repositories stay behind UseCases |
 | `_createCubit()` or another Cubit creation wrapper | Direct constructor and explicit initial action in `BlocProvider.create` |
 | Cubit registered in GetIt or resolved through `getIt<MyCubit>()` | GetIt holds dependencies; BlocProvider.create constructs and owns Cubit |
 | Mock inside every screen by default | Mock selected in environment DI registration |
@@ -4175,7 +4184,7 @@ A function returning String, such as `getCardStatusTitle` or an asset path, is a
 | Deleting fields solely because current UI does not read them | Check operational responsibilities or future service contracts |
 | Mandatory builder for every Text and Icon | Builder around a meaningful changing section; a higher level to avoid fragmentation |
 
-For mock dependencies, configure the mock implementation in DI for the intended environment. BlocProvider.create constructs the Cubit directly; Cubit fields resolve registered dependencies and never forwards a mock or live Repository through UI constructors. This rule does not authorize changing existing adapters without a task.
+For mock dependencies, configure the mock implementation in DI for the intended environment. BlocProvider.create constructs the Cubit directly; Cubit fields resolve registered UseCases and never import or forward a mock/live Repository. This rule does not authorize changing existing adapters without a task.
 
 ## 24. Agent Instructions and Review Checklists
 
@@ -4284,15 +4293,15 @@ This text is a compact summary of the mandatory contract, not an alternative to 
 - [ ] Request failures publish their status/failure/prepared message together; no habitual null clearing on loading/success/commands. Any remaining clear has a real consumer or reset reason. Migrate listener consumers before removing old code-side clears.
 
 - [ ] UseCase source filenames end in `_usecase.dart`; imports and feature documents refer to the current names.
-- [ ] Each used UseCase has the `UseCase` suffix, is registered in GetIt and is resolved into a final Cubit field; no Cubit-side UseCase construction or Repository forwarding to its constructor. Dependency wiring stays in core/di and Domain has no GetIt import.
-- [ ] Cubit resolves its dependencies from GetIt fields; there are no Repository/service/UseCase constructor arguments or UI/router lookups.
+- [ ] Each application/data operation has a UseCase; no Cubit imports/resolves/calls Repository. Each UseCase has the `UseCase` suffix, is registered in GetIt and is resolved into a final Cubit field; no Cubit-side UseCase construction or Repository forwarding to its constructor. Dependency wiring stays in core/di and Domain has no GetIt import.
+- [ ] Cubit resolves its UseCases from GetIt fields and has no Repository import/lookup/call; there are no Repository/service/UseCase constructor arguments or UI/router lookups.
 - [ ] Every action names its verb and subject; names distinguish input updates, fetching, effect requests and returned results (Section 6.6).
 - [ ] Method boundaries follow real operations; repeated calculations are private pure helpers, without generic State-publication methods (Sections 6.4–6.7).
 - [ ] Each function owns one meaningful event, operation or calculation; request lifecycles and simple input updates remain cohesive (Section 6.8).
 - [ ] Each extracted helper has actual reuse, a substantial independent calculation or a boolean predicate exceeding two expression lines (Section 6.8.2); no chains of tiny helpers or long boolean argument lists were added merely to shorten methods.
 - [ ] A condition used once and fitting one/two lines is a direct `copyWith` argument; longer conditions and any condition used two or more times use named calculation functions outside the action, not local eligibility aliases.
 - [ ] Operation inventory written before coding: each request operation has exactly one owner action and a list of its trigger actions (Section 6.10).
-- [ ] No dependency call (`UseCase(`, `repository.`) appears in more than one action for the same operation.
+- [ ] Each UseCase invocation has one request owner; no Repository invocation appears in Cubit.
 - [ ] `await` and `switch (result)` each appear once per operation.
 - [ ] Repeated groups of three or more copyWith fields have been reviewed: shared operations delegate; independent events retain explicit emits and share pure calculations.
 - [ ] No boolean condition appears two or more times without a `_canX(...)` helper.

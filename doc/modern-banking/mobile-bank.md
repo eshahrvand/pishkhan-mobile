@@ -1,5 +1,13 @@
 # Modern banking — mobile bank
 
+**Current dependency rule — contract v1.24:** application/data operations follow
+Cubit → registered UseCase → Repository. Cubit imports/resolves UseCases only;
+`core/di` wires their repositories. Any earlier direct-Repository or optional-
+UseCase wording below is historical and superseded. Payloads, Result mapping,
+validation, retry identity and UI behavior remain unchanged. See the
+[UseCase-only migration review](../usecase-only-dependencies-review.md).
+
+
 The requested services live under `lib/features/modern_banking/`, with shared
 Domain entities and a `ModernBankingRepository`, a Data adapter and separate
 presentation folders for the mobile-bank flow, password guide, transfer limits
@@ -23,10 +31,10 @@ governs implementation; older feature examples do not supersede it.
   All five routes participate in the post-login return-location allowlist.
 - Screens construct their Cubits directly in Provider.create and invoke their
   initial fetch there; the request-free guide needs no initial action. GetIt
-  registers the repository and `FetchMobileBankCatalogUseCase`, wired in
-  `core/di`. Cubits resolve final `repository` and
-  `fetchMobileBankCatalogUseCase` fields, without constructor forwarding or
-  Cubit-side UseCase construction. The mock repository is a lazy singleton
+  registers the repository and `FetchMobileBankCatalogUseCase`,
+  `SubmitMobileBankIdentityUseCase`, `SubmitTransferLimitsUseCase` and
+  `SubmitMobileBankDeactivationUseCase`, wired in `core/di`. Cubits resolve only
+  final UseCase fields, without Repository imports or constructor forwarding. The mock repository is a lazy singleton
   so status and changed limits survive route re-entry during an app session.
 - Domain/Data dependencies never pass through screen or Cubit constructors.
   The router selects destinations only. States are plain Freezed `.initial`

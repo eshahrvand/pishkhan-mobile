@@ -7,8 +7,9 @@ import 'package:pishkhan_mobile/core/result/failure.dart';
 import 'package:pishkhan_mobile/core/result/result.dart';
 
 import '../../../domain/entities/request_report.dart';
-import '../../../domain/repositories/request_reports_repository.dart';
 import '../../../domain/usecases/filter_request_reports_usecase.dart';
+
+import '../../../domain/usecases/request_reports_usecase.dart';
 
 part 'request_reports_state.dart';
 part 'request_reports_cubit.freezed.dart';
@@ -17,12 +18,12 @@ class RequestReportsCubit extends Cubit<RequestReportsState> {
   RequestReportsCubit({
     RequestReportsState initialState = const RequestReportsState.initial(),
   }) : super(initialState);
-
-  final repository = getIt<RequestReportsRepository>();
+  final fetchRequestReportsUseCase = getIt<FetchRequestReportsUseCase>();
+  final cancelReportedRequestUseCase = getIt<CancelReportedRequestUseCase>();
 
   Future<void> fetchReports() async {
     emit(state.copyWith(reportsStatus: RequestStatus.loading));
-    final result = await repository.fetchReports();
+    final result = await fetchRequestReportsUseCase();
     switch (result) {
       case Success(:final data):
         emit(
@@ -274,7 +275,7 @@ class RequestReportsCubit extends Cubit<RequestReportsState> {
 
   Future<void> submitCancellation() async {
     emit(state.copyWith(cancellationStatus: RequestStatus.loading));
-    final result = await repository.cancelRequest(
+    final result = await cancelReportedRequestUseCase(
       trackingId: state.selectedReport!.trackingId,
       idempotencyKey: 'cancel:${state.selectedReport!.trackingId}',
     );

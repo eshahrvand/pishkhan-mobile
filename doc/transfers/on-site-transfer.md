@@ -1,5 +1,13 @@
 # On-site fund transfer request
 
+**Current dependency rule — contract v1.24:** application/data operations follow
+Cubit → registered UseCase → Repository. Cubit imports/resolves UseCases only;
+`core/di` wires their repositories. Any earlier direct-Repository or optional-
+UseCase wording below is historical and superseded. Payloads, Result mapping,
+validation, retry identity and UI behavior remain unchanged. See the
+[UseCase-only migration review](../usecase-only-dependencies-review.md).
+
+
 Implemented in `features/transfers`, independently of `features/cheque`.
 The owner-requested on-site service is a scheduled request, rather than a new
 instant payment channel. The [UI/Cubit/State contract](../ui-cubit-state-agent-rules-en.md),
@@ -12,10 +20,10 @@ in its current v1.23 form, governs this implementation.
 - `OnSiteTransferRouteArguments` accepts an optional selected deposit number and
   assistant callback. The authenticated return-location whitelist includes the route.
 - `OnSiteTransferScreen` directly constructs its Provider-owned Cubit and calls
-  `fetchCatalog`. The Cubit resolves the registered repository and
-  `UploadTransferDestinationsUseCase` into final `repository` and
-  `uploadTransferDestinationsUseCase` fields. `core/di` wires the UseCase's
-  repository; Cubit does not construct it. Its file is
+  `fetchCatalog`. The Cubit resolves `FetchOnSiteTransferCatalogUseCase`,
+  `ResolveTransferDestinationUseCase`, `UploadTransferDestinationsUseCase` and
+  `SubmitOnSiteTransferUseCase` in final fields. `core/di` wires their Repository;
+  Cubit has no Repository import/lookup. Their grouped file is
   `domain/usecases/on_site_transfer_usecase.dart`.
 - One plain Freezed `.initial` State holds all four stages, independent operation
   statuses, editable drafts, committed destinations, file approval and receipt.

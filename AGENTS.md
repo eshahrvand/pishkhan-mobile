@@ -21,7 +21,7 @@ remain controlling.
 Core boundaries that must remain visible during implementation:
 
 - GetIt registers actual data/application dependencies, never Cubit/Bloc.
-  Cubits resolve required dependencies in their own fields; UI/router and Cubit
+  Cubits resolve required UseCases in their own fields; UI/router and Cubit
   construction do not forward Repository/service/UseCase arguments.
   UseCase class names end in `UseCase`; their snake_case Dart filenames end in
   `_usecase.dart` (for example `home_usecase.dart`). Register each used UseCase in GetIt;
@@ -30,6 +30,12 @@ Core boundaries that must remain visible during implementation:
   name in lowerCamelCase including `UseCase`, as in AuthCubit. Cubit must not
   construct a UseCase or pass a Repository/service into its constructor. Wire
   UseCase constructor dependencies in `core/di`; keep Domain free of GetIt.
+- Cubit application/data access always follows Cubit → UseCase → Repository.
+  Cubits never import Repository interfaces/implementations, resolve them from
+  GetIt, retain them or invoke them through callbacks/helpers. Add an operation
+  UseCase when one is missing. DI wires repositories into Domain UseCases; pure
+  local form/calculation actions need no artificial UseCase. This supersedes
+  the former exception for flows without UseCases.
 - Screen/feature-flow widgets construct Cubit directly in BlocProvider.create
   and call the explicit initial action there. GoRouter only selects destinations.
   No creation helper, private Screen/View wrapper or constructor emit/load.

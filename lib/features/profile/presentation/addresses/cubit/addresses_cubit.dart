@@ -9,18 +9,22 @@ import 'package:pishkhan_mobile/core/result/result.dart';
 
 import '../../../domain/entities/personal_information.dart';
 import '../../../domain/rules/profile_address_rules.dart';
-import '../../../domain/repositories/personal_information_repository.dart';
+import '../../../domain/usecases/personal_information_usecase.dart';
+
 part 'addresses_state.dart';
 part 'addresses_cubit.freezed.dart';
 
 class AddressesCubit extends Cubit<AddressesState> {
   AddressesCubit({AddressesState initialState = const AddressesState.initial()})
     : super(initialState);
-  final repository = getIt<PersonalInformationRepository>();
+  final fetchProfileAddressesUseCase = getIt<FetchProfileAddressesUseCase>();
+  final saveProfileAddressUseCase = getIt<SaveProfileAddressUseCase>();
+  final deleteProfileAddressUseCase = getIt<DeleteProfileAddressUseCase>();
+  final reviewProfileAddressUseCase = getIt<ReviewProfileAddressUseCase>();
 
   Future<void> fetchAddresses() async {
     emit(state.copyWith(addressesStatus: RequestStatus.loading));
-    final result = await repository.fetchAddresses();
+    final result = await fetchProfileAddressesUseCase();
     switch (result) {
       case Success(:final data):
         emit(
@@ -91,7 +95,7 @@ class AddressesCubit extends Cubit<AddressesState> {
   Future<void> applyAddressEditor(DeliveryAddress? address) async {
     if (address != null && canSaveProfileAddress(state.addresses, address)) {
       emit(state.copyWith(saveStatus: RequestStatus.loading));
-      final result = await repository.saveAddress(address);
+      final result = await saveProfileAddressUseCase(address);
       switch (result) {
         case Success(:final data):
           emit(
@@ -116,7 +120,7 @@ class AddressesCubit extends Cubit<AddressesState> {
 
   Future<void> submitDeletion(ProfileAddress address) async {
     emit(state.copyWith(deletionStatus: RequestStatus.loading));
-    final result = await repository.deleteAddress(address.address.id);
+    final result = await deleteProfileAddressUseCase(address.address.id);
     switch (result) {
       case Success():
         emit(
@@ -154,7 +158,7 @@ class AddressesCubit extends Cubit<AddressesState> {
         },
       ),
     );
-    final result = await repository.reviewAddress(address.address);
+    final result = await reviewProfileAddressUseCase(address.address);
     switch (result) {
       case Success(:final data):
         emit(
