@@ -23,6 +23,8 @@ class ControlledPostalRepository extends MockPostalOfficesRepository {
 void main() {
   late ControlledPostalRepository repository;
   setUp(() {
+    configureDependencies();
+    getIt.unregister<PostalOfficesRepository>();
     repository = ControlledPostalRepository();
     getIt.registerSingleton<PostalOfficesRepository>(repository);
   });

@@ -5,8 +5,8 @@ import 'package:pishkhan_mobile/core/result/result.dart';
 import '../entities/cheque_book.dart';
 import '../repositories/cheque_book_repository.dart';
 
-class FetchChequeBookCatalog {
-  const FetchChequeBookCatalog(this.repository);
+class FetchChequeBookCatalogUseCase {
+  const FetchChequeBookCatalogUseCase(this.repository);
   final ChequeBookRepository repository;
   Future<Result<ChequeBookCatalog>> call() async {
     try {
@@ -17,8 +17,8 @@ class FetchChequeBookCatalog {
   }
 }
 
-class CheckChequeBookResidency {
-  const CheckChequeBookResidency(this.repository);
+class CheckChequeBookResidencyUseCase {
+  const CheckChequeBookResidencyUseCase(this.repository);
   final ChequeBookRepository repository;
   Future<Result<ChequeBookResidency>> call(String depositId) async {
     try {
@@ -29,8 +29,8 @@ class CheckChequeBookResidency {
   }
 }
 
-class DeleteChequeBookResidence {
-  const DeleteChequeBookResidence(this.repository);
+class DeleteChequeBookResidenceUseCase {
+  const DeleteChequeBookResidenceUseCase(this.repository);
   final ChequeBookRepository repository;
   Future<Result<ChequeBookResidency>> call(
     String depositId,
@@ -44,8 +44,8 @@ class DeleteChequeBookResidence {
   }
 }
 
-class SaveChequeBookDeliveryAddress {
-  const SaveChequeBookDeliveryAddress(this.repository);
+class SaveChequeBookDeliveryAddressUseCase {
+  const SaveChequeBookDeliveryAddressUseCase(this.repository);
   final ChequeBookRepository repository;
   Future<Result<DeliveryAddress>> call(DeliveryAddress address) async {
     try {
@@ -56,8 +56,8 @@ class SaveChequeBookDeliveryAddress {
   }
 }
 
-class FetchChequeBookQuote {
-  const FetchChequeBookQuote(this.repository);
+class FetchChequeBookQuoteUseCase {
+  const FetchChequeBookQuoteUseCase(this.repository);
   final ChequeBookRepository repository;
   Future<Result<ChequeBookQuote>> call(ChequeBookDraft draft) async {
     try {
@@ -68,8 +68,8 @@ class FetchChequeBookQuote {
   }
 }
 
-class SubmitChequeBook {
-  const SubmitChequeBook(this.repository);
+class SubmitChequeBookUseCase {
+  const SubmitChequeBookUseCase(this.repository);
   final ChequeBookRepository repository;
   Future<Result<ChequeBookReceipt>> call(ChequeBookRequest request) async {
     try {

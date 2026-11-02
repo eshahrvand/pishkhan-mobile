@@ -20,16 +20,15 @@ class ChequeClearanceScreen extends StatelessWidget {
   const ChequeClearanceScreen({super.key, this.onAssistantPressed});
   final VoidCallback? onAssistantPressed;
 
+  void _showRequestFailure(BuildContext context, ChequeClearanceState state) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(state.message!)));
+  }
+
   Future<void> _handleEffect(
     BuildContext context,
     ChequeClearanceState state,
   ) async {
-    if (state.message != null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(state.message!)));
-      return;
-    }
-
     switch (state.effect) {
       case ChequeClearanceEffect.confirmExit:
         context
@@ -89,22 +88,34 @@ class ChequeClearanceScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => ChequeClearanceCubit()..fetchCatalog(),
-      child: BlocListener<ChequeClearanceCubit, ChequeClearanceState>(
-        listenWhen: (previous, current) =>
-            previous.submissionStatus != current.submissionStatus &&
-            (current.submissionStatus == RequestStatus.success ||
-                current.submissionStatus == RequestStatus.loading),
-        listener: _handleSubmission,
-        child: BlocConsumer<ChequeClearanceCubit, ChequeClearanceState>(
-          listenWhen: (previous, current) =>
-              (previous.effect != current.effect &&
-                  current.effect != null) ||
-              ((previous.catalogStatus != current.catalogStatus &&
-                      current.catalogStatus == RequestStatus.failure) ||
-                  (previous.submissionStatus != current.submissionStatus &&
-                      current.submissionStatus == RequestStatus.failure)),
-          listener: _handleEffect,
-
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<ChequeClearanceCubit, ChequeClearanceState>(
+            listenWhen: (previous, current) =>
+                previous.catalogStatus != current.catalogStatus &&
+                current.catalogStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<ChequeClearanceCubit, ChequeClearanceState>(
+            listenWhen: (previous, current) =>
+                previous.submissionStatus != current.submissionStatus &&
+                current.submissionStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<ChequeClearanceCubit, ChequeClearanceState>(
+            listenWhen: (previous, current) =>
+                previous.submissionStatus != current.submissionStatus &&
+                (current.submissionStatus == RequestStatus.success ||
+                    current.submissionStatus == RequestStatus.loading),
+            listener: _handleSubmission,
+          ),
+          BlocListener<ChequeClearanceCubit, ChequeClearanceState>(
+            listenWhen: (previous, current) =>
+                previous.effect != current.effect && current.effect != null,
+            listener: _handleEffect,
+          ),
+        ],
+        child: BlocBuilder<ChequeClearanceCubit, ChequeClearanceState>(
           builder: (context, state) {
             return Directionality(
               textDirection: TextDirection.rtl,

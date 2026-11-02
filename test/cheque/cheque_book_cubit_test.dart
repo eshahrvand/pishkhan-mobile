@@ -18,6 +18,8 @@ void main() {
     TestChequeBookRepository repository, {
     String? depositNumber,
   }) {
+    configureDependencies();
+    getIt.unregister<ChequeBookRepository>();
     getIt.registerSingleton<ChequeBookRepository>(repository);
     final cubit = ChequeBookCubit(initialDepositNumber: depositNumber);
     addTearDown(cubit.close);

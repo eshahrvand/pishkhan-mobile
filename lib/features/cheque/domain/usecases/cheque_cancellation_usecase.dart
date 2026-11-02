@@ -4,8 +4,8 @@ import 'package:pishkhan_mobile/core/result/result.dart';
 import '../entities/cheque_cancellation.dart';
 import '../repositories/cheque_cancellation_repository.dart';
 
-class FetchChequeCancellationCatalog {
-  const FetchChequeCancellationCatalog(this.repository);
+class FetchChequeCancellationCatalogUseCase {
+  const FetchChequeCancellationCatalogUseCase(this.repository);
   final ChequeCancellationRepository repository;
   Future<Result<ChequeCancellationCatalog>> call() async {
     try {
@@ -16,8 +16,8 @@ class FetchChequeCancellationCatalog {
   }
 }
 
-class FetchCancellableCheques {
-  const FetchCancellableCheques(this.repository);
+class FetchCancellableChequesUseCase {
+  const FetchCancellableChequesUseCase(this.repository);
   final ChequeCancellationRepository repository;
   Future<Result<List<CancellableCheque>>> call(
     String depositId,
@@ -31,8 +31,8 @@ class FetchCancellableCheques {
   }
 }
 
-class SubmitChequeCancellation {
-  const SubmitChequeCancellation(this.repository);
+class SubmitChequeCancellationUseCase {
+  const SubmitChequeCancellationUseCase(this.repository);
   final ChequeCancellationRepository repository;
   Future<Result<ChequeCancellationReceipt>> call(
     ChequeCancellationRequest request,

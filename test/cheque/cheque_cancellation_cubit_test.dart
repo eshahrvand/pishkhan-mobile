@@ -13,6 +13,8 @@ void main() {
   late TestChequeCancellationRepository repository;
   late ChequeCancellationCubit cubit;
   setUp(() {
+    configureDependencies();
+    getIt.unregister<ChequeCancellationRepository>();
     repository = TestChequeCancellationRepository();
     getIt.registerSingleton<ChequeCancellationRepository>(repository);
     cubit = ChequeCancellationCubit();

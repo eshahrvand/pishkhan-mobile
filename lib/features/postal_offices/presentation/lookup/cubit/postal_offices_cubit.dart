@@ -7,8 +7,7 @@ import 'package:pishkhan_mobile/core/result/failure.dart';
 import 'package:pishkhan_mobile/core/result/result.dart';
 
 import '../../../domain/entities/postal_office.dart';
-import '../../../domain/repositories/postal_offices_repository.dart';
-import '../../../domain/usecases/lookup.dart';
+import '../../../domain/usecases/lookup_usecase.dart';
 part 'postal_offices_state.dart';
 part 'postal_offices_cubit.freezed.dart';
 
@@ -16,35 +15,29 @@ class PostalOfficesCubit extends Cubit<PostalOfficesState> {
   PostalOfficesCubit({
     PostalOfficesState initialState = const PostalOfficesState.initial(),
   }) : super(initialState);
-  final repository = getIt<PostalOfficesRepository>();
+  final fetchPostalProvincesUseCase = getIt<FetchPostalProvincesUseCase>();
+  final fetchPostalOfficesUseCase = getIt<FetchPostalOfficesUseCase>();
 
-  Future<void> fetchProvinces() {
-    emit(
-      state.copyWith(
-        provincesStatus: RequestStatus.loading,
-        failure: null,
-        message: null,
-      ),
-    );
-    return FetchPostalProvinces(repository)().then((result) {
-      switch (result) {
-        case Success(:final data):
-          emit(
-            state.copyWith(
-              provincesStatus: RequestStatus.success,
-              provinces: data,
-            ),
-          );
-        case Err(:final failure):
-          emit(
-            state.copyWith(
-              provincesStatus: RequestStatus.failure,
-              failure: failure,
-              message: getRequestErrorMessage(failure),
-            ),
-          );
-      }
-    });
+  Future<void> fetchProvinces() async {
+    emit(state.copyWith(provincesStatus: RequestStatus.loading));
+    final result = await fetchPostalProvincesUseCase();
+    switch (result) {
+      case Success(:final data):
+        emit(
+          state.copyWith(
+            provincesStatus: RequestStatus.success,
+            provinces: data,
+          ),
+        );
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            provincesStatus: RequestStatus.failure,
+            failure: failure,
+            message: getRequestErrorMessage(failure),
+          ),
+        );
+    }
   }
 
   void selectProvince(PostalProvince province) {
@@ -56,8 +49,6 @@ class PostalOfficesCubit extends Cubit<PostalOfficesState> {
         canSearchPostalOffices: false,
         postalOffices: const [],
         postalOfficesStatus: RequestStatus.initial,
-        failure: null,
-        message: null,
       ),
     );
   }
@@ -69,40 +60,31 @@ class PostalOfficesCubit extends Cubit<PostalOfficesState> {
         canSearchPostalOffices: true,
         postalOffices: const [],
         postalOfficesStatus: RequestStatus.initial,
-        failure: null,
-        message: null,
       ),
     );
   }
 
-  Future<void> searchPostalOffices() {
-    emit(
-      state.copyWith(
-        postalOfficesStatus: RequestStatus.loading,
-        failure: null,
-        message: null,
-      ),
-    );
-    return FetchPostalOffices(repository)(state.city!.id).then((result) {
-      switch (result) {
-        case Err(:final failure):
-          emit(
-            state.copyWith(
-              postalOfficesStatus: RequestStatus.failure,
-              failure: failure,
-              message: getRequestErrorMessage(failure),
-            ),
-          );
-        case Success(:final data):
-          emit(
-            state.copyWith(
-              postalOfficesStatus: RequestStatus.success,
-              postalOffices: data,
-              postalStep: PostalOfficesStep.results,
-            ),
-          );
-      }
-    });
+  Future<void> searchPostalOffices() async {
+    emit(state.copyWith(postalOfficesStatus: RequestStatus.loading));
+    final result = await fetchPostalOfficesUseCase(state.city!.id);
+    switch (result) {
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            postalOfficesStatus: RequestStatus.failure,
+            failure: failure,
+            message: getRequestErrorMessage(failure),
+          ),
+        );
+      case Success(:final data):
+        emit(
+          state.copyWith(
+            postalOfficesStatus: RequestStatus.success,
+            postalOffices: data,
+            postalStep: PostalOfficesStep.results,
+          ),
+        );
+    }
   }
 
   void requestPostalSearch() {
@@ -113,11 +95,7 @@ class PostalOfficesCubit extends Cubit<PostalOfficesState> {
     final text =
         '${state.province!.name} - ${state.city!.name}\n${state.postalOffices.map((office) => '• ${office.address}').join('\n')}';
     emit(
-      state.copyWith(
-        postalShareText: text,
-        effect: PostalOfficesEffect.share,
-        message: null,
-      ),
+      state.copyWith(postalShareText: text, effect: PostalOfficesEffect.share),
     );
   }
 

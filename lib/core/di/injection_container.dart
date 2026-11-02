@@ -1,3 +1,7 @@
+import 'package:pishkhan_mobile/features/postal_offices/domain/usecases/lookup_usecase.dart';
+import 'package:pishkhan_mobile/features/cheque/domain/usecases/cheque_clearance_usecase.dart';
+import 'package:pishkhan_mobile/features/cheque/domain/usecases/cheque_cancellation_usecase.dart';
+import 'package:pishkhan_mobile/features/cheque/domain/usecases/cheque_book_usecase.dart';
 import 'package:pishkhan_mobile/features/modern_banking/domain/usecases/mobile_bank_usecase.dart';
 import 'package:pishkhan_mobile/features/transfers/domain/usecases/on_site_transfer_usecase.dart';
 import 'package:pishkhan_mobile/features/deposits/domain/usecases/average_balance_usecase.dart';
@@ -105,6 +109,57 @@ void configureDependencies({GetIt? container}) {
     () => UploadTransferDestinationsUseCase(
       dependencies<OnSiteTransferRepository>(),
     ),
+  );
+  dependencies.registerLazySingleton<FetchPostalProvincesUseCase>(
+    () => FetchPostalProvincesUseCase(dependencies<PostalOfficesRepository>()),
+  );
+  dependencies.registerLazySingleton<FetchPostalOfficesUseCase>(
+    () => FetchPostalOfficesUseCase(dependencies<PostalOfficesRepository>()),
+  );
+  dependencies.registerLazySingleton<FetchChequeClearanceCatalogUseCase>(
+    () => FetchChequeClearanceCatalogUseCase(
+      dependencies<ChequeClearanceRepository>(),
+    ),
+  );
+  dependencies.registerLazySingleton<SubmitChequeClearanceUseCase>(
+    () =>
+        SubmitChequeClearanceUseCase(dependencies<ChequeClearanceRepository>()),
+  );
+  dependencies.registerLazySingleton<FetchChequeCancellationCatalogUseCase>(
+    () => FetchChequeCancellationCatalogUseCase(
+      dependencies<ChequeCancellationRepository>(),
+    ),
+  );
+  dependencies.registerLazySingleton<FetchCancellableChequesUseCase>(
+    () => FetchCancellableChequesUseCase(
+      dependencies<ChequeCancellationRepository>(),
+    ),
+  );
+  dependencies.registerLazySingleton<SubmitChequeCancellationUseCase>(
+    () => SubmitChequeCancellationUseCase(
+      dependencies<ChequeCancellationRepository>(),
+    ),
+  );
+  dependencies.registerLazySingleton<FetchChequeBookCatalogUseCase>(
+    () => FetchChequeBookCatalogUseCase(dependencies<ChequeBookRepository>()),
+  );
+  dependencies.registerLazySingleton<CheckChequeBookResidencyUseCase>(
+    () => CheckChequeBookResidencyUseCase(dependencies<ChequeBookRepository>()),
+  );
+  dependencies.registerLazySingleton<DeleteChequeBookResidenceUseCase>(
+    () =>
+        DeleteChequeBookResidenceUseCase(dependencies<ChequeBookRepository>()),
+  );
+  dependencies.registerLazySingleton<SaveChequeBookDeliveryAddressUseCase>(
+    () => SaveChequeBookDeliveryAddressUseCase(
+      dependencies<ChequeBookRepository>(),
+    ),
+  );
+  dependencies.registerLazySingleton<FetchChequeBookQuoteUseCase>(
+    () => FetchChequeBookQuoteUseCase(dependencies<ChequeBookRepository>()),
+  );
+  dependencies.registerLazySingleton<SubmitChequeBookUseCase>(
+    () => SubmitChequeBookUseCase(dependencies<ChequeBookRepository>()),
   );
   dependencies.registerLazySingleton<PersonalInformationRepository>(
     MockPersonalInformationRepository.new,

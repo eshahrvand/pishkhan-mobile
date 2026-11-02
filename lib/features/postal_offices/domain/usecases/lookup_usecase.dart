@@ -4,8 +4,8 @@ import 'package:pishkhan_mobile/core/result/result.dart';
 import '../entities/postal_office.dart';
 import '../repositories/postal_offices_repository.dart';
 
-class FetchPostalProvinces {
-  const FetchPostalProvinces(this.repository);
+class FetchPostalProvincesUseCase {
+  const FetchPostalProvincesUseCase(this.repository);
   final PostalOfficesRepository repository;
   Future<Result<List<PostalProvince>>> call() async {
     try {
@@ -16,8 +16,8 @@ class FetchPostalProvinces {
   }
 }
 
-class FetchPostalOffices {
-  const FetchPostalOffices(this.repository);
+class FetchPostalOfficesUseCase {
+  const FetchPostalOfficesUseCase(this.repository);
   final PostalOfficesRepository repository;
   Future<Result<List<PostalOffice>>> call(String cityId) async {
     try {

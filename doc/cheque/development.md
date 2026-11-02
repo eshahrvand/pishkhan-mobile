@@ -1,6 +1,6 @@
 # Cheque: implemented flows and integration
 
-Updated: 2026-10-19. This module implements cheque-book issuance, cancellation and
+Updated: 2026-11-02. This module implements cheque-book issuance, cancellation and
 record clearance with repository-backed demo data. No real cheque status, wallet,
 issuance or postal submission is changed.
 
@@ -21,7 +21,12 @@ validation; they do not construct Cubits or query repositories.
 
 Entities/repositories/use cases are under `features/cheque/domain`; adapters are
 under `data/repositories`. Presentation services are `book_issuance`,
-`cancellation` and `clearance`. GetIt registers repositories, never Cubits.
+`cancellation` and `clearance`. GetIt registers repositories and the existing
+UseCases, never Cubits. UseCase class names end in `UseCase`; grouped files are
+`cheque_clearance_usecase.dart`, `cheque_cancellation_usecase.dart` and
+`cheque_book_usecase.dart`. `core/di` supplies repository constructor arguments;
+Cubits resolve final lowerCamelCase fields including the `UseCase` suffix,
+without constructing UseCases or retaining repositories solely for wiring them.
 Each screen creates its Cubit directly in a Provider and starts its catalog fetch.
 Flow steps and their editing modals borrow that same instance with `.value`.
 
@@ -91,7 +96,8 @@ separate Provider-owned postal Cubit; cheque selection, reasons and consent rema
 in the caller's Cubit. There is no Cubit under `shared`.
 
 The feature owns its Domain entities, `PostalOfficesRepository`, lookup use cases
-and mock adapter. GetIt registers the repository, not the Cubit. Province changes
+and mock adapter. GetIt registers the repository and both postal UseCases, not
+the Cubit. Province changes
 clear city/results; Back from results returns to location selection. Pending
 requests block Back and the header close action. Share text is prepared in Cubit;
 UI opens the system chooser without sending automatically. See
@@ -123,6 +129,20 @@ new stage starts at the top. Independent operations have separate statuses;
 a request-ID check is used only for genuinely overlapping list requests.
 Boundary exceptions become `Err` according to the existing Result contract.
 
+The phase-9 migration applies contract v1.23: request owners use `async/await`
+with explicit Result switches. Independent operation-failure and prepared-effect
+listeners share `MultiBlocListener` and screen rendering uses `BlocBuilder`.
+The latest failure/message remains recorded across loading, success and commands;
+feedback observes each operation's transition to failure, and effects never
+depend on old message presence. Clearance's loading-focus and success-receipt
+listener remains a separate responsibility in that same list. The local
+cancellation content/review Consumers keep their scroll and nested-modal owners.
+
+Registry-check and registry-deletion success remain independent events with
+explicit emits. They share pure address/eligibility calculations, without State
+preparation or publication helpers. Confirmed snapshots, real request IDs and
+idempotency behavior remain unchanged.
+
 Demo submissions check service-specific data and idempotency. Real adapters still
 need bank authorization, eligibility, official documents/tariffs, atomic execution
 and durable deduplication. Missing content is never replaced with a fabricated
@@ -130,12 +150,13 @@ legal document or real bank success.
 
 ## Verification
 
-Tests: `test/cheque/cheque_book_*`, `cheque_clearance_*` and
-`cheque_cancellation_*`, plus shared assets and router regressions.
+Tests cover the cheque and postal flows plus directly related DI, central routing
+and dashboard service navigation. The [phase-9 review](phase-9-review.md) records
+the actual commands and results.
 
 ```sh
-flutter test test/cheque test/core/router/app_router_test.dart
-flutter analyze
+flutter test test/postal_offices test/cheque test/core/di test/core/router/app_router_test.dart test/dashboard/implemented_services_navigation_test.dart
+flutter analyze lib/features/postal_offices lib/features/cheque lib/core/di/injection_container.dart test/postal_offices test/cheque
 ```
 
 Screen tests support `CAPTURE_CERTIFICATE_PREVIEWS=1` and write ignored PNGs under

@@ -1,6 +1,6 @@
 # Cheque record clearance
 
-Updated: 2026-10-19. See the [cheque module overview](cheque/development.md) for
+Updated: 2026-11-02. See the [cheque module overview](cheque/development.md) for
 issuance, cancellation, shared postal ownership and current integration limits.
 
 Entry: **Cheque → Clear cheque record**, service ID `cheque-clear`, route
@@ -52,11 +52,24 @@ is not ready yet.” No legal document or download is fabricated.
 ## Implementation boundaries
 
 - Domain entities and repository contract contain no Flutter imports.
-- GetIt registers the repository; the screen constructs and owns its Cubit.
+- GetIt registers the repository and `FetchChequeClearanceCatalogUseCase` /
+  `SubmitChequeClearanceUseCase` from `cheque_clearance_usecase.dart`. DI wires
+  constructor dependencies; Cubit resolves final `fetchChequeClearanceCatalogUseCase`
+  and `submitChequeClearanceUseCase` fields. The screen constructs and owns Cubit.
 - Cubit owns request decisions, validation outcomes, document requirements,
   consent and request effects. The separate postal Cubit owns its modal steps,
   search and prepared share content.
 - UI owns rendering, modal/navigation/platform operations and focus.
+- Contract v1.23 request owners use `async/await` and Result switches. Separate
+  catalog/submission failure, loading-focus/success-receipt and typed-effect
+  listeners share `MultiBlocListener`; `BlocBuilder` renders the screen.
+  Latest failure/message text remains recorded; only the operation's new failure
+  transition displays it. Retained errors cannot block postal/content effects.
+- Shared submit eligibility reads stored validity and only the current input's
+  fresh validator result. The service's `cheque.not-found` remains a separate
+  inline field error: changing cheque number clears that field error; changing
+  letter/consent does not make a missing cheque eligible. System/header Back
+  remain blocked during catalog/submission requests.
 - The form and postal province/city fields use package selectors with app-owned
   avp_ui option bottom sheets; postal lookup retains the two supplied bottom-sheet
   states. Placeholder text and chevrons use the Figma gray400
@@ -71,3 +84,6 @@ The delivery-address editor and postal-code validation remain in the separate
 
 Tests: `test/cheque/cheque_clearance_cubit_test.dart` and
 `test/cheque/cheque_clearance_screen_test.dart`.
+The [phase-9 review](cheque/phase-9-review.md) records scoped verification,
+including repeated failure, postal/content effects after errors and success
+after retry with the same request key.

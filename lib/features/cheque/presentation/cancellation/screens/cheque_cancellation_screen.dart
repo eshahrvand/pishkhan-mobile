@@ -27,16 +27,18 @@ class ChequeCancellationScreen extends StatelessWidget {
   });
   final String? initialDepositNumber;
   final VoidCallback? onAssistantPressed;
+  void _showRequestFailure(
+    BuildContext context,
+    ChequeCancellationState state,
+  ) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(state.message!)));
+  }
+
   Future<void> _handleEffect(
     BuildContext context,
     ChequeCancellationState state,
   ) async {
-    if (state.message != null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(state.message!)));
-      return;
-    }
-
     switch (state.effect) {
       case ChequeCancellationEffect.review:
         context
@@ -112,122 +114,127 @@ class ChequeCancellationScreen extends StatelessWidget {
       create: (_) =>
           ChequeCancellationCubit(initialDepositNumber: initialDepositNumber)
             ..fetchCatalog(),
-      child: BlocConsumer<ChequeCancellationCubit, ChequeCancellationState>(
-        listenWhen: (previous, current) =>
-            (previous.effect != current.effect && current.effect != null) ||
-            ((previous.catalogStatus != current.catalogStatus &&
-                    current.catalogStatus == RequestStatus.failure) ||
-                (previous.chequesStatus != current.chequesStatus &&
-                    current.chequesStatus == RequestStatus.failure) ||
-                (previous.submissionStatus != current.submissionStatus &&
-                    current.submissionStatus == RequestStatus.failure)),
-        listener: _handleEffect,
-
-        builder: (context, state) {
-          return Directionality(
-            textDirection: TextDirection.rtl,
-            child: PopScope(
-              canPop:
-                  (state.catalogStatus != RequestStatus.loading &&
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<ChequeCancellationCubit, ChequeCancellationState>(
+            listenWhen: (previous, current) =>
+                previous.catalogStatus != current.catalogStatus &&
+                current.catalogStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<ChequeCancellationCubit, ChequeCancellationState>(
+            listenWhen: (previous, current) =>
+                previous.chequesStatus != current.chequesStatus &&
+                current.chequesStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<ChequeCancellationCubit, ChequeCancellationState>(
+            listenWhen: (previous, current) =>
+                previous.submissionStatus != current.submissionStatus &&
+                current.submissionStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<ChequeCancellationCubit, ChequeCancellationState>(
+            listenWhen: (previous, current) =>
+                previous.effect != current.effect && current.effect != null,
+            listener: _handleEffect,
+          ),
+        ],
+        child: BlocBuilder<ChequeCancellationCubit, ChequeCancellationState>(
+          builder: (context, state) {
+            return Directionality(
+              textDirection: TextDirection.rtl,
+              child: PopScope(
+                canPop:
+                    (state.catalogStatus != RequestStatus.loading &&
+                        state.chequesStatus != RequestStatus.loading &&
+                        state.submissionStatus != RequestStatus.loading) &&
+                    (state.effect == ChequeCancellationEffect.back),
+                onPopInvokedWithResult: (didPop, _) {
+                  if (!didPop &&
+                      state.catalogStatus != RequestStatus.loading &&
                       state.chequesStatus != RequestStatus.loading &&
-                      state.submissionStatus != RequestStatus.loading) &&
-                  (state.effect == ChequeCancellationEffect.back),
-              onPopInvokedWithResult: (didPop, _) {
-                if (!didPop &&
-                    state.catalogStatus != RequestStatus.loading &&
-                    state.chequesStatus != RequestStatus.loading &&
-                    state.submissionStatus != RequestStatus.loading) {
-                  context.read<ChequeCancellationCubit>().requestBack();
-                }
-              },
-              child: Scaffold(
-                backgroundColor: context.colors.surfaceSubtle,
-                body: SafeArea(
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      Column(
-                        children: [
-                          AppTopBar(
-                            title: S.current.chequeCancelTitle,
-                            showLeadingActions: false,
-                            leadingAction:
-                                state.step == ChequeCancellationStep.cheques
-                                ? BlocBuilder<
-                                    ChequeCancellationCubit,
-                                    ChequeCancellationState
-                                  >(
-                                    buildWhen: (previous, current) =>
-                                        previous.selectedEntries !=
-                                            current.selectedEntries ||
-                                        previous.isEditable !=
-                                            current.isEditable,
-                                    builder: (context, state) {
-                                      return Semantics(
-                                        button: true,
-                                        label: S.current.chequeCancelReview,
-                                        child: InkWell(
-                                          onTap: state.isEditable
-                                              ? context
-                                                    .read<
-                                                      ChequeCancellationCubit
-                                                    >()
-                                                    .requestSelectedCheques
-                                              : null,
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(8),
-                                            child: AvpImage(
-                                              image:
-                                                  state.selectedEntries.isEmpty
-                                                  ? '${AppConstants.baseImage}cheque_cancel_file_list.svg'
-                                                  : '${AppConstants.baseImage}cheque_cancel_file_list_selected.svg',
-                                              width: 24,
-                                              height: 24,
-                                            ),
+                      state.submissionStatus != RequestStatus.loading) {
+                    context.read<ChequeCancellationCubit>().requestBack();
+                  }
+                },
+                child: Scaffold(
+                  backgroundColor: context.colors.surfaceSubtle,
+                  body: SafeArea(
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        Column(
+                          children: [
+                            AppTopBar(
+                              title: S.current.chequeCancelTitle,
+                              showLeadingActions: false,
+                              leadingAction:
+                                  state.step == ChequeCancellationStep.cheques
+                                  ? Semantics(
+                                      button: true,
+                                      label: S.current.chequeCancelReview,
+                                      child: InkWell(
+                                        onTap: state.isEditable
+                                            ? context
+                                                  .read<
+                                                    ChequeCancellationCubit
+                                                  >()
+                                                  .requestSelectedCheques
+                                            : null,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8),
+                                          child: AvpImage(
+                                            image: state.selectedEntries.isEmpty
+                                                ? '${AppConstants.baseImage}cheque_cancel_file_list.svg'
+                                                : '${AppConstants.baseImage}cheque_cancel_file_list_selected.svg',
+                                            width: 24,
+                                            height: 24,
                                           ),
                                         ),
-                                      );
-                                    },
-                                  )
-                                : const SizedBox.shrink(),
-                            trailingIcon: const AvpImage(
-                              image:
-                                  '${AppConstants.baseImage}deposit_list_back.svg',
-                              width: 24,
-                              height: 24,
+                                      ),
+                                    )
+                                  : const SizedBox.shrink(),
+                              trailingIcon: const AvpImage(
+                                image:
+                                    '${AppConstants.baseImage}deposit_list_back.svg',
+                                width: 24,
+                                height: 24,
+                              ),
+                              trailingTooltip: S.current.backLabel,
+                              onTrailingPressed:
+                                  (state.catalogStatus !=
+                                          RequestStatus.loading &&
+                                      state.chequesStatus !=
+                                          RequestStatus.loading &&
+                                      state.submissionStatus !=
+                                          RequestStatus.loading)
+                                  ? context
+                                        .read<ChequeCancellationCubit>()
+                                        .requestBack
+                                  : null,
                             ),
-                            trailingTooltip: S.current.backLabel,
-                            onTrailingPressed:
-                                (state.catalogStatus != RequestStatus.loading &&
-                                    state.chequesStatus !=
-                                        RequestStatus.loading &&
-                                    state.submissionStatus !=
-                                        RequestStatus.loading)
-                                ? context
-                                      .read<ChequeCancellationCubit>()
-                                      .requestBack
-                                : null,
-                          ),
-                          const Expanded(child: ChequeCancellationContent()),
-                          const ChequeCancellationFooter(),
-                        ],
-                      ),
-                      Positioned(
-                        left: 16,
-                        bottom: 76,
-                        child: AppAssistantButton(
-                          onPressed: context
-                              .read<ChequeCancellationCubit>()
-                              .requestAssistant,
+                            const Expanded(child: ChequeCancellationContent()),
+                            const ChequeCancellationFooter(),
+                          ],
                         ),
-                      ),
-                    ],
+                        Positioned(
+                          left: 16,
+                          bottom: 76,
+                          child: AppAssistantButton(
+                            onPressed: context
+                                .read<ChequeCancellationCubit>()
+                                .requestAssistant,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }

@@ -37,6 +37,8 @@ void main() {
   late ControlledChequeRepository repository;
   late ChequeClearanceCubit cubit;
   setUp(() {
+    configureDependencies();
+    getIt.unregister<ChequeClearanceRepository>();
     repository = ControlledChequeRepository();
     getIt.registerSingleton<ChequeClearanceRepository>(repository);
     cubit = ChequeClearanceCubit();
@@ -65,7 +67,7 @@ void main() {
     repository.failCatalog = false;
     await cubit.fetchCatalog();
     expect(cubit.state.catalogStatus, RequestStatus.success);
-    expect(cubit.state.failure, isNull);
+    expect(cubit.state.failure, const DataFailure('offline'));
     expect(cubit.state.isEditable, isTrue);
   });
 

@@ -27,7 +27,8 @@ void main() {
     );
     final first = await repository.submitIssuance(request);
     expect(first, isA<Success<ChequeBookReceipt>>());
-    final repeated = await repository.submitIssuance(request) as Success<ChequeBookReceipt>;
+    final repeated =
+        await repository.submitIssuance(request) as Success<ChequeBookReceipt>;
     expect(repeated.data, (first as Success<ChequeBookReceipt>).data);
     final changed = ChequeBookDraft(
       depositId: deposit.id,

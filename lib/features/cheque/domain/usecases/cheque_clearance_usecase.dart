@@ -4,8 +4,8 @@ import 'package:pishkhan_mobile/core/result/result.dart';
 import '../entities/cheque_clearance.dart';
 import '../repositories/cheque_clearance_repository.dart';
 
-class FetchChequeClearanceCatalog {
-  const FetchChequeClearanceCatalog(this.repository);
+class FetchChequeClearanceCatalogUseCase {
+  const FetchChequeClearanceCatalogUseCase(this.repository);
   final ChequeClearanceRepository repository;
   Future<Result<ChequeClearanceCatalog>> call() async {
     try {
@@ -16,8 +16,8 @@ class FetchChequeClearanceCatalog {
   }
 }
 
-class SubmitChequeClearance {
-  const SubmitChequeClearance(this.repository);
+class SubmitChequeClearanceUseCase {
+  const SubmitChequeClearanceUseCase(this.repository);
   final ChequeClearanceRepository repository;
   Future<Result<ChequeClearanceReceipt>> call(
     ChequeClearanceRequest request,
