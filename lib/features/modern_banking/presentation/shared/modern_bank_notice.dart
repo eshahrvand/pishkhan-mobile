@@ -1,6 +1,6 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 class ModernBankNotice extends StatelessWidget {
   const ModernBankNotice({super.key, required this.message});
@@ -20,7 +20,9 @@ class ModernBankNotice extends StatelessWidget {
           SizedBox(
             width: 24,
             height: 24,
-            child: AvpImage(image: AppAssets.modernNotice),
+            child: AvpImage(
+              image: '${AppConstants.baseImage}modern_notice.png',
+            ),
           ),
           const SizedBox(width: 8),
           Expanded(

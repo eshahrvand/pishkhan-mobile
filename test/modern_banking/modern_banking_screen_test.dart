@@ -58,11 +58,7 @@ Future<void> tapLabel(WidgetTester tester, String label) async {
 
 void main() {
   setUpAll(loadCertificateFonts);
-  setUp(() {
-    getIt.registerSingleton<ModernBankingRepository>(
-      MockModernBankingRepository(),
-    );
-  });
+  setUp(configureDependencies);
   tearDown(() => getIt.reset());
 
   testWidgets(

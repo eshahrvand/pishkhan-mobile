@@ -30,11 +30,11 @@ abstract class MobileBankState with _$MobileBankState {
     @Default(false) bool isWalletSufficient,
     @Default(0) int totalRial,
     @Default(false) bool canContinue,
-    Failure? catalogFailure,
-    Failure? submissionFailure,
+    Failure? failure,
+    String? message,
+
     FlowNavigation? navigation,
     @Default(false) bool isExitToHome,
     MobileBankDestination? destination,
-    @Default(0) int effectId,
   }) = _MobileBankState;
 }

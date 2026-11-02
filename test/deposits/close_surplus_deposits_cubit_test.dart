@@ -9,7 +9,7 @@ import 'package:pishkhan_mobile/features/deposits/data/repositories/mock_surplus
 import 'package:pishkhan_mobile/features/deposits/domain/entities/listed_deposit.dart';
 import 'package:pishkhan_mobile/features/deposits/domain/entities/surplus_deposit_closure.dart';
 import 'package:pishkhan_mobile/features/deposits/domain/repositories/surplus_deposits_repository.dart';
-import 'package:pishkhan_mobile/features/deposits/domain/usecases/close_surplus_deposits.dart';
+import 'package:pishkhan_mobile/features/deposits/domain/usecases/close_surplus_deposits_usecase.dart';
 import 'package:pishkhan_mobile/features/deposits/presentation/close_surplus_deposits/cubit/close_surplus_deposits_cubit.dart';
 
 class ControlledSurplusRepository extends MockSurplusDepositsRepository {
@@ -44,12 +44,29 @@ class ControlledSurplusRepository extends MockSurplusDepositsRepository {
   }
 }
 
+class IsolatedSurplusRepository extends MockSurplusDepositsRepository {
+  int reviewCalls = 0;
+  final requests = <CloseSurplusDepositsRequest>[];
+
+  @override
+  Future<Result<SurplusDepositReview>> fetchSurplusDeposits(
+    ListedDeposit primaryDeposit,
+  ) {
+    reviewCalls++;
+    return super.fetchSurplusDeposits(primaryDeposit);
+  }
+
+  @override
+  Future<Result<SurplusDepositClosureReceipt>> closeSurplusDeposits(
+    CloseSurplusDepositsRequest request,
+  ) {
+    requests.add(request);
+    return Future.value(const Err(DataFailure('timeout')));
+  }
+}
+
 void main() {
-  setUp(
-    () => getIt.registerSingleton<SurplusDepositsRepository>(
-      MockSurplusDepositsRepository(),
-    ),
-  );
+  setUp(configureDependencies);
   tearDown(() => getIt.reset());
 
   CloseSurplusDepositsCubit createCubit({String? number}) {
@@ -57,6 +74,34 @@ void main() {
     addTearDown(cubit.close);
     return cubit;
   }
+
+  test(
+    'two live closure flows retain independent reviewed retry payloads',
+    () async {
+      final repository = IsolatedSurplusRepository();
+      await getIt.unregister<SurplusDepositsRepository>();
+      getIt.registerSingleton<SurplusDepositsRepository>(repository);
+      final first = createCubit();
+      final second = createCubit();
+      await first.fetchPrimaryDeposits();
+      await second.fetchPrimaryDeposits();
+      first.selectPrimaryDeposit(first.state.deposits.first);
+      second.selectPrimaryDeposit(second.state.deposits.last);
+      first.updateTermsAcceptance(true);
+      second.updateTermsAcceptance(true);
+      await first.continueFlow();
+      await second.continueFlow();
+      await first.continueFlow();
+      expect(repository.reviewCalls, 2);
+      expect(repository.requests[0], repository.requests[2]);
+      expect(
+        repository.requests[0].primaryDepositId,
+        isNot(repository.requests[1].primaryDepositId),
+      );
+      expect(first.state.submissionStatus, RequestStatus.failure);
+      expect(second.state.submissionStatus, RequestStatus.failure);
+    },
+  );
 
   test(
     'constructor stays initial; catalog resolves localized entry number',
@@ -122,7 +167,7 @@ void main() {
       getIt.registerSingleton<SurplusDepositsRepository>(repository);
       final cubit = createCubit();
       await cubit.fetchPrimaryDeposits();
-      expect(cubit.state.depositsFailure, const UnexpectedFailure());
+      expect(cubit.state.failure, const UnexpectedFailure());
       repository.throwsCatalog = false;
       await cubit.fetchPrimaryDeposits();
       cubit.selectPrimaryDeposit(cubit.state.deposits.first);
@@ -153,7 +198,7 @@ void main() {
       final review = (await repository.fetchSurplusDeposits(
         primary,
       ) as Success<SurplusDepositReview>).data;
-      final result = await SubmitCloseSurplusDeposits(repository)(
+      final result = await SubmitCloseSurplusDepositsUseCase(repository)(
         CloseSurplusDepositsRequest(
           primaryDepositId: primary.id,
           reviewToken: review.token,
@@ -183,9 +228,11 @@ void main() {
       cubit.applyExitConfirmation(true);
       expect(cubit.state.effect, CloseSurplusDepositsEffect.assistant);
       cubit.requestTerms();
-      final id = cubit.state.effectId;
+      final effectBeforeRepeat = cubit.state.effect;
+      cubit.consumeCloseSurplusDepositsInteraction();
+      expect(cubit.state.effect, isNull);
       cubit.requestTerms();
-      expect(cubit.state.effectId, id + 1);
+      expect(cubit.state.effect.runtimeType, effectBeforeRepeat.runtimeType);
     },
   );
 

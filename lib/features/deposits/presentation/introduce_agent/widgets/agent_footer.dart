@@ -82,19 +82,11 @@ class AgentFooter extends StatelessWidget {
             buildWhen: (previous, current) =>
                 previous.canSubmit != current.canSubmit ||
                 previous.submissionStatus != current.submissionStatus ||
-                previous.submissionFailure != current.submissionFailure,
+                previous.failure != current.failure,
             builder: (context, state) {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  if (state.submissionFailure != null) ...[
-                    Text(
-                      S.current.issuanceSubmitError,
-                      style: certificateLabelStyle(context)
-                          .copyWith(color: context.colors.error),
-                    ),
-                    const SizedBox(height: 8),
-                  ],
                   AppButton(
                     label: S.current.issuanceSubmit,
                     size: AppButtonSize.lg,

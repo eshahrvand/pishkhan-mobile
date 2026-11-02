@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
+
 import '../../support/registered_dependency.dart';
 
 import 'dart:async';
@@ -71,6 +73,8 @@ CardServiceCatalog singleAccountCatalog() {
 }
 
 void main() {
+  setUp(configureDependencies);
+  tearDown(() => getIt.reset());
   test('change deposit starts empty, requires a new deposit and terms, resets on card change', () async {
     final repo = TestCardServicesRepository();
     final cubit =
@@ -197,41 +201,37 @@ void main() {
     },
   );
 
-  test(
-    'editing a failed request clears its error and creates a new request key',
-    () async {
-      final repo = TestCardServicesRepository()..failSubmit = true;
-      final cubit =
-          withRegisteredDependency<
-            CardServicesRepository,
-            ChangeCardDepositCubit
-          >(repo, () => ChangeCardDepositCubit());
-      addTearDown(cubit.close);
-      await cubit.fetchCatalog();
-      cubit.selectCard(cubit.state.catalog!.cards.first);
-      cubit.selectDestination(cubit.state.destinations.first);
-      cubit.updateTermsAcceptance(true);
-      await cubit.submitDepositChange();
-      expect(cubit.state.catalogStatus, RequestStatus.success);
-      expect(cubit.state.catalogFailure, isNull);
-      expect(cubit.state.submissionFailure, isA<DataFailure>());
-      expect(cubit.state.canSubmit, isTrue);
-      cubit.selectCard(
-        cubit.state.catalog!.cards.firstWhere((card) => card.id == 'card-3'),
-      );
-      expect(cubit.state.submissionFailure, isNull);
-      expect(cubit.state.destination, isNull);
-      cubit.selectDestination(cubit.state.destinations.first);
-      cubit.updateTermsAcceptance(true);
-      await cubit.submitDepositChange();
-      expect(
-        repo.changes.last.idempotencyKey,
-        isNot(repo.changes.first.idempotencyKey),
-      );
-      expect(repo.changes.last.cardId, 'card-3');
-      expect(repo.changes.last.sourceDepositId, 'deposit-2');
-    },
-  );
+  test('editing a failed request retains its recorded error and creates a new request key', () async {
+    final repo = TestCardServicesRepository()..failSubmit = true;
+    final cubit =
+        withRegisteredDependency<
+          CardServicesRepository,
+          ChangeCardDepositCubit
+        >(repo, () => ChangeCardDepositCubit());
+    addTearDown(cubit.close);
+    await cubit.fetchCatalog();
+    cubit.selectCard(cubit.state.catalog!.cards.first);
+    cubit.selectDestination(cubit.state.destinations.first);
+    cubit.updateTermsAcceptance(true);
+    await cubit.submitDepositChange();
+    expect(cubit.state.catalogStatus, RequestStatus.success);
+    expect(cubit.state.failure, isA<DataFailure>());
+    expect(cubit.state.canSubmit, isTrue);
+    cubit.selectCard(
+      cubit.state.catalog!.cards.firstWhere((card) => card.id == 'card-3'),
+    );
+    expect(cubit.state.failure?.code, 'offline');
+    expect(cubit.state.destination, isNull);
+    cubit.selectDestination(cubit.state.destinations.first);
+    cubit.updateTermsAcceptance(true);
+    await cubit.submitDepositChange();
+    expect(
+      repo.changes.last.idempotencyKey,
+      isNot(repo.changes.first.idempotencyKey),
+    );
+    expect(repo.changes.last.cardId, 'card-3');
+    expect(repo.changes.last.sourceDepositId, 'deposit-2');
+  });
 
   test('changing destination resets consent and request identity', () async {
     final sample = MockCardServicesRepository.examples;
@@ -262,7 +262,7 @@ void main() {
     cubit.selectDestination(cubit.state.destinations.last);
     expect(cubit.state.termsAccepted, isFalse);
     expect(cubit.state.canSubmit, isFalse);
-    expect(cubit.state.submissionFailure, isNull);
+    expect(cubit.state.failure?.code, 'offline');
     cubit.updateTermsAcceptance(true);
     await cubit.submitDepositChange();
     expect(
@@ -321,9 +321,8 @@ void main() {
       addTearDown(cubit.close);
       await cubit.fetchCatalog();
       expect(cubit.state.catalogStatus, RequestStatus.failure);
-      expect(cubit.state.catalogFailure, isA<DataFailure>());
+      expect(cubit.state.failure, isA<DataFailure>());
       expect(cubit.state.submissionStatus, RequestStatus.initial);
-      expect(cubit.state.submissionFailure, isNull);
     },
   );
 
@@ -409,6 +408,9 @@ void main() {
     expect(cubit.state.isEditable, isFalse);
     cubit.removeSelectedCard(cubit.state.selectedCards[2]);
     expect(cubit.state.totalRial, 4000000);
+    expect(cubit.state.isEditable, isFalse);
+    expect(cubit.state.canContinue, isFalse);
+    expect(cubit.state.canReviewSelection, isFalse);
     cubit.applyReviewResult(null);
     expect(cubit.state.step, GiftBalanceStep.selection);
     expect(cubit.state.canContinue, isTrue);
@@ -477,9 +479,8 @@ void main() {
     cubit.updateTermsAcceptance(true);
     await cubit.submitCurrentStep();
     expect(cubit.state.submissionStatus, RequestStatus.failure);
-    expect(cubit.state.submissionFailure, isA<DataFailure>());
+    expect(cubit.state.failure, isA<DataFailure>());
     expect(cubit.state.catalogStatus, RequestStatus.success);
-    expect(cubit.state.catalogFailure, isNull);
     expect(cubit.state.canContinue, isTrue);
     // Consent and an unchanged review do not alter the payload.
     cubit.updateTermsAcceptance(false);
@@ -516,7 +517,7 @@ void main() {
     await cubit.submitCurrentStep();
     cubit.selectDestination(cubit.state.catalog!.deposits.last);
     expect(cubit.state.termsAccepted, isFalse);
-    expect(cubit.state.submissionFailure, isNull);
+    expect(cubit.state.failure?.code, 'offline');
     cubit.updateTermsAcceptance(true);
     await cubit.submitCurrentStep();
     expect(
@@ -559,12 +560,11 @@ void main() {
       expect(repository.loadCalls, 0);
       await cubit.fetchCatalog();
       expect(cubit.state.catalogStatus, RequestStatus.failure);
-      expect(cubit.state.catalogFailure, isA<UnexpectedFailure>());
-      expect(cubit.state.submissionFailure, isNull);
+      expect(cubit.state.failure, isA<UnexpectedFailure>());
       repository.throwLoad = false;
       await cubit.fetchCatalog();
       expect(cubit.state.catalogStatus, RequestStatus.success);
-      expect(cubit.state.catalogFailure, isNull);
+      expect(cubit.state.failure, const UnexpectedFailure());
       expect(cubit.state.query, '۵۰۴۱');
     },
   );

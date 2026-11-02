@@ -10,9 +10,9 @@ abstract class ChangePhoneState with _$ChangePhoneState {
     @Default(RequestStatus.initial) RequestStatus submissionStatus,
     PhoneSettings? settings,
     PhoneChallenge? challenge,
-    Failure? settingsFailure,
-    Failure? otpRequestFailure,
-    Failure? submissionFailure,
+    Failure? failure,
+    String? message,
+
     @Default('') String phoneNumber,
     @Default('') String otp,
     @Default(false) bool isPhoneNumberValid,
@@ -26,6 +26,5 @@ abstract class ChangePhoneState with _$ChangePhoneState {
     @Default(0) int remainingSeconds,
     String? idempotencyKey,
     ChangePhoneEffect? effect,
-    @Default(0) int effectId,
   }) = _ChangePhoneState;
 }

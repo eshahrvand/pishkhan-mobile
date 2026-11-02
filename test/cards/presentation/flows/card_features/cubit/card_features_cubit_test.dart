@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
+
 import '../../../../../support/registered_dependency.dart';
 
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
@@ -14,6 +16,8 @@ import 'package:pishkhan_mobile/features/cards/presentation/card_features/cubit/
 import '../support/test_cards_repository.dart';
 
 void main() {
+  setUp(configureDependencies);
+  tearDown(() => getIt.reset());
   test(
     'interaction effects retain card context and repeat identical requests',
     () async {
@@ -29,9 +33,11 @@ void main() {
       );
       final card = (cubit.state.effect as CardActionsRequested).card;
       expect(cubit.state.selectedCard, card);
-      final previousId = cubit.state.effectId;
+      final effectBeforeRepeat = cubit.state.effect;
+      cubit.consumeCardFeaturesInteraction();
+      expect(cubit.state.effect, isNull);
       cubit.requestCardActions(card);
-      expect(cubit.state.effectId, previousId + 1);
+      expect(cubit.state.effect.runtimeType, effectBeforeRepeat.runtimeType);
       cubit.selectCardAction(CardFeatureAction.details, card: card);
       expect((cubit.state.effect as CardDetailsRequested).card, card);
       for (final entry in {
@@ -177,7 +183,7 @@ void main() {
     );
     await cubit.fetchCards();
     expect(cubit.state.cardsStatus, RequestStatus.failure);
-    expect(cubit.state.cardsFailure!.code, 'offline');
+    expect(cubit.state.failure!.code, 'offline');
     repo.result = const Success([]);
     await cubit.fetchCards();
     expect(cubit.state.cardsStatus, RequestStatus.success);
@@ -186,10 +192,10 @@ void main() {
       MockCardsRepository.examples.first,
     ]);
     await cubit.fetchCards();
-    expect(cubit.state.cardsFailure!.code, 'cards.invalid');
+    expect(cubit.state.failure!.code, 'cards.invalid');
     repo.throws = true;
     await cubit.fetchCards();
-    expect(cubit.state.cardsFailure!.code, 'unexpected');
+    expect(cubit.state.failure!.code, 'unexpected');
     repo.throws = false;
     repo.result = Success([MockCardsRepository.examples.first]);
     await cubit.fetchCards();
@@ -272,8 +278,8 @@ void main() {
     await cubit.fetchCards();
     final card = cubit.state.visibleCards.first;
     cubit.requestCardActions(card);
-    final effectId = cubit.state.effectId;
+    final pendingEffect = cubit.state.effect;
     cubit.selectCardAction(null, card: card);
-    expect(cubit.state.effectId, effectId);
+    expect(cubit.state.effect, pendingEffect);
   });
 }

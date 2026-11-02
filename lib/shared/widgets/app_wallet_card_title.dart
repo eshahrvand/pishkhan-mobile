@@ -1,7 +1,6 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 
-
 class AppWalletCardTitle extends StatelessWidget {
   const AppWalletCardTitle({super.key, required this.title});
   final String title;

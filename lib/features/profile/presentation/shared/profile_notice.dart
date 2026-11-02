@@ -1,6 +1,6 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 /// Shared notice used by the three personal-information services.
 class ProfileNotice extends StatelessWidget {
@@ -26,8 +26,8 @@ class ProfileNotice extends StatelessWidget {
         children: [
           AvpImage(
             image: isError
-                ? AppAssets.chequeBookWarning
-                : AppAssets.passwordCameraInfo,
+                ? '${AppConstants.baseImage}chequebook_warning.svg'
+                : '${AppConstants.baseImage}password_camera_info.svg',
             width: 20,
             height: 20,
           ),

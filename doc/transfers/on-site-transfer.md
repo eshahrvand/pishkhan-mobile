@@ -1,9 +1,17 @@
 # On-site fund transfer request
 
+**Current dependency rule — contract v1.24:** application/data operations follow
+Cubit → registered UseCase → Repository. Cubit imports/resolves UseCases only;
+`core/di` wires their repositories. Any earlier direct-Repository or optional-
+UseCase wording below is historical and superseded. Payloads, Result mapping,
+validation, retry identity and UI behavior remain unchanged. See the
+[UseCase-only migration review](../usecase-only-dependencies-review.md).
+
+
 Implemented in `features/transfers`, independently of `features/cheque`.
 The owner-requested on-site service is a scheduled request, rather than a new
 instant payment channel. The [UI/Cubit/State contract](../ui-cubit-state-agent-rules-en.md),
-including the 2026-10-18 amendments, governs this implementation.
+in its current v1.23 form, governs this implementation.
 
 ## Entry and structure
 
@@ -12,7 +20,11 @@ including the 2026-10-18 amendments, governs this implementation.
 - `OnSiteTransferRouteArguments` accepts an optional selected deposit number and
   assistant callback. The authenticated return-location whitelist includes the route.
 - `OnSiteTransferScreen` directly constructs its Provider-owned Cubit and calls
-  `fetchCatalog`. The Cubit resolves the registered repository in a final field.
+  `fetchCatalog`. The Cubit resolves `FetchOnSiteTransferCatalogUseCase`,
+  `ResolveTransferDestinationUseCase`, `UploadTransferDestinationsUseCase` and
+  `SubmitOnSiteTransferUseCase` in final fields. `core/di` wires their Repository;
+  Cubit has no Repository import/lookup. Their grouped file is
+  `domain/usecases/on_site_transfer_usecase.dart`.
 - One plain Freezed `.initial` State holds all four stages, independent operation
   statuses, editable drafts, committed destinations, file approval and receipt.
 
@@ -87,7 +99,7 @@ copy. Full IBANs wrap in this feature's destination cards rather than shrinking
 into an unreadable account-number slot. Existing card/gallery defaults remain.
 File-upload progress fills from the physical left, as in the supplied frame.
 
-The original upload icon and operation divider were downloaded from Figma and registered in `AppAssets`.
+The original upload icon and operation divider were downloaded from Figma and referenced with `AppConstants.baseImage`.
 Other icons/artwork reuse matching existing local assets. No screen screenshot
 is used as an application asset. Flutter/native status and navigation bars are
 outside the screen widget captures.
@@ -95,9 +107,10 @@ outside the screen widget captures.
 ## Submission and exit
 
 Consent and wallet sufficiency control the final action. Loading is supplied to
-`AppButton.isLoading`; Cubit actions do not repeat UI invocation guards. Back is
-available during requests, traverses previous stages, and requests confirmation
-on the first stage. System Back and the header follow the same Cubit action.
+`AppButton.isLoading`; Cubit actions do not repeat UI invocation guards. System
+and header Back are blocked while any request is pending. Otherwise Back
+traverses previous stages and requests confirmation on the first stage. Both
+controls follow the same Cubit action.
 
 A random flow identity is created during the explicit initial fetch. Returning to
 review and retrying an unchanged payload keeps its idempotency key; changing the
@@ -113,23 +126,41 @@ atomic fee execution and durable server-side idempotency.
 
 ## Verification
 
+Request owners use `async/await` and Result switches. Independent catalog,
+destination, upload and submission failure listeners share `MultiBlocListener`
+with the typed-effect listener; `BlocBuilder` renders the flow. Every failure
+publishes its own status, failure and prepared message together. Existing
+failure/message values remain recorded across loading, success and commands;
+effects execute independently of that text. Data/UseCase boundaries convert
+unexpected exceptions to `UnexpectedFailure`.
+
+Opening the system picker resets uploadStatus to initial. The initial → failure
+transition enables consecutive picker-failure notifications without clearing
+text. Loading still begins only after a file has actually been selected.
+Cancelling a replacement restores the successful upload status when
+the previous file is still available for Review.
+
 - `test/transfers/on_site_transfer_cubit_test.dart`: validation, multiple entries,
   cancellation/stale completions, file approval, retry identity and Back.
 - `test/transfers/on_site_transfer_screen_test.dart`: all stages, manual entry,
   native-channel selection/progress, Review, system Back and Arabic/English layouts.
-- Shared component, assets, deposit submission and actual central-router tests.
-- Existing dashboard navigation regression includes `transfer-local`.
+- The phase-8 scoped regression also checks exception boundaries, repeated
+  destination/submission errors, success and effects after an error, DI, central
+  routing and dashboard navigation (including `transfer-local`).
 
 ```sh
 flutter test test/transfers
-flutter analyze
-flutter build apk --debug --no-pub
-flutter build web --no-pub
+flutter analyze lib/features/transfers test/transfers
 ```
 
 Optional visual captures: `CAPTURE_CERTIFICATE_PREVIEWS=1 flutter test
  test/transfers/on_site_transfer_screen_test.dart`. PNGs are ignored under
 `build/previews/certificates/onsite-*.png`. Widget tests mock the native file
-selection result; successful builds are not a claim that the native document
-picker or Safari file chooser was exercised on a device. iOS device execution
-remains unverified.
+selection result. Native document picker, Safari file chooser and iOS device
+execution remain unverified. See the [phase-8 review](../modern-banking/phase-8-review.md)
+for the actual combined scoped command and results; no application-wide test
+run or build is required by this migration.
+
+Shared address editor migration is recorded in [phase 5](../profile/phase-5-review.md). Its
+`ServiceRegistry.openAddressEditor` entry/result contract and this flow’s existing
+address inputs, cancellation and validation remain unchanged.

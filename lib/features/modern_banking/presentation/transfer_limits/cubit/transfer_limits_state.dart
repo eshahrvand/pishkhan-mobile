@@ -21,9 +21,9 @@ abstract class TransferLimitsState with _$TransferLimitsState {
     @Default(false) bool isSatnaError,
     @Default(false) bool termsAccepted,
     @Default(false) bool canSubmit,
-    Failure? catalogFailure,
-    Failure? submissionFailure,
+    Failure? failure,
+    String? message,
+
     FlowNavigation? navigation,
-    @Default(0) int effectId,
   }) = _TransferLimitsState;
 }

@@ -1,3 +1,5 @@
+import '../../support/auth_test_dependencies.dart';
+
 import 'package:pishkhan_mobile/features/dashboard/presentation/home/widgets/dashboard_home_panel.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -42,7 +44,7 @@ Widget app(GoRouter router) => MaterialApp.router(
 );
 
 void main() {
-  setUp(configureDependencies);
+  setUp(configureAuthTestDependencies);
   tearDown(() => getIt.reset());
   setUpAll(() async {
     final loader = FontLoader(AppTypography.defaultFontFamily);
@@ -88,7 +90,7 @@ void main() {
         AppRoutes.messageDetail,
         AppRoutes.changePhone,
         AppRoutes.addresses,
-        AppRoutes.occupations,
+        AppRoutes.jobInformation,
       ],
       '/cheque/': [
         AppRoutes.chequeClearance,
@@ -145,7 +147,7 @@ void main() {
         AppRoutes.allServices,
         AppRoutes.changePhone,
         AppRoutes.addresses,
-        AppRoutes.occupations,
+        AppRoutes.jobInformation,
       ]) {
         expect(validatedReturnLocation(value), value);
       }
@@ -238,8 +240,8 @@ void main() {
       cubit.updateNationalId('0081234562');
       cubit.updatePhoneNumber('09121234567');
       cubit.updateCaptcha('123456');
-      cubit.submitOtpRequest();
-      cubit.updateOtp('1234');
+      await cubit.submitOtpRequest();
+      cubit.updateOtp('123456');
       await tester.pumpAndSettle();
       await tester.tap(authControl(tester, 'submit_otp_button'));
       await tester.pumpAndSettle();

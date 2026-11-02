@@ -3,14 +3,14 @@ import 'dart:math';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:pishkhan_mobile/core/presentation/mappers/request_error_message_mapper.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/result/failure.dart';
 import 'package:pishkhan_mobile/core/result/result.dart';
 
 import '../../../domain/entities/deposit_restriction.dart';
-import '../../../domain/repositories/deposit_restrictions_repository.dart';
-import '../../../domain/usecases/deposit_restrictions.dart';
+import '../../../domain/usecases/deposit_restrictions_usecase.dart';
 
 part 'deposit_restriction_state.dart';
 part 'deposit_restriction_cubit.freezed.dart';
@@ -24,56 +24,44 @@ class DepositRestrictionCubit extends Cubit<DepositRestrictionState> {
   }) : super(initialState);
   final DepositRestrictionOperation operation;
   final String? initialDepositNumber;
-  final _repository = getIt<DepositRestrictionsRepository>();
-  late final _fetchCatalog = FetchDepositRestrictionCatalog(_repository);
-  late final _submitRestriction = SubmitDepositRestriction(_repository);
+  final fetchDepositRestrictionCatalogUseCase =
+      getIt<FetchDepositRestrictionCatalogUseCase>();
+  final submitDepositRestrictionUseCase =
+      getIt<SubmitDepositRestrictionUseCase>();
 
-  Future<void> fetchCatalog() {
+  Future<void> fetchCatalog() async {
     emit(
-      state.copyWith(
-        catalogStatus: RequestStatus.loading,
-        catalogFailure: null,
-        isEditable: false,
-      ),
+      state.copyWith(catalogStatus: RequestStatus.loading, isEditable: false),
     );
-    return _fetchCatalog(operation).then((result) {
-      switch (result) {
-        case Err(:final failure):
-          emit(
-            state.copyWith(
-              catalogStatus: RequestStatus.failure,
-              catalogFailure: failure,
+    final result = await fetchDepositRestrictionCatalogUseCase(operation);
+    switch (result) {
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            catalogStatus: RequestStatus.failure,
+            failure: failure,
+            message: getRequestErrorMessage(failure),
+          ),
+        );
+      case Success(:final data):
+        final deposit = _resolveInitialDeposit(data.deposits);
+        emit(
+          state.copyWith(
+            catalogStatus: RequestStatus.success,
+            catalog: data,
+            deposit: deposit,
+            isWalletSufficient: _isWalletSufficient(data),
+            isEditable: true,
+            canSubmit: _canSubmit(
+              deposit,
+              state.reason,
+              state.termsAccepted,
+              _isWalletSufficient(data),
             ),
-          );
-        case Success(:final data):
-          final number = DigitNormalizer.normalize(initialDepositNumber ?? '')
-              .replaceAll(RegExp(r'[^0-9]'), '');
-          final deposit = data.deposits
-              .where(
-                (option) =>
-                    DigitNormalizer.normalize(option.deposit.number)
-                        .replaceAll(RegExp(r'[^0-9]'), '') ==
-                    number,
-              )
-              .firstOrNull;
-          final sufficient = data.walletBalanceRial >= data.feeRial;
-          emit(
-            state.copyWith(
-              catalogStatus: RequestStatus.success,
-              catalog: data,
-              deposit: deposit,
-              isWalletSufficient: sufficient,
-              isEditable: true,
-              canSubmit:
-                  deposit != null &&
-                  state.reason != null &&
-                  state.termsAccepted &&
-                  sufficient,
-              idempotencyKey: _createRequestKey(),
-            ),
-          );
-      }
-    });
+            idempotencyKey: _createRequestKey(),
+          ),
+        );
+    }
   }
 
   void selectDeposit(DepositRestrictionOption deposit) {
@@ -83,7 +71,6 @@ class DepositRestrictionCubit extends Cubit<DepositRestrictionState> {
         termsAccepted: false,
         canSubmit: false,
         hasChanges: true,
-        submissionFailure: null,
         idempotencyKey: _createRequestKey(),
       ),
     );
@@ -93,12 +80,13 @@ class DepositRestrictionCubit extends Cubit<DepositRestrictionState> {
     emit(
       state.copyWith(
         reason: reason,
-        canSubmit:
-            state.deposit != null &&
-            state.termsAccepted &&
-            state.isWalletSufficient,
+        canSubmit: _canSubmit(
+          state.deposit,
+          reason,
+          state.termsAccepted,
+          state.isWalletSufficient,
+        ),
         hasChanges: true,
-        submissionFailure: null,
         idempotencyKey: _createRequestKey(),
       ),
     );
@@ -109,7 +97,6 @@ class DepositRestrictionCubit extends Cubit<DepositRestrictionState> {
       state.copyWith(
         description: description,
         hasChanges: true,
-        submissionFailure: null,
         idempotencyKey: description.trim() == state.description.trim()
             ? state.idempotencyKey
             : _createRequestKey(),
@@ -121,17 +108,18 @@ class DepositRestrictionCubit extends Cubit<DepositRestrictionState> {
     emit(
       state.copyWith(
         termsAccepted: accepted,
-        canSubmit:
-            accepted &&
-            state.deposit != null &&
-            state.reason != null &&
-            state.isWalletSufficient,
+        canSubmit: _canSubmit(
+          state.deposit,
+          state.reason,
+          accepted,
+          state.isWalletSufficient,
+        ),
         hasChanges: true,
       ),
     );
   }
 
-  Future<void> submitRestriction() {
+  Future<void> submitRestriction() async {
     final request = DepositRestrictionRequest(
       operation: operation,
       depositId: state.deposit!.deposit.id,
@@ -143,40 +131,33 @@ class DepositRestrictionCubit extends Cubit<DepositRestrictionState> {
     emit(
       state.copyWith(
         submissionStatus: RequestStatus.loading,
-        submissionFailure: null,
         isEditable: false,
       ),
     );
-    return _submitRestriction(request).then((result) {
-      switch (result) {
-        case Err(:final failure):
-          emit(
-            state.copyWith(
-              submissionStatus: RequestStatus.failure,
-              submissionFailure: failure,
-              isEditable: true,
-            ),
-          );
-        case Success(:final data):
-          emit(
-            state.copyWith(
-              submissionStatus: RequestStatus.success,
-              receipt: data,
-              canSubmit: false,
-              hasChanges: false,
-            ),
-          );
-      }
-    });
+    final result = await submitDepositRestrictionUseCase(request);
+    switch (result) {
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            submissionStatus: RequestStatus.failure,
+            isEditable: true,
+            failure: failure,
+            message: getRequestErrorMessage(failure),
+          ),
+        );
+      case Success(:final data):
+        emit(
+          state.copyWith(
+            submissionStatus: RequestStatus.success,
+            receipt: data,
+            canSubmit: false,
+          ),
+        );
+    }
   }
 
   void requestTerms() {
-    emit(
-      state.copyWith(
-        effect: DepositRestrictionEffect.termsUnavailable,
-        effectId: state.effectId + 1,
-      ),
-    );
+    emit(state.copyWith(effect: DepositRestrictionEffect.termsUnavailable));
   }
 
   void requestBack() {
@@ -186,7 +167,6 @@ class DepositRestrictionCubit extends Cubit<DepositRestrictionState> {
             ? DepositRestrictionEffect.confirmExit
             : DepositRestrictionEffect.back,
         isExitToAssistant: false,
-        effectId: state.effectId + 1,
       ),
     );
   }
@@ -198,7 +178,6 @@ class DepositRestrictionCubit extends Cubit<DepositRestrictionState> {
             ? DepositRestrictionEffect.confirmExit
             : DepositRestrictionEffect.assistant,
         isExitToAssistant: true,
-        effectId: state.effectId + 1,
       ),
     );
   }
@@ -211,20 +190,48 @@ class DepositRestrictionCubit extends Cubit<DepositRestrictionState> {
                   ? DepositRestrictionEffect.assistant
                   : DepositRestrictionEffect.back)
             : null,
-        effectId: state.effectId + 1,
       ),
     );
   }
 
   void applyReceiptDismissal() {
-    emit(
-      state.copyWith(
-        effect: DepositRestrictionEffect.home,
-        effectId: state.effectId + 1,
-      ),
-    );
+    emit(state.copyWith(effect: DepositRestrictionEffect.home));
+  }
+
+  DepositRestrictionOption? _resolveInitialDeposit(
+    List<DepositRestrictionOption> deposits,
+  ) {
+    final number = _normalizeDepositNumber(initialDepositNumber ?? '');
+    return deposits
+        .where(
+          (option) => _normalizeDepositNumber(option.deposit.number) == number,
+        )
+        .firstOrNull;
+  }
+
+  String _normalizeDepositNumber(String number) =>
+      DigitNormalizer.normalize(number).replaceAll(RegExp(r'[^0-9]'), '');
+
+  bool _isWalletSufficient(DepositRestrictionCatalog catalog) =>
+      catalog.walletBalanceRial >= catalog.feeRial;
+
+  bool _canSubmit(
+    DepositRestrictionOption? deposit,
+    DepositRestrictionReason? reason,
+    bool termsAccepted,
+    bool isWalletSufficient,
+  ) {
+    return deposit != null &&
+        reason != null &&
+        termsAccepted &&
+        isWalletSufficient;
   }
 
   String _createRequestKey() =>
       'deposit-restriction-${DateTime.now().microsecondsSinceEpoch}-${Random.secure().nextInt(1 << 32)}';
+
+  /// UI has accepted the pending interaction; data and request statuses stay intact.
+  void consumeDepositRestrictionInteraction() {
+    emit(state.copyWith(effect: null));
+  }
 }

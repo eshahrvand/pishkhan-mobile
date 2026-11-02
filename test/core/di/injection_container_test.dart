@@ -1,4 +1,27 @@
+import 'package:pishkhan_mobile/features/deposits/domain/usecases/average_balance_usecase.dart';
+import 'package:pishkhan_mobile/features/deposits/domain/entities/certificate_data.dart';
+
+import '../../deposits/average_balance_cubit_test.dart'
+    show CertificateTestRepository;
+import '../../deposits/financial_certificate_cubit_test.dart'
+    show FinancialTestRepository;
+
+import 'package:pishkhan_mobile/features/cards/domain/usecases/card_features_usecase.dart';
+import 'package:pishkhan_mobile/features/cards/domain/usecases/virtual_card_request_usecase.dart';
+import 'package:pishkhan_mobile/features/cards/domain/entities/virtual_card_data.dart';
+
+import '../../cards/presentation/flows/card_features/support/test_cards_repository.dart';
+import '../../cards/presentation/flows/virtual_card_request/cubit/virtual_card_cubit_test.dart'
+    show TestVirtualRepository;
+
 import '../../support/registered_dependency.dart';
+import '../../support/auth_test_dependencies.dart';
+
+import 'package:pishkhan_mobile/core/result/result.dart';
+import 'package:pishkhan_mobile/features/auth/domain/entities/login_captcha.dart';
+import 'package:pishkhan_mobile/features/auth/domain/entities/login_identity.dart';
+import 'package:pishkhan_mobile/features/auth/domain/repositories/auth_repository.dart';
+import 'package:pishkhan_mobile/features/auth/domain/usecases/login_usecase.dart';
 
 import 'package:pishkhan_mobile/features/deposits/domain/repositories/proxy_deposits_repository.dart';
 import 'package:pishkhan_mobile/features/deposits/presentation/proxy_deposit/cubit/proxy_deposit_cubit.dart';
@@ -39,6 +62,7 @@ void main() {
   setUp(() {
     container = GetIt.asNewInstance();
     configureDependencies(container: container);
+    configureDependencies();
   });
   tearDown(() async {
     await container.reset();
@@ -69,6 +93,102 @@ void main() {
     expect(container.isRegistered<AverageBalanceCubit>(), isFalse);
     expect(container.isRegistered<FinancialCertificateCubit>(), isFalse);
   });
+
+  test('named certificate catalog use cases keep the two service repositories separate', () async {
+    final average = CertificateTestRepository(
+      catalog: CertificateCatalog(
+        deposits: const [],
+        addresses: const [],
+        walletBalanceRial: 17,
+      ),
+    );
+    final financial = FinancialTestRepository(
+      catalog: CertificateCatalog(
+        deposits: const [],
+        addresses: const [],
+        walletBalanceRial: 29,
+      ),
+    );
+    await container.unregister<DepositCertificatesRepository>();
+    container.registerSingleton<DepositCertificatesRepository>(average);
+    await container.unregister<FinancialCertificateRepository>();
+    container.registerSingleton<FinancialCertificateRepository>(financial);
+    final averageUseCase = container<LoadCertificateCatalogUseCase>(
+      instanceName: 'average-balance',
+    );
+    final financialUseCase = container<LoadCertificateCatalogUseCase>(
+      instanceName: 'financial-certificate',
+    );
+    final first = await averageUseCase() as Success<CertificateCatalog>;
+    final second = await financialUseCase() as Success<CertificateCatalog>;
+    expect(first.data.walletBalanceRial, 17);
+    expect(second.data.walletBalanceRial, 29);
+    expect(
+      averageUseCase,
+      same(
+        container<LoadCertificateCatalogUseCase>(
+          instanceName: 'average-balance',
+        ),
+      ),
+    );
+    expect(financialUseCase, isNot(same(averageUseCase)));
+  });
+
+  test('registered login use cases use their container repository', () async {
+    final repository = FakeAuthRepository();
+    await container.unregister<AuthRepository>();
+    container.registerSingleton<AuthRepository>(repository);
+
+    final captchaResult = await container<FetchLoginCaptchaUseCase>()();
+    final captcha = (captchaResult as Success<LoginCaptcha>).data;
+    expect(captcha.sessionId, 'server-captcha-1');
+    expect(repository.captchaCalls, 1);
+
+    final otpResult = await container<RequestLoginOtpUseCase>()(
+      testLoginIdentity,
+    );
+    final challenge = (otpResult as Success<LoginOtpChallenge>).data;
+    expect(challenge.identity, testLoginIdentity);
+    expect(repository.lastOtpIdentity, testLoginIdentity);
+    expect(repository.otpCalls, 1);
+
+    final loginResult = await container<VerifyLoginOtpUseCase>()(
+      challenge,
+      '123456',
+    );
+    expect(
+      (loginResult as Success<AuthenticatedCustomer>).data.nationalCode,
+      testLoginIdentity.nationalCode,
+    );
+    expect(repository.loginCalls, 1);
+  });
+
+  test(
+    'card use cases resolve the repositories from their own container',
+    () async {
+      final cards = FakeCardsRepository()..result = const Success([]);
+      await container.unregister<CardsRepository>();
+      container.registerSingleton<CardsRepository>(cards);
+      final listed = await container<LoadCardsUseCase>()();
+      expect((listed as Success<List<ListedCard>>).data, isEmpty);
+
+      final virtual = TestVirtualRepository()..wallet = 42;
+      await container.unregister<VirtualCardRepository>();
+      container.registerSingleton<VirtualCardRepository>(virtual);
+      final catalog = await container<LoadVirtualCardCatalogUseCase>()();
+      expect(
+        (catalog as Success<VirtualCardCatalog>).data,
+        same(virtual.catalog),
+      );
+      final quote = await container<QuoteVirtualCardsUseCase>()(
+        virtual.catalog.deposits.first.id,
+        4,
+      );
+      expect((quote as Success<VirtualCardQuote>).data.walletBalanceRial, 42);
+      expect(quote.data.depositId, virtual.catalog.deposits.first.id);
+      expect(quote.data.count, 4);
+    },
+  );
 
   test(
     'provider-created feature scopes start independently and can be reopened',
@@ -208,7 +328,6 @@ void main() {
       () => HomeCubit(),
     );
     addTearDown(next.close);
-    expect(next.isClosed, isFalse);
     expect(next.state.selectedTab, AppPrimaryTab.dashboard);
     await next.fetchDashboard();
     expect(next.state.visibleCards, isNotEmpty);

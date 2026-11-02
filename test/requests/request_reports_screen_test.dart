@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
+
 import 'dart:async';
 
 import 'package:avp_ui/avp_ui.dart';
@@ -23,7 +25,6 @@ import 'package:pishkhan_mobile/features/requests/presentation/reports/widgets/r
 import 'package:pishkhan_mobile/features/requests/presentation/reports/widgets/report_details_sheet.dart';
 import 'package:pishkhan_mobile/features/requests/presentation/reports/widgets/report_cancellation_sheet.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_request_report_card.dart';
 
 import '../deposits/certificate_test_support.dart';
@@ -31,6 +32,8 @@ import '../deposits/certificate_test_support.dart';
 void main() {
   setUpAll(loadCertificateFonts);
   setUp(() {
+    configureDependencies();
+    getIt.unregister<RequestReportsRepository>();
     getIt.registerSingleton<RequestReportsRepository>(
       MockRequestReportsRepository(
         now: () => DateTime.utc(2026, 10, 20, 4, 42),
@@ -124,7 +127,7 @@ void main() {
               (chip) =>
                   !chip.selected &&
                   (chip.icon as AvpImage).image ==
-                      AppAssets.depositFeatureChevron,
+                      '${AppConstants.baseImage}deposit_list_chevron.svg',
             ),
         isTrue,
       );
@@ -190,7 +193,7 @@ void main() {
               (chip) =>
                   chip.selected &&
                   (chip.icon as AvpImage).image ==
-                      AppAssets.depositFeatureClear,
+                      '${AppConstants.baseImage}deposit_list_clear.svg',
             ),
         isTrue,
       );
@@ -349,6 +352,8 @@ void main() {
     'dismissing a pending cancellation does not close a later filter sheet',
     (tester) async {
       await getIt.reset();
+      configureDependencies();
+      await getIt.unregister<RequestReportsRepository>();
       final repository = DeferredCancellationRepository();
       getIt.registerSingleton<RequestReportsRepository>(repository);
       await mountCertificate(tester, const RequestReportsScreen());

@@ -1,9 +1,9 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/certificate_fields.dart';
 
 import '../cubit/on_site_transfer_cubit.dart';
@@ -37,8 +37,8 @@ class TransferScheduleForm extends StatelessWidget {
             value: state.deposit,
             trailing: AvpImage(
               image: state.deposit == null
-                  ? AppAssets.issuanceSelectEmpty
-                  : AppAssets.cardFeaturesChevron,
+                  ? '${AppConstants.baseImage}issuance_select_empty.svg'
+                  : '${AppConstants.baseImage}card_features_chevron.svg',
               width: 20,
               height: 20,
             ),
@@ -53,7 +53,7 @@ class TransferScheduleForm extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           AvpImage(
-            image: AppAssets.issuanceDivider,
+            image: '${AppConstants.baseImage}issuance_divider.svg',
             width: double.infinity,
             height: 1,
             fit: BoxFit.fill,
@@ -85,8 +85,8 @@ class TransferScheduleForm extends StatelessWidget {
               addressHint: S.current.transferAddressHint,
               trailing: AvpImage(
                 image: state.address == null
-                    ? AppAssets.issuanceSelectEmpty
-                    : AppAssets.cardFeaturesChevron,
+                    ? '${AppConstants.baseImage}issuance_select_empty.svg'
+                    : '${AppConstants.baseImage}card_features_chevron.svg',
                 width: 20,
                 height: 20,
               ),
@@ -105,7 +105,7 @@ class TransferScheduleForm extends StatelessWidget {
           ),
           const SizedBox(height: 20),
           AvpImage(
-            image: AppAssets.issuanceDivider,
+            image: '${AppConstants.baseImage}issuance_divider.svg',
             width: double.infinity,
             height: 1,
             fit: BoxFit.fill,

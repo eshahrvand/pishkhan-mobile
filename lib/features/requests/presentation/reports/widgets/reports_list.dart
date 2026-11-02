@@ -30,9 +30,10 @@ class ReportsList extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(S.current.reportLoadError),
+                  const SizedBox.shrink(),
                   const SizedBox(height: 12),
                   AppButton(
+                    isLoading: state.reportsStatus == RequestStatus.loading,
                     label: S.current.dashboardRetry,
                     onPressed: () {
                       context.read<RequestReportsCubit>().fetchReports();

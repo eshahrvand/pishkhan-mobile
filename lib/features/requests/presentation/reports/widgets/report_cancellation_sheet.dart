@@ -55,14 +55,6 @@ class ReportCancellationSheet extends StatelessWidget {
                       letterSpacing: 0,
                     ),
                   ),
-                  if (state.cancellationStatus == RequestStatus.failure) ...[
-                    const SizedBox(height: 12),
-                    Text(
-                      S.current.reportCancelError,
-                      style: Theme.of(context).textTheme.bodySmall
-                          ?.copyWith(color: context.colors.error),
-                    ),
-                  ],
                 ],
               ),
             ),

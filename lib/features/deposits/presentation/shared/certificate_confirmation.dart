@@ -1,9 +1,9 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_request_summary.dart';
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_invoice.dart';
 
 import '../../domain/entities/certificate_data.dart';
@@ -21,8 +21,10 @@ class CertificateConfirmation extends StatelessWidget {
     required this.invoiceExpanded,
     required this.onSummary,
     required this.onInvoice,
-    this.operationDivider = AppAssets.certificateSummaryOperation,
-    this.summaryChevron = AppAssets.certificateSummaryChevron,
+    this.operationDivider =
+        '${AppConstants.baseImage}certificate_certSummaryOperation.svg',
+    this.summaryChevron =
+        '${AppConstants.baseImage}certificate_certSummaryChevron.svg',
   });
   final String depositNumber, operation;
   final CertificateCatalog catalog;
@@ -40,12 +42,15 @@ class CertificateConfirmation extends StatelessWidget {
           operation: operation,
           isExpanded: summaryExpanded,
           onExpandedChanged: onSummary,
-          depositDivider: AppAssets.certificateSummaryDeposit,
+          depositDivider:
+              '${AppConstants.baseImage}certificate_certSummaryDeposit.svg',
           operationDivider: operationDivider,
           chevron: summaryChevron,
         ),
         const SizedBox(height: 20),
-        const DepositDivider(asset: AppAssets.certificateDivider),
+        const DepositDivider(
+          asset: '${AppConstants.baseImage}certificate_certDivider.svg',
+        ),
         const SizedBox(height: 20),
         AppInvoice(
           title: S.current.issuancePayable,
@@ -57,13 +62,19 @@ class CertificateConfirmation extends StatelessWidget {
               id: 'print',
               label: S.current.issuancePrintFee,
               amount: CurrencyFormatter.format(catalog.printFeeRial),
-              icon: depositIcon(AppAssets.certificateFeePrint, size: 20),
+              icon: depositIcon(
+                '${AppConstants.baseImage}certificate_certFeePrint.svg',
+                size: 20,
+              ),
             ),
             AppInvoiceLine(
               id: 'delivery',
               label: S.current.issuanceDeliveryFee,
               amount: CurrencyFormatter.format(catalog.deliveryFeeRial),
-              icon: depositIcon(AppAssets.certificateFeeDelivery, size: 20),
+              icon: depositIcon(
+                '${AppConstants.baseImage}certificate_certFeeDelivery.svg',
+                size: 20,
+              ),
             ),
           ],
           isExpanded: invoiceExpanded,

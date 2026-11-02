@@ -80,12 +80,9 @@ class ProxyDepositForm extends StatelessWidget {
               ],
               if (state.catalogStatus == RequestStatus.failure) ...[
                 const SizedBox(height: 20),
-                Text(
-                  S.current.dashboardLoadError,
-                  style: certificateLabelStyle(context)
-                      .copyWith(color: context.colors.error),
-                ),
+                const SizedBox.shrink(),
                 AppButton(
+                  isLoading: state.catalogStatus == RequestStatus.loading,
                   label: S.current.dashboardRetry,
                   onPressed: context.read<ProxyDepositCubit>().fetchCatalog,
                 ),

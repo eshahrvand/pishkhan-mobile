@@ -1,7 +1,7 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/dashboard_services.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 class DashboardCategoryHeading extends StatelessWidget {
   const DashboardCategoryHeading({
@@ -28,10 +28,12 @@ class DashboardCategoryHeading extends StatelessWidget {
         AvpImage(
           image: search
               ? switch (category) {
-                  DashboardCategory.cards => AppAssets.dashboardSearchCard,
-                  DashboardCategory.wallet => AppAssets.dashboardSearchWallet,
+                  DashboardCategory.cards =>
+                    '${AppConstants.baseImage}dashboard_search_card.svg',
+                  DashboardCategory.wallet =>
+                    '${AppConstants.baseImage}dashboard_search_wallet.svg',
                   DashboardCategory.identity =>
-                    AppAssets.dashboardSearchIdentity,
+                    '${AppConstants.baseImage}dashboard_search_identity.svg',
                   _ => category.asset,
                 }
               : active
@@ -59,26 +61,28 @@ class DashboardCategoryHeading extends StatelessWidget {
                 image: switch (category) {
                   DashboardCategory.modern =>
                     compact
-                        ? AppAssets.dashboardDividerSheetModern
-                        : AppAssets.dashboardDividerModern,
+                        ? '${AppConstants.baseImage}dashboard_divider_sheet_modern.svg'
+                        : '${AppConstants.baseImage}dashboard_divider_modern.svg',
                   DashboardCategory.cards =>
                     compact
-                        ? AppAssets.dashboardDividerSheetCard
-                        : AppAssets.dashboardDividerCard,
+                        ? '${AppConstants.baseImage}dashboard_divider_sheet_card.svg'
+                        : '${AppConstants.baseImage}dashboard_divider_card.svg',
                   DashboardCategory.cheque =>
                     compact
-                        ? AppAssets.dashboardDividerSheetCheque
-                        : AppAssets.dashboardDividerCheque,
+                        ? '${AppConstants.baseImage}dashboard_divider_sheet_cheque.svg'
+                        : '${AppConstants.baseImage}dashboard_divider_cheque.svg',
                   DashboardCategory.transfers =>
-                    AppAssets.dashboardDividerTransfer,
-                  DashboardCategory.loans => AppAssets.dashboardDividerLoan,
+                    '${AppConstants.baseImage}dashboard_divider_transfer.svg',
+                  DashboardCategory.loans =>
+                    '${AppConstants.baseImage}dashboard_divider_loan.svg',
                   DashboardCategory.deposits =>
-                    AppAssets.dashboardDividerDeposit,
-                  DashboardCategory.wallet => AppAssets.dashboardDividerWallet,
+                    '${AppConstants.baseImage}dashboard_divider_deposit.svg',
+                  DashboardCategory.wallet =>
+                    '${AppConstants.baseImage}dashboard_divider_wallet.svg',
                   DashboardCategory.identity =>
-                    AppAssets.dashboardDividerIdentity,
+                    '${AppConstants.baseImage}dashboard_divider_identity.svg',
                   DashboardCategory.requests =>
-                    AppAssets.dashboardDividerRequests,
+                    '${AppConstants.baseImage}dashboard_divider_requests.svg',
                 },
                 fit: BoxFit.fill,
               ),
@@ -88,7 +92,10 @@ class DashboardCategoryHeading extends StatelessWidget {
             const SizedBox(width: 20),
             Transform.rotate(
               angle: collapsed ? 3.141592653589793 : 0,
-              child: AvpImage(image: AppAssets.dashboardCategoryCollapse),
+              child: AvpImage(
+                image:
+                    '${AppConstants.baseImage}dashboard_category_collapse.svg',
+              ),
             ),
           ],
         ],

@@ -1,9 +1,10 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
+
 import 'app_credit_card_mockup_header.dart';
 import 'app_credit_card_mockup_footer.dart';
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 enum AppBankingChannel { mobile, web, phone }
 
@@ -37,9 +38,12 @@ class AppCreditCardMockup extends StatelessWidget {
   bool get _isWallet => state == AppCreditCardMockupState.wallet;
 
   String get _channelIcon => switch (channel) {
-    AppBankingChannel.mobile => AppAssets.bankingChannelCardMobile,
-    AppBankingChannel.web => AppAssets.bankingChannelCardGlobe,
-    AppBankingChannel.phone => AppAssets.bankingChannelCardPhone,
+    AppBankingChannel.mobile =>
+      '${AppConstants.baseImage}banking_channel_card_mobile.svg',
+    AppBankingChannel.web =>
+      '${AppConstants.baseImage}banking_channel_card_globe.svg',
+    AppBankingChannel.phone =>
+      '${AppConstants.baseImage}banking_channel_card_phone.svg',
   };
 
   @override
@@ -60,7 +64,8 @@ class AppCreditCardMockup extends StatelessWidget {
           children: [
             Positioned.fill(
               child: AvpImage(
-                image: AppAssets.bankingChannelCardBackground,
+                image:
+                    '${AppConstants.baseImage}banking_channel_card_background.png',
                 fit: BoxFit.cover,
               ),
             ),
@@ -93,7 +98,8 @@ class AppCreditCardMockup extends StatelessWidget {
                       SizedBox(
                         height: 1,
                         child: AvpImage(
-                          image: AppAssets.bankingChannelCardDivider,
+                          image:
+                              '${AppConstants.baseImage}banking_channel_card_divider.svg',
                           fit: BoxFit.fill,
                         ),
                       ),
@@ -118,7 +124,7 @@ class AppCreditCardMockup extends StatelessWidget {
               height: 40,
               child: AvpImage(
                 image: _isWallet
-                    ? AppAssets.bankingChannelCardWallet
+                    ? '${AppConstants.baseImage}banking_channel_card_wallet.svg'
                     : _channelIcon,
               ),
             ),

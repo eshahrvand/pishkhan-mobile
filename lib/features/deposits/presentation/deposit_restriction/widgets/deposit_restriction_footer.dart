@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
-import 'package:pishkhan_mobile/generated/l10n.dart';
 
 import '../../shared/deposit_request_footer.dart';
 import '../cubit/deposit_restriction_cubit.dart';
@@ -15,8 +14,7 @@ class DepositRestrictionFooter extends StatelessWidget {
           previous.termsAccepted != current.termsAccepted ||
           previous.isEditable != current.isEditable ||
           previous.canSubmit != current.canSubmit ||
-          previous.submissionStatus != current.submissionStatus ||
-          previous.submissionFailure != current.submissionFailure,
+          previous.submissionStatus != current.submissionStatus,
       builder: (context, state) {
         return DepositRequestFooter(
           termsAccepted: state.termsAccepted,
@@ -30,9 +28,6 @@ class DepositRestrictionFooter extends StatelessWidget {
               ? context.read<DepositRestrictionCubit>().submitRestriction
               : null,
           isLoading: state.submissionStatus == RequestStatus.loading,
-          errorText: state.submissionFailure == null
-              ? null
-              : S.current.issuanceSubmitError,
         );
       },
     );

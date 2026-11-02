@@ -180,7 +180,9 @@ void main() {
         tester,
         const ProxyDepositScreen(initialDepositNumber: '10.1234567.2'),
       );
-      expect(find.text(S.current.dashboardLoadError), findsOneWidget);
+      expect(find.text('درخواست انجام نشد. دوباره تلاش کنید.'), findsOneWidget);
+      await tester.pump(const Duration(seconds: 5));
+      await tester.pumpAndSettle();
       repository.failsCatalog = false;
       await tester.tap(find.text(S.current.dashboardRetry));
       await tester.pumpAndSettle();
@@ -219,12 +221,14 @@ void main() {
       expect(repository.requests.length, 1);
       await tester.tap(find.byTooltip(S.current.backLabel));
       await tester.pump(const Duration(milliseconds: 300));
-      expect(find.byType(AlertDialog), findsOneWidget);
+      expect(find.byType(AlertDialog), findsNothing);
       await tester.binding.handlePopRoute();
       await tester.pump(const Duration(milliseconds: 300));
       repository.pending.complete(const Err(DataFailure('timeout')));
       await tester.pumpAndSettle();
-      expect(find.text(S.current.issuanceSubmitError), findsOneWidget);
+      expect(find.text('درخواست انجام نشد. دوباره تلاش کنید.'), findsOneWidget);
+      await tester.pump(const Duration(seconds: 5));
+      await tester.pumpAndSettle();
       await tester.tap(proxySubmitButton());
       await tester.pumpAndSettle();
       expect(repository.requests.first, repository.requests.last);

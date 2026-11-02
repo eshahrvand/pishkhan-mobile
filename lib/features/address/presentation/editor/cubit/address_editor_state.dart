@@ -1,11 +1,12 @@
 part of 'address_editor_cubit.dart';
 
+enum AddressEditorEffect { minimumHomeNotice }
+
 @Freezed(toStringOverride: false)
 abstract class AddressEditorState with _$AddressEditorState {
   const factory AddressEditorState.initial({
     DeliveryAddress? savedAddress,
-    @Default(0) int saveId,
-    @Default(0) int minimumHomeNoticeId,
+    AddressEditorEffect? effect,
     @Default('') String phoneNumber,
     @Default(DeliveryAddressType.home) DeliveryAddressType type,
     @Default(false) bool isPhoneNumberValid,

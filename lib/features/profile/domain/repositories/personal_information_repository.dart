@@ -16,10 +16,10 @@ abstract interface class PersonalInformationRepository {
   Future<Result<ProfileAddress>> saveAddress(DeliveryAddress address);
   Future<Result<void>> deleteAddress(String id);
   Future<Result<ResidenceStatus>> reviewAddress(DeliveryAddress address);
-  Future<Result<List<ProfileOccupation>>> fetchOccupations();
-  Future<Result<void>> saveOccupation(
-    ProfileOccupation occupation, {
+  Future<Result<List<ProfileJobInformation>>> fetchJobInformation();
+  Future<Result<void>> saveJobInformation(
+    ProfileJobInformation jobInformation, {
     required String idempotencyKey,
   });
-  Future<Result<void>> deleteOccupation(String id);
+  Future<Result<void>> deleteJobInformation(String id);
 }

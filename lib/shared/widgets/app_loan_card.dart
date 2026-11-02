@@ -1,9 +1,10 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
+
 import 'app_loan_card_amount_row.dart';
 import 'app_loan_card_copy_button.dart';
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_arrow_button.dart';
 
 enum AppLoanCardSize { single, multi }
@@ -148,8 +149,8 @@ class AppLoanCard extends StatelessWidget {
                           maxHeight: 1,
                           child: AvpImage(
                             image: _isSingle
-                                ? AppAssets.loanCardDividerSingle
-                                : AppAssets.loanCardDividerMulti,
+                                ? '${AppConstants.baseImage}loan_card_divider_single.svg'
+                                : '${AppConstants.baseImage}loan_card_divider_multi.svg',
                             fit: BoxFit.fill,
                           ),
                         ),

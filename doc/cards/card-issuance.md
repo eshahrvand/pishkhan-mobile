@@ -1,8 +1,8 @@
 # Resalat Card Issuance Development Document
 
 **Project:** Pishkhan AI / Smart Virtual Counter  
-**Version:** 1.0.0  
-**Date:** 2026-10-09  
+**Version:** 1.1.0<br>
+**Date:** 2026-11-01<br>
 **Status:** Connected UI flow with mock data; no real payment or issuance.  
 **Architecture reference:** [Project architecture](../architecture-smart-virtual-counter-v2-en.md)  
 
@@ -54,28 +54,21 @@ The existing dependencies cover SVG rendering, state and tests. No browser, paym
 ## 6. Project Structure and Modularization
 
 ```text
-lib/features/card_issuance/
-  card_issuance.dart                                 public screen/entities/repository exports
-  domain/
-    entities/issuance_data.dart                      deposit, address, fee, catalog, identities, request, receipt
-    repositories/card_issuance_repository.dart       load/submit Result boundary
-    usecases/issuance_usecases.dart                  LoadIssuanceCatalog, SubmitCardIssuance
-  data/mock/mock_card_issuance_repository.dart       sample catalog and explicit mock receipt
-  presentation/
-    card_issuance_screen.dart                        route, lifecycle, back, scroll, footer, callbacks
-    cubit/card_issuance_state.dart                   statuses, step, immutable draft, derived validation
-    cubit/card_issuance_cubit.dart                    load, editing, transitions, submission
-    widgets/issuance_sections.dart                  selection/delivery/confirmation composition and icon/type mapping
-    widgets/issuance_address_sheet.dart              local address form with existing controls
-lib/core/router/card_features_navigation.dart        allowlisted entry bridge
-lib/features/dashboard/presentation/dashboard_screen.dart  selected-deposit context forwarding
-lib/features/cards/presentation/card_list_screen.dart    default reissue route
-lib/shared/widgets/app_invoice.dart                  compatible invoice appearance/copy properties
-lib/shared/widgets/app_address_card.dart             full/default and delivery/compact variants
-lib/shared/widgets/app_delete_address_sheet.dart     reused deletion confirmation
-lib/shared/assets/app_assets.dart                    canonical app asset paths
-lib/l10n/app_{fa,en,ar}.arb                           issuance text
-lib/l10n/generated/                                 generated localization getters
+lib/features/cards/
+  domain/entities/issuance_data.dart                 catalog, identities, request, receipt
+  domain/entities/issuance_draft.dart                immutable form draft
+  domain/repositories/card_issuance_repository.dart   load/submit Result contract
+  domain/usecases/card_issuance_usecase.dart           registered load/submit UseCases
+  data/repositories/mock_card_issuance_repository.dart
+  presentation/card_issuance/
+    card_issuance.dart                               flow exports
+    screens/card_issuance_screen.dart                Provider, listeners, scroll/lifecycle
+    cubit/card_issuance_cubit.dart                    actions, operation owners, calculations
+    cubit/card_issuance_state.dart                    plain Freezed, part of Cubit
+    widgets/                                        authored selection, delivery, confirmation, address
+lib/core/di/injection_container.dart                 dependency registrations/wiring
+lib/core/router/card_features_navigation.dart        existing destination bridge
+test/cards/presentation/flows/card_issuance/           Cubit and widget regression tests
 ```
 
 Package changes:
@@ -99,9 +92,9 @@ No DTO, HTTP data source or server mapper currently exists for issuance. The moc
 
 ## 7. Architecture Layers and Dependency Direction
 
-UI: CardIssuanceScreen owns the Cubit and scroll resource; it composes AppTopBar, AppStepper, section widgets, assistant, consent and AppButton. Section widgets pass data/styles/callbacks into existing shared/package components. IssuanceDelivery owns editing controllers and disposes them; persistent values live in IssuanceDraft, so back navigation can recreate controllers.
+UI: CardIssuanceScreen directly constructs Cubit in BlocProvider.create, which owns its lifetime; the screen owns the scroll resource; it composes AppTopBar, AppStepper, section widgets, assistant, consent and AppButton. Section widgets pass data/styles/callbacks into existing shared/package components. IssuanceDelivery owns editing controllers and disposes them; persistent values live in IssuanceDraft, so back navigation can recreate controllers.
 
-State: CardIssuanceCubit owns workflow commands, fetching, selected IDs, validation orchestration and submission. CardIssuanceState remains a plain Freezed data class; IssuanceDraft is immutable Domain data. Private pure helpers resolve selections, calculate eligibility/fees and construct requests. Each specific action publishes its affected fields explicitly with emit(state.copyWith(...)); no State-preparation or publication helper is used.
+State: CardIssuanceCubit owns workflow commands, fetching, selected records, validation orchestration and submission. CardIssuanceState remains a plain Freezed data class; IssuanceDraft is immutable Domain data. Private pure helpers resolve selections, calculate eligibility/fees and construct requests. Each specific action publishes its affected fields explicitly with emit(state.copyWith(...)); no State-preparation or publication helper is used.
 
 Domain: plain immutable entities and a repository interface with Result returns. Use cases name loading and submission. There is no banking behavior in avp_ui or shared widgets.
 
@@ -110,11 +103,11 @@ Data: MockCardIssuanceRepository returns sampleCatalog and an IssuanceReceipt ex
 Data flow:
 
 ```text
-BlocProvider.create -> Cubit.fetchIssuanceCatalog -> LoadIssuanceCatalog -> repository.load
+BlocProvider.create -> Cubit.fetchIssuanceCatalog -> LoadIssuanceCatalogUseCase -> repository.load
   <- Result<catalog/failure> <- mock adapter (future transport mapper)
-  -> immutable state -> BlocConsumer -> existing components
+  -> immutable State -> MultiBlocListener + BlocBuilder -> existing components
 User controls -> Cubit command -> validated draft -> derived request
-Confirm -> Cubit.submitCardIssuance -> SubmitCardIssuance -> repository.submit -> Result<receipt/failure>
+Confirm -> Cubit.submitCardIssuance -> SubmitCardIssuanceUseCase -> repository.submit -> Result<receipt/failure>
   -> mock completion or preserved draft/retry
 ```
 
@@ -122,9 +115,9 @@ Confirm -> Cubit.submitCardIssuance -> SubmitCardIssuance -> repository.submit -
 
 Catalog status and submissionStatus independently use RequestStatus: initial, loading, success, failure. IssuanceStep is selection, delivery, confirmation. An empty successful catalog means no eligible deposits or no supported issuance types; an empty address list remains a usable delivery state with Add address.
 
-State contains catalog, draft, step, invoiceExpanded, summaryExpanded, failure and receipt. Draft contains depositId, type, addressId, noPhysicalCard, otherRecipient, includeAgent, termsAccepted, DeliveryPerson and BankAgent. No text controller lives in a Cubit/state/entity.
+State contains catalog, draft, step/stepNumber, isInvoiceExpanded, isSummaryExpanded, shared latest failure/message and receipt. Draft stores selected deposit/address objects, type, noPhysicalCard, otherRecipient, includeAgent, termsAccepted, DeliveryPerson and BankAgent. No text controller lives in a Cubit/state/entity.
 
-Selected account/address are looked up by ID. Unknown IDs are ignored by Cubit commands. Issuance types must belong to catalog.types. Selection never becomes valid merely because a flag is enabled.
+Selectors pass rendered deposit/address objects and a non-null issuance type. Cubit does not find them again by ID or duplicate the UI membership gate. Selection never becomes valid merely because a flag is enabled.
 
 | Gate | Actual state rule |
 | --- | --- |
@@ -137,11 +130,11 @@ Selected account/address are looked up by ID. Unknown IDs are ignored by Cubit c
 
 National-ID validation uses the shared checksum validator; it does not verify identity or banking eligibility. Agent codes are not verified against a directory. Production rules must come from the bank.
 
-Edits clear terms acceptance and submission failure. Back without edits can retain acceptance. Turning conditional delivery fields off preserves their draft text, but the request omits disabled details. A nonphysical request always omits address, recipient and agent, even if earlier draft values exist.
+Edits clear terms acceptance and the confirmed request snapshot, while retaining the latest recorded failure/message. Back without edits can retain acceptance. Turning conditional delivery fields off preserves their draft text, but the request omits disabled details. A nonphysical request always omits address, recipient and agent, even if earlier draft values exist.
 
-fetchIssuanceCatalog resets the draft and rejects stale fetch completions using a catalog request ID. Runtime repository replacement has been removed; dependencies are final and tests override GetIt registrations before constructing a fresh Cubit. Catalog fetching is only exposed by the UI during initial loading/retry; the Cubit does not repeat that UI gate.
+fetchIssuanceCatalog resolves the initial draft, fees and entry selection. It has no request-ID or disposal guard. The new catalog replaces the form draft; step/stepNumber, recipient/agent validity and confirmedRequest are kept consistent with that fresh draft, including when the caller supplied an initial snapshot. Runtime repository replacement has been removed; dependencies are final and tests override GetIt registrations before constructing a fresh Cubit. Catalog fetching is only exposed by the UI during initial loading/retry; the Cubit does not repeat that UI gate.
 
-submitCardIssuance captures the prepared request once, publishes loading before starting the Future and publishes the availability fields used to disable repeat submission and edits in UI. Failure preserves the same request instance for retry; success leaves the flow locked with its mock receipt. Both operations return their .then chain and have one disposal/request-ID guard at callback entry. Synchronous actions have no isClosed or duplicate UI-precondition guards. Required option values use non-null callbacks; the delete dialog calls removeAddress directly from Confirm, with no nullable confirmation-result action. LoadIssuanceCatalog and SubmitCardIssuance convert unexpected dependency exceptions to the existing UnexpectedFailure at the UseCase boundary.
+submitCardIssuance captures the prepared request once, publishes loading before starting the Future and publishes the availability fields used to disable repeat submission and edits in UI. Failure preserves the same request instance for retry; success leaves the flow locked with its mock receipt. Both operations use async/await and one Result switch each. No isClosed or duplicate UI-precondition guard is added. Required option values use non-null callbacks; the delete dialog calls removeAddress directly from Confirm, with no nullable confirmation-result action. LoadIssuanceCatalogUseCase and SubmitCardIssuanceUseCase convert unexpected dependency exceptions to the existing UnexpectedFailure at the UseCase boundary.
 
 Recipient/agent fields use specific update actions; the test-only whole-recipient/agent setters are removed. Each edit updates draft, delivery eligibility, request and canContinue together, and clears terms acceptance. Fee recalculation is limited to catalog/physical-card changes. Exit confirmation compares the draft with the initial catalog-derived selection through a pure calculation, without retaining a duplicate State snapshot. Expansion state remains in State.
 
@@ -248,9 +241,9 @@ The Toggle small track is 36×20 with 16px thumb and 2px inset. AppShadows.cardL
 
 ### 13.4 Asset inventory and geometry
 
-All new app assets are non-empty original SVG downloads in the flat registered directory. AppAssets is the only path registry. The selected chevron reuses cardFeaturesChevron because its bytes match exactly. Existing back chevron, assistant stars and invoice glyphs are reused; their renderer slots are unchanged.
+All new app assets are non-empty original SVG downloads in the flat registered directory. App image references use the direct `AppConstants.baseImage` prefix; no registry class is used. The selected chevron reuses cardFeaturesChevron because its bytes match exactly. Existing back chevron, assistant stars and invoice glyphs are reused; their renderer slots are unchanged.
 
-| AppAssets key | Original local source | Root dimensions |
+| Former asset name | Original local source | Root dimensions |
 | --- | --- | --- |
 | issuanceCalendar | assets/images/issuance_calendar.svg | 20 × 20 |
 | issuanceCardDivider | assets/images/issuance_card_divider.svg | 311 × 0.5 |
@@ -296,25 +289,31 @@ Core openCardFeaturesService now allowlists card-issue and card-reissue in addit
 
 The standalone Cards reissue action opens CardIssuanceScreen when no host onActionRequested callback is supplied. It forwards linkedDeposit as initial context. The existing callback contract is unchanged. Assistant navigation from this nested route pops issuance first and then invokes the Cards host callback, allowing the core bridge to return to Dashboard rather than leaving the card list over it.
 
-Within the flow, top/system Back goes confirmation → delivery → selection; for nonphysical it goes confirmation → selection. Selection Back pops the route. Submission locks Back and editing; completion can close the route. onCompleted receives the typed receipt once when state becomes submitted. onTermsRequested and onAssistantPressed are host callbacks. Missing terms content shows an integration message instead of inventing legal text.
+Within the flow, top/system Back goes confirmation → delivery → selection; for nonphysical it goes confirmation → selection. Selection Back asks for confirmation when the draft differs from entry data, then an authorized Back pops the route. Submission locks Back and editing; completion can close the route. onCompleted receives the typed receipt once when state becomes submitted. onTermsRequested and onAssistantPressed are host callbacks. Missing terms content shows an integration message instead of inventing legal text.
 
 ## 16. Testing Strategy
 
-Test sources: test/card_issuance/card_issuance_cubit_test.dart and card_issuance_screen_test.dart. Twelve Cubit cases cover required selections, both physical paths, conditional identities, normalization, add/delete validation, unknown IDs, empty/error/retry, balance gate, UI loading/edit availability, retry preservation, stale loading and initial account normalization.
-
-Eighteen widget cases cover seven flow states, two library Stepper samples, interactive selectors/nonphysical/terms/mock completion, address form validation, empty/error/retry, three locale/large-text cases, allowlisted routing, Back/delete cancel/confirm, and nested Cards reissue/assistant return.
+Test sources are under `test/cards/presentation/flows/card_issuance/cubit/`
+and `screens/`. Cubit cases cover required selections, both physical paths,
+conditional identities and stored validity, normalization, address add/delete,
+empty/error/retry, wallet eligibility, loading/edit availability, exact retry
+snapshot preservation and initial-account normalization. Widget cases cover
+geometry, selectors/nonphysical/terms/mock completion, address validation,
+fa/en/ar large text, routing, Back/delete confirmation and nested reissue/assistant
+return. Phase 4 adds repeated-failure, retained-error terms and retry-completion
+coverage. Current app verification is in [phase-4-review.md](phase-4-review.md).
 
 Frame assertions check Stepper y104/42px, body/summary y172 and footer y712/44px. Actual pixels in the ring slot must contain the foreground and, before completion, the gray track. Explicit rootBundle loads catch missing package assets. Previews load real fonts and enable native shadows during capture. Existing global asset tests check unique paths and non-empty bundling.
 
 Package: test/widgets/app_stepper_test.dart checks original asset loading/42px geometry/physical side, accessibility copy, narrow wrapping and standard-versus-issuance toggle behavior. Both analyzers and git diff --check are required.
 
-Both final analyzers report no issues. Both git diff --check checks pass, all relative documentation links resolve, and both guideline additions are identical.
+The original design/package audit recorded clean analyzers and diff checks. Current phase-4 app results are recorded separately in the linked review report.
 
 No bank endpoint, payment execution, production identity verification, persistent address update, native device build or release deployment is verified by these tests.
 
 ## 17. Development and Code Review Process
 
-Review domain/state separation, required selections under every toggle state, omitted request fields, stale-response guards and duplicate-submit behavior. Review both package and app diffs together, including asset declarations and public exports. Existing defaults must remain compatible; a visual variant must be explicitly chosen by the consuming feature.
+Review domain/state separation, required selections under every toggle state, omitted request fields, UI loading/Back gates and retry identity. Review both package and app diffs together, including asset declarations and public exports. Existing defaults must remain compatible; a visual variant must be explicitly chosen by the consuming feature.
 
 The complete package change inventory is in the separate dated audit. The earlier uncommitted UI snapshot remains historical. No files are committed or published by this task.
 
@@ -347,7 +346,25 @@ AppAssistantButton reuses existing artwork and invokes the host callback. It doe
 
 ## Cubit/State coding convention
 
-Follow [architecture Section 12](../architecture-smart-virtual-counter-v2-en.md#12-state-management-with-cubit) and the authoritative [UI/Cubit/State contract](../ui-cubit-state-agent-rules-en.md), especially Sections 6.6–6.7 and 8. Preserve the current State.initial/part-of organization, explicit action updates, stable GetIt-resolved dependencies and banking/async safeguards.
+Follow the authoritative [UI/Cubit/State contract v1.21](../ui-cubit-state-agent-rules-en.md)
+and [clean-code skill](../../.agents/skills/pishkhan-cubit-clean-code/SKILL.md).
+Keep the plain Freezed `State.initial` / `part of` structure and independent
+operation statuses. Cubit owns requests, form calculations and modal-result
+interpretation, with explicit copyWith/emit and async/await followed by Result
+switches. Each operation has one owner. No `.then`, isClosed, defensive action
+entry checks or State publication helpers are introduced.
+
+GetIt registers dependencies, never Cubits. Existing UseCases have the `UseCase`
+class suffix and `_usecase.dart` filename suffix, are wired in core/di and are
+resolved once in final Cubit fields. Provider.create directly constructs Cubit
+and calls its real fetch action. UI/router do not forward data dependencies.
+
+Screen-level MultiBlocListener groups independent request feedback, effects,
+navigation and completion. BlocBuilder renders; coherent local controller/modal
+Consumers remain at their resource owner. Each entering-failure listener displays
+the prepared text from that snapshot; effect handlers never gate on retained
+message presence. Failure/message may remain after recovery. Existing success
+behavior, Back gates, typed payloads and command consumption are preserved.
 
 ## UI/Cubit contract adoption (2026-10-17)
 
@@ -364,3 +381,42 @@ DashboardScreen; GoRouter only selects the destination. Cubits resolve existing
 Repository/service/UseCase registrations through GetIt fields, without dependency
 constructor arguments from UI. Multi-case and substantial async listeners use
 named widget/State methods with the existing listenWhen filter.
+
+## Phase-4 flow review
+
+| Operation | Owner | Trigger |
+|---|---|---|
+| Catalog | `fetchIssuanceCatalog` | Provider entry; failed/empty catalog Retry |
+| Issuance | `submitCardIssuance` | Confirmation via `continueFlow`; retry |
+
+`LoadIssuanceCatalogUseCase` and `SubmitCardIssuanceUseCase` are registered in
+GetIt, wired with CardIssuanceRepository in core/di and resolved once in final
+Cubit fields. The `_submitConfirmedIssuance` split is removed: `submitCardIssuance`
+chooses the existing/new confirmed snapshot, publishes it with loading and owns
+the await/Result switch. An unchanged retry sends the same request object;
+real edits invalidate it. No bank idempotency key is invented for this mock
+contract; server identity remains a production integration requirement.
+
+| Step | State read / retained | Next / lifetime |
+|---|---|---|
+| Catalog/selection | catalog status, selected deposit/type, omission, fee/wallet values | Both selectors remain required; omission changes fees and skips delivery only |
+| Delivery | selected address, recipient/agent toggles and stored field validity | Back preserves form text; hiding optional input omits it from the payload |
+| Add/delete address | local address fields/errors and selected address | Fresh add form clears its old inputs; real deletion removes matching selected address |
+| Confirmation | draft, invoice/summary expansion, consent, wallet, canContinue | Input edits invalidate consent and confirmed snapshot atomically |
+| Submit/retry | exact confirmedRequest, submissionStatus, editability | Failure keeps data/request; success locks form and renders receipt/callback |
+| Back/exit | actual step/navigation | Step-back preserves prior data; canceled exit preserves form; Back/home releases flow |
+
+Thirteen draft/address input events now publish their new draft, invalidated
+consent, derived eligibility and confirmed-request invalidation in one snapshot.
+They no longer delegate a second emit to `updateTermsAcceptance(false)`. The
+shared continuation calculation receives the fresh draft/validity; validators
+still run only once for their own edited field. Step transitions keep their
+separate explicit actions. The repeated delivery-step/omission predicate has
+one pure owner, `_isDeliveryStepOrOmitted`.
+
+The screen groups two request-failure listeners, navigation, typed effects and
+existing progress/receipt handling in MultiBlocListener; BlocBuilder renders.
+Progress still scrolls at the same transitions and completion still fires on
+success. Removed 14 blanket failure/message clears. Catalog-derived form initialization
+keeps step, validity and the confirmed snapshot aligned with the replacement draft. Other address, consent, snapshot and command resets retain
+actual readers. See [phase-4 verification](phase-4-review.md).

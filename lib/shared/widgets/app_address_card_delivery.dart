@@ -1,6 +1,6 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 import 'app_address_card.dart';
 
@@ -42,7 +42,11 @@ class AppAddressCardDelivery extends StatelessWidget {
                 child: SizedBox(
                   width: 20,
                   height: 20,
-                  child: deleteIcon ?? AvpImage(image: AppAssets.issuanceTrash),
+                  child:
+                      deleteIcon ??
+                      AvpImage(
+                        image: '${AppConstants.baseImage}issuance_trash.svg',
+                      ),
                 ),
               ),
             ),

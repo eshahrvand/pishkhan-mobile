@@ -1,7 +1,7 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_cards_list.dart';
 
 import '../../../domain/entities/listed_card.dart';
@@ -30,12 +30,17 @@ String actionLabel(CardFeatureAction action) => switch (action) {
   CardFeatureAction.requestVirtual => S.current.cardFeatureVirtualRequest,
 };
 String actionAsset(CardFeatureAction action) => switch (action) {
-  CardFeatureAction.details => AppAssets.cardFeaturesInfo,
-  CardFeatureAction.reissue => AppAssets.cardFeaturesReissue,
-  CardFeatureAction.changeDeposit => AppAssets.cardFeaturesChangeDeposit,
-  CardFeatureAction.block => AppAssets.cardFeaturesBlock,
-  CardFeatureAction.expiredGiftBalance => AppAssets.cardFeaturesExpiredGift,
-  CardFeatureAction.requestVirtual => AppAssets.cardFeaturesPlus,
+  CardFeatureAction.details =>
+    '${AppConstants.baseImage}card_features_info.svg',
+  CardFeatureAction.reissue =>
+    '${AppConstants.baseImage}card_features_reissue.svg',
+  CardFeatureAction.changeDeposit =>
+    '${AppConstants.baseImage}card_features_change_deposit.svg',
+  CardFeatureAction.block => '${AppConstants.baseImage}card_features_block.svg',
+  CardFeatureAction.expiredGiftBalance =>
+    '${AppConstants.baseImage}card_features_expired_gift.svg',
+  CardFeatureAction.requestVirtual =>
+    '${AppConstants.baseImage}card_features_plus.svg',
 };
 Widget cardFeatureIcon(String path, {double size = 20}) => SizedBox.square(
   dimension: size,
@@ -46,11 +51,13 @@ Widget cardFeatureIcon(String path, {double size = 20}) => SizedBox.square(
 
 Widget cardCategoryIcon(CardCategory category) {
   final asset = switch (category) {
-    CardCategory.resalat => AppAssets.cardFeaturesResalat,
-    CardCategory.gift => AppAssets.cardFeaturesGift,
-    CardCategory.virtual => AppAssets.cardFeaturesVirtual,
-    CardCategory.coupon => AppAssets.cardFeaturesCoupon,
-    CardCategory.family => AppAssets.cardFeaturesFamily,
+    CardCategory.resalat =>
+      '${AppConstants.baseImage}card_features_resalat.svg',
+    CardCategory.gift => '${AppConstants.baseImage}card_features_gift.svg',
+    CardCategory.virtual =>
+      '${AppConstants.baseImage}card_features_virtual.svg',
+    CardCategory.coupon => '${AppConstants.baseImage}card_features_coupon.svg',
+    CardCategory.family => '${AppConstants.baseImage}card_features_family.svg',
   };
   if (category == CardCategory.virtual) {
     return SizedBox.square(

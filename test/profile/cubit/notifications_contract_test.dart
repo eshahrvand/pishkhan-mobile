@@ -9,7 +9,7 @@ void main() {
   test(
     'constructor preserves the snapshot; load and opening own inbox changes',
     () async {
-      const initial = NotificationsState.initial(detailRequestId: 8);
+      const initial = NotificationsState.initial();
       final cubit = NotificationsCubit(initialState: initial);
       expect(identical(cubit.state, initial), isTrue);
       cubit.openInbox(NotificationMessage.examples());
@@ -17,9 +17,11 @@ void main() {
       cubit.openMessage(cubit.state.messages.first);
       expect(cubit.state.detailMessage!.isRead, isTrue);
       expect(cubit.state.unreadMessages, hasLength(1));
-      final request = cubit.state.detailRequestId;
+      final detail = cubit.state.detailMessage;
+      cubit.consumeMessageDetail();
+      expect(cubit.state.detailMessage, isNull);
       cubit.openMessage(cubit.state.messages.first);
-      expect(cubit.state.detailRequestId, request + 1);
+      expect(cubit.state.detailMessage, detail);
       await cubit.close();
     },
   );

@@ -1,7 +1,6 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 
-
 class AppLoanCardAmountRow extends StatelessWidget {
   const AppLoanCardAmountRow({
     super.key,

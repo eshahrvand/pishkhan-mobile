@@ -1,64 +1,80 @@
-# pishkhan_mobile
+# Pishkhan Mobile
 
-A new Flutter project.
+Flutter application for the Smart Virtual Counter. Feature screens own their
+Cubit scopes and resolve UseCases only. Application/data access follows
+Cubit → UseCase → Repository; Cubits never import or directly resolve Repository.
+Domain contains service contracts and business rules, Data contains
+adapters, and `core/di` wires actual dependencies through GetIt. Some flows use
+bank integrations and others use documented mock adapters; each flow document
+records its current boundary.
 
-## Getting Started
+## Start a checkout
 
-Generate the ignored Freezed files before building or testing a fresh checkout:
+Resolve the existing dependencies and generate ignored Freezed/API outputs when
+needed before building or testing:
 
 ```sh
 flutter pub get
 dart run build_runner build --delete-conflicting-outputs
-flutter analyze
-flutter test
+flutter run
 ```
 
-This project is a starting point for a Flutter application.
+Dependency changes are separate work; the commands above use the checked-in
+project configuration. Follow [AGENTS.md](AGENTS.md) before editing feature code.
 
-A few resources to get you started if this is your first Flutter project:
+## Coding reference and verification
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+The [UI/Cubit/State contract](doc/ui-cubit-state-agent-rules-en.md) is the
+mandatory presentation reference. It takes precedence over older examples in
+the [architecture](doc/architecture-smart-virtual-counter-v2-en.md) or skills.
+Use the project [Cubit skill](.agents/skills/pishkhan-cubit-clean-code/SKILL.md)
+and [UI skill](.agents/skills/flutter-widget-ui-style/SKILL.md) with that contract.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Run tests for changed flows and directly related consumers/dependencies. For
+example, when changing the cheque/postal flows:
 
-## Documentation
+```sh
+flutter test test/postal_offices test/cheque
+flutter analyze lib/features/postal_offices lib/features/cheque test/postal_offices test/cheque
+```
 
-The authoritative Cubit/State coding convention is [architecture Section 12](doc/architecture-smart-virtual-counter-v2-en.md#12-state-management-with-cubit). New work and refactors use plain Freezed State fields, direct UI reads and Cubit-owned calculations.
+Include the relevant DI/router/service-entry regression files when their shared
+boundaries change. A full-application test run requires an explicit owner
+request; historical results do not authorize repeating it.
 
-Each flow has one development document. Related card flows share `doc/cards/`.
-Visual captures are not stored in `doc`; optional test captures use ignored
-`build/previews/` output.
+The [migration plan](doc/cubit-migration-plan.md) tracks the ten phases. The
+[phase-10 review](doc/cubit-phase-10-review.md) accounts for all 31 Cubits and
+records its scoped verification separately from historical phase results. The
+[UseCase-only follow-up](doc/usecase-only-dependencies-review.md) records the
+subsequent owner amendment and all-Cubit dependency correction.
 
-- [Card services](doc/cards/card-services.md)
-- [Dashboard cards](doc/cards/my-cards.md)
-- [Card issuance](doc/cards/card-issuance.md)
-- [Virtual card requests](doc/cards/virtual-card-request.md)
-- [Change linked card deposit](doc/cards/change-card-deposit.md)
-- [Expired gift card balance](doc/cards/expired-gift-balance.md)
-- [Card password services](doc/cards/password-services.md)
-- [Login](doc/login/development.md)
-- [Dashboard](doc/dashboard/development.md)
-- [Deposits](doc/deposits/development.md)
-- [Standalone deposit list and account sheets](doc/deposits/deposit-list.md)
-- [Statement / average balance request](doc/deposits/average-balance.md)
-- [Financial solvency certificate](doc/deposits/financial-certificate.md)
-- [Agent settings](doc/deposits/agent-settings.md)
-- [Close surplus deposits](doc/deposits/close-surplus-deposits.md)
-- [Deposit blocking and unblocking](doc/deposits/deposit-restriction.md)
-- [Proxy deposit](doc/deposits/proxy-deposit.md)
-- [Loans](doc/loans/development.md)
-- [On-site transfer requests](doc/transfers/on-site-transfer.md)
-- [Request reports and cancellation](doc/requests/request-reports.md)
-- [Personal information: phone, addresses and occupations](doc/profile/personal-information.md)
-- [Modern banking: mobile activation, passwords, limits and deactivation](doc/modern-banking/mobile-bank.md)
+## Flow documentation
 
-General architecture and design-system guidance remain in the top-level `doc`
-files. Existing Persian documents are retained unchanged.
+- [Login](doc/login/development.md) and [API integration](doc/auth/login-api-integration.md)
+- [Dashboard](doc/dashboard/development.md), [cards tab](doc/cards/my-cards.md),
+  [deposit services](doc/deposits/development.md) and [loans](doc/loans/development.md)
+- [Card services](doc/cards/card-services.md), [issuance](doc/cards/card-issuance.md),
+  [virtual requests](doc/cards/virtual-card-request.md),
+  [linked deposit](doc/cards/change-card-deposit.md),
+  [expired gift balance](doc/cards/expired-gift-balance.md) and
+  [password services](doc/cards/password-services.md)
+- [Deposit list](doc/deposits/deposit-list.md),
+  [average balance](doc/deposits/average-balance.md),
+  [financial certificate](doc/deposits/financial-certificate.md),
+  [agent introduction](doc/deposits/introduce-agent.md),
+  [agent settings](doc/deposits/agent-settings.md),
+  [surplus closure](doc/deposits/close-surplus-deposits.md),
+  [restriction](doc/deposits/deposit-restriction.md) and
+  [proxy deposit](doc/deposits/proxy-deposit.md)
+- [Personal information, addresses and jobs](doc/profile/personal-information.md)
+- [Modern banking](doc/modern-banking/mobile-bank.md),
+  [on-site transfer](doc/transfers/on-site-transfer.md) and
+  [request reports](doc/requests/request-reports.md)
+- [Postal offices](doc/postal-offices/development.md),
+  [cheque overview](doc/cheque/development.md),
+  [clearance](doc/cheque-clearance-feature-en.md),
+  [cancellation](doc/cheque/cancellation.md) and
+  [cheque-book issuance](doc/features/cheque-book-issuance-en.md)
 
-All four dashboard tabs share one `HomeCubit` and plain `HomeState` under
-`lib/features/dashboard/presentation/home/cubit/`. See
-[current Home state ownership](doc/dashboard/development.md#12-state-management-with-cubit).
+All four dashboard tabs consume one `HomeCubit`/`HomeState`. Optional visual test
+captures are ignored under `build/previews/`; screenshots are not stored in doc.

@@ -1,9 +1,9 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/certificate_fields.dart';
 
 import '../cubit/on_site_transfer_cubit.dart';
@@ -73,8 +73,8 @@ class TransferDestinationSheet extends StatelessWidget {
                       value: state.method,
                       trailing: AvpImage(
                         image: state.method == null
-                            ? AppAssets.issuanceSelectEmpty
-                            : AppAssets.cardFeaturesChevron,
+                            ? '${AppConstants.baseImage}issuance_select_empty.svg'
+                            : '${AppConstants.baseImage}card_features_chevron.svg',
                         width: 20,
                         height: 20,
                       ),
@@ -94,7 +94,7 @@ class TransferDestinationSheet extends StatelessWidget {
                     if (state.method != null) ...[
                       const SizedBox(height: 20),
                       AvpImage(
-                        image: AppAssets.issuanceDivider,
+                        image: '${AppConstants.baseImage}issuance_divider.svg',
                         height: 1,
                         width: double.infinity,
                         fit: BoxFit.fill,
@@ -139,8 +139,8 @@ class TransferDestinationSheet extends StatelessWidget {
                         value: state.purpose,
                         trailing: AvpImage(
                           image: state.purpose == null
-                              ? AppAssets.issuanceSelectEmpty
-                              : AppAssets.cardFeaturesChevron,
+                              ? '${AppConstants.baseImage}issuance_select_empty.svg'
+                              : '${AppConstants.baseImage}card_features_chevron.svg',
                           width: 20,
                           height: 20,
                         ),
@@ -173,14 +173,7 @@ class TransferDestinationSheet extends StatelessWidget {
                         },
                       ),
                     ],
-                    if (state.destinationFailure != null) ...[
-                      const SizedBox(height: 12),
-                      Text(
-                        S.current.dashboardLoadError,
-                        style: certificateLabelStyle(context)
-                            .copyWith(color: context.colors.error),
-                      ),
-                    ],
+
                     const SizedBox(height: 32),
                     Row(
                       textDirection: TextDirection.ltr,

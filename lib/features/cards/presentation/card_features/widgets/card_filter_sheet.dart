@@ -1,10 +1,11 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
+
 import 'card_feature_divider.dart';
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_bottom_sheet_header.dart';
 
 import '../../../domain/entities/listed_card.dart';
@@ -26,7 +27,9 @@ class CardFilterSheet extends StatelessWidget {
           children: [
             AppBottomSheetHeader(
               title: S.current.cardFeatureFilter,
-              rightIcon: cardFeatureIcon(AppAssets.cardFeaturesFilterHeader),
+              rightIcon: cardFeatureIcon(
+                '${AppConstants.baseImage}card_features_filter_header.svg',
+              ),
               showLeftAction: state.draftFilter!.isActive,
               showTextAction: true,
               textActionLabel: S.current.cardFeatureRemoveFilter,
@@ -44,7 +47,9 @@ class CardFilterSheet extends StatelessWidget {
                     labelSpacing: 8,
                     labelStyle: _label(context),
                     textStyle: _value(context),
-                    trailing: cardFeatureIcon(AppAssets.cardFeaturesChevron),
+                    trailing: cardFeatureIcon(
+                      '${AppConstants.baseImage}card_features_chevron.svg',
+                    ),
                     options: [
                       AppSelectOption(
                         value: 'all',
@@ -71,7 +76,9 @@ class CardFilterSheet extends StatelessWidget {
                     labelSpacing: 8,
                     labelStyle: _label(context),
                     textStyle: _value(context),
-                    trailing: cardFeatureIcon(AppAssets.cardFeaturesChevron),
+                    trailing: cardFeatureIcon(
+                      '${AppConstants.baseImage}card_features_chevron.svg',
+                    ),
                     options: [
                       AppSelectOption(
                         value: 'all',

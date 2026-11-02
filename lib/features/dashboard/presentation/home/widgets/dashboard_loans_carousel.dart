@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -7,7 +8,6 @@ import 'dart:math' as math;
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 /// Loan fetching, persistence, details and service execution are caller-owned.
 import 'dashboard_loan_tile.dart';
@@ -104,7 +104,7 @@ class _DashboardLoansCarouselState extends State<DashboardLoansCarousel> {
                     right: 0,
                     height: 122,
                     child: AvpImage(
-                      image: AppAssets.loansPatternUp,
+                      image: '${AppConstants.baseImage}loans_pattern_up.svg',
                       fit: BoxFit.fill,
                     ),
                   ),

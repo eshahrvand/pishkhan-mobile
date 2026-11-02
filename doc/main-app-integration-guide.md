@@ -2,9 +2,13 @@
 
 ## Purpose
 
-`avp_ui` is the shared Flutter design-system package for Pishkhan AI / Smart Virtual Counter. It contains reusable design tokens, formatters, input helpers, and Figma-aligned widgets.
-
-When developing the main application, **reuse the components in this package before creating a new widget**. This prevents design drift and keeps the Flutter app aligned with the Figma library.
+`avp_ui` is the shared Flutter design-system package for the Smart Virtual
+Counter. Reuse its public components, tokens and input helpers before creating
+app widgets. For application ownership and State, the mandatory
+[UI/Cubit/State contract](ui-cubit-state-agent-rules-en.md) takes precedence over
+package API examples. Domain/Cubit owns decisions; UI renders and executes
+prepared Flutter effects. The [phase-10 review](cubit-phase-10-review.md) records
+current migration coverage; this guide adds no new rules.
 
 ## First-use setup
 
@@ -40,7 +44,10 @@ Before implementing a UI element, follow this order:
 1. Read the Figma-to-Flutter mapping below.
 2. If the Figma component is marked **Implemented**, use its `App...` widget.
 3. Pass state and content through the component's public parameters; do not copy its layout, colors, or SVG assets into the app.
-4. If a required Figma variant is missing, extend `avp_ui` with the same Figma component name and add widget tests. Do not create a main-app-only duplicate.
+4. If a required Figma variant is missing, identify the gap and use the owner's
+   approved scope to decide the next step. This integration guide does not
+   authorize changing `avp_ui` or adding a main-app-only duplicate. Separately
+   authorized package work keeps the Figma component name and relevant tests.
 
 ## Figma-to-Flutter mapping
 
@@ -55,7 +62,8 @@ Unless a row explicitly says **Not implemented**, the component is implemented a
 | Input field | `15652:17725` | `AppTextField` | Label, hint, helper/error text, icons, add-ons, digit normalization, direction, multiline support. |
 | Search field | `15807:44137` | `AppSearchField` | Search icon and optional clear action. |
 | Text area input field | `13759:45191` | `AppTextArea` | Multiline text field with field-state styling. |
-| Dropdown / select field | `13846:6903` | `AppSelect<T>` | Opens an input-width anchored menu with a 6px gap. Use `AppSelectOption<T>`. |
+| Selection bottom sheet | `27997:11068` (password card-number reference) | `showAppSelectSheet<T>`, `AppSelectSheet<T>`, `AppSelectSheetItem<T>` | Full-width password-style rows; supporting text, disabled/selected semantics, scrolling and dismissal. |
+| Dropdown / select field | `13846:6903` | `AppSelect<T>` | Keep the field visuals; the package opens its selection bottom sheet by default. Use `AppSelectOption<T>`. |
 | Select dropdown menu | `13819:12912` | `AppSelectMenu<T>` | Use only when a custom menu container is needed; `AppSelect` covers normal app usage. |
 | Toggle | `13759:55154` | `AppToggle` | `sm`/`md`, optional label and supporting text. |
 | Checkboxes | `15722:13478` | `AppCheckbox` | Square checkbox primitive, `sm`/`md`/`lg`, checked/unchecked/indeterminate. |
@@ -123,7 +131,8 @@ AppTextField(
   hintText: '۰۹۱۲۱۲۳۴۵۶۷',
   keyboardType: TextInputType.phone,
   normalizeDigits: true,
-  onChanged: (value) => state.phone = value,
+  value: state.phoneNumber,
+  onChanged: context.read<AuthCubit>().updatePhoneNumber,
 )
 
 AppSelect<String>(
@@ -133,9 +142,14 @@ AppSelect<String>(
     AppSelectOption(value: 'card', label: 'کارت بانکی'),
     AppSelectOption(value: 'iban', label: 'شماره شبا'),
   ],
-  onChanged: (value) => setState(() => state.requestType = value),
+  onChanged: onRequestTypeChanged,
 )
 ```
+
+These are API fragments inside a relevant BlocBuilder. Typed callback names
+such as `onRequestTypeChanged` stand for a specific Cubit action in an actual
+flow; they do not mutate State, use setState or imply new production fields.
+Import the owning Cubit and flutter_bloc when using context.read.
 
 `AppTextField` also accepts `textStyle` for a Figma typography variation and
 `onSubmitted` for keyboard actions. `AppSearchField` accepts `textStyle` and
@@ -150,14 +164,14 @@ AppCheckbox(
   value: state.rememberMe,
   label: 'مرا به خاطر بسپار',
   supportingText: 'اطلاعات ورود من را در این دستگاه ذخیره کن',
-  onChanged: (value) => setState(() => state.rememberMe = value),
+  onChanged: onRememberMeChanged,
 )
 
 AppToggle(
   value: state.notificationsEnabled,
   label: 'اعلان‌ها',
   size: AppToggleSize.md,
-  onChanged: (value) => setState(() => state.notificationsEnabled = value),
+  onChanged: onNotificationsChanged,
 )
 ```
 
@@ -174,7 +188,7 @@ AppProgressIndicator(
 AppSlider(
   values: state.priceRange,
   labelPosition: AppSliderLabelPosition.bottom,
-  onChanged: (values) => setState(() => state.priceRange = values),
+  onChanged: onRangeChanged,
 )
 ```
 
@@ -228,14 +242,17 @@ The main app owns:
 
 ## Verification when changing `avp_ui`
 
-After changing or adding a component, run:
+For separately authorized component changes, run relevant analysis and tests for
+the component and directly affected consumers, for example:
 
 ```bash
 flutter analyze
-flutter test
+flutter test test/widgets/<changed_component>_test.dart
 ```
 
 Add or update a focused widget test in `test/widgets/`. Keep the mapping table in this document updated whenever a new Figma component is implemented or an existing mapping changes.
+The path above is a placeholder for the actual changed component. This does not
+authorize a full test run of the consuming application.
 
 `AppButton.horizontalPadding` optionally adjusts horizontal inset for compact
 text actions, such as the notification header. Omit it to keep the size defaults.
@@ -257,23 +274,15 @@ AppProgressIndicator.fillAlignment optionally selects the origin. Default: Align
 
 ## Dashboard tab repository composition
 
-Import package:pishkhan_mobile/features/dashboard/dashboard.dart for DashboardScreen and its public data/action contracts. DashboardScreen.repositories accepts DashboardRepositories with Home/Cards/Deposits/Loans implementations. Leaving it unset builds mocks from the optional list/favorite seed arguments. Tab widgets and their Cubits receive typed repository interfaces rather than raw lists. Standalone feature folders no longer export dashboard tab screens. See the [Dashboard architecture and Figma audit](dashboard/development.md) for exact paths, states and live-service adapter requirements.
-
-## Standalone Cards feature
-
-Routing uses two central files for every feature: `core/router/app_routes.dart`
-contains the single `AppRoutes` class and URL builders; `core/router/app_router.dart`
-contains all `GoRoute` definitions directly in `createAppRouter`, plus typed route
-arguments. Add routes there; per-feature `*_routes.dart` files and `build*Routes`
-factories are no longer used. The app owns and disposes its router/session.
-
-Card password setup, change and recovery are owned by `features/cards`, including
-their presentation, domain and mock data layers. Use `AppRoutes.cardPasswords`
-(`/cards/password-services`) from `core/router/app_routes.dart` and
-`PasswordRouteArguments` from `core/router/app_router.dart`.
-`ServiceRegistry.openCardService` forwards the existing password service IDs to
-this route. Login and login OTP remain in `features/auth`. See
-[Password services](cards/password-services.md) for paths and flow contracts.
+`DashboardScreen()` owns one HomeCubit across its four retained tabs. Configure
+actual repository interfaces and the DashboardRepositories bundle in `core/di`
+before constructing the screen/Cubit. Home resolves registered final UseCase
+fields; DI wires their repositories. Screen, tab widgets and route arguments do
+not forward repositories. Generic card/deposit/loan operations keep their
+separate typed registrations and independent statuses. See
+[Dashboard development](dashboard/development.md) for current paths, initial
+fetch, filtering and adapter boundaries. No runtime repository-replacement API
+or Cubit per tab is introduced.
 
 See [Cards architecture](cards/card-services.md). Import features/cards/cards.dart for CardListScreen, CardsRepository, ListedCard and typed CardFeatureRequest. Dashboard card summaries remain a separate feature. Compatible new package APIs are documented in avp_ui/docs/main-app-integration-guide.md; deploy the sibling package changes together with this app.
 
@@ -309,10 +318,10 @@ Known retained state differences: the existing primary button disabled surface i
 
 The Figma name mapper registers Video player once and includes a poster-only preview. Original shared play SVGs belong to the package; posters belong to the consuming feature. Do not use a screen screenshot as a poster.
 
-Additive APIs retain existing defaults:
+Shared component APIs:
 - `AppTextField.obscureText`, `obscuringCharacter`, `autocorrect`, `enableSuggestions` and `enableIMEPersonalizedLearning` enable secure password fields. Optional hintTextDirection aligns localized placeholders independently of the surrounding RTL icon layout; the default remains unchanged. Password callers must disable suggestions, autocorrection and personalized learning.
-- `AppSelect.menuBuilder` optionally returns a selection from a custom menu. `null` cancels. By default the menu matches the input width with a 6px gap, opens above when space below is insufficient, and scrolls within a 320px maximum height. Outside taps and Back dismiss it without changing the value.
-  Password-service selectors intentionally override this default with their existing bottom sheets (card type, card number, password type and operation). Preserve this feature-specific presentation.
+- `AppSelect` opens the shared package-owned bottom sheet by default; no app-owned launcher or `menuBuilder` is required. `sheetTitle` optionally overrides its label-derived title. Every interactive app dropdown opens this package-owned bottom sheet while retaining its field visuals. Its full-width rows follow the password-service card-number selector, with thin separators and supporting copy below the title; never embed `AppSelectMenu` as the sheet content. The package owns the header, close asset, scrim, scrolling and safe areas. Outside dismissal, Close and Back return null without changing selection. This includes dropdowns inside other sheets.
+  Password selectors use this same component; their duplicate option sheet has been removed. Cheque cancellation opens `AppSelectSheet` through `showAppSelectSheetContent` with its existing Cubit-owned draft and confirmation footer. Disabled/read-only fields do not open a selector. Other consumers can explicitly request the anchored menu with `presentation: AppSelectPresentation.popup`.
 - `AppButton.disabledAppearance: AppButtonDisabledAppearance.service` opts primary disabled buttons into Gray200 plus Shadow/xs. Standard/default and loading states remain unchanged.
 - `AppPasswordServiceColors` owns the password-instance title/body/hint/camera-notice/recording-scrim tokens.
 
@@ -333,7 +342,7 @@ Card Services `card-pin-second-change` enables operation selection on `SecondPas
 
 ### Virtual card requests
 
-`VirtualCardRequestScreen(repository: adapter, initialDepositNumber: number)` composes public avp_ui inputs/selects/buttons and the app-owned AppInvoice. `VirtualCardRepository` supplies catalog, bound fee quotes and idempotent submission receipts. `card-virtual`/`card-virtual-request` open the request form; `card-virtual-list` and card category chips retain list access. The virtual-list footer opens the same form unless a host callback handles it. See [request architecture and mock fee limits](cards/virtual-card-request.md).
+`VirtualCardRequestScreen(initialDepositNumber: number)` composes public avp_ui inputs/selects/buttons and the app-owned AppInvoice. `VirtualCardRepository` supplies catalog, bound fee quotes and idempotent submission receipts. Register the adapter and used UseCases in core/di; Cubit resolves final UseCases only, with no Repository import/lookup and no Screen/Cubit constructor forwarding. `card-virtual`/`card-virtual-request` open the request form; `card-virtual-list` and card category chips retain list access. The virtual-list footer opens the same form unless a host callback handles it. See [request architecture and mock fee limits](cards/virtual-card-request.md).
 
 ## Button activity and loading
 
@@ -343,10 +352,12 @@ still disables the button. `isLoading: true` shows the existing spinner in place
 of its content and blocks interaction regardless of `isActive`. Existing callers
 that omit `isActive` keep their previous behavior.
 
-Login supplies `isActive: state.formValid` and
-`isLoading: state.status == RequestStatus.loading`. The current synchronous login
-prototype does not create artificial loading states; real request status changes
-belong to future bank integration.
+Login uses its actual independent `captchaStatus`, `otpRequestStatus` and
+`loginStatus` plus action-specific eligibility such as `canRequestOtp` and
+`canSubmitLogin`. CAPTCHA/check-cif/check-sms are implemented through the Auth
+repository; the former synchronous prototype example is superseded. Loading
+blocks repeat taps through `isLoading`; `onPressed` selects one `canX` flag.
+See [Login integration](auth/login-api-integration.md).
 
 ## Direct state-driven text inputs
 
@@ -379,7 +390,7 @@ node ID. Existing assets stay owned by their app/package and keep their paths.
 AvpImage(image: asset, width: 20, height: 20)
 
 AvpImage(
-  image: AppAssets.examplePhoto,
+  image: '${AppConstants.baseImage}example_photo.png',
   width: 80,
   height: 80,
   fit: BoxFit.cover,
@@ -389,7 +400,7 @@ AvpImage(
 
 AvpImage(
   image: imageUrl,
-  placeholder: AppAssets.examplePlaceholder,
+  placeholder: '${AppConstants.baseImage}example_placeholder.png',
   width: 120,
   height: 80,
   headers: imageHeaders,
@@ -398,7 +409,7 @@ AvpImage(
 )
 ```
 
-The `AppAssets.example...` names above illustrate host-supplied paths, not new
+The `AppConstants.baseImage` examples above illustrate host-supplied paths, not new
 package assets. The package does not import application registries or Cubits.
 
 ### Supported inputs
@@ -487,13 +498,12 @@ widget displaying an image. Test pre-caching and test inspection of internal
 Flutter/SVG widgets also remain valid. Existing avp_ui component internals need
 not be globally rewritten to consume their own new wrapper.
 
-## Unified dashboard/Home scope (2026-10-16)
+## Unified dashboard/Home scope
 
-Supply adapters through `DashboardScreen(repositories: bundle)`. The screen owns
-one `HomeCubit` and one plain `HomeState` for all four retained tabs.
-`CardsTab()`, `DepositsTab()` and `LoansTab()` use that existing Provider;
-they no longer accept repositories or callbacks. Home owns independent request
-statuses, catalog generations, selected banking records, favorite editing and
-operation eligibility. The parent listener executes typed `HomeEffect` outputs
-for navigation, copy and host integration. Replacing the bundle reloads only
-the changed adapters. Do not create a Cubit per tab.
+DashboardScreen constructs HomeCubit directly in BlocProvider.create and calls
+fetchDashboard there. CardsTab, DepositsTab and LoansTab consume that same
+Provider. Home owns independent statuses, selections, search, favorite editing
+and eligibility. Independent screen feedback and typed effects share
+MultiBlocListener with rendering in BlocBuilder. Local carousels keep their
+controller synchronization. Supply adapters through core/di before resolution;
+there is no Screen repository prop or reload-on-replacement lifecycle hook.

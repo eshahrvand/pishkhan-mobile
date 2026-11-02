@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
+import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/shared/widgets/flow_exit_dialog.dart';
 
 import '../widgets/virtual_card_content.dart';
@@ -8,7 +10,6 @@ import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
 
 import '../../../domain/entities/virtual_card_data.dart';
@@ -37,12 +38,18 @@ class _VirtualCardRequestScreenState extends State<VirtualCardRequestScreen> {
     super.dispose();
   }
 
+  void _showRequestFailure(BuildContext context, VirtualCardState state) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(state.message!)));
+  }
+
   Future<void> _handleNavigation(
     BuildContext context,
     VirtualCardState state,
   ) async {
     switch (state.navigation) {
       case FlowNavigation.confirmExit:
+        context.read<VirtualCardCubit>().consumeVirtualCardInteraction();
         final confirmed = await showFlowExitDialog(context);
         if (context.mounted) {
           context.read<VirtualCardCubit>().applyExitConfirmation(confirmed);
@@ -68,50 +75,97 @@ class _VirtualCardRequestScreenState extends State<VirtualCardRequestScreen> {
             ..fetchCatalog(),
       child: Directionality(
         textDirection: TextDirection.rtl,
-        child: BlocConsumer<VirtualCardCubit, VirtualCardState>(
-          listenWhen: (previous, current) =>
-              previous.navigationId != current.navigationId,
-          listener: _handleNavigation,
-          builder: (context, state) {
-            return PopScope<void>(
-              canPop: state.navigation == FlowNavigation.back,
-              onPopInvokedWithResult: (didPop, _) {
-                if (!didPop) context.read<VirtualCardCubit>().requestBack();
-              },
-              child: Scaffold(
-                backgroundColor: context.colors.surfaceSubtle,
-                body: SafeArea(
-                  child: Column(
-                    children: [
-                      AppTopBar(
-                        title: S.current.virtualRequestTitle,
-                        showLeadingActions: false,
-                        trailingIcon: SizedBox.square(
-                          dimension: 24,
-                          child: AvpImage(image: AppAssets.virtualRequestBack),
+        child: MultiBlocListener(
+          listeners: [
+            BlocListener<VirtualCardCubit, VirtualCardState>(
+              listenWhen: (previous, current) =>
+                  previous.catalogStatus != current.catalogStatus &&
+                  current.catalogStatus == RequestStatus.failure,
+              listener: _showRequestFailure,
+            ),
+            BlocListener<VirtualCardCubit, VirtualCardState>(
+              listenWhen: (previous, current) =>
+                  previous.quoteStatus != current.quoteStatus &&
+                  current.quoteStatus == RequestStatus.failure,
+              listener: _showRequestFailure,
+            ),
+            BlocListener<VirtualCardCubit, VirtualCardState>(
+              listenWhen: (previous, current) =>
+                  previous.submissionStatus != current.submissionStatus &&
+                  current.submissionStatus == RequestStatus.failure,
+              listener: _showRequestFailure,
+            ),
+            BlocListener<VirtualCardCubit, VirtualCardState>(
+              listenWhen: (previous, current) =>
+                  previous.navigation != current.navigation &&
+                  current.navigation != null,
+              listener: _handleNavigation,
+            ),
+          ],
+          child: BlocBuilder<VirtualCardCubit, VirtualCardState>(
+            builder: (context, state) {
+              return PopScope<void>(
+                canPop:
+                    (state.catalogStatus != RequestStatus.loading &&
+                        state.quoteStatus != RequestStatus.loading &&
+                        state.submissionStatus != RequestStatus.loading) &&
+                    (state.navigation == FlowNavigation.back),
+                onPopInvokedWithResult: (didPop, _) {
+                  if (!didPop &&
+                      state.catalogStatus != RequestStatus.loading &&
+                      state.quoteStatus != RequestStatus.loading &&
+                      state.submissionStatus != RequestStatus.loading) {
+                    context.read<VirtualCardCubit>().requestBack();
+                  }
+                },
+                child: Scaffold(
+                  backgroundColor: context.colors.surfaceSubtle,
+                  body: SafeArea(
+                    child: Column(
+                      children: [
+                        AppTopBar(
+                          title: S.current.virtualRequestTitle,
+                          showLeadingActions: false,
+                          trailingIcon: SizedBox.square(
+                            dimension: 24,
+                            child: AvpImage(
+                              image:
+                                  '${AppConstants.baseImage}virtual_request_back.svg',
+                            ),
+                          ),
+                          trailingTooltip: S.current.backLabel,
+                          onTrailingPressed:
+                              (state.catalogStatus != RequestStatus.loading &&
+                                  state.quoteStatus != RequestStatus.loading &&
+                                  state.submissionStatus !=
+                                      RequestStatus.loading)
+                              ? () => context
+                                    .read<VirtualCardCubit>()
+                                    .requestBack()
+                              : null,
                         ),
-                        trailingTooltip: S.current.backLabel,
-                        onTrailingPressed: () =>
-                            context.read<VirtualCardCubit>().requestBack(),
-                      ),
-                      Expanded(
-                        child: SingleChildScrollView(
-                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
-                          child: VirtualCardContent(count: count, state: state),
+                        Expanded(
+                          child: SingleChildScrollView(
+                            padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
+                            child: VirtualCardContent(
+                              count: count,
+                              state: state,
+                            ),
+                          ),
                         ),
-                      ),
-                      if (state.catalog != null &&
-                          state.catalog?.deposits.isNotEmpty == true)
-                        VirtualCardFooter(
-                          state: state,
-                          onTermsRequested: widget.onTermsRequested,
-                        ),
-                    ],
+                        if (state.catalog != null &&
+                            state.catalog?.deposits.isNotEmpty == true)
+                          VirtualCardFooter(
+                            state: state,
+                            onTermsRequested: widget.onTermsRequested,
+                          ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
     );

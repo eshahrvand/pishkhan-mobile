@@ -28,3 +28,11 @@ final class DepositKindFilterRequested extends DepositListEffect {
 final class DepositStatusFilterRequested extends DepositListEffect {
   const DepositStatusFilterRequested();
 }
+
+final class DepositListBackRequested extends DepositListEffect {
+  const DepositListBackRequested();
+}
+
+final class DepositListAssistantRequested extends DepositListEffect {
+  const DepositListAssistantRequested();
+}

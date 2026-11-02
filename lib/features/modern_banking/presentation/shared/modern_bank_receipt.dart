@@ -1,7 +1,7 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 class ModernBankReceipt extends StatelessWidget {
   const ModernBankReceipt({
@@ -25,7 +25,9 @@ class ModernBankReceipt extends StatelessWidget {
           child: SizedBox(
             width: 95.01,
             height: 100,
-            child: AvpImage(image: AppAssets.modernSuccess),
+            child: AvpImage(
+              image: '${AppConstants.baseImage}modern_success.svg',
+            ),
           ),
         ),
         const SizedBox(height: 40),

@@ -4,7 +4,7 @@
 **Contractor:** Avat Vira Pardaz Co.
 **Framework:** Flutter (Dart 3+)
 **Domain:** Request-based banking services (80+ services) with an AI conversational assistant
-**Document version:** 2.0.0
+**Document version:** 2.0.1
 **Status:** Revised draft — ready for final review and development kickoff
 
 ---
@@ -304,12 +304,11 @@ pishkhan_project/
         ├── main_production.dart
         ├── app.dart
         │
-        ├── core/                        # App infrastructure, no UI dependency
+        ├── core/                        # Cross-feature infrastructure; pure mappers under presentation/
         │   ├── di/
         │   ├── network/
         │   │   ├── dio_factory.dart
         │   │   ├── ssl_pinning.dart
-        │   │   ├── token_store.dart          # Interface + mobile/web implementations
         │   │   └── interceptors/
         │   │       ├── correlation_id_interceptor.dart
         │   │       ├── locale_interceptor.dart
@@ -323,7 +322,7 @@ pishkhan_project/
         │   │   ├── security_verdict.dart
         │   │   ├── security_service.dart     # Evaluation and result caching
         │   │   ├── screen_protector.dart
-        │   │   ├── secure_storage.dart
+        │   │   ├── access_token_store.dart   # Current Android secure storage + memory-only Web
         │   │   ├── session_manager.dart
         │   │   └── activity_tracker.dart
         │   ├── validators/
@@ -340,7 +339,11 @@ pishkhan_project/
         │   │   ├── flow_outcome.dart
         │   │   └── service_registry.dart      # serviceId → route mapping
         │   ├── config/
-        │   │   └── remote_config.dart         # Timeout, thresholds, enabled services
+        │   │   ├── constant.dart              # Current image prefix, API base URLs and network timeouts
+        │   │   └── remote_config.dart         # Planned server config: session timeout, thresholds, enabled services
+        │   ├── presentation/
+        │   │   └── mappers/
+        │   │       └── request_error_message_mapper.dart # Pure display-text mapping
         │   ├── push/
         │   │   └── push_service.dart          # Interface + platform implementations
         │   ├── enums/
@@ -362,8 +365,8 @@ pishkhan_project/
             │   │   ├── entities/
             │   │   ├── repositories/
             │   │   └── usecases/        # One file per service use case
-            │   │       ├── block_card.dart
-            │   │       └── issue_card.dart
+            │   │       ├── block_card_usecase.dart
+            │   │       └── issue_card_usecase.dart
             │   ├── data/
             │   │   ├── datasources/
             │   │   ├── models/
@@ -385,6 +388,7 @@ pishkhan_project/
             ├── loans/
             ├── deposits/
             ├── cheque/
+            ├── postal_offices/          # Independent lookup used by multiple cheque flows
             ├── requests/
             ├── assistant/
             └── ...
@@ -396,12 +400,20 @@ Following the granularity principle (Section 6.1):
 
 1. **The top-level folders under `app/lib/features/` are exactly the features listed in Section 6.2.** A service never gets its own top-level folder; it lives inside the feature of its category (for example, card issuance and virtual card services live inside `cards`).
 2. **Entities, repositories, mappers, and DTOs stay at the feature level** and are shared by the services of that feature. The use case and the presentation flow are per service.
-3. **Each service uses one folder name** (`snake_case`, English), identical in `domain/usecases/<service>.dart` and `presentation/<service>/`.
-4. **`presentation/<service>/` holds only the UI layer of that service** (`cubit/`, `screens/`, `widgets/`); its use cases live in the same-named file under `domain/usecases/`, and entities and repositories live at the feature level. A service with no domain logic (for example, a catalog screen) has only the presentation folder.
+3. **Each service uses one base name** (`snake_case`, English): `presentation/<service>/` and `domain/usecases/<service>_usecase.dart`. The UseCase file suffix is mandatory; for example `home_usecase.dart`, never an ambiguous `home.dart` under usecases.
+4. **`presentation/<service>/` holds only the UI layer of that service** (`cubit/`, `screens/`, `widgets/`); its use cases live in the corresponding `_usecase.dart` file under `domain/usecases/`, and entities and repositories live at the feature level. A pure local display with no application/data operation may have only presentation; a catalog fetch requires a UseCase and its Domain contract. Existing cohesive UseCase groups need not be split solely for this naming rule.
 
 ---
 
 ## 7. Layering Pattern (Clean Architecture)
+
+**Owner amendment — contract v1.24:** every Cubit application/data operation
+uses a registered UseCase. The path is Cubit → UseCase → Repository. Cubits never
+import Repository interfaces/implementations, resolve them, retain them or call
+them through a boundary/helper. DI wires repositories into UseCases. Pure local
+form/calculation actions do not require artificial UseCases. Earlier statements
+permitting direct Repository access or skipping a UseCase are superseded.
+
 
 Each module consists of three strictly bounded layers:
 
@@ -484,6 +496,13 @@ IBAN validation (IR + 24 digits, mod-97 check) and national ID validation (10-di
 
 ### 7.4 Sample Use Case
 
+**Owner clarification, 2026-11-01:** UseCase class names end in `UseCase`.
+Their Dart filenames use snake_case and end in `_usecase.dart`.
+Register every used UseCase in GetIt. Cubit resolves it into a final field and
+calls it; Cubit never constructs it or passes a Repository/service to its
+constructor. Constructor dependency wiring belongs in `core/di`. Domain remains
+pure: its constructor receives the repository and never imports GetIt.
+
 ```dart
 class BlockCardUseCase {
   final CardsRepository _repository;
@@ -493,6 +512,18 @@ class BlockCardUseCase {
     return _repository.blockCard(params);
   }
 }
+```
+
+```dart
+// core/di: use the composition root's container for every dependency.
+dependencies.registerLazySingleton<BlockCardUseCase>(
+  () => BlockCardUseCase(dependencies<CardsRepository>()),
+);
+
+// Cubit field, not a constructor parameter:
+final blockCardUseCase = getIt<BlockCardUseCase>();
+// Owning action:
+final result = await blockCardUseCase(params);
 ```
 
 > [!NOTE]
@@ -683,6 +714,12 @@ Evaluation runs at two points: application startup, and every return to `AppLife
 
 ### 9.4 SSL Certificate Pinning
 
+**Temporary owner exception, 2026-10-25:** team review Release builds may send
+requests using ordinary HTTPS certificate validation while approved pins are
+unavailable. The local `security.pinning_not_configured` request blocker is
+removed. No certificate validation bypass is introduced. The pinning design and
+bank-supplied current/backup keys below remain a production integration task.
+
 SHA-256 hash verification of the server's **public key** (not the certificate itself) on all Dio requests. Mobile only; on web this is the browser's responsibility.
 
 **Operational requirements that must accompany the implementation:**
@@ -727,7 +764,9 @@ SHA-256 hash verification of the server's **public key** (not the certificate it
 
 ### 9.7 Secure Storage
 
-* **Mobile:** tokens in Android Keystore (AES-GCM) and iOS Keychain via `flutter_secure_storage`.
+* **Mobile target:** persistent credentials use Android Keystore-backed encryption
+  and iOS Keychain via `flutter_secure_storage`. Section 10.2 distinguishes the
+  target access/refresh split from the current Android single-token amendment.
 * **Web:** no token is written to disk (Section 10.2).
 
 ### 9.8 Obfuscation
@@ -775,7 +814,7 @@ abstract class CardsRemoteDataSource {
 
 ### 10.2 Token Management
 
-`TokenStore` is an interface with two implementations:
+The target access/refresh design uses a `TokenStore` interface with platform implementations:
 
 | | Mobile | Web |
 |---|---|---|
@@ -786,6 +825,34 @@ abstract class CardsRemoteDataSource {
 
 > [!NOTE]
 > The bank's existing web counter also logs the user out on session expiry and requires re-login with OTP. This model matches current behavior and removes the entire secure-storage-on-web problem. Since no cookie is used, CSRF protection is not applicable.
+
+**Owner-approved current Android amendment (2026-10-24):** the available bank
+contract supplies a single final login token, with no refresh token, expiry
+metadata or validation endpoint. `AccessTokenStore` in
+`core/security/access_token_store.dart` owns token storage and persists the final token on
+Android using `flutter_secure_storage: ^11.2.0`, while keeping a memory copy for
+the running session. Only validated check-sms success is saved; the temporary
+check-cif challenge is never persisted. Startup resumes the local session when a
+nonblank saved token is readable. This is explicitly a local resume decision,
+not proof of current server authorization; the owner accepts resume without an
+API validity check until the bank supplies one. No synthetic expiry, refresh,
+validation request or automatic POST replay is introduced.
+
+Web continues to use memory only: a fresh page/app instance requires OTP login.
+The web secure-storage implementation, localStorage, sessionStorage and cookies
+are not used for tokens. Persistent iOS/desktop storage remains unimplemented in
+this task. Android uses the package's default RSA-OAEP/AES-GCM configuration,
+without adding biometric prompts. Its secure preference files are excluded from
+cloud backup and device transfer; cloud Auto Backup is also disabled.
+
+A failed secure write returns a repository Err and does not publish login
+success. Unreadable storage on startup leaves the user at Login. Logout awaits
+token deletion before reporting success; a deletion failure propagates and
+leaves the current session unchanged so it can be retried. Startup still removes
+the obsolete prototype boolean and never uses it as authentication. Server-side
+validation, expiration, revocation/logout and the future access/refresh split
+require a confirmed bank API contract. Section 10.4 is a future target, not a
+currently implemented token flow.
 
 ### 10.3 Interceptor List and Order
 
@@ -807,7 +874,19 @@ Response / error path:
 
 **`ErrorMappingInterceptor`:** no feature should ever see a `DioException`. Enforced by `custom_lint`.
 
-**`LoggingInterceptor`:** full body logging, even in staging, means national IDs and account numbers land in system logs. The list of masked fields is defined and applied centrally.
+**`LoggingInterceptor` baseline:** PII masking applies unless explicitly superseded
+by the owner instruction below.
+
+**Owner-approved API diagnostics:** the shared bank Dio logger prints complete
+outgoing/incoming URLs, headers, bodies and error details without masking or
+length truncation. On 2026-10-25 the owner explicitly extended this to Release
+troubleshooting. Factory registration and callbacks use
+`AppConstants.apiLoggingEnabled`; `API_LOGS` currently defaults to true in all
+modes and may be disabled with `--dart-define=API_LOGS=false`. All API repositories
+use the shared Dio logger. This supersedes the previous Debug-only restriction.
+JSON and plain/Base64 bodies
+are printed in full; multipart fields/file metadata are shown without consuming
+upload streams. Other security controls and logging locations are unchanged.
 
 ### 10.4 Refresh Token Rotation (Mobile Only)
 
@@ -934,6 +1013,50 @@ final class BusinessFailure extends Failure {
 
 ### 11.3 Error Mapping
 
+#### Owner-approved Login amendment
+
+For the existing Login flow, a business rejection returned with HTTP 200 remains
+an unsuccessful operation. Data reads the response status/message; the supplied
+`status: -1, message: WRONG_CAPTCHA` maps to
+`Err(DataFailure('auth.wrong_captcha'))`. Missing/unknown rejection codes use the
+existing generic failure. Do not display raw server text or turn this rejection
+into a DioException. Network/parse exceptions are still converted to Err in Data.
+Repository APIs retain Future<Result<T>>; Cubit uses async/await and a
+Success/Err switch, without catchError.
+
+All request-driven flows keep independent operation statuses and one latest
+`Failure? failure` plus a prepared `String? message` in their plain Freezed State.
+Cubit maps Failure codes to approved Persian text through a pure Presentation
+switch helper, with a generic fallback. The reusable mapper lives in
+`core/presentation/mappers/request_error_message_mapper.dart`; Login retains
+`presentation/login/cubit/auth_error_messages.dart`. Domain/Data contain no display
+text. Ordinary labels and field validation continue to use `S.current`.
+
+Focused listeners compare previous/current operation statuses and display the
+prepared message when that operation enters failure. Repeated errors notify
+through failure → loading → failure without clearing text, effectId,
+navigationId, messageId or a message effect. Failure/message may retain the
+latest recorded failure after loading/success; current outcome is determined by
+that operation's status. Independent concurrent operation statuses are preserved.
+Typed-effect handlers execute independently of retained message presence. There
+is no blanket clearing rule; each clear needs a real consumer/reset reason.
+Reusable typed sheet/dialog/share commands are explicitly consumed before awaiting
+the Flutter operation. Exit intents authorizing PopScope remain until actual exit.
+Unconnected Login guest actions retain their existing unavailable feedback.
+See the mandatory counter-free and project-wide amendments in the
+[UI/Cubit/State contract](ui-cubit-state-agent-rules-en.md).
+
+**Approved notification amendment, 2026-11-01:** request-result feedback and typed
+effects have distinct focused listener responsibilities. Success feedback, when
+required by the flow, uses localized success copy in UI; it never replays retained
+failure text. Inline business feedback retains its actual clearing lifecycle.
+Login and Dashboard now use separate failure/effect listeners and retain error
+snapshots without blanket clears. Other flows keep their legacy handlers until
+their authorized migration updates consumers and Cubit writes together.
+Contract v1.20 Sections 8.4 and 11.3–11.4 provide the target examples.
+
+#### General error mapping
+
 Two central components:
 
 1. **`ErrorMappingInterceptor`** — converts `DioException` into `Failure`.
@@ -976,14 +1099,15 @@ refactors, not a claim that every existing Cubit already complies.
 
 * Each Cubit owns one plain Freezed State with a single `const factory State.initial(...)` and useful `@Default` values. Preserve the current organization: the State file is `part of` the Cubit library, and the Cubit declares `part '<name>_state.dart'` and `part '<name>_cubit.freezed.dart'`.
 * State contains data only. Do not add handwritten getters, calculation methods or a private constructor solely to support them. Generated Freezed accessors, equality and `copyWith` are framework infrastructure, not custom business getters.
+* Every request-driven State retains one latest shared Failure plus a prepared message under Section 11.3; independent operations retain their own statuses. No interaction sequence counters are used.
 * Give each independent async operation its own status field. Use `RequestStatus { initial, loading, success, failure }` from `core/enums/`. A single-operation Cubit may use `status`; multiple operations use meaningful names such as `checkStatus`, `quoteStatus` and `submissionStatus`.
 * UI reads State fields directly. Check `state.submissionStatus == RequestStatus.loading` directly in widget arguments; do not introduce getter aliases or local `loading`, `empty` or `form` variables in builders.
 * Cubit owns flow decisions, input validation coordination, filtering, selection resolution and request construction; reusable business rules belong in Domain. UI sends events, renders State, executes prepared Flutter effects and returns raw modal results to Cubit. State contains data, not behavior.
 * Store derived results needed by UI in State and update them together with their inputs using explicit `emit(state.copyWith(...))` in the action. Pure helpers return values; they never construct or publish State. No State-preparation/publication intermediary, overridden `emit` or separate rules facade may hide these transitions.
-* Cubit constructors accept an initial State and real entry parameters only. A Cubit resolves its registered Repository, service and UseCase dependencies from GetIt in its own fields; dependencies are not passed through Cubit constructors, screen constructors, route arguments or child widgets. Cubit/Bloc are never registered in GetIt. Do not copy the other application's models or imports. See the UI/Cubit/State contract, Section 2.2.
+* Cubit constructors accept an initial State and real entry parameters only. A Cubit resolves registered UseCases from GetIt in its own fields and never imports/resolves/calls a Repository; dependencies are not passed through Cubit constructors, screen constructors, route arguments or child widgets. Cubit/Bloc are never registered in GetIt. Do not copy the other application's models or imports. See the UI/Cubit/State contract, Section 2.2.
 * Keep defaults non-null for known values (`bool`, counters, lists and statuses). Use nullable fields when absence is meaningful. Do not copy nullable defaults mechanically from the reference.
 * Keep controllers, focus nodes and `BuildContext` in UI lifecycle owners. No global mutable feature caches. Preserve UI loading/enablement and server request identity.
-* Async Cubit actions return `Future<void>` through a returned `.then` chain; they do not use `async`/`await`, `try/catch` or `catchError`. `Err` is a value handled by a `switch` inside `.then`, and the Repository/UseCase boundary converts every exception to `Err`. No async action checks `isClosed` (Section 12.4). See the UI/Cubit/State contract, Section 8.
+* Async Cubit actions return `Future<void>` using `async/await`; they do not use `.then` chains, `try/catch` or `catchError`. `Err` is a value handled by a `switch` after `await`, and the Repository/UseCase boundary converts every exception to `Err`. No async action checks `isClosed` (Section 12.4). See the UI/Cubit/State contract, Section 8.
 * Do not log credentials, OTPs, PINs or authentication tokens. Sensitive State types retain disabled generated `toString` output.
 
 ```dart
@@ -999,6 +1123,7 @@ abstract class ChangeCardDepositState with _$ChangeCardDepositState {
     @Default(false) bool termsAccepted,
     @Default(false) bool canSubmit,
     Failure? failure,
+    String? message,
   }) = _ChangeCardDepositState;
 }
 
@@ -1007,14 +1132,13 @@ class ChangeCardDepositCubit extends Cubit<ChangeCardDepositState> {
     ChangeCardDepositState initialState = const ChangeCardDepositState.initial(),
   }) : super(initialState);
 
-  final repository = getIt<CardServicesRepository>();
+  final submitCardDepositChangeUseCase = getIt<SubmitCardDepositChangeUseCase>();
 
   void selectDestination(CardServiceDeposit destination) {
     emit(state.copyWith(
       destination: destination,
       termsAccepted: false,
       canSubmit: false,
-      failure: null,
     ));
   }
 }
@@ -1038,6 +1162,13 @@ in its `part of` file. Provider construction and its explicit initial action
 belong directly in the owning screen/feature-flow widget (Section 12.6), without
 an extra Screen/View wrapper. Complete coding examples belong to the coding
 contract rather than introducing another screen template here.
+
+Independent screen/flow request-result and typed-effect/navigation listeners
+share one `MultiBlocListener`; its rendering child is a `BlocBuilder`, without
+another screen-level Consumer for the same effects. A distinct local section
+may keep Consumer for its rendering and related controller/modal effect. Preserve
+its actual resource ownership and existing predicates; do not move controllers
+or duplicate effects. See coding-contract v1.21 Section 11.6.
 
 ### 12.3 Code Generation Policy
 
@@ -1074,17 +1205,25 @@ Actions resolve dependencies in Cubit-owned fields (Section 12.2) and return
 their async work. They trust the UI interaction contract without duplicate entry guards. There is no BaseCubit in this project (removed 2026-10-18); do not add `safeEmit` or any other wrapper around `emit`.
 
 ```dart
-Future<void> fetchCardServiceCatalog() {
-  emit(state.copyWith(status: RequestStatus.loading, failure: null));
+// Cubit field; registered and wired in core/di.
+final loadCardServiceCatalogUseCase = getIt<LoadCardServiceCatalogUseCase>();
 
-  return LoadCardServiceCatalog(repository)().then((result) {
-    switch (result) {
-      case Err(:final failure):
-        emit(state.copyWith(status: RequestStatus.failure, failure: failure));
-      case Success(:final data):
-        emit(state.copyWith(status: RequestStatus.success, catalog: data));
-    }
-  });
+Future<void> fetchCardServiceCatalog() async {
+  emit(state.copyWith(status: RequestStatus.loading));
+
+  final result = await loadCardServiceCatalogUseCase();
+  switch (result) {
+    case Err(:final failure):
+      emit(
+        state.copyWith(
+          status: RequestStatus.failure,
+          failure: failure,
+          message: getRequestErrorMessage(failure),
+        ),
+      );
+    case Success(:final data):
+      emit(state.copyWith(status: RequestStatus.success, catalog: data));
+  }
 }
 ```
 
@@ -1125,21 +1264,29 @@ abstract class LoanRequestFormState with _$LoanRequestFormState {
 
 * The screen or feature-owned flow widget constructs its Cubit directly in `BlocProvider(create: ...)` and, only if the feature has a real fetch or entry resolution, calls the explicit initial action there. A shared multi-screen flow places this Provider at its actual common feature boundary; child screens reuse it. GoRouter only selects the destination widget and typed inputs, never creates a screen Cubit or wires its data dependencies. The Provider owns disposal; ordinary rebuilds retain the same instance.
 * Constructed directly in `BlocProvider(create: ...)` so each flow entry gets a fresh instance. Cubit/Bloc are never registered in GetIt, with `@injectable`, `@singleton` or any other lifetime.
-* Screens, child widgets and the router must not call `getIt` for data dependencies; the Cubit resolves them in its own fields (Section 12.2).
+* Screens, child widgets and the router must not call `getIt` for data dependencies; the Cubit resolves UseCases in its own fields; Repository access stays behind them (Section 12.2).
 
 ### 12.7 Production API and Dependency Stability
 
 * Public actions model real screen/flow events and operations. Pure calculations
   used only inside Cubit stay private. Tests exercise the production interaction
   path rather than requiring parallel generic setters or extra initialization APIs.
-* Resolve registered dependencies into final Cubit fields. A UseCase constructed
-  from a dependency may be `late final` when needed for initialization order.
+* Resolve registered dependencies into final Cubit fields with no leading
+  underscore. UseCase fields use their full lowerCamelCase class name, including
+  `UseCase`, matching AuthCubit (coding contract v1.23). Every used UseCase
+  has the `UseCase` suffix and its own GetIt registration. Cubit resolves that
+  instance; it does not construct a UseCase from a Repository/service field,
+  including with `late final`. Constructor wiring belongs in `core/di`, while
+  Domain stays independent of GetIt. Every application/data operation requires a UseCase, including flows that
+  previously had none. Cubits must not import, resolve or directly call Repository
+  interfaces or implementations; exception-boundary callbacks do not waive this.
   Runtime dependency replacement needs an actual authorized product requirement;
   tests alone do not justify `changeRepository`, mutable loaders or Repository
   parameters on screens/Cubit constructors.
-* Tests install controlled GetIt registrations before construction and reset them
-  afterward. Replacing a registration does not replace a dependency already held
-  by an existing Cubit. Create a fresh scope when testing a different dependency.
+* Tests install controlled GetIt registrations before resolving UseCases or
+  constructing Cubit and reset them afterward. Replacing a Repository registration
+  does not rewire a resolved lazy-singleton UseCase or an existing Cubit. Create
+  a fresh test scope when testing a different dependency graph.
 * A style refactor preserves the current plain State structure, initial snapshot,
   request identity, typed effect delivery, actual
   validation and flow choices; do not add redundant action-entry checks. Removing an unused API requires updating its consumers and behavior
@@ -1276,9 +1423,9 @@ These are target-convention examples, not a report of completed implementation. 
 **Mandatory rules for agents:**
 
 1. Read localized UI text directly as `S.current.<key>`; do not introduce `context.l10n`, repeated `AppLocalizations.of(context)` calls or local aliases such as `final l10n = ...` in new UI code following this convention.
-2. Keep translations in ARB files, including parameterized messages and plural forms. Use generated methods for arguments rather than assembling translated sentence fragments manually.
+2. Keep translations in ARB files, including parameterized messages and plural forms, except for the approved Persian Presentation failure-message helpers in Section 11.3. Use generated methods for arguments rather than assembling translated sentence fragments manually.
 3. Do not hand-edit generated Dart files or maintain a second generator for the same app messages.
-4. Keep `S.current` in Presentation. Domain and Cubit logic return codes, enums and data; they must not store localized button titles or messages in State.
+4. Keep `S.current` in Presentation. Domain and Cubit logic return codes, enums and data; they must not store localized button titles or messages in State, except for the explicitly approved Login error-message payload and pure Presentation helper in Section 11.3. Domain/Data still produce no display text.
 5. Helpers that map several steps to translated titles return a `String` and read `S.current` directly. They do not accept `BuildContext` solely to retrieve a translation.
 
 ```dart
@@ -1506,7 +1653,7 @@ GoRouter createAppRouter({required RouterSession session}) {
 
 `createAppRouter` creates an instance, not a feature route list. The app owns its session and router and disposes both. The implementation retains `homeBuilder` and `initialLocation` injection for tests. Do not replace this lifecycle with a mutable global router/session singleton.
 
-**Route inputs and dependencies:** typed route argument classes live in `app_router.dart`. The router reads path/query parameters and `state.extra` and connects callbacks; it does not create, resolve or inject Repository/service/UseCase dependencies, which Cubits resolve from GetIt in their own fields. Register the prototype password repository once as a lazy singleton in `core/di` so receipts survive route re-entry; do not instantiate it inside a page builder. URL-only helpers belong to `AppRoutes`, accept simple strings and encode dynamic segments/query values; they must not import feature entities. In-memory `extra` values are not a persistent URL payload and do not survive a browser reload by themselves.
+**Route inputs and dependencies:** typed route argument classes live in `app_router.dart`. The router reads path/query parameters and `state.extra` and connects callbacks; it does not create, resolve or inject data dependencies. Cubits resolve UseCases only; core/di wires repositories into them. Register the prototype password repository once as a lazy singleton in `core/di` so receipts survive route re-entry; do not instantiate it inside a page builder. URL-only helpers belong to `AppRoutes`, accept simple strings and encode dynamic segments/query values; they must not import feature entities. In-memory `extra` values are not a persistent URL payload and do not survive a browser reload by themselves.
 
 **Navigation boundaries:** `ServiceRegistry` and existing navigation adapters dispatch through the central paths and argument contracts. Widgets still perform `context.push`, `context.go`, `context.pop` and open local dialogs/sheets where appropriate. Screen/Cubit business logic and widget composition are not moved into the router. Guards and the post-login destination validator remain separate, with one global redirect entry (Sections 15.1–15.2).
 
@@ -1520,6 +1667,15 @@ GoRouter createAppRouter({required RouterSession session}) {
 2. **Duplicate detection test:** collect routes from the actual `GoRouter` configuration and assert uniqueness and feature prefixes. Do not maintain a second production route list just for tests. Authentication, validated post-login return, typed inputs, Back and unavailable-route behavior must also remain covered.
 
 ### 15.4 Flow Lifecycle
+
+**Owner-approved project-wide policy:** system and in-screen Back are blocked by
+UI while any request in the owning flow is loading. Do not repeat this gate inside
+Cubit actions. After loading, retain each flow's exit/confirmation behavior.
+Login's OTP resend button uses isLoading for pending verification and only
+canResendOtp in onPressed. AuthState retains the LoginCaptcha model as the single
+source of its image/SessionId pair, without a separate sessionId field. The Cubit
+reads the model's SessionId when constructing the OTP request; refresh clears or
+replaces the pair together. These changes add no new endpoint or banking policy.
 
 When a future service needs URL-addressable steps, declare its step paths in
 `AppRoutes` and place this `ShellRoute` directly in the central router list.
@@ -1850,6 +2006,54 @@ The complete list is provided in the separate document "Bank Requirements and De
 
 ## 21. Change Log
 
+**2026-11-02 migration status:** owner-approved phases 1–9 cover all 31 current
+Cubits. The [phase-10 review](cubit-phase-10-review.md) records request ownership,
+DI/State/listener coverage, documentation corrections and actual scoped checks.
+The UI skill and main-app integration guide now summarize contract v1.23;
+the [UI/Cubit/State contract](ui-cubit-state-agent-rules-en.md) remains authoritative.
+Historical adoption notes below describe their date, not today's remaining work.
+No new architecture or coding rule is introduced. Full-application tests still
+require an explicit owner request.
+
+**2026-11-01 status-driven notification amendment:** each operation's terminal
+status transition triggers request feedback; failure/message may retain the
+latest error. Effects execute independently, and failure/message clearing needs
+a real consumer/reset reason. Success copy stays in UI. Documentation/examples
+were updated first; Login/Dashboard have now adopted the listener/Cubit changes,
+while remaining flows migrate in their authorized phases. This supersedes the
+earlier blanket loading/command clearing requirements and changes no other State
+reset or grouping rule.
+
+**2026-11-01 UseCase filename clarification:** source filenames must end in
+`_usecase.dart`. Login and Dashboard use `login_usecase.dart` and
+`home_usecase.dart`; imports and documents are updated together. No extra layer
+or automatic one-class-per-file split is required.
+
+**2026-11-01 independent-event clarification:** repeated State field names alone
+do not make distinct events one operation. Keep explicit emits for independent
+events and extract shared pure calculations/predicates. Genuinely shared request
+lifecycles retain one owner with delegation; State-publication helpers remain
+prohibited. See coding-contract v1.18.
+
+**2026-11-01 owner clarification:** UseCase class names end in `UseCase` and
+every used UseCase is registered in GetIt. Cubit resolves final UseCase fields
+and invokes them instead of constructing UseCases from Repository fields. DI
+wires constructor dependencies; Domain has no GetIt dependency. This supersedes
+the earlier Section 12.7 permission for Cubit-side `late final` UseCase
+construction. Login is aligned; other flows migrate in their authorized phases.
+
+**2026-10-25 owner amendment:** project-wide shared latest Failure/prepared message,
+independent operation-status listeners, no effect/navigation/message sequence IDs,
+Back blocked during all pending requests and loading-capable buttons using
+`isLoading`. Reusable interactions are consumed before awaiting UI operations.
+Postal lookup is an independent `features/postal_offices` feature shared by cheque
+clearance/cancellation; Cubits never live under `shared`. Home-only service-picker
+logic belongs to HomeCubit. App images use `AppConstants.baseImage` from
+`core/config/constant.dart` (prefix `assets/images/`), without asset alias registries.
+The common pure message mapper belongs to `core/presentation/mappers`.
+HTTP-200 business rejections remain Data-owned `Err` values; no endpoint, token
+policy or dependency was added by this migration.
+
 **2026-10-18 owner simplicity amendment:** `BaseCubit` (`core/cubit/base_cubit.dart`) is removed from the directory tree and from the design; `isClosed` is prohibited everywhere (Sections 12.2, 12.4, 12.7, 16.3) — the Cubit is released with its screen; validation runs once per field and use cases no longer repeat form checks (Sections 7.3, 7.4, 12.4); initial actions exist only for real fetches; the Section 12.2 snippet no longer references an undefined `cubit`. See coding contract v1.9.
 
 **2026-10-17 UI-owned interaction gating:** The owner superseded the earlier
@@ -1866,7 +2070,7 @@ screen/feature-owned Providers, real production action APIs and stable dependenc
 fields. Section 16.3 distinguishes async disposal tests from artificial synchronous
 post-close calls. Application Dart code is unchanged by this documentation update.
 
-**2026-10-17 alignment with the UI/Cubit/State contract (v1.7):** Sections 3, 6.3, 12.2, 12.4, 12.5, 12.6 and 15.3 now match the contract. Cubit/Bloc are never registered in GetIt and Cubits resolve Repository/service/UseCase dependencies from their own fields; DI registration is manual `get_it` in `core/di` (the `injectable` auto-registration entry is removed); the router neither creates nor injects data dependencies; Cubit async actions use a returned `.then` chain with one `isClosed` guard per async completion and none in synchronous methods; the login national-ID and mobile fields validate from the first digit. Section 10.3 (Idempotency-Key lifetime) is unchanged by this update.
+**2026-10-17 historical alignment with contract v1.7 (async/disposal guidance superseded):** this entry records the former returned `.then` / `isClosed` pattern, which is prohibited by current Sections 12.2–12.4 and contract v1.23. The retained boundaries are Cubit-owned dependency lookup, manual GetIt registration of data/application dependencies only, destination-only routing and first-digit login validation. Read the current sections for implementation; this historical note is not a coding example. Section 10.3 (Idempotency-Key lifetime) was unchanged by that update.
 
 **2026-10-15 routing convention update:** Section 15.3 now specifies the owner-approved centralized structure: a single `AppRoutes` class and all `GoRoute` definitions directly in `core/router/app_router.dart`. Feature route factories and files are removed from the application. Existing URLs, global redirect, post-login return validation, typed route inputs and router-scoped mock receipts are preserved. Sections 6.3–6.4 and the flow example are aligned with this decision. This supersedes the distributed routing design recorded in the original version history below.
 
@@ -1881,5 +2085,5 @@ post-close calls. Application Dart code is unchanged by this documentation updat
 
 ---
 
-**End of document — version 2.0.0**
+**End of document — version 2.0.1**
 *Section 19 will be completed in a subsequent revision.*

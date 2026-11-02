@@ -1,8 +1,7 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
-import 'password_sheets.dart';
 import 'password_styles.dart';
 
 class PasswordServiceSelect<T> extends StatelessWidget {
@@ -13,13 +12,12 @@ class PasswordServiceSelect<T> extends StatelessWidget {
     required this.value,
     required this.options,
     required this.change,
-    this.operationSelection = false,
   });
-  final String title, hint;
+  final String title;
+  final String hint;
   final T? value;
   final List<AppSelectOption<T>> options;
   final ValueChanged<T> change;
-  final bool operationSelection;
   @override
   Widget build(BuildContext context) {
     return AppSelect<T>(
@@ -45,19 +43,10 @@ class PasswordServiceSelect<T> extends StatelessWidget {
         dimension: 20,
         child: AvpImage(
           image: value == null
-              ? AppAssets.issuanceSelectEmpty
-              : AppAssets.cardFeaturesChevron,
+              ? '${AppConstants.baseImage}issuance_select_empty.svg'
+              : '${AppConstants.baseImage}card_features_chevron.svg',
           fit: BoxFit.contain,
         ),
-      ),
-      menuBuilder: (context, options, selected) => showPasswordOptions(
-        context,
-        title,
-        options,
-        selected,
-        scrimAsset: operationSelection
-            ? AppAssets.passwordOperationScrim
-            : null,
       ),
     );
   }

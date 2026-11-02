@@ -21,8 +21,21 @@ remain controlling.
 Core boundaries that must remain visible during implementation:
 
 - GetIt registers actual data/application dependencies, never Cubit/Bloc.
-  Cubits resolve required dependencies in their own fields; UI/router and Cubit
+  Cubits resolve required UseCases in their own fields; UI/router and Cubit
   construction do not forward Repository/service/UseCase arguments.
+  UseCase class names end in `UseCase`; their snake_case Dart filenames end in
+  `_usecase.dart` (for example `home_usecase.dart`). Register each used UseCase in GetIt;
+  Cubit resolves it into a final field and invokes that instance. Cubit dependency
+  fields have no leading underscore; a UseCase field uses its complete class
+  name in lowerCamelCase including `UseCase`, as in AuthCubit. Cubit must not
+  construct a UseCase or pass a Repository/service into its constructor. Wire
+  UseCase constructor dependencies in `core/di`; keep Domain free of GetIt.
+- Cubit application/data access always follows Cubit → UseCase → Repository.
+  Cubits never import Repository interfaces/implementations, resolve them from
+  GetIt, retain them or invoke them through callbacks/helpers. Add an operation
+  UseCase when one is missing. DI wires repositories into Domain UseCases; pure
+  local form/calculation actions need no artificial UseCase. This supersedes
+  the former exception for flows without UseCases.
 - Screen/feature-flow widgets construct Cubit directly in BlocProvider.create
   and call the explicit initial action there. GoRouter only selects destinations.
   No creation helper, private Screen/View wrapper or constructor emit/load.
@@ -33,6 +46,14 @@ Core boundaries that must remain visible during implementation:
   callbacks, listeners, lifecycle hooks or router adapters.
 - Use explicit actions and emit(state.copyWith(...)); no generic field dispatch
   or State preparation/publication intermediaries.
+  Shared request operations have one owner with delegation. Repeated fields
+  alone do not make independent events one operation; keep their explicit emits
+  and share pure calculations/predicates (owner clarification, 2026-11-01).
+- Request feedback follows per-operation terminal status transitions. Each failure
+  publishes its status, failure and prepared message together; retained error text
+  is not an event. Typed effects execute independently of message presence. Do not
+  routinely clear failure/message on loading, success or commands; preserve actual
+  consumer/reset needs. Migrate listeners before removing their legacy clears.
 - Builder renders; Listener executes prepared Flutter effects; Consumer is for
   a section needing both. Multi-case/substantial listener bodies use named UI
   methods with focused listenWhen. No requests or analytics in build.
@@ -52,3 +73,12 @@ authorized work without implementing a forbidden workaround.
 
 Apply these requirements within the authorized task. They do not authorize
 unrelated rewrites, dependency installation or design-system changes.
+
+## Test Execution Scope
+
+Owner instruction, 2026-11-01: run tests only for changed flows and directly
+related consumers/dependencies. Select relevant regression files when a shared
+change affects them. Do not run an unscoped `flutter test` or the complete
+application suite unless the owner explicitly requests it. Historical full-suite
+results are not permission to repeat that run. Report the actual scoped command
+and result; keep required code/style reviews and relevant analysis.

@@ -20,7 +20,8 @@ including the filled subject field whose design omits the chevron.
   formatting. These values are not client-editable request amounts.
 - Changing any selection clears terms acceptance. All three selections and
   fresh consent are required before submission. Loading disables controls and
-  the button uses the existing loading state. Back remains available.
+  the button uses the existing loading state. Both Back paths stay blocked
+  while catalog/submission requests are pending.
 - Catalog errors expose Retry. Submission errors preserve the form and request
   identity; retry sends the same payload/key. Payload edits create a fresh key.
   Back/assistant requests confirmation after edits. Terms currently display the
@@ -29,7 +30,8 @@ including the filled subject field whose design omits the chevron.
 ## Ownership and reuse
 
 `ProxyDepositScreen` directly creates its Cubit inside `BlocProvider.create`
-and invokes the real catalog fetch. Cubit resolves the repository through GetIt;
+and invokes the real catalog fetch. Cubit resolves `FetchProxyDepositCatalogUseCase`
+and `SubmitProxyDepositUseCase` through final GetIt fields; DI supplies their repository;
 presentation classes are not registered. State retains the plain Freezed
 `.initial` / `part of` structure and separate catalog/submission statuses.
 Dependent selection, eligibility filtering, conversion, request construction and
@@ -71,3 +73,16 @@ The form is also checked at 320px with larger text in fa/en/ar. Existing
 restriction-screen, router and DI tests cover the shared-footer integration.
 Set `CAPTURE_CERTIFICATE_PREVIEWS=1` to save previews under
 `build/previews/certificates/proxy-deposit-*.png`.
+
+## Phase 6 notification and style adoption
+
+Under [contract v1.22](../ui-cubit-state-agent-rules-en.md), request errors notify
+on each operation's entering-failure transition. Every failure publishes status,
+Failure and its prepared message together. Last failure/message remain through
+loading, success, input and command changes; message presence is not an event.
+Independent failure, typed-effect and receipt subscriptions share
+`MultiBlocListener`; rendering uses `BlocBuilder`. Effects never inspect a retained
+message before executing. Success uses the existing receipt, without replaying
+old failure text. Retry/empty sections, actual validation and loading gates stay.
+See [phase 6 review](phase-6-review.md) for operation ownership, preserved resets,
+UseCase wiring, integration limits and current scoped checks.

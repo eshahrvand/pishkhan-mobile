@@ -1,3 +1,6 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
+import 'package:pishkhan_mobile/core/enums/request_status.dart';
+
 import '../widgets/card_features_content.dart';
 import '../widgets/card_features_filters.dart';
 
@@ -7,7 +10,6 @@ import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
 
@@ -29,12 +31,18 @@ class CardListScreen extends StatelessWidget {
   final ValueChanged<CardFeatureRequest>? onActionRequested;
   final VoidCallback? onAssistantPressed;
 
+  void _showRequestFailure(BuildContext context, CardFeaturesState state) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(state.message!)));
+  }
+
   Future<void> _handleEffect(
     BuildContext context,
     CardFeaturesState state,
   ) async {
     switch (state.effect) {
       case CardFilterRequested():
+        context.read<CardFeaturesCubit>().consumeCardFeaturesInteraction();
         final applied = await showCardFilter(
           context,
           context.read<CardFeaturesCubit>(),
@@ -43,12 +51,15 @@ class CardListScreen extends StatelessWidget {
           context.read<CardFeaturesCubit>().applyFilterSheetResult(applied);
         }
       case CardActionsRequested(:final card):
+        context.read<CardFeaturesCubit>().consumeCardFeaturesInteraction();
         final action = await showCardActions(context, card);
         if (!context.mounted) return;
         context.read<CardFeaturesCubit>().selectCardAction(action, card: card);
       case CardDetailsRequested(:final card):
+        context.read<CardFeaturesCubit>().consumeCardFeaturesInteraction();
         await showCardDetails(context, card);
       case CardServiceRequested(:final request, :final serviceId):
+        context.read<CardFeaturesCubit>().consumeCardFeaturesInteraction();
         if (onActionRequested != null) {
           onActionRequested!(request);
         } else if (serviceId != null) {
@@ -86,98 +97,115 @@ class CardListScreen extends StatelessWidget {
       },
       child: Directionality(
         textDirection: TextDirection.rtl,
-        child: BlocConsumer<CardFeaturesCubit, CardFeaturesState>(
-          listenWhen: (previous, current) =>
-              previous.effectId != current.effectId &&
-              current.effect is! CardCategoryRevealRequested,
-          listener: _handleEffect,
-          buildWhen: (previous, current) =>
-              previous.footerAction != current.footerAction,
-          builder: (context, state) {
-            return Scaffold(
-              backgroundColor: context.colors.surfaceSubtle,
-              body: SafeArea(
-                child: Column(
-                  children: [
-                    AppTopBar(
-                      title: S.current.dashboardCardsList,
-                      showLeadingActions: false,
-                      trailingIcon: cardFeatureIcon(
-                        AppAssets.cardFeaturesBack,
-                        size: 24,
-                      ),
-                      trailingTooltip: S.current.backLabel,
-                      onTrailingPressed: () => NavigationActions.back(context),
-                    ),
-                    Expanded(
-                      // The assistant and footer overlay the scroll viewport; a Column
-                      // would change its height and the scroll/empty-state geometry.
-                      child: Stack(
-                        children: [
-                          Column(
+        child: MultiBlocListener(
+          listeners: [
+            BlocListener<CardFeaturesCubit, CardFeaturesState>(
+              listenWhen: (previous, current) =>
+                  previous.cardsStatus != current.cardsStatus &&
+                  current.cardsStatus == RequestStatus.failure,
+              listener: _showRequestFailure,
+            ),
+            BlocListener<CardFeaturesCubit, CardFeaturesState>(
+              listenWhen: (previous, current) =>
+                  previous.effect != current.effect &&
+                  current.effect != null &&
+                  current.effect is! CardCategoryRevealRequested,
+              listener: _handleEffect,
+            ),
+          ],
+          child: BlocBuilder<CardFeaturesCubit, CardFeaturesState>(
+            builder: (context, state) {
+              return PopScope(
+                canPop: state.cardsStatus != RequestStatus.loading,
+                child: Scaffold(
+                  backgroundColor: context.colors.surfaceSubtle,
+                  body: SafeArea(
+                    child: Column(
+                      children: [
+                        AppTopBar(
+                          title: S.current.dashboardCardsList,
+                          showLeadingActions: false,
+                          trailingIcon: cardFeatureIcon(
+                            '${AppConstants.baseImage}card_features_back.svg',
+                            size: 24,
+                          ),
+                          trailingTooltip: S.current.backLabel,
+                          onTrailingPressed:
+                              (state.cardsStatus != RequestStatus.loading)
+                              ? () => NavigationActions.back(context)
+                              : null,
+                        ),
+                        Expanded(
+                          // The assistant and footer overlay the scroll viewport; a Column
+                          // would change its height and the scroll/empty-state geometry.
+                          child: Stack(
                             children: [
-                              const CardFeaturesFilters(),
-                              Expanded(
-                                child: CardFeaturesContent(
-                                  hasFooter: state.footerAction != null,
-                                  onMore: (card) => context
-                                      .read<CardFeaturesCubit>()
-                                      .requestCardActions(card),
+                              Column(
+                                children: [
+                                  const CardFeaturesFilters(),
+                                  Expanded(
+                                    child: CardFeaturesContent(
+                                      hasFooter: state.footerAction != null,
+                                      onMore: (card) => context
+                                          .read<CardFeaturesCubit>()
+                                          .requestCardActions(card),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Positioned(
+                                left: 16,
+                                bottom: state.footerAction == null ? 16 : 76,
+                                child: AppAssistantButton(
+                                  onPressed:
+                                      onAssistantPressed ??
+                                      () => NavigationActions.back(context),
                                 ),
                               ),
+                              if (state.footerAction != null)
+                                Positioned(
+                                  left: 0,
+                                  right: 0,
+                                  bottom: 0,
+                                  child: ColoredBox(
+                                    color: context.colors.surface,
+                                    child: Padding(
+                                      padding: const EdgeInsets.fromLTRB(
+                                        16,
+                                        0,
+                                        16,
+                                        16,
+                                      ),
+                                      child: AppButton(
+                                        size: AppButtonSize.lg,
+                                        label: actionLabel(state.footerAction!),
+                                        labelStyle: AppTypography.titleMedium
+                                            .copyWith(
+                                              height: 24 / 16,
+                                              letterSpacing: 0,
+                                            ),
+                                        contentGap: 10,
+                                        constrainLabel: true,
+                                        leadingIcon: cardFeatureIcon(
+                                          actionAsset(state.footerAction!),
+                                        ),
+                                        onPressed: context
+                                            .read<CardFeaturesCubit>()
+                                            .requestFooterAction,
+                                      ),
+                                    ),
+                                  ),
+                                ),
                             ],
                           ),
-                          Positioned(
-                            left: 16,
-                            bottom: state.footerAction == null ? 16 : 76,
-                            child: AppAssistantButton(
-                              onPressed:
-                                  onAssistantPressed ??
-                                  () => NavigationActions.back(context),
-                            ),
-                          ),
-                          if (state.footerAction != null)
-                            Positioned(
-                              left: 0,
-                              right: 0,
-                              bottom: 0,
-                              child: ColoredBox(
-                                color: context.colors.surface,
-                                child: Padding(
-                                  padding: const EdgeInsets.fromLTRB(
-                                    16,
-                                    0,
-                                    16,
-                                    16,
-                                  ),
-                                  child: AppButton(
-                                    size: AppButtonSize.lg,
-                                    label: actionLabel(state.footerAction!),
-                                    labelStyle: AppTypography.titleMedium
-                                        .copyWith(
-                                          height: 24 / 16,
-                                          letterSpacing: 0,
-                                        ),
-                                    contentGap: 10,
-                                    constrainLabel: true,
-                                    leadingIcon: cardFeatureIcon(
-                                      actionAsset(state.footerAction!),
-                                    ),
-                                    onPressed: context
-                                        .read<CardFeaturesCubit>()
-                                        .requestFooterAction,
-                                  ),
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
     );

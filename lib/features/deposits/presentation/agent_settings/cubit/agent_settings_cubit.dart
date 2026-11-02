@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/presentation/mappers/request_error_message_mapper.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -7,8 +8,7 @@ import 'package:pishkhan_mobile/core/result/failure.dart';
 import 'package:pishkhan_mobile/core/result/result.dart';
 
 import '../../../domain/entities/deposit_agent.dart';
-import '../../../domain/repositories/agent_settings_repository.dart';
-import '../../../domain/usecases/agent_settings.dart';
+import '../../../domain/usecases/agent_settings_usecase.dart';
 import 'agent_settings_effect.dart';
 
 export '../../../domain/entities/deposit_agent.dart';
@@ -24,60 +24,45 @@ class AgentSettingsCubit extends Cubit<AgentSettingsState> {
   }) : super(initialState);
 
   final String? initialDepositNumber;
-  final _repository = getIt<AgentSettingsRepository>();
-  late final _fetchAgents = FetchAgents(_repository);
+  final fetchAgentsUseCase = getIt<FetchAgentsUseCase>();
 
-  Future<void> fetchAgents() {
+  Future<void> fetchAgents() async {
     final resolveEntry = state.depositNumbers.isEmpty;
-    emit(
-      state.copyWith(agentsStatus: RequestStatus.loading, agentsFailure: null),
-    );
-    return _fetchAgents().then((result) {
-      switch (result) {
-        case Err(:final failure):
-          emit(
-            state.copyWith(
-              agentsStatus: RequestStatus.failure,
-              agentsFailure: failure,
+    emit(state.copyWith(agentsStatus: RequestStatus.loading));
+    final result = await fetchAgentsUseCase();
+    switch (result) {
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            agentsStatus: RequestStatus.failure,
+            failure: failure,
+            message: getRequestErrorMessage(failure),
+          ),
+        );
+      case Success(:final data):
+        final deposits = _depositNumbers(data);
+        final entryDeposit = resolveEntry
+            ? _resolveEntryDeposit(deposits)
+            : null;
+        final depositFilter = entryDeposit == null
+            ? state.depositFilter
+            : {entryDeposit};
+        emit(
+          state.copyWith(
+            agentsStatus: RequestStatus.success,
+            agents: data,
+            depositNumbers: deposits,
+            depositFilter: depositFilter,
+            visibleAgents: _filterAgents(
+              data,
+              state.tab,
+              depositFilter,
+              state.kindFilter,
+              state.statusFilter,
             ),
-          );
-        case Success(:final data):
-          final deposits =
-              data.map((record) => record.depositNumber).toSet().toList()
-                ..sort();
-          final requestedNumber = DigitNormalizer.normalize(
-            initialDepositNumber ?? '',
-          ).replaceAll(RegExp(r'[^0-9]'), '');
-          final entryDeposit = resolveEntry
-              ? deposits
-                    .where(
-                      (deposit) =>
-                          DigitNormalizer.normalize(deposit)
-                              .replaceAll(RegExp(r'[^0-9]'), '') ==
-                          requestedNumber,
-                    )
-                    .firstOrNull
-              : null;
-          final depositFilter = entryDeposit == null
-              ? state.depositFilter
-              : {entryDeposit};
-          emit(
-            state.copyWith(
-              agentsStatus: RequestStatus.success,
-              agents: data,
-              depositNumbers: deposits,
-              depositFilter: depositFilter,
-              visibleAgents: _filterAgents(
-                data,
-                state.tab,
-                depositFilter,
-                state.kindFilter,
-                state.statusFilter,
-              ),
-            ),
-          );
-      }
-    });
+          ),
+        );
+    }
   }
 
   void selectTab(AgentTab tab) {
@@ -116,7 +101,6 @@ class AgentSettingsCubit extends Cubit<AgentSettingsState> {
           draftDeposits: state.depositNumbers.toSet(),
           isEveryDepositSelected: true,
           effect: const AgentDepositFilterRequested(),
-          effectId: state.effectId + 1,
         ),
       );
     }
@@ -142,7 +126,6 @@ class AgentSettingsCubit extends Cubit<AgentSettingsState> {
           draftKinds: AgentKind.values.toSet(),
           isEveryKindSelected: true,
           effect: const AgentKindFilterRequested(),
-          effectId: state.effectId + 1,
         ),
       );
     }
@@ -168,7 +151,6 @@ class AgentSettingsCubit extends Cubit<AgentSettingsState> {
           draftStatuses: AgentStatus.values.toSet(),
           isEveryStatusSelected: true,
           effect: const AgentStatusFilterRequested(),
-          effectId: state.effectId + 1,
         ),
       );
     }
@@ -324,12 +306,7 @@ class AgentSettingsCubit extends Cubit<AgentSettingsState> {
   }
 
   void requestAgentActions(DepositAgent agent) {
-    emit(
-      state.copyWith(
-        effect: AgentActionsRequested(agent),
-        effectId: state.effectId + 1,
-      ),
-    );
+    emit(state.copyWith(effect: AgentActionsRequested(agent)));
   }
 
   void selectAgentAction(DepositAgent agent, AgentAction? action) {
@@ -344,20 +321,12 @@ class AgentSettingsCubit extends Cubit<AgentSettingsState> {
   }
 
   void requestCancellation() {
-    emit(
-      state.copyWith(
-        effect: const AgentUnavailableRequested(),
-        effectId: state.effectId + 1,
-      ),
-    );
+    emit(state.copyWith(effect: const AgentUnavailableRequested()));
   }
 
   void requestIntroduction() {
     emit(
-      state.copyWith(
-        effect: AgentIntroductionRequested(initialDepositNumber),
-        effectId: state.effectId + 1,
-      ),
+      state.copyWith(effect: AgentIntroductionRequested(initialDepositNumber)),
     );
   }
 
@@ -365,23 +334,28 @@ class AgentSettingsCubit extends Cubit<AgentSettingsState> {
     if (state.details != null) {
       emit(state.copyWith(details: null));
     } else {
-      emit(
-        state.copyWith(
-          effect: const AgentBackRequested(),
-          effectId: state.effectId + 1,
-        ),
-      );
+      emit(state.copyWith(effect: const AgentBackRequested()));
     }
   }
 
   void requestAssistant() {
-    emit(
-      state.copyWith(
-        effect: const AgentAssistantRequested(),
-        effectId: state.effectId + 1,
-      ),
-    );
+    emit(state.copyWith(effect: const AgentAssistantRequested()));
   }
+
+  List<String> _depositNumbers(List<DepositAgent> agents) {
+    return agents.map((record) => record.depositNumber).toSet().toList()
+      ..sort();
+  }
+
+  String? _resolveEntryDeposit(List<String> deposits) {
+    final number = _normalizeDepositNumber(initialDepositNumber ?? '');
+    return deposits
+        .where((deposit) => _normalizeDepositNumber(deposit) == number)
+        .firstOrNull;
+  }
+
+  String _normalizeDepositNumber(String number) =>
+      DigitNormalizer.normalize(number).replaceAll(RegExp(r'[^0-9]'), '');
 
   List<DepositAgent> _filterAgents(
     List<DepositAgent> agents,
@@ -399,5 +373,10 @@ class AgentSettingsCubit extends Cubit<AgentSettingsState> {
               (statuses == null || statuses.contains(record.status)),
         )
         .toList();
+  }
+
+  /// UI has accepted the pending interaction; data and request statuses stay intact.
+  void consumeAgentSettingsInteraction() {
+    emit(state.copyWith(effect: null));
   }
 }

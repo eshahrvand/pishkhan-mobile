@@ -1,9 +1,10 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
+
 import 'app_deposit_card_data_row.dart';
 import 'app_deposit_card_plain_row.dart';
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 enum AppDepositCardSize { single, multi }
 
@@ -68,7 +69,8 @@ class AppDepositCard extends StatelessWidget {
                   child:
                       logo ??
                       AvpImage(
-                        image: AppAssets.depositCardResalatLogo,
+                        image:
+                            '${AppConstants.baseImage}deposit_card_resalat_logo.svg',
                         fit: BoxFit.contain,
                       ),
                 ),

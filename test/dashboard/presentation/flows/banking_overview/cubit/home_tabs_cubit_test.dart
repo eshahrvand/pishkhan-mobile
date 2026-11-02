@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
+
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/dashboard_drawer_group.dart';
 
 import '../../../../../support/registered_dependency.dart';
@@ -36,19 +38,19 @@ snapshot(HomeState state, String tab) => switch (tab) {
     status: state.cardsStatus,
     items: state.visibleCards,
     selectedId: state.selectedCard?.id,
-    failure: state.cardsFailure,
+    failure: state.failure,
   ),
   'deposits' => (
     status: state.depositsStatus,
     items: state.visibleDeposits,
     selectedId: state.selectedDeposit?.id,
-    failure: state.depositsFailure,
+    failure: state.failure,
   ),
   _ => (
     status: state.loansStatus,
     items: state.visibleLoans,
     selectedId: state.selectedLoan?.id,
-    failure: state.loansFailure,
+    failure: state.failure,
   ),
 };
 
@@ -81,6 +83,9 @@ void selectItem(HomeCubit cubit, String tab, int index) {
 }
 
 void main() {
+  setUp(configureDependencies);
+  tearDown(getIt.reset);
+
   test('drawer expansion, search normalization and selection preserve flow ordering', () async {
     final cubit = withRegisteredDependency<DashboardRepositories, HomeCubit>(
       defaultDashboardTestRepositories,
@@ -111,9 +116,9 @@ void main() {
     expect(cubit.state.drawerGroups, isEmpty);
     cubit.updateDrawerSearchQuery('');
     expect(cubit.state.drawerGroups.length, 10);
-    final effectId = cubit.state.effectId;
+    final pendingEffect = cubit.state.effect;
     cubit.selectDrawerService(DashboardService.issue);
-    expect(cubit.state.effectId, effectId);
+    expect(cubit.state.effect, pendingEffect);
     cubit.applyDrawerSelection(cubit.state.drawerSelection);
     expect(
       (cubit.state.effect as HomeServiceRequested).serviceId,
@@ -121,9 +126,9 @@ void main() {
     );
     cubit.requestMenu();
     expect(cubit.state.drawerSelection, isNull);
-    final menuEffectId = cubit.state.effectId;
+    final pendingMenuEffect = cubit.state.effect;
     cubit.applyDrawerSelection(null);
-    expect(cubit.state.effectId, menuEffectId);
+    expect(cubit.state.effect, pendingMenuEffect);
     cubit.selectTab(AppPrimaryTab.loans);
     cubit.requestMenu();
     cubit.selectDrawerSection(DashboardDrawerSection.home);
@@ -199,7 +204,10 @@ void main() {
         }
         await loadTab(cubit, tab);
         expect(snapshot(cubit.state, tab).items, hasLength(1));
-        expect(snapshot(cubit.state, tab).failure, isNull);
+        expect(
+          snapshot(cubit.state, tab).failure,
+          const DataFailure('offline'),
+        );
         expect(cubit.state.homeStatus, RequestStatus.initial);
       },
     );
@@ -230,7 +238,7 @@ void main() {
         ),
       );
       await Future<void>.delayed(Duration.zero);
-      cubit.beginFavoritesEditing();
+      cubit.openFavoritesEditing();
       cubit.addFavorite(DashboardService.cardDeposit);
       cubit.selectTab(AppPrimaryTab.deposits);
       loans.complete(const Success([DashboardMockData.singleLoan]));
@@ -238,7 +246,7 @@ void main() {
       deposits.complete(const Success([DashboardMockData.singleDeposit]));
       await pending;
       expect(cubit.state.cardsStatus, RequestStatus.failure);
-      expect(cubit.state.cardsFailure!.code, 'offline');
+      expect(cubit.state.failure!.code, 'offline');
       expect(cubit.state.homeStatus, RequestStatus.success);
       expect(cubit.state.depositsStatus, RequestStatus.success);
       expect(cubit.state.loansStatus, RequestStatus.success);
@@ -322,9 +330,11 @@ void main() {
       addTearDown(cubit.close);
       await cubit.fetchDashboard();
       cubit.requestCardAction(CardAction.block);
-      final id = cubit.state.effectId;
+      final effectBeforeRepeat = cubit.state.effect;
+      cubit.consumeHomeInteraction();
+      expect(cubit.state.effect, isNull);
       cubit.requestCardAction(CardAction.block);
-      expect(cubit.state.effectId, id + 1);
+      expect(cubit.state.effect.runtimeType, effectBeforeRepeat.runtimeType);
       cubit.requestCardNumberCopy(cubit.state.selectedCard!);
       expect(
         cubit.state.effect,
@@ -374,10 +384,10 @@ void main() {
         BankCard(id: 'duplicate'),
       ]);
       await cubit.fetchCards();
-      expect(cubit.state.cardsFailure!.code, 'dashboard.items.invalid');
+      expect(cubit.state.failure!.code, 'dashboard.items.invalid');
       repository.throwOnCards = true;
       await cubit.fetchCards();
-      expect(cubit.state.cardsFailure!.code, 'unexpected');
+      expect(cubit.state.failure!.code, 'unexpected');
     },
   );
 }

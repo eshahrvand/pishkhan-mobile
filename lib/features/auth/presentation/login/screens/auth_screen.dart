@@ -1,4 +1,8 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
+
 import '../widgets/auth_header.dart';
+
+import 'package:pishkhan_mobile/core/enums/request_status.dart';
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +12,6 @@ import 'package:pishkhan_mobile/features/auth/presentation/login/cubit/auth_cubi
 import 'package:pishkhan_mobile/features/auth/presentation/login/widgets/auth_identity_form.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/login/widgets/auth_otp_form.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/login/widgets/auth_services_sheet.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/shared/auth_assets.dart';
 
 class AuthScreen extends StatelessWidget {
   const AuthScreen({
@@ -22,20 +25,32 @@ class AuthScreen extends StatelessWidget {
   final VoidCallback? onAuthenticated;
   final ValueChanged<String>? onGuestServiceRequested;
 
+  void _showRequestFailure(BuildContext context, AuthState state) {
+    // Guest change-phone keeps its existing inline-only failure outcome.
+    if (state.message != null) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(state.message!)));
+    }
+  }
+
   Future<void> _handleEffect(BuildContext context, AuthState state) async {
     switch (state.effect) {
       case AuthServicesRequested():
+        context.read<AuthCubit>().consumeAuthInteraction();
         final id = await showAuthServicesSheet(context);
         if (context.mounted) {
           context.read<AuthCubit>().selectGuestService(id);
         }
       case AuthGuestServiceRequested(:final id):
+        context.read<AuthCubit>().consumeAuthInteraction();
         onGuestServiceRequested?.call(id);
       case AuthOtpRequested():
+        context.read<AuthCubit>().consumeAuthInteraction();
         FocusManager.instance.primaryFocus?.unfocus();
       case AuthCompleted():
         FocusManager.instance.primaryFocus?.unfocus();
         onAuthenticated?.call();
+
       case null:
         break;
     }
@@ -45,11 +60,33 @@ class AuthScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     return BlocProvider(
-      create: (_) => AuthCubit(initialState: initialState),
-      child: BlocListener<AuthCubit, AuthState>(
-        listenWhen: (previous, current) =>
-            previous.effectId != current.effectId,
-        listener: _handleEffect,
+      create: (_) => AuthCubit(initialState: initialState)..fetchCaptcha(),
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<AuthCubit, AuthState>(
+            listenWhen: (previous, current) =>
+                previous.captchaStatus != current.captchaStatus &&
+                current.captchaStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<AuthCubit, AuthState>(
+            listenWhen: (previous, current) =>
+                previous.otpRequestStatus != current.otpRequestStatus &&
+                current.otpRequestStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<AuthCubit, AuthState>(
+            listenWhen: (previous, current) =>
+                previous.loginStatus != current.loginStatus &&
+                current.loginStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<AuthCubit, AuthState>(
+            listenWhen: (previous, current) =>
+                previous.effect != current.effect && current.effect != null,
+            listener: _handleEffect,
+          ),
+        ],
         child: Theme(
           data: Theme.of(context).copyWith(
             extensions: [
@@ -76,7 +113,7 @@ class AuthScreen extends StatelessWidget {
                     right: 0,
                     child: IgnorePointer(
                       child: AvpImage(
-                        image: AuthAssets.background,
+                        image: '${AppConstants.baseImage}auth_background.png',
                         fit: BoxFit.fitWidth,
                         excludeFromSemantics: true,
                       ),
@@ -99,21 +136,40 @@ class AuthScreen extends StatelessWidget {
                   SafeArea(
                     child: BlocBuilder<AuthCubit, AuthState>(
                       buildWhen: (previous, current) =>
-                          previous.step != current.step,
+                          previous.step != current.step ||
+                          previous.captchaStatus != current.captchaStatus ||
+                          previous.otpRequestStatus !=
+                              current.otpRequestStatus ||
+                          previous.loginStatus != current.loginStatus,
                       builder: (context, state) {
                         return PopScope(
-                          canPop: state.step == AuthStep.login,
+                          // Login keeps Back unavailable during bank requests.
+                          canPop:
+                              state.step == AuthStep.login &&
+                              state.captchaStatus != RequestStatus.loading &&
+                              state.otpRequestStatus != RequestStatus.loading &&
+                              state.loginStatus != RequestStatus.loading,
                           onPopInvokedWithResult: (didPop, result) {
-                            if (!didPop) {
+                            if (!didPop &&
+                                state.captchaStatus != RequestStatus.loading &&
+                                state.otpRequestStatus !=
+                                    RequestStatus.loading &&
+                                state.loginStatus != RequestStatus.loading) {
                               context.read<AuthCubit>().requestBack();
                             }
                           },
                           child: Column(
                             children: [
                               AuthHeader(
-                                onMenu: context
-                                    .read<AuthCubit>()
-                                    .requestServices,
+                                onMenu:
+                                    state.captchaStatus !=
+                                            RequestStatus.loading &&
+                                        state.otpRequestStatus !=
+                                            RequestStatus.loading &&
+                                        state.loginStatus !=
+                                            RequestStatus.loading
+                                    ? context.read<AuthCubit>().requestServices
+                                    : null,
                               ),
                               Expanded(
                                 child: SingleChildScrollView(

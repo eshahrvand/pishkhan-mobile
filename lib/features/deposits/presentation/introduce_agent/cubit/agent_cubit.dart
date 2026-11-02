@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:pishkhan_mobile/core/presentation/mappers/request_error_message_mapper.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/result/failure.dart';
@@ -12,10 +13,8 @@ import 'package:pishkhan_mobile/core/validators/national_code_validator.dart';
 
 import '../../../domain/entities/listed_deposit.dart';
 import '../../../domain/entities/agent_request.dart';
-import '../../../domain/repositories/deposits_repository.dart';
-import '../../../domain/repositories/agent_repository.dart';
-import '../../../domain/usecases/deposit_list.dart';
-import '../../../domain/usecases/submit_agents.dart';
+import '../../../domain/usecases/deposit_list_usecase.dart';
+import '../../../domain/usecases/submit_agents_usecase.dart';
 
 part 'agent_state.dart';
 part 'agent_cubit.freezed.dart';
@@ -27,52 +26,35 @@ class AgentCubit extends Cubit<AgentState> {
   }) : super(initialState);
 
   final String? initialDepositNumber;
-  final _depositsRepository = getIt<DepositsRepository>();
-  final _agentRepository = getIt<AgentRepository>();
-  late final _fetchDeposits = LoadDeposits(_depositsRepository);
-  late final _submitAgents = SubmitAgents(_agentRepository);
+  final loadDepositsUseCase = getIt<LoadDepositsUseCase>();
+  final submitAgentsUseCase = getIt<SubmitAgentsUseCase>();
   AgentRequest? _submittedRequest;
 
-  Future<void> fetchDeposits() {
-    emit(
-      state.copyWith(
-        depositsStatus: RequestStatus.loading,
-        depositsFailure: null,
-      ),
-    );
-    return _fetchDeposits().then((result) {
-      switch (result) {
-        case Err(:final failure):
-          emit(
-            state.copyWith(
-              depositsStatus: RequestStatus.failure,
-              depositsFailure: failure,
-            ),
-          );
-        case Success(:final data):
-          final deposits = data
-              .where((deposit) => deposit.status == DepositStatus.open)
-              .toList();
-          final number = DigitNormalizer.normalize(initialDepositNumber ?? '')
-              .replaceAll(RegExp(r'[^0-9]'), '');
-          final initialDeposit = deposits
-              .where(
-                (deposit) =>
-                    number.isNotEmpty &&
-                    DigitNormalizer.normalize(deposit.number)
-                            .replaceAll(RegExp(r'[^0-9]'), '') ==
-                        number,
-              )
-              .firstOrNull;
-          emit(
-            state.copyWith(
-              depositsStatus: RequestStatus.success,
-              deposits: deposits,
-              deposit: initialDeposit,
-            ),
-          );
-      }
-    });
+  Future<void> fetchDeposits() async {
+    emit(state.copyWith(depositsStatus: RequestStatus.loading));
+    final result = await loadDepositsUseCase();
+    switch (result) {
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            depositsStatus: RequestStatus.failure,
+            failure: failure,
+            message: getRequestErrorMessage(failure),
+          ),
+        );
+      case Success(:final data):
+        final deposits = data
+            .where((deposit) => deposit.status == DepositStatus.open)
+            .toList();
+        final initialDeposit = _resolveInitialDeposit(deposits);
+        emit(
+          state.copyWith(
+            depositsStatus: RequestStatus.success,
+            deposits: deposits,
+            deposit: initialDeposit,
+          ),
+        );
+    }
   }
 
   void selectDeposit(ListedDeposit deposit) {
@@ -80,10 +62,7 @@ class AgentCubit extends Cubit<AgentState> {
       state.copyWith(
         deposit: deposit,
         hasChanges: true,
-        canSaveDraft:
-            state.operation != null &&
-            state.isNationalIdValid &&
-            state.isValidityValid,
+        canSaveDraft: _canSaveDraft(deposit: deposit),
       ),
     );
   }
@@ -93,10 +72,7 @@ class AgentCubit extends Cubit<AgentState> {
       state.copyWith(
         operation: operation,
         hasChanges: true,
-        canSaveDraft:
-            state.deposit != null &&
-            state.isNationalIdValid &&
-            state.isValidityValid,
+        canSaveDraft: _canSaveDraft(operation: operation),
       ),
     );
   }
@@ -110,11 +86,7 @@ class AgentCubit extends Cubit<AgentState> {
         isNationalIdValid: valid,
         isNationalIdError: normalized.isNotEmpty && !valid,
         hasChanges: true,
-        canSaveDraft:
-            state.deposit != null &&
-            state.operation != null &&
-            valid &&
-            state.isValidityValid,
+        canSaveDraft: _canSaveDraft(isNationalIdValid: valid),
       ),
     );
   }
@@ -122,11 +94,7 @@ class AgentCubit extends Cubit<AgentState> {
   void updateValidity(String value) {
     final normalized = DigitNormalizer.normalize(value).trim();
     final parsed = JalaliDateParser.parse(normalized);
-    final now = DateTime.now();
-    final today = DateTime.utc(now.year, now.month, now.day);
-    final validUntil = parsed != null && !parsed.isBefore(today)
-        ? parsed
-        : null;
+    final validUntil = _validUntil(parsed);
     emit(
       state.copyWith(
         validityText: normalized,
@@ -134,11 +102,7 @@ class AgentCubit extends Cubit<AgentState> {
         isValidityValid: validUntil != null,
         isValidityError: normalized.isNotEmpty && validUntil == null,
         hasChanges: true,
-        canSaveDraft:
-            state.deposit != null &&
-            state.operation != null &&
-            state.isNationalIdValid &&
-            validUntil != null,
+        canSaveDraft: _canSaveDraft(isValidityValid: validUntil != null),
       ),
     );
   }
@@ -153,11 +117,9 @@ class AgentCubit extends Cubit<AgentState> {
     emit(
       state.copyWith(
         agents: [...state.agents, agent],
-        draftSavedId: state.draftSavedId + 1,
         canSaveDraft: false,
         canSubmit: state.termsAccepted,
         hasChanges: true,
-        submissionFailure: null,
       ),
     );
   }
@@ -176,7 +138,6 @@ class AgentCubit extends Cubit<AgentState> {
         isValidityError: false,
         canSaveDraft: false,
         effect: AgentEffect.addNext,
-        effectId: state.effectId + 1,
       ),
     );
   }
@@ -200,11 +161,10 @@ class AgentCubit extends Cubit<AgentState> {
           isValidityValid: false,
           isValidityError: false,
           canSaveDraft: false,
-          submissionFailure: null,
         ),
       );
     } else {
-      emit(state.copyWith(agents: agents, submissionFailure: null));
+      emit(state.copyWith(agents: agents));
     }
   }
 
@@ -217,7 +177,7 @@ class AgentCubit extends Cubit<AgentState> {
     );
   }
 
-  Future<void> submitAgents() {
+  Future<void> submitAgents() async {
     var request = _createRequest(_submittedRequest?.idempotencyKey);
     if (_submittedRequest != null && request != _submittedRequest) {
       request = _createRequest(null);
@@ -226,31 +186,29 @@ class AgentCubit extends Cubit<AgentState> {
     emit(
       state.copyWith(
         submissionStatus: RequestStatus.loading,
-        submissionFailure: null,
         isEditable: false,
       ),
     );
-    return _submitAgents(request).then((result) {
-      switch (result) {
-        case Err(:final failure):
-          emit(
-            state.copyWith(
-              submissionStatus: RequestStatus.failure,
-              submissionFailure: failure,
-              isEditable: true,
-            ),
-          );
-        case Success(:final data):
-          emit(
-            state.copyWith(
-              submissionStatus: RequestStatus.success,
-              receipt: data,
-              canSubmit: false,
-              hasChanges: false,
-            ),
-          );
-      }
-    });
+    final result = await submitAgentsUseCase(request);
+    switch (result) {
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            submissionStatus: RequestStatus.failure,
+            isEditable: true,
+            failure: failure,
+            message: getRequestErrorMessage(failure),
+          ),
+        );
+      case Success(:final data):
+        emit(
+          state.copyWith(
+            submissionStatus: RequestStatus.success,
+            receipt: data,
+            canSubmit: false,
+          ),
+        );
+    }
   }
 
   AgentRequest _createRequest(String? idempotencyKey) {
@@ -267,7 +225,6 @@ class AgentCubit extends Cubit<AgentState> {
       state.copyWith(
         effect: state.hasChanges ? AgentEffect.confirmExit : AgentEffect.back,
         isExitToHome: false,
-        effectId: state.effectId + 1,
       ),
     );
   }
@@ -277,7 +234,6 @@ class AgentCubit extends Cubit<AgentState> {
       state.copyWith(
         effect: state.hasChanges ? AgentEffect.confirmExit : AgentEffect.home,
         isExitToHome: true,
-        effectId: state.effectId + 1,
       ),
     );
   }
@@ -288,14 +244,48 @@ class AgentCubit extends Cubit<AgentState> {
         effect: confirmed == true
             ? (state.isExitToHome ? AgentEffect.home : AgentEffect.back)
             : null,
-        effectId: state.effectId + 1,
       ),
     );
   }
 
   void applyReceiptDismissal() {
-    emit(
-      state.copyWith(effect: AgentEffect.home, effectId: state.effectId + 1),
-    );
+    emit(state.copyWith(effect: AgentEffect.home));
+  }
+
+  ListedDeposit? _resolveInitialDeposit(List<ListedDeposit> deposits) {
+    final number = _normalizeDepositNumber(initialDepositNumber ?? '');
+    return deposits
+        .where(
+          (deposit) =>
+              number.isNotEmpty &&
+              _normalizeDepositNumber(deposit.number) == number,
+        )
+        .firstOrNull;
+  }
+
+  String _normalizeDepositNumber(String number) =>
+      DigitNormalizer.normalize(number).replaceAll(RegExp(r'[^0-9]'), '');
+
+  bool _canSaveDraft({
+    ListedDeposit? deposit,
+    AgentOperation? operation,
+    bool? isNationalIdValid,
+    bool? isValidityValid,
+  }) {
+    return (deposit ?? state.deposit) != null &&
+        (operation ?? state.operation) != null &&
+        (isNationalIdValid ?? state.isNationalIdValid) &&
+        (isValidityValid ?? state.isValidityValid);
+  }
+
+  DateTime? _validUntil(DateTime? parsed) {
+    final now = DateTime.now();
+    final today = DateTime.utc(now.year, now.month, now.day);
+    return parsed != null && !parsed.isBefore(today) ? parsed : null;
+  }
+
+  /// UI has accepted the pending interaction; data and request statuses stay intact.
+  void consumeAgentInteraction() {
+    emit(state.copyWith(effect: null));
   }
 }

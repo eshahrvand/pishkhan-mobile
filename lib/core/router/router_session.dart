@@ -1,39 +1,46 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
+import 'package:pishkhan_mobile/core/security/access_token_store.dart';
 
-/// Prototype session only. This marker never represents bank authentication.
+/// Android may resume a saved token; its server validity is not checked yet.
 class RouterSession extends ChangeNotifier {
-  RouterSession([this._authenticated = false]) : _preferences = null;
+  /// Isolated router scope; also used by navigation tests.
+  RouterSession([this._authenticated = false]) : _tokens = null;
 
-  RouterSession._remembered(SharedPreferences preferences)
-    : _preferences = preferences,
-      _authenticated = preferences.getBool(_prototypeLoginKey) ?? false;
+  RouterSession.managed()
+    : _authenticated = false,
+      _tokens = getIt<AccessTokenStore>();
 
-  static const _prototypeLoginKey = 'prototype.authenticated.v1';
-  final SharedPreferences? _preferences;
+  final AccessTokenStore? _tokens;
 
-  /// Only the app startup uses disk persistence; isolated router scopes stay
-  /// in memory. Replace this marker when the bank login adapter is connected.
-  static Future<RouterSession> restorePrototype() async {
-    return RouterSession._remembered(await SharedPreferences.getInstance());
+  /// Restore Android credentials; the obsolete prototype marker is never trusted.
+  static Future<RouterSession> restore() async {
+    final preferences = await SharedPreferences.getInstance();
+    await preferences.remove('prototype.authenticated.v1');
+    final session = RouterSession.managed();
+    await session._tokens!.restore();
+    session._authenticated = session._tokens.accessToken != null;
+    return session;
   }
 
   bool _authenticated;
   Object? pendingExtra;
   bool get isAuthenticated => _authenticated;
+
   Future<void> signIn() async {
-    if (_preferences != null) {
-      await _preferences.setBool(_prototypeLoginKey, true);
+    if (_tokens != null && _tokens.accessToken == null) {
+      throw StateError('No bank login token is available');
     }
     _authenticated = true;
     notifyListeners();
   }
 
   Future<void> signOut() async {
+    await _tokens?.clear();
     _authenticated = false;
     pendingExtra = null;
     notifyListeners();
-    await _preferences?.remove(_prototypeLoginKey);
   }
 
   Object? takePendingExtra() {

@@ -27,14 +27,15 @@ Add Agent and the distinct `deposit-representative` service.
 - Add opens the existing introduction flow with the original entry deposit.
   That flow retains its existing submission, receipt and exit behavior.
 - Loading disables filter interaction. Failures expose Retry; empty catalogs and
-  filter results display an empty-state message. Back remains available during
-  fetches. Rebuilding the screen retains its Cubit.
+  filter results display an empty-state message. Both Back paths stay blocked
+  during fetches. Rebuilding the screen retains its Cubit.
 
 ## Ownership and reuse
 
 `AgentSettingsScreen` directly constructs `AgentSettingsCubit`
 in `BlocProvider.create` and calls `fetchAgents`. The Cubit resolves its
-repository from GetIt and publishes explicit `copyWith` updates. Its State is a
+registered `FetchAgentsUseCase` from GetIt and publishes explicit `copyWith`
+updates. DI wires its repository; the source file is `agent_settings_usecase.dart`. Its State is a
 single plain Freezed `.initial` / `part of` class. Repository/use-case exceptions
 are converted into the project's existing `UnexpectedFailure` at the boundary.
 No Cubit is registered in GetIt; there are no construction helpers, State
@@ -76,3 +77,22 @@ the new module-prefixed route and post-login whitelist. Related introduction and
 shared-card tests cover retained behavior. Optional captures use
 `CAPTURE_CERTIFICATE_PREVIEWS=1` and write ignored
 `build/previews/certificates/agent-settings-*.png` files.
+
+## Phase 7 adoption and current verification
+
+Under [contract v1.23](../ui-cubit-state-agent-rules-en.md), every request owner
+uses async/await and a Result switch. Repository and UseCase fields are final,
+without leading underscores; UseCase fields carry the full lowerCamelCase class
+name including `UseCase`. Used UseCase classes/files have the required suffixes
+and are resolved from GetIt; UI/router do not forward dependencies.
+
+Independent request-failure, typed-effect/navigation and receipt listeners share
+`MultiBlocListener` with `BlocBuilder` rendering. Each failure publishes status,
+Failure and prepared text together. Notifications observe entering failure for
+that operation, including identical retries. Latest failure/message remain
+through loading, success and commands; effects do not gate on their presence.
+Success uses the existing receipt instead of displaying retained failure text.
+Actual form/draft/selection resets, validation, request identity and navigation
+remain. See [phase 7 review](phase-7-review.md) for flow readers, dependency wiring,
+consumer-driven clears and the final scoped commands/results. Historical broad
+verification statements are not permission to run the full application suite.

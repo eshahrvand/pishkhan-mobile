@@ -1,7 +1,10 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
+
 import 'deposit_owner_detail_row.dart';
+
 import 'package:flutter/material.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
+
 import '../../../domain/entities/listed_deposit.dart';
 
 class DepositOwnerDetails extends StatelessWidget {
@@ -22,25 +25,26 @@ class DepositOwnerDetails extends StatelessWidget {
         DepositOwnerDetailRow(
           label: S.current.depositListOwnerName,
           value: owner.name,
-          separatorAsset: AppAssets.depositFeatureNameDots,
+          separatorAsset: '${AppConstants.baseImage}deposit_list_name_dots.svg',
         ),
         DepositOwnerDetailRow(
           label: S.current.depositListNationalId,
           value: owner.nationalId,
-          separatorAsset: AppAssets.depositFeatureNationalIdDots,
+          separatorAsset:
+              '${AppConstants.baseImage}deposit_list_national_id_dots.svg',
           textDirection: TextDirection.ltr,
         ),
         DepositOwnerDetailRow(
           label: S.current.depositListOwnerRole,
           value: getDepositOwnerRoleTitle(owner.role),
-          separatorAsset: AppAssets.depositFeatureRoleDots,
+          separatorAsset: '${AppConstants.baseImage}deposit_list_role_dots.svg',
         ),
         DepositOwnerDetailRow(
           label: S.current.depositListOwnerPercent,
           value: '${owner.percent}٪',
           separatorAsset: second
-              ? AppAssets.depositFeatureSecondPercentDots
-              : AppAssets.depositFeaturePercentDots,
+              ? '${AppConstants.baseImage}deposit_list_second_percent_dots.svg'
+              : '${AppConstants.baseImage}deposit_list_percent_dots.svg',
           textDirection: TextDirection.ltr,
         ),
       ],

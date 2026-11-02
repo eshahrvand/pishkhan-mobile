@@ -1,10 +1,10 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
 import 'package:pishkhan_mobile/shared/widgets/flow_exit_dialog.dart';
@@ -27,12 +27,23 @@ class DepositRestrictionScreen extends StatelessWidget {
   final String? initialDepositNumber;
   final VoidCallback? onAssistantPressed;
 
+  void _showRequestFailure(
+    BuildContext context,
+    DepositRestrictionState state,
+  ) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(state.message!)));
+  }
+
   Future<void> _handleEffect(
     BuildContext context,
     DepositRestrictionState state,
   ) async {
     switch (state.effect) {
       case DepositRestrictionEffect.confirmExit:
+        context
+            .read<DepositRestrictionCubit>()
+            .consumeDepositRestrictionInteraction();
         final confirmed = await showFlowExitDialog(context);
         if (context.mounted) {
           context.read<DepositRestrictionCubit>().applyExitConfirmation(
@@ -46,9 +57,15 @@ class DepositRestrictionScreen extends StatelessWidget {
       case DepositRestrictionEffect.home:
         NavigationActions.returnHome(context);
       case DepositRestrictionEffect.assistant:
+        context
+            .read<DepositRestrictionCubit>()
+            .consumeDepositRestrictionInteraction();
         NavigationActions.returnHome(context);
         onAssistantPressed?.call();
       case DepositRestrictionEffect.termsUnavailable:
+        context
+            .read<DepositRestrictionCubit>()
+            .consumeDepositRestrictionInteraction();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(S.current.issuanceTermsUnavailable)),
         );
@@ -74,23 +91,45 @@ class DepositRestrictionScreen extends StatelessWidget {
         operation: operation,
         initialDepositNumber: initialDepositNumber,
       )..fetchCatalog(),
-      child: BlocListener<DepositRestrictionCubit, DepositRestrictionState>(
-        listenWhen: (previous, current) =>
-            previous.submissionStatus != current.submissionStatus &&
-            current.submissionStatus == RequestStatus.success,
-        listener: _handleReceipt,
-        child: BlocConsumer<DepositRestrictionCubit, DepositRestrictionState>(
-          listenWhen: (previous, current) =>
-              previous.effectId != current.effectId,
-          listener: _handleEffect,
-          buildWhen: (previous, current) => previous.effect != current.effect,
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<DepositRestrictionCubit, DepositRestrictionState>(
+            listenWhen: (previous, current) =>
+                previous.submissionStatus != current.submissionStatus &&
+                current.submissionStatus == RequestStatus.success,
+            listener: _handleReceipt,
+          ),
+          BlocListener<DepositRestrictionCubit, DepositRestrictionState>(
+            listenWhen: (previous, current) =>
+                previous.catalogStatus != current.catalogStatus &&
+                current.catalogStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<DepositRestrictionCubit, DepositRestrictionState>(
+            listenWhen: (previous, current) =>
+                previous.submissionStatus != current.submissionStatus &&
+                current.submissionStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<DepositRestrictionCubit, DepositRestrictionState>(
+            listenWhen: (previous, current) =>
+                previous.effect != current.effect && current.effect != null,
+            listener: _handleEffect,
+          ),
+        ],
+        child: BlocBuilder<DepositRestrictionCubit, DepositRestrictionState>(
           builder: (context, state) {
             return Directionality(
               textDirection: TextDirection.rtl,
               child: PopScope(
-                canPop: state.effect == DepositRestrictionEffect.back,
+                canPop:
+                    (state.catalogStatus != RequestStatus.loading &&
+                        state.submissionStatus != RequestStatus.loading) &&
+                    (state.effect == DepositRestrictionEffect.back),
                 onPopInvokedWithResult: (didPop, _) {
-                  if (!didPop) {
+                  if (!didPop &&
+                      state.catalogStatus != RequestStatus.loading &&
+                      state.submissionStatus != RequestStatus.loading) {
                     context.read<DepositRestrictionCubit>().requestBack();
                   }
                 },
@@ -109,12 +148,17 @@ class DepositRestrictionScreen extends StatelessWidget {
                           showLeadingActions: false,
                           leadingAction: const SizedBox.shrink(),
                           trailingIcon: depositIcon(
-                            AppAssets.depositFeatureBack,
+                            '${AppConstants.baseImage}deposit_list_back.svg',
                           ),
                           trailingTooltip: S.current.backLabel,
-                          onTrailingPressed: context
-                              .read<DepositRestrictionCubit>()
-                              .requestBack,
+                          onTrailingPressed:
+                              (state.catalogStatus != RequestStatus.loading &&
+                                  state.submissionStatus !=
+                                      RequestStatus.loading)
+                              ? context
+                                    .read<DepositRestrictionCubit>()
+                                    .requestBack
+                              : null,
                         ),
                         Expanded(
                           child: Stack(

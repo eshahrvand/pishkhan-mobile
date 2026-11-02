@@ -1,4 +1,4 @@
-import 'card_feature_sheet_frame.dart';
+import '../../shared/card_service_sheet.dart';
 import 'card_filter_sheet.dart';
 import 'card_actions_sheet.dart';
 import 'card_details_sheet.dart';
@@ -11,16 +11,10 @@ import '../card_feature_action.dart';
 import '../cubit/card_features_cubit.dart';
 
 Future<T?> _sheet<T>(BuildContext context, WidgetBuilder panel) {
-  FocusManager.instance.primaryFocus?.unfocus();
-  final insets = MediaQuery.viewPaddingOf(context);
-  return showModalBottomSheet<T>(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor: Colors.transparent,
-    barrierColor: Colors.transparent,
+  return showCardServiceSheet<T>(
+    context,
+    (context) => SingleChildScrollView(child: panel(context)),
     enableDrag: false,
-    builder: (sheetContext) =>
-        CardFeatureSheetFrame(insets: insets, child: panel(sheetContext)),
   );
 }
 

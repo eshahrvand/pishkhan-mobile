@@ -1,7 +1,7 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/certificate_fields.dart';
 
 /// Editable Solar Hijri input. The package has no approved calendar picker yet.
@@ -66,7 +66,8 @@ class _TransferDateFieldState extends State<TransferDateField> {
                 height: 44,
                 child: Center(
                   child: AvpImage(
-                    image: AppAssets.certificateCalendar,
+                    image:
+                        '${AppConstants.baseImage}certificate_certCalendar.svg',
                     width: 20,
                     height: 20,
                   ),

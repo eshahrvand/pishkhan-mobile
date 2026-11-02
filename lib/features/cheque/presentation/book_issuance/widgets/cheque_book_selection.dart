@@ -1,8 +1,8 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/certificate_fields.dart';
 
 import '../../../domain/entities/cheque_book.dart';
@@ -47,7 +47,10 @@ class ChequeBookSelection extends StatelessWidget {
                 const SizedBox.square(
                   dimension: 20,
                   child: Center(
-                    child: AvpImage(image: AppAssets.passwordCameraInfo),
+                    child: AvpImage(
+                      image:
+                          '${AppConstants.baseImage}password_camera_info.svg',
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -64,7 +67,7 @@ class ChequeBookSelection extends StatelessWidget {
         ],
         const SizedBox(height: 20),
         const AvpImage(
-          image: AppAssets.issuanceDivider,
+          image: '${AppConstants.baseImage}issuance_divider.svg',
           height: .5,
           fit: BoxFit.fill,
         ),
@@ -98,7 +101,10 @@ class ChequeBookSelection extends StatelessWidget {
                     const SizedBox.square(
                       dimension: 20,
                       child: Center(
-                        child: AvpImage(image: AppAssets.chequeBookOpeningInfo),
+                        child: AvpImage(
+                          image:
+                              '${AppConstants.baseImage}chequebook_opening_info.svg',
+                        ),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -117,7 +123,7 @@ class ChequeBookSelection extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 const AvpImage(
-                  image: AppAssets.issuanceDivider,
+                  image: '${AppConstants.baseImage}issuance_divider.svg',
                   height: .5,
                   fit: BoxFit.fill,
                 ),

@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
+
 import '../support/registered_dependency.dart';
 
 import 'dart:async';
@@ -60,6 +62,8 @@ Future<void> readyFinancial(FinancialCertificateCubit cubit) async {
 }
 
 void main() {
+  setUp(configureDependencies);
+  tearDown(() => getIt.reset());
   test(
     'conditions gate next; changing deposit clears selected conditions',
     () async {
@@ -172,6 +176,8 @@ void main() {
     expect(repo.requests.single.deliveryRecipientNationalId, '0081234562');
     expect(repo.requests.single.agentIdentifier, isNull);
     await cubit.close();
+    await getIt.reset();
+    configureDependencies();
     final poor =
         withRegisteredDependency<
           FinancialCertificateRepository,
@@ -218,6 +224,34 @@ void main() {
       await cubit.close();
     },
   );
+  test('every Latin field invalidation disables and restoring it re-enables progression', () async {
+    final cubit =
+        withRegisteredDependency<
+          FinancialCertificateRepository,
+          FinancialCertificateCubit
+        >(FinancialTestRepository(), () => FinancialCertificateCubit());
+    addTearDown(cubit.close);
+    await readyFinancial(cubit);
+    cubit.requestBack();
+    cubit.requestBack();
+    for (final (update, invalid, valid)
+        in <(void Function(String), String, String)>[
+          (cubit.updateLatinName, 'علی', 'Ali'),
+          (cubit.updateLatinSurname, '', 'Raad'),
+          (cubit.updateLatinFatherName, '', 'Arash'),
+          (cubit.updatePassportNumber, '!', '1234567890'),
+          (cubit.updatePassportExpiry, '2026/02/30', '2026/08/12'),
+          (cubit.updateLatinAddress, 'تهران', 'Tehran, Iran'),
+        ]) {
+      update(invalid);
+      expect(cubit.state.isLatinComplete, isFalse);
+      expect(cubit.state.canContinue, isFalse);
+      update(valid);
+      expect(cubit.state.isLatinComplete, isTrue);
+      expect(cubit.state.canContinue, isTrue);
+    }
+  });
+
   test(
     'catalog errors are retryable and independent of submission errors',
     () async {
@@ -230,11 +264,11 @@ void main() {
           >(repo, () => FinancialCertificateCubit());
       await cubit.fetchCatalog();
       expect(cubit.state.catalogStatus, RequestStatus.failure);
-      expect(cubit.state.submissionFailure, isNull);
+      expect(cubit.state.failure, isA<UnexpectedFailure>());
       repo.loader = () async => Success(repo.catalog);
       await cubit.fetchCatalog();
       expect(cubit.state.catalogStatus, RequestStatus.success);
-      expect(cubit.state.catalogFailure, isNull);
+      expect(cubit.state.failure, const UnexpectedFailure());
       await cubit.close();
     },
   );

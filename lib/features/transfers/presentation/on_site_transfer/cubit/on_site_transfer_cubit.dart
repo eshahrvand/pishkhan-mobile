@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:pishkhan_mobile/core/presentation/mappers/request_error_message_mapper.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
 import 'package:pishkhan_mobile/core/domain/entities/delivery_address.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
@@ -13,8 +14,7 @@ import 'package:pishkhan_mobile/core/validators/iban_validator.dart';
 import 'package:pishkhan_mobile/core/validators/jalali_date_parser.dart';
 
 import '../../../domain/entities/on_site_transfer.dart';
-import '../../../domain/repositories/on_site_transfer_repository.dart';
-import '../../../domain/usecases/on_site_transfer.dart';
+import '../../../domain/usecases/on_site_transfer_usecase.dart';
 
 export '../../../domain/entities/on_site_transfer.dart';
 part 'on_site_transfer_state.dart';
@@ -26,47 +26,55 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
     OnSiteTransferState initialState = const OnSiteTransferState.initial(),
   }) : super(initialState);
   final String? initialDepositNumber;
-  final _repository = getIt<OnSiteTransferRepository>();
-  late final _upload = UploadTransferDestinations(_repository);
+  final uploadTransferDestinationsUseCase =
+      getIt<UploadTransferDestinationsUseCase>();
+  final fetchOnSiteTransferCatalogUseCase =
+      getIt<FetchOnSiteTransferCatalogUseCase>();
+  final resolveTransferDestinationUseCase =
+      getIt<ResolveTransferDestinationUseCase>();
+  final submitOnSiteTransferUseCase = getIt<SubmitOnSiteTransferUseCase>();
   int _uploadRequestId = 0;
   int _destinationRequestId = 0;
   String? _flowKey;
   int _payloadRevision = 0;
 
-  Future<void> fetchCatalog() {
+  Future<void> fetchCatalog() async {
     // A fresh flow owns one request identity, retained across retries and review.
     _flowKey ??= base64UrlEncode(
       List<int>.generate(18, (_) => Random.secure().nextInt(256)),
     );
     emit(state.copyWith(catalogStatus: RequestStatus.loading));
-    return _repository.fetchCatalog().then((result) {
-      switch (result) {
-        case Success(:final data):
-          emit(
-            state.copyWith(
-              catalogStatus: RequestStatus.success,
-              catalog: data,
-              addresses: data.addresses,
-              deposit: data.deposits
-                  .where((d) => d.number == initialDepositNumber)
-                  .firstOrNull,
-              isWalletSufficient: data.walletBalanceRial >= data.feeRial,
-            ),
-          );
-        case Err(:final failure):
-          emit(
-            state.copyWith(
-              catalogStatus: RequestStatus.failure,
-              catalogFailure: failure,
-            ),
-          );
-      }
-    });
+    final result = await fetchOnSiteTransferCatalogUseCase();
+    switch (result) {
+      case Success(:final data):
+        emit(
+          state.copyWith(
+            catalogStatus: RequestStatus.success,
+            catalog: data,
+            addresses: data.addresses,
+            deposit: data.deposits
+                .where((d) => d.number == initialDepositNumber)
+                .firstOrNull,
+            isWalletSufficient: data.walletBalanceRial >= data.feeRial,
+          ),
+        );
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            catalogStatus: RequestStatus.failure,
+            failure: failure,
+            message: getRequestErrorMessage(failure),
+          ),
+        );
+    }
   }
 
   void selectDeposit(TransferDeposit deposit) {
     emit(
-      state.copyWith(deposit: deposit, canContinue: state.isTransferDateValid),
+      state.copyWith(
+        deposit: deposit,
+        canContinue: _canContinueSource(deposit, state.isTransferDateValid),
+      ),
     );
   }
 
@@ -85,13 +93,18 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
         isVisitDateValid: false,
         visitDateInput: '',
         isVisitDateError: false,
-        canContinue: isValid && state.deposit != null,
+        canContinue: _canContinueSource(state.deposit, isValid),
       ),
     );
   }
 
   void selectAddress(DeliveryAddress address) {
-    emit(state.copyWith(address: address, canContinue: state.isVisitDateValid));
+    emit(
+      state.copyWith(
+        address: address,
+        canContinue: _canContinueVisit(address, state.isVisitDateValid),
+      ),
+    );
   }
 
   void updateVisitDate(String value) {
@@ -109,18 +122,13 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
         visitDate: isValid ? date : null,
         isVisitDateValid: isValid,
         isVisitDateError: value.isNotEmpty && !isValid,
-        canContinue: isValid && state.address != null,
+        canContinue: _canContinueVisit(state.address, isValid),
       ),
     );
   }
 
   void requestAddressEditor() {
-    emit(
-      state.copyWith(
-        effect: OnSiteTransferEffect.addressEditor,
-        effectId: state.effectId + 1,
-      ),
-    );
+    emit(state.copyWith(effect: OnSiteTransferEffect.addressEditor));
   }
 
   void applyAddressResult(DeliveryAddress? address) {
@@ -132,19 +140,14 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
           state.copyWith(
             addresses: [...state.addresses, address],
             address: address,
-            canContinue: state.isVisitDateValid,
+            canContinue: _canContinueVisit(address, state.isVisitDateValid),
           ),
         );
     }
   }
 
   void requestAddressDeletion() {
-    emit(
-      state.copyWith(
-        effect: OnSiteTransferEffect.deleteAddress,
-        effectId: state.effectId + 1,
-      ),
-    );
+    emit(state.copyWith(effect: OnSiteTransferEffect.deleteAddress));
   }
 
   void removeAddress() {
@@ -174,9 +177,7 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
         description: '',
         canAddDestination: false,
         destinationStatus: RequestStatus.initial,
-        destinationFailure: null,
         effect: OnSiteTransferEffect.destinationEditor,
-        effectId: state.effectId + 1,
       ),
     );
   }
@@ -190,11 +191,7 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
         amountRial: isValid ? amount : 0,
         isAmountValid: isValid,
         isAmountError: value.isNotEmpty && !isValid,
-        canAddDestination:
-            isValid &&
-            state.isIbanValid &&
-            state.purpose != null &&
-            state.method != null,
+        canAddDestination: _canAddDestination(isAmountValid: isValid),
       ),
     );
   }
@@ -203,8 +200,7 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
     emit(
       state.copyWith(
         method: method,
-        canAddDestination:
-            state.isAmountValid && state.isIbanValid && state.purpose != null,
+        canAddDestination: _canAddDestination(method: method),
       ),
     );
   }
@@ -216,11 +212,7 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
         ibanInput: value,
         isIbanValid: isValid,
         isIbanError: value.isNotEmpty && !isValid,
-        canAddDestination:
-            isValid &&
-            state.isAmountValid &&
-            state.purpose != null &&
-            state.method != null,
+        canAddDestination: _canAddDestination(isIbanValid: isValid),
       ),
     );
   }
@@ -229,8 +221,7 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
     emit(
       state.copyWith(
         purpose: purpose,
-        canAddDestination:
-            state.isAmountValid && state.isIbanValid && state.method != null,
+        canAddDestination: _canAddDestination(purpose: purpose),
       ),
     );
   }
@@ -239,45 +230,37 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
     emit(state.copyWith(description: value));
   }
 
-  Future<void> submitDestination() {
+  Future<void> submitDestination() async {
     final requestId = ++_destinationRequestId;
-    emit(
-      state.copyWith(
-        destinationStatus: RequestStatus.loading,
-        destinationFailure: null,
-      ),
+    emit(state.copyWith(destinationStatus: RequestStatus.loading));
+    final result = await resolveTransferDestinationUseCase(
+      iban: 'IR${state.ibanInput}',
+      amountRial: state.amountRial,
+      purpose: state.purpose!,
+      description: state.description,
     );
-    return _repository
-        .resolveDestination(
-          iban: 'IR${state.ibanInput}',
-          amountRial: state.amountRial,
-          purpose: state.purpose!,
-          description: state.description,
-        )
-        .then((result) {
-          // A dismissed editor may be reopened while the old lookup is in flight.
-          if (requestId != _destinationRequestId) return;
-          switch (result) {
-            case Success(:final data):
-              emit(
-                state.copyWith(
-                  destinationStatus: RequestStatus.success,
-                  destinations: [...state.destinations, data],
-                  canContinue: true,
-                  canAddDestination: false,
-                  effect: OnSiteTransferEffect.closeDestination,
-                  effectId: state.effectId + 1,
-                ),
-              );
-            case Err(:final failure):
-              emit(
-                state.copyWith(
-                  destinationStatus: RequestStatus.failure,
-                  destinationFailure: failure,
-                ),
-              );
-          }
-        });
+    // A dismissed editor may be reopened while the old lookup is in flight.
+    if (requestId != _destinationRequestId) return;
+    switch (result) {
+      case Success(:final data):
+        emit(
+          state.copyWith(
+            destinationStatus: RequestStatus.success,
+            destinations: [...state.destinations, data],
+            canContinue: true,
+            canAddDestination: false,
+            effect: OnSiteTransferEffect.closeDestination,
+          ),
+        );
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            destinationStatus: RequestStatus.failure,
+            failure: failure,
+            message: getRequestErrorMessage(failure),
+          ),
+        );
+    }
   }
 
   void cancelDestinationEditor() {
@@ -291,7 +274,7 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
     emit(
       state.copyWith(
         destinations: destinations,
-        canContinue: destinations.isNotEmpty || state.attachment != null,
+        canContinue: _hasDestinations(destinations, state.attachment),
       ),
     );
   }
@@ -300,7 +283,7 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
     emit(
       state.copyWith(
         attachment: null,
-        canContinue: state.destinations.isNotEmpty,
+        canContinue: _hasDestinations(state.destinations, null),
       ),
     );
   }
@@ -311,14 +294,12 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
         pendingAttachment: state.attachment,
         uploadName: state.attachment?.name ?? '',
         uploadSizeBytes: state.attachment?.sizeBytes ?? 0,
-        uploadStatus: state.attachment == null
-            ? RequestStatus.initial
-            : RequestStatus.success,
-        uploadProgress: state.attachment == null ? 0 : 1,
-        canReviewFile: state.attachment != null,
-        uploadFailure: null,
+        uploadStatus: _hasReviewedAttachment()
+            ? RequestStatus.success
+            : RequestStatus.initial,
+        uploadProgress: _hasReviewedAttachment() ? 1 : 0,
+        canReviewFile: _hasReviewedAttachment(),
         effect: OnSiteTransferEffect.uploadSheet,
-        effectId: state.effectId + 1,
       ),
     );
   }
@@ -326,9 +307,9 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
   void requestFilePicker() {
     emit(
       state.copyWith(
+        uploadStatus: RequestStatus.initial,
         filePickerRequestId: ++_uploadRequestId,
         effect: OnSiteTransferEffect.pickFile,
-        effectId: state.effectId + 1,
       ),
     );
   }
@@ -336,12 +317,15 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
   Future<void> applyFileSelection(
     SelectedDocument? file, {
     required int requestId,
-  }) {
+  }) async {
     // The system picker can finish after its upload sheet was dismissed/reopened.
-    if (requestId != _uploadRequestId) return Future.value();
+    if (requestId != _uploadRequestId) return;
     switch (file) {
+      case null when state.pendingAttachment != null:
+        emit(state.copyWith(uploadStatus: RequestStatus.success));
+        return;
       case null:
-        return Future.value();
+        return;
       default:
         emit(
           state.copyWith(
@@ -351,34 +335,35 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
             uploadProgress: 0,
             pendingAttachment: null,
             canReviewFile: false,
-            uploadFailure: null,
           ),
         );
-        return _upload(file, (progress) {
+        final result = await uploadTransferDestinationsUseCase(file, (
+          progress,
+        ) {
           if (requestId != _uploadRequestId) return;
           emit(state.copyWith(uploadProgress: progress));
-        }).then((result) {
-          // Cancelling/replacing a file can overlap its previous upload.
-          if (requestId != _uploadRequestId) return;
-          switch (result) {
-            case Success(:final data):
-              emit(
-                state.copyWith(
-                  uploadStatus: RequestStatus.success,
-                  uploadProgress: 1,
-                  pendingAttachment: data,
-                  canReviewFile: true,
-                ),
-              );
-            case Err(:final failure):
-              emit(
-                state.copyWith(
-                  uploadStatus: RequestStatus.failure,
-                  uploadFailure: failure,
-                ),
-              );
-          }
         });
+        // Cancelling/replacing a file can overlap its previous upload.
+        if (requestId != _uploadRequestId) return;
+        switch (result) {
+          case Success(:final data):
+            emit(
+              state.copyWith(
+                uploadStatus: RequestStatus.success,
+                uploadProgress: 1,
+                pendingAttachment: data,
+                canReviewFile: true,
+              ),
+            );
+          case Err(:final failure):
+            emit(
+              state.copyWith(
+                uploadStatus: RequestStatus.failure,
+                failure: failure,
+                message: getRequestErrorMessage(failure),
+              ),
+            );
+        }
     }
   }
 
@@ -387,7 +372,10 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
     emit(
       state.copyWith(
         uploadStatus: RequestStatus.failure,
-        uploadFailure: const DataFailure('transfer.file.invalid'),
+        failure: const DataFailure('transfer.file.invalid'),
+        message: getRequestErrorMessage(
+          const DataFailure('transfer.file.invalid'),
+        ),
       ),
     );
   }
@@ -402,7 +390,6 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
         uploadProgress: 0,
         pendingAttachment: null,
         canReviewFile: false,
-        uploadFailure: null,
       ),
     );
   }
@@ -411,17 +398,12 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
     _uploadRequestId++;
     if (confirmed == true) {
       final attachment = state.pendingAttachment!;
-      final request = _createRequest(
+      final confirmedRequest = _createRequest(
         attachment: attachment,
-        idempotencyKey: state.confirmedRequest?.idempotencyKey ?? _flowKey!,
+        idempotencyKey: _isConfirmationChanged(attachment)
+            ? '$_flowKey-${++_payloadRevision}'
+            : state.confirmedRequest?.idempotencyKey ?? _flowKey!,
       );
-      final confirmedRequest =
-          state.confirmedRequest != null && request != state.confirmedRequest
-          ? _createRequest(
-              attachment: attachment,
-              idempotencyKey: '$_flowKey-${++_payloadRevision}',
-            )
-          : request;
       emit(
         state.copyWith(
           attachment: attachment,
@@ -431,31 +413,27 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
           termsAccepted: false,
           canContinue: false,
           effect: OnSiteTransferEffect.reveal,
-          effectId: state.effectId + 1,
         ),
       );
     }
   }
 
   void requestUnavailable() {
-    emit(
-      state.copyWith(
-        effect: OnSiteTransferEffect.unavailable,
-        effectId: state.effectId + 1,
-      ),
-    );
+    emit(state.copyWith(effect: OnSiteTransferEffect.unavailable));
   }
 
-  Future<void> continueFlow() {
+  Future<void> continueFlow() async {
     switch (state.step) {
       case OnSiteTransferStep.source:
         emit(
           state.copyWith(
             step: OnSiteTransferStep.visit,
             stepNumber: 2,
-            canContinue: state.address != null && state.isVisitDateValid,
+            canContinue: _canContinueVisit(
+              state.address,
+              state.isVisitDateValid,
+            ),
             effect: OnSiteTransferEffect.reveal,
-            effectId: state.effectId + 1,
           ),
         );
       case OnSiteTransferStep.visit:
@@ -463,24 +441,17 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
           state.copyWith(
             step: OnSiteTransferStep.destinations,
             stepNumber: 3,
-            canContinue:
-                state.destinations.isNotEmpty || state.attachment != null,
+            canContinue: _hasDestinations(state.destinations, state.attachment),
             effect: OnSiteTransferEffect.reveal,
-            effectId: state.effectId + 1,
           ),
         );
       case OnSiteTransferStep.destinations:
-        final request = _createRequest(
+        final confirmedRequest = _createRequest(
           attachment: state.attachment,
-          idempotencyKey: state.confirmedRequest?.idempotencyKey ?? _flowKey!,
+          idempotencyKey: _isConfirmationChanged(state.attachment)
+              ? '$_flowKey-${++_payloadRevision}'
+              : state.confirmedRequest?.idempotencyKey ?? _flowKey!,
         );
-        final confirmedRequest =
-            state.confirmedRequest != null && request != state.confirmedRequest
-            ? _createRequest(
-                attachment: state.attachment,
-                idempotencyKey: '$_flowKey-${++_payloadRevision}',
-              )
-            : request;
         emit(
           state.copyWith(
             step: OnSiteTransferStep.confirmation,
@@ -489,13 +460,11 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
             termsAccepted: false,
             canContinue: false,
             effect: OnSiteTransferEffect.reveal,
-            effectId: state.effectId + 1,
           ),
         );
       case OnSiteTransferStep.confirmation:
-        return submitTransfer();
+        await submitTransfer();
     }
-    return Future.value();
   }
 
   OnSiteTransferRequest _createRequest({
@@ -531,53 +500,44 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
     emit(state.copyWith(isInvoiceExpanded: expanded));
   }
 
-  Future<void> submitTransfer() {
-    emit(
-      state.copyWith(
-        submissionStatus: RequestStatus.loading,
-        submissionFailure: null,
-      ),
-    );
-    return _repository.submit(state.confirmedRequest!).then((result) {
-      switch (result) {
-        case Success(:final data):
-          emit(
-            state.copyWith(
-              submissionStatus: RequestStatus.success,
-              receipt: data,
-              canContinue: false,
-              effect: OnSiteTransferEffect.receipt,
-              effectId: state.effectId + 1,
-            ),
-          );
-        case Err(:final failure):
-          emit(
-            state.copyWith(
-              submissionStatus: RequestStatus.failure,
-              submissionFailure: failure,
-            ),
-          );
-      }
-    });
+  Future<void> submitTransfer() async {
+    emit(state.copyWith(submissionStatus: RequestStatus.loading));
+    final result = await submitOnSiteTransferUseCase(state.confirmedRequest!);
+    switch (result) {
+      case Success(:final data):
+        emit(
+          state.copyWith(
+            submissionStatus: RequestStatus.success,
+            receipt: data,
+            canContinue: false,
+            effect: OnSiteTransferEffect.receipt,
+          ),
+        );
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            submissionStatus: RequestStatus.failure,
+            failure: failure,
+            message: getRequestErrorMessage(failure),
+          ),
+        );
+    }
   }
 
   void requestBack() {
     switch (state.step) {
       case OnSiteTransferStep.source:
-        emit(
-          state.copyWith(
-            effect: OnSiteTransferEffect.confirmExit,
-            effectId: state.effectId + 1,
-          ),
-        );
+        emit(state.copyWith(effect: OnSiteTransferEffect.confirmExit));
       case OnSiteTransferStep.visit:
         emit(
           state.copyWith(
             step: OnSiteTransferStep.source,
             stepNumber: 1,
-            canContinue: state.deposit != null && state.isTransferDateValid,
+            canContinue: _canContinueSource(
+              state.deposit,
+              state.isTransferDateValid,
+            ),
             effect: OnSiteTransferEffect.reveal,
-            effectId: state.effectId + 1,
           ),
         );
       case OnSiteTransferStep.destinations:
@@ -585,9 +545,11 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
           state.copyWith(
             step: OnSiteTransferStep.visit,
             stepNumber: 2,
-            canContinue: state.address != null && state.isVisitDateValid,
+            canContinue: _canContinueVisit(
+              state.address,
+              state.isVisitDateValid,
+            ),
             effect: OnSiteTransferEffect.reveal,
-            effectId: state.effectId + 1,
           ),
         );
       case OnSiteTransferStep.confirmation:
@@ -595,10 +557,8 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
           state.copyWith(
             step: OnSiteTransferStep.destinations,
             stepNumber: 3,
-            canContinue:
-                state.destinations.isNotEmpty || state.attachment != null,
+            canContinue: _hasDestinations(state.destinations, state.attachment),
             effect: OnSiteTransferEffect.reveal,
-            effectId: state.effectId + 1,
           ),
         );
     }
@@ -606,30 +566,54 @@ class OnSiteTransferCubit extends Cubit<OnSiteTransferState> {
 
   void applyExitConfirmation(bool? confirmed) {
     if (confirmed == true) {
-      emit(
-        state.copyWith(
-          effect: OnSiteTransferEffect.back,
-          effectId: state.effectId + 1,
-        ),
-      );
+      emit(state.copyWith(effect: OnSiteTransferEffect.back));
     }
   }
 
   void requestAssistant() {
-    emit(
-      state.copyWith(
-        effect: OnSiteTransferEffect.assistant,
-        effectId: state.effectId + 1,
-      ),
-    );
+    emit(state.copyWith(effect: OnSiteTransferEffect.assistant));
   }
 
   void applyReceiptDismissal() {
-    emit(
-      state.copyWith(
-        effect: OnSiteTransferEffect.home,
-        effectId: state.effectId + 1,
-      ),
-    );
+    emit(state.copyWith(effect: OnSiteTransferEffect.home));
+  }
+
+  bool _canContinueSource(TransferDeposit? deposit, bool isDateValid) =>
+      deposit != null && isDateValid;
+
+  bool _canContinueVisit(DeliveryAddress? address, bool isDateValid) =>
+      address != null && isDateValid;
+
+  bool _hasDestinations(
+    List<TransferDestination> destinations,
+    TransferAttachment? attachment,
+  ) => destinations.isNotEmpty || attachment != null;
+
+  bool _hasReviewedAttachment() => state.attachment != null;
+
+  bool _canAddDestination({
+    bool? isAmountValid,
+    bool? isIbanValid,
+    TransferPurpose? purpose,
+    TransferMethod? method,
+  }) {
+    return (isAmountValid ?? state.isAmountValid) &&
+        (isIbanValid ?? state.isIbanValid) &&
+        (purpose ?? state.purpose) != null &&
+        (method ?? state.method) != null;
+  }
+
+  bool _isConfirmationChanged(TransferAttachment? attachment) {
+    return state.confirmedRequest != null &&
+        _createRequest(
+              attachment: attachment,
+              idempotencyKey: state.confirmedRequest!.idempotencyKey,
+            ) !=
+            state.confirmedRequest;
+  }
+
+  /// UI has accepted the pending interaction; data and request statuses stay intact.
+  void consumeOnSiteTransferInteraction() {
+    emit(state.copyWith(effect: null));
   }
 }

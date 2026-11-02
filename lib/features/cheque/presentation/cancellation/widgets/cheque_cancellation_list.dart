@@ -1,9 +1,9 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/certificate_fields.dart';
 
 import '../cubit/cheque_cancellation_cubit.dart';
@@ -51,13 +51,13 @@ class _ChequeCancellationListState extends State<ChequeCancellationList> {
           searchIcon: const Center(
             widthFactor: 1,
             child: AvpImage(
-              image: AppAssets.cardFeaturesSearch,
+              image: '${AppConstants.baseImage}card_features_search.svg',
               width: 20,
               height: 20,
             ),
           ),
           clearIcon: const AvpImage(
-            image: AppAssets.dashboardSearchClear,
+            image: '${AppConstants.baseImage}dashboard_search_clear.svg',
             width: 20,
             height: 20,
           ),
@@ -68,6 +68,7 @@ class _ChequeCancellationListState extends State<ChequeCancellationList> {
           const Center(child: CircularProgressIndicator())
         else if (widget.state.chequesStatus == RequestStatus.failure)
           AppButton(
+            isLoading: widget.state.chequesStatus == RequestStatus.loading,
             label: S.current.dashboardRetry,
             onPressed: context.read<ChequeCancellationCubit>().fetchCheques,
           )

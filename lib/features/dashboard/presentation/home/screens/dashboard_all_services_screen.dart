@@ -1,10 +1,10 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_category_heading.dart';
 import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/dashboard_services.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_service_grid_card.dart';
 
 class DashboardAllServicesScreen extends StatelessWidget {
@@ -38,7 +38,10 @@ class DashboardAllServicesScreen extends StatelessWidget {
                       variant: AppButtonVariant.text,
                       semanticLabel: MaterialLocalizations.of(context)
                           .backButtonTooltip,
-                      icon: AvpImage(image: AppAssets.dashboardCatalogBack),
+                      icon: AvpImage(
+                        image:
+                            '${AppConstants.baseImage}dashboard_catalog_back.svg',
+                      ),
                     ),
                     const SizedBox(width: 4),
                     Expanded(

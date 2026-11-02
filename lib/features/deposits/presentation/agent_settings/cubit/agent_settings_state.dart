@@ -4,7 +4,8 @@ part of 'agent_settings_cubit.dart';
 abstract class AgentSettingsState with _$AgentSettingsState {
   const factory AgentSettingsState.initial({
     @Default(RequestStatus.initial) RequestStatus agentsStatus,
-    Failure? agentsFailure,
+    Failure? failure,
+    String? message,
     @Default(<DepositAgent>[]) List<DepositAgent> agents,
     @Default(<DepositAgent>[]) List<DepositAgent> visibleAgents,
     @Default(AgentTab.myAgents) AgentTab tab,
@@ -21,6 +22,5 @@ abstract class AgentSettingsState with _$AgentSettingsState {
     @Default(false) bool isEveryStatusSelected,
     DepositAgent? details,
     AgentSettingsEffect? effect,
-    @Default(0) int effectId,
   }) = _AgentSettingsState;
 }

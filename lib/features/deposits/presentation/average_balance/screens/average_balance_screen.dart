@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:pishkhan_mobile/core/flow/service_registry.dart';
 
 import '../../shared/certificate_receipt_dialog.dart';
@@ -12,7 +13,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
 
@@ -31,17 +31,24 @@ class AverageBalanceScreen extends StatelessWidget {
   final String? initialDepositNumber;
   final AverageBalanceState initialState;
   final ValueChanged<CertificateReceipt>? onCompleted;
+  void _showRequestFailure(BuildContext context, AverageBalanceState state) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(state.message!)));
+  }
+
   Future<void> _handleEffect(
     BuildContext context,
     AverageBalanceState state,
   ) async {
     switch (state.effect) {
       case CertificateAddressRequested():
+        context.read<AverageBalanceCubit>().consumeAverageBalanceInteraction();
         final address = await ServiceRegistry.openAddressEditor(context);
         if (context.mounted) {
           context.read<AverageBalanceCubit>().applyAddressSelection(address);
         }
       case CertificateAddressRemovalRequested(:final address):
+        context.read<AverageBalanceCubit>().consumeAverageBalanceInteraction();
         final cubit = context.read<AverageBalanceCubit>();
         await showModalBottomSheet<void>(
           context: context,
@@ -62,12 +69,16 @@ class AverageBalanceScreen extends StatelessWidget {
           ),
         );
       case CertificateAgentUnavailable():
+        context.read<AverageBalanceCubit>().consumeAverageBalanceInteraction();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(S.current.certificateAgentUnavailable)),
         );
       case null:
         switch (state.navigation) {
           case FlowNavigation.confirmExit:
+            context
+                .read<AverageBalanceCubit>()
+                .consumeAverageBalanceInteraction();
             final confirmed = await showFlowExitDialog(context);
             if (context.mounted) {
               context.read<AverageBalanceCubit>().applyExitConfirmation(
@@ -105,24 +116,51 @@ class AverageBalanceScreen extends StatelessWidget {
         initialDepositNumber: initialDepositNumber,
         initialState: initialState,
       )..fetchCatalog(),
-      child: BlocListener<AverageBalanceCubit, AverageBalanceState>(
-        listenWhen: (previous, current) =>
-            previous.effectId != current.effectId,
-        listener: _handleEffect,
-        child: BlocConsumer<AverageBalanceCubit, AverageBalanceState>(
-          listenWhen: (previous, current) =>
-              previous.submissionStatus != current.submissionStatus &&
-              current.submissionStatus == RequestStatus.success,
-          listener: _handleReceipt,
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<AverageBalanceCubit, AverageBalanceState>(
+            listenWhen: (previous, current) =>
+                previous.catalogStatus != current.catalogStatus &&
+                current.catalogStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<AverageBalanceCubit, AverageBalanceState>(
+            listenWhen: (previous, current) =>
+                previous.submissionStatus != current.submissionStatus &&
+                current.submissionStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<AverageBalanceCubit, AverageBalanceState>(
+            listenWhen: (previous, current) =>
+                (previous.effect != current.effect && current.effect != null) ||
+                (previous.navigation != current.navigation &&
+                    current.navigation != null),
+            listener: _handleEffect,
+          ),
+          BlocListener<AverageBalanceCubit, AverageBalanceState>(
+            listenWhen: (previous, current) =>
+                previous.submissionStatus != current.submissionStatus &&
+                current.submissionStatus == RequestStatus.success,
+            listener: _handleReceipt,
+          ),
+        ],
+        child: BlocBuilder<AverageBalanceCubit, AverageBalanceState>(
           buildWhen: (previous, current) =>
+              previous.catalogStatus != current.catalogStatus ||
+              previous.submissionStatus != current.submissionStatus ||
               previous.navigation != current.navigation,
           builder: (context, state) {
             return Directionality(
               textDirection: TextDirection.rtl,
               child: PopScope(
-                canPop: state.navigation == FlowNavigation.back,
+                canPop:
+                    (state.catalogStatus != RequestStatus.loading &&
+                        state.submissionStatus != RequestStatus.loading) &&
+                    (state.navigation == FlowNavigation.back),
                 onPopInvokedWithResult: (didPop, _) {
-                  if (!didPop) {
+                  if (!didPop &&
+                      state.catalogStatus != RequestStatus.loading &&
+                      state.submissionStatus != RequestStatus.loading) {
                     context.read<AverageBalanceCubit>().requestBack();
                   }
                 },
@@ -136,12 +174,15 @@ class AverageBalanceScreen extends StatelessWidget {
                           title: S.current.certificateAverageTitle,
                           showLeadingActions: false,
                           trailingIcon: depositIcon(
-                            AppAssets.depositFeatureBack,
+                            '${AppConstants.baseImage}deposit_list_back.svg',
                           ),
                           trailingTooltip: S.current.backLabel,
-                          onTrailingPressed: context
-                              .read<AverageBalanceCubit>()
-                              .requestBack,
+                          onTrailingPressed:
+                              (state.catalogStatus != RequestStatus.loading &&
+                                  state.submissionStatus !=
+                                      RequestStatus.loading)
+                              ? context.read<AverageBalanceCubit>().requestBack
+                              : null,
                         ),
                         Expanded(
                           child: Stack(

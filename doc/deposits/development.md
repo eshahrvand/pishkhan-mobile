@@ -1,6 +1,14 @@
 # Deposits: implemented flows and integration
 
-Updated: 2026-10-19. This is the entry document for the deposit module. It describes
+**Current dependency rule — contract v1.24:** application/data operations follow
+Cubit → registered UseCase → Repository. Cubit imports/resolves UseCases only;
+`core/di` wires their repositories. Any earlier direct-Repository or optional-
+UseCase wording below is historical and superseded. Payloads, Result mapping,
+validation, retry identity and UI behavior remain unchanged. See the
+[UseCase-only migration review](../usecase-only-dependencies-review.md).
+
+
+Updated: 2026-11-01. This is the entry document for the deposit module. It describes
 implemented application flows and mock adapters. Bank APIs, real account operations,
 document issuance and payments remain integration work.
 
@@ -39,7 +47,8 @@ card variants.
 
 Each standalone screen directly constructs its Cubit in `BlocProvider.create`
 and calls its required initial fetch. GetIt registers actual dependencies, never
-Cubits. Cubit resolves its repository in a field; UI/router do not forward data
+Cubits. Cubit resolves only its registered UseCase dependencies in final
+fields; UI/router do not forward data
 dependencies through constructors. State remains one plain Freezed `.initial`
 data class with independent operation statuses. Cubit owns decisions, validation
 outcomes, dependent selections, request construction and modal-result interpretation;
@@ -47,7 +56,7 @@ UI renders and executes prepared Flutter effects.
 
 ## Current behavior
 
-- Deposit list: search/filter, account and owner details, supported service actions.
+- Deposit list: account/status filters, account and owner details, supported service actions.
 - Average balance: account/conditions, delivery, confirmation/fees. Dates remain
   optional until the approved calendar picker is available.
 - Financial certificate: five stages, including recipient/currency and Latin
@@ -82,8 +91,10 @@ lifetime unless a repository explicitly persists them.
 Existing selectors, fields, recipient/agent sections, summary, invoice, cards,
 headers, assistant, exit dialog and blurred sheet frame are reused. Common
 certificate visuals live in `lib/shared/widgets`; stateful address editing stays
-in its own feature. Standard selects use anchored menus; explicitly designed
-bottom sheets retain their presentation.
+in its own feature. All interactive selects keep their field visuals and open
+the shared avp_ui selection bottom sheet through AppSelect’s package-owned default behavior. The
+shared CertificateSelect supplies this behavior to deposit flows, profile/address
+forms, transfers and modern banking.
 
 ## Integration limits
 
@@ -100,12 +111,15 @@ legal document or bank success.
 
 ## Verification
 
-Tests are under `test/deposits`, `test/address`, shared-card and router suites:
-
-```sh
-flutter test test/deposits test/address test/app_financial_cards_test.dart test/core/router/app_router_test.dart
-flutter analyze
-```
+Run the changed flow's unit/widget tests and directly related consumers only;
+full application testing requires an explicit owner request. Phase 6 covers the
+list, restrictions, surplus closure and proxy flows; its exact commands/results
+are in [phase 6 review](phase-6-review.md). Certificates, agent introduction
+and agent settings are migrated in [phase 7 review](phase-7-review.md), with
+separate scoped verification. This migration also checks the agent
+flow's direct consumption of the renamed shared list UseCase, without beginning
+its phase-7 rewrite. Historical broad verification commands are not instructions
+to rerun all deposit/application tests.
 
 Screen tests optionally export previews with `CAPTURE_CERTIFICATE_PREVIEWS=1` to
 ignored `build/previews/`. Test counts are not frozen here; use the execution

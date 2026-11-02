@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
+
 import 'app_address_card_detail_row.dart';
 import 'app_address_card_delivery.dart';
 
@@ -5,7 +7,6 @@ import 'dart:math' as math;
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 enum AppAddressType { home, work }
 
@@ -105,7 +106,8 @@ class AppAddressCard extends StatelessWidget {
                           child: Transform.rotate(
                             angle: -math.pi / 2,
                             child: AvpImage(
-                              image: AppAssets.iconMoreVertical20Gray700,
+                              image:
+                                  '${AppConstants.baseImage}icon_more_vertical_20_gray700.svg',
                               width: 20,
                               height: 20,
                             ),
@@ -126,8 +128,8 @@ class AppAddressCard extends StatelessWidget {
                             flipY: true,
                             child: AvpImage(
                               image: _isHome
-                                  ? AppAssets.addressCardHomeHeart
-                                  : AppAssets.addressCardBuildings,
+                                  ? '${AppConstants.baseImage}address_card_home_heart.svg'
+                                  : '${AppConstants.baseImage}address_card_buildings.svg',
                               width: 20,
                               height: 20,
                             ),
@@ -140,7 +142,8 @@ class AppAddressCard extends StatelessWidget {
                   SizedBox(
                     height: .5,
                     child: AvpImage(
-                      image: AppAssets.dividerCardGray200,
+                      image:
+                          '${AppConstants.baseImage}divider_card_gray200.svg',
                       fit: BoxFit.fill,
                     ),
                   ),
@@ -180,7 +183,8 @@ class AppAddressCard extends StatelessWidget {
                                 textDirection: TextDirection.ltr,
                                 children: [
                                   AvpImage(
-                                    image: AppAssets.addressCardAngleLeft,
+                                    image:
+                                        '${AppConstants.baseImage}address_card_angle_left.svg',
                                     width: 20,
                                     height: 20,
                                   ),

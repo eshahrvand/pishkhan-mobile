@@ -1,6 +1,6 @@
 # Cheque book issuance prototype
 
-Updated: 2026-10-19. See the [cheque module overview](../cheque/development.md)
+Updated: 2026-11-02. See the [cheque module overview](../cheque/development.md)
 for all three cheque flows and the distinction between address editing and postal-office lookup.
 
 Entry: dashboard cheque services → Issue cheque book (`cheque-issue`), also available from deposit actions. An incoming deposit number is resolved by Cubit after catalog loading.
@@ -33,6 +33,29 @@ Fee quotes bind the checked account, leaf count, residency token, delivery detai
 
 Delivery fields, recipient/agent sections and summary rows reuse the shared components extracted from deposit-certificate code. The address editor, Cubit and State belong to `features/address`; deposit and cheque flows open it through `ServiceRegistry.openAddressEditor`. The common `DeliveryAddress` result remains in Core so callers need no direct import from another feature.
 
+## Phase-9 ownership and feedback
+
+Contract v1.23 applies. The six existing UseCases in `cheque_book_usecase.dart`
+end in `UseCase` and are registered in GetIt. `core/di` wires their repository;
+Cubit resolves final fields using complete lowerCamelCase UseCase names.
+No dependency is forwarded from UI or constructed inside Cubit. Each request
+owner uses `async/await` and its own Result switch; returned errors retain the
+existing Domain exception boundary.
+
+Registry check and registry deletion keep distinct explicit emits, with shared
+pure calculations for registered addresses, review/acknowledgement, initial
+delivery selection and continuation. Delivery validation reads stored sibling
+flags and the changed input's fresh result. Local delivery removal remains local;
+it does not trigger registry deletion. Recipient fields, quote token/binding,
+confirmed draft and retry key preserve their existing behavior. Every successful
+new quote still creates its existing new key; submission retry reuses that key.
+
+Six independent operation-failure listeners and the typed-effect listener share
+`MultiBlocListener`; `BlocBuilder` renders. Latest failure/message is retained,
+and does not replay on an unrelated operation or block modal/navigation effects.
+System/header Back remains blocked while any request is pending. Existing
+residency/quote request IDs continue to reject stale responses.
+
 ## Validation
 
 Relevant automated tests live in `test/cheque/cheque_book_*`. Reference screenshots can be exported with:
@@ -42,6 +65,11 @@ CAPTURE_CERTIFICATE_PREVIEWS=1 flutter test test/cheque/cheque_book_screen_test.
 ```
 
 Images are written to `build/previews/certificates/chequebook-*.png` and are not product assets.
+
+The [phase-9 review](../cheque/phase-9-review.md) records current scoped commands
+and results. New regression coverage repeats failures for all six operations,
+recovers through registry deletion/address saving/quote, and submits the exact
+confirmed snapshot successfully after retries.
 
 ## Design reference
 
@@ -53,3 +81,7 @@ Figma file `nYQNyZdSs98lwymCpt5Sag`, node prefix `28060:`:
 
 The production bank/registry/document/payment adapters remain unconnected.
 A complete mock UI flow does not imply that actual bank issuance is available.
+
+Shared address editor migration is recorded in [phase 5](../profile/phase-5-review.md). Its
+`ServiceRegistry.openAddressEditor` entry/result contract and this flow’s existing
+address inputs, cancellation and validation remain unchanged.

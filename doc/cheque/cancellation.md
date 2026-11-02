@@ -38,8 +38,9 @@ existing unavailable message. Demo submission requires consent, with no invented
 download or download-completed flag.
 
 Back moves one stage at a time. Leaving the first stage after input or requesting
-the assistant requires confirmation. Navigation stays available during requests;
-UI loading/availability controls prevent repeated edits/submission. Stage changes
+the assistant requires confirmation. System/header Back are blocked during
+catalog, list and submission requests; existing UI loading/availability controls
+prevent repeated edits/submission. Stage changes
 reveal the beginning of content. Successful demo submission opens its explicit
 mock receipt; dismissal returns home.
 
@@ -58,6 +59,18 @@ newest response can publish its list. Retrying unchanged submission retains its
 snapshot/key. Returning to reasons without changing the payload retains its identity;
 editing the payload and reconfirming creates a new request identity.
 
+Contract v1.23 is applied in phase 9. The three UseCases have `UseCase` class
+suffixes and live in `cheque_cancellation_usecase.dart`; DI wires their repository
+and Cubit resolves their complete lowerCamelCase names in final GetIt fields.
+`fetchCatalog`, `fetchCheques` and `submitCancellation` each own one awaited
+operation and Result switch. No UI/Cubit constructor forwards dependencies.
+
+Separate catalog/list/submission failure listeners and the typed-effect listener
+share the screen's `MultiBlocListener`; `BlocBuilder` renders. Retained error text
+does not block review, reason, postal, unavailable-content or receipt effects.
+The local content Consumer owns scroll-to-step and the local review Consumer
+owns its nested removal confirmation. Neither duplicates screen feedback.
+
 The mock validates account/type membership, actual cheque ownership, duplicate
 entries, reason completeness and key conflicts. Identical retries return the same
 receipt. Both accounts `.1` and `.2` are offered. Most combinations yield ten
@@ -69,7 +82,7 @@ type yields an empty list. No real cheque is cancelled or posted.
 Public controls, app headers/assistant/exit dialog and blurred service-sheet frame
 are reused. Identity rows are shared between cards and review. Circular reason
 choices use the original Figma check asset; installed avp_ui has no radio primitive.
-Postal search reuses `presentation/shared/postal` as documented in the
+Postal search opens the independent `features/postal_offices` feature as documented in the
 [module overview](development.md#shared-postal-office-helper). It does not share
 the address editor's State or postal-code validation.
 
@@ -93,3 +106,7 @@ locations, empty state, stale list replies, retry snapshots, service routing,
 pending Back and 320px enlarged text. Opt-in captures use
 `CAPTURE_CERTIFICATE_PREVIEWS=1` and write
 `build/previews/certificates/cheque-cancel-*.png`.
+
+Phase-9 notification tests additionally repeat list and submission failures,
+then exercise review/reason effects and success with the unchanged request key.
+See the [review](phase-9-review.md) for current scoped results.

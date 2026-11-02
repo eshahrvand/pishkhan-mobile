@@ -1,7 +1,5 @@
-
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-
 
 class AppAddressCardDetailRow extends StatelessWidget {
   const AppAddressCardDetailRow({

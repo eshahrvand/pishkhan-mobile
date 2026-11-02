@@ -1,8 +1,8 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 import '../../../domain/entities/listed_card.dart';
 import '../cubit/card_features_cubit.dart';
@@ -33,6 +33,8 @@ class _CardFeaturesFiltersState extends State<CardFeaturesFilters> {
     BuildContext context,
     CardFeaturesState state,
   ) async {
+    context.read<CardFeaturesCubit>().consumeCardFeaturesInteraction();
+
     if (state.effect case CardCategoryRevealRequested(
       :final category,
       :final scrollToEnd,
@@ -61,7 +63,7 @@ class _CardFeaturesFiltersState extends State<CardFeaturesFilters> {
   Widget build(BuildContext context) {
     return BlocConsumer<CardFeaturesCubit, CardFeaturesState>(
       listenWhen: (previous, current) =>
-          previous.effectId != current.effectId &&
+          (previous.effect != current.effect && current.effect != null) &&
           current.effect is CardCategoryRevealRequested,
       listener: _revealCategory,
       buildWhen: (previous, current) => previous.category != current.category,
@@ -123,9 +125,11 @@ class _CardFeaturesFiltersState extends State<CardFeaturesFilters> {
                         height: 20 / 14,
                         letterSpacing: 0,
                       ),
-                      searchIcon: cardFeatureIcon(AppAssets.cardFeaturesSearch),
+                      searchIcon: cardFeatureIcon(
+                        '${AppConstants.baseImage}card_features_search.svg',
+                      ),
                       clearIcon: cardFeatureIcon(
-                        AppAssets.dashboardSearchClear,
+                        '${AppConstants.baseImage}dashboard_search_clear.svg',
                       ),
                       onChanged: context
                           .read<CardFeaturesCubit>()
@@ -139,7 +143,9 @@ class _CardFeaturesFiltersState extends State<CardFeaturesFilters> {
                     size: AppButtonSize.lg,
                     backgroundColor: AppCardFeatureColors.filterButton,
                     tooltip: S.current.cardFeatureFilter,
-                    icon: cardFeatureIcon(AppAssets.cardFeaturesFilter),
+                    icon: cardFeatureIcon(
+                      '${AppConstants.baseImage}card_features_filter.svg',
+                    ),
                   ),
                 ],
               ),
@@ -148,7 +154,7 @@ class _CardFeaturesFiltersState extends State<CardFeaturesFilters> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: AvpImage(
-                image: AppAssets.cardFeaturesSeparator,
+                image: '${AppConstants.baseImage}card_features_separator.png',
                 height: 1,
                 width: double.infinity,
                 fit: BoxFit.fill,

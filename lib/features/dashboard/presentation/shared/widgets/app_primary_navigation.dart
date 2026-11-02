@@ -1,7 +1,7 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 import '../dashboard_tab.dart';
 export '../dashboard_tab.dart';
@@ -53,16 +53,16 @@ class AppPrimaryNavigation extends StatelessWidget {
                                 image: switch (tab) {
                                   AppPrimaryTab.dashboard =>
                                     tab == selectedTab
-                                        ? AppAssets.dashboardNavHome
-                                        : AppAssets.cardsNavHome,
+                                        ? '${AppConstants.baseImage}dashboard_nav_home.svg'
+                                        : '${AppConstants.baseImage}cards_nav_home.svg',
                                   AppPrimaryTab.cards =>
                                     tab == selectedTab
-                                        ? AppAssets.cardsNavActive
-                                        : AppAssets.dashboardNavCard,
+                                        ? '${AppConstants.baseImage}cards_nav_active.svg'
+                                        : '${AppConstants.baseImage}dashboard_nav_card.svg',
                                   AppPrimaryTab.deposits =>
-                                    AppAssets.dashboardNavDeposit,
+                                    '${AppConstants.baseImage}dashboard_nav_deposit.svg',
                                   AppPrimaryTab.loans =>
-                                    AppAssets.dashboardNavLoan,
+                                    '${AppConstants.baseImage}dashboard_nav_loan.svg',
                                 },
                               ),
                               const SizedBox(width: 2),

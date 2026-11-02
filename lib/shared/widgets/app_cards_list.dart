@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
+
 import 'app_cards_list_header.dart';
 import 'app_cards_list_detail_row.dart';
 
@@ -5,7 +7,6 @@ import 'dart:math' as math;
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 /// Figma CardsList variants.
 enum AppCardsListType { resalat, gift, virtual, coupon, family }
@@ -14,13 +15,16 @@ enum AppCardsListType { resalat, gift, virtual, coupon, family }
 abstract final class AppCardsListIcons {
   static Widget moreHorizontal() => Transform.rotate(
     angle: -math.pi / 2,
-    child: _svg(AppAssets.iconMoreVertical20Gray700),
+    child: _svg('${AppConstants.baseImage}icon_more_vertical_20_gray700.svg'),
   );
 
   static Widget divider() => SizedBox(
     height: .5,
     width: double.infinity,
-    child: AvpImage(image: AppAssets.dividerCardGray200, fit: BoxFit.fill),
+    child: AvpImage(
+      image: '${AppConstants.baseImage}divider_card_gray200.svg',
+      fit: BoxFit.fill,
+    ),
   );
 
   static Widget forType(AppCardsListType type) {
@@ -32,17 +36,23 @@ abstract final class AppCardsListIcons {
           child: SizedBox(
             width: 16.284,
             height: 12.95,
-            child: AvpImage(image: AppAssets.cardsListVirtualCard),
+            child: AvpImage(
+              image: '${AppConstants.baseImage}cards_list_virtual_card.svg',
+            ),
           ),
         ),
       );
     }
 
     final path = switch (type) {
-      AppCardsListType.resalat => AppAssets.cardsListCreditCard,
-      AppCardsListType.gift => AppAssets.cardsListGiftCard,
-      AppCardsListType.coupon => AppAssets.cardsListCoupon,
-      AppCardsListType.family => AppAssets.cardsListFamily,
+      AppCardsListType.resalat =>
+        '${AppConstants.baseImage}cards_list_credit_card.svg',
+      AppCardsListType.gift =>
+        '${AppConstants.baseImage}cards_list_gift_card.svg',
+      AppCardsListType.coupon =>
+        '${AppConstants.baseImage}cards_list_coupon.svg',
+      AppCardsListType.family =>
+        '${AppConstants.baseImage}cards_list_family.svg',
       AppCardsListType.virtual => throw StateError('Handled above.'),
     };
     return Transform.rotate(

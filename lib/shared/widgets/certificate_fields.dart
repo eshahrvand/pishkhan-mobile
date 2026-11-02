@@ -1,6 +1,6 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 TextStyle certificateLabelStyle(BuildContext context) =>
     Theme.of(context).textTheme.bodySmall!.copyWith(
@@ -59,8 +59,8 @@ class CertificateSelect<T> extends StatelessWidget {
             child: Center(
               child: AvpImage(
                 image: value == null
-                    ? AppAssets.certificateChevronHint
-                    : AppAssets.certificateChevron,
+                    ? '${AppConstants.baseImage}certificate_certChevronHint.svg'
+                    : '${AppConstants.baseImage}certificate_certChevron.svg',
               ),
             ),
           ),

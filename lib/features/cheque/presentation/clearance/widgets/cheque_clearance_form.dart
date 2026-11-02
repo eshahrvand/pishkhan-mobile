@@ -1,9 +1,9 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 import '../../../domain/entities/cheque_clearance.dart';
 import '../cubit/cheque_clearance_cubit.dart';
@@ -45,8 +45,8 @@ class ChequeClearanceForm extends StatelessWidget {
                 labelSpacing: 8,
                 trailing: AvpImage(
                   image: state.deposit == null
-                      ? AppAssets.issuanceSelectEmpty
-                      : AppAssets.cardFeaturesChevron,
+                      ? '${AppConstants.baseImage}issuance_select_empty.svg'
+                      : '${AppConstants.baseImage}card_features_chevron.svg',
                   width: 20,
                   height: 20,
                 ),
@@ -105,7 +105,8 @@ class ChequeClearanceForm extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const AvpImage(
-                        image: AppAssets.chequeClearanceQuestion,
+                        image:
+                            '${AppConstants.baseImage}cheque_clearance_question.svg',
                         width: 16,
                         height: 16,
                       ),
@@ -135,8 +136,8 @@ class ChequeClearanceForm extends StatelessWidget {
                 labelSpacing: 8,
                 trailing: AvpImage(
                   image: state.reason == null
-                      ? AppAssets.issuanceSelectEmpty
-                      : AppAssets.cardFeaturesChevron,
+                      ? '${AppConstants.baseImage}issuance_select_empty.svg'
+                      : '${AppConstants.baseImage}card_features_chevron.svg',
                   width: 20,
                   height: 20,
                 ),
@@ -188,7 +189,7 @@ class ChequeClearanceForm extends StatelessWidget {
               if (state.reason != null) ...[
                 const SizedBox(height: 20),
                 const AvpImage(
-                  image: AppAssets.issuanceDivider,
+                  image: '${AppConstants.baseImage}issuance_divider.svg',
                   height: 1,
                   fit: BoxFit.fill,
                 ),
@@ -208,7 +209,8 @@ class ChequeClearanceForm extends StatelessWidget {
                     child: Row(
                       children: [
                         const AvpImage(
-                          image: AppAssets.passwordCameraInfo,
+                          image:
+                              '${AppConstants.baseImage}password_camera_info.svg',
                           width: 20,
                           height: 20,
                         ),
@@ -229,8 +231,9 @@ class ChequeClearanceForm extends StatelessWidget {
               ],
               if (state.catalogStatus == RequestStatus.failure) ...[
                 const SizedBox(height: 20),
-                Text(S.current.dashboardLoadError),
+                const SizedBox.shrink(),
                 AppButton(
+                  isLoading: state.catalogStatus == RequestStatus.loading,
                   label: S.current.dashboardRetry,
                   onPressed: context.read<ChequeClearanceCubit>().fetchCatalog,
                 ),

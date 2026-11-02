@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/features/deposits/domain/usecases/deposit_list_usecase.dart';
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
 import 'package:pishkhan_mobile/features/deposits/presentation/deposit_list/deposit_list_action.dart';
 
 import '../support/registered_dependency.dart';
@@ -19,6 +21,12 @@ class _Repository implements DepositsRepository {
 }
 
 void main() {
+  setUp(
+    () => getIt.registerLazySingleton<LoadDepositsUseCase>(
+      () => LoadDepositsUseCase(getIt<DepositsRepository>()),
+    ),
+  );
+  tearDown(() => getIt.reset());
   test(
     'type and status filters combine; clear preserves the other filter',
     () async {
@@ -74,13 +82,13 @@ void main() {
           );
       await cubit.fetchDeposits();
       expect(cubit.state.depositsStatus, RequestStatus.failure);
-      expect(cubit.state.depositsFailure, isA<UnexpectedFailure>());
+      expect(cubit.state.failure, isA<UnexpectedFailure>());
       await cubit.fetchDeposits();
       expect(cubit.state.depositsStatus, RequestStatus.success);
       expect(cubit.state.deposits, isEmpty);
       await cubit.fetchDeposits();
       expect(
-        cubit.state.depositsFailure,
+        cubit.state.failure,
         const DataFailure('deposits.catalog.invalid'),
       );
       await cubit.close();
@@ -98,9 +106,9 @@ void main() {
       final deposit = cubit.state.visibleDeposits.first;
       cubit.requestDepositActions(deposit);
       expect((cubit.state.effect as DepositActionsRequested).deposit, deposit);
-      final effectId = cubit.state.effectId;
+      final pendingEffect = cubit.state.effect;
       cubit.applyActionSelection(deposit, null);
-      expect(cubit.state.effectId, effectId);
+      expect(cubit.state.effect, pendingEffect);
       cubit.applyActionSelection(deposit, DepositListAction.accountDetails);
       expect((cubit.state.effect as DepositDetailsRequested).deposit, deposit);
       cubit.applyActionSelection(deposit, DepositListAction.statement);

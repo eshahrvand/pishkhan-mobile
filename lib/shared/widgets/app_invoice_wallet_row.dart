@@ -4,7 +4,6 @@ import 'app_invoice_styles.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 
-
 class AppInvoiceWalletRow extends StatelessWidget {
   const AppInvoiceWalletRow({
     super.key,

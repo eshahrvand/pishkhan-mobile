@@ -2,8 +2,6 @@ import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
-import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/widgets/certificate_fields.dart';
 
 import '../cubit/cheque_book_cubit.dart';
 import 'cheque_book_labels.dart';
@@ -20,17 +18,6 @@ class ChequeBookFooter extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              if (state.addressDeletionFailure != null ||
-                  state.addressSaveFailure != null ||
-                  state.quoteFailure != null ||
-                  state.submissionFailure != null) ...[
-                Text(
-                  S.current.chequeSubmitFailure,
-                  style: certificateLabelStyle(context)
-                      .copyWith(color: context.colors.error),
-                ),
-                const SizedBox(height: 8),
-              ],
               AppButton(
                 label: chequeBookActionLabel(state.primaryAction),
                 size: AppButtonSize.lg,

@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
+
 import '../../home/cubit/home_cubit.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,7 +12,6 @@ import 'dart:ui' as ui;
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 class DashboardResoBanner extends StatefulWidget {
   const DashboardResoBanner({
@@ -64,8 +65,9 @@ class _DashboardResoBannerState extends State<DashboardResoBanner>
     ]);
     _syncMotion();
     if (_textureStream != null) return;
-    _textureStream = const AssetImage(AppAssets.dashboardTexture)
-        .resolve(createLocalImageConfiguration(context));
+    _textureStream = const AssetImage(
+      '${AppConstants.baseImage}dashboard_texture.png',
+    ).resolve(createLocalImageConfiguration(context));
     _textureListener = ImageStreamListener((info, _) {
       if (!mounted) return;
       _texture.value?.dispose();
@@ -184,7 +186,8 @@ class _DashboardResoBannerState extends State<DashboardResoBanner>
                           width: 217 * scale,
                           height: 122,
                           child: AvpImage(
-                            image: AppAssets.dashboardReso,
+                            image:
+                                '${AppConstants.baseImage}dashboard_reso.png',
                             fit: BoxFit.cover,
                             excludeFromSemantics: true,
                           ),
@@ -251,7 +254,8 @@ class _DashboardResoBannerState extends State<DashboardResoBanner>
                                   height: 44,
                                   child: Center(
                                     child: AvpImage(
-                                      image: AppAssets.dashboardPromptArrow,
+                                      image:
+                                          '${AppConstants.baseImage}dashboard_prompt_arrow.svg',
                                       width: 20,
                                       height: 20,
                                     ),

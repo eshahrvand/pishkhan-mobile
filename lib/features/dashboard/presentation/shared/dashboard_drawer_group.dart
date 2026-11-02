@@ -27,7 +27,13 @@ class DashboardDrawerGroup extends Equatable {
 
 const dashboardDrawerGroups = [
   DashboardDrawerGroup(DashboardDrawerSection.home),
-  DashboardDrawerGroup(DashboardDrawerSection.modern, DashboardService.modern),
+  DashboardDrawerGroup(DashboardDrawerSection.modern, [
+    DashboardService.mobileBank,
+    DashboardService.mobileBankPasswordRecovery,
+    DashboardService.mobileBankPasswordGuide,
+    DashboardService.mobileBankTransferLimits,
+    DashboardService.mobileBankDeactivation,
+  ]),
   DashboardDrawerGroup(DashboardDrawerSection.cards, [
     DashboardService.cardsList,
     DashboardService.issue,

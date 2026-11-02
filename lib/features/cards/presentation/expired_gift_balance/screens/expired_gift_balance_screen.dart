@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:pishkhan_mobile/shared/widgets/flow_exit_dialog.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
@@ -5,7 +6,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
 
 import '../../../domain/entities/card_service_data.dart';
@@ -32,12 +32,23 @@ class ExpiredGiftBalanceScreen extends StatefulWidget {
 }
 
 class _ExpiredGiftBalanceScreenState extends State<ExpiredGiftBalanceScreen> {
+  void _showRequestFailure(
+    BuildContext context,
+    ExpiredGiftBalanceState state,
+  ) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(state.message!)));
+  }
+
   Future<void> _handleNavigation(
     BuildContext context,
     ExpiredGiftBalanceState state,
   ) async {
     switch (state.navigation) {
       case FlowNavigation.confirmExit:
+        context
+            .read<ExpiredGiftBalanceCubit>()
+            .consumeExpiredGiftBalanceInteraction();
         final confirmed = await showFlowExitDialog(context);
         if (context.mounted) {
           context.read<ExpiredGiftBalanceCubit>().applyExitConfirmation(
@@ -62,6 +73,9 @@ class _ExpiredGiftBalanceScreenState extends State<ExpiredGiftBalanceScreen> {
   ) async {
     switch (state.effect) {
       case GiftBalanceEffect.filter:
+        context
+            .read<ExpiredGiftBalanceCubit>()
+            .consumeExpiredGiftBalanceInteraction();
         final result = await showGiftBalanceFilter(
           context,
           context.read<ExpiredGiftBalanceCubit>(),
@@ -70,6 +84,9 @@ class _ExpiredGiftBalanceScreenState extends State<ExpiredGiftBalanceScreen> {
           context.read<ExpiredGiftBalanceCubit>().applyFilterResult(result);
         }
       case GiftBalanceEffect.review:
+        context
+            .read<ExpiredGiftBalanceCubit>()
+            .consumeExpiredGiftBalanceInteraction();
         final result = await showGiftBalanceReview(
           context,
           context.read<ExpiredGiftBalanceCubit>(),
@@ -90,29 +107,49 @@ class _ExpiredGiftBalanceScreenState extends State<ExpiredGiftBalanceScreen> {
         listeners: [
           BlocListener<ExpiredGiftBalanceCubit, ExpiredGiftBalanceState>(
             listenWhen: (previous, current) =>
-                previous.navigationId != current.navigationId,
+                previous.catalogStatus != current.catalogStatus &&
+                current.catalogStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<ExpiredGiftBalanceCubit, ExpiredGiftBalanceState>(
+            listenWhen: (previous, current) =>
+                previous.submissionStatus != current.submissionStatus &&
+                current.submissionStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<ExpiredGiftBalanceCubit, ExpiredGiftBalanceState>(
+            listenWhen: (previous, current) =>
+                previous.navigation != current.navigation &&
+                current.navigation != null,
             listener: _handleNavigation,
           ),
           BlocListener<ExpiredGiftBalanceCubit, ExpiredGiftBalanceState>(
             listenWhen: (previous, current) =>
-                previous.effectId != current.effectId,
+                previous.effect != current.effect && current.effect != null,
             listener: _handleEffect,
           ),
-        ],
-        child: Directionality(
-          textDirection: TextDirection.rtl,
-          child: BlocConsumer<ExpiredGiftBalanceCubit, ExpiredGiftBalanceState>(
+          BlocListener<ExpiredGiftBalanceCubit, ExpiredGiftBalanceState>(
             listenWhen: (previous, current) =>
                 previous.submissionStatus != current.submissionStatus &&
                 current.submissionStatus == RequestStatus.success,
             listener: (context, state) {
               widget.onCompleted?.call(state.receipt!);
             },
+          ),
+        ],
+        child: Directionality(
+          textDirection: TextDirection.rtl,
+          child: BlocBuilder<ExpiredGiftBalanceCubit, ExpiredGiftBalanceState>(
             builder: (context, state) {
               return PopScope(
-                canPop: state.navigation == FlowNavigation.back,
+                canPop:
+                    (state.catalogStatus != RequestStatus.loading &&
+                        state.submissionStatus != RequestStatus.loading) &&
+                    (state.navigation == FlowNavigation.back),
                 onPopInvokedWithResult: (didPop, _) {
-                  if (!didPop) {
+                  if (!didPop &&
+                      state.catalogStatus != RequestStatus.loading &&
+                      state.submissionStatus != RequestStatus.loading) {
                     context.read<ExpiredGiftBalanceCubit>().requestBack();
                   }
                 },
@@ -140,7 +177,7 @@ class _ExpiredGiftBalanceScreenState extends State<ExpiredGiftBalanceScreen> {
                                 clipBehavior: Clip.none,
                                 children: [
                                   cardServiceIcon(
-                                    AppAssets.giftBalanceList,
+                                    '${AppConstants.baseImage}gift_balance_list.svg',
                                     size: 24,
                                   ),
                                   if (state.selectedCards.isNotEmpty)
@@ -161,13 +198,18 @@ class _ExpiredGiftBalanceScreenState extends State<ExpiredGiftBalanceScreen> {
                             ),
                           ),
                           trailingIcon: cardServiceIcon(
-                            AppAssets.cardFeaturesBack,
+                            '${AppConstants.baseImage}card_features_back.svg',
                             size: 24,
                           ),
                           trailingTooltip: S.current.backLabel,
-                          onTrailingPressed: context
-                              .read<ExpiredGiftBalanceCubit>()
-                              .requestBack,
+                          onTrailingPressed:
+                              (state.catalogStatus != RequestStatus.loading &&
+                                  state.submissionStatus !=
+                                      RequestStatus.loading)
+                              ? context
+                                    .read<ExpiredGiftBalanceCubit>()
+                                    .requestBack
+                              : null,
                         ),
                         if ((state.catalogStatus == RequestStatus.success &&
                             !state.isCatalogEmpty &&

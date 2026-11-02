@@ -6,7 +6,7 @@ import 'package:pishkhan_mobile/core/result/result.dart';
 import 'package:pishkhan_mobile/features/requests/data/repositories/mock_request_reports_repository.dart';
 import 'package:pishkhan_mobile/features/requests/domain/entities/request_report.dart';
 import 'package:pishkhan_mobile/features/requests/domain/repositories/request_reports_repository.dart';
-import 'package:pishkhan_mobile/features/requests/domain/usecases/filter_request_reports.dart';
+import 'package:pishkhan_mobile/features/requests/domain/usecases/filter_request_reports_usecase.dart';
 import 'package:pishkhan_mobile/features/requests/presentation/reports/cubit/request_reports_cubit.dart';
 
 final bankTime = DateTime.utc(2026, 10, 20, 8);
@@ -16,6 +16,8 @@ void main() {
   late RequestReportsCubit cubit;
 
   setUp(() {
+    configureDependencies();
+    getIt.unregister<RequestReportsRepository>();
     repository = ControlledReportsRepository();
     getIt.registerSingleton<RequestReportsRepository>(repository);
     cubit = RequestReportsCubit();
@@ -101,18 +103,18 @@ void main() {
     cubit.applyFilter();
     cubit.cancelDraftFilter();
     cubit.updateTrackingQuery('487567');
-    final effectId = cubit.state.effectId;
+    final pendingEffect = cubit.state.effect;
 
     cubit.requestTypeFilter();
     expect(cubit.state.filter.types, isNull);
     expect(cubit.state.filter.statuses, {ReportRequestStatus.awaitingApproval});
     expect(cubit.state.filter.period, ReportDatePeriod.lastWeek);
-    expect(cubit.state.effectId, effectId);
+    expect(cubit.state.effect, pendingEffect);
 
     cubit.requestStatusFilter();
     expect(cubit.state.filter.statuses, isNull);
     expect(cubit.state.filter.period, ReportDatePeriod.lastWeek);
-    expect(cubit.state.effectId, effectId);
+    expect(cubit.state.effect, pendingEffect);
 
     cubit.requestDateFilter();
     expect(cubit.state.filter, const RequestReportFilter());
@@ -120,11 +122,10 @@ void main() {
     expect(cubit.state.visibleReports.map((report) => report.trackingId), [
       '137/487567',
     ]);
-    expect(cubit.state.effectId, effectId);
+    expect(cubit.state.effect, pendingEffect);
 
     cubit.requestTypeFilter();
     expect(cubit.state.effect, RequestReportsEffect.typeFilter);
-    expect(cubit.state.effectId, effectId + 1);
   });
 
   test('type search does not lose hidden selections; all individual choices restore all', () async {

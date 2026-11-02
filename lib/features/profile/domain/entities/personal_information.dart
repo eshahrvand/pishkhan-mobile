@@ -16,16 +16,16 @@ class ProfileAddress extends Equatable {
   List<Object?> get props => [address, status];
 }
 
-enum OccupationKind { designer, teacher, professor, homemaker }
+enum JobInformationKind { designer, teacher, professor, homemaker }
 
-class ProfileOccupation extends Equatable {
-  const ProfileOccupation({
+class ProfileJobInformation extends Equatable {
+  const ProfileJobInformation({
     required this.id,
     required this.kind,
     required this.description,
   });
   final String id;
-  final OccupationKind kind;
+  final JobInformationKind kind;
   final String description;
   @override
   List<Object?> get props => [id, kind, description];

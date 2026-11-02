@@ -1,7 +1,7 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 class AppFileUploadBaseEmptyContent extends StatelessWidget {
   const AppFileUploadBaseEmptyContent({
@@ -31,7 +31,7 @@ class AppFileUploadBaseEmptyContent extends StatelessWidget {
           ),
           child: Center(
             child: AvpImage(
-              image: AppAssets.fileUploadUploadCloud,
+              image: '${AppConstants.baseImage}file_upload_upload_cloud.svg',
               width: 20,
               height: 20,
             ),

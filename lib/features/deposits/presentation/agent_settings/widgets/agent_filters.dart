@@ -1,9 +1,9 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 import '../cubit/agent_settings_cubit.dart';
 
@@ -26,8 +26,8 @@ class AgentFilters extends StatelessWidget {
               selected: state.depositFilter != null,
               icon: AvpImage(
                 image: state.depositFilter == null
-                    ? AppAssets.depositFeatureChevron
-                    : AppAssets.depositFeatureClear,
+                    ? '${AppConstants.baseImage}deposit_list_chevron.svg'
+                    : '${AppConstants.baseImage}deposit_list_clear.svg',
                 width: 20,
                 height: 20,
               ),
@@ -44,8 +44,8 @@ class AgentFilters extends StatelessWidget {
               selected: state.kindFilter != null,
               icon: AvpImage(
                 image: state.kindFilter == null
-                    ? AppAssets.depositFeatureChevron
-                    : AppAssets.depositFeatureClear,
+                    ? '${AppConstants.baseImage}deposit_list_chevron.svg'
+                    : '${AppConstants.baseImage}deposit_list_clear.svg',
                 width: 20,
                 height: 20,
               ),
@@ -62,8 +62,8 @@ class AgentFilters extends StatelessWidget {
               selected: state.statusFilter != null,
               icon: AvpImage(
                 image: state.statusFilter == null
-                    ? AppAssets.depositFeatureChevron
-                    : AppAssets.depositFeatureClear,
+                    ? '${AppConstants.baseImage}deposit_list_chevron.svg'
+                    : '${AppConstants.baseImage}deposit_list_clear.svg',
                 width: 20,
                 height: 20,
               ),

@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/core/presentation/mappers/request_error_message_mapper.dart';
+
 import 'dart:async';
 
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
@@ -98,7 +100,7 @@ void main() {
   }
 
   VirtualCardCubit cubit(WidgetTester t) => t
-      .element(find.byType(BlocConsumer<VirtualCardCubit, VirtualCardState>))
+      .element(find.byType(BlocBuilder<VirtualCardCubit, VirtualCardState>))
       .read<VirtualCardCubit>();
   Future<void> fill(WidgetTester t) async {
     await t.tap(cardControl(t, 'virtual_deposit'));
@@ -229,7 +231,7 @@ void main() {
       repository.pendingQuotes.first.complete(const Err(DataFailure('old')));
       await t.pumpAndSettle();
       expect(cubit(t).state.quote?.count, 4);
-      expect(cubit(t).state.quoteFailure, isNull);
+      expect(cubit(t).state.failure, isNull);
       expect(find.byType(AppInvoice), findsOneWidget);
       expect(t.takeException(), isNull);
     },
@@ -250,13 +252,18 @@ void main() {
       await t.pumpAndSettle();
       await t.tap(retry);
       await t.pumpAndSettle();
-      repository.quoteFailure = const DataFailure('quote-offline');
+      repository.failure = const DataFailure('quote-offline');
       await fill(t);
       expect(cubit(t).state.quoteStatus, RequestStatus.failure);
-      repository.quoteFailure = null;
+      repository.failure = null;
       await t.ensureVisible(retry);
       await t.pumpAndSettle();
       await t.tap(retry);
+      await t.pumpAndSettle();
+      t
+          .state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger))
+          .clearSnackBars();
+      await t.pump(const Duration(seconds: 5));
       await t.pumpAndSettle();
       expect(cubit(t).state.quote, isNotNull);
       expect(cubit(t).state.termsAccepted, isFalse);
@@ -264,6 +271,11 @@ void main() {
       await t.pumpAndSettle();
       repository.submitFailure = const DataFailure('submit-offline');
       await t.tap(cardControl(t, 'virtual_submit'));
+      await t.pumpAndSettle();
+      final lastError = cubit(t).state.message;
+      t
+          .state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger))
+          .clearSnackBars();
       await t.pumpAndSettle();
       repository.submitting = Completer<Result<VirtualCardReceipt>>();
       await t.ensureVisible(retry);
@@ -284,7 +296,7 @@ void main() {
       );
       expect(
         t.widget<AppTopBar>(find.byType(AppTopBar)).onTrailingPressed,
-        isNotNull,
+        isNull,
       );
       await t.tap(cardControl(t, 'virtual_submit'));
       await t.pump();
@@ -298,6 +310,8 @@ void main() {
       );
       await t.pumpAndSettle();
       expect(completions, 1);
+      expect(cubit(t).state.message, lastError);
+      expect(find.text(lastError!), findsNothing);
       expect(t.takeException(), isNull);
     },
   );
@@ -404,6 +418,53 @@ void main() {
       );
       await t.pumpWidget(const SizedBox.shrink());
       expect(second.isClosed, isTrue);
+    },
+  );
+  testWidgets(
+    'same quote failure notifies on retry and exit dialog ignores retained errors',
+    (t) async {
+      const failure = DataFailure('network.offline');
+      final repository = TestVirtualRepository()..failure = failure;
+      await mount(t, repository: repository);
+      await fill(t);
+      final message = getRequestErrorMessage(failure);
+      expect(find.text(message), findsOneWidget);
+      t
+          .state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger))
+          .clearSnackBars();
+      await t.pumpAndSettle();
+      final retry = find.byWidgetPredicate(
+        (widget) =>
+            widget is AppButton && widget.label == S.current.dashboardRetry,
+      );
+      await t.ensureVisible(retry);
+      await t.pumpAndSettle();
+      await t.tap(retry);
+      await t.pumpAndSettle();
+      expect(find.text(message), findsOneWidget);
+      t
+          .state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger))
+          .clearSnackBars();
+      await t.pumpAndSettle();
+
+      await t.tap(find.byTooltip(S.current.backLabel));
+      await t.pumpAndSettle();
+      expect(find.byType(AlertDialog), findsOneWidget);
+      expect(find.text(message), findsNothing);
+      await t.tap(find.text(S.current.passwordStay));
+      await t.pumpAndSettle();
+      expect(cubit(t).state.count, 4);
+      expect(cubit(t).state.message, message);
+      expect(cubit(t).state.navigation, isNull);
+      repository.failure = null;
+      await t.ensureVisible(retry);
+      await t.pumpAndSettle();
+      await t.tap(retry);
+      await t.pumpAndSettle();
+      expect(cubit(t).state.quote?.count, 4);
+      expect(cubit(t).state.message, message);
+      expect(find.text(message), findsNothing);
+      expect(t.takeException(), isNull);
     },
   );
 }

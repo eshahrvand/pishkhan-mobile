@@ -1,3 +1,6 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
+import 'package:pishkhan_mobile/core/enums/request_status.dart';
+
 import '../widgets/deposit_list_content.dart';
 import '../widgets/deposit_sheet.dart';
 import '../widgets/deposit_filter_options.dart';
@@ -8,7 +11,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
 import 'package:pishkhan_mobile/core/flow/service_registry.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
 
@@ -27,12 +29,18 @@ class DepositListScreen extends StatelessWidget {
   });
   final ValueChanged<DepositListActionRequest>? onActionRequested;
   final VoidCallback? onAssistantPressed;
+  void _showRequestFailure(BuildContext context, DepositListState state) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(state.message!)));
+  }
+
   Future<void> _handleEffect(
     BuildContext context,
     DepositListState state,
   ) async {
     switch (state.effect) {
       case DepositActionsRequested(:final deposit):
+        context.read<DepositListCubit>().consumeDepositListInteraction();
         final action = await showDepositActionsSheet(context);
         if (context.mounted) {
           context.read<DepositListCubit>().applyActionSelection(
@@ -41,8 +49,10 @@ class DepositListScreen extends StatelessWidget {
           );
         }
       case DepositDetailsRequested(:final deposit):
+        context.read<DepositListCubit>().consumeDepositListInteraction();
         await showDepositAccountDetailsSheet(context, deposit);
       case DepositServiceRequested(:final request, :final serviceId):
+        context.read<DepositListCubit>().consumeDepositListInteraction();
         if (onActionRequested != null) {
           onActionRequested!(request);
         } else if (serviceId != null) {
@@ -57,6 +67,7 @@ class DepositListScreen extends StatelessWidget {
           );
         }
       case DepositKindFilterRequested():
+        context.read<DepositListCubit>().consumeDepositListInteraction();
         final value = await showDepositSheet<DepositKind>(
           context,
           DepositFilterOptions(
@@ -72,6 +83,7 @@ class DepositListScreen extends StatelessWidget {
           context.read<DepositListCubit>().applyKindFilterSelection(value);
         }
       case DepositStatusFilterRequested():
+        context.read<DepositListCubit>().consumeDepositListInteraction();
         final value = await showDepositSheet<DepositStatus>(
           context,
           DepositFilterOptions(
@@ -87,6 +99,15 @@ class DepositListScreen extends StatelessWidget {
         if (context.mounted) {
           context.read<DepositListCubit>().applyStatusFilterSelection(value);
         }
+      case DepositListBackRequested():
+        NavigationActions.back(context);
+      case DepositListAssistantRequested():
+        context.read<DepositListCubit>().consumeDepositListInteraction();
+        if (onAssistantPressed != null) {
+          onAssistantPressed!();
+        } else {
+          NavigationActions.returnHome(context);
+        }
       case null:
         break;
     }
@@ -96,65 +117,96 @@ class DepositListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => DepositListCubit()..fetchDeposits(),
-      child: BlocListener<DepositListCubit, DepositListState>(
-        listenWhen: (previous, current) =>
-            previous.effectId != current.effectId,
-        listener: _handleEffect,
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<DepositListCubit, DepositListState>(
+            listenWhen: (previous, current) =>
+                previous.depositsStatus != current.depositsStatus &&
+                current.depositsStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<DepositListCubit, DepositListState>(
+            listenWhen: (previous, current) =>
+                previous.effect != current.effect && current.effect != null,
+            listener: _handleEffect,
+          ),
+        ],
         child: Directionality(
           textDirection: TextDirection.rtl,
-          child: Scaffold(
-            backgroundColor: context.colors.surfaceSubtle,
-            body: SafeArea(
-              child: Column(
-                children: [
-                  AppTopBar(
-                    title: S.current.dashboardDepositsList,
-                    showLeadingActions: false,
-                    trailingIcon: depositIcon(AppAssets.depositFeatureBack),
-                    trailingTooltip: S.current.backLabel,
-                    onTrailingPressed: () => NavigationActions.back(context),
-                  ),
-                  Expanded(
-                    child: Stack(
+          child: BlocBuilder<DepositListCubit, DepositListState>(
+            builder: (context, state) {
+              return PopScope(
+                canPop: state.depositsStatus != RequestStatus.loading,
+                child: Scaffold(
+                  backgroundColor: context.colors.surfaceSubtle,
+                  body: SafeArea(
+                    child: Column(
                       children: [
-                        SingleChildScrollView(
-                          padding: const EdgeInsets.fromLTRB(16, 12, 16, 80),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                        AppTopBar(
+                          title: S.current.dashboardDepositsList,
+                          showLeadingActions: false,
+                          trailingIcon: depositIcon(
+                            '${AppConstants.baseImage}deposit_list_back.svg',
+                          ),
+                          trailingTooltip: S.current.backLabel,
+                          onTrailingPressed:
+                              (state.depositsStatus != RequestStatus.loading)
+                              ? () => context
+                                    .read<DepositListCubit>()
+                                    .requestBack()
+                              : null,
+                        ),
+                        Expanded(
+                          child: Stack(
                             children: [
-                              const DepositFilters(),
-                              const SizedBox(height: 12),
-                              SizedBox(
-                                height: 0,
-                                child: OverflowBox(
-                                  minHeight: 1,
-                                  maxHeight: 1,
-                                  child: AvpImage(
-                                    image: AppAssets.cardFeaturesSeparator,
-                                    fit: BoxFit.fill,
-                                  ),
+                              SingleChildScrollView(
+                                padding: const EdgeInsets.fromLTRB(
+                                  16,
+                                  12,
+                                  16,
+                                  80,
+                                ),
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: [
+                                    const DepositFilters(),
+                                    const SizedBox(height: 12),
+                                    SizedBox(
+                                      height: 0,
+                                      child: OverflowBox(
+                                        minHeight: 1,
+                                        maxHeight: 1,
+                                        child: AvpImage(
+                                          image:
+                                              '${AppConstants.baseImage}card_features_separator.png',
+                                          fit: BoxFit.fill,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    const DepositListContent(),
+                                  ],
                                 ),
                               ),
-                              const SizedBox(height: 16),
-                              const DepositListContent(),
+                              Positioned(
+                                left: 16,
+                                bottom: 16,
+                                child: AppAssistantButton(
+                                  onPressed: () => context
+                                      .read<DepositListCubit>()
+                                      .requestAssistant(),
+                                ),
+                              ),
                             ],
-                          ),
-                        ),
-                        Positioned(
-                          left: 16,
-                          bottom: 16,
-                          child: AppAssistantButton(
-                            onPressed:
-                                onAssistantPressed ??
-                                () => NavigationActions.returnHome(context),
                           ),
                         ),
                       ],
                     ),
                   ),
-                ],
-              ),
-            ),
+                ),
+              );
+            },
           ),
         ),
       ),

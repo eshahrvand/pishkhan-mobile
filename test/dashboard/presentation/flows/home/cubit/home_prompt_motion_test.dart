@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pishkhan_mobile/features/dashboard/domain/repositories/dashboard_repositories.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/home/cubit/home_cubit.dart';
@@ -14,6 +16,9 @@ HomeCubit createHome() {
 }
 
 void main() {
+  setUp(configureDependencies);
+  tearDown(getIt.reset);
+
   test(
     'typing pauses for input and focus and owned timer stops on disposal',
     () async {

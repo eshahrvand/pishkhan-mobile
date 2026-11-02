@@ -5,7 +5,7 @@ import 'package:pishkhan_mobile/core/result/failure.dart';
 import 'package:pishkhan_mobile/core/result/result.dart';
 import 'package:pishkhan_mobile/features/deposits/data/repositories/mock_agent_settings_repository.dart';
 import 'package:pishkhan_mobile/features/deposits/domain/repositories/agent_settings_repository.dart';
-import 'package:pishkhan_mobile/features/deposits/domain/usecases/agent_settings.dart';
+import 'package:pishkhan_mobile/features/deposits/domain/usecases/agent_settings_usecase.dart';
 import 'package:pishkhan_mobile/features/deposits/presentation/agent_settings/cubit/agent_settings_cubit.dart';
 
 class ControlledAgentRepository implements AgentSettingsRepository {
@@ -22,11 +22,7 @@ class ControlledAgentRepository implements AgentSettingsRepository {
 }
 
 void main() {
-  setUp(() {
-    getIt.registerSingleton<AgentSettingsRepository>(
-      MockAgentSettingsRepository(),
-    );
-  });
+  setUp(configureDependencies);
   tearDown(() => getIt.reset());
 
   AgentSettingsCubit createCubit({
@@ -165,9 +161,11 @@ void main() {
     expect(cubit.state.details, agent);
     expect(cubit.state.details!.confirmers.length, 2);
     cubit.requestCancellation();
-    final effectId = cubit.state.effectId;
+    final effectBeforeRepeat = cubit.state.effect;
+    cubit.consumeAgentSettingsInteraction();
+    expect(cubit.state.effect, isNull);
     cubit.requestCancellation();
-    expect(cubit.state.effectId, effectId + 1);
+    expect(cubit.state.effect.runtimeType, effectBeforeRepeat.runtimeType);
     expect(cubit.state.effect, isA<AgentUnavailableRequested>());
     expect(cubit.state.agents.length, 5);
     cubit.requestBack();
@@ -186,13 +184,13 @@ void main() {
       final cubit = createCubit(number: '10-1234567-2');
       await cubit.fetchAgents();
       expect(cubit.state.agentsStatus, RequestStatus.failure);
-      expect(cubit.state.agentsFailure, const DataFailure('unavailable'));
+      expect(cubit.state.failure, const DataFailure('unavailable'));
       repository.fails = false;
       await cubit.fetchAgents();
       expect(cubit.state.visibleAgents.single.id, 'mine-waiting');
-      expect(cubit.state.agentsFailure, isNull);
+      expect(cubit.state.failure, const DataFailure('unavailable'));
       repository.throwsException = true;
-      final result = await FetchAgents(repository)();
+      final result = await FetchAgentsUseCase(repository)();
       expect(result, isA<Err<List<DepositAgent>>>());
       expect((result as Err).failure, isA<UnexpectedFailure>());
     },

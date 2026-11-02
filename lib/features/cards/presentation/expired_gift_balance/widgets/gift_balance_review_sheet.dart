@@ -1,8 +1,8 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_bottom_sheet_header.dart';
 
 import '../../shared/card_service_sheet.dart';
@@ -84,7 +84,7 @@ class GiftBalanceReviewSheet extends StatelessWidget {
                                     vertical: 12,
                                   ),
                                   child: cardServiceIcon(
-                                    AppAssets.issuanceTrash,
+                                    '${AppConstants.baseImage}issuance_trash.svg',
                                   ),
                                 ),
                               ),

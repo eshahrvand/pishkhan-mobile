@@ -1,8 +1,8 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/certificate_fields.dart';
 
 import '../../../domain/entities/cheque_cancellation.dart';
@@ -37,7 +37,8 @@ class ChequeCancellationReasons extends StatelessWidget {
                 labelStyle: certificateLabelStyle(context)
                     .copyWith(color: context.colors.primary),
                 trailingIcon: const AvpImage(
-                  image: AppAssets.chequeCancelAngleDown,
+                  image:
+                      '${AppConstants.baseImage}cheque_cancel_angle_down.svg',
                   width: 20,
                   height: 20,
                 ),
@@ -86,7 +87,8 @@ class ChequeCancellationReasons extends StatelessWidget {
                                     )
                               : null,
                           child: const AvpImage(
-                            image: AppAssets.issuanceTrash,
+                            image:
+                                '${AppConstants.baseImage}issuance_trash.svg',
                             width: 20,
                             height: 20,
                           ),
@@ -96,7 +98,8 @@ class ChequeCancellationReasons extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   const AvpImage(
-                    image: AppAssets.chequeCancelReasonDivider,
+                    image:
+                        '${AppConstants.baseImage}cheque_cancel_reason_divider.svg',
                     height: 1,
                     fit: BoxFit.fill,
                   ),
@@ -133,8 +136,8 @@ class ChequeCancellationReasons extends StatelessWidget {
                           child: Center(
                             child: AvpImage(
                               image: state.selectedEntries[index].reason == null
-                                  ? AppAssets.issuanceSelectEmpty
-                                  : AppAssets.cardFeaturesChevron,
+                                  ? '${AppConstants.baseImage}issuance_select_empty.svg'
+                                  : '${AppConstants.baseImage}card_features_chevron.svg',
                             ),
                           ),
                         ),

@@ -1,9 +1,9 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/core/domain/entities/delivery_address.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_address_card.dart';
 import 'package:pishkhan_mobile/shared/widgets/certificate_fields.dart';
 import 'package:pishkhan_mobile/shared/widgets/certificate_delivery_recipient.dart';
@@ -73,7 +73,7 @@ class ChequeBookDelivery extends StatelessWidget {
                 address: state.address!.detail,
                 deleteLabel: S.current.issuanceDeleteAddress,
                 deleteIcon: const AvpImage(
-                  image: AppAssets.fileUploadTrash,
+                  image: '${AppConstants.baseImage}file_upload_trash.svg',
                   width: 20,
                   height: 20,
                 ),
@@ -100,7 +100,7 @@ class ChequeBookDelivery extends StatelessWidget {
                     size: AppButtonSize.sm,
                     horizontalPadding: 8,
                     leadingIcon: const AvpImage(
-                      image: AppAssets.issuancePlus,
+                      image: '${AppConstants.baseImage}issuance_plus.svg',
                       width: 20,
                       height: 20,
                     ),
@@ -112,7 +112,7 @@ class ChequeBookDelivery extends StatelessWidget {
               ),
             const SizedBox(height: 20),
             const AvpImage(
-              image: AppAssets.issuanceDivider,
+              image: '${AppConstants.baseImage}issuance_divider.svg',
               height: .5,
               fit: BoxFit.fill,
             ),
@@ -139,7 +139,7 @@ class ChequeBookDelivery extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             const AvpImage(
-              image: AppAssets.issuanceDivider,
+              image: '${AppConstants.baseImage}issuance_divider.svg',
               height: .5,
               fit: BoxFit.fill,
             ),

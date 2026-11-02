@@ -42,7 +42,7 @@ abstract final class AppRoutes {
 
   static const changePhone = '/profile/change-phone';
   static const addresses = '/profile/addresses';
-  static const occupations = '/profile/occupations';
+  static const jobInformation = '/profile/occupations';
   static const messages = '/profile/messages';
   static const messageDetail = '/profile/messages/:messageId';
 

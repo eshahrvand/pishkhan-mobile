@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/presentation/mappers/request_error_message_mapper.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
@@ -7,8 +8,7 @@ import 'package:pishkhan_mobile/core/result/result.dart';
 
 import '../../../domain/entities/card_filter.dart';
 import '../../../domain/entities/listed_card.dart';
-import '../../../domain/repositories/cards_repository.dart';
-import '../../../domain/usecases/card_features.dart';
+import '../../../domain/usecases/card_features_usecase.dart';
 import '../card_feature_action.dart';
 import 'card_features_effect.dart';
 
@@ -26,53 +26,48 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
 
   final CardCategory? initialCategory;
 
-  final _repository = getIt<CardsRepository>();
-  late final _loadCards = LoadCards(_repository);
+  final loadCardsUseCase = getIt<LoadCardsUseCase>();
 
-  Future<void> fetchCards() {
+  Future<void> fetchCards() async {
     if (state.cardsStatus == RequestStatus.initial) {
       final category = initialCategory ?? state.category;
       emit(
         state.copyWith(
-          cardsStatus: RequestStatus.loading,
           category: category,
           footerAction: _categoryFooterAction(category),
         ),
       );
-    } else {
-      emit(
-        state.copyWith(cardsStatus: RequestStatus.loading, cardsFailure: null),
-      );
     }
 
-    return _loadCards().then((result) {
-      switch (result) {
-        case Err(:final failure):
-          emit(
-            state.copyWith(
-              cardsStatus: RequestStatus.failure,
-              cardsFailure: failure,
+    emit(state.copyWith(cardsStatus: RequestStatus.loading));
+    final result = await loadCardsUseCase();
+    switch (result) {
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            cardsStatus: RequestStatus.failure,
+            failure: failure,
+            message: getRequestErrorMessage(failure),
+          ),
+        );
+      case Success(:final data):
+        emit(
+          state.copyWith(
+            cardsStatus: RequestStatus.success,
+            cards: data,
+            selectedCard: data
+                .where((card) => card.id == state.selectedCard?.id)
+                .firstOrNull,
+            visibleCards: _filterCards(
+              data,
+              state.category,
+              state.filter,
+              state.searchQuery,
             ),
-          );
-        case Success(:final data):
-          emit(
-            state.copyWith(
-              cardsStatus: RequestStatus.success,
-              cards: data,
-              selectedCard: data
-                  .where((card) => card.id == state.selectedCard?.id)
-                  .firstOrNull,
-              visibleCards: _filterCards(
-                data,
-                state.category,
-                state.filter,
-                state.searchQuery,
-              ),
-              depositNumbers: _depositNumbers(data),
-            ),
-          );
-      }
-    });
+            depositNumbers: _depositNumbers(data),
+          ),
+        );
+    }
   }
 
   void selectCategory(CardCategory value) {
@@ -80,11 +75,7 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
       state.copyWith(
         category: value,
         footerAction: _categoryFooterAction(value),
-        effect: CardCategoryRevealRequested(
-          value,
-          scrollToEnd: _isTrailingCategory(value),
-        ),
-        effectId: state.effectId + 1,
+        effect: _categoryRevealEffect(value),
         selectedCard: null,
         visibleCards: _filterCards(
           state.cards,
@@ -97,24 +88,12 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
   }
 
   void requestSelectedCategoryReveal() {
-    emit(
-      state.copyWith(
-        effect: CardCategoryRevealRequested(
-          state.category,
-          scrollToEnd: _isTrailingCategory(state.category),
-        ),
-        effectId: state.effectId + 1,
-      ),
-    );
+    emit(state.copyWith(effect: _categoryRevealEffect(state.category)));
   }
 
   void requestCardActions(ListedCard card) {
     emit(
-      state.copyWith(
-        selectedCard: card,
-        effect: CardActionsRequested(card),
-        effectId: state.effectId + 1,
-      ),
+      state.copyWith(selectedCard: card, effect: CardActionsRequested(card)),
     );
   }
 
@@ -130,12 +109,7 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
   }
 
   void requestCardDetails(ListedCard card) {
-    emit(
-      state.copyWith(
-        effect: CardDetailsRequested(card),
-        effectId: state.effectId + 1,
-      ),
-    );
+    emit(state.copyWith(effect: CardDetailsRequested(card)));
   }
 
   void requestCardService(CardFeatureAction action, {ListedCard? card}) {
@@ -149,7 +123,6 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
           ),
           serviceId: _cardServiceId(action),
         ),
-        effectId: state.effectId + 1,
       ),
     );
   }
@@ -177,7 +150,6 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
       state.copyWith(
         draftFilter: state.filter,
         effect: const CardFilterRequested(),
-        effectId: state.effectId + 1,
       ),
     );
   }
@@ -186,7 +158,9 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
     emit(
       state.copyWith(
         draftFilter: CardFilter(
-          status: value == 'all' ? null : CardStatus.values.byName(value),
+          status: _isAllFilterOption(value)
+              ? null
+              : CardStatus.values.byName(value),
           deposit: state.draftFilter!.deposit,
         ),
       ),
@@ -198,7 +172,7 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
       state.copyWith(
         draftFilter: CardFilter(
           status: state.draftFilter!.status,
-          deposit: value == 'all' ? null : value,
+          deposit: _isAllFilterOption(value) ? null : value,
         ),
       ),
     );
@@ -276,6 +250,15 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
         .toList();
   }
 
+  CardCategoryRevealRequested _categoryRevealEffect(CardCategory category) {
+    return CardCategoryRevealRequested(
+      category,
+      scrollToEnd: _isTrailingCategory(category),
+    );
+  }
+
+  bool _isAllFilterOption(String value) => value == 'all';
+
   bool _isTrailingCategory(CardCategory category) {
     return category == CardCategory.coupon || category == CardCategory.family;
   }
@@ -287,5 +270,10 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
       value = value.replaceAll(persian[i], '$i').replaceAll(arabic[i], '$i');
     }
     return value.replaceAll(RegExp(r'[\s\-\.\u200c]'), '').toLowerCase();
+  }
+
+  /// UI has accepted the pending interaction; data and request statuses stay intact.
+  void consumeCardFeaturesInteraction() {
+    emit(state.copyWith(effect: null));
   }
 }

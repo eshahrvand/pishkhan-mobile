@@ -1,3 +1,8 @@
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
+
+import 'package:pishkhan_mobile/features/dashboard/domain/entities/bank_card.dart';
+import 'package:pishkhan_mobile/features/dashboard/domain/entities/bank_deposit.dart';
+
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -32,6 +37,87 @@ HomeCubit createHome({DashboardHomeRepository? repository}) {
 }
 
 void main() {
+  setUp(configureDependencies);
+  tearDown(getIt.reset);
+
+  test(
+    'fresh Home scopes keep their own resolved use cases and repositories',
+    () async {
+      final first = createHome(
+        repository: const MockDashboardHomeRepository(
+          favorites: ['card-issue'],
+        ),
+      );
+      final second = createHome(
+        repository: const MockDashboardHomeRepository(
+          favorites: ['deposit-statement'],
+        ),
+      );
+
+      await Future.wait([first.fetchHome(), second.fetchHome()]);
+
+      expect(first.state.homeData!.favorites, ['card-issue']);
+      expect(first.state.favoriteServices, [DashboardService.issue]);
+      expect(second.state.homeData!.favorites, ['deposit-statement']);
+      expect(second.state.favoriteServices, [DashboardService.statement]);
+    },
+  );
+
+  test('concurrent failures notify independently and an identical retry notifies again', () async {
+    final repository = TestRepositories();
+    final cards = Completer<Result<List<BankCard>>>();
+    final deposits = Completer<Result<List<BankDeposit>>>();
+    repository.cardQueue.add(cards);
+    repository.depositQueue.add(deposits);
+    final cubit = withRegisteredDependency<DashboardRepositories, HomeCubit>(
+      homeRepositories(cards: repository, deposits: repository),
+      () => HomeCubit(),
+    );
+    addTearDown(cubit.close);
+    final notifications = <String>[];
+    var previous = cubit.state;
+    final subscription = cubit.stream.listen((current) {
+      if ((previous.cardsStatus != current.cardsStatus &&
+              current.cardsStatus == RequestStatus.failure) ||
+          (previous.depositsStatus != current.depositsStatus &&
+              current.depositsStatus == RequestStatus.failure)) {
+        notifications.add(current.message!);
+      }
+      previous = current;
+    });
+    addTearDown(subscription.cancel);
+    final cardRequest = cubit.fetchCards();
+    final depositRequest = cubit.fetchDeposits();
+    cards.complete(const Err(DataFailure('network.offline')));
+    await cardRequest;
+    expect(cubit.state.depositsStatus, RequestStatus.loading);
+    deposits.complete(const Err(DataFailure('unknown-bank-code')));
+    await depositRequest;
+    await Future<void>.delayed(Duration.zero);
+    expect(notifications, [
+      'ارتباط با سرور برقرار نشد. دوباره تلاش کنید.',
+      'درخواست انجام نشد. دوباره تلاش کنید.',
+    ]);
+    final retry = Completer<Result<List<BankDeposit>>>();
+    repository.depositQueue.add(retry);
+    final pending = cubit.fetchDeposits();
+    expect(cubit.state.message, 'درخواست انجام نشد. دوباره تلاش کنید.');
+    expect(cubit.state.failure, const DataFailure('unknown-bank-code'));
+    expect(cubit.state.cardsStatus, RequestStatus.failure);
+    retry.complete(const Err(DataFailure('unknown-bank-code')));
+    await pending;
+    await Future<void>.delayed(Duration.zero);
+    expect(notifications, hasLength(3));
+    expect(notifications.last, notifications[1]);
+    cubit.requestFavoritePicker();
+    expect(cubit.state.message, 'درخواست انجام نشد. دوباره تلاش کنید.');
+    expect(cubit.state.effect, isA<HomeFavoritePickerRequested>());
+    cubit.consumeHomeInteraction();
+    expect(cubit.state.effect, isNull);
+    cubit.requestFavoritePicker();
+    expect(cubit.state.effect, isA<HomeFavoritePickerRequested>());
+  });
+
   test(
     'prompt eligibility and repeated submission belong to the home flow',
     () {
@@ -43,9 +129,11 @@ void main() {
       cubit.submitPrompt();
       expect(cubit.state.submittedPrompt, 'سوال من');
       expect(cubit.state.effect, const HomePromptSubmitted('سوال من'));
-      final id = cubit.state.effectId;
+      final effectBeforeRepeat = cubit.state.effect;
+      cubit.consumeHomeInteraction();
+      expect(cubit.state.effect, isNull);
       cubit.submitPrompt();
-      expect(cubit.state.effectId, id + 1);
+      expect(cubit.state.effect.runtimeType, effectBeforeRepeat.runtimeType);
     },
   );
 
@@ -68,11 +156,16 @@ void main() {
         ),
       );
       await cubit.fetchHome();
-      cubit.beginFavoritesEditing();
+      cubit.openFavoritesEditing();
       cubit.requestFavoritePicker();
-      expect((cubit.state.effect as HomeFavoritePickerRequested).excluded, [
-        'card-issue',
-      ]);
+      expect(cubit.state.effect, isA<HomeFavoritePickerRequested>());
+      expect(
+        cubit.state.servicePickerGroups
+            .expand((group) => group.choices)
+            .singleWhere((choice) => choice.service == DashboardService.issue)
+            .canSelect,
+        isFalse,
+      );
       cubit.applyFavoriteSelection(null);
       expect(cubit.state.favoriteServices, [DashboardService.issue]);
       cubit.applyFavoriteSelection(DashboardService.cardDeposit);
@@ -99,7 +192,7 @@ void main() {
       expect(cubit.state.homeStatus, RequestStatus.loading);
       failed.complete(const Err(DataFailure('offline')));
       await pending;
-      expect(cubit.state.homeFailure?.code, 'offline');
+      expect(cubit.state.failure?.code, 'offline');
       expect(cubit.state.cardsStatus, RequestStatus.success);
       expect(cubit.state.visibleCards, isNotEmpty);
       final empty = Completer<Result<DashboardHomeData?>>();
@@ -108,7 +201,7 @@ void main() {
       empty.complete(const Success(null));
       await retry;
       expect(cubit.state.homeStatus, RequestStatus.success);
-      expect(cubit.state.homeFailure, isNull);
+      expect(cubit.state.failure, const DataFailure('offline'));
       expect(cubit.state.homeData, isNull);
     },
   );
@@ -122,7 +215,7 @@ void main() {
         ),
       );
       await cubit.fetchHome();
-      cubit.beginFavoritesEditing();
+      cubit.openFavoritesEditing();
       final additions = DashboardService.values
           .where((service) => service != DashboardService.issue)
           .take(7);
@@ -137,11 +230,11 @@ void main() {
       expect(cubit.state.canAddFavorite, isTrue);
       cubit.applyFavorites();
       final saved = cubit.state.homeData!.favorites;
-      cubit.beginFavoritesEditing();
+      cubit.openFavoritesEditing();
       cubit.removeFavorite(cubit.state.favoriteServices.first);
       cubit.cancelFavorites();
       expect(cubit.state.favoriteServices.map((service) => service.id), saved);
-      cubit.beginFavoritesEditing();
+      cubit.openFavoritesEditing();
       cubit.resetFavorites();
       expect(cubit.state.homeData!.favorites, isEmpty);
       expect(cubit.state.favoriteServices, isEmpty);
@@ -152,7 +245,7 @@ void main() {
   test('suggestions remain uncommitted until confirmation', () async {
     final cubit = createHome();
     await cubit.fetchHome();
-    cubit.beginFavoritesEditing();
+    cubit.openFavoritesEditing();
     expect(cubit.state.homeData!.favorites, isEmpty);
     expect(cubit.state.favoriteServices, [
       DashboardService.issue,
@@ -161,7 +254,7 @@ void main() {
     ]);
     cubit.cancelFavorites();
     expect(cubit.state.favoriteServices, isEmpty);
-    cubit.beginFavoritesEditing();
+    cubit.openFavoritesEditing();
     cubit.applyFavorites();
     expect(cubit.state.homeData!.favorites, [
       'card-issue',

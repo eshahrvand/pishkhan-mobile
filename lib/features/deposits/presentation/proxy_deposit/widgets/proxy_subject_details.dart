@@ -1,8 +1,8 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' show NumberFormat;
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 import '../../../domain/entities/proxy_deposit.dart';
 import '../../deposit_list/widgets/deposit_ui.dart';
@@ -22,7 +22,10 @@ class ProxySubjectDetails extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const DepositDivider(asset: AppAssets.issuanceDivider, thickness: 1),
+        const DepositDivider(
+          asset: '${AppConstants.baseImage}issuance_divider.svg',
+          thickness: 1,
+        ),
         const SizedBox(height: 20),
         CertificateInput(
           label: S.current.proxyBroker,
@@ -58,7 +61,7 @@ class ProxySubjectDetails extends StatelessWidget {
         Row(
           children: [
             const AvpImage(
-              image: AppAssets.proxyDepositInfo,
+              image: '${AppConstants.baseImage}proxy_deposit_info.svg',
               width: 14,
               height: 14,
             ),

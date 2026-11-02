@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -5,7 +6,6 @@ import 'package:go_router/go_router.dart';
 import 'package:pishkhan_mobile/features/cards/domain/entities/password_data.dart';
 import 'package:pishkhan_mobile/features/cards/presentation/password_services/widgets/password_styles.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_bottom_sheet_header.dart';
 
 class PasswordRecordSheet extends StatelessWidget {
@@ -37,7 +37,9 @@ class PasswordRecordSheet extends StatelessWidget {
                   child: SizedBox(
                     width: 57.0045,
                     height: 59.9961,
-                    child: AvpImage(image: AppAssets.passwordApproved),
+                    child: AvpImage(
+                      image: '${AppConstants.baseImage}password_approved.svg',
+                    ),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -143,7 +145,9 @@ class PasswordStatusContent extends StatelessWidget {
         SizedBox(
           width: 95.0099,
           height: 99.9961,
-          child: AvpImage(image: AppAssets.passwordStatusSuccess),
+          child: AvpImage(
+            image: '${AppConstants.baseImage}password_status_success.svg',
+          ),
         ),
         const SizedBox(height: 40),
         Text(

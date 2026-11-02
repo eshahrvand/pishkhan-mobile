@@ -15,8 +15,8 @@ class NotificationsCubit extends Cubit<NotificationsState> {
     emit(
       state.copyWith(
         messages: List.unmodifiable(inbox),
-        unreadMessages: inbox.where((message) => !message.isRead).toList(),
-        readMessages: inbox.where((message) => message.isRead).toList(),
+        unreadMessages: _unreadMessages(inbox),
+        readMessages: _readMessages(inbox),
         detailMessage: null,
       ),
     );
@@ -31,12 +31,15 @@ class NotificationsCubit extends Cubit<NotificationsState> {
     emit(
       state.copyWith(
         messages: messages,
-        unreadMessages: messages.where((message) => !message.isRead).toList(),
-        readMessages: messages.where((message) => message.isRead).toList(),
+        unreadMessages: _unreadMessages(messages),
+        readMessages: _readMessages(messages),
         detailMessage: readMessage,
-        detailRequestId: state.detailRequestId + 1,
       ),
     );
+  }
+
+  void consumeMessageDetail() {
+    emit(state.copyWith(detailMessage: null));
   }
 
   void markAllRead() {
@@ -48,5 +51,15 @@ class NotificationsCubit extends Cubit<NotificationsState> {
         readMessages: messages,
       ),
     );
+  }
+
+  List<NotificationMessage> _unreadMessages(
+    List<NotificationMessage> messages,
+  ) {
+    return messages.where((message) => !message.isRead).toList();
+  }
+
+  List<NotificationMessage> _readMessages(List<NotificationMessage> messages) {
+    return messages.where((message) => message.isRead).toList();
   }
 }

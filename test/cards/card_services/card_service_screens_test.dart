@@ -1,3 +1,6 @@
+import 'package:pishkhan_mobile/core/presentation/mappers/request_error_message_mapper.dart';
+import 'package:pishkhan_mobile/core/result/failure.dart';
+
 import 'dart:async';
 import 'dart:io';
 import 'dart:ui' as ui;
@@ -115,20 +118,10 @@ void main() {
     await t.pumpAndSettle();
   }
 
-  ChangeCardDepositCubit changeCubit(WidgetTester t) => t
-      .element(
-        find.byType(
-          BlocConsumer<ChangeCardDepositCubit, ChangeCardDepositState>,
-        ),
-      )
-      .read<ChangeCardDepositCubit>();
-  ExpiredGiftBalanceCubit giftCubit(WidgetTester t) => t
-      .element(
-        find.byType(
-          BlocConsumer<ExpiredGiftBalanceCubit, ExpiredGiftBalanceState>,
-        ),
-      )
-      .read<ExpiredGiftBalanceCubit>();
+  ChangeCardDepositCubit changeCubit(WidgetTester t) =>
+      t.element(find.byType(AppTopBar)).read<ChangeCardDepositCubit>();
+  ExpiredGiftBalanceCubit giftCubit(WidgetTester t) =>
+      t.element(find.byType(AppTopBar)).read<ExpiredGiftBalanceCubit>();
 
   testWidgets(
     'change deposit follows empty, card selected, and complete forms',
@@ -175,53 +168,52 @@ void main() {
       expect(t.takeException(), isNull);
     },
   );
-  testWidgets(
-    'change submission disables form actions and keeps Back available',
-    (t) async {
-      final repo = TestCardServicesRepository()
-        ..pendingSubmit = Completer<Result<CardServiceReceipt>>();
-      var completions = 0;
-      await mount(
-        t,
-        ChangeCardDepositScreen(onCompleted: (_) => completions++),
-        repository: repo,
-      );
-      await choose<ServiceBankCard>(t, 0, '\u200e5041 7212 2345 6787');
-      await choose<CardServiceDeposit>(t, 0, '10.123456.2');
-      await t.tap(find.byType(AppCheckbox));
-      await t.pumpAndSettle();
-      await t.tap(button('تایید و ثبت درخواست'));
-      await t.pump();
-      expect(
-        t.widget<AppButton>(button('تایید و ثبت درخواست')).onPressed,
-        isNull,
-      );
-      expect(t.widget<AppCheckbox>(find.byType(AppCheckbox)).onChanged, isNull);
-      expect(
-        t
-            .widget<AbsorbPointer>(
-              find.descendant(
-                of: find.byType(ChangeCardDepositForm),
-                matching: find.byType(AbsorbPointer),
-              ),
-            )
-            .absorbing,
-        isTrue,
-      );
-      expect(
-        t.widget<AppTopBar>(find.byType(AppTopBar)).onTrailingPressed,
-        isNotNull,
-      );
-      expect(repo.changes, hasLength(1));
-      repo.pendingSubmit!.complete(
-        const Success(CardServiceReceipt(reference: 'done', isMock: true)),
-      );
-      await t.pumpAndSettle();
-      expect(completions, 1);
-      expect(changeCubit(t).state.submissionStatus, RequestStatus.success);
-      expect(t.takeException(), isNull);
-    },
-  );
+  testWidgets('change submission disables form actions and blocks Back', (
+    t,
+  ) async {
+    final repo = TestCardServicesRepository()
+      ..pendingSubmit = Completer<Result<CardServiceReceipt>>();
+    var completions = 0;
+    await mount(
+      t,
+      ChangeCardDepositScreen(onCompleted: (_) => completions++),
+      repository: repo,
+    );
+    await choose<ServiceBankCard>(t, 0, '\u200e5041 7212 2345 6787');
+    await choose<CardServiceDeposit>(t, 0, '10.123456.2');
+    await t.tap(find.byType(AppCheckbox));
+    await t.pumpAndSettle();
+    await t.tap(button('تایید و ثبت درخواست'));
+    await t.pump();
+    expect(
+      t.widget<AppButton>(button('تایید و ثبت درخواست')).onPressed,
+      isNull,
+    );
+    expect(t.widget<AppCheckbox>(find.byType(AppCheckbox)).onChanged, isNull);
+    expect(
+      t
+          .widget<AbsorbPointer>(
+            find.descendant(
+              of: find.byType(ChangeCardDepositForm),
+              matching: find.byType(AbsorbPointer),
+            ),
+          )
+          .absorbing,
+      isTrue,
+    );
+    expect(
+      t.widget<AppTopBar>(find.byType(AppTopBar)).onTrailingPressed,
+      isNull,
+    );
+    expect(repo.changes, hasLength(1));
+    repo.pendingSubmit!.complete(
+      const Success(CardServiceReceipt(reference: 'done', isMock: true)),
+    );
+    await t.pumpAndSettle();
+    expect(completions, 1);
+    expect(changeCubit(t).state.submissionStatus, RequestStatus.success);
+    expect(t.takeException(), isNull);
+  });
 
   testWidgets(
     'one-account gift flow reviews selection and then submits to destination',
@@ -339,6 +331,7 @@ void main() {
       expect(cubit.state.draftFilter.deposit, isNull);
       Navigator.of(t.element(find.byType(GiftBalanceFilterSheet))).pop();
       await t.pumpAndSettle();
+      await t.ensureVisible(button(S.current.giftBalanceNext));
       await t.tap(button(S.current.giftBalanceNext));
       await t.pumpAndSettle();
       Navigator.of(t.element(find.byType(GiftBalanceReviewSheet))).pop();
@@ -364,9 +357,12 @@ void main() {
       expect(giftCubit(t).state.catalogStatus, RequestStatus.failure);
       repository.throwLoad = false;
       await t.tap(button(S.current.dashboardRetry));
+      await t.pump(const Duration(seconds: 5));
+      await t.pumpAndSettle();
       await t.pumpAndSettle();
       await t.tap(find.byType(AppCheckbox).first);
       await t.pumpAndSettle();
+      await t.ensureVisible(button(S.current.giftBalanceNext));
       await t.tap(button(S.current.giftBalanceNext));
       await t.pumpAndSettle();
       await t.tap(button(S.current.backLabel));
@@ -377,7 +373,9 @@ void main() {
       repository.failSubmit = true;
       await t.tap(button(S.current.giftBalanceSubmit));
       await t.pumpAndSettle();
-      expect(find.text(S.current.cardServiceSubmitError), findsOneWidget);
+      expect(find.text('درخواست انجام نشد. دوباره تلاش کنید.'), findsOneWidget);
+      await t.pump(const Duration(seconds: 5));
+      await t.pumpAndSettle();
       expect(giftCubit(t).state.selectedCards, hasLength(1));
       repository.pendingSubmit = Completer<Result<CardServiceReceipt>>();
       await t.tap(button(S.current.giftBalanceSubmit));
@@ -389,7 +387,7 @@ void main() {
       expect(t.widget<AppCheckbox>(find.byType(AppCheckbox)).onChanged, isNull);
       expect(
         t.widget<AppTopBar>(find.byType(AppTopBar)).onTrailingPressed,
-        isNotNull,
+        isNull,
       );
       final review = find.byWidgetPredicate(
         (widget) =>
@@ -448,10 +446,7 @@ void main() {
     await t.tap(button('تایید و ثبت درخواست'));
     await t.pumpAndSettle();
     expect(changeCubit(t).state.isEditable, isTrue);
-    expect(
-      find.text('ثبت درخواست انجام نشد. دوباره تلاش کنید.'),
-      findsOneWidget,
-    );
+    expect(find.text('درخواست انجام نشد. دوباره تلاش کنید.'), findsOneWidget);
   });
   for (final locale in ['fa', 'en', 'ar']) {
     testWidgets('$locale compact phone with large text has no overflow', (
@@ -637,4 +632,91 @@ void main() {
       expect(cubit.isClosed, isTrue);
     },
   );
+  for (final gift in [false, true]) {
+    testWidgets(
+      '${gift ? 'gift' : 'deposit'} repeats errors, opens its interaction and completes retry once',
+      (t) async {
+        const failure = DataFailure('offline');
+        final repository = TestCardServicesRepository()..failSubmit = true;
+        var completions = 0;
+        await mount(
+          t,
+          gift
+              ? ExpiredGiftBalanceScreen(onCompleted: (_) => completions++)
+              : ChangeCardDepositScreen(onCompleted: (_) => completions++),
+          repository: repository,
+        );
+        Future<void> submit() async {
+          if (gift) {
+            await giftCubit(t).submitCurrentStep();
+          } else {
+            await changeCubit(t).submitDepositChange();
+          }
+          await t.pumpAndSettle();
+        }
+
+        Future<void> dismissMessage() async {
+          t
+              .state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger))
+              .clearSnackBars();
+          await t.pumpAndSettle();
+        }
+
+        if (gift) {
+          final cubit = giftCubit(t);
+          cubit.toggleCard(cubit.state.visibleCards.first);
+          cubit.requestReview(advance: true);
+          await t.pumpAndSettle();
+          await t.tap(button(S.current.backLabel));
+          await t.pumpAndSettle();
+          cubit.selectDestination(cubit.state.catalog!.deposits.last);
+          cubit.updateTermsAcceptance(true);
+        } else {
+          final cubit = changeCubit(t);
+          cubit.selectCard(cubit.state.catalog!.cards.first);
+          cubit.selectDestination(cubit.state.destinations.first);
+          cubit.updateTermsAcceptance(true);
+        }
+        final message = getRequestErrorMessage(failure);
+        await submit();
+        expect(find.text(message), findsOneWidget);
+        await dismissMessage();
+        if (gift) {
+          giftCubit(t).requestReview();
+          await t.pumpAndSettle();
+          expect(find.byType(GiftBalanceReviewSheet), findsOneWidget);
+          expect(find.text(message), findsNothing);
+          await t.binding.handlePopRoute();
+        } else {
+          changeCubit(t).requestBack();
+          await t.pumpAndSettle();
+          expect(find.byType(AlertDialog), findsOneWidget);
+          expect(find.text(message), findsNothing);
+          await t.tap(button(S.current.passwordStay));
+        }
+        await t.pumpAndSettle();
+        await submit();
+        expect(find.text(message), findsOneWidget);
+        await dismissMessage();
+        repository.failSubmit = false;
+        await submit();
+        expect(completions, 1);
+        expect(find.text(message), findsNothing);
+        if (gift) {
+          expect(
+            repository.transfers.map((r) => r.idempotencyKey).toSet(),
+            hasLength(1),
+          );
+          expect(giftCubit(t).state.message, message);
+        } else {
+          expect(
+            repository.changes.map((r) => r.idempotencyKey).toSet(),
+            hasLength(1),
+          );
+          expect(changeCubit(t).state.message, message);
+        }
+        expect(t.takeException(), isNull);
+      },
+    );
+  }
 }

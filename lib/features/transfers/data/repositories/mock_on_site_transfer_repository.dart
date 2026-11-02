@@ -23,22 +23,26 @@ class MockOnSiteTransferRepository implements OnSiteTransferRepository {
   ];
   @override
   Future<Result<TransferCatalog>> fetchCatalog() async {
-    return Success(
-      TransferCatalog(
-        deposits: _deposits,
-        addresses: const [
-          DeliveryAddress(
-            id: 'home',
-            title: 'خانه',
-            detail: 'تهران - خیابان شریعتی - روبروی خیابان یخچال - بن بست شریف - پلاک ۴ - واحد ۱',
-            postalCode: '1944629123',
-          ),
-        ],
-        bankTime:
-            now?.call() ??
-            DateTime.now().toUtc().add(const Duration(hours: 3, minutes: 30)),
-      ),
-    );
+    try {
+      return Success(
+        TransferCatalog(
+          deposits: _deposits,
+          addresses: const [
+            DeliveryAddress(
+              id: 'home',
+              title: 'خانه',
+              detail: 'تهران - خیابان شریعتی - روبروی خیابان یخچال - بن بست شریف - پلاک ۴ - واحد ۱',
+              postalCode: '1944629123',
+            ),
+          ],
+          bankTime:
+              now?.call() ??
+              DateTime.now().toUtc().add(const Duration(hours: 3, minutes: 30)),
+        ),
+      );
+    } catch (_) {
+      return const Err(UnexpectedFailure());
+    }
   }
 
   @override
@@ -48,17 +52,21 @@ class MockOnSiteTransferRepository implements OnSiteTransferRepository {
     required TransferPurpose purpose,
     required String description,
   }) async {
-    await Future<void>.delayed(const Duration(milliseconds: 250));
-    return Success(
-      TransferDestination(
-        id: 'destination-${++_sequence}',
-        recipientName: 'گیرنده آزمایشی',
-        iban: iban,
-        amountRial: amountRial,
-        purpose: purpose,
-        description: description,
-      ),
-    );
+    try {
+      await Future<void>.delayed(const Duration(milliseconds: 250));
+      return Success(
+        TransferDestination(
+          id: 'destination-${++_sequence}',
+          recipientName: 'گیرنده آزمایشی',
+          iban: iban,
+          amountRial: amountRial,
+          purpose: purpose,
+          description: description,
+        ),
+      );
+    } catch (_) {
+      return const Err(UnexpectedFailure());
+    }
   }
 
   @override
@@ -66,41 +74,49 @@ class MockOnSiteTransferRepository implements OnSiteTransferRepository {
     SelectedDocument file,
     void Function(double) onProgress,
   ) async {
-    onProgress(.4);
-    await Future<void>.delayed(const Duration(milliseconds: 850));
-    final token = 'upload-${++_sequence}';
-    final attachment = TransferAttachment(
-      token: token,
-      name: file.name,
-      sizeBytes: file.bytes.length,
-    );
-    _uploads[token] = attachment;
-    return Success(attachment);
+    try {
+      onProgress(.4);
+      await Future<void>.delayed(const Duration(milliseconds: 850));
+      final token = 'upload-${++_sequence}';
+      final attachment = TransferAttachment(
+        token: token,
+        name: file.name,
+        sizeBytes: file.bytes.length,
+      );
+      _uploads[token] = attachment;
+      return Success(attachment);
+    } catch (_) {
+      return const Err(UnexpectedFailure());
+    }
   }
 
   @override
   Future<Result<TransferReceipt>> submit(OnSiteTransferRequest request) async {
-    await Future<void>.delayed(const Duration(milliseconds: 400));
-    final previous = _requests[request.idempotencyKey];
-    if (previous != null) {
-      return previous == request
-          ? Success(_receipts[request.idempotencyKey]!)
-          : const Err(DataFailure('transfer.request.changed'));
+    try {
+      await Future<void>.delayed(const Duration(milliseconds: 400));
+      final previous = _requests[request.idempotencyKey];
+      if (previous != null) {
+        return previous == request
+            ? Success(_receipts[request.idempotencyKey]!)
+            : const Err(DataFailure('transfer.request.changed'));
+      }
+      // Demo server boundary: identity, attachment ownership and fee authorization.
+      if (!_deposits.any((deposit) => deposit.id == request.depositId) ||
+          request.feeRial != 1300000 ||
+          (request.destinations.isEmpty && request.attachment == null) ||
+          (request.attachment != null &&
+              _uploads[request.attachment!.token] != request.attachment)) {
+        return const Err(DataFailure('transfer.request.invalid'));
+      }
+      final receipt = TransferReceipt(
+        trackingId: 'DEMO-TRANSFER-${++_sequence}',
+        feeRial: request.feeRial,
+      );
+      _requests[request.idempotencyKey] = request;
+      _receipts[request.idempotencyKey] = receipt;
+      return Success(receipt);
+    } catch (_) {
+      return const Err(UnexpectedFailure());
     }
-    // Demo server boundary: identity, attachment ownership and fee authorization.
-    if (!_deposits.any((deposit) => deposit.id == request.depositId) ||
-        request.feeRial != 1300000 ||
-        (request.destinations.isEmpty && request.attachment == null) ||
-        (request.attachment != null &&
-            _uploads[request.attachment!.token] != request.attachment)) {
-      return const Err(DataFailure('transfer.request.invalid'));
-    }
-    final receipt = TransferReceipt(
-      trackingId: 'DEMO-TRANSFER-${++_sequence}',
-      feeRial: request.feeRial,
-    );
-    _requests[request.idempotencyKey] = request;
-    _receipts[request.idempotencyKey] = receipt;
-    return Success(receipt);
   }
 }

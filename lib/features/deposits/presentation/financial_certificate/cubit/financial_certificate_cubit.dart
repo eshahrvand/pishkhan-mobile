@@ -1,8 +1,11 @@
+import 'package:pishkhan_mobile/core/validators/required_text_validator.dart';
+
 import 'dart:math';
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:pishkhan_mobile/core/presentation/mappers/request_error_message_mapper.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/flow/flow_navigation.dart';
@@ -14,8 +17,8 @@ import 'package:pishkhan_mobile/core/validators/passport_validator.dart';
 import '../../../domain/entities/certificate_data.dart';
 import '../../../domain/entities/financial_certificate_data.dart';
 import '../../../domain/entities/listed_deposit.dart';
-import '../../../domain/repositories/financial_certificate_repository.dart';
-import '../../../domain/usecases/average_balance.dart';
+import '../../../domain/usecases/average_balance_usecase.dart';
+import '../../../domain/usecases/financial_certificate_usecase.dart';
 import '../../shared/certificate_effect.dart';
 
 export 'package:pishkhan_mobile/core/flow/flow_navigation.dart';
@@ -32,7 +35,11 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
         const FinancialCertificateState.initial(),
   }) : super(initialState);
 
-  final repository = getIt<FinancialCertificateRepository>();
+  final loadCertificateCatalogUseCase = getIt<LoadCertificateCatalogUseCase>(
+    instanceName: 'financial-certificate',
+  );
+  final submitFinancialCertificateUseCase =
+      getIt<SubmitFinancialCertificateUseCase>();
   final String? initialDepositNumber;
   int _localAddress = 0;
   // The last sent payload owns its key; editing the form does not create a request.
@@ -41,12 +48,7 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
   FinancialCertificateState? _entryState;
 
   void requestAddAddress() {
-    emit(
-      state.copyWith(
-        effect: const CertificateAddressRequested(),
-        effectId: state.effectId + 1,
-      ),
-    );
+    emit(state.copyWith(effect: const CertificateAddressRequested()));
   }
 
   void applyAddressSelection(CertificateAddress? address) {
@@ -57,18 +59,12 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
     emit(
       state.copyWith(
         effect: CertificateAddressRemovalRequested(state.address!),
-        effectId: state.effectId + 1,
       ),
     );
   }
 
   void requestAgentLookup() {
-    emit(
-      state.copyWith(
-        effect: const CertificateAgentUnavailable(),
-        effectId: state.effectId + 1,
-      ),
-    );
+    emit(state.copyWith(effect: const CertificateAgentUnavailable()));
   }
 
   void applyExitConfirmation(bool? confirmed) {
@@ -76,29 +72,16 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
       state.copyWith(
         navigation: confirmed == true ? FlowNavigation.back : null,
         effect: null,
-        effectId: state.effectId + 1,
       ),
     );
   }
 
   void requestHome() {
-    emit(
-      state.copyWith(
-        navigation: FlowNavigation.home,
-        effect: null,
-        effectId: state.effectId + 1,
-      ),
-    );
+    emit(state.copyWith(navigation: FlowNavigation.home, effect: null));
   }
 
   void applyReceiptDismissal() {
-    emit(
-      state.copyWith(
-        navigation: FlowNavigation.home,
-        effect: null,
-        effectId: state.effectId + 1,
-      ),
-    );
+    emit(state.copyWith(navigation: FlowNavigation.home, effect: null));
   }
 
   void requestBack() {
@@ -108,11 +91,7 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
           state.copyWith(
             step: FinancialCertificateStep.delivery,
             stepNumber: 4,
-            canContinue:
-                state.address != null &&
-                (!state.isOtherRecipient ||
-                    (state.isRecipientNameValid &&
-                        state.isRecipientNationalIdValid)),
+            canContinue: _canContinueDelivery(state.address),
           ),
         );
       case FinancialCertificateStep.delivery:
@@ -136,53 +115,22 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
           state.copyWith(
             step: FinancialCertificateStep.conditions,
             stepNumber: 1,
-            canContinue: state.deposit != null && state.conditions.isNotEmpty,
+            canContinue: _areConditionsComplete(state.deposit),
           ),
         );
       case FinancialCertificateStep.conditions:
-        final needsConfirmation =
-            state.submissionStatus != RequestStatus.success &&
-            state.catalogStatus == RequestStatus.success &&
-            (state.deposit != _entryState?.deposit ||
-                (state.conditions.length !=
-                        (_entryState?.conditions.length ?? 0) ||
-                    !state.conditions.containsAll(
-                      _entryState?.conditions ?? const {},
-                    )) ||
-                state.recipient != _entryState?.recipient ||
-                state.embassy != _entryState?.embassy ||
-                state.authorityName != (_entryState?.authorityName ?? '') ||
-                state.currency != _entryState?.currency ||
-                state.name != (_entryState?.name ?? '') ||
-                state.surname != (_entryState?.surname ?? '') ||
-                state.fatherName != (_entryState?.fatherName ?? '') ||
-                state.passportNumber != (_entryState?.passportNumber ?? '') ||
-                state.passportExpiryText !=
-                    (_entryState?.passportExpiryText ?? '') ||
-                state.latinAddress != (_entryState?.latinAddress ?? '') ||
-                state.address != _entryState?.address ||
-                state.deliveryRecipientName !=
-                    (_entryState?.deliveryRecipientName ?? '') ||
-                state.deliveryRecipientNationalId !=
-                    (_entryState?.deliveryRecipientNationalId ?? '') ||
-                state.isIncludeAgent !=
-                    (_entryState?.isIncludeAgent ?? false) ||
-                state.isOtherRecipient !=
-                    (_entryState?.isOtherRecipient ?? false) ||
-                state.agentIdentifier != (_entryState?.agentIdentifier ?? ''));
         emit(
           state.copyWith(
-            navigation: needsConfirmation
+            navigation: _requiresExitConfirmation()
                 ? FlowNavigation.confirmExit
                 : FlowNavigation.back,
             effect: null,
-            effectId: state.effectId + 1,
           ),
         );
     }
   }
 
-  Future<void> continueFlow() {
+  Future<void> continueFlow() async {
     switch (state.step) {
       case FinancialCertificateStep.conditions:
         emit(
@@ -205,11 +153,7 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
           state.copyWith(
             step: FinancialCertificateStep.delivery,
             stepNumber: 4,
-            canContinue:
-                state.address != null &&
-                (!state.isOtherRecipient ||
-                    (state.isRecipientNameValid &&
-                        state.isRecipientNationalIdValid)),
+            canContinue: _canContinueDelivery(state.address),
           ),
         );
       case FinancialCertificateStep.delivery:
@@ -221,130 +165,107 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
           ),
         );
       case FinancialCertificateStep.confirmation:
-        return submitCertificate();
+        await submitCertificate();
     }
-    return Future.value();
   }
 
-  Future<void> fetchCatalog() {
+  Future<void> fetchCatalog() async {
     emit(
-      state.copyWith(
-        catalogStatus: RequestStatus.loading,
-        catalogFailure: null,
-        canContinue: false,
-      ),
+      state.copyWith(catalogStatus: RequestStatus.loading, canContinue: false),
     );
-    return LoadCertificateCatalog(repository)().then((result) {
-      switch (result) {
-        case Err(:final failure):
-          emit(
-            state.copyWith(
-              catalogStatus: RequestStatus.failure,
-              catalogFailure: failure,
+    final result = await loadCertificateCatalogUseCase();
+    switch (result) {
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            catalogStatus: RequestStatus.failure,
+            failure: failure,
+            message: getRequestErrorMessage(failure),
+          ),
+        );
+      case Success(:final data):
+        final deposit = _resolveDeposit(data.deposits);
+        final nameValid = PassportValidator.latinName(state.name);
+        final surnameValid = PassportValidator.latinName(state.surname);
+        final fatherValid = PassportValidator.latinName(state.fatherName);
+        final passportValid = PassportValidator.number(state.passportNumber);
+        final expiry = PassportValidator.expiry(state.passportExpiryText);
+        final addressValid = PassportValidator.latinAddress(state.latinAddress);
+        final authorityValid = RequiredTextValidator.isValid(
+          state.authorityName,
+        );
+        final deliveryNameValid = RequiredTextValidator.isValid(
+          state.deliveryRecipientName,
+        );
+        final nationalIdValid = NationalCodeValidator.isValid(
+          state.deliveryRecipientNationalId,
+        );
+        emit(
+          state.copyWith(
+            catalogStatus: RequestStatus.success,
+            catalog: data,
+            deposit: deposit,
+            addresses: data.addresses,
+            totalRial: _calculateTotalFee(data),
+            isWalletSufficient: _isWalletSufficient(data),
+            isLatinNameValid: nameValid,
+            isLatinSurnameValid: surnameValid,
+            isLatinFatherNameValid: fatherValid,
+            isPassportNumberValid: passportValid,
+            passportExpiry: expiry,
+            isLatinAddressValid: addressValid,
+            isLatinComplete: _isLatinComplete(
+              namesValid: _areLatinNamesValid(
+                nameValid: nameValid,
+                surnameValid: surnameValid,
+                fatherNameValid: fatherValid,
+              ),
+              passportValid: _isPassportComplete(passportValid, expiry),
+              addressValid: addressValid,
             ),
-          );
-        case Success(:final data):
-          final number = DigitNormalizer.normalize(initialDepositNumber ?? '')
-              .replaceAll(RegExp(r'[^0-9]'), '');
-          final deposit = data.deposits
-              .where(
-                (deposit) =>
-                    deposit.id == state.deposit?.id ||
-                    (number.isNotEmpty &&
-                        DigitNormalizer.normalize(deposit.number)
-                                .replaceAll(RegExp(r'[^0-9]'), '') ==
-                            number),
-              )
-              .firstOrNull;
-          final total = data.printFeeRial + data.deliveryFeeRial;
-          final sufficient = data.walletBalanceRial >= total;
-          final nameValid = PassportValidator.latinName(state.name);
-          final surnameValid = PassportValidator.latinName(state.surname);
-          final fatherValid = PassportValidator.latinName(state.fatherName);
-          final passportValid = PassportValidator.number(state.passportNumber);
-          final expiry = PassportValidator.expiry(state.passportExpiryText);
-          final addressValid = PassportValidator.latinAddress(
-            state.latinAddress,
-          );
-          final latinComplete =
-              nameValid &&
-              surnameValid &&
-              fatherValid &&
-              passportValid &&
-              expiry != null &&
-              addressValid;
-          final authorityValid = state.authorityName.trim().isNotEmpty;
-          final recipientComplete =
-              state.currency != null &&
-              switch (state.recipient) {
-                FinancialCertificateRecipient.embassy => state.embassy != null,
-                FinancialCertificateRecipient.otherAuthority => authorityValid,
-                null => false,
-              };
-          final deliveryNameValid = state.deliveryRecipientName
-              .trim()
-              .isNotEmpty;
-          final nationalIdValid = NationalCodeValidator.isValid(
-            state.deliveryRecipientNationalId,
-          );
-          final conditionsComplete =
-              deposit != null && state.conditions.isNotEmpty;
-          final deliveryComplete =
-              state.address != null &&
-              (!state.isOtherRecipient ||
-                  (deliveryNameValid && nationalIdValid));
-          emit(
-            state.copyWith(
-              catalogStatus: RequestStatus.success,
+            isAuthorityNameValid: authorityValid,
+            isRecipientComplete: _isRecipientComplete(
+              state.recipient,
+              state.embassy,
+              authorityValid,
+              state.currency,
+            ),
+            isRecipientNameValid: deliveryNameValid,
+            isRecipientNationalIdValid: nationalIdValid,
+            canCheckAgent: RequiredTextValidator.isValid(state.agentIdentifier),
+            stepNumber: state.step.index + 1,
+            canContinue: _canContinueAfterCatalog(
               catalog: data,
               deposit: deposit,
-              addresses: data.addresses,
-              totalRial: total,
-              isWalletSufficient: sufficient,
-              isLatinNameValid: nameValid,
-              isLatinSurnameValid: surnameValid,
-              isLatinFatherNameValid: fatherValid,
-              isPassportNumberValid: passportValid,
-              passportExpiry: expiry,
-              isLatinAddressValid: addressValid,
-              isLatinComplete: latinComplete,
-              isAuthorityNameValid: authorityValid,
-              isRecipientComplete: recipientComplete,
-              isRecipientNameValid: deliveryNameValid,
-              isRecipientNationalIdValid: nationalIdValid,
-              canCheckAgent: state.agentIdentifier.trim().isNotEmpty,
-              stepNumber: state.step.index + 1,
-              canContinue:
-                  conditionsComplete &&
-                  switch (state.step) {
-                    FinancialCertificateStep.conditions => true,
-                    FinancialCertificateStep.recipient => recipientComplete,
-                    FinancialCertificateStep.latinIdentity =>
-                      recipientComplete && latinComplete,
-                    FinancialCertificateStep.delivery =>
-                      recipientComplete && latinComplete && deliveryComplete,
-                    FinancialCertificateStep.confirmation =>
-                      recipientComplete &&
-                          latinComplete &&
-                          deliveryComplete &&
-                          sufficient,
-                  },
+              recipientComplete: _isRecipientComplete(
+                state.recipient,
+                state.embassy,
+                authorityValid,
+                state.currency,
+              ),
+              latinComplete: _isLatinComplete(
+                namesValid: _areLatinNamesValid(
+                  nameValid: nameValid,
+                  surnameValid: surnameValid,
+                  fatherNameValid: fatherValid,
+                ),
+                passportValid: _isPassportComplete(passportValid, expiry),
+                addressValid: addressValid,
+              ),
+              deliveryComplete: _canContinueDelivery(
+                state.address,
+                isRecipientNameValid: deliveryNameValid,
+                isRecipientNationalIdValid: nationalIdValid,
+              ),
             ),
-          );
-          _entryState = state;
-      }
-    });
+          ),
+        );
+        _entryState = state;
+    }
   }
 
   void selectDeposit(ListedDeposit deposit) {
-    emit(
-      state.copyWith(
-        deposit: deposit,
-        conditions: {},
-        submissionFailure: null,
-        canContinue: false,
-      ),
-    );
+    emit(state.copyWith(deposit: deposit, conditions: {}, canContinue: false));
   }
 
   void toggleCondition(FinancialCertificateCondition condition) {
@@ -353,7 +274,6 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
     emit(
       state.copyWith(
         conditions: conditions,
-        submissionFailure: null,
         canContinue: conditions.isNotEmpty,
       ),
     );
@@ -369,110 +289,146 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
         isAuthorityNameValid: false,
         isRecipientComplete: false,
         canContinue: false,
-        submissionFailure: null,
       ),
     );
   }
 
   void selectEmbassy(CertificateEmbassy embassy) {
-    final complete = state.currency != null;
     emit(
       state.copyWith(
         embassy: embassy,
-        isRecipientComplete: complete,
-        canContinue: complete,
-        submissionFailure: null,
+        isRecipientComplete: _isRecipientComplete(
+          FinancialCertificateRecipient.embassy,
+          embassy,
+          state.isAuthorityNameValid,
+          state.currency,
+        ),
+        canContinue: _isRecipientComplete(
+          FinancialCertificateRecipient.embassy,
+          embassy,
+          state.isAuthorityNameValid,
+          state.currency,
+        ),
       ),
     );
   }
 
   void updateAuthorityName(String value) {
-    final valid = value.trim().isNotEmpty;
-    final complete = valid && state.currency != null;
+    final valid = RequiredTextValidator.isValid(value);
     emit(
       state.copyWith(
         authorityName: value,
         isAuthorityNameValid: valid,
-        isRecipientComplete: complete,
-        canContinue: complete,
-        submissionFailure: null,
+        isRecipientComplete: _isRecipientComplete(
+          FinancialCertificateRecipient.otherAuthority,
+          state.embassy,
+          valid,
+          state.currency,
+        ),
+        canContinue: _isRecipientComplete(
+          FinancialCertificateRecipient.otherAuthority,
+          state.embassy,
+          valid,
+          state.currency,
+        ),
       ),
     );
   }
 
   void selectCurrency(CertificateCurrency currency) {
-    final complete = switch (state.recipient) {
-      FinancialCertificateRecipient.embassy => state.embassy != null,
-      FinancialCertificateRecipient.otherAuthority =>
-        state.isAuthorityNameValid,
-      null => false,
-    };
     emit(
       state.copyWith(
         currency: currency,
-        isRecipientComplete: complete,
-        canContinue: complete,
-        submissionFailure: null,
+        isRecipientComplete: _isRecipientComplete(
+          state.recipient,
+          state.embassy,
+          state.isAuthorityNameValid,
+          currency,
+        ),
+        canContinue: _isRecipientComplete(
+          state.recipient,
+          state.embassy,
+          state.isAuthorityNameValid,
+          currency,
+        ),
       ),
     );
   }
 
   void updateLatinName(String value) {
     final valid = PassportValidator.latinName(value);
-    final complete =
-        valid &&
-        state.isLatinSurnameValid &&
-        state.isLatinFatherNameValid &&
-        state.isPassportNumberValid &&
-        state.passportExpiry != null &&
-        state.isLatinAddressValid;
     emit(
       state.copyWith(
         name: value,
         isLatinNameValid: valid,
-        isLatinComplete: complete,
-        canContinue: complete,
-        submissionFailure: null,
+        isLatinComplete: _isLatinComplete(
+          namesValid: _areLatinNamesValid(nameValid: valid),
+          passportValid: _isPassportComplete(
+            state.isPassportNumberValid,
+            state.passportExpiry,
+          ),
+          addressValid: state.isLatinAddressValid,
+        ),
+        canContinue: _isLatinComplete(
+          namesValid: _areLatinNamesValid(nameValid: valid),
+          passportValid: _isPassportComplete(
+            state.isPassportNumberValid,
+            state.passportExpiry,
+          ),
+          addressValid: state.isLatinAddressValid,
+        ),
       ),
     );
   }
 
   void updateLatinSurname(String value) {
     final valid = PassportValidator.latinName(value);
-    final complete =
-        state.isLatinNameValid &&
-        valid &&
-        state.isLatinFatherNameValid &&
-        state.isPassportNumberValid &&
-        state.passportExpiry != null &&
-        state.isLatinAddressValid;
     emit(
       state.copyWith(
         surname: value,
         isLatinSurnameValid: valid,
-        isLatinComplete: complete,
-        canContinue: complete,
-        submissionFailure: null,
+        isLatinComplete: _isLatinComplete(
+          namesValid: _areLatinNamesValid(surnameValid: valid),
+          passportValid: _isPassportComplete(
+            state.isPassportNumberValid,
+            state.passportExpiry,
+          ),
+          addressValid: state.isLatinAddressValid,
+        ),
+        canContinue: _isLatinComplete(
+          namesValid: _areLatinNamesValid(surnameValid: valid),
+          passportValid: _isPassportComplete(
+            state.isPassportNumberValid,
+            state.passportExpiry,
+          ),
+          addressValid: state.isLatinAddressValid,
+        ),
       ),
     );
   }
 
   void updateLatinFatherName(String value) {
     final valid = PassportValidator.latinName(value);
-    final complete =
-        state.isLatinNameValid &&
-        state.isLatinSurnameValid &&
-        valid &&
-        state.isPassportNumberValid &&
-        state.passportExpiry != null &&
-        state.isLatinAddressValid;
     emit(
       state.copyWith(
         fatherName: value,
         isLatinFatherNameValid: valid,
-        isLatinComplete: complete,
-        canContinue: complete,
-        submissionFailure: null,
+        isLatinComplete: _isLatinComplete(
+          namesValid: _areLatinNamesValid(fatherNameValid: valid),
+          passportValid: _isPassportComplete(
+            state.isPassportNumberValid,
+            state.passportExpiry,
+          ),
+          addressValid: state.isLatinAddressValid,
+        ),
+        canContinue: _isLatinComplete(
+          namesValid: _areLatinNamesValid(fatherNameValid: valid),
+          passportValid: _isPassportComplete(
+            state.isPassportNumberValid,
+            state.passportExpiry,
+          ),
+          addressValid: state.isLatinAddressValid,
+        ),
       ),
     );
   }
@@ -480,20 +436,20 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
   void updatePassportNumber(String value) {
     final normalized = DigitNormalizer.normalize(value);
     final valid = PassportValidator.number(normalized);
-    final complete =
-        state.isLatinNameValid &&
-        state.isLatinSurnameValid &&
-        state.isLatinFatherNameValid &&
-        valid &&
-        state.passportExpiry != null &&
-        state.isLatinAddressValid;
     emit(
       state.copyWith(
         passportNumber: normalized,
         isPassportNumberValid: valid,
-        isLatinComplete: complete,
-        canContinue: complete,
-        submissionFailure: null,
+        isLatinComplete: _isLatinComplete(
+          namesValid: _areLatinNamesValid(),
+          passportValid: _isPassportComplete(valid, state.passportExpiry),
+          addressValid: state.isLatinAddressValid,
+        ),
+        canContinue: _isLatinComplete(
+          namesValid: _areLatinNamesValid(),
+          passportValid: _isPassportComplete(valid, state.passportExpiry),
+          addressValid: state.isLatinAddressValid,
+        ),
       ),
     );
   }
@@ -501,40 +457,52 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
   void updatePassportExpiry(String value) {
     final normalized = DigitNormalizer.normalize(value);
     final expiry = PassportValidator.expiry(normalized);
-    final complete =
-        state.isLatinNameValid &&
-        state.isLatinSurnameValid &&
-        state.isLatinFatherNameValid &&
-        state.isPassportNumberValid &&
-        expiry != null &&
-        state.isLatinAddressValid;
     emit(
       state.copyWith(
         passportExpiryText: normalized,
         passportExpiry: expiry,
-        isLatinComplete: complete,
-        canContinue: complete,
-        submissionFailure: null,
+        isLatinComplete: _isLatinComplete(
+          namesValid: _areLatinNamesValid(),
+          passportValid: _isPassportComplete(
+            state.isPassportNumberValid,
+            expiry,
+          ),
+          addressValid: state.isLatinAddressValid,
+        ),
+        canContinue: _isLatinComplete(
+          namesValid: _areLatinNamesValid(),
+          passportValid: _isPassportComplete(
+            state.isPassportNumberValid,
+            expiry,
+          ),
+          addressValid: state.isLatinAddressValid,
+        ),
       ),
     );
   }
 
   void updateLatinAddress(String value) {
     final valid = PassportValidator.latinAddress(value);
-    final complete =
-        state.isLatinNameValid &&
-        state.isLatinSurnameValid &&
-        state.isLatinFatherNameValid &&
-        state.isPassportNumberValid &&
-        state.passportExpiry != null &&
-        valid;
     emit(
       state.copyWith(
         latinAddress: value,
         isLatinAddressValid: valid,
-        isLatinComplete: complete,
-        canContinue: complete,
-        submissionFailure: null,
+        isLatinComplete: _isLatinComplete(
+          namesValid: _areLatinNamesValid(),
+          passportValid: _isPassportComplete(
+            state.isPassportNumberValid,
+            state.passportExpiry,
+          ),
+          addressValid: valid,
+        ),
+        canContinue: _isLatinComplete(
+          namesValid: _areLatinNamesValid(),
+          passportValid: _isPassportComplete(
+            state.isPassportNumberValid,
+            state.passportExpiry,
+          ),
+          addressValid: valid,
+        ),
       ),
     );
   }
@@ -543,10 +511,7 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
     emit(
       state.copyWith(
         address: address,
-        submissionFailure: null,
-        canContinue:
-            !state.isOtherRecipient ||
-            (state.isRecipientNameValid && state.isRecipientNationalIdValid),
+        canContinue: _canContinueDelivery(address),
       ),
     );
   }
@@ -562,9 +527,7 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
       state.copyWith(
         addresses: [...state.addresses, local],
         address: local,
-        canContinue:
-            !state.isOtherRecipient ||
-            (state.isRecipientNameValid && state.isRecipientNationalIdValid),
+        canContinue: _canContinueDelivery(local),
       ),
     );
   }
@@ -585,25 +548,24 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
     emit(
       state.copyWith(
         isOtherRecipient: value,
-        canContinue:
-            state.address != null &&
-            (!value ||
-                (state.isRecipientNameValid &&
-                    state.isRecipientNationalIdValid)),
+        canContinue: _canContinueDelivery(
+          state.address,
+          isOtherRecipient: value,
+        ),
       ),
     );
   }
 
   void updateRecipientName(String value) {
-    final valid = value.trim().isNotEmpty;
+    final valid = RequiredTextValidator.isValid(value);
     emit(
       state.copyWith(
         deliveryRecipientName: value,
         isRecipientNameValid: valid,
-        canContinue:
-            state.address != null &&
-            (!state.isOtherRecipient ||
-                (valid && state.isRecipientNationalIdValid)),
+        canContinue: _canContinueDelivery(
+          state.address,
+          isRecipientNameValid: valid,
+        ),
       ),
     );
   }
@@ -615,9 +577,10 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
       state.copyWith(
         deliveryRecipientNationalId: normalized,
         isRecipientNationalIdValid: valid,
-        canContinue:
-            state.address != null &&
-            (!state.isOtherRecipient || (state.isRecipientNameValid && valid)),
+        canContinue: _canContinueDelivery(
+          state.address,
+          isRecipientNationalIdValid: valid,
+        ),
       ),
     );
   }
@@ -631,7 +594,7 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
     emit(
       state.copyWith(
         agentIdentifier: normalized,
-        canCheckAgent: normalized.trim().isNotEmpty,
+        canCheckAgent: RequiredTextValidator.isValid(normalized),
       ),
     );
   }
@@ -644,39 +607,32 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
     emit(state.copyWith(isInvoiceExpanded: value));
   }
 
-  Future<void> submitCertificate() {
+  Future<void> submitCertificate() async {
     var request = _createRequest(_submittedRequest?.idempotencyKey);
     if (_submittedRequest != null && request != _submittedRequest) {
       request = _createRequest(null);
     }
     _submittedRequest = request;
-    emit(
-      state.copyWith(
-        submissionStatus: RequestStatus.loading,
-        submissionFailure: null,
-      ),
-    );
-    return certificateBoundary(
-      () => repository.submitFinancialCertificate(request),
-    ).then((result) {
-      switch (result) {
-        case Err(:final failure):
-          emit(
-            state.copyWith(
-              submissionStatus: RequestStatus.failure,
-              submissionFailure: failure,
-            ),
-          );
-        case Success(:final data):
-          emit(
-            state.copyWith(
-              submissionStatus: RequestStatus.success,
-              receipt: data,
-              canContinue: false,
-            ),
-          );
-      }
-    });
+    emit(state.copyWith(submissionStatus: RequestStatus.loading));
+    final result = await submitFinancialCertificateUseCase(request);
+    switch (result) {
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            submissionStatus: RequestStatus.failure,
+            failure: failure,
+            message: getRequestErrorMessage(failure),
+          ),
+        );
+      case Success(:final data):
+        emit(
+          state.copyWith(
+            submissionStatus: RequestStatus.success,
+            receipt: data,
+            canContinue: false,
+          ),
+        );
+    }
   }
 
   FinancialCertificateRequest _createRequest(String? idempotencyKey) {
@@ -708,7 +664,8 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
           ? state.deliveryRecipientNationalId
           : null,
       agentIdentifier:
-          state.isIncludeAgent && state.agentIdentifier.trim().isNotEmpty
+          state.isIncludeAgent &&
+              RequiredTextValidator.isValid(state.agentIdentifier)
           ? state.agentIdentifier
           : null,
       idempotencyKey:
@@ -719,5 +676,133 @@ class FinancialCertificateCubit extends Cubit<FinancialCertificateState> {
                 Random.secure().nextInt(256).toRadixString(16).padLeft(2, '0'),
           ).join(),
     );
+  }
+
+  ListedDeposit? _resolveDeposit(List<ListedDeposit> deposits) {
+    final number = _normalizeDepositNumber(initialDepositNumber ?? '');
+    return deposits
+        .where(
+          (deposit) =>
+              deposit.id == state.deposit?.id ||
+              (number.isNotEmpty &&
+                  _normalizeDepositNumber(deposit.number) == number),
+        )
+        .firstOrNull;
+  }
+
+  String _normalizeDepositNumber(String number) =>
+      DigitNormalizer.normalize(number).replaceAll(RegExp(r'[^0-9]'), '');
+
+  bool _canContinueDelivery(
+    CertificateAddress? address, {
+    bool? isOtherRecipient,
+    bool? isRecipientNameValid,
+    bool? isRecipientNationalIdValid,
+  }) {
+    return address != null &&
+        (!(isOtherRecipient ?? state.isOtherRecipient) ||
+            ((isRecipientNameValid ?? state.isRecipientNameValid) &&
+                (isRecipientNationalIdValid ??
+                    state.isRecipientNationalIdValid)));
+  }
+
+  bool _areLatinNamesValid({
+    bool? nameValid,
+    bool? surnameValid,
+    bool? fatherNameValid,
+  }) {
+    return (nameValid ?? state.isLatinNameValid) &&
+        (surnameValid ?? state.isLatinSurnameValid) &&
+        (fatherNameValid ?? state.isLatinFatherNameValid);
+  }
+
+  bool _isPassportComplete(bool isNumberValid, DateTime? expiry) =>
+      isNumberValid && expiry != null;
+
+  bool _isLatinComplete({
+    required bool namesValid,
+    required bool passportValid,
+    required bool addressValid,
+  }) => namesValid && passportValid && addressValid;
+
+  bool _isRecipientComplete(
+    FinancialCertificateRecipient? recipient,
+    CertificateEmbassy? embassy,
+    bool authorityNameValid,
+    CertificateCurrency? currency,
+  ) {
+    return currency != null &&
+        switch (recipient) {
+          FinancialCertificateRecipient.embassy => embassy != null,
+          FinancialCertificateRecipient.otherAuthority => authorityNameValid,
+          null => false,
+        };
+  }
+
+  bool _areConditionsComplete(ListedDeposit? deposit) =>
+      deposit != null && state.conditions.isNotEmpty;
+
+  int _calculateTotalFee(CertificateCatalog catalog) =>
+      catalog.printFeeRial + catalog.deliveryFeeRial;
+
+  bool _isWalletSufficient(CertificateCatalog catalog) =>
+      catalog.walletBalanceRial >= _calculateTotalFee(catalog);
+
+  bool _canContinueAfterCatalog({
+    required CertificateCatalog catalog,
+    required ListedDeposit? deposit,
+    required bool recipientComplete,
+    required bool latinComplete,
+    required bool deliveryComplete,
+  }) {
+    return _areConditionsComplete(deposit) &&
+        switch (state.step) {
+          FinancialCertificateStep.conditions => true,
+          FinancialCertificateStep.recipient => recipientComplete,
+          FinancialCertificateStep.latinIdentity =>
+            recipientComplete && latinComplete,
+          FinancialCertificateStep.delivery =>
+            recipientComplete && latinComplete && deliveryComplete,
+          FinancialCertificateStep.confirmation =>
+            recipientComplete &&
+                latinComplete &&
+                deliveryComplete &&
+                _isWalletSufficient(catalog),
+        };
+  }
+
+  bool _requiresExitConfirmation() {
+    return state.submissionStatus != RequestStatus.success &&
+        state.catalogStatus == RequestStatus.success &&
+        (state.deposit != _entryState?.deposit ||
+            (state.conditions.length != (_entryState?.conditions.length ?? 0) ||
+                !state.conditions.containsAll(
+                  _entryState?.conditions ?? const {},
+                )) ||
+            state.recipient != _entryState?.recipient ||
+            state.embassy != _entryState?.embassy ||
+            state.authorityName != (_entryState?.authorityName ?? '') ||
+            state.currency != _entryState?.currency ||
+            state.name != (_entryState?.name ?? '') ||
+            state.surname != (_entryState?.surname ?? '') ||
+            state.fatherName != (_entryState?.fatherName ?? '') ||
+            state.passportNumber != (_entryState?.passportNumber ?? '') ||
+            state.passportExpiryText !=
+                (_entryState?.passportExpiryText ?? '') ||
+            state.latinAddress != (_entryState?.latinAddress ?? '') ||
+            state.address != _entryState?.address ||
+            state.deliveryRecipientName !=
+                (_entryState?.deliveryRecipientName ?? '') ||
+            state.deliveryRecipientNationalId !=
+                (_entryState?.deliveryRecipientNationalId ?? '') ||
+            state.isIncludeAgent != (_entryState?.isIncludeAgent ?? false) ||
+            state.isOtherRecipient !=
+                (_entryState?.isOtherRecipient ?? false) ||
+            state.agentIdentifier != (_entryState?.agentIdentifier ?? ''));
+  }
+
+  /// UI has accepted the pending interaction; data and request statuses stay intact.
+  void consumeFinancialCertificateInteraction() {
+    emit(state.copyWith(navigation: null, effect: null));
   }
 }

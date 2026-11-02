@@ -1,8 +1,8 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 import '../../../domain/entities/listed_deposit.dart';
 import '../../../domain/entities/agent_request.dart';
@@ -128,7 +128,7 @@ class AgentForm extends StatelessWidget {
                       height: 44,
                       child: Center(
                         child: depositIcon(
-                          AppAssets.certificateCalendar,
+                          '${AppConstants.baseImage}certificate_certCalendar.svg',
                           size: 20,
                         ),
                       ),

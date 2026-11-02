@@ -1,8 +1,8 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_invoice.dart';
 
 import '../../../domain/entities/card_service_data.dart';
@@ -42,7 +42,9 @@ class ChangeCardDepositForm extends StatelessWidget {
                     ? context.colors.textDisabled
                     : context.colors.textPrimary,
               ),
-              trailing: cardServiceIcon(AppAssets.cardFeaturesChevron),
+              trailing: cardServiceIcon(
+                '${AppConstants.baseImage}card_features_chevron.svg',
+              ),
               options: [
                 for (final c in state.catalog!.cards)
                   AppSelectOption(
@@ -77,7 +79,10 @@ class ChangeCardDepositForm extends StatelessWidget {
               const SizedBox(height: 8),
               Row(
                 children: [
-                  cardServiceIcon(AppAssets.cardDepositInfo, size: 14),
+                  cardServiceIcon(
+                    '${AppConstants.baseImage}card_deposit_info.svg',
+                    size: 14,
+                  ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -99,7 +104,9 @@ class ChangeCardDepositForm extends StatelessWidget {
                       ? context.colors.textDisabled
                       : context.colors.textPrimary,
                 ),
-                trailing: cardServiceIcon(AppAssets.cardFeaturesChevron),
+                trailing: cardServiceIcon(
+                  '${AppConstants.baseImage}card_features_chevron.svg',
+                ),
                 options: [
                   for (final d in state.destinations)
                     AppSelectOption(value: d, label: d.number),
@@ -112,7 +119,10 @@ class ChangeCardDepositForm extends StatelessWidget {
                 const SizedBox(height: 8),
                 Row(
                   children: [
-                    cardServiceIcon(AppAssets.cardDepositType, size: 14),
+                    cardServiceIcon(
+                      '${AppConstants.baseImage}card_deposit_type.svg',
+                      size: 14,
+                    ),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
@@ -147,16 +157,6 @@ class ChangeCardDepositForm extends StatelessWidget {
               walletSufficientLabel: S.current.issuanceWalletSufficient,
               walletInsufficientLabel: S.current.issuanceWalletInsufficient,
             ),
-            if (state.submissionFailure != null) ...[
-              const SizedBox(height: 12),
-              Semantics(
-                liveRegion: true,
-                child: Text(
-                  S.current.cardServiceSubmitError,
-                  style: cardServiceSmall(context, color: context.colors.error),
-                ),
-              ),
-            ],
           ],
         ),
       ),

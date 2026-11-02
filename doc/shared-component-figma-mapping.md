@@ -26,7 +26,7 @@ they do not change the public API of `avp_ui`.
 | File upload base | `15907:44055` | `AppFileUploadBase` | `lib/shared/widgets/app_file_upload_base.dart` | Empty, uploading, and uploaded states. |
 | Transfer destination card | `16293:181820` | `AppTransferDestinationCard` | `lib/shared/widgets/app_transfer_destination_card.dart` | Internal, Satna, and Paya transfer details. |
 | Address card | `15939:10358` | `AppAddressCard` | `lib/shared/widgets/app_address_card.dart` | Home and Work address variants. |
-| Occupation card | `15936:32739` | `AppOccupationCard` | `lib/shared/widgets/app_occupation_card.dart` | Occupation title and description with a configurable more action. |
+| Job information card | `15936:32739` | `AppJobInformationCard` | `lib/shared/widgets/app_job_information_card.dart` | Job information title and description with a configurable more action. |
 | Request report card | `15934:32160` | `AppRequestReportCard` | `lib/shared/widgets/app_request_report_card.dart` | Optional details row, date, status badge, and more action. |
 | Transaction card | `15924:41539` | `AppTransactionCard` | `lib/shared/widgets/app_transaction_card.dart` | Discharge, charge, transfer, and shopping variants. |
 
@@ -43,9 +43,9 @@ they do not change the public API of `avp_ui`.
 - Reuse an existing file only when its binary content is identical. Give true
   shared assets a semantic name; prefix unique assets with their feature or
   component name to prevent collisions.
-- Add every path to `AppAssets` and reference that registry (or a thin
-  feature-scoped alias) from Dart code. Do not hard-code asset paths in UI
-  widgets.
+- Reference app images directly as `${AppConstants.baseImage}filename.svg` using
+  `core/config/constant.dart`. Keep the `assets/images/` bundle entry in pubspec.
+  Do not introduce an asset registry or feature alias class.
 - Add a focused widget test in `test/` for each interactive state.
 
 ## Dashboard composition (updated design)
@@ -58,7 +58,7 @@ See [Dashboard development](dashboard/development.md) for all nine updated frame
 - Dashboard bell pushes `NotificationsScreen`; cards push `NotificationDetailScreen`.
 - `NotificationHeader` and `NotificationCard` compose `avp_ui` typography, colors,
   radii, shadows, and the existing `AppButton`. Exact notification SVGs and the
-  detail illustration are registered in `AppAssets`.
+  detail illustration are referenced with `AppConstants.baseImage`.
 - `NotificationsScreen.messages` accepts `NotificationMessage` data; `onChanged`
   returns read-state updates. Opening a message marks it read, and “Read all”
   marks every message read. The dashboard retains updates for its lifetime.

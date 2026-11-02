@@ -1,8 +1,9 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
+
 import 'app_service_grid_item_view_icon.dart';
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 /// The two Figma visual treatments for a service category card.
 enum AppServiceGridCardType { service, quick }
@@ -10,13 +11,19 @@ enum AppServiceGridCardType { service, quick }
 /// Figma SVG assets used by [AppServiceGridCard] previews.
 abstract final class AppServiceGridIcons {
   static Widget agentPurple() =>
-      _svg(AppAssets.serviceGridAgentPurple);
-  static Widget quickService() =>
-      _svg(AppAssets.serviceGridQuickService, size: const Size(70, 70.5));
-  static Widget quickAccess() =>
-      _svg(AppAssets.serviceGridQuickAccess, size: const Size.square(20));
-  static Widget angleLeft() =>
-      _svg(AppAssets.iconAngleLeft20Gray700, size: const Size.square(20));
+      _svg('${AppConstants.baseImage}service_grid_agent_purple.svg');
+  static Widget quickService() => _svg(
+    '${AppConstants.baseImage}service_grid_quick_service.svg',
+    size: const Size(70, 70.5),
+  );
+  static Widget quickAccess() => _svg(
+    '${AppConstants.baseImage}service_grid_quick_access.svg',
+    size: const Size.square(20),
+  );
+  static Widget angleLeft() => _svg(
+    '${AppConstants.baseImage}icon_angle_left_20_gray700.svg',
+    size: const Size.square(20),
+  );
 
   static Widget _svg(String path, {Size size = const Size.square(32)}) =>
       SizedBox(
@@ -140,17 +147,42 @@ class AppServiceGridCard extends StatelessWidget {
                     ],
                   )
                 else
-                  Wrap(
-                    alignment: WrapAlignment.start,
-                    spacing: itemSpacing == 0 ? 6 : itemSpacing,
-                    runSpacing: AppSpacing.mdLg,
-                    children: [
-                      for (final item in items)
-                        AppServiceGridItemView(
-                          item: item,
-                          usesIconTile: type == AppServiceGridCardType.service,
-                        ),
-                    ],
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      final spacing = itemSpacing == 0 ? 6.0 : itemSpacing;
+                      final columns =
+                          ((constraints.maxWidth + spacing) / (72 + spacing))
+                              .floor()
+                              .clamp(1, 4);
+                      return Column(
+                        children: [
+                          for (
+                            var start = 0;
+                            start < items.length;
+                            start += columns
+                          ) ...[
+                            if (start > 0)
+                              const SizedBox(height: AppSpacing.mdLg),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                for (var column = 0; column < columns; column++)
+                                  if (start + column < items.length)
+                                    AppServiceGridItemView(
+                                      item: items[start + column],
+                                      usesIconTile:
+                                          type ==
+                                          AppServiceGridCardType.service,
+                                    )
+                                  else
+                                    const SizedBox(width: 72),
+                              ],
+                            ),
+                          ],
+                        ],
+                      );
+                    },
                   ),
                 if (footer != null) ...[
                   SizedBox(height: footerSpacing),

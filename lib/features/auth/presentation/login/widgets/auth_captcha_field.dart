@@ -1,10 +1,11 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/features/auth/presentation/login/cubit/auth_cubit.dart';
-import 'package:pishkhan_mobile/features/auth/presentation/shared/auth_assets.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
+import 'package:pishkhan_mobile/core/enums/request_status.dart';
 
 class AuthCaptchaField extends StatelessWidget {
   const AuthCaptchaField({super.key});
@@ -19,10 +20,15 @@ class AuthCaptchaField extends StatelessWidget {
             buildWhen: (previous, current) =>
                 previous.captcha != current.captcha ||
                 previous.isCaptchaError != current.isCaptchaError ||
-                previous.canRequestOtp != current.canRequestOtp,
+                previous.canRequestOtp != current.canRequestOtp ||
+                previous.captchaStatus != current.captchaStatus ||
+                previous.otpRequestStatus != current.otpRequestStatus,
             builder: (context, state) {
               return AppTextField(
                 value: state.captcha,
+                enabled:
+                    state.captchaStatus != RequestStatus.loading &&
+                    state.otpRequestStatus != RequestStatus.loading,
                 hintText: S.current.captchaHint,
                 errorText: state.isCaptchaError
                     ? S.current.authInvalidCaptcha
@@ -31,11 +37,12 @@ class AuthCaptchaField extends StatelessWidget {
                   width: 48,
                   height: 44,
                   child: AppButton(
-                    onPressed: () {
-                      context.read<AuthCubit>().resetCaptcha();
-                    },
+                    isLoading:
+                        state.captchaStatus == RequestStatus.loading ||
+                        state.otpRequestStatus == RequestStatus.loading,
+                    onPressed: context.read<AuthCubit>().fetchCaptcha,
                     icon: AvpImage(
-                      image: AuthAssets.refresh,
+                      image: '${AppConstants.baseImage}auth_refresh.svg',
                       width: 20,
                       height: 20,
                     ),
@@ -61,7 +68,9 @@ class AuthCaptchaField extends StatelessWidget {
                 onFocusLost: () {
                   context.read<AuthCubit>().validateCaptcha();
                 },
-                onSubmitted: state.canRequestOtp
+                onSubmitted:
+                    state.canRequestOtp &&
+                        state.otpRequestStatus != RequestStatus.loading
                     ? (_) {
                         context.read<AuthCubit>().submitOtpRequest();
                       }
@@ -82,11 +91,29 @@ class AuthCaptchaField extends StatelessWidget {
               borderRadius: AppRadius.borderSm,
               boxShadow: AppShadows.xs,
             ),
-            child: AvpImage(
-              image: AuthAssets.captcha,
-              width: 100,
-              height: 34,
-              fit: BoxFit.cover,
+            child: BlocBuilder<AuthCubit, AuthState>(
+              buildWhen: (previous, current) =>
+                  previous.captchaImage != current.captchaImage,
+              builder: (context, state) {
+                return state.captchaImage == null
+                    ? const SizedBox(width: 100, height: 34)
+                    // AvpImage has no in-memory byte source. Keep sensitive CAPTCHA
+                    // bytes in memory, without network/disk image caching.
+                    : Image.memory(
+                        state.captchaImage!.bytes,
+                        width: 100,
+                        height: 34,
+                        fit: BoxFit.contain,
+                        gaplessPlayback: false,
+                        excludeFromSemantics: true,
+                        errorBuilder: (context, error, stackTrace) => AvpImage(
+                          image:
+                              '${AppConstants.baseImage}auth_info_circle.svg',
+                          width: 20,
+                          height: 20,
+                        ),
+                      );
+              },
             ),
           ),
         ),

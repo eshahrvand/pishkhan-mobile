@@ -19,11 +19,11 @@ abstract class ProxyDepositState with _$ProxyDepositState {
     @Default(false) bool isEditable,
     @Default(false) bool hasChanges,
     @Default(false) bool isExitToAssistant,
-    Failure? catalogFailure,
-    Failure? submissionFailure,
+    Failure? failure,
+    String? message,
+
     String? idempotencyKey,
     ProxyDepositReceipt? receipt,
     ProxyDepositEffect? effect,
-    @Default(0) int effectId,
   }) = _ProxyDepositState;
 }

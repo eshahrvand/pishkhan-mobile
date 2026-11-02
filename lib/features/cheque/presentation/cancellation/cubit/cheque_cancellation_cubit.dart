@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:avp_ui/avp_ui.dart' show DigitNormalizer;
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:pishkhan_mobile/core/presentation/mappers/request_error_message_mapper.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/result/failure.dart';
@@ -10,8 +11,7 @@ import 'package:pishkhan_mobile/core/result/result.dart';
 
 import '../../../domain/entities/cheque_cancellation.dart';
 import '../../../domain/entities/cheque_clearance.dart';
-import '../../../domain/repositories/cheque_cancellation_repository.dart';
-import '../../../domain/usecases/cheque_cancellation.dart';
+import '../../../domain/usecases/cheque_cancellation_usecase.dart';
 
 part 'cheque_cancellation_state.dart';
 part 'cheque_cancellation_cubit.freezed.dart';
@@ -22,39 +22,40 @@ class ChequeCancellationCubit extends Cubit<ChequeCancellationState> {
     ChequeCancellationState initialState =
         const ChequeCancellationState.initial(),
   }) : super(initialState);
+  final fetchChequeCancellationCatalogUseCase =
+      getIt<FetchChequeCancellationCatalogUseCase>();
+  final fetchCancellableChequesUseCase =
+      getIt<FetchCancellableChequesUseCase>();
+  final submitChequeCancellationUseCase =
+      getIt<SubmitChequeCancellationUseCase>();
+
   final String? initialDepositNumber;
-  final repository = getIt<ChequeCancellationRepository>();
   int _chequesRequestId = 0;
 
-  Future<void> fetchCatalog() {
-    emit(
-      state.copyWith(
-        catalogStatus: RequestStatus.loading,
-        catalogFailure: null,
-      ),
-    );
-    return FetchChequeCancellationCatalog(repository)().then((result) {
-      switch (result) {
-        case Err(:final failure):
-          emit(
-            state.copyWith(
-              catalogStatus: RequestStatus.failure,
-              catalogFailure: failure,
-            ),
-          );
-        case Success(:final data):
-          emit(
-            state.copyWith(
-              catalogStatus: RequestStatus.success,
-              catalog: data,
-              deposit: data.deposits
-                  .where((deposit) => deposit.number == initialDepositNumber)
-                  .firstOrNull,
-              isEditable: true,
-            ),
-          );
-      }
-    });
+  Future<void> fetchCatalog() async {
+    emit(state.copyWith(catalogStatus: RequestStatus.loading));
+    final result = await fetchChequeCancellationCatalogUseCase();
+    switch (result) {
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            catalogStatus: RequestStatus.failure,
+            failure: failure,
+            message: getRequestErrorMessage(failure),
+          ),
+        );
+      case Success(:final data):
+        emit(
+          state.copyWith(
+            catalogStatus: RequestStatus.success,
+            catalog: data,
+            deposit: data.deposits
+                .where((deposit) => deposit.number == initialDepositNumber)
+                .firstOrNull,
+            isEditable: true,
+          ),
+        );
+    }
   }
 
   void selectDeposit(ChequeDeposit deposit) {
@@ -68,7 +69,6 @@ class ChequeCancellationCubit extends Cubit<ChequeCancellationState> {
         isAllSelected: false,
         canContinue: state.type != null,
         confirmedRequest: null,
-        submissionFailure: null,
       ),
     );
   }
@@ -84,21 +84,19 @@ class ChequeCancellationCubit extends Cubit<ChequeCancellationState> {
         isAllSelected: false,
         canContinue: state.deposit != null,
         confirmedRequest: null,
-        submissionFailure: null,
       ),
     );
   }
 
-  Future<void> continueFlow() {
+  Future<void> continueFlow() async {
     switch (state.step) {
       case ChequeCancellationStep.selection:
-        return fetchCheques();
+        await fetchCheques();
       case ChequeCancellationStep.cheques:
         emit(
           state.copyWith(
             isReviewContinuing: true,
             effect: ChequeCancellationEffect.review,
-            effectId: state.effectId + 1,
           ),
         );
       case ChequeCancellationStep.reasons:
@@ -106,9 +104,7 @@ class ChequeCancellationCubit extends Cubit<ChequeCancellationState> {
           state.copyWith(
             step: ChequeCancellationStep.confirmation,
             stepNumber: 4,
-            stepRevealId: state.stepRevealId + 1,
             submissionStatus: RequestStatus.initial,
-            submissionFailure: null,
             termsAccepted: false,
             canContinue: false,
             confirmedRequest:
@@ -123,52 +119,49 @@ class ChequeCancellationCubit extends Cubit<ChequeCancellationState> {
           ),
         );
       case ChequeCancellationStep.confirmation:
-        return submitCancellation();
+        await submitCancellation();
     }
-    return Future.value();
   }
 
-  Future<void> fetchCheques() {
+  Future<void> fetchCheques() async {
     // Back/re-entry can overlap the previous list request.
     final requestId = ++_chequesRequestId;
     emit(
       state.copyWith(
         step: ChequeCancellationStep.cheques,
         stepNumber: 2,
-        stepRevealId: state.stepRevealId + 1,
         chequesStatus: RequestStatus.loading,
-        chequesFailure: null,
         canContinue: false,
       ),
     );
-    return FetchCancellableCheques(repository)(
+    final result = await fetchCancellableChequesUseCase(
       state.deposit!.id,
       state.type!,
-    ).then((result) {
-      if (requestId != _chequesRequestId) return;
-      switch (result) {
-        case Err(:final failure):
-          emit(
-            state.copyWith(
-              chequesStatus: RequestStatus.failure,
-              chequesFailure: failure,
+    );
+    if (requestId != _chequesRequestId) return;
+    switch (result) {
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            chequesStatus: RequestStatus.failure,
+            failure: failure,
+            message: getRequestErrorMessage(failure),
+          ),
+        );
+      case Success(:final data):
+        emit(
+          state.copyWith(
+            chequesStatus: RequestStatus.success,
+            cheques: data,
+            visibleCheques: _visibleCheques(
+              data,
+              state.searchQuery,
+              state.selectedEntries,
             ),
-          );
-        case Success(:final data):
-          emit(
-            state.copyWith(
-              chequesStatus: RequestStatus.success,
-              cheques: data,
-              visibleCheques: _visibleCheques(
-                data,
-                state.searchQuery,
-                state.selectedEntries,
-              ),
-              canContinue: state.selectedEntries.isNotEmpty,
-            ),
-          );
-      }
-    });
+            canContinue: _hasSelectedCheques(state.selectedEntries),
+          ),
+        );
+    }
   }
 
   void updateSearchQuery(String query) {
@@ -199,7 +192,7 @@ class ChequeCancellationCubit extends Cubit<ChequeCancellationState> {
           entries,
         ),
         isAllSelected: entries.length == state.cheques.length,
-        canContinue: entries.isNotEmpty,
+        canContinue: _hasSelectedCheques(entries),
         confirmedRequest: null,
       ),
     );
@@ -224,7 +217,7 @@ class ChequeCancellationCubit extends Cubit<ChequeCancellationState> {
           entries,
         ),
         isAllSelected: selected,
-        canContinue: entries.isNotEmpty,
+        canContinue: _hasSelectedCheques(entries),
         confirmedRequest: null,
       ),
     );
@@ -235,22 +228,16 @@ class ChequeCancellationCubit extends Cubit<ChequeCancellationState> {
       state.copyWith(
         isReviewContinuing: false,
         effect: ChequeCancellationEffect.review,
-        effectId: state.effectId + 1,
       ),
     );
   }
 
   void applyReviewDismissal(bool? continued) {
-    final advance =
-        continued == true &&
-        state.isReviewContinuing &&
-        state.selectedEntries.isNotEmpty;
-    if (advance) {
+    if (_canContinueAfterReview(continued)) {
       emit(
         state.copyWith(
           step: ChequeCancellationStep.reasons,
           stepNumber: 3,
-          stepRevealId: state.stepRevealId + 1,
           canContinue: _hasReasons(state.selectedEntries),
           effect: null,
         ),
@@ -265,7 +252,6 @@ class ChequeCancellationCubit extends Cubit<ChequeCancellationState> {
       state.copyWith(
         pendingCheque: cheque,
         effect: ChequeCancellationEffect.deleteCheque,
-        effectId: state.effectId + 1,
       ),
     );
   }
@@ -275,7 +261,6 @@ class ChequeCancellationCubit extends Cubit<ChequeCancellationState> {
       state.copyWith(
         pendingCheque: cheque,
         effect: ChequeCancellationEffect.deleteReviewCheque,
-        effectId: state.effectId + 1,
       ),
     );
   }
@@ -296,7 +281,6 @@ class ChequeCancellationCubit extends Cubit<ChequeCancellationState> {
           isAllSelected: false,
           step: ChequeCancellationStep.cheques,
           stepNumber: 2,
-          stepRevealId: state.stepRevealId + 1,
           canContinue: false,
           confirmedRequest: null,
           pendingCheque: null,
@@ -314,7 +298,7 @@ class ChequeCancellationCubit extends Cubit<ChequeCancellationState> {
           isAllSelected: false,
           canContinue: state.step == ChequeCancellationStep.reasons
               ? _hasReasons(entries)
-              : entries.isNotEmpty,
+              : _hasSelectedCheques(entries),
           confirmedRequest: null,
           pendingCheque: null,
         ),
@@ -329,7 +313,6 @@ class ChequeCancellationCubit extends Cubit<ChequeCancellationState> {
         reasonDraft: entry.reason,
         isReasonForAll: false,
         effect: ChequeCancellationEffect.reason,
-        effectId: state.effectId + 1,
       ),
     );
   }
@@ -341,7 +324,6 @@ class ChequeCancellationCubit extends Cubit<ChequeCancellationState> {
         reasonDraft: null,
         isReasonForAll: true,
         effect: ChequeCancellationEffect.reason,
-        effectId: state.effectId + 1,
       ),
     );
   }
@@ -374,64 +356,48 @@ class ChequeCancellationCubit extends Cubit<ChequeCancellationState> {
     emit(state.copyWith(termsAccepted: accepted, canContinue: accepted));
   }
 
-  Future<void> submitCancellation() {
+  Future<void> submitCancellation() async {
     emit(
       state.copyWith(
         submissionStatus: RequestStatus.loading,
-        submissionFailure: null,
         isEditable: false,
       ),
     );
-    return SubmitChequeCancellation(repository)(state.confirmedRequest!)
-        .then((result) {
-          switch (result) {
-            case Err(:final failure):
-              emit(
-                state.copyWith(
-                  submissionStatus: RequestStatus.failure,
-                  submissionFailure: failure,
-                  isEditable: true,
-                ),
-              );
-            case Success(:final data):
-              emit(
-                state.copyWith(
-                  submissionStatus: RequestStatus.success,
-                  receipt: data,
-                  canContinue: false,
-                  effect: ChequeCancellationEffect.receipt,
-                  effectId: state.effectId + 1,
-                ),
-              );
-          }
-        });
+    final result = await submitChequeCancellationUseCase(
+      state.confirmedRequest!,
+    );
+    switch (result) {
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            submissionStatus: RequestStatus.failure,
+            isEditable: true,
+            failure: failure,
+            message: getRequestErrorMessage(failure),
+          ),
+        );
+      case Success(:final data):
+        emit(
+          state.copyWith(
+            submissionStatus: RequestStatus.success,
+            receipt: data,
+            canContinue: false,
+            effect: ChequeCancellationEffect.receipt,
+          ),
+        );
+    }
   }
 
   void requestPostalOffices() {
-    emit(
-      state.copyWith(
-        effect: ChequeCancellationEffect.postalOffices,
-        effectId: state.effectId + 1,
-      ),
-    );
+    emit(state.copyWith(effect: ChequeCancellationEffect.postalOffices));
   }
 
   void requestLetter() {
-    emit(
-      state.copyWith(
-        effect: ChequeCancellationEffect.contentUnavailable,
-        effectId: state.effectId + 1,
-      ),
-    );
+    emit(state.copyWith(effect: ChequeCancellationEffect.contentUnavailable));
   }
 
   void requestTerms() {
-    emit(
-      state.copyWith(
-        effect: ChequeCancellationEffect.contentUnavailable,
-        effectId: state.effectId + 1,
-      ),
-    );
+    emit(state.copyWith(effect: ChequeCancellationEffect.contentUnavailable));
   }
 
   void requestBack() {
@@ -440,10 +406,9 @@ class ChequeCancellationCubit extends Cubit<ChequeCancellationState> {
         emit(
           state.copyWith(
             isExitToAssistant: false,
-            effect: state.deposit != null || state.type != null
+            effect: _hasSelection()
                 ? ChequeCancellationEffect.confirmExit
                 : ChequeCancellationEffect.back,
-            effectId: state.effectId + 1,
           ),
         );
       case ChequeCancellationStep.cheques:
@@ -452,7 +417,6 @@ class ChequeCancellationCubit extends Cubit<ChequeCancellationState> {
           state.copyWith(
             step: ChequeCancellationStep.selection,
             stepNumber: 1,
-            stepRevealId: state.stepRevealId + 1,
             chequesStatus: RequestStatus.initial,
             canContinue: true,
           ),
@@ -462,8 +426,7 @@ class ChequeCancellationCubit extends Cubit<ChequeCancellationState> {
           state.copyWith(
             step: ChequeCancellationStep.cheques,
             stepNumber: 2,
-            stepRevealId: state.stepRevealId + 1,
-            canContinue: state.selectedEntries.isNotEmpty,
+            canContinue: _hasSelectedCheques(state.selectedEntries),
           ),
         );
       case ChequeCancellationStep.confirmation:
@@ -471,7 +434,6 @@ class ChequeCancellationCubit extends Cubit<ChequeCancellationState> {
           state.copyWith(
             step: ChequeCancellationStep.reasons,
             stepNumber: 3,
-            stepRevealId: state.stepRevealId + 1,
             termsAccepted: false,
             canContinue: _hasReasons(state.selectedEntries),
           ),
@@ -483,10 +445,9 @@ class ChequeCancellationCubit extends Cubit<ChequeCancellationState> {
     emit(
       state.copyWith(
         isExitToAssistant: true,
-        effect: state.deposit != null || state.type != null
+        effect: _hasSelection()
             ? ChequeCancellationEffect.confirmExit
             : ChequeCancellationEffect.assistant,
-        effectId: state.effectId + 1,
       ),
     );
   }
@@ -499,22 +460,27 @@ class ChequeCancellationCubit extends Cubit<ChequeCancellationState> {
                   ? ChequeCancellationEffect.assistant
                   : ChequeCancellationEffect.back)
             : null,
-        effectId: state.effectId + 1,
       ),
     );
   }
 
   void applyReceiptDismissal() {
-    emit(
-      state.copyWith(
-        effect: ChequeCancellationEffect.home,
-        effectId: state.effectId + 1,
-      ),
-    );
+    emit(state.copyWith(effect: ChequeCancellationEffect.home));
   }
 
+  bool _hasSelection() => state.deposit != null || state.type != null;
+
+  bool _hasSelectedCheques(List<ChequeCancellationEntry> entries) =>
+      entries.isNotEmpty;
+
+  bool _canContinueAfterReview(bool? continued) =>
+      continued == true &&
+      state.isReviewContinuing &&
+      _hasSelectedCheques(state.selectedEntries);
+
   bool _hasReasons(List<ChequeCancellationEntry> entries) =>
-      entries.isNotEmpty && entries.every((entry) => entry.reason != null);
+      _hasSelectedCheques(entries) &&
+      entries.every((entry) => entry.reason != null);
   List<CancellationChequeChoice> _visibleCheques(
     List<CancellableCheque> cheques,
     String query,
@@ -531,5 +497,10 @@ class ChequeCancellationCubit extends Cubit<ChequeCancellationState> {
             isSelected: entries.any((entry) => entry.cheque == cheque),
           ),
     ];
+  }
+
+  /// UI has accepted the pending interaction; data and request statuses stay intact.
+  void consumeChequeCancellationInteraction() {
+    emit(state.copyWith(effect: null));
   }
 }

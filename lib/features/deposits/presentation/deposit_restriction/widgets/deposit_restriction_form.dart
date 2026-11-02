@@ -1,9 +1,9 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_invoice.dart';
 
 import '../../../domain/entities/deposit_restriction.dart';
@@ -71,7 +71,7 @@ class DepositRestrictionForm extends StatelessWidget {
               const SizedBox(height: 20),
               if (operation == DepositRestrictionOperation.unblock) ...[
                 const DepositDivider(
-                  asset: AppAssets.issuanceDivider,
+                  asset: '${AppConstants.baseImage}issuance_divider.svg',
                   thickness: 1,
                 ),
                 const SizedBox(height: 20),
@@ -105,7 +105,7 @@ class DepositRestrictionForm extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               const DepositDivider(
-                asset: AppAssets.issuanceDivider,
+                asset: '${AppConstants.baseImage}issuance_divider.svg',
                 thickness: 1,
               ),
               const SizedBox(height: 20),
@@ -131,12 +131,9 @@ class DepositRestrictionForm extends StatelessWidget {
               if (state.catalogStatus == RequestStatus.loading)
                 const Center(child: CircularProgressIndicator()),
               if (state.catalogStatus == RequestStatus.failure) ...[
-                Text(
-                  S.current.dashboardLoadError,
-                  style: certificateLabelStyle(context)
-                      .copyWith(color: context.colors.error),
-                ),
+                const SizedBox.shrink(),
                 AppButton(
+                  isLoading: state.catalogStatus == RequestStatus.loading,
                   label: S.current.dashboardRetry,
                   onPressed: context
                       .read<DepositRestrictionCubit>()

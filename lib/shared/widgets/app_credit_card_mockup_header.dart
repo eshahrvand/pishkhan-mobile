@@ -1,6 +1,6 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 import 'app_credit_card_mockup.dart';
 
@@ -52,7 +52,8 @@ class AppCreditCardMockupHeader extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     AvpImage(
-                      image: AppAssets.bankingChannelCardRefresh,
+                      image:
+                          '${AppConstants.baseImage}banking_channel_card_refresh.svg',
                       width: 17,
                       height: 17,
                     ),
@@ -84,7 +85,8 @@ class AppCreditCardMockupHeader extends StatelessWidget {
                   textDirection: TextDirection.ltr,
                   children: [
                     AvpImage(
-                      image: AppAssets.bankingChannelCardAngleLeft,
+                      image:
+                          '${AppConstants.baseImage}banking_channel_card_angle_left.svg',
                       width: 20,
                       height: 20,
                     ),

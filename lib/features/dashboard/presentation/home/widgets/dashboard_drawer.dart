@@ -1,8 +1,8 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_drawer.dart';
 
 import '../../shared/dashboard_drawer_group.dart';
@@ -135,6 +135,7 @@ Map<DashboardService, String> dashboardDrawerServiceLabels() => {
 
 String dashboardDrawerServiceLabel(DashboardService service) =>
     switch (service) {
+      DashboardService.mobileBank => S.current.modernActivate,
       DashboardService.password => S.current.cardPasswordIssue.replaceAll(
         RegExp(r'\s*/\s*'),
         ' | ',
@@ -169,7 +170,7 @@ Widget dashboardDrawerSectionIcon(DashboardDrawerSection section) =>
       DashboardDrawerSection.identity =>
         AppDrawerIcons.personalInformationDeselected(),
       DashboardDrawerSection.requests => const AvpImage(
-        image: AppAssets.drawerMyRequestsDeselected,
+        image: '${AppConstants.baseImage}drawer_my_requests_deselected.svg',
         width: 20,
         height: 20,
       ),

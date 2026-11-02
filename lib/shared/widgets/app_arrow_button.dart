@@ -1,6 +1,6 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 enum AppArrowDirection { left, right }
 
@@ -27,8 +27,8 @@ class AppArrowButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final path = direction == AppArrowDirection.left
-        ? AppAssets.arrowButtonArrowLeft
-        : AppAssets.arrowButtonArrowRight;
+        ? '${AppConstants.baseImage}arrow_button_arrow_left.svg'
+        : '${AppConstants.baseImage}arrow_button_arrow_right.svg';
     final button = SizedBox.square(
       dimension: _diameter,
       child: DecoratedBox(

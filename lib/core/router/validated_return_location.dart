@@ -34,7 +34,7 @@ String validatedReturnLocation(String? location) {
     AppRoutes.messages,
     AppRoutes.changePhone,
     AppRoutes.addresses,
-    AppRoutes.occupations,
+    AppRoutes.jobInformation,
     AppRoutes.chequeClearance,
     AppRoutes.chequeBook,
     AppRoutes.chequeCancellation,

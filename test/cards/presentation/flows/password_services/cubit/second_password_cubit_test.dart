@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/core/di/injection_container.dart';
+
 import '../../../../../support/registered_dependency.dart';
 
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
@@ -79,6 +81,89 @@ Future<void> readyToSubmit(SecondPasswordCubit c) async {
 }
 
 void main() {
+  setUp(configureDependencies);
+  tearDown(() => getIt.reset());
+  for (final selection in ['kind', 'card', 'operation']) {
+    test(
+      '$selection change clears credentials and preserves catalog context',
+      () {
+        final repository = ControlledPasswordRepository();
+        final catalog = repository.catalog;
+        final card = catalog.cards.first;
+        final cubit =
+            withRegisteredDependency<
+              PasswordServicesRepository,
+              SecondPasswordCubit
+            >(
+              repository,
+              () => SecondPasswordCubit(
+                selectOperation: true,
+                initialState: SecondPasswordState.initial(
+                  catalog: catalog,
+                  catalogStatus: RequestStatus.success,
+                  existingRequestStatus: RequestStatus.failure,
+                  submissionStatus: RequestStatus.failure,
+                  isEditable: true,
+                  isWalletSufficient: true,
+                  card: card,
+                  kind: card.kind,
+                  cardsForSelectedKind: catalog.cards,
+                  passwordType: PasswordType.second,
+                  operation: PasswordOperation.forgotPassword,
+                  password: '829164',
+                  currentPassword: '5638',
+                  confirmation: '829164',
+                  nationalCardSerial: '3R12345678',
+                  termsAccepted: true,
+                  isRecordingConfirmed: true,
+                  isPasswordVisible: true,
+                  isConfirmationVisible: true,
+                  isCurrentPasswordVisible: true,
+                  isPasswordLengthValid: true,
+                  isPasswordPatternValid: true,
+                  isPasswordDateValid: true,
+                  isSerialValid: true,
+                  isFormComplete: true,
+                  idempotencyKey: 'old-request',
+                ),
+              ),
+            );
+        addTearDown(cubit.close);
+
+        switch (selection) {
+          case 'kind':
+            cubit.selectKind(card.kind);
+          case 'card':
+            cubit.selectCard(card);
+          case 'operation':
+            cubit.selectOperationType(PasswordOperation.changePassword);
+        }
+
+        expect(cubit.state.catalog, same(catalog));
+        expect(cubit.state.catalogStatus, RequestStatus.success);
+        expect(cubit.state.existingRequestStatus, RequestStatus.failure);
+        expect(cubit.state.submissionStatus, RequestStatus.failure);
+        expect(cubit.state.isEditable, isTrue);
+        expect(cubit.state.isWalletSufficient, isTrue);
+        expect(cubit.state.password, isEmpty);
+        expect(cubit.state.currentPassword, isEmpty);
+        expect(cubit.state.confirmation, isEmpty);
+        expect(cubit.state.nationalCardSerial, isEmpty);
+        expect(cubit.state.termsAccepted, isFalse);
+        expect(cubit.state.isRecordingConfirmed, isFalse);
+        expect(cubit.state.isPasswordVisible, isFalse);
+        expect(cubit.state.isConfirmationVisible, isFalse);
+        expect(cubit.state.isCurrentPasswordVisible, isFalse);
+        expect(cubit.state.isPasswordLengthValid, isFalse);
+        expect(cubit.state.isPasswordPatternValid, isFalse);
+        expect(cubit.state.isPasswordDateValid, isFalse);
+        expect(cubit.state.isSerialValid, isFalse);
+        expect(cubit.state.isFormComplete, isFalse);
+        expect(cubit.state.idempotencyKey, isNull);
+      },
+    );
+  }
+
   test(
     'Freezed password state never prints credentials, including after copyWith',
     () {
@@ -219,7 +304,7 @@ void main() {
     c.selectOperationType(PasswordOperation.forgotPassword);
     await c.submitCurrentStep();
     expect(c.state.step, SecondPasswordStep.selection);
-    expect(c.state.existingRequestFailure, isNotNull);
+    expect(c.state.failure, isNotNull);
     r.current = const PasswordRequestRecord(
       status: PasswordRequestStatus.approved,
       trackingCode: '123',
@@ -449,7 +534,7 @@ void main() {
     select(c);
     await c.submitCurrentStep();
     expect(c.state.step, SecondPasswordStep.selection);
-    expect(c.state.existingRequestFailure, isNotNull);
+    expect(c.state.failure, isNotNull);
     await c.close();
     r.catalog = PasswordCatalog(
       cards: MockPasswordServicesRepository.sampleCatalog.cards,
@@ -464,7 +549,7 @@ void main() {
     select(poor);
     await poor.submitCurrentStep();
     expect(poor.state.step, SecondPasswordStep.selection);
-    expect(poor.state.existingRequestFailure, isNotNull);
+    expect(poor.state.failure, isNotNull);
     await poor.close();
   });
   test('submission disables editing and result clears credentials', () async {
@@ -537,14 +622,13 @@ void main() {
       cubit.selectPasswordType(PasswordType.second);
       await cubit.submitCurrentStep();
       expect(cubit.state.catalogStatus, RequestStatus.success);
-      expect(cubit.state.catalogFailure, isNull);
-      expect(cubit.state.existingRequestFailure?.code, 'offline');
-      expect(cubit.state.submissionFailure, isNull);
+      expect(cubit.state.failure?.code, 'offline');
+      expect(cubit.state.submissionStatus, RequestStatus.initial);
       expect(cubit.state.canContinue, isTrue);
       repository.statusFailure = null;
       await cubit.submitCurrentStep();
       expect(cubit.state.step, SecondPasswordStep.password);
-      expect(cubit.state.existingRequestFailure, isNull);
+      expect(cubit.state.failure?.code, 'offline');
     },
   );
 
@@ -602,7 +686,7 @@ void main() {
     r.catalog = MockPasswordServicesRepository.sampleCatalog;
     r.loadFailure = const DataFailure('network');
     await c.fetchCatalog();
-    expect(c.state.catalogFailure!.code, 'network');
+    expect(c.state.failure!.code, 'network');
     r.loadFailure = null;
     await c.fetchCatalog();
     expect(c.state.catalogStatus, RequestStatus.success);

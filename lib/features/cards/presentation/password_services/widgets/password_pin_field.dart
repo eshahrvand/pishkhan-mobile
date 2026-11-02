@@ -1,10 +1,10 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:pishkhan_mobile/features/cards/presentation/password_services/widgets/password_styles.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 class PasswordPinField extends StatelessWidget {
   const PasswordPinField({
@@ -54,8 +54,10 @@ class PasswordPinField extends StatelessWidget {
         icon: SizedBox.square(
           dimension: 20,
           child: visible
-              ? AvpImage(image: AppAssets.resalatCardEye)
-              : AvpImage(image: AppAssets.passwordEyeSlash),
+              ? AvpImage(image: '${AppConstants.baseImage}resalat_card_eye.svg')
+              : AvpImage(
+                  image: '${AppConstants.baseImage}password_eye_slash.svg',
+                ),
         ),
       ),
       onChanged: onChanged,

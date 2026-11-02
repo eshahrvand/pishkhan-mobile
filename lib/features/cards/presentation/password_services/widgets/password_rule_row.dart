@@ -1,6 +1,6 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 import 'password_styles.dart';
 
@@ -22,8 +22,8 @@ class PasswordRuleRow extends StatelessWidget {
           dimension: 20,
           child: AvpImage(
             image: isValid
-                ? AppAssets.passwordCheckActive
-                : AppAssets.passwordCheckInactive,
+                ? '${AppConstants.baseImage}password_check_active.svg'
+                : '${AppConstants.baseImage}password_check_inactive.svg',
           ),
         ),
         const SizedBox(width: 8),

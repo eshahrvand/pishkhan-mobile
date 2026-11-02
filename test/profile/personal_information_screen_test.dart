@@ -1,3 +1,10 @@
+import 'dart:async';
+
+import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
+import 'package:pishkhan_mobile/core/enums/request_status.dart';
+import 'package:pishkhan_mobile/features/profile/presentation/addresses/cubit/addresses_cubit.dart';
+import 'package:pishkhan_mobile/features/profile/presentation/change_phone/cubit/change_phone_cubit.dart';
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:pishkhan_mobile/core/domain/entities/delivery_address.dart';
 import 'package:pishkhan_mobile/features/address/presentation/editor/widgets/address_editor_form.dart';
@@ -13,27 +20,23 @@ import 'package:pishkhan_mobile/features/profile/domain/repositories/personal_in
 import 'package:pishkhan_mobile/features/profile/presentation/addresses/screens/addresses_screen.dart';
 import 'package:pishkhan_mobile/features/profile/presentation/change_phone/screens/change_phone_screen.dart';
 import 'package:pishkhan_mobile/features/profile/presentation/change_phone/widgets/phone_otp_field.dart';
-import 'package:pishkhan_mobile/features/profile/presentation/occupations/cubit/occupations_cubit.dart';
-import 'package:pishkhan_mobile/features/profile/presentation/occupations/screens/occupations_screen.dart';
+import 'package:pishkhan_mobile/features/profile/presentation/job_information/cubit/job_information_cubit.dart';
+import 'package:pishkhan_mobile/features/profile/presentation/job_information/screens/job_information_screen.dart';
 import 'package:pishkhan_mobile/features/profile/domain/entities/personal_information.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_address_card.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_delete_address_sheet.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_decision_sheet.dart';
-import 'package:pishkhan_mobile/features/profile/presentation/occupations/widgets/occupations_list.dart';
+import 'package:pishkhan_mobile/features/profile/presentation/job_information/widgets/job_information_list.dart';
 import 'package:pishkhan_mobile/core/result/result.dart';
-import 'package:pishkhan_mobile/shared/widgets/app_occupation_card.dart';
+import 'package:pishkhan_mobile/core/result/failure.dart';
+import 'package:pishkhan_mobile/shared/widgets/app_job_information_card.dart';
 
 import '../deposits/certificate_test_support.dart';
 
 void main() {
   setUpAll(loadCertificateFonts);
-  setUp(() {
-    getIt.registerSingleton<PersonalInformationRepository>(
-      MockPersonalInformationRepository(),
-    );
-  });
+  setUp(configureDependencies);
   tearDown(() => getIt.reset());
   Future<void> capture(WidgetTester tester, String name) async {
     FocusManager.instance.primaryFocus?.unfocus();
@@ -44,6 +47,199 @@ void main() {
     await captureCertificate(tester, 'profile-$name');
   }
 
+  testWidgets('both Back paths wait for every concurrent address review', (
+    tester,
+  ) async {
+    final repository = PendingAddressReviewRepository();
+    await getIt.unregister<PersonalInformationRepository>();
+    getIt.registerSingleton<PersonalInformationRepository>(repository);
+    await mountCertificate(
+      tester,
+      Builder(
+        builder: (context) => AppButton(
+          label: 'open addresses',
+          onPressed: () =>
+              ServiceRegistry.openCardService(context, 'identity-addresses'),
+        ),
+      ),
+    );
+    await tester.tap(find.text('open addresses'));
+    await tester.pumpAndSettle();
+    final cubit = tester.element(find.byType(AppTopBar)).read<AddressesCubit>();
+    await tester.runAsync(
+      () => cubit.applyAddressEditor(
+        const DeliveryAddress(
+          id: 'second-home',
+          title: 'Second home',
+          detail: 'Synthetic address',
+          postalCode: '1234567890',
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final first = cubit.state.addresses[1];
+    final second = cubit.state.addresses.last;
+    final firstRequest = cubit.submitAddressReview(first);
+    final secondRequest = cubit.submitAddressReview(second);
+    await tester.pump();
+    await tester.pump();
+    expect(
+      tester.widget<AppTopBar>(find.byType(AppTopBar)).onTrailingPressed,
+      isNull,
+    );
+    await tester.binding.handlePopRoute();
+    await tester.pump();
+    expect(find.byType(AddressesScreen), findsOneWidget);
+    repository.reviews[first.address.id]!.complete(
+      const Success(ResidenceStatus.valid),
+    );
+    await firstRequest;
+    await tester.pump();
+    expect(
+      tester.widget<AppTopBar>(find.byType(AppTopBar)).onTrailingPressed,
+      isNull,
+    );
+    await tester.binding.handlePopRoute();
+    await tester.pump();
+    expect(find.byType(AddressesScreen), findsOneWidget);
+    repository.reviews[second.address.id]!.complete(
+      const Err(DataFailure('review.failed')),
+    );
+    await secondRequest;
+    await tester.pumpAndSettle();
+    expect(
+      cubit.state.reviewStatuses[second.address.id],
+      RequestStatus.failure,
+    );
+    expect(
+      tester.widget<AppTopBar>(find.byType(AppTopBar)).onTrailingPressed,
+      isNotNull,
+    );
+    await tester.pump(const Duration(seconds: 5));
+    await tester.pumpAndSettle();
+    cubit.requestAddressActions(first);
+    await tester.pumpAndSettle();
+    expect(find.text(S.current.profileEditAddress), findsOneWidget);
+    expect(find.byType(SnackBar), findsNothing);
+    Navigator.of(tester.element(find.text(S.current.profileEditAddress))).pop();
+    await tester.pumpAndSettle();
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(find.text('open addresses'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets(
+    'phone repeated failures do not block terms or successful submission',
+    (tester) async {
+      await mountCertificate(tester, const ChangePhoneScreen());
+      final cubit = tester
+          .element(find.byType(AppTopBar))
+          .read<ChangePhoneCubit>();
+      cubit.updatePhoneNumber('09123456789');
+      final otpRequest = cubit.submitOtpRequest();
+      await tester.pumpAndSettle();
+      await otpRequest;
+      cubit.updateOtp('0000');
+      cubit.updateTerms(true);
+      for (var attempt = 0; attempt < 2; attempt++) {
+        final submission = cubit.submitPhoneChange();
+        await tester.pumpAndSettle();
+        await submission;
+        expect(cubit.state.submissionStatus, RequestStatus.failure);
+        expect(find.byType(SnackBar), findsOneWidget);
+        await tester.pump(const Duration(seconds: 5));
+        await tester.pumpAndSettle();
+      }
+      cubit.requestTerms();
+      await tester.pumpAndSettle();
+      expect(find.text(S.current.issuanceTermsUnavailable), findsOneWidget);
+      await tester.pump(const Duration(seconds: 5));
+      await tester.pumpAndSettle();
+      cubit.updateOtp('2345');
+      final submission = cubit.submitPhoneChange();
+      await tester.pumpAndSettle();
+      await submission;
+      expect(cubit.state.submissionStatus, RequestStatus.success);
+      expect(cubit.state.failure, isNotNull);
+      expect(find.byType(AlertDialog), findsOneWidget);
+      expect(find.byType(SnackBar), findsNothing);
+      expect(cubit.state.otp, isEmpty);
+      await tester.pumpWidget(const SizedBox());
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
+    'occupation retry retains identity and effects survive the last error',
+    (tester) async {
+      final repository = RetryingJobInformationRepository();
+      await getIt.unregister<PersonalInformationRepository>();
+      getIt.registerSingleton<PersonalInformationRepository>(repository);
+      await mountCertificate(tester, const JobInformationScreen());
+      final cubit = tester
+          .element(find.byType(AppTopBar))
+          .read<JobInformationCubit>();
+      final jobInformation = cubit.state.jobInformation;
+      cubit.requestNewJobInformation();
+      cubit.selectKind(JobInformationKind.designer);
+      cubit.updateDescription('Designer');
+      cubit.updateTerms(true);
+      for (var attempt = 0; attempt < 2; attempt++) {
+        final submission = cubit.submitJobInformation();
+        await tester.pumpAndSettle();
+        await submission;
+        expect(find.byType(SnackBar), findsOneWidget);
+        await tester.pump(const Duration(seconds: 5));
+        await tester.pumpAndSettle();
+      }
+      cubit.requestTerms();
+      await tester.pumpAndSettle();
+      expect(find.text(S.current.issuanceTermsUnavailable), findsOneWidget);
+      await tester.pump(const Duration(seconds: 5));
+      await tester.pumpAndSettle();
+      repository.fail = false;
+      final submission = cubit.submitJobInformation();
+      await tester.pumpAndSettle();
+      await submission;
+      expect(repository.keys.toSet(), hasLength(1));
+      expect(cubit.state.jobInformation, jobInformation);
+      expect(cubit.state.failure, isNotNull);
+      expect(find.text(S.current.profileJobInformationQueued), findsOneWidget);
+      expect(find.byType(SnackBar), findsNothing);
+      await tester.tap(
+        find.descendant(
+          of: find.byType(AlertDialog),
+          matching: find.byType(AppButton),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(cubit.state.step, JobInformationStep.list);
+      expect(find.byType(AppJobInformationCard), findsNWidgets(2));
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets('each failed address review notifies again after retry', (
+    tester,
+  ) async {
+    await getIt.unregister<PersonalInformationRepository>();
+    getIt.registerSingleton<PersonalInformationRepository>(
+      FailingAddressReviewRepository(),
+    );
+    await mountCertificate(tester, const AddressesScreen());
+    for (var attempt = 0; attempt < 2; attempt++) {
+      await tester.tap(find.text(S.current.profileReview));
+      await tester.pumpAndSettle();
+      expect(find.byType(SnackBar), findsOneWidget);
+      expect(find.text(S.current.profileReviewError), findsNothing);
+      await tester.pump(const Duration(seconds: 5));
+      await tester.pumpAndSettle();
+      expect(find.byType(SnackBar), findsNothing);
+    }
+    expect(tester.takeException(), isNull);
+  });
   testWidgets(
     'all three services open through the registry and back returns to the caller',
     (tester) async {
@@ -69,7 +265,7 @@ void main() {
         expect(
           find.byType(ChangePhoneScreen).evaluate().length +
               find.byType(AddressesScreen).evaluate().length +
-              find.byType(OccupationsScreen).evaluate().length,
+              find.byType(JobInformationScreen).evaluate().length,
           1,
         );
         await tester.tap(find.byTooltip(S.current.backLabel));
@@ -85,7 +281,7 @@ void main() {
       for (final path in [
         AppRoutes.changePhone,
         AppRoutes.addresses,
-        AppRoutes.occupations,
+        AppRoutes.jobInformation,
       ]) {
         expect(validatedReturnLocation(path), path);
       }
@@ -100,7 +296,8 @@ void main() {
         tester.getSize(
           find.byWidgetPredicate(
             (widget) =>
-                widget is AvpImage && widget.image == AppAssets.profileLock,
+                widget is AvpImage &&
+                widget.image == '${AppConstants.baseImage}profile_lock.svg',
           ),
         ),
         const Size(20, 20),
@@ -275,7 +472,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(
         find.descendant(
-          of: find.byType(AppSelectMenu<DeliveryAddressType>),
+          of: find.byType(AppSelectSheet<DeliveryAddressType>),
           matching: find.text(S.current.profileWork),
         ),
       );
@@ -304,30 +501,30 @@ void main() {
   testWidgets(
     'occupation actions, editable fields, incompatible option and operator-review state',
     (tester) async {
-      await mountCertificate(tester, const OccupationsScreen());
+      await mountCertificate(tester, const JobInformationScreen());
       await capture(tester, 'occupations-list');
       await tester.tap(
         find
             .descendant(
-              of: find.byType(AppOccupationCard).last,
+              of: find.byType(AppJobInformationCard).last,
               matching: find.byType(InkWell),
             )
             .first,
       );
       await tester.pumpAndSettle();
       await capture(tester, 'occupation-actions');
-      await tester.tap(find.text(S.current.profileEditOccupation));
+      await tester.tap(find.text(S.current.profileEditJobInformation));
       await tester.pumpAndSettle();
       await capture(tester, 'occupation-edit');
       final cubit = tester
           .element(find.byType(AppCheckbox))
-          .read<OccupationsCubit>();
-      cubit.selectKind(OccupationKind.professor);
+          .read<JobInformationCubit>();
+      cubit.selectKind(JobInformationKind.professor);
       cubit.updateDescription('مدرس مدیریت سیستم‌ها');
       cubit.updateTerms(true);
       await tester.pumpAndSettle();
       await capture(tester, 'occupation-edit-filled');
-      cubit.selectKind(OccupationKind.homemaker);
+      cubit.selectKind(JobInformationKind.homemaker);
       await tester.pumpAndSettle();
       expect(cubit.state.requiresOperatorReview, isTrue);
       await capture(tester, 'occupation-operator-review');
@@ -336,11 +533,11 @@ void main() {
       expect(find.text(S.current.flowExitTitle), findsOneWidget);
       await tester.tap(find.text(S.current.passwordExit));
       await tester.pumpAndSettle();
-      expect(find.byType(AppOccupationCard), findsNWidgets(2));
-      await tester.tap(find.text(S.current.profileAddOccupation));
+      expect(find.byType(AppJobInformationCard), findsNWidgets(2));
+      await tester.tap(find.text(S.current.profileAddJobInformation));
       await tester.pumpAndSettle();
       await capture(tester, 'occupation-new');
-      cubit.selectKind(OccupationKind.homemaker);
+      cubit.selectKind(JobInformationKind.homemaker);
       await tester.pumpAndSettle();
       await capture(tester, 'occupation-conflict');
       expect(
@@ -351,35 +548,35 @@ void main() {
             .onPressed,
         isNull,
       );
-      cubit.selectKind(OccupationKind.teacher);
+      cubit.selectKind(JobInformationKind.teacher);
       cubit.updateDescription('مدرس');
       cubit.updateTerms(true);
       await tester.pumpAndSettle();
       await capture(tester, 'occupation-new-filled');
       await tester.tap(find.text(S.current.profileSubmit));
       await tester.pumpAndSettle();
-      expect(find.text(S.current.profileOccupationQueued), findsOneWidget);
+      expect(find.text(S.current.profileJobInformationQueued), findsOneWidget);
       await tester.tap(find.text(S.current.backLabel));
       await tester.pumpAndSettle();
-      expect(find.byType(AppOccupationCard), findsNWidgets(2));
+      expect(find.byType(AppJobInformationCard), findsNWidgets(2));
       expect(tester.takeException(), isNull);
     },
   );
   testWidgets(
     'occupation confirmation supports dismissal and cancel; last occupation shows the required notice',
     (tester) async {
-      await mountCertificate(tester, const OccupationsScreen());
+      await mountCertificate(tester, const JobInformationScreen());
       Future<void> requestDelete() async {
         await tester.tap(
           find
               .descendant(
-                of: find.byType(AppOccupationCard).first,
+                of: find.byType(AppJobInformationCard).first,
                 matching: find.byType(InkWell),
               )
               .first,
         );
         await tester.pumpAndSettle();
-        await tester.tap(find.text(S.current.profileDeleteOccupation));
+        await tester.tap(find.text(S.current.profileDeleteJobInformation));
         await tester.pumpAndSettle();
       }
 
@@ -387,29 +584,31 @@ void main() {
       expect(find.byType(AppDecisionSheet), findsOneWidget);
       expect(
         find.text(
-          S.current.profileDeleteOccupationPrompt(S.current.profileDesigner),
+          S.current.profileDeleteJobInformationPrompt(
+            S.current.profileDesigner,
+          ),
         ),
         findsOneWidget,
       );
       await capture(tester, 'occupation-delete-confirmation');
       await tester.tap(find.text(S.current.dashboardCancel));
       await tester.pumpAndSettle();
-      expect(find.byType(AppOccupationCard), findsNWidgets(2));
+      expect(find.byType(AppJobInformationCard), findsNWidgets(2));
       await requestDelete();
       await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
-      expect(find.byType(AppOccupationCard), findsNWidgets(2));
+      expect(find.byType(AppJobInformationCard), findsNWidgets(2));
       await requestDelete();
       await tester.tap(find.text(S.current.chequeCancelRemove));
       await tester.pumpAndSettle();
-      expect(find.byType(AppOccupationCard), findsOneWidget);
+      expect(find.byType(AppJobInformationCard), findsOneWidget);
       await requestDelete();
-      expect(find.text(S.current.profileMinimumOccupation), findsOneWidget);
+      expect(find.text(S.current.profileMinimumJobInformation), findsOneWidget);
       expect(find.text(S.current.chequeCancelRemove), findsNothing);
       await capture(tester, 'occupation-minimum');
       await tester.tap(find.text(S.current.passwordUnderstood));
       await tester.pumpAndSettle();
-      expect(find.byType(AppOccupationCard), findsOneWidget);
+      expect(find.byType(AppJobInformationCard), findsOneWidget);
       expect(tester.takeException(), isNull);
     },
   );
@@ -418,16 +617,16 @@ void main() {
     (tester) async {
       await getIt.unregister<PersonalInformationRepository>();
       getIt.registerSingleton<PersonalInformationRepository>(
-        EmptyOccupationsRepository(),
+        EmptyJobInformationRepository(),
       );
-      await mountCertificate(tester, const OccupationsScreen());
-      final area = tester.getRect(find.byType(OccupationsList));
+      await mountCertificate(tester, const JobInformationScreen());
+      final area = tester.getRect(find.byType(JobInformationList));
       expect(
-        tester.getCenter(find.text(S.current.profileOccupationsEmpty)).dx,
+        tester.getCenter(find.text(S.current.profileJobInformationEmpty)).dx,
         closeTo(area.center.dx, .5),
       );
       expect(
-        tester.getCenter(find.text(S.current.profileOccupationsEmpty)).dy,
+        tester.getCenter(find.text(S.current.profileJobInformationEmpty)).dy,
         closeTo(area.center.dy, .5),
       );
       await capture(tester, 'occupations-empty');
@@ -489,17 +688,17 @@ void main() {
         await tester.pumpAndSettle();
         await mountCertificate(
           tester,
-          const OccupationsScreen(),
+          const JobInformationScreen(),
           size: const Size(320, 640),
           locale: locale,
           scale: 1.1,
         );
-        await tester.tap(find.text(S.current.profileAddOccupation));
+        await tester.tap(find.text(S.current.profileAddJobInformation));
         await tester.pumpAndSettle();
         tester.view.viewInsets = const FakeViewPadding(bottom: 200);
         await tester.pumpAndSettle();
         expect(
-          find.text(S.current.profileOccupationDescription),
+          find.text(S.current.profileJobInformationDescription),
           findsOneWidget,
         );
         expect(tester.takeException(), isNull);
@@ -511,8 +710,43 @@ void main() {
   );
 }
 
-class EmptyOccupationsRepository extends MockPersonalInformationRepository {
+class FailingAddressReviewRepository extends MockPersonalInformationRepository {
   @override
-  Future<Result<List<ProfileOccupation>>> fetchOccupations() =>
+  Future<Result<ResidenceStatus>> reviewAddress(DeliveryAddress address) {
+    return Future.value(const Err(DataFailure('review.failed')));
+  }
+}
+
+class EmptyJobInformationRepository extends MockPersonalInformationRepository {
+  @override
+  Future<Result<List<ProfileJobInformation>>> fetchJobInformation() =>
       Future.value(const Success([]));
+}
+
+class PendingAddressReviewRepository extends MockPersonalInformationRepository {
+  final reviews = <String, Completer<Result<ResidenceStatus>>>{};
+  @override
+  Future<Result<ResidenceStatus>> reviewAddress(DeliveryAddress address) {
+    final response = Completer<Result<ResidenceStatus>>();
+    reviews[address.id] = response;
+    return response.future;
+  }
+}
+
+class RetryingJobInformationRepository
+    extends MockPersonalInformationRepository {
+  bool fail = true;
+  final keys = <String>[];
+  @override
+  Future<Result<void>> saveJobInformation(
+    ProfileJobInformation jobInformation, {
+    required String idempotencyKey,
+  }) {
+    keys.add(idempotencyKey);
+    if (fail) return Future.value(const Err(DataFailure('occupation.failed')));
+    return super.saveJobInformation(
+      jobInformation,
+      idempotencyKey: idempotencyKey,
+    );
+  }
 }

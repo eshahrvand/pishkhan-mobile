@@ -1,8 +1,8 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 import '../cubit/on_site_transfer_cubit.dart';
 
@@ -20,7 +20,8 @@ class TransferConfirmation extends StatelessWidget {
         AppRequestSummary(
           depositNumber: state.deposit!.number,
           operation: S.current.dashboardLocalTransfer,
-          operationDivider: AppAssets.onSiteTransferSummaryOperation,
+          operationDivider:
+              '${AppConstants.baseImage}onsite_transfer_summary_operation.svg',
           isExpanded: state.isSummaryExpanded,
           onExpandedChanged: (value) {
             context.read<OnSiteTransferCubit>().updateSummaryExpanded(value);
@@ -28,7 +29,7 @@ class TransferConfirmation extends StatelessWidget {
         ),
         const SizedBox(height: 20),
         AvpImage(
-          image: AppAssets.issuanceDivider,
+          image: '${AppConstants.baseImage}issuance_divider.svg',
           height: 1,
           width: double.infinity,
           fit: BoxFit.fill,

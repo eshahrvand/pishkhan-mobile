@@ -40,34 +40,44 @@ class _AddressEditorFormState extends State<AddressEditorForm> {
     super.dispose();
   }
 
+  Future<void> _showMinimumHomeNotice(
+    BuildContext context,
+    AddressEditorState state,
+  ) async {
+    context.read<AddressEditorCubit>().consumeAddressEditorInteraction();
+    await showAppDecisionSheet(
+      context,
+      message: S.current.profileMinimumAddress,
+      confirmLabel: S.current.passwordUnderstood,
+      onConfirm: () {
+        Navigator.of(context).pop();
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider<AddressEditorCubit>(
-      create: (_) {
-        final cubit = AddressEditorCubit(
-          initialAddress: widget.initialAddress,
-          includeContact: widget.includeContact,
-          retainHomeAddress: widget.retainHomeAddress,
-        );
-        if (widget.initialAddress != null) cubit.fetchAddress();
-        return cubit;
-      },
-      child: BlocListener<AddressEditorCubit, AddressEditorState>(
-        listenWhen: (previous, current) =>
-            previous.minimumHomeNoticeId != current.minimumHomeNoticeId,
-        listener: (context, state) {
-          showAppDecisionSheet(
-            context,
-            message: S.current.profileMinimumAddress,
-            confirmLabel: S.current.passwordUnderstood,
-            onConfirm: () {
-              Navigator.of(context).pop();
-            },
-          );
-        },
-        child: BlocConsumer<AddressEditorCubit, AddressEditorState>(
-          listenWhen: (previous, current) => previous.saveId != current.saveId,
-          listener: (context, state) => context.pop(state.savedAddress),
+      create: (_) => AddressEditorCubit(
+        initialAddress: widget.initialAddress,
+        includeContact: widget.includeContact,
+        retainHomeAddress: widget.retainHomeAddress,
+      )..fetchAddress(),
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<AddressEditorCubit, AddressEditorState>(
+            listenWhen: (previous, current) =>
+                previous.effect != current.effect && current.effect != null,
+            listener: _showMinimumHomeNotice,
+          ),
+          BlocListener<AddressEditorCubit, AddressEditorState>(
+            listenWhen: (previous, current) =>
+                previous.savedAddress != current.savedAddress &&
+                current.savedAddress != null,
+            listener: (context, state) => context.pop(state.savedAddress),
+          ),
+        ],
+        child: BlocBuilder<AddressEditorCubit, AddressEditorState>(
           builder: (context, state) {
             return Directionality(
               textDirection: TextDirection.rtl,

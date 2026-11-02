@@ -25,7 +25,7 @@ Complete these steps **before writing UI code**:
 - Use RTL-aware layout and text behavior: `EdgeInsetsDirectional`, `BorderDirectional`, `AlignmentDirectional`, `TextAlign.start`/`TextAlign.end`, and RTL text direction for user-facing copy. Use physical `left`/`right` alignment only when the Figma design explicitly requires a fixed physical side, such as the drawer opening from the right.
 - Validate every component in RTL, including open/closed, selected/unselected, loading, error, disabled, and long-text states.
 - Import only `package:avp_ui/avp_ui.dart`; do not import the package's internal `lib/widgets/...` files.
-- Use the exported `AvpImage` for app image widgets (SVG, raster, network, native file and Lottie). Keep asset paths in `AppAssets`. Image providers used for pixel decoding or painters are a separate concern.
+- Use the exported `AvpImage` for app image widgets (SVG, raster, network, native file and Lottie). Use direct app asset paths with `AppConstants.baseImage` from `core/config/constant.dart`. Image providers used for pixel decoding or painters are a separate concern.
 - Install `AppTheme.light()` at the application root.
 - In app-owned composition, use semantic tokens such as `context.colors.primary`, `context.colors.textPrimary`, and `context.colors.borderSubtle`. Do not write hex values or `Color(0x...)` values in app UI.
 - Do not use raw `TextField`, `TextFormField`, `Checkbox`, `Switch`, `Slider`, `ElevatedButton`, or equivalent Material controls when `avp_ui` exports an equivalent component.

@@ -39,6 +39,8 @@ class AverageBalanceContent extends StatelessWidget {
                         ),
                         if (state.catalogStatus == RequestStatus.failure)
                           AppButton(
+                            isLoading:
+                                state.catalogStatus == RequestStatus.loading,
                             label: S.current.dashboardRetry,
                             onPressed: context
                                 .read<AverageBalanceCubit>()
@@ -75,23 +77,6 @@ class AverageBalanceContent extends StatelessWidget {
                         );
                       },
                     ),
-                  BlocBuilder<AverageBalanceCubit, AverageBalanceState>(
-                    buildWhen: (previous, current) =>
-                        previous.submissionFailure !=
-                            current.submissionFailure ||
-                        previous.catalogStatus != current.catalogStatus,
-                    builder: (context, state) {
-                      if (state.submissionFailure != null &&
-                          state.catalogStatus == RequestStatus.success) {
-                        return Text(
-                          S.current.issuanceSubmitError,
-                          style: Theme.of(context).textTheme.bodySmall!
-                              .copyWith(color: context.colors.error),
-                        );
-                      }
-                      return const SizedBox.shrink();
-                    },
-                  ),
                 ],
               );
             },

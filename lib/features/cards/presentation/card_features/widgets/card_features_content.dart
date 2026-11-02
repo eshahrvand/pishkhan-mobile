@@ -36,8 +36,9 @@ class CardFeaturesContent extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(S.current.dashboardLoadError),
+                const SizedBox.shrink(),
                 AppButton(
+                  isLoading: state.cardsStatus == RequestStatus.loading,
                   onPressed: context.read<CardFeaturesCubit>().fetchCards,
                   label: S.current.dashboardRetry,
                 ),

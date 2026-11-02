@@ -12,9 +12,9 @@ abstract class CardFeaturesState with _$CardFeaturesState {
     @Default('') String searchQuery,
     @Default(CardFilter()) CardFilter filter,
     CardFilter? draftFilter,
-    Failure? cardsFailure,
+    Failure? failure,
+    String? message,
     CardFeatureAction? footerAction,
     CardFeaturesEffect? effect,
-    @Default(0) int effectId,
   }) = _CardFeaturesState;
 }

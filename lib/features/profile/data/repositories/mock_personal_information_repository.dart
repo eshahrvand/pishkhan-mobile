@@ -14,7 +14,7 @@ class MockPersonalInformationRepository
   final Map<String, ({String phone, PhoneChallenge challenge})> _challenges =
       {};
   final Set<String> _completedRequests = {};
-  final Map<String, ProfileOccupation> _occupationRequests = {};
+  final Map<String, ProfileJobInformation> _jobInformationRequests = {};
   List<ProfileAddress> _addresses = const [
     ProfileAddress(
       address: DeliveryAddress(
@@ -36,15 +36,15 @@ class MockPersonalInformationRepository
       ),
     ),
   ];
-  List<ProfileOccupation> _occupations = const [
-    ProfileOccupation(
+  List<ProfileJobInformation> _jobInformation = const [
+    ProfileJobInformation(
       id: 'designer',
-      kind: OccupationKind.designer,
+      kind: JobInformationKind.designer,
       description: 'UI / UX Designer',
     ),
-    ProfileOccupation(
+    ProfileJobInformation(
       id: 'teacher',
-      kind: OccupationKind.teacher,
+      kind: JobInformationKind.teacher,
       description: 'مدرس تجربه کاربری',
     ),
   ];
@@ -171,28 +171,28 @@ class MockPersonalInformationRepository
         return status;
       }, delay: 1400);
   @override
-  Future<Result<List<ProfileOccupation>>> fetchOccupations() =>
-      _respond(() => List.unmodifiable(_occupations));
+  Future<Result<List<ProfileJobInformation>>> fetchJobInformation() =>
+      _respond(() => List.unmodifiable(_jobInformation));
   @override
-  Future<Result<void>> saveOccupation(
-    ProfileOccupation occupation, {
+  Future<Result<void>> saveJobInformation(
+    ProfileJobInformation jobInformation, {
     required String idempotencyKey,
   }) => _respond(() {
     if (!_completedRequests.contains(idempotencyKey)) {
       // The request is queued for review; the approved list remains unchanged.
-      _occupationRequests[idempotencyKey] = occupation;
+      _jobInformationRequests[idempotencyKey] = jobInformation;
       _completedRequests.add(idempotencyKey);
     }
   });
   @override
-  Future<Result<void>> deleteOccupation(String id) async {
+  Future<Result<void>> deleteJobInformation(String id) async {
     try {
       await Future<void>.delayed(const Duration(milliseconds: 250));
-      final remaining = _occupations.where((item) => item.id != id).toList();
+      final remaining = _jobInformation.where((item) => item.id != id).toList();
       if (remaining.isEmpty) {
         return const Err(DataFailure('profile.occupation.required'));
       }
-      _occupations = remaining;
+      _jobInformation = remaining;
       return const Success(null);
     } catch (_) {
       return const Err(UnexpectedFailure());

@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
+
 import 'app_invoice_wallet_row.dart';
 import 'app_invoice_line_row.dart';
 import 'app_invoice_header.dart';
@@ -5,36 +7,43 @@ import 'app_invoice_styles.dart';
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 /// Local Figma SVG assets used by [AppInvoice].
 abstract final class AppInvoiceIcons {
-  static Widget cost() => _svg(AppAssets.invoiceCost);
-  static Widget wallet() => _svg(AppAssets.iconWallet20Gray600);
+  static Widget cost() => _svg('${AppConstants.baseImage}invoice_cost.svg');
+  static Widget wallet() =>
+      _svg('${AppConstants.baseImage}icon_wallet_20_gray600.svg');
   // Figma places the 12.8px money-unit glyph inside an 18px layout slot.
   // Keeping those two dimensions separate prevents the glyph from scaling up.
   static Widget currency() => _svg(
-    AppAssets.invoiceCurrency,
+    '${AppConstants.baseImage}invoice_currency.svg',
     size: 18,
     assetSize: const Size(12.7951, 12.7572),
   );
   static Widget currencyPrimary() => _svg(
-    AppAssets.invoiceCurrencyPrimary,
+    '${AppConstants.baseImage}invoice_currency_primary.svg',
     size: 18,
     assetSize: const Size(12.7951, 12.7572),
   );
-  static Widget chevronDown() => _svg(AppAssets.invoiceChevronDown);
-  static Widget chevronUp() => _svg(AppAssets.invoiceChevronUp);
-  static Widget print() => _svg(AppAssets.invoicePrint);
-  static Widget identityVideo() => _svg(AppAssets.invoiceIdentityVideo);
-  static Widget delivery() => _svg(AppAssets.invoiceDelivery);
+  static Widget chevronDown() =>
+      _svg('${AppConstants.baseImage}invoice_chevron_down.svg');
+  static Widget chevronUp() =>
+      _svg('${AppConstants.baseImage}invoice_chevron_up.svg');
+  static Widget print() => _svg('${AppConstants.baseImage}invoice_print.svg');
+  static Widget identityVideo() =>
+      _svg('${AppConstants.baseImage}invoice_identity_video.svg');
+  static Widget delivery() =>
+      _svg('${AppConstants.baseImage}invoice_delivery.svg');
   static Widget divider({bool zeroHeight = false}) => SizedBox(
     height: zeroHeight ? 0 : .5,
     width: double.infinity,
     child: OverflowBox(
       minHeight: .5,
       maxHeight: .5,
-      child: AvpImage(image: AppAssets.invoiceDivider, fit: BoxFit.fill),
+      child: AvpImage(
+        image: '${AppConstants.baseImage}invoice_divider.svg',
+        fit: BoxFit.fill,
+      ),
     ),
   );
 

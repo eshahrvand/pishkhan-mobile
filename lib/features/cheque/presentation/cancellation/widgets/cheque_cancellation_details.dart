@@ -1,7 +1,7 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/certificate_fields.dart';
 
 import '../../../domain/entities/cheque_cancellation.dart';
@@ -76,7 +76,11 @@ class ChequeCancellationDetails extends StatelessWidget {
 }
 
 String cancellationDetailsDivider(bool reasonLayout, bool reviewLayout) {
-  if (reasonLayout) return AppAssets.chequeCancelReasonRowDivider;
-  if (reviewLayout) return AppAssets.chequeCancelReviewDivider;
-  return AppAssets.chequeCancelDivider;
+  if (reasonLayout) {
+    return '${AppConstants.baseImage}cheque_cancel_reason_row_divider.svg';
+  }
+  if (reviewLayout) {
+    return '${AppConstants.baseImage}cheque_cancel_review_divider.svg';
+  }
+  return '${AppConstants.baseImage}cheque_cancel_divider.svg';
 }

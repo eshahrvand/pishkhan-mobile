@@ -1,5 +1,13 @@
 # Personal information services
 
+**Current dependency rule — contract v1.24:** application/data operations follow
+Cubit → registered UseCase → Repository. Cubit imports/resolves UseCases only;
+`core/di` wires their repositories. Any earlier direct-Repository or optional-
+UseCase wording below is historical and superseded. Payloads, Result mapping,
+validation, retry identity and UI behavior remain unchanged. See the
+[UseCase-only migration review](../usecase-only-dependencies-review.md).
+
+
 ## Entry points and implementation
 
 The dashboard service catalog and drawer open the existing IDs through
@@ -9,16 +17,23 @@ The dashboard service catalog and drawer open the existing IDs through
 existing authenticated return-location allowlist.
 
 The implementations live under `features/profile/presentation/change_phone`,
-`addresses`, and `occupations`. Each screen directly creates its own Cubit in
-`BlocProvider.create`. Cubits resolve `PersonalInformationRepository` through
+`addresses`, and `job_information`. Each screen directly creates its own Cubit in
+`BlocProvider.create`. Cubits resolve operation-specific UseCases through
 GetIt; the router only selects the destination. Freezed State contains plain
 values, independent operation statuses and typed effects. UI executes navigation,
 modals and feedback; Cubit interprets modal results and owns validation, request
 construction and mutations.
 
+The owner-selected code name is `JobInformation`: `JobInformationCubit`,
+`JobInformationState`, `JobInformationScreen` and the `job_information` directory.
+The domain record is `ProfileJobInformation` with `JobInformationKind`. This is a
+naming-only update. Existing route URLs (`/profile/occupations`), catalog service
+ID (`identity-occupation`), adapter error codes, asset paths, retry prefixes and
+translated visible text retain their established values.
+
 ## Reuse
 
-- `AppTopBar`, `AppAssistantButton`, `AppAddressCard`, `AppOccupationCard`.
+- `AppTopBar`, `AppAssistantButton`, `AppAddressCard`, `AppJobInformationCard`.
 - `CertificateInput` / `CertificateSelect`, the package input controls and digit
   normalizer, `AppInvoice`, and `DepositRequestFooter` for consent/payment UI.
 - The existing address editor through `ServiceRegistry.openAddressEditor`.
@@ -33,14 +48,14 @@ construction and mutations.
 - Existing `PhoneNumberValidator`, `CodeValidator`, and `PostalCodeValidator`.
   Fixed-line telephone uses `TelephoneNumberValidator`.
 - Existing service-sheet scrim/blur and handle header. The edit/delete action
-  sheet is shared by addresses and occupations. Address deletion reuses
-  `AppDeleteAddressSheet`; `AppDecisionSheet` supplies the occupation confirmation
+  sheet is shared by addresses and jobs. Address deletion reuses
+  `AppDeleteAddressSheet`; `AppDecisionSheet` supplies the job confirmation
   and the minimum-record notices, including the notice inside the shared editor.
 
 Shared cards accept localized labels, the outlined white appearance from these
 frames, and an address review-status slot. Existing defaults remain available to
 previous callers. Existing matching assets are reused; six missing SVG assets
-are bundled and registered in `AppAssets`.
+are bundled and referenced with `AppConstants.baseImage`.
 
 ## Change mobile number
 
@@ -83,23 +98,23 @@ The shared authored address editor remains the add/edit form; the new notice
 frame provides the minimum-home rule and notice styling. No separate full add/edit
 flow was supplied in the original task.
 
-## Occupation management
+## Job information management
 
 Figma: list `28084:25519`; actions `28084:26027`; add `28084:25813`,
 `28084:25952`, `28084:25995`; edit `28084:25845`, `28084:25877`, `28084:25909`;
-delete confirmation `28084:26083`; minimum-occupation notice `28084:26103`.
+delete confirmation `28084:26083`; minimum-job notice `28084:26103`.
 
-The form explicitly contains occupation, description and consent. Editing
-restores the selected record. Adding a non-working occupation beside an existing
-working occupation (or the inverse) is blocked. Changing an existing occupation
+The form explicitly contains job, description and consent. Editing
+restores the selected record. Adding a non-working job beside an existing
+working job (or the inverse) is blocked. Changing an existing job
 between those groups shows the operator-review notice and allows submitting a
 request. Request success returns to the approved list; the list is not optimistically
 rewritten before approval, matching the design's up-to-three-hour notice. Delete
 uses the edit/delete action sheet followed by the designed confirmation sheet.
 Only Confirm removes the chosen record; dismissal and Cancel do not delete.
-Attempting to delete the final occupation shows the required-record notice with
+Attempting to delete the final job shows the required-record notice with
 an acknowledgement button, and the mock repository independently rejects removing
-the final occupation. A genuinely empty server response still renders the empty
+the final job. A genuinely empty server response still renders the empty
 message centered in the allocated list area. Both system Back and the top-bar Back request confirmation before abandoning a
 form. Pending submission also disables opening another editor from the list.
 
@@ -113,23 +128,53 @@ or submit requests to a banking backend. The demo OTP is `2345` and expires afte
 Only the mock wallet changes after successful phone submission.
 
 For deterministic UI demonstrations, a postal code ending in `0` produces the
-missing-registration state; other postal codes produce valid. Occupation requests
+missing-registration state; other postal codes produce valid. Job information requests
 are queued in memory, with the approved list retained until an actual service
-can provide approval results. The occupation selector currently supplies the four
+can provide approval results. The job selector currently supplies the four
 options needed by the supplied screens. Terms use the existing unavailable
 feedback because no approved terms document or endpoint was supplied.
 
 A live adapter must replace these fixtures with authenticated profile data,
-server-owned OTP/residence/occupation rules, authoritative prices and balances,
+server-owned OTP/residence/job rules, authoritative prices and balances,
 server idempotency, and the bank's response/error contracts. All adapter errors,
 including unexpected exceptions, must be returned as `Err`.
 
 ## Verification
 
+Phase 5 applies [contract v1.22](../ui-cubit-state-agent-rules-en.md).
+All ten repository operations have one explicit async/await + Result-switch
+owner. Independent operation-failure subscriptions and typed effects share
+`MultiBlocListener`; `BlocBuilder` renders each screen. Failure listeners display
+the prepared message from the failure snapshot. The last failure/message remain
+through retries, successful requests and commands; status transitions determine
+notifications, so identical retry failures notify again and unrelated effects do
+not replay an old error. Phone/job success dialogs use localized success
+text through `ProfileSubmissionDialog`.
+
+Address residence reviews keep a separate `RequestStatus` per address in
+`reviewStatuses`. Success and failure update that address's status and preserve
+concurrent results. Only the unchanged address snapshot receives the returned
+residence result, so an old inquiry does not overwrite an edited address.
+Entering failure for an individual address triggers feedback without a duplicate
+inline request-error message. **Owner-approved behavior correction:** system Back
+and top-bar Back now remain blocked until every address inquiry completes, in
+addition to the existing fetch/save/delete gates (contract Section 20.2). This
+explicitly replaces the old behavior that allowed exit during an inquiry.
+
+The shared address editor resolves optional prefill inside Cubit; creating a new
+address emits no default-State initialization. Its independent notice and modal
+completion listeners are grouped. Phone validation/countdown and job
+eligibility use shared pure calculations; each independent action retains its
+explicit emit. Each application/data operation uses its own registered UseCase; Cubits resolve
+final UseCase fields and never import or directly invoke the repository. The local inbox has
+no repository/request and retains its existing inbox-replacement, read-status and
+detail-navigation behavior. See [phase 5 review](phase-5-review.md) for operation
+ownership, flow readers, retained resets and scoped verification.
+
 Tests cover live validation, normalization, challenge invalidation and expiry,
 consent/wallet gating, retry identity, single mock charging, address inquiry and
-mutations, editor contact restoration, occupation conflicts/operator review,
-queued requests, confirmation/cancellation/outside dismissal, minimum occupation
+mutations, editor contact restoration, job conflicts/operator review,
+queued requests, confirmation/cancellation/outside dismissal, minimum job
 and home-address invariants, preserved drafts during editor notices, centered
 empty-list geometry, fixed 20px lock geometry, routes/Back, bottom navigation
 insets, and narrow English/Arabic forms with the keyboard open. Existing shared asset and address tests remain in the suite.

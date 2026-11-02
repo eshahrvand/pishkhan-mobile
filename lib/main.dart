@@ -10,7 +10,7 @@ import 'package:pishkhan_mobile/generated/l10n.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   configureDependencies();
-  final session = await RouterSession.restorePrototype();
+  final session = await RouterSession.restore();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   runApp(PishkhanApp(session: session));
 }
@@ -26,7 +26,7 @@ class PishkhanApp extends StatefulWidget {
 }
 
 class _PishkhanAppState extends State<PishkhanApp> {
-  late final _session = widget.session ?? RouterSession();
+  late final _session = widget.session ?? RouterSession.managed();
   late final _router = createAppRouter(session: _session);
   @override
   void dispose() {

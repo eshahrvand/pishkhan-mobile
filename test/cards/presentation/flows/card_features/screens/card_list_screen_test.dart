@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/core/presentation/mappers/request_error_message_mapper.dart';
+
 import '../../../../../support/cards_ui_finders.dart';
 import '../../../../../dashboard/support/home_tab_test_scope.dart';
 import '../../../../../dashboard/support/dashboard_ui_finders.dart';
@@ -384,6 +386,55 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byType(AppCardsList), findsNothing);
       expect(find.text('هنوز کارتی ندارید'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
+  testWidgets(
+    'identical failures notify again; retained errors do not block filters or services',
+    (tester) async {
+      const failure = DataFailure('network.offline');
+      final repository = FakeCardsRepository()..result = const Err(failure);
+      CardFeatureRequest? request;
+      await mount(
+        tester,
+        subject(CardListScreen(onActionRequested: (value) => request = value)),
+        repository: repository,
+      );
+      final cubit = tester
+          .element(find.byType(CardFeaturesFilters))
+          .read<CardFeaturesCubit>();
+      final message = getRequestErrorMessage(failure);
+      expect(find.text(message), findsOneWidget);
+      tester
+          .state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger))
+          .clearSnackBars();
+      await tester.pumpAndSettle();
+      await tap(tester, cardControl(tester, 'card_features_retry'));
+      expect(find.text(message), findsOneWidget);
+      tester
+          .state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger))
+          .clearSnackBars();
+      await tester.pumpAndSettle();
+
+      await tap(tester, cardControl(tester, 'card_features_filter_button'));
+      expect(cardControl(tester, 'card_features_filter_sheet'), findsOneWidget);
+      expect(find.text(message), findsNothing);
+      expect(cubit.state.message, message);
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+      expect(cubit.state.draftFilter, isNull);
+
+      repository.result = Success(MockCardsRepository.examples);
+      await tap(tester, cardControl(tester, 'card_features_retry'));
+      expect(find.text(message), findsNothing);
+      expect(cubit.state.message, message);
+      cubit.requestCardService(
+        CardFeatureAction.reissue,
+        card: cubit.state.visibleCards.first,
+      );
+      await tester.pumpAndSettle();
+      expect(request?.card, cubit.state.visibleCards.first);
+      expect(find.text(message), findsNothing);
       expect(tester.takeException(), isNull);
     },
   );

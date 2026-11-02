@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/presentation/mappers/request_error_message_mapper.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
@@ -6,8 +7,9 @@ import 'package:pishkhan_mobile/core/result/failure.dart';
 import 'package:pishkhan_mobile/core/result/result.dart';
 
 import '../../../domain/entities/request_report.dart';
-import '../../../domain/repositories/request_reports_repository.dart';
-import '../../../domain/usecases/filter_request_reports.dart';
+import '../../../domain/usecases/filter_request_reports_usecase.dart';
+
+import '../../../domain/usecases/request_reports_usecase.dart';
 
 part 'request_reports_state.dart';
 part 'request_reports_cubit.freezed.dart';
@@ -16,41 +18,36 @@ class RequestReportsCubit extends Cubit<RequestReportsState> {
   RequestReportsCubit({
     RequestReportsState initialState = const RequestReportsState.initial(),
   }) : super(initialState);
+  final fetchRequestReportsUseCase = getIt<FetchRequestReportsUseCase>();
+  final cancelReportedRequestUseCase = getIt<CancelReportedRequestUseCase>();
 
-  final repository = getIt<RequestReportsRepository>();
-
-  Future<void> fetchReports() {
-    emit(
-      state.copyWith(
-        reportsStatus: RequestStatus.loading,
-        reportsFailure: null,
-      ),
-    );
-    return repository.fetchReports().then((result) {
-      switch (result) {
-        case Success(:final data):
-          emit(
-            state.copyWith(
-              reportsStatus: RequestStatus.success,
+  Future<void> fetchReports() async {
+    emit(state.copyWith(reportsStatus: RequestStatus.loading));
+    final result = await fetchRequestReportsUseCase();
+    switch (result) {
+      case Success(:final data):
+        emit(
+          state.copyWith(
+            reportsStatus: RequestStatus.success,
+            reports: data.reports,
+            bankTime: data.bankTime,
+            visibleReports: filterRequestReports(
               reports: data.reports,
+              filter: state.filter,
+              query: state.trackingQuery,
               bankTime: data.bankTime,
-              visibleReports: filterRequestReports(
-                reports: data.reports,
-                filter: state.filter,
-                query: state.trackingQuery,
-                bankTime: data.bankTime,
-              ),
             ),
-          );
-        case Err(:final failure):
-          emit(
-            state.copyWith(
-              reportsStatus: RequestStatus.failure,
-              reportsFailure: failure,
-            ),
-          );
-      }
-    });
+          ),
+        );
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            reportsStatus: RequestStatus.failure,
+            failure: failure,
+            message: getRequestErrorMessage(failure),
+          ),
+        );
+    }
   }
 
   void updateTrackingQuery(String value) {
@@ -91,7 +88,6 @@ class RequestReportsCubit extends Cubit<RequestReportsState> {
           typeQuery: '',
           visibleTypes: ReportRequestType.values,
           effect: RequestReportsEffect.typeFilter,
-          effectId: state.effectId + 1,
         ),
       );
     }
@@ -119,7 +115,6 @@ class RequestReportsCubit extends Cubit<RequestReportsState> {
         state.copyWith(
           draftFilter: state.filter,
           effect: RequestReportsEffect.statusFilter,
-          effectId: state.effectId + 1,
         ),
       );
     }
@@ -147,7 +142,6 @@ class RequestReportsCubit extends Cubit<RequestReportsState> {
         state.copyWith(
           draftFilter: state.filter,
           effect: RequestReportsEffect.dateFilter,
-          effectId: state.effectId + 1,
         ),
       );
     }
@@ -261,7 +255,6 @@ class RequestReportsCubit extends Cubit<RequestReportsState> {
         selectedReport: report,
         canCancelRequest: report.status == ReportRequestStatus.awaitingApproval,
         effect: RequestReportsEffect.details,
-        effectId: state.effectId + 1,
       ),
     );
   }
@@ -272,9 +265,7 @@ class RequestReportsCubit extends Cubit<RequestReportsState> {
         emit(
           state.copyWith(
             cancellationStatus: RequestStatus.initial,
-            cancellationFailure: null,
             effect: RequestReportsEffect.cancelConfirmation,
-            effectId: state.effectId + 1,
           ),
         );
       case null:
@@ -282,65 +273,53 @@ class RequestReportsCubit extends Cubit<RequestReportsState> {
     }
   }
 
-  Future<void> submitCancellation() {
-    emit(
-      state.copyWith(
-        cancellationStatus: RequestStatus.loading,
-        cancellationFailure: null,
-      ),
+  Future<void> submitCancellation() async {
+    emit(state.copyWith(cancellationStatus: RequestStatus.loading));
+    final result = await cancelReportedRequestUseCase(
+      trackingId: state.selectedReport!.trackingId,
+      idempotencyKey: 'cancel:${state.selectedReport!.trackingId}',
     );
-    return repository
-        .cancelRequest(
-          trackingId: state.selectedReport!.trackingId,
-          idempotencyKey: 'cancel:${state.selectedReport!.trackingId}',
-        )
-        .then((result) {
-          switch (result) {
-            case Success(:final data):
-              final reports = [
-                for (final report in state.reports)
-                  if (report.trackingId == data.trackingId) data else report,
-              ];
-              emit(
-                state.copyWith(
-                  cancellationStatus: RequestStatus.success,
-                  selectedReport: data,
-                  canCancelRequest: false,
-                  reports: reports,
-                  visibleReports: filterRequestReports(
-                    reports: reports,
-                    filter: state.filter,
-                    query: state.trackingQuery,
-                    bankTime: state.bankTime!,
-                  ),
-                ),
-              );
-            case Err(:final failure):
-              emit(
-                state.copyWith(
-                  cancellationStatus: RequestStatus.failure,
-                  cancellationFailure: failure,
-                ),
-              );
-          }
-        });
+    switch (result) {
+      case Success(:final data):
+        final reports = [
+          for (final report in state.reports)
+            if (report.trackingId == data.trackingId) data else report,
+        ];
+        emit(
+          state.copyWith(
+            cancellationStatus: RequestStatus.success,
+            selectedReport: data,
+            canCancelRequest: false,
+            reports: reports,
+            visibleReports: filterRequestReports(
+              reports: reports,
+              filter: state.filter,
+              query: state.trackingQuery,
+              bankTime: state.bankTime!,
+            ),
+          ),
+        );
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            cancellationStatus: RequestStatus.failure,
+            failure: failure,
+            message: getRequestErrorMessage(failure),
+          ),
+        );
+    }
   }
 
   void requestBack() {
-    emit(
-      state.copyWith(
-        effect: RequestReportsEffect.back,
-        effectId: state.effectId + 1,
-      ),
-    );
+    emit(state.copyWith(effect: RequestReportsEffect.back));
   }
 
   void requestAssistant() {
-    emit(
-      state.copyWith(
-        effect: RequestReportsEffect.assistant,
-        effectId: state.effectId + 1,
-      ),
-    );
+    emit(state.copyWith(effect: RequestReportsEffect.assistant));
+  }
+
+  /// UI has accepted the pending interaction; data and request statuses stay intact.
+  void consumeRequestReportsInteraction() {
+    emit(state.copyWith(effect: null));
   }
 }

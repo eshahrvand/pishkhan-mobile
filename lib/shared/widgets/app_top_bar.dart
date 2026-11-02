@@ -1,8 +1,9 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
+
 import 'app_top_bar_action.dart';
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 
 class AppTopBar extends StatelessWidget {
@@ -48,12 +49,12 @@ class AppTopBar extends StatelessWidget {
             leadingAction!
           else if (showLeadingActions) ...[
             AppTopBarAction(
-              asset: AppAssets.dashboardHeaderUser,
+              asset: '${AppConstants.baseImage}dashboard_header_user.svg',
               tooltip: S.current.profileLabel,
               onPressed: onProfilePressed,
             ),
             AppTopBarAction(
-              asset: AppAssets.dashboardHeaderBell,
+              asset: '${AppConstants.baseImage}dashboard_header_bell.svg',
               tooltip: S.current.notificationsLabel,
               onPressed: onNotificationsPressed,
             ),
@@ -77,7 +78,7 @@ class AppTopBar extends StatelessWidget {
           AppTopBarAction(
             key: const Key('dashboard_menu_button'),
             dimension: 40,
-            asset: AppAssets.dashboardHeaderMenu,
+            asset: '${AppConstants.baseImage}dashboard_header_menu.svg',
             icon: trailingIcon,
             tooltip: trailingTooltip ?? S.current.servicesMenuLabel,
             onPressed: onTrailingPressed ?? onMenuPressed,

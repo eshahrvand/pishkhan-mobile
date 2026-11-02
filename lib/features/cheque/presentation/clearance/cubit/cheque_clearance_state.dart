@@ -16,7 +16,8 @@ abstract class ChequeClearanceState with _$ChequeClearanceState {
   const factory ChequeClearanceState.initial({
     @Default(RequestStatus.initial) RequestStatus catalogStatus,
     ChequeClearanceCatalog? catalog,
-    Failure? catalogFailure,
+    Failure? failure,
+    String? message,
     ChequeDeposit? deposit,
     @Default('') String chequeNumber,
     @Default(false) bool isChequeNumberValid,
@@ -35,9 +36,8 @@ abstract class ChequeClearanceState with _$ChequeClearanceState {
     @Default(false) bool isExitToAssistant,
     String? idempotencyKey,
     @Default(RequestStatus.initial) RequestStatus submissionStatus,
-    Failure? submissionFailure,
+
     ChequeClearanceReceipt? receipt,
     ChequeClearanceEffect? effect,
-    @Default(0) int effectId,
   }) = _ChequeClearanceState;
 }

@@ -10,9 +10,9 @@ abstract class MobileBankDeactivationState with _$MobileBankDeactivationState {
     MobileBankRecord? receipt,
     @Default(false) bool termsAccepted,
     @Default(false) bool canSubmit,
-    Failure? catalogFailure,
-    Failure? submissionFailure,
+    Failure? failure,
+    String? message,
+
     FlowNavigation? navigation,
-    @Default(0) int effectId,
   }) = _MobileBankDeactivationState;
 }

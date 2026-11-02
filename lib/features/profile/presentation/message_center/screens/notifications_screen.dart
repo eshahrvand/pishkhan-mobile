@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../cubit/notifications_cubit.dart';
@@ -10,7 +11,6 @@ import 'package:flutter/material.dart';
 import 'package:pishkhan_mobile/core/notifications/notification_message.dart';
 import 'package:pishkhan_mobile/features/profile/presentation/message_center/widgets/notification_header.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 class NotificationsScreen extends StatelessWidget {
   const NotificationsScreen({
@@ -23,6 +23,7 @@ class NotificationsScreen extends StatelessWidget {
   final ValueChanged<List<NotificationMessage>>? onChanged;
 
   void _handleDetail(BuildContext context, NotificationsState state) {
+    context.read<NotificationsCubit>().consumeMessageDetail();
     context.push<void>(
       AppRoutes.messageDetailLocation(state.detailMessage!.id),
       extra: state.detailMessage,
@@ -33,15 +34,22 @@ class NotificationsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => NotificationsCubit()..openInbox(messages),
-      child: BlocListener<NotificationsCubit, NotificationsState>(
-        listenWhen: (previous, current) =>
-            previous.detailRequestId != current.detailRequestId,
-        listener: _handleDetail,
-        child: BlocConsumer<NotificationsCubit, NotificationsState>(
-          listenWhen: (previous, current) =>
-              previous.messages != current.messages,
-          listener: (context, state) =>
-              onChanged?.call(List.unmodifiable(state.messages)),
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<NotificationsCubit, NotificationsState>(
+            listenWhen: (previous, current) =>
+                previous.detailMessage != current.detailMessage &&
+                current.detailMessage != null,
+            listener: _handleDetail,
+          ),
+          BlocListener<NotificationsCubit, NotificationsState>(
+            listenWhen: (previous, current) =>
+                previous.messages != current.messages,
+            listener: (context, state) =>
+                onChanged?.call(List.unmodifiable(state.messages)),
+          ),
+        ],
+        child: BlocBuilder<NotificationsCubit, NotificationsState>(
           buildWhen: (previous, current) =>
               previous.unreadMessages.isEmpty != current.unreadMessages.isEmpty,
           builder: (context, state) {
@@ -60,7 +68,8 @@ class NotificationsScreen extends StatelessWidget {
                           size: AppButtonSize.md,
                           horizontalPadding: 2,
                           leadingIcon: AvpImage(
-                            image: AppAssets.notificationReadAll,
+                            image:
+                                '${AppConstants.baseImage}notification_read_all.svg',
                           ),
                           onPressed: state.unreadMessages.isEmpty
                               ? null

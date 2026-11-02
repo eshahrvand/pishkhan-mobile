@@ -1,7 +1,7 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 import 'app_file_upload_base.dart';
 
@@ -42,7 +42,7 @@ class AppFileUploadBaseFileContent extends StatelessWidget {
               ),
               child: Center(
                 child: AvpImage(
-                  image: AppAssets.fileUploadFile,
+                  image: '${AppConstants.baseImage}file_upload_file.svg',
                   width: 16,
                   height: 16,
                 ),
@@ -98,7 +98,7 @@ class AppFileUploadBaseFileContent extends StatelessWidget {
           child: InkWell(
             onTap: onDelete,
             child: AvpImage(
-              image: AppAssets.fileUploadTrash,
+              image: '${AppConstants.baseImage}file_upload_trash.svg',
               width: 20,
               height: 20,
             ),

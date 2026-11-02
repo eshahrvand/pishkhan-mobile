@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
+
 import 'dart:async';
 import 'dart:io';
 
@@ -18,9 +20,8 @@ import 'package:pishkhan_mobile/features/cheque/presentation/cancellation/screen
 import 'package:pishkhan_mobile/features/cheque/presentation/cancellation/widgets/cheque_cancellation_delete_sheet.dart';
 import 'package:pishkhan_mobile/features/cheque/presentation/cancellation/widgets/cheque_cancellation_receipt_dialog.dart';
 import 'package:pishkhan_mobile/features/cheque/presentation/cancellation/widgets/cheque_cancellation_review_sheet.dart';
-import 'package:pishkhan_mobile/features/cheque/presentation/shared/postal/widgets/cheque_postal_sheet.dart';
+import 'package:pishkhan_mobile/features/postal_offices/presentation/lookup/widgets/postal_offices_sheet.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
 
 import '../deposits/certificate_test_support.dart';
@@ -146,7 +147,7 @@ void main() {
       await tester.pump(const Duration(seconds: 5));
       await tester.pumpAndSettle();
       await tap(tester, find.text(S.current.chequePostalAction));
-      expect(find.byType(ChequePostalSheet), findsOneWidget);
+      expect(find.byType(PostalOfficesSheet), findsOneWidget);
       await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
       await tap(tester, find.byType(AppCheckbox));
@@ -175,7 +176,8 @@ void main() {
           find.byWidgetPredicate(
             (widget) =>
                 widget is AvpImage &&
-                widget.image == AppAssets.cardFeaturesSearch,
+                widget.image ==
+                    '${AppConstants.baseImage}card_features_search.svg',
           ),
         ),
         const Size(20, 20),
@@ -214,7 +216,8 @@ void main() {
       final remove = find.ancestor(
         of: find.byWidgetPredicate(
           (widget) =>
-              widget is AvpImage && widget.image == AppAssets.issuanceTrash,
+              widget is AvpImage &&
+              widget.image == '${AppConstants.baseImage}issuance_trash.svg',
         ),
         matching: find.byType(InkWell),
       );
@@ -311,7 +314,7 @@ void main() {
   );
 
   testWidgets(
-    'pending submit ignores repeat taps while system back remains available',
+    'pending submit ignores repeat taps while system back is blocked',
     (tester) async {
       await mountCertificate(tester, const ChequeCancellationScreen());
       await enterReasons(tester);
@@ -328,23 +331,14 @@ void main() {
       await tester.pump();
       expect(
         cancellationCubit(tester).state.step,
-        ChequeCancellationStep.reasons,
+        ChequeCancellationStep.confirmation,
       );
       await tester.binding.handlePopRoute();
       await tester.pump();
       expect(
         cancellationCubit(tester).state.step,
-        ChequeCancellationStep.cheques,
+        ChequeCancellationStep.confirmation,
       );
-      final reviewAction = find.ancestor(
-        of: find.byWidgetPredicate(
-          (widget) =>
-              widget is AvpImage &&
-              widget.image == AppAssets.chequeCancelFileListSelected,
-        ),
-        matching: find.byType(InkWell),
-      );
-      expect(tester.widget<InkWell>(reviewAction).onTap, isNull);
       repository.pendingSubmission!.complete(
         const Success(
           ChequeCancellationReceipt(reference: 'test', isMock: true),

@@ -1,7 +1,6 @@
-
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 import '../../shared/certificate_fields.dart';
 import '../../deposit_list/widgets/deposit_ui.dart';
@@ -28,7 +27,10 @@ class AverageBalanceDateField extends StatelessWidget {
           width: 48,
           height: 44,
           child: Center(
-            child: depositIcon(AppAssets.certificateCalendar, size: 20),
+            child: depositIcon(
+              '${AppConstants.baseImage}certificate_certCalendar.svg',
+              size: 20,
+            ),
           ),
         ),
       ),

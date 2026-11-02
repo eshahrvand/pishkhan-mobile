@@ -8,8 +8,8 @@ abstract class DepositListState with _$DepositListState {
     @Default(<ListedDeposit>[]) List<ListedDeposit> visibleDeposits,
     DepositKind? kind,
     @Default(DepositStatus.open) DepositStatus? depositStatus,
-    Failure? depositsFailure,
+    Failure? failure,
+    String? message,
     DepositListEffect? effect,
-    @Default(0) int effectId,
   }) = _DepositListState;
 }

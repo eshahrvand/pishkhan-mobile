@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/presentation/mappers/request_error_message_mapper.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
@@ -8,44 +9,44 @@ import 'package:pishkhan_mobile/core/result/result.dart';
 
 import '../../../domain/entities/personal_information.dart';
 import '../../../domain/rules/profile_address_rules.dart';
-import '../../../domain/repositories/personal_information_repository.dart';
+import '../../../domain/usecases/personal_information_usecase.dart';
+
 part 'addresses_state.dart';
 part 'addresses_cubit.freezed.dart';
 
 class AddressesCubit extends Cubit<AddressesState> {
   AddressesCubit({AddressesState initialState = const AddressesState.initial()})
     : super(initialState);
-  final repository = getIt<PersonalInformationRepository>();
+  final fetchProfileAddressesUseCase = getIt<FetchProfileAddressesUseCase>();
+  final saveProfileAddressUseCase = getIt<SaveProfileAddressUseCase>();
+  final deleteProfileAddressUseCase = getIt<DeleteProfileAddressUseCase>();
+  final reviewProfileAddressUseCase = getIt<ReviewProfileAddressUseCase>();
 
-  Future<void> fetchAddresses() {
+  Future<void> fetchAddresses() async {
     emit(state.copyWith(addressesStatus: RequestStatus.loading));
-    return repository.fetchAddresses().then((result) {
-      switch (result) {
-        case Success(:final data):
-          emit(
-            state.copyWith(
-              addresses: data,
-              addressesStatus: RequestStatus.success,
-            ),
-          );
-        case Err(:final failure):
-          emit(
-            state.copyWith(
-              addressesStatus: RequestStatus.failure,
-              addressesFailure: failure,
-            ),
-          );
-      }
-    });
+    final result = await fetchProfileAddressesUseCase();
+    switch (result) {
+      case Success(:final data):
+        emit(
+          state.copyWith(
+            addresses: data,
+            addressesStatus: RequestStatus.success,
+          ),
+        );
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            addressesStatus: RequestStatus.failure,
+            failure: failure,
+            message: getRequestErrorMessage(failure),
+          ),
+        );
+    }
   }
 
   void requestAddressActions(ProfileAddress address) {
     emit(
-      state.copyWith(
-        selectedAddress: address,
-        effect: AddressEffect.actions,
-        effectId: state.effectId + 1,
-      ),
+      state.copyWith(selectedAddress: address, effect: AddressEffect.actions),
     );
   }
 
@@ -62,7 +63,6 @@ class AddressesCubit extends Cubit<AddressesState> {
                   state.addresses,
                   state.selectedAddress!.address,
                 ),
-            effectId: state.effectId + 1,
           ),
         );
       case AddressAction.delete:
@@ -75,7 +75,6 @@ class AddressesCubit extends Cubit<AddressesState> {
                 )
                 ? AddressEffect.confirmDeletion
                 : AddressEffect.minimumAddress,
-            effectId: state.effectId + 1,
           ),
         );
       case null:
@@ -89,82 +88,61 @@ class AddressesCubit extends Cubit<AddressesState> {
         selectedAddress: null,
         retainHomeAddress: false,
         effect: AddressEffect.editor,
-        effectId: state.effectId + 1,
       ),
     );
   }
 
-  Future<void> applyAddressEditor(DeliveryAddress? address) {
+  Future<void> applyAddressEditor(DeliveryAddress? address) async {
     if (address != null && canSaveProfileAddress(state.addresses, address)) {
-      emit(
-        state.copyWith(saveStatus: RequestStatus.loading, saveFailure: null),
-      );
-      return repository.saveAddress(address).then((result) {
-        switch (result) {
-          case Success(:final data):
-            emit(
-              state.copyWith(
-                addresses: [
-                  for (final item in state.addresses)
-                    if (item.address.id == data.address.id) data else item,
-                  if (!state.addresses.any(
-                    (item) => item.address.id == data.address.id,
-                  ))
-                    data,
-                ],
-                saveStatus: RequestStatus.success,
-              ),
-            );
-          case Err(:final failure):
-            emit(
-              state.copyWith(
-                saveStatus: RequestStatus.failure,
-                saveFailure: failure,
-              ),
-            );
-        }
-      });
-    } else if (address != null) {
-      emit(
-        state.copyWith(
-          effect: AddressEffect.minimumAddress,
-          effectId: state.effectId + 1,
-        ),
-      );
-    }
-    return Future.value();
-  }
-
-  Future<void> submitDeletion(ProfileAddress address) {
-    emit(
-      state.copyWith(
-        deletionStatus: RequestStatus.loading,
-        deletionFailure: null,
-      ),
-    );
-    return repository.deleteAddress(address.address.id).then((result) {
+      emit(state.copyWith(saveStatus: RequestStatus.loading));
+      final result = await saveProfileAddressUseCase(address);
       switch (result) {
-        case Success():
+        case Success(:final data):
           emit(
             state.copyWith(
-              addresses: state.addresses
-                  .where((item) => item.address.id != address.address.id)
-                  .toList(),
-              deletionStatus: RequestStatus.success,
+              addresses: _addressesWithSaved(data),
+              saveStatus: RequestStatus.success,
             ),
           );
         case Err(:final failure):
           emit(
             state.copyWith(
-              deletionStatus: RequestStatus.failure,
-              deletionFailure: failure,
+              saveStatus: RequestStatus.failure,
+              failure: failure,
+              message: getRequestErrorMessage(failure),
             ),
           );
       }
-    });
+    } else if (address != null) {
+      emit(state.copyWith(effect: AddressEffect.minimumAddress));
+    }
   }
 
-  Future<void> submitAddressReview(ProfileAddress address) {
+  Future<void> submitDeletion(ProfileAddress address) async {
+    emit(state.copyWith(deletionStatus: RequestStatus.loading));
+    final result = await deleteProfileAddressUseCase(address.address.id);
+    switch (result) {
+      case Success():
+        emit(
+          state.copyWith(
+            addresses: state.addresses
+                .where((item) => item.address.id != address.address.id)
+                .toList(),
+            deletionStatus: RequestStatus.success,
+          ),
+        );
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            deletionStatus: RequestStatus.failure,
+            failure: failure,
+            message: getRequestErrorMessage(failure),
+          ),
+        );
+    }
+  }
+
+  Future<void> submitAddressReview(ProfileAddress address) async {
     emit(
       state.copyWith(
         addresses: [
@@ -174,56 +152,73 @@ class AddressesCubit extends Cubit<AddressesState> {
             else
               item,
         ],
-        reviewFailures: Map.of(state.reviewFailures)
-          ..remove(address.address.id),
+        reviewStatuses: {
+          ...state.reviewStatuses,
+          address.address.id: RequestStatus.loading,
+        },
       ),
     );
-    return repository.reviewAddress(address.address).then((result) {
-      switch (result) {
-        case Success(:final data):
-          emit(
-            state.copyWith(
-              addresses: [
-                for (final item in state.addresses)
-                  if (item.address == address.address)
-                    item.withStatus(data)
-                  else
-                    item,
-              ],
+    final result = await reviewProfileAddressUseCase(address.address);
+    switch (result) {
+      case Success(:final data):
+        emit(
+          state.copyWith(
+            addresses: _addressesAfterReview(address.address, data),
+            reviewStatuses: {
+              ...state.reviewStatuses,
+              address.address.id: RequestStatus.success,
+            },
+          ),
+        );
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            addresses: _addressesAfterReview(
+              address.address,
+              ResidenceStatus.unchecked,
             ),
-          );
-        case Err(:final failure):
-          emit(
-            state.copyWith(
-              addresses: [
-                for (final item in state.addresses)
-                  if (item.address == address.address)
-                    item.withStatus(ResidenceStatus.unchecked)
-                  else
-                    item,
-              ],
-              reviewFailures: {
-                ...state.reviewFailures,
-                address.address.id: failure,
-              },
-            ),
-          );
-      }
-    });
+            reviewStatuses: {
+              ...state.reviewStatuses,
+              address.address.id: RequestStatus.failure,
+            },
+            failure: failure,
+            message: getRequestErrorMessage(failure),
+          ),
+        );
+    }
+  }
+
+  List<ProfileAddress> _addressesWithSaved(ProfileAddress saved) {
+    return [
+      for (final item in state.addresses)
+        if (_hasAddressId(item, saved.address.id)) saved else item,
+      if (!state.addresses.any((item) => _hasAddressId(item, saved.address.id)))
+        saved,
+    ];
+  }
+
+  bool _hasAddressId(ProfileAddress item, String id) => item.address.id == id;
+
+  List<ProfileAddress> _addressesAfterReview(
+    DeliveryAddress address,
+    ResidenceStatus status,
+  ) {
+    return [
+      for (final item in state.addresses)
+        if (item.address == address) item.withStatus(status) else item,
+    ];
   }
 
   void requestBack() {
-    emit(
-      state.copyWith(effect: AddressEffect.back, effectId: state.effectId + 1),
-    );
+    emit(state.copyWith(effect: AddressEffect.back));
   }
 
   void requestAssistant() {
-    emit(
-      state.copyWith(
-        effect: AddressEffect.assistant,
-        effectId: state.effectId + 1,
-      ),
-    );
+    emit(state.copyWith(effect: AddressEffect.assistant));
+  }
+
+  /// UI has accepted the pending interaction; data and request statuses stay intact.
+  void consumeAddressesInteraction() {
+    emit(state.copyWith(effect: null));
   }
 }

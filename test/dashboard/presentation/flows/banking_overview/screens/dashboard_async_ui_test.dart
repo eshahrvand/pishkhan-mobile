@@ -1,3 +1,9 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pishkhan_mobile/features/dashboard/domain/entities/bank_card.dart';
+import 'package:pishkhan_mobile/features/dashboard/domain/entities/bank_deposit.dart';
+import 'package:pishkhan_mobile/features/dashboard/presentation/home/cubit/home_cubit.dart';
+import 'package:pishkhan_mobile/shared/widgets/app_drawer.dart';
+
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
 
 import '../../../../support/home_tab_test_scope.dart';
@@ -101,6 +107,83 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
+  testWidgets(
+    'independent failure listeners retain messages without blocking effects or replaying on success',
+    (tester) async {
+      tester.view.physicalSize = const Size(375, 878);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final cards = Completer<Result<List<BankCard>>>();
+      final deposits = Completer<Result<List<BankDeposit>>>();
+      final repository = TestRepositories()
+        ..home = Success(DashboardHomeData(walletBalance: '123'));
+      repository.cardQueue.add(cards);
+      repository.depositQueue.add(deposits);
+      await tester.pumpWidget(
+        subject(
+          dashboardScope(
+            repositories: homeRepositories(
+              home: repository,
+              cards: repository,
+              deposits: repository,
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      final cubit = tester
+          .element(find.byType(BlocBuilder<HomeCubit, HomeState>).first)
+          .read<HomeCubit>();
+      final messenger = tester.state<ScaffoldMessengerState>(
+        find.byType(ScaffoldMessenger),
+      );
+
+      cards.complete(const Err(DataFailure('network.offline')));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(
+        find.text('ارتباط با سرور برقرار نشد. دوباره تلاش کنید.'),
+        findsOneWidget,
+      );
+      messenger.clearSnackBars();
+      await tester.pump();
+
+      deposits.complete(const Err(DataFailure('unknown-bank-code')));
+      await tester.pumpAndSettle();
+      expect(find.text('درخواست انجام نشد. دوباره تلاش کنید.'), findsOneWidget);
+      messenger.clearSnackBars();
+      await tester.pumpAndSettle();
+      cubit.requestMenu();
+      await tester.pumpAndSettle();
+      expect(find.byType(AppDrawer), findsOneWidget);
+      expect(find.byType(SnackBar), findsNothing);
+      expect(cubit.state.message, 'درخواست انجام نشد. دوباره تلاش کنید.');
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
+
+      final cardRetry = Completer<Result<List<BankCard>>>();
+      repository.cardQueue.add(cardRetry);
+      final pendingCards = cubit.fetchCards();
+      cardRetry.complete(const Success([DashboardMockData.singleCard]));
+      await tester.pumpAndSettle();
+      await pendingCards;
+      expect(cubit.state.message, 'درخواست انجام نشد. دوباره تلاش کنید.');
+      expect(find.byType(SnackBar), findsNothing);
+
+      final depositRetry = Completer<Result<List<BankDeposit>>>();
+      repository.depositQueue.add(depositRetry);
+      final pendingDeposits = cubit.fetchDeposits();
+      await tester.pump();
+      expect(find.byType(SnackBar), findsNothing);
+      depositRetry.complete(const Err(DataFailure('unknown-bank-code')));
+      await tester.pumpAndSettle();
+      await pendingDeposits;
+      expect(find.text('درخواست انجام نشد. دوباره تلاش کنید.'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
+
   testWidgets('home repository error retries without blocking other tabs', (
     tester,
   ) async {
@@ -123,6 +206,10 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(dashboardButton(S.current.dashboardRetry), findsOneWidget);
+    tester
+        .state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger))
+        .clearSnackBars();
+    await tester.pumpAndSettle();
     await tester.tap(
       find
           .descendant(

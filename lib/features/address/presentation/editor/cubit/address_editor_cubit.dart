@@ -23,7 +23,8 @@ class AddressEditorCubit extends Cubit<AddressEditorState> {
   final bool retainHomeAddress;
 
   void fetchAddress() {
-    final address = initialAddress!;
+    final address = initialAddress;
+    if (address == null) return;
     emit(
       state.copyWith(
         title: address.title,
@@ -39,9 +40,13 @@ class AddressEditorCubit extends Cubit<AddressEditorState> {
     );
   }
 
+  void consumeAddressEditorInteraction() {
+    emit(state.copyWith(effect: null));
+  }
+
   void selectType(DeliveryAddressType type) {
     if (retainHomeAddress && type == DeliveryAddressType.work) {
-      emit(state.copyWith(minimumHomeNoticeId: state.minimumHomeNoticeId + 1));
+      emit(state.copyWith(effect: AddressEditorEffect.minimumHomeNotice));
     } else {
       emit(state.copyWith(type: type));
     }
@@ -55,11 +60,7 @@ class AddressEditorCubit extends Cubit<AddressEditorState> {
         phoneNumber: normalized,
         isPhoneNumberValid: valid,
         isInvalid:
-            state.isInvalid &&
-            !(valid &&
-                state.isTitleValid &&
-                state.isDetailValid &&
-                state.isPostalCodeValid),
+            state.isInvalid && !_isAddressComplete(isContactValid: valid),
       ),
     );
   }
@@ -70,12 +71,7 @@ class AddressEditorCubit extends Cubit<AddressEditorState> {
       state.copyWith(
         title: value,
         isTitleValid: valid,
-        isInvalid:
-            state.isInvalid &&
-            !(valid &&
-                state.isDetailValid &&
-                state.isPostalCodeValid &&
-                (!includeContact || state.isPhoneNumberValid)),
+        isInvalid: state.isInvalid && !_isAddressComplete(isTitleValid: valid),
       ),
     );
   }
@@ -86,12 +82,7 @@ class AddressEditorCubit extends Cubit<AddressEditorState> {
       state.copyWith(
         detail: value,
         isDetailValid: valid,
-        isInvalid:
-            state.isInvalid &&
-            !(state.isTitleValid &&
-                valid &&
-                state.isPostalCodeValid &&
-                (!includeContact || state.isPhoneNumberValid)),
+        isInvalid: state.isInvalid && !_isAddressComplete(isDetailValid: valid),
       ),
     );
   }
@@ -104,20 +95,13 @@ class AddressEditorCubit extends Cubit<AddressEditorState> {
         postalCode: normalized,
         isPostalCodeValid: valid,
         isInvalid:
-            state.isInvalid &&
-            !(state.isTitleValid &&
-                state.isDetailValid &&
-                valid &&
-                (!includeContact || state.isPhoneNumberValid)),
+            state.isInvalid && !_isAddressComplete(isPostalCodeValid: valid),
       ),
     );
   }
 
   void submitAddress() {
-    if (state.isTitleValid &&
-        state.isDetailValid &&
-        state.isPostalCodeValid &&
-        (!includeContact || state.isPhoneNumberValid)) {
+    if (_isAddressComplete()) {
       final address = DeliveryAddress(
         id:
             initialAddress?.id ??
@@ -128,9 +112,21 @@ class AddressEditorCubit extends Cubit<AddressEditorState> {
         detail: state.detail.trim(),
         postalCode: state.postalCode,
       );
-      emit(state.copyWith(savedAddress: address, saveId: state.saveId + 1));
+      emit(state.copyWith(savedAddress: address));
     } else {
       emit(state.copyWith(isInvalid: true));
     }
+  }
+
+  bool _isAddressComplete({
+    bool? isTitleValid,
+    bool? isDetailValid,
+    bool? isPostalCodeValid,
+    bool? isContactValid,
+  }) {
+    return (isTitleValid ?? state.isTitleValid) &&
+        (isDetailValid ?? state.isDetailValid) &&
+        (isPostalCodeValid ?? state.isPostalCodeValid) &&
+        (isContactValid ?? (!includeContact || state.isPhoneNumberValid));
   }
 }

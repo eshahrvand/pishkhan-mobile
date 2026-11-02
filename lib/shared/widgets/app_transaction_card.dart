@@ -1,6 +1,6 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 enum AppTransactionType { discharge, charge, transfer, shopping }
 
@@ -31,10 +31,14 @@ class AppTransactionCard extends StatelessWidget {
       };
 
   String get _icon => switch (type) {
-    AppTransactionType.discharge => AppAssets.transactionCardSend,
-    AppTransactionType.charge => AppAssets.transactionCardReceived,
-    AppTransactionType.transfer => AppAssets.transactionCardTransport,
-    AppTransactionType.shopping => AppAssets.transactionCardShoppingCartCheck,
+    AppTransactionType.discharge =>
+      '${AppConstants.baseImage}transaction_card_send.svg',
+    AppTransactionType.charge =>
+      '${AppConstants.baseImage}transaction_card_received.svg',
+    AppTransactionType.transfer =>
+      '${AppConstants.baseImage}transaction_card_transport.svg',
+    AppTransactionType.shopping =>
+      '${AppConstants.baseImage}transaction_card_shopping_cart_check.svg',
   };
 
   @override

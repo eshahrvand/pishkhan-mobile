@@ -1,8 +1,8 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/certificate_fields.dart';
 
 import '../../../domain/entities/cheque_cancellation.dart';
@@ -37,8 +37,8 @@ class ChequeCancellationSelection extends StatelessWidget {
           ),
           trailing: AvpImage(
             image: state.deposit == null
-                ? AppAssets.issuanceSelectEmpty
-                : AppAssets.cardFeaturesChevron,
+                ? '${AppConstants.baseImage}issuance_select_empty.svg'
+                : '${AppConstants.baseImage}card_features_chevron.svg',
             width: 20,
             height: 20,
           ),
@@ -63,8 +63,8 @@ class ChequeCancellationSelection extends StatelessWidget {
           ),
           trailing: AvpImage(
             image: state.type == null
-                ? AppAssets.issuanceSelectEmpty
-                : AppAssets.cardFeaturesChevron,
+                ? '${AppConstants.baseImage}issuance_select_empty.svg'
+                : '${AppConstants.baseImage}card_features_chevron.svg',
             width: 20,
             height: 20,
           ),
@@ -86,7 +86,7 @@ class ChequeCancellationSelection extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const AvpImage(
-                image: AppAssets.passwordCameraInfo,
+                image: '${AppConstants.baseImage}password_camera_info.svg',
                 width: 20,
                 height: 20,
               ),

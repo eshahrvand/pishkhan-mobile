@@ -1,7 +1,7 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 import 'certificate_summary_row.dart';
 
@@ -13,9 +13,11 @@ class AppRequestSummary extends StatelessWidget {
     required this.operation,
     required this.isExpanded,
     required this.onExpandedChanged,
-    this.depositDivider = AppAssets.issuanceSummaryDivider,
-    this.operationDivider = AppAssets.issuanceSummaryDividerOperation,
-    this.chevron = AppAssets.issuanceSummaryChevron,
+    this.depositDivider =
+        '${AppConstants.baseImage}issuance_summary_divider.svg',
+    this.operationDivider =
+        '${AppConstants.baseImage}issuance_summary_divider_operation.svg',
+    this.chevron = '${AppConstants.baseImage}issuance_summary_chevron.svg',
   });
   final String depositNumber;
   final String operation;

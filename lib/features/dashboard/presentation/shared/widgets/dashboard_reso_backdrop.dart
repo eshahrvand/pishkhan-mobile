@@ -1,9 +1,10 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
+
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 class DashboardResoBackdrop extends StatelessWidget {
   const DashboardResoBackdrop({
@@ -74,7 +75,10 @@ class DashboardResoBackdrop extends StatelessWidget {
                     child: ClipRect(
                       child: BackdropFilter(
                         filter: ui.ImageFilter.blur(sigmaX: .927, sigmaY: .927),
-                        child: AvpImage(image: AppAssets.dashboardResoOverlay),
+                        child: AvpImage(
+                          image:
+                              '${AppConstants.baseImage}dashboard_reso_overlay.svg',
+                        ),
                       ),
                     ),
                   ),
@@ -88,7 +92,10 @@ class DashboardResoBackdrop extends StatelessWidget {
                         sigmaX: 76.0162,
                         sigmaY: 76.0162,
                       ),
-                      child: AvpImage(image: AppAssets.dashboardGlowLarge),
+                      child: AvpImage(
+                        image:
+                            '${AppConstants.baseImage}dashboard_glow_large.svg',
+                      ),
                     ),
                   ),
                   Positioned(
@@ -101,7 +108,10 @@ class DashboardResoBackdrop extends StatelessWidget {
                         sigmaX: 28.7378,
                         sigmaY: 28.7378,
                       ),
-                      child: AvpImage(image: AppAssets.dashboardGlowSmall),
+                      child: AvpImage(
+                        image:
+                            '${AppConstants.baseImage}dashboard_glow_small.svg',
+                      ),
                     ),
                   ),
                 ],

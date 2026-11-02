@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -6,7 +7,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/features/cards/presentation/password_services/cubit/second_password_cubit.dart';
 import 'package:pishkhan_mobile/features/cards/presentation/password_services/widgets/password_styles.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 
 class PasswordSerialForm extends StatefulWidget {
   const PasswordSerialForm({super.key, required this.state});
@@ -74,7 +74,9 @@ class _SerialFormState extends State<PasswordSerialForm> {
           children: [
             SizedBox.square(
               dimension: 14,
-              child: AvpImage(image: AppAssets.passwordInfo),
+              child: AvpImage(
+                image: '${AppConstants.baseImage}password_info.svg',
+              ),
             ),
             const SizedBox(width: 8),
             Expanded(

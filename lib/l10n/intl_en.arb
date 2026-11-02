@@ -157,7 +157,7 @@
   "dashboardWalletHistory": "Wallet history",
   "dashboardWalletDeposit": "Change linked wallet deposit",
   "dashboardChangeIdentity": "Change identity details",
-  "dashboardOccupation": "Manage occupation",
+  "dashboardJobInformation": "Manage occupation",
   "dashboardAddresses": "Manage addresses",
   "dashboardChangePhone": "Change mobile number",
   "dashboardRequests": "My requests",
@@ -842,17 +842,17 @@
   "profileAddressesEmpty": "No addresses yet",
   "profileReviewError": "The inquiry failed. Please retry.",
   "profileOperationError": "The operation failed. Please try again.",
-  "profileAddOccupation": "Add new occupation",
-  "profileEditOccupation": "Edit occupation",
-  "profileDeleteOccupation": "Delete occupation",
-  "profileOccupation": "Occupation",
-  "profileOccupationHint": "Select your occupation",
-  "profileOccupationDescription": "Occupation description",
-  "profileOccupationDescriptionHint": "Enter your occupation description",
+  "profileAddJobInformation": "Add new occupation",
+  "profileEditJobInformation": "Edit occupation",
+  "profileDeleteJobInformation": "Delete occupation",
+  "profileJobInformation": "Occupation",
+  "profileJobInformationHint": "Select your occupation",
+  "profileJobInformationDescription": "Occupation description",
+  "profileJobInformationDescriptionHint": "Enter your occupation description",
   "profileDescriptionRequired": "Enter an occupation description",
-  "profileOccupationNotice": "Your new occupation will be visible within 3 hours after submitting the request.",
-  "profileOccupationConflict": "The selected occupation ({selected}) is incompatible with your existing occupation ({existing}).",
-  "@profileOccupationConflict": {
+  "profileJobInformationNotice": "Your new occupation will be visible within 3 hours after submitting the request.",
+  "profileJobInformationConflict": "The selected occupation ({selected}) is incompatible with your existing occupation ({existing}).",
+  "@profileJobInformationConflict": {
     "placeholders": {
       "selected": {
         "type": "String"
@@ -862,8 +862,8 @@
       }
     }
   },
-  "profileOccupationReview": "Changing from {previous} to {selected} requires operator review. Changes will be visible after approval.",
-  "@profileOccupationReview": {
+  "profileJobInformationReview": "Changing from {previous} to {selected} requires operator review. Changes will be visible after approval.",
+  "@profileJobInformationReview": {
     "placeholders": {
       "previous": {
         "type": "String"
@@ -873,8 +873,8 @@
       }
     }
   },
-  "profileOccupationQueued": "Your occupation request was submitted and will appear after review.",
-  "profileOccupationsEmpty": "No occupations yet",
+  "profileJobInformationQueued": "Your occupation request was submitted and will appear after review.",
+  "profileJobInformationEmpty": "No occupations yet",
   "profileTitle": "Title",
   "profileDescription": "Description",
   "profileDesigner": "Designer",
@@ -884,15 +884,15 @@
   "profileSubmit": "Submit request",
   "profileResidenceRegistry": " residence and property registry",
   "profileResidenceRegistered": ".",
-  "profileDeleteOccupationPrompt": "Are you sure you want to delete your occupation ({occupation})?",
-  "@profileDeleteOccupationPrompt": {
+  "profileDeleteJobInformationPrompt": "Are you sure you want to delete your occupation ({occupation})?",
+  "@profileDeleteJobInformationPrompt": {
     "placeholders": {
       "occupation": {
         "type": "String"
       }
     }
   },
-  "profileMinimumOccupation": "At least one registered occupation is required. You can edit this occupation instead of deleting it.",
+  "profileMinimumJobInformation": "At least one registered occupation is required. You can edit this occupation instead of deleting it.",
   "profileMinimumAddress": "At least one home address is required. Register another home address before changing this address to work or deleting it.",
   "modernActivate": "Activate mobile banking",
   "modernActivationIntro": "Activate Resalat mobile banking before signing in.",
@@ -955,5 +955,9 @@
     }
   },
   "modernSerialStep": "National ID card serial",
-  "modernKycStep": "Identity verification"
+  "modernKycStep": "Identity verification",
+  "authRequestFailed": "The request failed. Check your information and try again.",
+  "authNetworkError": "Could not connect to the server. Please try again.",
+  "authOtpRejected": "The verification code is incorrect or has expired.",
+  "authChangePhoneUnavailable": "The phone number change service is not connected yet."
 }

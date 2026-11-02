@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,7 +12,6 @@ import 'package:pishkhan_mobile/features/cards/presentation/card_issuance/widget
 import 'package:pishkhan_mobile/features/cards/presentation/card_issuance/widgets/issuance_toggle_row.dart';
 import 'package:pishkhan_mobile/features/cards/presentation/virtual_card_request/widgets/virtual_card_notice.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_cards_list.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_invoice.dart';
@@ -177,7 +177,8 @@ Finder cardControl(WidgetTester tester, String name) {
     'virtual_submit' => button(S.current.virtualRequestSubmit),
     'virtual_card_fee_art' => find.byWidgetPredicate(
       (widget) =>
-          widget is AvpImage && widget.image == AppAssets.virtualRequestCard,
+          widget is AvpImage &&
+          widget.image == '${AppConstants.baseImage}virtual_request_card.svg',
     ),
     // These controls belong to shared components, outside the Cards feature.
     'app_delete_address_cancel' => find.widgetWithText(

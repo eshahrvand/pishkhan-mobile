@@ -1,9 +1,9 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/certificate_fields.dart';
 
 import '../cubit/on_site_transfer_cubit.dart';
@@ -32,7 +32,7 @@ class TransferDestinations extends StatelessWidget {
             label: S.current.transferAddManual,
             size: AppButtonSize.lg,
             leadingIcon: AvpImage(
-              image: AppAssets.agentPlus,
+              image: '${AppConstants.baseImage}agent_plus.svg',
               width: 20,
               height: 20,
             ),
@@ -47,7 +47,7 @@ class TransferDestinations extends StatelessWidget {
             size: AppButtonSize.lg,
             variant: AppButtonVariant.outline,
             leadingIcon: AvpImage(
-              image: AppAssets.onSiteTransferUpload,
+              image: '${AppConstants.baseImage}onsite_transfer_upload.svg',
               width: 20,
               height: 20,
             ),
@@ -129,7 +129,7 @@ class TransferDestinations extends StatelessWidget {
                 variant: AppButtonVariant.text,
                 horizontalPadding: 0,
                 leadingIcon: AvpImage(
-                  image: AppAssets.issuancePlus,
+                  image: '${AppConstants.baseImage}issuance_plus.svg',
                   width: 20,
                   height: 20,
                 ),

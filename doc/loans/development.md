@@ -1,41 +1,75 @@
-# Loans Development
-[Full Dashboard development document](../dashboard/development.md)
+# Dashboard Loans development and review
 
-| Phase | Screen | Figma node |
+Reviewed: 2026-11-01 — Cubit migration, phase 2.
+
+LoansTab is a dashboard summary, not a standalone loan-request feature. It shares
+HomeCubit/HomeState with Home, Cards and Deposits. The
+[UI/Cubit/State contract](../ui-cubit-state-agent-rules-en.md) is authoritative;
+[Dashboard development](../dashboard/development.md) records operation ownership,
+flow readers, DI and phase validation.
+
+## Ownership and integration
+
+DashboardScreen owns the single BlocProvider, directly creates HomeCubit and
+calls fetchDashboard. LoansTab takes only super.key. Screen/tab constructors do
+not accept repositories, loan callbacks or dependency replacement parameters.
+GetIt registers dependencies, never Cubits.
+
+DI wires `LoadDashboardItemsUseCase<BankLoan>` to the existing dashboard loan
+repository through the registered bundle. HomeCubit resolves that UseCase in a
+final field; fetchLoans owns its loading emit, await and Result switch. It does
+not construct a UseCase or pass a Repository. MockDashboardLoansRepository and
+DashboardMockData still supply data; no loan API or payment is connected.
+
+## User path and State
+
+| Event | Behavior retained |
+| --- | --- |
+| Initial entry / retry | fetchLoans sets loansStatus loading before the Future; previous list/selection/actions are invalidated for the loading view. |
+| Successful response | Reconcile prior selection by stable ID, otherwise first remaining item; update list, selected entity/index and action lists together. |
+| Reorder / selected removal | Preserve a surviving selected loan; removal falls back to first item; empty input has no selected loan or operations. |
+| Select carousel item | Pass the rendered BankLoan to selectLoan; Cubit records it and its index. |
+| Operation / quick action | Cubit constructs LoanActionRequest from selected BankLoan; listener executes the prepared intent through the existing navigation adapter. |
+| Copy / details | Copy effect carries the original loan number; details effect carries that BankLoan. Existing unavailable details feedback remains. |
+| Failure / retry | Publish loansStatus failure, shared failure and prepared message; a status-transition listener notifies. Retry calls the same owner. |
+| Switch tab / Back | Selection survives tab changes; Back returns to Dashboard. Pending requests gate Back in UI. |
+
+Loan selection/index and availability use pure calculations shared with the other
+banking tabs. Each action publishes its own explicit State changes. UI controls
+whether an action can be invoked; no repeated Cubit guards, request-ID counters,
+closed checks or generic State publisher are added.
+
+The carousel owns its PageController, synchronization and safe post-frame
+attachment behavior. These Flutter resources remain outside Cubit/State.
+
+## Rendering and reference frames
+
+| Frame | Figma node | Native card size |
 | --- | --- | --- |
-| 1 | Single loan | `27902:82623` |
-| 2 | Multiple loans | `27902:82592` |
+| Single loan | `27902:82623` | 335 × 236 |
+| Multiple loans | `27902:82592` | 316 × 236 |
 
-## Reused components
+Reference file: nYQNyZdSs98lwymCpt5Sag. The existing RTL snapping carousel,
+neighbor previews, indicators, four operation items and two quick actions are
+retained. AppLoanCard, AppArrowButton, avp_ui AppProgressIndicator, AppTopBar,
+service grids/artwork, assistant and primary navigation remain the shared visuals.
+App-owned artwork uses AppConstants.baseImage; UI localization uses S.current.
 
-AppLoanCard (including AppArrowButton and avp_ui AppProgressIndicator), AppTopBar, AppServiceGridCard, AppServiceGridItemView, AppServiceArtworkTile, AppAssistantButton and AppPrimaryNavigation are reused. The later progress fix corrects shared primitive sizing and the loan fill origin. No duplicate shared widget was introduced. Original operation/quick/pattern SVGs are registered in AppAssets. The identical quick-header asset is reused from depositsQuickAccess.
+BankLoan retains numeric paid/total counts. Its existing progress and installment
+label derive from those counts; zero totals return zero progress. Fixtures use
+40% for single and 30%/70%/90% for multiple loans. This refactor changes no amounts,
+counts, formatting or progress policy. Live money/date mapping remains dependent
+on a confirmed bank contract.
 
-## Behavior and integration
+Historical shadow/header/arrow/navigation and large-text differences remain in
+[Dashboard Section 13.6](../dashboard/development.md#136-loans--shared-component-comparison-and-retained-differences).
+They were not corrected or freshly compared to Figma in this Cubit phase.
 
-DashboardScreen now retains four tabs. LoansTab renders one loan at 335×236 or multiple loans in an RTL snapping carousel at 316×236, with neighboring previews and indicators. Both states have four operations and two quick actions. Each action reports the selected BankLoan through LoanActionRequest. The summary arrow reports that card to the loan-details callback; no unspecified detail screen or banking operation is created. Copy callbacks/system clipboard preserve the raw original loan number.
+## Verification
 
-Supply DashboardScreen.repositories, onLoanActionRequested, onSelectedLoanChanged and onLoanDetailsRequested. A string-ID onServiceRequested fallback remains available but loses selected-loan context. The menu uses the supplied callback or the existing loan-filtered catalog; the assistant returns to Dashboard. Selection survives tab switching and data reorder by ID. Removing the selected loan falls back to the first remaining item; empty input renders safely. After PageController replacement, a guarded post-frame jump restores the selected index; page-change callbacks are ignored during synchronization so an old offset cannot overwrite selection. No widget Key is manually assigned.
-
-## Known component differences
-
-The card keeps AppShadows.md instead of the already-available AppShadows.bankCard; its 54px header differs from the design's 56px body origin. The shared arrow and active Loans navigation icon remain gray where Figma uses blue/white respectively. The progress issue is fixed: the shared primitive keeps an 8px foreground, AppLoanCard selects the physical-left origin, and BankLoan derives 40% single / 30%,70%,90% multi from paid/total counts. Shared Persian labels and fixed row sizing also remain limitations. Exact source, values, consumers and recommended optional variants/package corrections are documented in Dashboard development Section 13.6.
-
-## Validation
-
-Eleven focused screen tests, two count-model tests and all 119 app tests pass. All 102 avp_ui tests pass. Application and avp_ui analysis report no issues. See the Dashboard document for exact results and limits.
-
-## Dashboard ownership and Cubit migration
-
-The tab, summary entity and action mapping live under lib/features/dashboard. Dedicated feature folders are reserved for standalone pages. DashboardScreen injects the DashboardRepositories bundle into HomeCubit; HomeState owns independent load outcomes and the selected loan alongside the other tabs. LoansTab has no repository parameter. See [current architecture and complete Figma audit](../dashboard/development.md) for loading/error/empty/single/multiple states, immutable selection, mock flow and future adapter requirements.
-
-## Cubit/State coding convention
-
-Follow [architecture Section 12](../architecture-smart-virtual-counter-v2-en.md#12-state-management-with-cubit) for new work and refactors. State is a plain Freezed data class with defaults and independent request statuses. Cubits accept an initial State, compute UI data and eligibility, and emit immutable snapshots through `copyWith`. UI reads those fields directly; no custom State/Cubit getters or UI-facing rules facade is used. Dependencies remain injectable and lifecycle/duplicate-request safeguards stay in place.
-
-## Unified Home ownership (2026-10-16)
-
-All four dashboard tabs now share `HomeCubit`/`HomeState` at
-`presentation/home/cubit/home_cubit.dart` and `home_state.dart`.
-`DashboardScreen` provides the single scope and injects the repository bundle.
-The tab constructors accept only `super.key`; load, selection, operation lists
-and typed effects belong to Home. See [current state contract](../dashboard/development.md#12-state-management-with-cubit).
+Tests under test/dashboard/presentation/flows/banking_overview and the Home Cubit
+suites cover retained selection, reorder/removal, empty/error/retry, immutable
+snapshots, concurrent operations, context in action effects, copy/details,
+carousel behavior, Back, small screens and text scale. Numeric progress tests
+remain under test/dashboard/domain/entities. Dashboard development records the
+commands/results; historical 119-app/102-package totals are not current claims.

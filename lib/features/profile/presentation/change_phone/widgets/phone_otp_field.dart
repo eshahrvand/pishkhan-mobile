@@ -1,9 +1,9 @@
+import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/assets/app_assets.dart';
 import 'package:pishkhan_mobile/shared/widgets/certificate_fields.dart';
 
 import '../../shared/profile_labels.dart';
@@ -42,7 +42,8 @@ class PhoneOtpField extends StatelessWidget {
                             child: SizedBox.square(
                               dimension: 20,
                               child: AvpImage(
-                                image: AppAssets.profileLock,
+                                image:
+                                    '${AppConstants.baseImage}profile_lock.svg',
                                 width: 20,
                                 height: 20,
                               ),
@@ -94,7 +95,8 @@ class PhoneOtpField extends StatelessWidget {
                               ),
                               const SizedBox(width: 10),
                               AvpImage(
-                                image: AppAssets.authClock,
+                                image:
+                                    '${AppConstants.baseImage}auth_clock.svg',
                                 width: 20,
                                 height: 20,
                               ),
@@ -119,14 +121,6 @@ class PhoneOtpField extends StatelessWidget {
                 ),
               ],
             ),
-            if (state.otpRequestStatus == RequestStatus.failure) ...[
-              const SizedBox(height: 8),
-              Text(
-                S.current.profileOperationError,
-                style: Theme.of(context).textTheme.bodySmall
-                    ?.copyWith(color: context.colors.error),
-              ),
-            ],
           ],
         );
       },
