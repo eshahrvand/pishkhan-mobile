@@ -55,8 +55,20 @@ service in the dashboard catalog and the drawer's Requests item.
   current pending status, enforce idempotency, and supply the consolidated
   customer report catalog. Cancellation uses `cancel:<trackingId>` across retries.
 - Refresh/detail selection is gated while cancellation is pending, including
-  after the user dismisses the confirmation. Route Back remains available.
+  after the user dismisses the confirmation. System/header route Back are
+  blocked while fetch or cancellation is pending.
 - Resuming suspended banking flows is not part of these supplied frames.
+
+The phase-8 migration follows contract v1.23. Fetch and cancellation each own
+one `async/await` request and Result switch. Pure Domain filtering/search remains
+in `filter_request_reports_usecase.dart`; no class or extra DI dependency is
+introduced for those functions. Independent fetch-failure, cancellation-failure
+and typed-effect listeners share `MultiBlocListener`; `BlocBuilder` renders the
+screen. Feedback follows entry into each operation's failure status, retaining
+the latest failure/message without replaying it on a filter or details command.
+The local `ReportCancellationSheet` deliberately keeps its focused
+`BlocConsumer`: it renders its own pending button and closes only its own modal
+after success. A late completion must not pop a subsequently opened filter.
 
 ## Shared UI and Figma
 
@@ -102,6 +114,11 @@ It also verifies clearing each active chip independently, preserving search and
 other filters, keyboard-safe filter actions, duplicate cancellation taps, and
 that completing a dismissed cancellation cannot close a subsequently opened
 filter sheet.
+
+The additional notification regression repeats cancellation failures, opens a
+filter with retained error text, then retries successfully with the same key.
+Current scoped commands/results are in the
+[phase-8 review](../modern-banking/phase-8-review.md).
 
 Visual captures can be reproduced using:
 

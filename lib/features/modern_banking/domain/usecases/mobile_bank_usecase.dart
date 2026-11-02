@@ -4,11 +4,12 @@ import 'package:pishkhan_mobile/core/result/result.dart';
 import '../entities/mobile_bank.dart';
 import '../repositories/modern_banking_repository.dart';
 
-class FetchMobileBankCatalog {
-  const FetchMobileBankCatalog(this.repository);
+class FetchMobileBankCatalogUseCase {
+  const FetchMobileBankCatalogUseCase(this.repository);
   final ModernBankingRepository repository;
-  Future<Result<MobileBankCatalog>> call() {
-    return repository.fetchCatalog().then((result) {
+  Future<Result<MobileBankCatalog>> call() async {
+    try {
+      final result = await repository.fetchCatalog();
       return switch (result) {
         Success(:final data)
             when data.username.isEmpty ||
@@ -33,7 +34,9 @@ class FetchMobileBankCatalog {
           const Err<MobileBankCatalog>(DataFailure('modern.catalog.invalid')),
         _ => result,
       };
-    });
+    } catch (_) {
+      return const Err(UnexpectedFailure());
+    }
   }
 }
 

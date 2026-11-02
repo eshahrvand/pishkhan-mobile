@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/features/modern_banking/domain/usecases/mobile_bank_usecase.dart';
+import 'package:pishkhan_mobile/features/transfers/domain/usecases/on_site_transfer_usecase.dart';
 import 'package:pishkhan_mobile/features/deposits/domain/usecases/average_balance_usecase.dart';
 import 'package:pishkhan_mobile/features/deposits/domain/usecases/submit_agents_usecase.dart';
 import 'package:pishkhan_mobile/features/deposits/domain/usecases/agent_settings_usecase.dart';
@@ -94,6 +96,15 @@ void configureDependencies({GetIt? container}) {
   );
   dependencies.registerLazySingleton<ModernBankingRepository>(
     MockModernBankingRepository.new,
+  );
+  dependencies.registerLazySingleton<FetchMobileBankCatalogUseCase>(
+    () =>
+        FetchMobileBankCatalogUseCase(dependencies<ModernBankingRepository>()),
+  );
+  dependencies.registerLazySingleton<UploadTransferDestinationsUseCase>(
+    () => UploadTransferDestinationsUseCase(
+      dependencies<OnSiteTransferRepository>(),
+    ),
   );
   dependencies.registerLazySingleton<PersonalInformationRepository>(
     MockPersonalInformationRepository.new,

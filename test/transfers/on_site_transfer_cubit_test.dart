@@ -8,6 +8,7 @@ import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/platform/selected_document.dart';
 import 'package:pishkhan_mobile/core/result/failure.dart';
 import 'package:pishkhan_mobile/core/result/result.dart';
+import 'package:pishkhan_mobile/features/transfers/domain/usecases/on_site_transfer_usecase.dart';
 import 'package:pishkhan_mobile/features/transfers/data/repositories/mock_on_site_transfer_repository.dart';
 import 'package:pishkhan_mobile/features/transfers/domain/repositories/on_site_transfer_repository.dart';
 import 'package:pishkhan_mobile/features/transfers/presentation/on_site_transfer/cubit/on_site_transfer_cubit.dart';
@@ -65,6 +66,10 @@ void main() {
   late ControlledTransferRepository repository;
   late OnSiteTransferCubit cubit;
   setUp(() {
+    getIt.registerLazySingleton<UploadTransferDestinationsUseCase>(
+      () =>
+          UploadTransferDestinationsUseCase(getIt<OnSiteTransferRepository>()),
+    );
     repository = ControlledTransferRepository();
     getIt.registerSingleton<OnSiteTransferRepository>(repository);
     cubit = OnSiteTransferCubit();
@@ -231,29 +236,28 @@ void main() {
     expect(cubit.state.effect, OnSiteTransferEffect.confirmExit);
     await pending;
   });
-  test(
-    'each picker attempt clears the previous error without upload loading',
-    () async {
-      final states = <OnSiteTransferState>[];
-      final subscription = cubit.stream.listen(states.add);
-      addTearDown(subscription.cancel);
-      for (var attempt = 0; attempt < 2; attempt++) {
-        cubit.requestFilePicker();
-        expect(cubit.state.uploadStatus, RequestStatus.initial);
-        expect(cubit.state.failure, isNull);
-        expect(cubit.state.message, isNull);
-        cubit.consumeOnSiteTransferInteraction();
-        cubit.applyFilePickerFailure(cubit.state.filePickerRequestId);
-        expect(cubit.state.uploadStatus, RequestStatus.failure);
-        expect(cubit.state.message, isNotNull);
-      }
-      await Future<void>.delayed(Duration.zero);
-      expect(
-        states.where((state) => state.uploadStatus == RequestStatus.failure),
-        hasLength(2),
-      );
-    },
-  );
+  test('picker retry resets status and retains the latest error without upload loading', () async {
+    final states = <OnSiteTransferState>[];
+    final subscription = cubit.stream.listen(states.add);
+    addTearDown(subscription.cancel);
+    for (var attempt = 0; attempt < 2; attempt++) {
+      final failure = cubit.state.failure;
+      final message = cubit.state.message;
+      cubit.requestFilePicker();
+      expect(cubit.state.uploadStatus, RequestStatus.initial);
+      expect(cubit.state.failure, failure);
+      expect(cubit.state.message, message);
+      cubit.consumeOnSiteTransferInteraction();
+      cubit.applyFilePickerFailure(cubit.state.filePickerRequestId);
+      expect(cubit.state.uploadStatus, RequestStatus.failure);
+      expect(cubit.state.message, isNotNull);
+    }
+    await Future<void>.delayed(Duration.zero);
+    expect(
+      states.where((state) => state.uploadStatus == RequestStatus.failure),
+      hasLength(2),
+    );
+  });
   test(
     'cancelling the picker retains a previously uploaded file for review',
     () async {

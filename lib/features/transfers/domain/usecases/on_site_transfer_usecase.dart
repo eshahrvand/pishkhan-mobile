@@ -5,18 +5,22 @@ import 'package:pishkhan_mobile/core/result/result.dart';
 import '../entities/on_site_transfer.dart';
 import '../repositories/on_site_transfer_repository.dart';
 
-class UploadTransferDestinations {
-  const UploadTransferDestinations(this.repository);
+class UploadTransferDestinationsUseCase {
+  const UploadTransferDestinationsUseCase(this.repository);
   final OnSiteTransferRepository repository;
   Future<Result<TransferAttachment>> call(
     SelectedDocument file,
     void Function(double) onProgress,
-  ) {
-    if (!file.name.toLowerCase().endsWith('.xls') ||
-        file.bytes.isEmpty ||
-        file.bytes.length > 100 * 1024) {
-      return Future.value(const Err(DataFailure('transfer.file.invalid')));
+  ) async {
+    try {
+      if (!file.name.toLowerCase().endsWith('.xls') ||
+          file.bytes.isEmpty ||
+          file.bytes.length > 100 * 1024) {
+        return const Err(DataFailure('transfer.file.invalid'));
+      }
+      return await repository.uploadDestinations(file, onProgress);
+    } catch (_) {
+      return const Err(UnexpectedFailure());
     }
-    return repository.uploadDestinations(file, onProgress);
   }
 }

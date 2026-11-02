@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/features/transfers/domain/usecases/on_site_transfer_usecase.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -19,6 +20,10 @@ import '../deposits/certificate_test_support.dart';
 void main() {
   setUpAll(loadCertificateFonts);
   setUp(() {
+    getIt.registerLazySingleton<UploadTransferDestinationsUseCase>(
+      () =>
+          UploadTransferDestinationsUseCase(getIt<OnSiteTransferRepository>()),
+    );
     getIt.registerSingleton<OnSiteTransferRepository>(
       MockOnSiteTransferRepository(now: () => DateTime.utc(2026, 10, 20, 8)),
     );

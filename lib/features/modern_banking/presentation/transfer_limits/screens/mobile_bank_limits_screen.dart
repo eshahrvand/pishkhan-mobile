@@ -20,16 +20,15 @@ import '../widgets/mobile_bank_limits_form.dart';
 
 class MobileBankLimitsScreen extends StatelessWidget {
   const MobileBankLimitsScreen({super.key});
+  void _showRequestFailure(BuildContext context, TransferLimitsState state) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(state.message!)));
+  }
+
   Future<void> _handleNavigation(
     BuildContext context,
     TransferLimitsState state,
   ) async {
-    if (state.message != null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(state.message!)));
-      return;
-    }
-
     switch (state.navigation) {
       case FlowNavigation.confirmExit:
         context.read<TransferLimitsCubit>().consumeTransferLimitsInteraction();
@@ -52,15 +51,27 @@ class MobileBankLimitsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => TransferLimitsCubit()..fetchLimits(),
-      child: BlocListener<TransferLimitsCubit, TransferLimitsState>(
-        listenWhen: (previous, current) =>
-            (previous.navigation != current.navigation &&
-                current.navigation != null) ||
-            ((previous.catalogStatus != current.catalogStatus &&
-                    current.catalogStatus == RequestStatus.failure) ||
-                (previous.submissionStatus != current.submissionStatus &&
-                    current.submissionStatus == RequestStatus.failure)),
-        listener: _handleNavigation,
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<TransferLimitsCubit, TransferLimitsState>(
+            listenWhen: (previous, current) =>
+                previous.catalogStatus != current.catalogStatus &&
+                current.catalogStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<TransferLimitsCubit, TransferLimitsState>(
+            listenWhen: (previous, current) =>
+                previous.submissionStatus != current.submissionStatus &&
+                current.submissionStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<TransferLimitsCubit, TransferLimitsState>(
+            listenWhen: (previous, current) =>
+                previous.navigation != current.navigation &&
+                current.navigation != null,
+            listener: _handleNavigation,
+          ),
+        ],
         child: BlocBuilder<TransferLimitsCubit, TransferLimitsState>(
           builder: (context, state) {
             return PopScope(

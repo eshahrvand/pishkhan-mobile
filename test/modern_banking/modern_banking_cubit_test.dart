@@ -7,7 +7,7 @@ import 'package:pishkhan_mobile/core/result/result.dart';
 import 'package:pishkhan_mobile/features/modern_banking/data/repositories/mock_modern_banking_repository.dart';
 import 'package:pishkhan_mobile/features/modern_banking/domain/entities/mobile_bank.dart';
 import 'package:pishkhan_mobile/features/modern_banking/domain/repositories/modern_banking_repository.dart';
-import 'package:pishkhan_mobile/features/modern_banking/domain/usecases/mobile_bank.dart';
+import 'package:pishkhan_mobile/features/modern_banking/domain/usecases/mobile_bank_usecase.dart';
 import 'package:pishkhan_mobile/features/modern_banking/presentation/mobile_bank/cubit/mobile_bank_cubit.dart';
 import 'package:pishkhan_mobile/features/modern_banking/presentation/transfer_limits/cubit/transfer_limits_cubit.dart';
 import 'package:pishkhan_mobile/features/modern_banking/presentation/deactivation/cubit/mobile_bank_deactivation_cubit.dart';
@@ -39,11 +39,7 @@ Future<void> reachPreview(MobileBankCubit cubit) async {
 }
 
 void main() {
-  setUp(() {
-    getIt.registerSingleton<ModernBankingRepository>(
-      MockModernBankingRepository(),
-    );
-  });
+  setUp(configureDependencies);
   tearDown(() => getIt.reset());
 
   test('constructor preserves supplied snapshot without initialization', () {

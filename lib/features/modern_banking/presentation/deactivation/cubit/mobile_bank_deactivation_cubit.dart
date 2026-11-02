@@ -11,7 +11,7 @@ import 'package:pishkhan_mobile/core/result/result.dart';
 
 import '../../../domain/entities/mobile_bank.dart';
 import '../../../domain/repositories/modern_banking_repository.dart';
-import '../../../domain/usecases/mobile_bank.dart';
+import '../../../domain/usecases/mobile_bank_usecase.dart';
 
 part 'mobile_bank_deactivation_state.dart';
 part 'mobile_bank_deactivation_cubit.freezed.dart';
@@ -22,32 +22,26 @@ class MobileBankDeactivationCubit extends Cubit<MobileBankDeactivationState> {
         const MobileBankDeactivationState.initial(),
   }) : super(initialState);
   final repository = getIt<ModernBankingRepository>();
+  final fetchMobileBankCatalogUseCase = getIt<FetchMobileBankCatalogUseCase>();
   MobileBankDeactivationRequest? _submittedRequest;
 
-  Future<void> fetchMobileBank() {
-    emit(
-      state.copyWith(
-        catalogStatus: RequestStatus.loading,
-        failure: null,
-        message: null,
-      ),
-    );
-    return FetchMobileBankCatalog(repository)().then((result) {
-      switch (result) {
-        case Success(:final data):
-          emit(
-            state.copyWith(catalogStatus: RequestStatus.success, catalog: data),
-          );
-        case Err(:final failure):
-          emit(
-            state.copyWith(
-              catalogStatus: RequestStatus.failure,
-              failure: failure,
-              message: getRequestErrorMessage(failure),
-            ),
-          );
-      }
-    });
+  Future<void> fetchMobileBank() async {
+    emit(state.copyWith(catalogStatus: RequestStatus.loading));
+    final result = await fetchMobileBankCatalogUseCase();
+    switch (result) {
+      case Success(:final data):
+        emit(
+          state.copyWith(catalogStatus: RequestStatus.success, catalog: data),
+        );
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            catalogStatus: RequestStatus.failure,
+            failure: failure,
+            message: getRequestErrorMessage(failure),
+          ),
+        );
+    }
   }
 
   void selectReason(DeactivationReason reason) {
@@ -63,7 +57,7 @@ class MobileBankDeactivationCubit extends Cubit<MobileBankDeactivationState> {
     );
   }
 
-  Future<void> submitDeactivation() {
+  Future<void> submitDeactivation() async {
     final request = MobileBankDeactivationRequest(
       username: state.catalog!.username,
       reason: state.reason!,
@@ -72,33 +66,26 @@ class MobileBankDeactivationCubit extends Cubit<MobileBankDeactivationState> {
           : Random.secure().nextInt(1 << 32).toRadixString(16),
     );
     _submittedRequest = request;
-    emit(
-      state.copyWith(
-        submissionStatus: RequestStatus.loading,
-        failure: null,
-        message: null,
-      ),
-    );
-    return repository.submitDeactivation(request).then((result) {
-      switch (result) {
-        case Success(:final data):
-          emit(
-            state.copyWith(
-              submissionStatus: RequestStatus.success,
-              receipt: data,
-              canSubmit: false,
-            ),
-          );
-        case Err(:final failure):
-          emit(
-            state.copyWith(
-              submissionStatus: RequestStatus.failure,
-              failure: failure,
-              message: getRequestErrorMessage(failure),
-            ),
-          );
-      }
-    });
+    emit(state.copyWith(submissionStatus: RequestStatus.loading));
+    final result = await repository.submitDeactivation(request);
+    switch (result) {
+      case Success(:final data):
+        emit(
+          state.copyWith(
+            submissionStatus: RequestStatus.success,
+            receipt: data,
+            canSubmit: false,
+          ),
+        );
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            submissionStatus: RequestStatus.failure,
+            failure: failure,
+            message: getRequestErrorMessage(failure),
+          ),
+        );
+    }
   }
 
   void requestBack() {
@@ -109,7 +96,6 @@ class MobileBankDeactivationCubit extends Cubit<MobileBankDeactivationState> {
                 state.submissionStatus != RequestStatus.success
             ? FlowNavigation.confirmExit
             : FlowNavigation.back,
-        message: null,
       ),
     );
   }
@@ -118,13 +104,12 @@ class MobileBankDeactivationCubit extends Cubit<MobileBankDeactivationState> {
     emit(
       state.copyWith(
         navigation: confirmed == true ? FlowNavigation.back : null,
-        message: null,
       ),
     );
   }
 
   void requestHome() {
-    emit(state.copyWith(navigation: FlowNavigation.home, message: null));
+    emit(state.copyWith(navigation: FlowNavigation.home));
   }
 
   /// UI has accepted the pending interaction; data and request statuses stay intact.

@@ -25,16 +25,15 @@ class MobileBankScreen extends StatelessWidget {
   });
   final MobileBankOperation operation;
 
+  void _showRequestFailure(BuildContext context, MobileBankState state) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(state.message!)));
+  }
+
   Future<void> _handleEffect(
     BuildContext context,
     MobileBankState state,
   ) async {
-    if (state.message != null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(state.message!)));
-      return;
-    }
-
     if (state.destination != null) {
       context.read<MobileBankCubit>().consumeMobileBankInteraction();
 
@@ -74,17 +73,29 @@ class MobileBankScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => MobileBankCubit(operation: operation)..fetchMobileBank(),
-      child: BlocListener<MobileBankCubit, MobileBankState>(
-        listenWhen: (previous, current) =>
-            (((previous.navigation != current.navigation &&
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<MobileBankCubit, MobileBankState>(
+            listenWhen: (previous, current) =>
+                previous.catalogStatus != current.catalogStatus &&
+                current.catalogStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<MobileBankCubit, MobileBankState>(
+            listenWhen: (previous, current) =>
+                previous.submissionStatus != current.submissionStatus &&
+                current.submissionStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<MobileBankCubit, MobileBankState>(
+            listenWhen: (previous, current) =>
+                (previous.navigation != current.navigation &&
                     current.navigation != null) ||
                 (previous.destination != current.destination &&
-                    current.destination != null))) ||
-            ((previous.catalogStatus != current.catalogStatus &&
-                    current.catalogStatus == RequestStatus.failure) ||
-                (previous.submissionStatus != current.submissionStatus &&
-                    current.submissionStatus == RequestStatus.failure)),
-        listener: _handleEffect,
+                    current.destination != null),
+            listener: _handleEffect,
+          ),
+        ],
         child: BlocBuilder<MobileBankCubit, MobileBankState>(
           builder: (context, state) {
             return PopScope(

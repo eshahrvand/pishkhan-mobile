@@ -20,16 +20,18 @@ import '../widgets/mobile_bank_deactivation_form.dart';
 
 class MobileBankDeactivationScreen extends StatelessWidget {
   const MobileBankDeactivationScreen({super.key});
+  void _showRequestFailure(
+    BuildContext context,
+    MobileBankDeactivationState state,
+  ) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(state.message!)));
+  }
+
   Future<void> _handleNavigation(
     BuildContext context,
     MobileBankDeactivationState state,
   ) async {
-    if (state.message != null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(state.message!)));
-      return;
-    }
-
     switch (state.navigation) {
       case FlowNavigation.confirmExit:
         context
@@ -56,15 +58,36 @@ class MobileBankDeactivationScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => MobileBankDeactivationCubit()..fetchMobileBank(),
-      child: BlocListener<MobileBankDeactivationCubit, MobileBankDeactivationState>(
-        listenWhen: (previous, current) =>
-            (previous.navigation != current.navigation &&
-                current.navigation != null) ||
-            ((previous.catalogStatus != current.catalogStatus &&
-                    current.catalogStatus == RequestStatus.failure) ||
-                (previous.submissionStatus != current.submissionStatus &&
-                    current.submissionStatus == RequestStatus.failure)),
-        listener: _handleNavigation,
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<
+            MobileBankDeactivationCubit,
+            MobileBankDeactivationState
+          >(
+            listenWhen: (previous, current) =>
+                previous.catalogStatus != current.catalogStatus &&
+                current.catalogStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<
+            MobileBankDeactivationCubit,
+            MobileBankDeactivationState
+          >(
+            listenWhen: (previous, current) =>
+                previous.submissionStatus != current.submissionStatus &&
+                current.submissionStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<
+            MobileBankDeactivationCubit,
+            MobileBankDeactivationState
+          >(
+            listenWhen: (previous, current) =>
+                previous.navigation != current.navigation &&
+                current.navigation != null,
+            listener: _handleNavigation,
+          ),
+        ],
         child:
             BlocBuilder<
               MobileBankDeactivationCubit,

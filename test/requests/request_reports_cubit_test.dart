@@ -6,7 +6,7 @@ import 'package:pishkhan_mobile/core/result/result.dart';
 import 'package:pishkhan_mobile/features/requests/data/repositories/mock_request_reports_repository.dart';
 import 'package:pishkhan_mobile/features/requests/domain/entities/request_report.dart';
 import 'package:pishkhan_mobile/features/requests/domain/repositories/request_reports_repository.dart';
-import 'package:pishkhan_mobile/features/requests/domain/usecases/filter_request_reports.dart';
+import 'package:pishkhan_mobile/features/requests/domain/usecases/filter_request_reports_usecase.dart';
 import 'package:pishkhan_mobile/features/requests/presentation/reports/cubit/request_reports_cubit.dart';
 
 final bankTime = DateTime.utc(2026, 10, 20, 8);

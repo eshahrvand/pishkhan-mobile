@@ -21,8 +21,12 @@ governs implementation; older feature examples do not supersede it.
 - Central `AppRoutes` and `app_router.dart` also declare authenticated routes
   for `password-recovery`, `password-guide`, `transfer-limits` and `deactivation`.
   All five routes participate in the post-login return-location allowlist.
-- Screens construct their Cubits directly in Provider.create. Only actual
-  repositories are registered in GetIt. The mock repository is a lazy singleton
+- Screens construct their Cubits directly in Provider.create and invoke their
+  initial fetch there; the request-free guide needs no initial action. GetIt
+  registers the repository and `FetchMobileBankCatalogUseCase`, wired in
+  `core/di`. Cubits resolve final `repository` and
+  `fetchMobileBankCatalogUseCase` fields, without constructor forwarding or
+  Cubit-side UseCase construction. The mock repository is a lazy singleton
   so status and changed limits survive route re-entry during an app session.
 - Domain/Data dependencies never pass through screen or Cubit constructors.
   The router selects destinations only. States are plain Freezed `.initial`
@@ -34,7 +38,8 @@ Activation starts with a training-video poster and notices. Both operations
 then use the same explicit flow: national-card serial, fees and consent, KYC
 training, post-recording preview and submission receipt. The existing central
 serial validator is reused. Editing and repeat submissions are disabled by UI
-during submission, while Back remains available. Back within the flow preserves
+during submission. System and header Back are blocked while a request is pending.
+Back within the flow preserves
 inputs; leaving entered data requires confirmation.
 
 On re-entry, a pending request displays its tracking code and the identity
@@ -61,7 +66,9 @@ sample video is substituted.
 - Password change is a four-page instructional carousel, with the original
   phone artwork exported from each Figma `mob` node. There are no password
   inputs or password-change requests. PageController belongs to UI; Cubit State
-  stores the current page. Swipes and indicator taps update the selected dot.
+  stores the actual current page. Swipes publish page selection; indicator taps
+  request a typed page-reveal effect. The listener animates the controller and
+  the resulting page callback updates the dot. Back/home are prepared effects.
 - Transfer limits first show the repository's current internal/PAYA/SATNA
   limits. Edit exposes three explicit numeric inputs, their maximum values and
   consent. Each action validates only its own field; the submit flag combines
@@ -108,6 +115,16 @@ Corrections to inconsistent design samples:
 
 ## Preview scenarios and verification
 
+The phase-8 migration follows contract v1.23. Each request owner uses
+`async/await` and `switch (result)`. The catalog UseCase lives in
+`mobile_bank_usecase.dart`; unexpected exceptions become `UnexpectedFailure`
+at the Domain/Data boundary. Existing validation and request payloads remain.
+Each screen groups independent operation-failure and navigation listeners in
+`MultiBlocListener`, with rendering in `BlocBuilder`. Failure feedback observes
+entry into that operation's failure status; retained failure/message values do
+not replay notifications or block navigation/receipts. Limits success continues
+to render its existing localized success body.
+
 Default launch starts with inactive mobile banking. To preview other activation
 statuses, restart with one of:
 
@@ -129,8 +146,9 @@ Arabic guide layouts are included. Optional captures use the existing ignored
 `build/previews/certificates/modern_*.png` test output with
 `CAPTURE_CERTIFICATE_PREVIEWS=1`; no preview images are stored in doc.
 
-The focused feature and regression run passed 49 tests, including the shared
-banking-channel card, dashboard service navigation, login Cubit, asset integrity,
-DI and central routing. Static analysis of the feature, its tests and touched
-integration files reports no issues. Device camera/KYC, banking APIs and actual
-training-video playback remain outside this prototype verification.
+Current scoped commands and results are recorded in the
+[phase-8 review](phase-8-review.md). Regression coverage includes repeated
+failures, effects after an error, success after retry and stable submission
+identity for activation/recovery, limits and deactivation. Device camera/KYC,
+banking APIs and actual training-video playback remain outside this prototype
+verification.

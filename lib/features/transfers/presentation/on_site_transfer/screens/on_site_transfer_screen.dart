@@ -41,16 +41,15 @@ class _OnSiteTransferScreenState extends State<OnSiteTransferScreen> {
     super.dispose();
   }
 
+  void _showRequestFailure(BuildContext context, OnSiteTransferState state) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(state.message!)));
+  }
+
   Future<void> _handleEffect(
     BuildContext context,
     OnSiteTransferState state,
   ) async {
-    if (state.message != null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(state.message!)));
-      return;
-    }
-
     switch (state.effect) {
       case OnSiteTransferEffect.addressEditor:
         context.read<OnSiteTransferCubit>().consumeOnSiteTransferInteraction();
@@ -158,18 +157,38 @@ class _OnSiteTransferScreenState extends State<OnSiteTransferScreen> {
       create: (_) =>
           OnSiteTransferCubit(initialDepositNumber: widget.initialDepositNumber)
             ..fetchCatalog(),
-      child: BlocListener<OnSiteTransferCubit, OnSiteTransferState>(
-        listenWhen: (previous, current) =>
-            (previous.effect != current.effect && current.effect != null) ||
-            ((previous.catalogStatus != current.catalogStatus &&
-                    current.catalogStatus == RequestStatus.failure) ||
-                (previous.destinationStatus != current.destinationStatus &&
-                    current.destinationStatus == RequestStatus.failure) ||
-                (previous.uploadStatus != current.uploadStatus &&
-                    current.uploadStatus == RequestStatus.failure) ||
-                (previous.submissionStatus != current.submissionStatus &&
-                    current.submissionStatus == RequestStatus.failure)),
-        listener: _handleEffect,
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<OnSiteTransferCubit, OnSiteTransferState>(
+            listenWhen: (previous, current) =>
+                previous.catalogStatus != current.catalogStatus &&
+                current.catalogStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<OnSiteTransferCubit, OnSiteTransferState>(
+            listenWhen: (previous, current) =>
+                previous.destinationStatus != current.destinationStatus &&
+                current.destinationStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<OnSiteTransferCubit, OnSiteTransferState>(
+            listenWhen: (previous, current) =>
+                previous.uploadStatus != current.uploadStatus &&
+                current.uploadStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<OnSiteTransferCubit, OnSiteTransferState>(
+            listenWhen: (previous, current) =>
+                previous.submissionStatus != current.submissionStatus &&
+                current.submissionStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<OnSiteTransferCubit, OnSiteTransferState>(
+            listenWhen: (previous, current) =>
+                previous.effect != current.effect && current.effect != null,
+            listener: _handleEffect,
+          ),
+        ],
         child: BlocBuilder<OnSiteTransferCubit, OnSiteTransferState>(
           builder: (context, state) {
             return PopScope(

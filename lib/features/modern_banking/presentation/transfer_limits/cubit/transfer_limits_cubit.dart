@@ -11,7 +11,7 @@ import 'package:pishkhan_mobile/core/result/result.dart';
 
 import '../../../domain/entities/mobile_bank.dart';
 import '../../../domain/repositories/modern_banking_repository.dart';
-import '../../../domain/usecases/mobile_bank.dart';
+import '../../../domain/usecases/mobile_bank_usecase.dart';
 
 part 'transfer_limits_state.dart';
 part 'transfer_limits_cubit.freezed.dart';
@@ -21,44 +21,38 @@ class TransferLimitsCubit extends Cubit<TransferLimitsState> {
     TransferLimitsState initialState = const TransferLimitsState.initial(),
   }) : super(initialState);
   final repository = getIt<ModernBankingRepository>();
+  final fetchMobileBankCatalogUseCase = getIt<FetchMobileBankCatalogUseCase>();
   TransferLimitsRequest? _submittedRequest;
 
-  Future<void> fetchLimits() {
-    emit(
-      state.copyWith(
-        catalogStatus: RequestStatus.loading,
-        failure: null,
-        message: null,
-      ),
-    );
-    return FetchMobileBankCatalog(repository)().then((result) {
-      switch (result) {
-        case Success(:final data):
-          emit(
-            state.copyWith(
-              catalogStatus: RequestStatus.success,
-              catalog: data,
-              internalAmount: data.limits.internalRial.toString(),
-              payaAmount: data.limits.payaRial.toString(),
-              satnaAmount: data.limits.satnaRial.toString(),
-              internalToman: data.limits.internalRial ~/ 10,
-              payaToman: data.limits.payaRial ~/ 10,
-              satnaToman: data.limits.satnaRial ~/ 10,
-              isInternalValid: data.limits.internalRial > 0,
-              isPayaValid: data.limits.payaRial > 0,
-              isSatnaValid: data.limits.satnaRial > 0,
-            ),
-          );
-        case Err(:final failure):
-          emit(
-            state.copyWith(
-              catalogStatus: RequestStatus.failure,
-              failure: failure,
-              message: getRequestErrorMessage(failure),
-            ),
-          );
-      }
-    });
+  Future<void> fetchLimits() async {
+    emit(state.copyWith(catalogStatus: RequestStatus.loading));
+    final result = await fetchMobileBankCatalogUseCase();
+    switch (result) {
+      case Success(:final data):
+        emit(
+          state.copyWith(
+            catalogStatus: RequestStatus.success,
+            catalog: data,
+            internalAmount: data.limits.internalRial.toString(),
+            payaAmount: data.limits.payaRial.toString(),
+            satnaAmount: data.limits.satnaRial.toString(),
+            internalToman: data.limits.internalRial ~/ 10,
+            payaToman: data.limits.payaRial ~/ 10,
+            satnaToman: data.limits.satnaRial ~/ 10,
+            isInternalValid: data.limits.internalRial > 0,
+            isPayaValid: data.limits.payaRial > 0,
+            isSatnaValid: data.limits.satnaRial > 0,
+          ),
+        );
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            catalogStatus: RequestStatus.failure,
+            failure: failure,
+            message: getRequestErrorMessage(failure),
+          ),
+        );
+    }
   }
 
   void openEditor() {
@@ -75,12 +69,8 @@ class TransferLimitsCubit extends Cubit<TransferLimitsState> {
         internalAmount: value,
         isInternalValid: valid,
         isInternalError: !valid,
-        internalToman: (int.tryParse(value) ?? 0) ~/ 10,
-        canSubmit:
-            valid &&
-            state.isPayaValid &&
-            state.isSatnaValid &&
-            state.termsAccepted,
+        internalToman: _amountToman(value),
+        canSubmit: _canSubmit(isInternalValid: valid),
       ),
     );
   }
@@ -95,12 +85,8 @@ class TransferLimitsCubit extends Cubit<TransferLimitsState> {
         payaAmount: value,
         isPayaValid: valid,
         isPayaError: !valid,
-        payaToman: (int.tryParse(value) ?? 0) ~/ 10,
-        canSubmit:
-            valid &&
-            state.isInternalValid &&
-            state.isSatnaValid &&
-            state.termsAccepted,
+        payaToman: _amountToman(value),
+        canSubmit: _canSubmit(isPayaValid: valid),
       ),
     );
   }
@@ -115,12 +101,8 @@ class TransferLimitsCubit extends Cubit<TransferLimitsState> {
         satnaAmount: value,
         isSatnaValid: valid,
         isSatnaError: !valid,
-        satnaToman: (int.tryParse(value) ?? 0) ~/ 10,
-        canSubmit:
-            valid &&
-            state.isInternalValid &&
-            state.isPayaValid &&
-            state.termsAccepted,
+        satnaToman: _amountToman(value),
+        canSubmit: _canSubmit(isSatnaValid: valid),
       ),
     );
   }
@@ -129,16 +111,12 @@ class TransferLimitsCubit extends Cubit<TransferLimitsState> {
     emit(
       state.copyWith(
         termsAccepted: value,
-        canSubmit:
-            value &&
-            state.isInternalValid &&
-            state.isPayaValid &&
-            state.isSatnaValid,
+        canSubmit: _canSubmit(termsAccepted: value),
       ),
     );
   }
 
-  Future<void> submitLimits() {
+  Future<void> submitLimits() async {
     final limits = TransferLimits(
       internalRial: int.parse(state.internalAmount),
       payaRial: int.parse(state.payaAmount),
@@ -152,32 +130,25 @@ class TransferLimitsCubit extends Cubit<TransferLimitsState> {
           : Random.secure().nextInt(1 << 32).toRadixString(16),
     );
     _submittedRequest = request;
-    emit(
-      state.copyWith(
-        submissionStatus: RequestStatus.loading,
-        failure: null,
-        message: null,
-      ),
-    );
-    return repository.submitTransferLimits(request).then((result) {
-      switch (result) {
-        case Success():
-          emit(
-            state.copyWith(
-              submissionStatus: RequestStatus.success,
-              canSubmit: false,
-            ),
-          );
-        case Err(:final failure):
-          emit(
-            state.copyWith(
-              submissionStatus: RequestStatus.failure,
-              failure: failure,
-              message: getRequestErrorMessage(failure),
-            ),
-          );
-      }
-    });
+    emit(state.copyWith(submissionStatus: RequestStatus.loading));
+    final result = await repository.submitTransferLimits(request);
+    switch (result) {
+      case Success():
+        emit(
+          state.copyWith(
+            submissionStatus: RequestStatus.success,
+            canSubmit: false,
+          ),
+        );
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            submissionStatus: RequestStatus.failure,
+            failure: failure,
+            message: getRequestErrorMessage(failure),
+          ),
+        );
+    }
   }
 
   void requestBack() {
@@ -187,7 +158,6 @@ class TransferLimitsCubit extends Cubit<TransferLimitsState> {
             state.isEditing && state.submissionStatus != RequestStatus.success
             ? FlowNavigation.confirmExit
             : FlowNavigation.back,
-        message: null,
       ),
     );
   }
@@ -196,13 +166,26 @@ class TransferLimitsCubit extends Cubit<TransferLimitsState> {
     emit(
       state.copyWith(
         navigation: confirmed == true ? FlowNavigation.back : null,
-        message: null,
       ),
     );
   }
 
   void requestHome() {
-    emit(state.copyWith(navigation: FlowNavigation.home, message: null));
+    emit(state.copyWith(navigation: FlowNavigation.home));
+  }
+
+  int _amountToman(String value) => (int.tryParse(value) ?? 0) ~/ 10;
+
+  bool _canSubmit({
+    bool? isInternalValid,
+    bool? isPayaValid,
+    bool? isSatnaValid,
+    bool? termsAccepted,
+  }) {
+    return (isInternalValid ?? state.isInternalValid) &&
+        (isPayaValid ?? state.isPayaValid) &&
+        (isSatnaValid ?? state.isSatnaValid) &&
+        (termsAccepted ?? state.termsAccepted);
   }
 
   /// UI has accepted the pending interaction; data and request statuses stay intact.

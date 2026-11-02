@@ -12,7 +12,7 @@ import 'package:pishkhan_mobile/core/validators/second_password_validator.dart';
 
 import '../../../domain/entities/mobile_bank.dart';
 import '../../../domain/repositories/modern_banking_repository.dart';
-import '../../../domain/usecases/mobile_bank.dart';
+import '../../../domain/usecases/mobile_bank_usecase.dart';
 
 part 'mobile_bank_state.dart';
 part 'mobile_bank_cubit.freezed.dart';
@@ -24,61 +24,50 @@ class MobileBankCubit extends Cubit<MobileBankState> {
   }) : super(initialState);
   final MobileBankOperation operation;
   final repository = getIt<ModernBankingRepository>();
+  final fetchMobileBankCatalogUseCase = getIt<FetchMobileBankCatalogUseCase>();
   MobileBankIdentityRequest? _submittedRequest;
 
-  Future<void> fetchMobileBank() {
-    emit(
-      state.copyWith(
-        catalogStatus: RequestStatus.loading,
-        failure: null,
-        message: null,
-      ),
-    );
-    return FetchMobileBankCatalog(repository)().then((result) {
-      switch (result) {
-        case Success(:final data):
-          final record = operation == MobileBankOperation.activation
-              ? data.activation
-              : data.recovery;
-          final totalRial =
-              data.registryFeeRial +
-              data.identityFeeRial +
-              data.passwordFeeRial;
-          emit(
-            state.copyWith(
-              catalogStatus: RequestStatus.success,
-              catalog: data,
-              record: record,
-              totalRial: totalRial,
-              isWalletSufficient: data.walletBalanceRial >= totalRial,
-              step: switch (record.status) {
-                MobileBankRequestStatus.pending => MobileBankStep.pending,
-                MobileBankRequestStatus.approved =>
-                  operation == MobileBankOperation.activation
-                      ? MobileBankStep.active
-                      : MobileBankStep.recoveryApproved,
-                MobileBankRequestStatus.none ||
-                MobileBankRequestStatus.rejected =>
-                  operation == MobileBankOperation.activation
-                      ? MobileBankStep.introduction
-                      : MobileBankStep.serial,
-              },
-              canContinue:
-                  record.status != MobileBankRequestStatus.pending &&
-                  (operation == MobileBankOperation.activation ||
-                      record.status == MobileBankRequestStatus.approved),
-            ),
-          );
-        case Err(:final failure):
-          emit(
-            state.copyWith(
-              catalogStatus: RequestStatus.failure,
-              failure: failure,
-              message: getRequestErrorMessage(failure),
-            ),
-          );
-      }
-    });
+  Future<void> fetchMobileBank() async {
+    emit(state.copyWith(catalogStatus: RequestStatus.loading));
+    final result = await fetchMobileBankCatalogUseCase();
+    switch (result) {
+      case Success(:final data):
+        final record = operation == MobileBankOperation.activation
+            ? data.activation
+            : data.recovery;
+        final totalRial =
+            data.registryFeeRial + data.identityFeeRial + data.passwordFeeRial;
+        emit(
+          state.copyWith(
+            catalogStatus: RequestStatus.success,
+            catalog: data,
+            record: record,
+            totalRial: totalRial,
+            isWalletSufficient: data.walletBalanceRial >= totalRial,
+            step: switch (record.status) {
+              MobileBankRequestStatus.pending => MobileBankStep.pending,
+              MobileBankRequestStatus.approved =>
+                operation == MobileBankOperation.activation
+                    ? MobileBankStep.active
+                    : MobileBankStep.recoveryApproved,
+              MobileBankRequestStatus.none ||
+              MobileBankRequestStatus.rejected =>
+                operation == MobileBankOperation.activation
+                    ? MobileBankStep.introduction
+                    : MobileBankStep.serial,
+            },
+            canContinue: _canContinueAfterCatalog(record),
+          ),
+        );
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            catalogStatus: RequestStatus.failure,
+            failure: failure,
+            message: getRequestErrorMessage(failure),
+          ),
+        );
+    }
   }
 
   void updateNationalCardSerial(String value) {
@@ -105,12 +94,12 @@ class MobileBankCubit extends Cubit<MobileBankState> {
     emit(
       state.copyWith(
         termsAccepted: value,
-        canContinue: value && state.isWalletSufficient,
+        canContinue: _canContinuePayment(value),
       ),
     );
   }
 
-  Future<void> continueFlow() {
+  Future<void> continueFlow() async {
     switch (state.step) {
       case MobileBankStep.introduction:
         emit(
@@ -125,7 +114,7 @@ class MobileBankCubit extends Cubit<MobileBankState> {
             step: MobileBankStep.payment,
             stepNumber: 2,
             progress: .6,
-            canContinue: state.termsAccepted && state.isWalletSufficient,
+            canContinue: _canContinuePayment(state.termsAccepted),
           ),
         );
       case MobileBankStep.payment:
@@ -141,7 +130,7 @@ class MobileBankCubit extends Cubit<MobileBankState> {
         // A preview transition only. The future KYC adapter will supply real evidence.
         emit(state.copyWith(step: MobileBankStep.preview));
       case MobileBankStep.preview:
-        return submitIdentity();
+        await submitIdentity();
       case MobileBankStep.receipt:
       case MobileBankStep.recoveryApproved:
         requestHome();
@@ -149,14 +138,13 @@ class MobileBankCubit extends Cubit<MobileBankState> {
       case MobileBankStep.active:
         break;
     }
-    return Future.value();
   }
 
   void requestRecordingAgain() {
     emit(state.copyWith(step: MobileBankStep.instruction));
   }
 
-  Future<void> submitIdentity() {
+  Future<void> submitIdentity() async {
     final request = MobileBankIdentityRequest(
       operation: operation,
       nationalCardSerial: state.nationalCardSerial,
@@ -167,45 +155,36 @@ class MobileBankCubit extends Cubit<MobileBankState> {
       isPrototypePreview: true,
     );
     _submittedRequest = request;
-    emit(
-      state.copyWith(
-        submissionStatus: RequestStatus.loading,
-        failure: null,
-        message: null,
-      ),
-    );
-    return repository.submitIdentity(request).then((result) {
-      switch (result) {
-        case Success(:final data):
-          emit(
-            state.copyWith(
-              submissionStatus: RequestStatus.success,
-              record: data,
-              step: MobileBankStep.receipt,
-              canContinue: false,
-            ),
-          );
-        case Err(:final failure):
-          emit(
-            state.copyWith(
-              submissionStatus: RequestStatus.failure,
-              failure: failure,
-              message: getRequestErrorMessage(failure),
-            ),
-          );
-      }
-    });
+    emit(state.copyWith(submissionStatus: RequestStatus.loading));
+    final result = await repository.submitIdentity(request);
+    switch (result) {
+      case Success(:final data):
+        emit(
+          state.copyWith(
+            submissionStatus: RequestStatus.success,
+            record: data,
+            step: MobileBankStep.receipt,
+            canContinue: false,
+          ),
+        );
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            submissionStatus: RequestStatus.failure,
+            failure: failure,
+            message: getRequestErrorMessage(failure),
+          ),
+        );
+    }
   }
 
   void requestDestination(MobileBankDestination destination) {
-    emit(
-      state.copyWith(destination: destination, navigation: null, message: null),
-    );
+    emit(state.copyWith(destination: destination, navigation: null));
   }
 
-  Future<void> refreshAfterService() {
+  Future<void> refreshAfterService() async {
     emit(state.copyWith(destination: null));
-    return fetchMobileBank();
+    await fetchMobileBank();
   }
 
   void requestBack() {
@@ -230,7 +209,7 @@ class MobileBankCubit extends Cubit<MobileBankState> {
             step: MobileBankStep.payment,
             stepNumber: 2,
             progress: .6,
-            canContinue: state.termsAccepted && state.isWalletSufficient,
+            canContinue: _canContinuePayment(state.termsAccepted),
           ),
         );
       case MobileBankStep.preview:
@@ -244,7 +223,6 @@ class MobileBankCubit extends Cubit<MobileBankState> {
                 : FlowNavigation.back,
             isExitToHome: false,
             destination: null,
-            message: null,
           ),
         );
     }
@@ -256,7 +234,6 @@ class MobileBankCubit extends Cubit<MobileBankState> {
         navigation: confirmed == true
             ? (state.isExitToHome ? FlowNavigation.home : FlowNavigation.back)
             : null,
-        message: null,
       ),
     );
   }
@@ -270,10 +247,17 @@ class MobileBankCubit extends Cubit<MobileBankState> {
             : FlowNavigation.home,
         isExitToHome: true,
         destination: null,
-        message: null,
       ),
     );
   }
+
+  bool _canContinuePayment(bool termsAccepted) =>
+      termsAccepted && state.isWalletSufficient;
+
+  bool _canContinueAfterCatalog(MobileBankRecord record) =>
+      record.status != MobileBankRequestStatus.pending &&
+      (operation == MobileBankOperation.activation ||
+          record.status == MobileBankRequestStatus.approved);
 
   /// UI has accepted the pending interaction; data and request statuses stay intact.
   void consumeMobileBankInteraction() {

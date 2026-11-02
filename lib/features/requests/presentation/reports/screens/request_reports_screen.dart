@@ -22,16 +22,15 @@ class RequestReportsScreen extends StatelessWidget {
 
   final VoidCallback? onAssistantPressed;
 
+  void _showRequestFailure(BuildContext context, RequestReportsState state) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(state.message!)));
+  }
+
   Future<void> _handleEffect(
     BuildContext context,
     RequestReportsState state,
   ) async {
-    if (state.message != null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(state.message!)));
-      return;
-    }
-
     switch (state.effect) {
       case RequestReportsEffect.typeFilter:
         context.read<RequestReportsCubit>().consumeRequestReportsInteraction();
@@ -75,14 +74,26 @@ class RequestReportsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => RequestReportsCubit()..fetchReports(),
-      child: BlocListener<RequestReportsCubit, RequestReportsState>(
-        listenWhen: (previous, current) =>
-            (previous.effect != current.effect && current.effect != null) ||
-            ((previous.reportsStatus != current.reportsStatus &&
-                    current.reportsStatus == RequestStatus.failure) ||
-                (previous.cancellationStatus != current.cancellationStatus &&
-                    current.cancellationStatus == RequestStatus.failure)),
-        listener: _handleEffect,
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<RequestReportsCubit, RequestReportsState>(
+            listenWhen: (previous, current) =>
+                previous.reportsStatus != current.reportsStatus &&
+                current.reportsStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<RequestReportsCubit, RequestReportsState>(
+            listenWhen: (previous, current) =>
+                previous.cancellationStatus != current.cancellationStatus &&
+                current.cancellationStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
+          BlocListener<RequestReportsCubit, RequestReportsState>(
+            listenWhen: (previous, current) =>
+                previous.effect != current.effect && current.effect != null,
+            listener: _handleEffect,
+          ),
+        ],
         child: Directionality(
           textDirection: TextDirection.rtl,
           child: BlocBuilder<RequestReportsCubit, RequestReportsState>(
