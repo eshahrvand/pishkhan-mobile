@@ -99,11 +99,13 @@ UI command; it does not authorize changing unrelated State resets or data groups
   MultiBlocListener can group the distinct subscriptions; no generic effect
   framework, State publisher or extra State fields are introduced.
 
-**Adoption status:** the documentation-first amendment is now implemented in
-Login (phase 1) and Dashboard (phase 2): focused request-failure listeners are
-separate from typed effects and legacy blanket clears are removed. Other flows
-still require their authorized migration. Do not remove their clears in code
-alone: update listener responsibilities and real consumers together. Existing tests asserting null values
+**Adoption status, 2026-11-02:** phases 1–9 have migrated all 31 current Cubits;
+the [phase-10 review](cubit-phase-10-review.md) records integrated coverage and
+scoped verification. Focused request-failure listeners are separate from typed
+effects and legacy blanket clears are removed. Login retains its documented
+inline guest-phone feedback lifecycle. This is an implementation-status update,
+not a new rule or permission to refactor unrelated future flows. When migrating
+another flow, update notification consumers and clears together. Existing tests asserting null values
 must be reviewed alongside behavioral tests for repeated failures, retry-success,
 effects after errors and concurrent operation results. Older phase test totals
 are historical evidence, not verification of a later notification migration.

@@ -42,11 +42,11 @@ class HomeCubit extends Cubit<HomeState> {
   final Map<DashboardService, String> servicePickerLabels;
 
   final loadDashboardHomeUseCase = getIt<LoadDashboardHomeUseCase>();
-  final loadDashboardCardsUseCase =
+  final loadDashboardItemsUseCaseForCards =
       getIt<LoadDashboardItemsUseCase<BankCard>>();
-  final loadDashboardDepositsUseCase =
+  final loadDashboardItemsUseCaseForDeposits =
       getIt<LoadDashboardItemsUseCase<BankDeposit>>();
-  final loadDashboardLoansUseCase =
+  final loadDashboardItemsUseCaseForLoans =
       getIt<LoadDashboardItemsUseCase<BankLoan>>();
 
   static const maxFavorites = 8;
@@ -477,7 +477,7 @@ class HomeCubit extends Cubit<HomeState> {
         cardQuickActions: const [],
       ),
     );
-    final result = await loadDashboardCardsUseCase();
+    final result = await loadDashboardItemsUseCaseForCards();
     switch (result) {
       case Err(:final failure):
         emit(
@@ -569,7 +569,7 @@ class HomeCubit extends Cubit<HomeState> {
         depositChequeActions: const [],
       ),
     );
-    final result = await loadDashboardDepositsUseCase();
+    final result = await loadDashboardItemsUseCaseForDeposits();
     switch (result) {
       case Err(:final failure):
         emit(
@@ -646,7 +646,7 @@ class HomeCubit extends Cubit<HomeState> {
         loanQuickActions: const [],
       ),
     );
-    final result = await loadDashboardLoansUseCase();
+    final result = await loadDashboardItemsUseCaseForLoans();
     switch (result) {
       case Err(:final failure):
         emit(

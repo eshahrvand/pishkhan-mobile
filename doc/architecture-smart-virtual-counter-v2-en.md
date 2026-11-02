@@ -1997,6 +1997,15 @@ The complete list is provided in the separate document "Bank Requirements and De
 
 ## 21. Change Log
 
+**2026-11-02 migration status:** owner-approved phases 1–9 cover all 31 current
+Cubits. The [phase-10 review](cubit-phase-10-review.md) records request ownership,
+DI/State/listener coverage, documentation corrections and actual scoped checks.
+The UI skill and main-app integration guide now summarize contract v1.23;
+the [UI/Cubit/State contract](ui-cubit-state-agent-rules-en.md) remains authoritative.
+Historical adoption notes below describe their date, not today's remaining work.
+No new architecture or coding rule is introduced. Full-application tests still
+require an explicit owner request.
+
 **2026-11-01 status-driven notification amendment:** each operation's terminal
 status transition triggers request feedback; failure/message may retain the
 latest error. Effects execute independently, and failure/message clearing needs
@@ -2052,7 +2061,7 @@ screen/feature-owned Providers, real production action APIs and stable dependenc
 fields. Section 16.3 distinguishes async disposal tests from artificial synchronous
 post-close calls. Application Dart code is unchanged by this documentation update.
 
-**2026-10-17 alignment with the UI/Cubit/State contract (v1.7):** Sections 3, 6.3, 12.2, 12.4, 12.5, 12.6 and 15.3 now match the contract. Cubit/Bloc are never registered in GetIt and Cubits resolve Repository/service/UseCase dependencies from their own fields; DI registration is manual `get_it` in `core/di` (the `injectable` auto-registration entry is removed); the router neither creates nor injects data dependencies; Cubit async actions use a returned `.then` chain with one `isClosed` guard per async completion and none in synchronous methods; the login national-ID and mobile fields validate from the first digit. Section 10.3 (Idempotency-Key lifetime) is unchanged by this update.
+**2026-10-17 historical alignment with contract v1.7 (async/disposal guidance superseded):** this entry records the former returned `.then` / `isClosed` pattern, which is prohibited by current Sections 12.2–12.4 and contract v1.23. The retained boundaries are Cubit-owned dependency lookup, manual GetIt registration of data/application dependencies only, destination-only routing and first-digit login validation. Read the current sections for implementation; this historical note is not a coding example. Section 10.3 (Idempotency-Key lifetime) was unchanged by that update.
 
 **2026-10-15 routing convention update:** Section 15.3 now specifies the owner-approved centralized structure: a single `AppRoutes` class and all `GoRoute` definitions directly in `core/router/app_router.dart`. Feature route factories and files are removed from the application. Existing URLs, global redirect, post-login return validation, typed route inputs and router-scoped mock receipts are preserved. Sections 6.3–6.4 and the flow example are aligned with this decision. This supersedes the distributed routing design recorded in the original version history below.
 
