@@ -18,9 +18,10 @@ class IssuanceSummaryRow extends StatelessWidget {
     return Row(
       textDirection: TextDirection.ltr,
       children: [
-        Flexible(
+        Expanded(
           child: Text(
             value,
+            textAlign: TextAlign.left,
             style: small.copyWith(
               fontWeight: FontWeight.w500,
               color: context.colors.textPrimary,
