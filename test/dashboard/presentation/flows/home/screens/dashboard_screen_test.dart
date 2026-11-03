@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/shared/widgets/app_service_grid_card.dart';
 import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_drawer.dart';
@@ -228,6 +229,64 @@ void main() {
       );
       expect(assistant.dx, greaterThan(sms.dx));
       expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
+    'empty favorites editing shows only Add and disables confirmation',
+    (tester) async {
+      await render(tester, subject());
+      await tap(tester, dashboardButton(S.current.dashboardAddFavorites));
+      expect(dashboardSemantic(S.current.dashboardAddService), findsOneWidget);
+      expect(
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is AppServiceGridItemView &&
+              widget.item.id.startsWith('favorite-'),
+        ),
+        findsNothing,
+      );
+      expect(
+        tester
+            .widget<AppButton>(dashboardButton(S.current.dashboardConfirm))
+            .onPressed,
+        isNull,
+      );
+      expect(
+        tester.getCenter(dashboardSemantic(S.current.dashboardAddService)).dx,
+        greaterThan(250),
+      );
+      await tap(tester, dashboardSemantic(S.current.dashboardAddService));
+      await tester.enterText(
+        find.descendant(
+          of: find.byType(AppSearchField),
+          matching: find.byType(TextField),
+        ),
+        'برآورد',
+      );
+      await tester.pumpAndSettle();
+      await tap(
+        tester,
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is DashboardServiceOption &&
+              widget.service.id == 'loan-estimate',
+        ),
+      );
+      expect(
+        tester
+            .widget<AppButton>(dashboardButton(S.current.dashboardConfirm))
+            .onPressed,
+        isNotNull,
+      );
+      await tap(tester, dashboardButton(S.current.dashboardCancel));
+      await tap(tester, dashboardButton(S.current.dashboardAddFavorites));
+      expect(
+        tester
+            .widget<AppButton>(dashboardButton(S.current.dashboardConfirm))
+            .onPressed,
+        isNull,
+      );
     },
   );
 

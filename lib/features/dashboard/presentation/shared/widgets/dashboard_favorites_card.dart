@@ -106,6 +106,7 @@ class DashboardFavoritesCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   DashboardFavoritesGrid(
                     state: state,
@@ -162,7 +163,8 @@ class DashboardFavoritesCard extends StatelessWidget {
                 SizedBox(
                   width: 100,
                   child: AppButton(
-                    onPressed: onConfirm,
+                    onPressed: state.canConfirmFavorites ? onConfirm : null,
+                    disabledAppearance: AppButtonDisabledAppearance.service,
                     label: S.current.dashboardConfirm,
                     size: AppButtonSize.sm,
                   ),

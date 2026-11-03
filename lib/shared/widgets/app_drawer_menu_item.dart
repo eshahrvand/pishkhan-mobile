@@ -26,7 +26,7 @@ class AppDrawerMenuItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final isActive = isSelected || isExpanded;
+    final isActive = item.hasChildren ? isExpanded : isSelected;
     final submenuHeight = item.children.isEmpty
         ? 0.0
         : item.children.length * 36.0 + (item.children.length - 1) * 4.0;
@@ -34,7 +34,7 @@ class AppDrawerMenuItem extends StatelessWidget {
       children: [
         Semantics(
           button: true,
-          selected: isSelected,
+          selected: isActive,
           expanded: item.hasChildren ? isExpanded : null,
           child: InkWell(
             key: Key('app_drawer_item_${item.id}'),
@@ -70,15 +70,15 @@ class AppDrawerMenuItem extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                             textAlign: TextAlign.right,
                             textDirection: TextDirection.rtl,
-                            style: TextStyle(
+                            style: AppTypography.bodyMedium.copyWith(
                               color: isActive
                                   ? colors.primary
                                   : colors.textSecondary,
-                              fontSize: 14,
                               fontWeight: isActive
                                   ? FontWeight.w600
                                   : FontWeight.w400,
                               height: 1.43,
+                              letterSpacing: 0,
                             ),
                           ),
                         ),
@@ -88,9 +88,17 @@ class AppDrawerMenuItem extends StatelessWidget {
                           width: 20,
                           height: 20,
                           child: Center(
-                            child: isActive
-                                ? item.selectedIcon ?? item.icon
-                                : item.icon,
+                            child: ColorFiltered(
+                              colorFilter: ColorFilter.mode(
+                                isActive
+                                    ? colors.primary
+                                    : colors.textSecondary,
+                                BlendMode.srcIn,
+                              ),
+                              child: isActive
+                                  ? item.selectedIcon ?? item.icon
+                                  : item.icon,
+                            ),
                           ),
                         ),
                       ],

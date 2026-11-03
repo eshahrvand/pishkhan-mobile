@@ -50,6 +50,9 @@ class AppPrimaryNavigation extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               AvpImage(
+                                color: tab == selectedTab
+                                    ? context.colors.textOnPrimary
+                                    : context.colors.textDisabled,
                                 image: switch (tab) {
                                   AppPrimaryTab.dashboard =>
                                     tab == selectedTab

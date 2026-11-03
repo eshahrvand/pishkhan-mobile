@@ -160,4 +160,40 @@ void main() {
       AppColors.light.primary,
     );
   });
+  testWidgets('closing a selected group restores both title and icon colors', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      buildSubject(
+        isOpen: true,
+        selectedItemId: 'cards',
+        expandedItemId: 'cards',
+      ),
+    );
+    expect(
+      tester.widget<Text>(find.text('کارت')).style?.color,
+      AppColors.light.primary,
+    );
+    final icon = find.descendant(
+      of: find.byKey(const Key('app_drawer_item_icon_cards')),
+      matching: find.byType(ColorFiltered),
+    );
+    expect(
+      tester.widget<ColorFiltered>(icon).colorFilter,
+      ColorFilter.mode(AppColors.light.primary, BlendMode.srcIn),
+    );
+    await tester.pumpWidget(
+      buildSubject(isOpen: true, selectedItemId: 'cards'),
+    );
+    await tester.pumpAndSettle();
+    expect(
+      tester.widget<Text>(find.text('کارت')).style?.color,
+      AppColors.light.textSecondary,
+    );
+    expect(
+      tester.widget<ColorFiltered>(icon).colorFilter,
+      ColorFilter.mode(AppColors.light.textSecondary, BlendMode.srcIn),
+    );
+    expect(find.text('کارت مجازی'), findsNothing);
+  });
 }

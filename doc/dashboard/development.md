@@ -109,7 +109,7 @@ There are no request-ID counters: no new overlap policy is introduced.
 | Open a banking tab | Tab, carousel and service groups | selectedTab changes; other selections, drafts and privacy survive. |
 | Retry banking data | Tab loading/empty/error branches and selection reconciliation | Old visible list/selection/actions are invalidated by the owner; success restores the prior selection by ID when available, otherwise first item. |
 | Select a card/deposit/loan | Carousel and operation groups | Cubit stores the rendered object and its index together; the next action uses that selected record. |
-| Edit favorites | Home service editor, limit notice and add control | Saved favorites remain in homeData; draft list and flags change. Empty saved favorites start from suggestions, capped at eight. |
+| Edit favorites | Home service editor, limit notice and add control | Saved favorites remain in homeData; draft list and flags change. Empty saved favorites start with an empty draft and only the Add control (Figma 28236:13944); confirmation stays disabled until an explicit choice. Clearing an existing saved list remains supported. |
 | Apply / Cancel / Reset | Home service section | Apply commits draft locally; Cancel restores saved IDs; confirmed Reset clears saved/draft favorites. No server save exists. |
 | Favorite picker | Home-owned sheet query, groups, collapse and selection | Opening resets picker inputs; selected favorites are disabled; dismissal retains the draft. |
 | Drawer | Home-owned groups/query/selection | Opening resets the drawer; raw result returns to Cubit for Home/service intent. |
@@ -485,3 +485,58 @@ The shared phase-1/2/3 regression command passed 385 tests after the card-list a
 virtual-request screen composition change. This flow’s existing composition and
 local resource/modal consumers were preserved. See the command and final checks
 in [the follow-up report](../cards/virtual-card-request.md#listener-composition-follow-up-verification).
+
+## Design corrections — 2026-11-03
+
+Empty favorite editing follows frame `28236:13944`, without auto-populating suggested services. Draft confirmation eligibility is Cubit-owned; Cancel discards draft additions. Bottom-navigation icon tint follows the selected label (white selected, disabled text color otherwise). Drawer groups highlight only while expanded, with matching title/icon colors; closing restores both, including request-icon normalization.
+
+### Verification for the design corrections
+
+Final Home/Drawer regression:
+
+```sh
+flutter test --no-pub test/dashboard/presentation/flows/home test/app_drawer_test.dart
+```
+
+Result: **46 passed, 0 failed**. Covers empty editing, disabled confirmation,
+explicit addition, cancellation/reopening, clearing saved favorites, filters,
+retained drafts and collapsed Drawer title/icon colors.
+
+Shared-package checks, run from `../avp_ui`:
+
+```sh
+flutter test --no-pub test/widgets/app_stepper_test.dart test/widgets/app_toggle_test.dart
+flutter analyze lib/widgets/layout/app_stepper.dart lib/widgets/fields/app_toggle.dart test/widgets/app_stepper_test.dart test/widgets/app_toggle_test.dart
+```
+
+Result: **8 passed, 0 failed; analysis found no issues**. Existing issuance,
+average-balance and financial-certificate screen checks also passed in the
+broader directly related run below. That run passed 146 tests but initially
+could not compile dashboard_screen_test due to a missing test import; the import
+was corrected and the complete Home/Drawer command above passes afterward.
+
+```sh
+flutter test test/dashboard/presentation test/dashboard/modern_banking_drawer_test.dart test/app_drawer_test.dart test/cards/presentation/flows/card_issuance test/deposits/average_balance_screen_test.dart test/deposits/financial_certificate_screen_test.dart
+```
+
+Final app analysis scope:
+
+```sh
+flutter analyze --no-pub lib/features/dashboard/presentation/home/cubit lib/features/dashboard/presentation/shared/widgets/app_primary_navigation.dart lib/features/dashboard/presentation/shared/widgets/dashboard_favorites_card.dart lib/shared/widgets/app_drawer_menu_item.dart test/app_drawer_test.dart test/dashboard/presentation/flows/home/cubit/home_cubit_test.dart test/dashboard/presentation/flows/home/screens/dashboard_screen_test.dart
+```
+
+Result: **No issues found**. Final diff checks passed in both repositories.
+
+Visual review rendered the real components with package fonts and loaded SVGs:
+first/last Stepper, enabled/disabled Toggle, all four selected navigation tabs,
+expanded/collapsed Drawer, unselected Requests and the right-aligned empty
+favorites editor. Preview output is temporary and is not an app asset. No
+full-application suite, bank operation or device run was performed.
+
+The four Home request owners remain unchanged: fetchHome, fetchCards,
+fetchDeposits and fetchLoans, each retaining one dependency call and Result
+switch. Favorite edits remain independent local actions with explicit emits.
+Confirmation eligibility is a shared pure predicate; no clearing was added.
+
+Duplication review: 1 repeated predicate found, 1 resolved (_canConfirmFavorites).
+Flow review: 0 clears removed.
