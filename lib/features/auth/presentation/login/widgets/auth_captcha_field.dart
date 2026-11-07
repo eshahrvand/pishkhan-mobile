@@ -37,10 +37,10 @@ class AuthCaptchaField extends StatelessWidget {
                   width: 48,
                   height: 44,
                   child: AppButton(
-                    isLoading:
-                        state.captchaStatus == RequestStatus.loading ||
-                        state.otpRequestStatus == RequestStatus.loading,
-                    onPressed: context.read<AuthCubit>().fetchCaptcha,
+                    isLoading: state.captchaStatus == RequestStatus.loading,
+                    onPressed: state.otpRequestStatus != RequestStatus.loading
+                        ? context.read<AuthCubit>().fetchCaptcha
+                        : null,
                     icon: AvpImage(
                       image: '${AppConstants.baseImage}auth_refresh.svg',
                       width: 20,

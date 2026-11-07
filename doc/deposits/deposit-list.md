@@ -30,9 +30,12 @@ explicit `emit(state.copyWith(...))` transitions, with no state-preparation
 wrapper. The operation uses async/await and a Result switch. Controls gate
 invocation; there is no disposal guard or speculative request ID.
 
-The initial list filters for Open status, matching the selected Status chip.
+The initial list has no status filter and shows deposits of every status.
 Account type and status filters combine. Pressing a selected chip clears that
-filter; pressing an unselected chip opens a package-button option sheet.
+filter; pressing an unselected chip opens the shared `avp_ui`
+`showAppSelectSheet` with typed account-kind or status options, matching the
+app's other selectors. The operation and account-details panels retain the
+shared app service-sheet route.
 Dismissing options leaves the previous selection unchanged. Loading, error,
 empty catalog and no matching deposits have separate views; errors offer Retry.
 

@@ -143,6 +143,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('نوع حساب'));
       await tester.pumpAndSettle();
+      expect(find.byType(AppSelectSheet<DepositKind>), findsOneWidget);
       await tester.tap(find.text('جاری حقیقی').last);
       await tester.pumpAndSettle();
       expect(find.byType(AppDepositList), findsOneWidget);
@@ -157,6 +158,56 @@ void main() {
       expect(find.byType(AppDepositList), findsNWidgets(3));
     },
   );
+  testWidgets('status starts unfiltered and uses the shared selection sheet', (
+    tester,
+  ) async {
+    await getIt.unregister<DepositsRepository>();
+    getIt.registerSingleton<DepositsRepository>(
+      MockDepositsRepository(
+        deposits: [
+          ListedDeposit(id: 'open', number: '001'),
+          ListedDeposit(
+            id: 'closed',
+            number: '002',
+            status: DepositStatus.closed,
+          ),
+          ListedDeposit(
+            id: 'blocked',
+            number: '003',
+            status: DepositStatus.blocked,
+          ),
+        ],
+      ),
+    );
+    await size(tester, const Size(375, 812));
+    await tester.pumpWidget(_app(const DepositListScreen()));
+    await tester.pumpAndSettle();
+    expect(find.byType(AppDepositList), findsNWidgets(3));
+    expect(
+      tester.widget<AppChips>(find.widgetWithText(AppChips, 'وضعیت')).selected,
+      isFalse,
+    );
+
+    await tester.tap(find.text('وضعیت'));
+    await tester.pumpAndSettle();
+    expect(find.byType(AppSelectSheet<DepositStatus>), findsOneWidget);
+    Navigator.of(tester.element(find.byType(AppSelectSheet<DepositStatus>)))
+        .pop();
+    await tester.pumpAndSettle();
+    expect(find.byType(AppDepositList), findsNWidgets(3));
+
+    await tester.tap(find.text('وضعیت'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text(S.current.depositListOpen).last);
+    await tester.pumpAndSettle();
+    expect(find.byType(AppSelectSheet<DepositStatus>), findsNothing);
+    expect(find.byType(AppDepositList), findsOneWidget);
+
+    await tester.tap(find.text('وضعیت'));
+    await tester.pumpAndSettle();
+    expect(find.byType(AppDepositList), findsNWidgets(3));
+    expect(tester.takeException(), isNull);
+  });
   for (final locale in ['fa', 'en', 'ar']) {
     testWidgets('$locale compact large-text layout scrolls both sheets', (
       tester,

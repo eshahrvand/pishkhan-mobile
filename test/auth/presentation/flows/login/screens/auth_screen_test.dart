@@ -288,6 +288,20 @@ void main() {
           .isLoading,
       isTrue,
     );
+    final refresh = tester.widget<AppButton>(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is AppButton && widget.tooltip == S.current.refreshCaptcha,
+      ),
+    );
+    expect(refresh.isLoading, isFalse);
+    expect(refresh.onPressed, isNull);
+    expect(
+      find.byWidgetPredicate(
+        (widget) => widget is AppButton && widget.isLoading,
+      ),
+      findsOneWidget,
+    );
     expect(
       tester
           .widget<AppTextField>(authControl(tester, 'login-national-id'))
@@ -422,7 +436,19 @@ void main() {
         tester
             .widget<AppButton>(authControl(tester, 'otp_timer_button'))
             .isLoading,
-        isTrue,
+        isFalse,
+      );
+      expect(
+        tester
+            .widget<AppButton>(authControl(tester, 'otp_timer_button'))
+            .onPressed,
+        isNull,
+      );
+      expect(
+        find.byWidgetPredicate(
+          (widget) => widget is AppButton && widget.isLoading,
+        ),
+        findsOneWidget,
       );
       await tester.binding.handlePopRoute();
       await tester.pump();

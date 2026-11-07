@@ -6,6 +6,13 @@
 **Scope:** Presentation coding style, State management and readability rules  
 **Status:** Authoritative coding contract. Historical examples do not override the mandatory ownership rules or the owner amendments below. Implementation status is recorded in the feature documentation.
 
+**Owner update, 2026-11-07 — Login loading indicators:** show loading only on
+the control whose operation is running. Requesting OTP loads the request button,
+not the CAPTCHA refresh control. Verifying OTP loads the login button, not the
+countdown/resend control. Secondary controls remain disabled during the other
+operation through their callback gates, without showing another spinner. This
+supersedes the older Login resend-isLoading requirement below.
+
 This document turns the project owner's requirements and supplied examples into explicit rules. A team member opening a screen should be able to see how the UI is built, how State is read and how Cubit is called, without navigating through multiple wrappers and files to understand a simple form.
 
 “Required” and “prohibited” in this document are owner-approved style instructions. Only sections explicitly marked “recommendation” or “pending review” remain unapproved; those labels never weaken a mandatory rule elsewhere. The approved principles consolidated in Section 2.3 are mandatory, not recommendations. This document does not authorize agents to change code automatically or automatically rewrite the [architecture document](architecture-smart-virtual-counter-v2-en.md) or the [current UI skill](../.agents/skills/flutter-widget-ui-style/SKILL.md). When styles conflict, the owner's explicit instructions recorded here take precedence over older examples. Boundaries and open decisions are recorded in Section 25.
@@ -412,8 +419,9 @@ remain unchanged.
    OTP request and verification. UI gates system/in-screen Back consistently;
    Cubit does not duplicate the gate with defensive action-entry checks. This
    policy now applies to every request-driven flow under the amendment above.
-7. The OTP resend button uses `isLoading` for pending verification and only
-   `canResendOtp` in onPressed. It does not introduce a fictitious resend endpoint
+7. Under the 2026-11-07 owner update, the OTP countdown/resend button stays visible
+   without loading during verification; its callback is disabled while verification
+   is pending and otherwise follows `canResendOtp`. It does not introduce a fictitious resend endpoint
    or status: resend still returns to identity and fetches a fresh CAPTCHA.
 8. Keep the CAPTCHA image and its SessionId together in LoginCaptcha. Do not
    duplicate sessionId in AuthState. Cubit constructs the request with

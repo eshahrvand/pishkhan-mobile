@@ -1,3 +1,4 @@
+import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -19,7 +20,6 @@ import 'package:pishkhan_mobile/features/deposits/domain/repositories/surplus_de
 import 'package:pishkhan_mobile/features/deposits/domain/repositories/proxy_deposits_repository.dart';
 import 'package:pishkhan_mobile/features/deposits/presentation/deposit_list/cubit/deposit_list_cubit.dart';
 import 'package:pishkhan_mobile/features/deposits/presentation/deposit_list/screens/deposit_list_screen.dart';
-import 'package:pishkhan_mobile/features/deposits/presentation/deposit_list/widgets/deposit_filter_options.dart';
 import 'package:pishkhan_mobile/features/deposits/presentation/deposit_restriction/cubit/deposit_restriction_cubit.dart';
 import 'package:pishkhan_mobile/features/deposits/presentation/deposit_restriction/screens/deposit_restriction_screen.dart';
 import 'package:pishkhan_mobile/features/deposits/presentation/deposit_restriction/widgets/deposit_restriction_receipt_dialog.dart';
@@ -101,9 +101,10 @@ void main() {
       await dismissFeedback(tester);
       cubit.requestKindFilter();
       await tester.pumpAndSettle();
-      expect(find.byType(DepositFilterOptions), findsOneWidget);
+      expect(find.byType(AppSelectSheet<DepositKind>), findsOneWidget);
       expect(find.byType(SnackBar), findsNothing);
-      Navigator.of(tester.element(find.byType(DepositFilterOptions))).pop();
+      Navigator.of(tester.element(find.byType(AppSelectSheet<DepositKind>)))
+          .pop();
       await tester.pumpAndSettle();
       repository.fail = false;
       final retry = cubit.fetchDeposits();

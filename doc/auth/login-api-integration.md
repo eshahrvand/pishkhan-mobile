@@ -160,8 +160,11 @@ tick keeps the existing clock idle. Guest change-phone remains unavailable and
 never calls a login endpoint as a substitute; its inline feedback is retained.
 
 UI owns repeat-tap/edit availability and blocks system/in-screen Back while any
-Login request is loading. Resend uses login-status `isLoading` and the
-`canResendOtp` callback flag. Specific actions own step decisions and raw guest
+Login request is loading. Under the 2026-11-07 owner update, only the active
+operation's button shows loading. CAPTCHA refresh shows loading only while
+fetching CAPTCHA and is disabled during OTP requests. The countdown/resend
+control retains its content during verification; its callback requires
+`canResendOtp` and no pending verification. Specific actions own step decisions and raw guest
 sheet-result interpretation. The listener consumes reusable commands before
 Flutter operations and checks mounted after awaiting sheets. Completion invokes
 the existing router/host callback; successful submission is disabled meanwhile.
