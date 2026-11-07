@@ -12,8 +12,8 @@ Future<DeliveryAddress?> showAddressEditorSheet(
 }) {
   return showModalBottomSheet<DeliveryAddress>(
     context: context,
+    useRootNavigator: true,
     isScrollControlled: true,
-    useSafeArea: true,
     backgroundColor: context.colors.surfaceSubtle,
     builder: (sheetContext) => SafeArea(
       top: false,

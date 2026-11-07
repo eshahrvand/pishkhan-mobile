@@ -97,6 +97,7 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
         context.read<CardIssuanceCubit>().consumeCardIssuanceInteraction();
         await showModalBottomSheet<void>(
           context: context,
+          useRootNavigator: true,
           isScrollControlled: true,
           backgroundColor: context.colors.surfaceSubtle,
           builder: (sheetContext) => SafeArea(

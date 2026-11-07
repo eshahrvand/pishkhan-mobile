@@ -128,62 +128,46 @@ class AppServiceGridCard extends StatelessWidget {
                         child: header,
                       ),
                 const SizedBox(height: AppSpacing.mdLg),
-                if (items.length <= 4 && stretchItems)
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      for (var index = 0; index < items.length; index++) ...[
-                        if (index > 0) SizedBox(width: itemSpacing),
-                        Expanded(
-                          child: Center(
-                            child: AppServiceGridItemView(
-                              item: items[index],
-                              usesIconTile:
-                                  type == AppServiceGridCardType.service,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ],
-                  )
-                else
-                  LayoutBuilder(
-                    builder: (context, constraints) {
-                      final spacing = itemSpacing == 0 ? 6.0 : itemSpacing;
-                      final columns =
-                          ((constraints.maxWidth + spacing) / (72 + spacing))
-                              .floor()
-                              .clamp(1, 4);
-                      return Column(
-                        children: [
-                          for (
-                            var start = 0;
-                            start < items.length;
-                            start += columns
-                          ) ...[
-                            if (start > 0)
-                              const SizedBox(height: AppSpacing.mdLg),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                for (var column = 0; column < columns; column++)
-                                  if (start + column < items.length)
-                                    AppServiceGridItemView(
-                                      item: items[start + column],
-                                      usesIconTile:
-                                          type ==
-                                          AppServiceGridCardType.service,
-                                    )
-                                  else
-                                    const SizedBox(width: 72),
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final spacing = itemSpacing == 0 ? 6.0 : itemSpacing;
+                    final columns = constraints.maxWidth >= 290 ? 4 : 3;
+                    final columnWidth =
+                        (constraints.maxWidth - (columns - 1) * spacing) /
+                        columns;
+                    return Column(
+                      children: [
+                        for (
+                          var start = 0;
+                          start < items.length;
+                          start += columns
+                        ) ...[
+                          if (start > 0)
+                            const SizedBox(height: AppSpacing.mdLg),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              for (var column = 0; column < columns; column++) ...[
+                                if (column > 0) SizedBox(width: spacing),
+                                Expanded(
+                                  child: start + column < items.length
+                                      ? AppServiceGridItemView(
+                                          item: items[start + column],
+                                          usesIconTile:
+                                              type ==
+                                              AppServiceGridCardType.service,
+                                          width: columnWidth,
+                                        )
+                                      : const SizedBox.shrink(),
+                                ),
                               ],
-                            ),
-                          ],
+                            ],
+                          ),
                         ],
-                      );
-                    },
-                  ),
+                      ],
+                    );
+                  },
+                ),
                 if (footer != null) ...[
                   SizedBox(height: footerSpacing),
                   footer!,

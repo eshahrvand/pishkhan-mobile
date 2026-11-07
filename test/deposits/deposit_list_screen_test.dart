@@ -188,7 +188,7 @@ void main() {
       isFalse,
     );
 
-    await tester.tap(find.text('وضعیت'));
+    await tester.tap(find.widgetWithText(AppChips, 'وضعیت'));
     await tester.pumpAndSettle();
     expect(find.byType(AppSelectSheet<DepositStatus>), findsOneWidget);
     Navigator.of(tester.element(find.byType(AppSelectSheet<DepositStatus>)))
@@ -196,14 +196,14 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(AppDepositList), findsNWidgets(3));
 
-    await tester.tap(find.text('وضعیت'));
+    await tester.tap(find.widgetWithText(AppChips, 'وضعیت'));
     await tester.pumpAndSettle();
     await tester.tap(find.text(S.current.depositListOpen).last);
     await tester.pumpAndSettle();
     expect(find.byType(AppSelectSheet<DepositStatus>), findsNothing);
     expect(find.byType(AppDepositList), findsOneWidget);
 
-    await tester.tap(find.text('وضعیت'));
+    await tester.tap(find.widgetWithText(AppChips, 'وضعیت'));
     await tester.pumpAndSettle();
     expect(find.byType(AppDepositList), findsNWidgets(3));
     expect(tester.takeException(), isNull);

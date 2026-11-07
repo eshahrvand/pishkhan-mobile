@@ -13,6 +13,14 @@ countdown/resend control. Secondary controls remain disabled during the other
 operation through their callback gates, without showing another spinner. This
 supersedes the older Login resend-isLoading requirement below.
 
+**Owner update, 2026-11-07 — Button gating with `isActive`:** Design-system buttons
+(`AppButton`) provide `isActive` (defaulting to true) and automatically block taps
+and apply disabled styling when `isActive: false` or `isLoading: true`. Do not write
+redundant ternary expressions on `onPressed` (`onPressed: condition ? callback : null`).
+Bind the action directly to `onPressed: context.read<...>().action` and pass the
+enablement condition to `isActive: state.canX`. This supersedes the older
+`onPressed: state.canX ? ... : null` syntax.
+
 This document turns the project owner's requirements and supplied examples into explicit rules. A team member opening a screen should be able to see how the UI is built, how State is read and how Cubit is called, without navigating through multiple wrappers and files to understand a simple form.
 
 “Required” and “prohibited” in this document are owner-approved style instructions. Only sections explicitly marked “recommendation” or “pending review” remain unapproved; those labels never weaken a mandatory rule elsewhere. The approved principles consolidated in Section 2.3 are mandatory, not recommendations. This document does not authorize agents to change code automatically or automatically rewrite the [architecture document](architecture-smart-virtual-counter-v2-en.md) or the [current UI skill](../.agents/skills/flutter-widget-ui-style/SKILL.md). When styles conflict, the owner's explicit instructions recorded here take precedence over older examples. Boundaries and open decisions are recorded in Section 25.
@@ -219,13 +227,14 @@ unsolicited rewrite of untouched code.
    in the same change or an identifiable service contract (Section 5.5). Do not
    add "just in case" methods, pass-through helpers or duplicate State
    (`selectedId` **and** `selectedCard`).
-8. **Buttons use `isLoading:`; `onPressed` checks one flag.** Pass the operation
-   status to the button's loading parameter
-   (`isLoading: state.xStatus == RequestStatus.loading`); the button ignores taps
-   while loading. Write `onPressed: state.canX ? ... : null`. Do not add
-   `!= loading` or `!= success` to `onPressed`: loading is covered by `isLoading`,
-   and the success emit sets `canX: false`. A control without a loading parameter
-   (for example a text field's `enabled:`) uses the status check instead.
+8. **Buttons use `isLoading:` and `isActive:`.** Pass the operation status to
+   the button's loading parameter (`isLoading: state.xStatus == RequestStatus.loading`);
+   the button ignores taps while loading. Pass the enablement flag to
+   `isActive: state.canX` and bind the action directly to
+   `onPressed: context.read<XCubit>().action`. Do not write ternary conditions on
+   `onPressed` (`onPressed: state.canX ? ... : null`) or redundant `!= loading`
+   checks. Controls without an `isActive`/`isLoading` parameter (such as text fields)
+   use `enabled:`.
 9. **Naming.** Actions use the verb vocabulary and State fields use the naming
    scheme in Section 6.6. No `get*`, `set*`, `load`, `handle*`, `process*`, `init*`.
 10. **Target level of simplicity.** One `emit` per user event, except an action
@@ -2261,11 +2270,8 @@ class _AverageBalanceScreenState extends State<AverageBalanceScreen> {
                         label: getAverageBalanceButtonTitle(state.step),
                         isLoading:
                             state.submissionStatus == RequestStatus.loading,
-                        onPressed: state.canContinue
-                            ? () {
-                                context.read<AverageBalanceCubit>().continueFlow();
-                              }
-                            : null,
+                        isActive: state.canContinue,
+                        onPressed: context.read<AverageBalanceCubit>().continueFlow,
                       ),
                     );
                   },
@@ -2413,11 +2419,8 @@ This use of `Builder` solves a context need; it is not a replacement for every `
 AppButton(
   label: S.current.issuanceSubmit,
   isLoading: state.submissionStatus == RequestStatus.loading,
-  onPressed: state.canSubmit
-      ? () {
-          context.read<ChangeCardDepositCubit>().submit();
-        }
-      : null,
+  isActive: state.canSubmit,
+  onPressed: context.read<ChangeCardDepositCubit>().submit,
 ),
 ```
 
@@ -2505,11 +2508,8 @@ BlocBuilder<AuthCubit, AuthState>(
     return AppButton(
       label: S.current.issuanceSubmit,
       isLoading: state.loginStatus == RequestStatus.loading,
-      onPressed: state.canSubmitLogin
-          ? () {
-              context.read<AuthCubit>().submitLogin();
-            }
-          : null,
+      isActive: state.canSubmitLogin,
+      onPressed: context.read<AuthCubit>().submitLogin,
     );
   },
 ),
@@ -3965,11 +3965,8 @@ Future<void> continueFlow() async {
 UI:
 
 ```dart
-onPressed: state.canContinue
-    ? () {
-        context.read<CardIssuanceCubit>().continueFlow();
-      }
-    : null,
+isActive: state.canContinue,
+onPressed: context.read<CardIssuanceCubit>().continueFlow,
 ```
 
 Cubit determines the next step; UI selects the form for the current step. The form-selection builder reads only `step`; independent forms read their own fields.
@@ -4471,7 +4468,7 @@ it catches what the agent misses.
 | BaseCubit | Listed in the architecture tree (`core/cubit/base_cubit.dart`) | Removed (owner decision 2026-10-18) |
 | Field validation | Aggregate flags re-ran every validator on every change | Validate once per field; aggregates read stored `isXValid` flags |
 | Initial emit | Initial action published the default State | No initial action without a real fetch; never re-emit defaults |
-| Button gating | `canX && != loading && != success` inside `onPressed` | `isLoading:` parameter + `onPressed: state.canX ? ... : null` |
+| Button gating | `canX && != loading && != success` inside `onPressed` or ternary `? callback : null` | `isLoading:` parameter + `isActive: state.canX` + direct `onPressed` |
 | Naming | `load`, `set*`, `get*`, `handle*`, ID + object pairs | Verb vocabulary and State naming (Section 6.6) |
 
 ### 25.1.1 Final Status of Reviewed Items: Do Not Turn Proposals into New Requirements

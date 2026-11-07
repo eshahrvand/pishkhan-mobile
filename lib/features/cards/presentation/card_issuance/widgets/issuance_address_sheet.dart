@@ -12,6 +12,7 @@ Future<void> showIssuanceAddressSheet(
   CardIssuanceCubit cubit,
 ) => showModalBottomSheet<void>(
   context: context,
+  useRootNavigator: true,
   isScrollControlled: true,
   backgroundColor: context.colors.surfaceSubtle,
   builder: (_) => Directionality(

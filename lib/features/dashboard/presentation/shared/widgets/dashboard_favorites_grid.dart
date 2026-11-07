@@ -28,7 +28,7 @@ class DashboardFavoritesGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final columns = constraints.maxWidth >= 274 ? 4 : 3;
+        final columns = constraints.maxWidth >= 290 ? 4 : 3;
         final width = (constraints.maxWidth - (columns - 1) * 6) / columns;
         return Wrap(
           spacing: 6,

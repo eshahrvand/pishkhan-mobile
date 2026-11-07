@@ -1,7 +1,5 @@
 import 'package:pishkhan_mobile/core/config/constant.dart';
 
-import 'dart:ui' as ui;
-
 import 'package:flutter/services.dart';
 import 'package:pishkhan_mobile/core/platform/platform_share.dart';
 
@@ -23,16 +21,13 @@ Future<void> showPostalOfficesSheet(BuildContext context) {
   FocusManager.instance.primaryFocus?.unfocus();
   return showModalBottomSheet<void>(
     context: context,
+    useRootNavigator: true,
     isScrollControlled: true,
-    useSafeArea: true,
     backgroundColor: Colors.transparent,
     barrierColor: context.colors.textPrimary.withValues(alpha: .4),
     builder: (_) => BlocProvider(
       create: (_) => PostalOfficesCubit()..fetchProvinces(),
-      child: BackdropFilter(
-        filter: ui.ImageFilter.blur(sigmaX: 1, sigmaY: 1),
-        child: const PostalOfficesSheet(),
-      ),
+      child: const PostalOfficesSheet(),
     ),
   );
 }

@@ -94,9 +94,10 @@ Consumers may retain their actual carousel, scroll or modal ownership.
 
 ## Forms, dialogs and navigation
 
-- A loading-capable button uses `isLoading` for that operation and one `canX`
-  flag for `onPressed`. Other controls use enabled/disabled availability. Do not
-  repeat those UI preconditions as Cubit entry guards.
+- A loading-capable button uses `isLoading` for that operation and `isActive: state.canX`
+  for enablement, binding `onPressed` directly without ternary `? callback : null`.
+  Other controls use enabled/disabled availability. Do not repeat those UI preconditions
+  as Cubit entry guards.
 - Preserve independent operation statuses and actual pending-request Back gates.
   Cubit decides previous step, confirmation or exit; UI performs the prepared
   navigation. Keep banking identity, quote binding and stale-response safeguards.

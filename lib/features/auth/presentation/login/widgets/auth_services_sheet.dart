@@ -1,7 +1,5 @@
 import 'package:pishkhan_mobile/core/config/constant.dart';
 
-import 'dart:ui';
-
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -15,23 +13,20 @@ Future<String?> showAuthServicesSheet(BuildContext context) async {
   FocusManager.instance.primaryFocus?.unfocus();
   return showModalBottomSheet<String>(
     context: context,
+    useRootNavigator: true,
     isScrollControlled: true,
-    useSafeArea: true,
     backgroundColor: Colors.transparent,
     barrierColor: colors.textSecondary.withValues(alpha: .8),
-    builder: (sheetContext) => BackdropFilter(
-      filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
-      child: SafeArea(
-        top: false,
-        child: SizedBox(
-          height: (viewport.size.height - viewport.viewPadding.vertical).clamp(
-            0.0,
-            528.0,
-          ),
-          child: AuthServicesSheet(
-            onClose: () => sheetContext.pop(),
-            onServiceRequested: (id) => sheetContext.pop(id),
-          ),
+    builder: (sheetContext) => SafeArea(
+      top: false,
+      child: SizedBox(
+        height: (viewport.size.height - viewport.viewPadding.vertical).clamp(
+          0.0,
+          528.0,
+        ),
+        child: AuthServicesSheet(
+          onClose: () => sheetContext.pop(),
+          onServiceRequested: (id) => sheetContext.pop(id),
         ),
       ),
     ),

@@ -11,7 +11,7 @@ import 'agent_form.dart';
 Future<void> showAgentSheet(BuildContext context, AgentCubit cubit) {
   return showModalBottomSheet<void>(
     context: context,
-    useSafeArea: true,
+    useRootNavigator: true,
     isScrollControlled: true,
     backgroundColor: context.colors.surfaceSubtle,
     shape: const RoundedRectangleBorder(

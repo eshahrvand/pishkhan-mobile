@@ -63,6 +63,9 @@ Core boundaries that must remain visible during implementation:
 - UI owns Flutter controllers/focus/scroll and their disposal; flow selection,
   visibility and errors remain in State. Do not evade this with setState or
   parallel notifiers. Preserve relevant async and banking safeguards.
+- Buttons use `isLoading:` for operation loading and `isActive:` for enablement.
+  Do not write redundant ternary conditions on `onPressed`
+  (`onPressed: condition ? callback : null`); bind the action directly to `onPressed`.
 
 Before completion, review all code introduced or modified by the task against
 the full contract, correct violations and run relevant checks. Passing tests or

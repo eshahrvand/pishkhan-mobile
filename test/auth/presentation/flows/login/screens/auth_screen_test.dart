@@ -295,7 +295,7 @@ void main() {
       ),
     );
     expect(refresh.isLoading, isFalse);
-    expect(refresh.onPressed, isNull);
+    expect(refresh.isActive, isFalse);
     expect(
       find.byWidgetPredicate(
         (widget) => widget is AppButton && widget.isLoading,

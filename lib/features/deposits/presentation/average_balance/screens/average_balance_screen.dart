@@ -52,8 +52,8 @@ class AverageBalanceScreen extends StatelessWidget {
         final cubit = context.read<AverageBalanceCubit>();
         await showModalBottomSheet<void>(
           context: context,
+          useRootNavigator: true,
           isScrollControlled: true,
-          useSafeArea: true,
           builder: (sheetContext) => AppDeleteAddressSheet(
             address: address.detail,
             postalCode: address.postalCode,

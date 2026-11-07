@@ -85,7 +85,7 @@ class DashboardBankServices extends StatelessWidget {
                   const SizedBox(height: 20),
                   LayoutBuilder(
                     builder: (context, constraints) {
-                      final columns = constraints.maxWidth >= 306 ? 4 : 3;
+                      final columns = constraints.maxWidth >= 290 ? 4 : 3;
                       final width =
                           (constraints.maxWidth - (columns - 1) * 6) / columns;
                       return Wrap(
@@ -116,6 +116,7 @@ class DashboardBankServices extends StatelessWidget {
                                     height: 16 / 10,
                                     letterSpacing: 0,
                                   ),
+                                  width: width,
                                 ),
                               ),
                             ),
