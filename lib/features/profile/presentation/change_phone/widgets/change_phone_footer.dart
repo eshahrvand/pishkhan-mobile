@@ -25,11 +25,10 @@ class ChangePhoneFooter extends StatelessWidget {
             context.read<ChangePhoneCubit>().requestTerms();
           },
           isLoading: state.submissionStatus == RequestStatus.loading,
-          onSubmit: state.canSubmit
-              ? () {
-                  context.read<ChangePhoneCubit>().submitPhoneChange();
-                }
-              : null,
+          onSubmit: () {
+            context.read<ChangePhoneCubit>().submitPhoneChange();
+          },
+          isActive: state.canSubmit,
         );
       },
     );

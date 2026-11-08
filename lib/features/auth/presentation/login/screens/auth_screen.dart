@@ -161,15 +161,15 @@ class AuthScreen extends StatelessWidget {
                           child: Column(
                             children: [
                               AuthHeader(
-                                onMenu:
+                                onMenu: context
+                                    .read<AuthCubit>()
+                                    .requestServices,
+                                isMenuActive:
                                     state.captchaStatus !=
-                                            RequestStatus.loading &&
-                                        state.otpRequestStatus !=
-                                            RequestStatus.loading &&
-                                        state.loginStatus !=
-                                            RequestStatus.loading
-                                    ? context.read<AuthCubit>().requestServices
-                                    : null,
+                                        RequestStatus.loading &&
+                                    state.otpRequestStatus !=
+                                        RequestStatus.loading &&
+                                    state.loginStatus != RequestStatus.loading,
                               ),
                               Expanded(
                                 child: SingleChildScrollView(

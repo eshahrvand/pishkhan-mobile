@@ -42,11 +42,10 @@ class ChequeCancellationReasons extends StatelessWidget {
                   width: 20,
                   height: 20,
                 ),
-                onPressed: state.isEditable
-                    ? context
-                          .read<ChequeCancellationCubit>()
-                          .requestReasonForAll
-                    : null,
+                onPressed: context
+                    .read<ChequeCancellationCubit>()
+                    .requestReasonForAll,
+                isActive: state.isEditable,
               ),
             ),
           ],

@@ -155,10 +155,11 @@ class AgentSettingsScreen extends StatelessWidget {
                             height: 24,
                           ),
                           trailingTooltip: S.current.backLabel,
-                          onTrailingPressed:
-                              (state.agentsStatus != RequestStatus.loading)
-                              ? context.read<AgentSettingsCubit>().requestBack
-                              : null,
+                          onTrailingPressed: context
+                              .read<AgentSettingsCubit>()
+                              .requestBack,
+                          isTrailingActive:
+                              (state.agentsStatus != RequestStatus.loading),
                         ),
                         Expanded(
                           child: state.details == null

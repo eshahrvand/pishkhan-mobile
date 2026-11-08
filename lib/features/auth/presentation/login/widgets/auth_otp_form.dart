@@ -102,13 +102,12 @@ class AuthOtpForm extends StatelessWidget {
                   return SizedBox(
                     height: 44,
                     child: AppButton(
-                      onPressed:
+                      onPressed: () {
+                        context.read<AuthCubit>().submitOtpResend();
+                      },
+                      isActive:
                           state.canResendOtp &&
-                              state.loginStatus != RequestStatus.loading
-                          ? () {
-                              context.read<AuthCubit>().submitOtpResend();
-                            }
-                          : null,
+                          state.loginStatus != RequestStatus.loading,
                       label: state.remainingSeconds == 0
                           ? S.current.resendOtp
                           : getOtpRemainingTime(state.remainingSeconds),
@@ -136,11 +135,10 @@ class AuthOtpForm extends StatelessWidget {
           builder: (context, state) {
             return AppButton(
               isLoading: state.loginStatus == RequestStatus.loading,
-              onPressed: state.canSubmitLogin
-                  ? () {
-                      context.read<AuthCubit>().submitLogin(state.challenge!);
-                    }
-                  : null,
+              onPressed: () {
+                context.read<AuthCubit>().submitLogin(state.challenge!);
+              },
+              isActive: state.canSubmitLogin,
               label: S.current.enterDashboard,
               size: AppButtonSize.lg,
             );

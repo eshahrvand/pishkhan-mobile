@@ -91,7 +91,7 @@ void main() {
       expect(tester.getTopLeft(find.byType(AppSelect<ProxySubject>)).dy, 194);
       expect(tester.getTopLeft(find.byType(AppSelect<ListedDeposit>)).dy, 284);
       expect(find.byType(ProxySubjectDetails), findsNothing);
-      expect(tester.widget<AppButton>(proxySubmitButton()).onPressed, isNull);
+      expect(tester.widget<AppButton>(proxySubmitButton()).isActive, isFalse);
       await captureProxy(tester, 'initial');
       await selectProxySubject(tester);
       await tester.tap(find.byType(AppSelect<ListedDeposit>));
@@ -117,10 +117,7 @@ void main() {
       }
       await tester.tap(find.byType(AppCheckbox));
       await tester.pumpAndSettle();
-      expect(
-        tester.widget<AppButton>(proxySubmitButton()).onPressed,
-        isNotNull,
-      );
+      expect(tester.widget<AppButton>(proxySubmitButton()).isActive, isTrue);
       await captureProxy(tester, 'filled');
       await tester.tap(proxySubmitButton());
       await tester.pumpAndSettle();
@@ -166,7 +163,7 @@ void main() {
             .value,
         isNull,
       );
-      expect(tester.widget<AppButton>(proxySubmitButton()).onPressed, isNull);
+      expect(tester.widget<AppButton>(proxySubmitButton()).isActive, isFalse);
     },
   );
 

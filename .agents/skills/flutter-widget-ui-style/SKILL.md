@@ -98,6 +98,12 @@ Consumers may retain their actual carousel, scroll or modal ownership.
   for enablement, binding `onPressed` directly without ternary `? callback : null`.
   Other controls use enabled/disabled availability. Do not repeat those UI preconditions
   as Cubit entry guards.
+- App-owned shared footers and headers forward enablement to `isActive`
+  independently of their direct callback. Do not hide the conditional in
+  `onSubmit`, `onTrailingPressed` or `onMenu` at the caller.
+  A secondary button disabled by another operation uses `isActive` without
+  showing that operation's spinner. Controls without these parameters, including
+  the current `AppChips`, retain their supported callback gate.
 - Preserve independent operation statuses and actual pending-request Back gates.
   Cubit decides previous step, confirmation or exit; UI performs the prepared
   navigation. Keep banking identity, quote binding and stale-response safeguards.
@@ -105,6 +111,10 @@ Consumers may retain their actual carousel, scroll or modal ownership.
   with safe areas and keyboard insets when required. Launchers perform Flutter
   modal work only. A Confirm button may bind the specific Cubit action directly;
   Cancel/dismissal closes without invoking it.
+- Preserve the owner's 2026-11-08 confirmation of commit `66f00d5`: the reviewed
+  root-navigator modals intentionally omit `useSafeArea: true`, including the
+  address editor's edge-to-edge top. Test root routing, reachable controls and
+  dismissal rather than reinstating the rejected top-padding expectation.
 - Await navigation/modal results when the defined flow needs them, check mounted
   and return the raw result to Cubit. Do not prescribe `.then` refresh chains or
   orchestrate the next flow action in UI. Existing router adapters translate

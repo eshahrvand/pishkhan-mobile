@@ -163,7 +163,8 @@ class DashboardFavoritesCard extends StatelessWidget {
                 SizedBox(
                   width: 100,
                   child: AppButton(
-                    onPressed: state.canConfirmFavorites ? onConfirm : null,
+                    onPressed: onConfirm,
+                    isActive: state.canConfirmFavorites,
                     disabledAppearance: AppButtonDisabledAppearance.service,
                     label: S.current.dashboardConfirm,
                     size: AppButtonSize.sm,

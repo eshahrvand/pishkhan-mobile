@@ -120,17 +120,16 @@ class RequestReportsScreen extends StatelessWidget {
                                         '${AppConstants.baseImage}deposit_list_back.svg',
                                   ),
                                   trailingTooltip: S.current.backLabel,
-                                  onTrailingPressed:
+                                  onTrailingPressed: () {
+                                    context
+                                        .read<RequestReportsCubit>()
+                                        .requestBack();
+                                  },
+                                  isTrailingActive:
                                       (state.reportsStatus !=
-                                              RequestStatus.loading &&
-                                          state.cancellationStatus !=
-                                              RequestStatus.loading)
-                                      ? () {
-                                          context
-                                              .read<RequestReportsCubit>()
-                                              .requestBack();
-                                        }
-                                      : null,
+                                          RequestStatus.loading &&
+                                      state.cancellationStatus !=
+                                          RequestStatus.loading),
                                 );
                               },
                             ),

@@ -128,13 +128,12 @@ class MobileBankScreen extends StatelessWidget {
                           ),
                         ),
                         trailingTooltip: S.current.backLabel,
-                        onTrailingPressed:
+                        onTrailingPressed: () {
+                          context.read<MobileBankCubit>().requestBack();
+                        },
+                        isTrailingActive:
                             (state.catalogStatus != RequestStatus.loading &&
-                                state.submissionStatus != RequestStatus.loading)
-                            ? () {
-                                context.read<MobileBankCubit>().requestBack();
-                              }
-                            : null,
+                            state.submissionStatus != RequestStatus.loading),
                       ),
                       Expanded(
                         child: Stack(
@@ -199,13 +198,10 @@ class MobileBankScreen extends StatelessWidget {
                             onTermsRequested: () {
                               showModernBankTerms(context);
                             },
-                            onSubmit: state.canContinue
-                                ? () {
-                                    context
-                                        .read<MobileBankCubit>()
-                                        .continueFlow();
-                                  }
-                                : null,
+                            onSubmit: () {
+                              context.read<MobileBankCubit>().continueFlow();
+                            },
+                            isActive: state.canContinue,
                             isLoading:
                                 state.submissionStatus == RequestStatus.loading,
                             submitLabel: S.current.issuanceNext,
@@ -249,13 +245,10 @@ class MobileBankScreen extends StatelessWidget {
                               isLoading:
                                   state.submissionStatus ==
                                   RequestStatus.loading,
-                              onPressed: state.canContinue
-                                  ? () {
-                                      context
-                                          .read<MobileBankCubit>()
-                                          .continueFlow();
-                                    }
-                                  : null,
+                              onPressed: () {
+                                context.read<MobileBankCubit>().continueFlow();
+                              },
+                              isActive: state.canContinue,
                             ),
                           ),
                       ],

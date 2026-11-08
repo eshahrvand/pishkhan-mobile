@@ -76,9 +76,8 @@ class CloseSurplusDepositsFooter extends StatelessWidget {
             size: AppButtonSize.lg,
             disabledAppearance: AppButtonDisabledAppearance.service,
             isLoading: state.submissionStatus == RequestStatus.loading,
-            onPressed: state.canContinue
-                ? context.read<CloseSurplusDepositsCubit>().continueFlow
-                : null,
+            onPressed: context.read<CloseSurplusDepositsCubit>().continueFlow,
+            isActive: state.canContinue,
           ),
         ],
       ),

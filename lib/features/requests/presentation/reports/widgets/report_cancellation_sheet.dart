@@ -82,13 +82,12 @@ class ReportCancellationSheet extends StatelessWidget {
                       constrainLabel: true,
                       isLoading:
                           state.cancellationStatus == RequestStatus.loading,
-                      onPressed: state.canCancelRequest
-                          ? () {
-                              context
-                                  .read<RequestReportsCubit>()
-                                  .submitCancellation();
-                            }
-                          : null,
+                      onPressed: () {
+                        context
+                            .read<RequestReportsCubit>()
+                            .submitCancellation();
+                      },
+                      isActive: state.canCancelRequest,
                     ),
                   ),
                 ],

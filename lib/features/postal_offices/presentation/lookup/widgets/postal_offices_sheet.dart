@@ -235,11 +235,10 @@ class PostalOfficesSheet extends StatelessWidget {
                                   isLoading:
                                       state.postalOfficesStatus ==
                                       RequestStatus.loading,
-                                  onPressed: state.canSearchPostalOffices
-                                      ? context
-                                            .read<PostalOfficesCubit>()
-                                            .searchPostalOffices
-                                      : null,
+                                  onPressed: context
+                                      .read<PostalOfficesCubit>()
+                                      .searchPostalOffices,
+                                  isActive: state.canSearchPostalOffices,
                                 ),
                               ],
                             ),

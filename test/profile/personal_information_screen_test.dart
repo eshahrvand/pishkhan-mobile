@@ -84,8 +84,8 @@ void main() {
     await tester.pump();
     await tester.pump();
     expect(
-      tester.widget<AppTopBar>(find.byType(AppTopBar)).onTrailingPressed,
-      isNull,
+      tester.widget<AppTopBar>(find.byType(AppTopBar)).isTrailingActive,
+      isFalse,
     );
     await tester.binding.handlePopRoute();
     await tester.pump();
@@ -96,8 +96,8 @@ void main() {
     await firstRequest;
     await tester.pump();
     expect(
-      tester.widget<AppTopBar>(find.byType(AppTopBar)).onTrailingPressed,
-      isNull,
+      tester.widget<AppTopBar>(find.byType(AppTopBar)).isTrailingActive,
+      isFalse,
     );
     await tester.binding.handlePopRoute();
     await tester.pump();
@@ -112,8 +112,8 @@ void main() {
       RequestStatus.failure,
     );
     expect(
-      tester.widget<AppTopBar>(find.byType(AppTopBar)).onTrailingPressed,
-      isNotNull,
+      tester.widget<AppTopBar>(find.byType(AppTopBar)).isTrailingActive,
+      isTrue,
     );
     await tester.pump(const Duration(seconds: 5));
     await tester.pumpAndSettle();
@@ -324,7 +324,7 @@ void main() {
       await tester.pumpAndSettle();
       await capture(tester, 'phone-ready');
       final submit = find.widgetWithText(AppButton, S.current.issuanceSubmit);
-      expect(tester.widget<AppButton>(submit).onPressed, isNotNull);
+      expect(tester.widget<AppButton>(submit).isActive, isTrue);
       await tester.tap(submit);
       await tester.pump();
       expect(
@@ -545,8 +545,8 @@ void main() {
             .widget<AppButton>(
               find.widgetWithText(AppButton, S.current.profileSubmit),
             )
-            .onPressed,
-        isNull,
+            .isActive,
+        isFalse,
       );
       cubit.selectKind(JobInformationKind.teacher);
       cubit.updateDescription('مدرس');

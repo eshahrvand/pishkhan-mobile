@@ -1146,11 +1146,8 @@ class ChangeCardDepositCubit extends Cubit<ChangeCardDepositState> {
 // UI reads existing fields and statuses directly.
 AppButton(
   isLoading: state.submissionStatus == RequestStatus.loading,
-  onPressed: state.canSubmit
-      ? () {
-          context.read<ChangeCardDepositCubit>().submit();
-        }
-      : null,
+  isActive: state.canSubmit,
+  onPressed: context.read<ChangeCardDepositCubit>().submit,
   label: S.current.cardServiceSubmit,
 );
 ```
@@ -1408,11 +1405,8 @@ Text(S.current.mobileNumber);
 AppButton(
   label: S.current.submitRequest,
   isLoading: state.submissionStatus == RequestStatus.loading,
-  onPressed: state.canSubmit
-      ? () {
-          context.read<MyServiceCubit>().submit();
-        }
-      : null,
+  isActive: state.canSubmit,
+  onPressed: context.read<MyServiceCubit>().submit,
 );
 
 Text(S.current.otpSentMessage(state.maskedPhone));
@@ -1671,8 +1665,9 @@ GoRouter createAppRouter({required RouterSession session}) {
 **Owner-approved project-wide policy:** system and in-screen Back are blocked by
 UI while any request in the owning flow is loading. Do not repeat this gate inside
 Cubit actions. After loading, retain each flow's exit/confirmation behavior.
-Login's OTP resend button uses isLoading for pending verification and only
-canResendOtp in onPressed. AuthState retains the LoginCaptcha model as the single
+Under the 2026-11-07 owner update, Login's OTP resend button retains its countdown
+without a spinner during verification. Its direct callback is gated through
+isActive using canResendOtp and the verification status. AuthState retains the LoginCaptcha model as the single
 source of its image/SessionId pair, without a separate sessionId field. The Cubit
 reads the model's SessionId when constructing the OTP request; refresh clears or
 replaces the pair together. These changes add no new endpoint or banking policy.

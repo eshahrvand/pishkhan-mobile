@@ -64,12 +64,11 @@ class ChequeCancellationReasonSheet extends StatelessWidget {
                   label: S.current.chequeCancelChoose,
                   size: AppButtonSize.lg,
                   disabledAppearance: AppButtonDisabledAppearance.service,
-                  onPressed: state.reasonDraft != null
-                      ? () {
-                          context.read<ChequeCancellationCubit>().applyReason();
-                          Navigator.of(context).pop();
-                        }
-                      : null,
+                  onPressed: () {
+                    context.read<ChequeCancellationCubit>().applyReason();
+                    Navigator.of(context).pop();
+                  },
+                  isActive: state.reasonDraft != null,
                 ),
               ),
             ],

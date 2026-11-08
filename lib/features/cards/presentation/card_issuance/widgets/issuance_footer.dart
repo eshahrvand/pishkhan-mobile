@@ -90,9 +90,8 @@ class IssuanceFooter extends StatelessWidget {
                 ),
                 constrainLabel: true,
                 isLoading: state.submissionStatus == RequestStatus.loading,
-                onPressed: state.canContinue
-                    ? context.read<CardIssuanceCubit>().continueFlow
-                    : null,
+                onPressed: context.read<CardIssuanceCubit>().continueFlow,
+                isActive: state.canContinue,
               ),
             ],
           ),

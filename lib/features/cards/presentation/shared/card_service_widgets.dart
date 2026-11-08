@@ -33,14 +33,17 @@ class CardServiceFooter extends StatelessWidget {
     required this.label,
     required this.onSubmit,
     required this.loading,
+    required this.isActive,
     this.termsAccepted,
     this.onTermsChanged,
     this.onTermsRequested,
     this.termsSpacing = 16,
   });
   final String label;
-  final VoidCallback? onSubmit, onTermsRequested;
+  final VoidCallback onSubmit;
+  final VoidCallback? onTermsRequested;
   final bool loading;
+  final bool isActive;
   final double termsSpacing;
   final bool? termsAccepted;
   final ValueChanged<bool>? onTermsChanged;
@@ -116,6 +119,7 @@ class CardServiceFooter extends StatelessWidget {
             disabledAppearance: AppButtonDisabledAppearance.service,
             label: label,
             isLoading: loading,
+            isActive: isActive,
             onPressed: onSubmit,
           ),
         ],

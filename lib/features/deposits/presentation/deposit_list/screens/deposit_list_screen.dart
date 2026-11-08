@@ -142,12 +142,10 @@ class DepositListScreen extends StatelessWidget {
                             '${AppConstants.baseImage}deposit_list_back.svg',
                           ),
                           trailingTooltip: S.current.backLabel,
-                          onTrailingPressed:
-                              (state.depositsStatus != RequestStatus.loading)
-                              ? () => context
-                                    .read<DepositListCubit>()
-                                    .requestBack()
-                              : null,
+                          onTrailingPressed: () =>
+                              context.read<DepositListCubit>().requestBack(),
+                          isTrailingActive:
+                              (state.depositsStatus != RequestStatus.loading),
                         ),
                         Expanded(
                           child: Stack(

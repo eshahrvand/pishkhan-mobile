@@ -223,20 +223,16 @@ class _OnSiteTransferScreenState extends State<OnSiteTransferScreen> {
                                   '${AppConstants.baseImage}deposit_list_back.svg',
                             ),
                             trailingTooltip: S.current.backLabel,
-                            onTrailingPressed:
+                            onTrailingPressed: () {
+                              context.read<OnSiteTransferCubit>().requestBack();
+                            },
+                            isTrailingActive:
                                 (state.catalogStatus != RequestStatus.loading &&
-                                    state.destinationStatus !=
-                                        RequestStatus.loading &&
-                                    state.uploadStatus !=
-                                        RequestStatus.loading &&
-                                    state.submissionStatus !=
-                                        RequestStatus.loading)
-                                ? () {
-                                    context
-                                        .read<OnSiteTransferCubit>()
-                                        .requestBack();
-                                  }
-                                : null,
+                                state.destinationStatus !=
+                                    RequestStatus.loading &&
+                                state.uploadStatus != RequestStatus.loading &&
+                                state.submissionStatus !=
+                                    RequestStatus.loading),
                           ),
                           Expanded(child: TransferForm(controller: _scroll)),
                           const TransferFooter(),

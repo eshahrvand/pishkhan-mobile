@@ -291,12 +291,12 @@ void main() {
         isNull,
       );
       expect(
-        t.widget<AppButton>(cardControl(t, 'virtual_submit')).onPressed,
-        isNull,
+        t.widget<AppButton>(cardControl(t, 'virtual_submit')).isActive,
+        isFalse,
       );
       expect(
-        t.widget<AppTopBar>(find.byType(AppTopBar)).onTrailingPressed,
-        isNull,
+        t.widget<AppTopBar>(find.byType(AppTopBar)).isTrailingActive,
+        isFalse,
       );
       await t.tap(cardControl(t, 'virtual_submit'));
       await t.pump();

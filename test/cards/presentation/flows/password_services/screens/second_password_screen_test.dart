@@ -280,8 +280,8 @@ void main() {
         expect(t.getTopLeft(authControl(t, 'password_card_kind')).dy, 144);
         expect(t.getTopLeft(authControl(t, 'password_next')).dy, 712);
         expect(
-          t.widget<AppButton>(authControl(t, 'password_next')).onPressed,
-          isNull,
+          t.widget<AppButton>(authControl(t, 'password_next')).isActive,
+          isFalse,
         );
       }
       if (frame == 'selection-filled') {
@@ -355,8 +355,8 @@ void main() {
       expect(find.byType(AppVideoPlayer), findsOneWidget);
       await tap(t, 'password_next');
       expect(
-        t.widget<AppButton>(authControl(t, 'password_next')).onPressed,
-        isNull,
+        t.widget<AppButton>(authControl(t, 'password_next')).isActive,
+        isFalse,
       );
       await tap(t, 'password_confirm_mock');
       await tap(t, 'password_next');
@@ -384,8 +384,8 @@ void main() {
       await t.tap(authControl(t, 'password_next'));
       await t.pump();
       expect(
-        t.widget<AppButton>(authControl(t, 'password_next')).onPressed,
-        isNull,
+        t.widget<AppButton>(authControl(t, 'password_next')).isActive,
+        isFalse,
       );
       expect(
         t
@@ -401,8 +401,8 @@ void main() {
         isTrue,
       );
       expect(
-        t.widget<AppTopBar>(find.byType(AppTopBar)).onTrailingPressed,
-        isNull,
+        t.widget<AppTopBar>(find.byType(AppTopBar)).isTrailingActive,
+        isFalse,
       );
       repository.checking!.complete(
         const Success(
@@ -428,8 +428,8 @@ void main() {
       await t.tap(authControl(t, 'password_next'));
       await t.pump();
       expect(
-        t.widget<AppButton>(authControl(t, 'password_next')).onPressed,
-        isNull,
+        t.widget<AppButton>(authControl(t, 'password_next')).isActive,
+        isFalse,
       );
       expect(
         t.widget<AppCheckbox>(authControl(t, 'password_terms')).onChanged,

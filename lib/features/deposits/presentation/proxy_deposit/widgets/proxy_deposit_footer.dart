@@ -22,9 +22,8 @@ class ProxyDepositFooter extends StatelessWidget {
               ? context.read<ProxyDepositCubit>().updateTermsAcceptance
               : null,
           onTermsRequested: context.read<ProxyDepositCubit>().requestTerms,
-          onSubmit: state.canSubmit
-              ? context.read<ProxyDepositCubit>().submitProxyDeposit
-              : null,
+          onSubmit: context.read<ProxyDepositCubit>().submitProxyDeposit,
+          isActive: state.canSubmit,
           isLoading: state.submissionStatus == RequestStatus.loading,
         );
       },

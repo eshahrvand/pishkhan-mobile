@@ -86,8 +86,8 @@ void main() {
           DepositRestrictionScreen(operation: operation),
         );
         expect(
-          tester.widget<AppButton>(submitRestrictionButton()).onPressed,
-          isNull,
+          tester.widget<AppButton>(submitRestrictionButton()).isActive,
+          isFalse,
         );
         expect(
           tester
@@ -131,8 +131,8 @@ void main() {
         await tester.tap(find.byType(AppCheckbox));
         await tester.pumpAndSettle();
         expect(
-          tester.widget<AppButton>(submitRestrictionButton()).onPressed,
-          isNotNull,
+          tester.widget<AppButton>(submitRestrictionButton()).isActive,
+          isTrue,
         );
         await captureRestriction(tester, '${operation.name}-filled');
         await tester.tap(submitRestrictionButton());

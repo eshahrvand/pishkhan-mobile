@@ -110,7 +110,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('پیام‌های جدید'), findsNothing);
     expect(notificationCard('gold-investment', unread: true), findsNothing);
-    expect(tester.widget<AppButton>(readAllButton()).onPressed, isNull);
+    expect(tester.widget<AppButton>(readAllButton()).isActive, isFalse);
     await tester.tap(notificationBack());
     await tester.pumpAndSettle();
     await openList(tester);

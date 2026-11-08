@@ -202,17 +202,16 @@ class ChequeCancellationScreen extends StatelessWidget {
                                 height: 24,
                               ),
                               trailingTooltip: S.current.backLabel,
-                              onTrailingPressed:
+                              onTrailingPressed: context
+                                  .read<ChequeCancellationCubit>()
+                                  .requestBack,
+                              isTrailingActive:
                                   (state.catalogStatus !=
-                                          RequestStatus.loading &&
-                                      state.chequesStatus !=
-                                          RequestStatus.loading &&
-                                      state.submissionStatus !=
-                                          RequestStatus.loading)
-                                  ? context
-                                        .read<ChequeCancellationCubit>()
-                                        .requestBack
-                                  : null,
+                                      RequestStatus.loading &&
+                                  state.chequesStatus !=
+                                      RequestStatus.loading &&
+                                  state.submissionStatus !=
+                                      RequestStatus.loading),
                             ),
                             const Expanded(child: ChequeCancellationContent()),
                             const ChequeCancellationFooter(),

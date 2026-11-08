@@ -79,12 +79,11 @@ class VirtualCardFooter extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           AppButton(
-            onPressed: state.canSubmit
-                ? () {
-                    FocusManager.instance.primaryFocus?.unfocus();
-                    context.read<VirtualCardCubit>().submitVirtualCards();
-                  }
-                : null,
+            onPressed: () {
+              FocusManager.instance.primaryFocus?.unfocus();
+              context.read<VirtualCardCubit>().submitVirtualCards();
+            },
+            isActive: state.canSubmit,
             label: S.current.virtualRequestSubmit,
             size: AppButtonSize.lg,
             constrainLabel: true,

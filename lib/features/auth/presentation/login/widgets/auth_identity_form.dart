@@ -199,12 +199,11 @@ class AuthIdentityForm extends StatelessWidget {
               label: S.current.requestOtp,
               isLoading: state.otpRequestStatus == RequestStatus.loading,
               size: AppButtonSize.md,
-              onPressed: state.canRequestOtp
-                  ? () {
-                      FocusManager.instance.primaryFocus?.unfocus();
-                      context.read<AuthCubit>().submitOtpRequest();
-                    }
-                  : null,
+              onPressed: () {
+                FocusManager.instance.primaryFocus?.unfocus();
+                context.read<AuthCubit>().submitOtpRequest();
+              },
+              isActive: state.canRequestOtp,
             );
           },
         ),

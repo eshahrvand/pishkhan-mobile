@@ -187,13 +187,12 @@ class TransferDestinationSheet extends StatelessWidget {
                             isLoading:
                                 state.destinationStatus ==
                                 RequestStatus.loading,
-                            onPressed: state.canAddDestination
-                                ? () {
-                                    context
-                                        .read<OnSiteTransferCubit>()
-                                        .submitDestination();
-                                  }
-                                : null,
+                            onPressed: () {
+                              context
+                                  .read<OnSiteTransferCubit>()
+                                  .submitDestination();
+                            },
+                            isActive: state.canAddDestination,
                           ),
                         ),
                         const SizedBox(width: 12),

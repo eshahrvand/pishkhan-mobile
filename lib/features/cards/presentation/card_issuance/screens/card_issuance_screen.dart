@@ -199,14 +199,11 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
                             size: 24,
                           ),
                           trailingTooltip: S.current.backLabel,
-                          onTrailingPressed:
+                          onTrailingPressed: () =>
+                              context.read<CardIssuanceCubit>().requestBack(),
+                          isTrailingActive:
                               (state.catalogStatus != RequestStatus.loading &&
-                                  state.submissionStatus !=
-                                      RequestStatus.loading)
-                              ? () => context
-                                    .read<CardIssuanceCubit>()
-                                    .requestBack()
-                              : null,
+                              state.submissionStatus != RequestStatus.loading),
                         ),
                         Expanded(
                           // The assistant and footer overlay the scroll viewport; a Column

@@ -150,17 +150,16 @@ class ChequeClearanceScreen extends StatelessWidget {
                                 height: 24,
                               ),
                               trailingTooltip: S.current.backLabel,
-                              onTrailingPressed:
+                              onTrailingPressed: () {
+                                context
+                                    .read<ChequeClearanceCubit>()
+                                    .requestBack();
+                              },
+                              isTrailingActive:
                                   (state.catalogStatus !=
-                                          RequestStatus.loading &&
-                                      state.submissionStatus !=
-                                          RequestStatus.loading)
-                                  ? () {
-                                      context
-                                          .read<ChequeClearanceCubit>()
-                                          .requestBack();
-                                    }
-                                  : null,
+                                      RequestStatus.loading &&
+                                  state.submissionStatus !=
+                                      RequestStatus.loading),
                             ),
                             const Expanded(child: ChequeClearanceForm()),
                             const ChequeClearanceFooter(),

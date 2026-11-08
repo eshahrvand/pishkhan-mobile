@@ -54,18 +54,18 @@ void main() {
     'multiple deposits show primary selector and one confirmation closes extras',
     (tester) async {
       await mountCertificate(tester, const CloseSurplusDepositsScreen());
-      expect(tester.widget<AppButton>(submitButton()).onPressed, isNull);
+      expect(tester.widget<AppButton>(submitButton()).isActive, isFalse);
       expect(tester.getTopLeft(find.byType(AppSelect<ListedDeposit>)).dy, 184);
       await captureSurplus(tester, 'initial');
       await tester.tap(find.byType(AppSelect<ListedDeposit>));
       await tester.pumpAndSettle();
       await tester.tap(find.text('10.1234567.2').last);
       await tester.pumpAndSettle();
-      expect(tester.widget<AppButton>(submitButton()).onPressed, isNull);
+      expect(tester.widget<AppButton>(submitButton()).isActive, isFalse);
       await captureSurplus(tester, 'selected');
       await tester.tap(find.byType(AppCheckbox));
       await tester.pumpAndSettle();
-      expect(tester.widget<AppButton>(submitButton()).onPressed, isNotNull);
+      expect(tester.widget<AppButton>(submitButton()).isActive, isTrue);
       await tester.tap(submitButton());
       await tester.pumpAndSettle();
       expect(find.byType(SurplusDepositReceiptDialog), findsOneWidget);
@@ -96,7 +96,7 @@ void main() {
     expect(find.text(S.current.surplusDepositsEmptyTitle), findsOneWidget);
     expect(find.byType(AppSelect<ListedDeposit>), findsNothing);
     expect(find.byType(AppCheckbox), findsNothing);
-    expect(tester.widget<AppButton>(submitButton()).onPressed, isNotNull);
+    expect(tester.widget<AppButton>(submitButton()).isActive, isTrue);
     await captureSurplus(tester, 'empty');
     expect(tester.takeException(), isNull);
   });

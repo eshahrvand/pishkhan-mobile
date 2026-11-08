@@ -249,8 +249,8 @@ void main() {
       expect(
         tester
             .widget<AppButton>(dashboardButton(S.current.dashboardConfirm))
-            .onPressed,
-        isNull,
+            .isActive,
+        isFalse,
       );
       expect(
         tester.getCenter(dashboardSemantic(S.current.dashboardAddService)).dx,
@@ -276,16 +276,16 @@ void main() {
       expect(
         tester
             .widget<AppButton>(dashboardButton(S.current.dashboardConfirm))
-            .onPressed,
-        isNotNull,
+            .isActive,
+        isTrue,
       );
       await tap(tester, dashboardButton(S.current.dashboardCancel));
       await tap(tester, dashboardButton(S.current.dashboardAddFavorites));
       expect(
         tester
             .widget<AppButton>(dashboardButton(S.current.dashboardConfirm))
-            .onPressed,
-        isNull,
+            .isActive,
+        isFalse,
       );
     },
   );

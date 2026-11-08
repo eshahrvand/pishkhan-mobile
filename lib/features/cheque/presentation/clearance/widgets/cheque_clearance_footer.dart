@@ -83,9 +83,8 @@ class ChequeClearanceFooter extends StatelessWidget {
                 constrainLabel: true,
                 disabledAppearance: AppButtonDisabledAppearance.service,
                 isLoading: state.submissionStatus == RequestStatus.loading,
-                onPressed: state.canSubmit
-                    ? context.read<ChequeClearanceCubit>().submitClearance
-                    : null,
+                onPressed: context.read<ChequeClearanceCubit>().submitClearance,
+                isActive: state.canSubmit,
               ),
             ],
           ),

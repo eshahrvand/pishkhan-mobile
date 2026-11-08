@@ -168,11 +168,10 @@ class _ExpiredGiftBalanceScreenState extends State<ExpiredGiftBalanceScreen> {
                               tooltip: S.current.giftBalanceSelectedList(
                                 state.selectedCards.length,
                               ),
-                              onPressed: state.canReviewSelection
-                                  ? () => context
-                                        .read<ExpiredGiftBalanceCubit>()
-                                        .requestReview()
-                                  : null,
+                              onPressed: () => context
+                                  .read<ExpiredGiftBalanceCubit>()
+                                  .requestReview(),
+                              isActive: state.canReviewSelection,
                               icon: Stack(
                                 clipBehavior: Clip.none,
                                 children: [
@@ -202,14 +201,12 @@ class _ExpiredGiftBalanceScreenState extends State<ExpiredGiftBalanceScreen> {
                             size: 24,
                           ),
                           trailingTooltip: S.current.backLabel,
-                          onTrailingPressed:
+                          onTrailingPressed: context
+                              .read<ExpiredGiftBalanceCubit>()
+                              .requestBack,
+                          isTrailingActive:
                               (state.catalogStatus != RequestStatus.loading &&
-                                  state.submissionStatus !=
-                                      RequestStatus.loading)
-                              ? context
-                                    .read<ExpiredGiftBalanceCubit>()
-                                    .requestBack
-                              : null,
+                              state.submissionStatus != RequestStatus.loading),
                         ),
                         if ((state.catalogStatus == RequestStatus.success &&
                             !state.isCatalogEmpty &&
@@ -261,11 +258,10 @@ class _ExpiredGiftBalanceScreenState extends State<ExpiredGiftBalanceScreen> {
                                 : S.current.giftBalanceSubmit,
                             loading:
                                 state.submissionStatus == RequestStatus.loading,
-                            onSubmit: state.canContinue
-                                ? context
-                                      .read<ExpiredGiftBalanceCubit>()
-                                      .submitCurrentStep
-                                : null,
+                            onSubmit: context
+                                .read<ExpiredGiftBalanceCubit>()
+                                .submitCurrentStep,
+                            isActive: state.canContinue,
                             termsAccepted:
                                 state.step == GiftBalanceStep.selection
                                 ? null

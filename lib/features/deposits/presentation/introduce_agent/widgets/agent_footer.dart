@@ -92,9 +92,8 @@ class AgentFooter extends StatelessWidget {
                     size: AppButtonSize.lg,
                     disabledAppearance: AppButtonDisabledAppearance.service,
                     isLoading: state.submissionStatus == RequestStatus.loading,
-                    onPressed: state.canSubmit
-                        ? context.read<AgentCubit>().submitAgents
-                        : null,
+                    onPressed: context.read<AgentCubit>().submitAgents,
+                    isActive: state.canSubmit,
                   ),
                 ],
               );

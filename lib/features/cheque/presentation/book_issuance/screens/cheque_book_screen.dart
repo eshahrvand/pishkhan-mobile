@@ -190,23 +190,22 @@ class ChequeBookScreen extends StatelessWidget {
                                   height: 24,
                                 ),
                                 trailingTooltip: S.current.backLabel,
-                                onTrailingPressed:
+                                onTrailingPressed: context
+                                    .read<ChequeBookCubit>()
+                                    .requestBack,
+                                isTrailingActive:
                                     (state.catalogStatus !=
-                                            RequestStatus.loading &&
-                                        state.residencyStatus !=
-                                            RequestStatus.loading &&
-                                        state.addressDeletionStatus !=
-                                            RequestStatus.loading &&
-                                        state.addressSaveStatus !=
-                                            RequestStatus.loading &&
-                                        state.quoteStatus !=
-                                            RequestStatus.loading &&
-                                        state.submissionStatus !=
-                                            RequestStatus.loading)
-                                    ? context
-                                          .read<ChequeBookCubit>()
-                                          .requestBack
-                                    : null,
+                                        RequestStatus.loading &&
+                                    state.residencyStatus !=
+                                        RequestStatus.loading &&
+                                    state.addressDeletionStatus !=
+                                        RequestStatus.loading &&
+                                    state.addressSaveStatus !=
+                                        RequestStatus.loading &&
+                                    state.quoteStatus !=
+                                        RequestStatus.loading &&
+                                    state.submissionStatus !=
+                                        RequestStatus.loading),
                               ),
                             const Expanded(child: ChequeBookContent()),
                             if (state.step != ChequeBookStep.checking)

@@ -293,10 +293,9 @@ void main() {
           expect(cardControl(tester, 'issuance_type'), findsOneWidget);
           expect(
             tester
-                    .widget<AppButton>(cardControl(tester, 'issuance_continue'))
-                    .onPressed ==
-                null,
-            frame != 'selection-filled',
+                .widget<AppButton>(cardControl(tester, 'issuance_continue'))
+                .isActive,
+            frame == 'selection-filled',
           );
         }
         await verifyRing(tester, full: frame.startsWith('confirmation'));
@@ -327,11 +326,11 @@ void main() {
         cardControl(tester, 'issuance_continue'),
       );
       expect(button.isLoading, isTrue);
-      expect(button.onPressed, isNull);
+      expect(button.isActive, isFalse);
       expect(cubit.state.isEditable, isFalse);
       expect(
-        tester.widget<AppTopBar>(find.byType(AppTopBar)).onTrailingPressed,
-        isNull,
+        tester.widget<AppTopBar>(find.byType(AppTopBar)).isTrailingActive,
+        isFalse,
       );
       await tester.tap(cardControl(tester, 'issuance_continue'));
       await tester.binding.handlePopRoute();
@@ -358,8 +357,8 @@ void main() {
       expect(
         tester
             .widget<AppButton>(cardControl(tester, 'issuance_continue'))
-            .onPressed,
-        isNull,
+            .isActive,
+        isFalse,
       );
       await tap(tester, 'issuance_deposit');
       await tester.tap(find.text('۱۰.۱۲۳۴۵۶۷.۱').last);
@@ -373,8 +372,8 @@ void main() {
       expect(
         tester
             .widget<AppButton>(cardControl(tester, 'issuance_continue'))
-            .onPressed,
-        isNull,
+            .isActive,
+        isFalse,
       );
       await tap(tester, 'issuance_terms_checkbox');
       await tap(tester, 'issuance_continue');

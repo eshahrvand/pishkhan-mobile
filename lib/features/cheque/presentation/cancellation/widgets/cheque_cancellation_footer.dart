@@ -82,9 +82,8 @@ class ChequeCancellationFooter extends StatelessWidget {
                 isLoading:
                     state.chequesStatus == RequestStatus.loading ||
                     state.submissionStatus == RequestStatus.loading,
-                onPressed: state.canContinue
-                    ? context.read<ChequeCancellationCubit>().continueFlow
-                    : null,
+                onPressed: context.read<ChequeCancellationCubit>().continueFlow,
+                isActive: state.canContinue,
               ),
             ],
           ),

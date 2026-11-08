@@ -134,15 +134,12 @@ class _VirtualCardRequestScreenState extends State<VirtualCardRequestScreen> {
                             ),
                           ),
                           trailingTooltip: S.current.backLabel,
-                          onTrailingPressed:
+                          onTrailingPressed: () =>
+                              context.read<VirtualCardCubit>().requestBack(),
+                          isTrailingActive:
                               (state.catalogStatus != RequestStatus.loading &&
-                                  state.quoteStatus != RequestStatus.loading &&
-                                  state.submissionStatus !=
-                                      RequestStatus.loading)
-                              ? () => context
-                                    .read<VirtualCardCubit>()
-                                    .requestBack()
-                              : null,
+                              state.quoteStatus != RequestStatus.loading &&
+                              state.submissionStatus != RequestStatus.loading),
                         ),
                         Expanded(
                           child: SingleChildScrollView(

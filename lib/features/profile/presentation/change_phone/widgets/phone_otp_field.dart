@@ -110,13 +110,10 @@ class PhoneOtpField extends StatelessWidget {
                           constrainLabel: true,
                           isLoading:
                               state.otpRequestStatus == RequestStatus.loading,
-                          onPressed: state.canRequestOtp
-                              ? () {
-                                  context
-                                      .read<ChangePhoneCubit>()
-                                      .submitOtpRequest();
-                                }
-                              : null,
+                          onPressed: () {
+                            context.read<ChangePhoneCubit>().submitOtpRequest();
+                          },
+                          isActive: state.canRequestOtp,
                         ),
                 ),
               ],

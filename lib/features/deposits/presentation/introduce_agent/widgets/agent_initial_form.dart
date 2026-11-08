@@ -25,12 +25,11 @@ class AgentInitialForm extends StatelessWidget {
                 label: S.current.agentPreliminarySave,
                 variant: AppButtonVariant.outline,
                 size: AppButtonSize.md,
-                onPressed: state.canSaveDraft
-                    ? () {
-                        FocusManager.instance.primaryFocus?.unfocus();
-                        context.read<AgentCubit>().saveDraft();
-                      }
-                    : null,
+                onPressed: () {
+                  FocusManager.instance.primaryFocus?.unfocus();
+                  context.read<AgentCubit>().saveDraft();
+                },
+                isActive: state.canSaveDraft,
               ),
             );
           },

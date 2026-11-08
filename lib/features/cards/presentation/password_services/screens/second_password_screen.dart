@@ -192,16 +192,13 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
                             ),
                           ),
                           trailingTooltip: S.current.backLabel,
-                          onTrailingPressed:
+                          onTrailingPressed: () =>
+                              context.read<SecondPasswordCubit>().requestBack(),
+                          isTrailingActive:
                               (state.catalogStatus != RequestStatus.loading &&
-                                  state.existingRequestStatus !=
-                                      RequestStatus.loading &&
-                                  state.submissionStatus !=
-                                      RequestStatus.loading)
-                              ? () => context
-                                    .read<SecondPasswordCubit>()
-                                    .requestBack()
-                              : null,
+                              state.existingRequestStatus !=
+                                  RequestStatus.loading &&
+                              state.submissionStatus != RequestStatus.loading),
                         ),
                         Expanded(
                           child: PasswordFlowContent(

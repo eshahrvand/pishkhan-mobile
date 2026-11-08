@@ -176,19 +176,18 @@ class JobInformationScreen extends StatelessWidget {
                                 height: 24,
                               ),
                               trailingTooltip: S.current.backLabel,
-                              onTrailingPressed:
+                              onTrailingPressed: () {
+                                context
+                                    .read<JobInformationCubit>()
+                                    .requestBack();
+                              },
+                              isTrailingActive:
                                   (state.jobInformationStatus !=
-                                          RequestStatus.loading &&
-                                      state.submissionStatus !=
-                                          RequestStatus.loading &&
-                                      state.deletionStatus !=
-                                          RequestStatus.loading)
-                                  ? () {
-                                      context
-                                          .read<JobInformationCubit>()
-                                          .requestBack();
-                                    }
-                                  : null,
+                                      RequestStatus.loading &&
+                                  state.submissionStatus !=
+                                      RequestStatus.loading &&
+                                  state.deletionStatus !=
+                                      RequestStatus.loading),
                             ),
                             Expanded(
                               child: state.step == JobInformationStep.list

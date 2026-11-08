@@ -129,19 +129,16 @@ class ChangePhoneScreen extends StatelessWidget {
                                 height: 24,
                               ),
                               trailingTooltip: S.current.backLabel,
-                              onTrailingPressed:
+                              onTrailingPressed: () {
+                                context.read<ChangePhoneCubit>().requestBack();
+                              },
+                              isTrailingActive:
                                   (state.settingsStatus !=
-                                          RequestStatus.loading &&
-                                      state.otpRequestStatus !=
-                                          RequestStatus.loading &&
-                                      state.submissionStatus !=
-                                          RequestStatus.loading)
-                                  ? () {
-                                      context
-                                          .read<ChangePhoneCubit>()
-                                          .requestBack();
-                                    }
-                                  : null,
+                                      RequestStatus.loading &&
+                                  state.otpRequestStatus !=
+                                      RequestStatus.loading &&
+                                  state.submissionStatus !=
+                                      RequestStatus.loading),
                             ),
                             Expanded(child: const ChangePhoneForm()),
                             const ChangePhoneFooter(),

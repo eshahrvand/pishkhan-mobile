@@ -60,11 +60,10 @@ class ChequeConsentNotice extends StatelessWidget {
                   width: 20,
                   height: 20,
                 ),
-                onPressed: isEditable
-                    ? context
-                          .read<ChequeClearanceCubit>()
-                          .requestConsentConditions
-                    : null,
+                onPressed: context
+                    .read<ChequeClearanceCubit>()
+                    .requestConsentConditions,
+                isActive: isEditable,
               ),
             ],
           ),
@@ -96,9 +95,10 @@ class ChequeConsentNotice extends StatelessWidget {
                   width: 20,
                   height: 20,
                 ),
-                onPressed: isEditable
-                    ? context.read<ChequeClearanceCubit>().requestConsentSample
-                    : null,
+                onPressed: context
+                    .read<ChequeClearanceCubit>()
+                    .requestConsentSample,
+                isActive: isEditable,
               ),
             ],
           ),

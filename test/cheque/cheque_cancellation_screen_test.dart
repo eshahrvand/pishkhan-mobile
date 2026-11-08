@@ -118,8 +118,8 @@ void main() {
     (tester) async {
       await mountCertificate(tester, const ChequeCancellationScreen());
       expect(
-        tester.widget<AppButton>(button(S.current.issuanceNext)).onPressed,
-        isNull,
+        tester.widget<AppButton>(button(S.current.issuanceNext)).isActive,
+        isFalse,
       );
       await captureCancellation(tester, 'cheque-cancel-initial');
       await enterReasons(tester);
@@ -139,8 +139,8 @@ void main() {
       await captureCancellation(tester, 'cheque-cancel-reasons-filled');
       await tap(tester, button(S.current.issuanceNext));
       expect(
-        tester.widget<AppButton>(button(S.current.chequeSubmit)).onPressed,
-        isNull,
+        tester.widget<AppButton>(button(S.current.chequeSubmit)).isActive,
+        isFalse,
       );
       await tap(tester, button(S.current.chequeCancelDownload));
       expect(find.text(S.current.chequeContentUnavailable), findsOneWidget);
@@ -199,8 +199,8 @@ void main() {
       await selection(tester, deposit: 2, digital: true);
       expect(find.text(S.current.chequeCancelEmpty), findsOneWidget);
       expect(
-        tester.widget<AppButton>(button(S.current.issuanceNext)).onPressed,
-        isNull,
+        tester.widget<AppButton>(button(S.current.issuanceNext)).isActive,
+        isFalse,
       );
       expect(tester.takeException(), isNull);
     },
@@ -235,8 +235,8 @@ void main() {
         ChequeCancellationStep.cheques,
       );
       expect(
-        tester.widget<AppButton>(button(S.current.issuanceNext)).onPressed,
-        isNull,
+        tester.widget<AppButton>(button(S.current.issuanceNext)).isActive,
+        isFalse,
       );
       expect(tester.takeException(), isNull);
     },

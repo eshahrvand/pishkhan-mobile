@@ -145,16 +145,14 @@ class CloseSurplusDepositsScreen extends StatelessWidget {
                             '${AppConstants.baseImage}deposit_list_back.svg',
                           ),
                           trailingTooltip: S.current.backLabel,
-                          onTrailingPressed:
+                          onTrailingPressed: context
+                              .read<CloseSurplusDepositsCubit>()
+                              .requestBack,
+                          isTrailingActive:
                               (state.depositsStatus != RequestStatus.loading &&
                                   state.submissionStatus !=
-                                      RequestStatus.loading)
-                              ? state.isEditable
-                                    ? context
-                                          .read<CloseSurplusDepositsCubit>()
-                                          .requestBack
-                                    : null
-                              : null,
+                                      RequestStatus.loading) &&
+                              state.isEditable,
                         ),
                         Expanded(
                           child: Stack(

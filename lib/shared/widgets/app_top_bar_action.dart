@@ -9,6 +9,7 @@ class AppTopBarAction extends StatelessWidget {
     super.key,
     this.dimension = 40,
     this.icon,
+    this.isActive = true,
   });
 
   final double dimension;
@@ -16,6 +17,7 @@ class AppTopBarAction extends StatelessWidget {
   final Widget? icon;
   final String tooltip;
   final VoidCallback? onPressed;
+  final bool isActive;
 
   @override
   Widget build(BuildContext context) {
@@ -23,6 +25,7 @@ class AppTopBarAction extends StatelessWidget {
       dimension: dimension,
       child: AppButton(
         onPressed: onPressed ?? () {},
+        isActive: isActive,
         variant: AppButtonVariant.text,
         tooltip: tooltip,
         icon: icon ?? AvpImage(image: asset, width: 24, height: 24),

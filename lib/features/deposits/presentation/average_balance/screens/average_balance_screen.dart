@@ -177,12 +177,12 @@ class AverageBalanceScreen extends StatelessWidget {
                             '${AppConstants.baseImage}deposit_list_back.svg',
                           ),
                           trailingTooltip: S.current.backLabel,
-                          onTrailingPressed:
+                          onTrailingPressed: context
+                              .read<AverageBalanceCubit>()
+                              .requestBack,
+                          isTrailingActive:
                               (state.catalogStatus != RequestStatus.loading &&
-                                  state.submissionStatus !=
-                                      RequestStatus.loading)
-                              ? context.read<AverageBalanceCubit>().requestBack
-                              : null,
+                              state.submissionStatus != RequestStatus.loading),
                         ),
                         Expanded(
                           child: Stack(
@@ -262,11 +262,10 @@ class AverageBalanceScreen extends StatelessWidget {
                                 isLoading:
                                     state.submissionStatus ==
                                     RequestStatus.loading,
-                                onPressed: state.canContinue
-                                    ? context
-                                          .read<AverageBalanceCubit>()
-                                          .continueFlow
-                                    : null,
+                                onPressed: context
+                                    .read<AverageBalanceCubit>()
+                                    .continueFlow,
+                                isActive: state.canContinue,
                               ),
                             );
                           },

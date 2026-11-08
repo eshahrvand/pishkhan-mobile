@@ -127,14 +127,12 @@ class _ChangeCardDepositScreenState extends State<ChangeCardDepositScreen> {
                             size: 24,
                           ),
                           trailingTooltip: S.current.backLabel,
-                          onTrailingPressed:
+                          onTrailingPressed: context
+                              .read<ChangeCardDepositCubit>()
+                              .requestBack,
+                          isTrailingActive:
                               (state.catalogStatus != RequestStatus.loading &&
-                                  state.submissionStatus !=
-                                      RequestStatus.loading)
-                              ? context
-                                    .read<ChangeCardDepositCubit>()
-                                    .requestBack
-                              : null,
+                              state.submissionStatus != RequestStatus.loading),
                         ),
                         Expanded(
                           child:
@@ -158,11 +156,10 @@ class _ChangeCardDepositScreenState extends State<ChangeCardDepositScreen> {
                             label: S.current.cardServiceSubmit,
                             loading:
                                 state.submissionStatus == RequestStatus.loading,
-                            onSubmit: state.canSubmit
-                                ? context
-                                      .read<ChangeCardDepositCubit>()
-                                      .submitDepositChange
-                                : null,
+                            onSubmit: context
+                                .read<ChangeCardDepositCubit>()
+                                .submitDepositChange,
+                            isActive: state.canSubmit,
                             termsAccepted: state.termsAccepted,
                             onTermsChanged: state.isEditable
                                 ? context

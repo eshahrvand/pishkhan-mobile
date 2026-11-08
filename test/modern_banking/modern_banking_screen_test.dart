@@ -74,8 +74,8 @@ void main() {
             .widget<AppButton>(
               find.widgetWithText(AppButton, S.current.issuanceNext),
             )
-            .onPressed,
-        isNull,
+            .isActive,
+        isFalse,
       );
       await tester.enterText(find.byType(TextField), '۳R۱۲۳۴۵۶۷۸');
       await tester.pumpAndSettle();
@@ -253,8 +253,8 @@ void main() {
       expect(
         tester
             .widget<DepositRequestFooter>(find.byType(DepositRequestFooter))
-            .onSubmit,
-        isNull,
+            .isActive,
+        isFalse,
       );
       await captureModern(tester, 'modern_deactivation_empty');
       await tester.tap(find.byType(AppSelect<DeactivationReason>));
@@ -266,8 +266,8 @@ void main() {
       expect(
         tester
             .widget<DepositRequestFooter>(find.byType(DepositRequestFooter))
-            .onSubmit,
-        isNotNull,
+            .isActive,
+        isTrue,
       );
       await captureModern(tester, 'modern_deactivation_filled');
       await tapLabel(tester, S.current.passwordChangeSubmit);

@@ -200,8 +200,8 @@ void main() {
     (tester) async {
       await mount(tester);
       expect(
-        tester.widget<AppButton>(button(S.current.chequeSubmit)).onPressed,
-        isNull,
+        tester.widget<AppButton>(button(S.current.chequeSubmit)).isActive,
+        isFalse,
       );
       expect(find.text(S.current.chequeNoPostRequired), findsNothing);
       await fill(tester, S.current.chequeReasonDepositAndBlock);
@@ -214,8 +214,8 @@ void main() {
       );
       await tap(tester, find.byType(AppCheckbox));
       expect(
-        tester.widget<AppButton>(button(S.current.chequeSubmit)).onPressed,
-        isNotNull,
+        tester.widget<AppButton>(button(S.current.chequeSubmit)).isActive,
+        isTrue,
       );
       await tap(tester, button(S.current.chequeSubmit));
       expect(find.byType(ChequeClearanceReceiptDialog), findsOneWidget);
@@ -240,14 +240,14 @@ void main() {
       await tap(tester, button(S.current.chequeSubmit));
       expect(find.text(S.current.chequeNumberNotFound), findsOneWidget);
       expect(
-        tester.widget<AppButton>(button(S.current.chequeSubmit)).onPressed,
-        isNull,
+        tester.widget<AppButton>(button(S.current.chequeSubmit)).isActive,
+        isFalse,
       );
       await enter(tester, S.current.chequeNumberHint, '۱۲۳/۱۲۳۴۵۶');
       expect(find.text(S.current.chequeNumberNotFound), findsNothing);
       expect(
-        tester.widget<AppButton>(button(S.current.chequeSubmit)).onPressed,
-        isNotNull,
+        tester.widget<AppButton>(button(S.current.chequeSubmit)).isActive,
+        isTrue,
       );
       expect(tester.takeException(), isNull);
     },
@@ -278,13 +278,13 @@ void main() {
       expect(find.text(S.current.chequeJudicialNumber), findsOneWidget);
       await tap(tester, find.byType(AppCheckbox));
       expect(
-        tester.widget<AppButton>(button(S.current.chequeSubmit)).onPressed,
-        isNull,
+        tester.widget<AppButton>(button(S.current.chequeSubmit)).isActive,
+        isFalse,
       );
       await enter(tester, S.current.chequeJudicialNumberHint, '۱۰۰۳۴۵۶۷۸');
       expect(
-        tester.widget<AppButton>(button(S.current.chequeSubmit)).onPressed,
-        isNotNull,
+        tester.widget<AppButton>(button(S.current.chequeSubmit)).isActive,
+        isTrue,
       );
       await choose<ChequeClearanceReason>(
         tester,
@@ -329,10 +329,8 @@ void main() {
       await tap(tester, find.text(S.current.chequePostalAction));
       expect(find.byType(PostalOfficesSheet), findsOneWidget);
       expect(
-        tester
-            .widget<AppButton>(button(S.current.chequePostalSearch))
-            .onPressed,
-        isNull,
+        tester.widget<AppButton>(button(S.current.chequePostalSearch)).isActive,
+        isFalse,
       );
       await choose<PostalProvince>(tester, 'تهران');
       await choose<PostalCity>(tester, 'منطقه پستی شمال شرق');
@@ -359,10 +357,8 @@ void main() {
         isNull,
       );
       expect(
-        tester
-            .widget<AppButton>(button(S.current.chequePostalSearch))
-            .onPressed,
-        isNull,
+        tester.widget<AppButton>(button(S.current.chequePostalSearch)).isActive,
+        isFalse,
       );
       await choose<PostalCity>(tester, 'اصفهان');
       await tap(tester, button(S.current.chequePostalSearch));
@@ -389,8 +385,8 @@ void main() {
       await tap(tester, find.byKey(const Key('app_bottom_sheet_left_action')));
       await tap(tester, find.byType(AppCheckbox));
       expect(
-        tester.widget<AppButton>(button(S.current.chequeSubmit)).onPressed,
-        isNotNull,
+        tester.widget<AppButton>(button(S.current.chequeSubmit)).isActive,
+        isTrue,
       );
       expect(tester.takeException(), isNull);
     },

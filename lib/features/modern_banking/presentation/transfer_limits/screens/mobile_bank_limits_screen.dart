@@ -102,15 +102,12 @@ class MobileBankLimitsScreen extends StatelessWidget {
                           ),
                         ),
                         trailingTooltip: S.current.backLabel,
-                        onTrailingPressed:
+                        onTrailingPressed: () {
+                          context.read<TransferLimitsCubit>().requestBack();
+                        },
+                        isTrailingActive:
                             (state.catalogStatus != RequestStatus.loading &&
-                                state.submissionStatus != RequestStatus.loading)
-                            ? () {
-                                context
-                                    .read<TransferLimitsCubit>()
-                                    .requestBack();
-                              }
-                            : null,
+                            state.submissionStatus != RequestStatus.loading),
                       ),
                       Expanded(
                         child: Stack(
@@ -191,13 +188,12 @@ class MobileBankLimitsScreen extends StatelessWidget {
                             onTermsRequested: () {
                               showModernBankTerms(context);
                             },
-                            onSubmit: state.canSubmit
-                                ? () {
-                                    context
-                                        .read<TransferLimitsCubit>()
-                                        .submitLimits();
-                                  }
-                                : null,
+                            onSubmit: () {
+                              context
+                                  .read<TransferLimitsCubit>()
+                                  .submitLimits();
+                            },
+                            isActive: state.canSubmit,
                             isLoading:
                                 state.submissionStatus == RequestStatus.loading,
 

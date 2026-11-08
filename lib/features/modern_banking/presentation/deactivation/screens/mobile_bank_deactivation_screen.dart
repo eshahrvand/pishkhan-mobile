@@ -122,16 +122,15 @@ class MobileBankDeactivationScreen extends StatelessWidget {
                               ),
                             ),
                             trailingTooltip: S.current.backLabel,
-                            onTrailingPressed:
+                            onTrailingPressed: () {
+                              context
+                                  .read<MobileBankDeactivationCubit>()
+                                  .requestBack();
+                            },
+                            isTrailingActive:
                                 (state.catalogStatus != RequestStatus.loading &&
-                                    state.submissionStatus !=
-                                        RequestStatus.loading)
-                                ? () {
-                                    context
-                                        .read<MobileBankDeactivationCubit>()
-                                        .requestBack();
-                                  }
-                                : null,
+                                state.submissionStatus !=
+                                    RequestStatus.loading),
                           ),
                           Expanded(
                             child: Stack(
@@ -230,13 +229,12 @@ class MobileBankDeactivationScreen extends StatelessWidget {
                                 onTermsRequested: () {
                                   showModernBankTerms(context);
                                 },
-                                onSubmit: state.canSubmit
-                                    ? () {
-                                        context
-                                            .read<MobileBankDeactivationCubit>()
-                                            .submitDeactivation();
-                                      }
-                                    : null,
+                                onSubmit: () {
+                                  context
+                                      .read<MobileBankDeactivationCubit>()
+                                      .submitDeactivation();
+                                },
+                                isActive: state.canSubmit,
                                 isLoading:
                                     state.submissionStatus ==
                                     RequestStatus.loading,

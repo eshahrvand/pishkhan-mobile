@@ -74,9 +74,8 @@ class AgentSheet extends StatelessWidget {
                                 size: AppButtonSize.lg,
                                 disabledAppearance:
                                     AppButtonDisabledAppearance.service,
-                                onPressed: state.canSaveDraft
-                                    ? context.read<AgentCubit>().saveDraft
-                                    : null,
+                                onPressed: context.read<AgentCubit>().saveDraft,
+                                isActive: state.canSaveDraft,
                               );
                             },
                           ),

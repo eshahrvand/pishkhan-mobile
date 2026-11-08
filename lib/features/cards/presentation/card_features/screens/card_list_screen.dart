@@ -130,10 +130,10 @@ class CardListScreen extends StatelessWidget {
                             size: 24,
                           ),
                           trailingTooltip: S.current.backLabel,
-                          onTrailingPressed:
-                              (state.cardsStatus != RequestStatus.loading)
-                              ? () => NavigationActions.back(context)
-                              : null,
+                          onTrailingPressed: () =>
+                              NavigationActions.back(context),
+                          isTrailingActive:
+                              (state.cardsStatus != RequestStatus.loading),
                         ),
                         Expanded(
                           // The assistant and footer overlay the scroll viewport; a Column

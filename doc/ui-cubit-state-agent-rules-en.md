@@ -6,6 +6,15 @@
 **Scope:** Presentation coding style, State management and readability rules  
 **Status:** Authoritative coding contract. Historical examples do not override the mandatory ownership rules or the owner amendments below. Implementation status is recorded in the feature documentation.
 
+**Owner confirmation, 2026-11-08 — Reviewed modal routing and safe area:** the
+owner explicitly requested and accepts the `useRootNavigator: true` routing and
+removal of `useSafeArea: true` in the modal changes of commit `66f00d5`, including
+the address editor's edge-to-edge top on compact/notched viewports. Preserve
+that behavior; do not restore top safe-area padding to satisfy a historical
+test expectation. Tests should cover root-navigator delivery, reachable form
+controls and dismissal. This scoped decision does not remove keyboard or bottom
+inset handling and is not a blanket rule for future modal designs.
+
 **Owner update, 2026-11-07 — Login loading indicators:** show loading only on
 the control whose operation is running. Requesting OTP loads the request button,
 not the CAPTCHA refresh control. Verifying OTP loads the login button, not the
@@ -20,6 +29,14 @@ redundant ternary expressions on `onPressed` (`onPressed: condition ? callback :
 Bind the action directly to `onPressed: context.read<...>().action` and pass the
 enablement condition to `isActive: state.canX`. This supersedes the older
 `onPressed: state.canX ? ... : null` syntax.
+
+Shared app footers and headers must forward enablement to `isActive` separately
+from the action callback; moving the same conditional into `onSubmit`,
+`onTrailingPressed` or `onMenu` at the caller is not adoption.
+Keep `isLoading` for the operation represented by the button; use `isActive` to
+disable a secondary button during another pending operation without showing a
+second spinner. Controls such as `AppChips` that do not expose these parameters
+retain their supported callback/enablement gate.
 
 This document turns the project owner's requirements and supplied examples into explicit rules. A team member opening a screen should be able to see how the UI is built, how State is read and how Cubit is called, without navigating through multiple wrappers and files to understand a simple form.
 

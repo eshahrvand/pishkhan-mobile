@@ -441,8 +441,8 @@ void main() {
       expect(
         tester
             .widget<AppButton>(authControl(tester, 'otp_timer_button'))
-            .onPressed,
-        isNull,
+            .isActive,
+        isFalse,
       );
       expect(
         find.byWidgetPredicate(
@@ -677,10 +677,7 @@ void main() {
           matching: find.byType(TextField),
         );
         void expectActive(bool active) {
-          expect(
-            tester.widget<AppButton>(button).onPressed,
-            active ? isNotNull : isNull,
-          );
+          expect(tester.widget<AppButton>(button).isActive, active);
           expect(
             tester
                 .widget<InkWell>(
@@ -788,8 +785,8 @@ void main() {
       expect(
         tester
             .widget<AppButton>(authControl(tester, 'submit_otp_button'))
-            .onPressed,
-        isNull,
+            .isActive,
+        isFalse,
       );
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pump();
@@ -853,8 +850,8 @@ void main() {
     expect(
       tester
           .widget<AppButton>(authControl(tester, 'submit_otp_button'))
-          .onPressed,
-      isNull,
+          .isActive,
+      isFalse,
     );
     await tester.tap(authControl(tester, 'otp_timer_button'));
     await tester.pumpAndSettle();

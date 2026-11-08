@@ -32,11 +32,10 @@ class TransferFooter extends StatelessWidget {
             isLoading: state.submissionStatus == RequestStatus.loading,
             submitLabel: S.current.transferConfirmNext,
 
-            onSubmit: state.canContinue
-                ? () {
-                    context.read<OnSiteTransferCubit>().submitTransfer();
-                  }
-                : null,
+            onSubmit: () {
+              context.read<OnSiteTransferCubit>().submitTransfer();
+            },
+            isActive: state.canContinue,
           );
         }
         return Padding(
@@ -50,11 +49,10 @@ class TransferFooter extends StatelessWidget {
               size: AppButtonSize.lg,
               disabledAppearance: AppButtonDisabledAppearance.service,
               isLoading: state.submissionStatus == RequestStatus.loading,
-              onPressed: state.canContinue
-                  ? () {
-                      context.read<OnSiteTransferCubit>().continueFlow();
-                    }
-                  : null,
+              onPressed: () {
+                context.read<OnSiteTransferCubit>().continueFlow();
+              },
+              isActive: state.canContinue,
             ),
           ),
         );

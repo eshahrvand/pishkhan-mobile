@@ -109,12 +109,11 @@ class PasswordFlowFooter extends StatelessWidget {
                 const SizedBox(height: 16),
               ],
               AppButton(
-                onPressed: state.canContinue
-                    ? () {
-                        FocusManager.instance.primaryFocus?.unfocus();
-                        context.read<SecondPasswordCubit>().submitCurrentStep();
-                      }
-                    : null,
+                onPressed: () {
+                  FocusManager.instance.primaryFocus?.unfocus();
+                  context.read<SecondPasswordCubit>().submitCurrentStep();
+                },
+                isActive: state.canContinue,
                 label: getPasswordContinueTitle(state),
                 isLoading:
                     state.existingRequestStatus == RequestStatus.loading ||
