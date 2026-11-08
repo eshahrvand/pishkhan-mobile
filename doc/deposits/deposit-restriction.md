@@ -42,7 +42,7 @@ the existing application boundary.
 
 Reuses `CertificateSelect`, `CertificateInput`, `AppInvoice`, `AppCheckbox`,
 `AppButton`, `AppAgentCardDetailRow`, `AppTopBar`, `AppAssistantButton`,
-`JalaliDateFormatter`, the exit dialog and local SVG assets. `DepositDivider`
+`JalaliDateFormatter`, the exit sheet and local SVG assets. `DepositDivider`
 gains an optional thickness while preserving its existing half-pixel default.
 The dashed section divider is byte-identical to `issuance_divider.svg`; the
 half-pixel blocking-details divider is the original Figma export.

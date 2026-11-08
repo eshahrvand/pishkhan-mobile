@@ -30,6 +30,7 @@ class AppDecisionSheet extends StatelessWidget {
     required this.message,
     required this.confirmLabel,
     required this.onConfirm,
+    this.onCancel,
     this.title,
     this.cancelLabel,
   });
@@ -38,6 +39,7 @@ class AppDecisionSheet extends StatelessWidget {
   final String confirmLabel;
   final String? cancelLabel;
   final VoidCallback onConfirm;
+  final VoidCallback? onCancel;
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -77,9 +79,11 @@ class AppDecisionSheet extends StatelessWidget {
                     size: AppButtonSize.lg,
                     constrainLabel: true,
                     variant: AppButtonVariant.secondaryGray,
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
+                    onPressed:
+                        onCancel ??
+                        () {
+                          Navigator.of(context).pop();
+                        },
                   ),
                 ),
                 const SizedBox(width: 12),

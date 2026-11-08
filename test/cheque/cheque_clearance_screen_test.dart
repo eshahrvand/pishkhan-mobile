@@ -18,7 +18,7 @@ import 'package:pishkhan_mobile/core/result/failure.dart';
 import 'package:pishkhan_mobile/core/result/result.dart';
 import 'package:pishkhan_mobile/features/cheque/data/repositories/mock_cheque_clearance_repository.dart';
 import 'package:pishkhan_mobile/features/cheque/domain/repositories/cheque_clearance_repository.dart';
-import 'package:pishkhan_mobile/shared/widgets/flow_exit_dialog.dart';
+import 'package:pishkhan_mobile/shared/widgets/flow_exit_sheet.dart';
 import 'package:pishkhan_mobile/features/cheque/domain/entities/cheque_clearance.dart';
 import 'package:pishkhan_mobile/features/cheque/presentation/clearance/cubit/cheque_clearance_cubit.dart';
 import 'package:pishkhan_mobile/features/cheque/presentation/clearance/screens/cheque_clearance_screen.dart';
@@ -177,7 +177,7 @@ void main() {
       }
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
-      expect(find.byType(FlowExitDialog), findsNothing);
+      expect(find.byType(FlowExitSheet), findsNothing);
       expect(cubit(tester).state.chequeNumber, '123/123456');
       expect(cubit(tester).state.submissionStatus, RequestStatus.loading);
       // Complete while the owner is alive; post-disposal errors are an accepted contract behavior.
@@ -190,7 +190,7 @@ void main() {
         await tester.tap(find.byTooltip(S.current.backLabel));
       }
       await tester.pumpAndSettle();
-      expect(find.byType(FlowExitDialog), findsOneWidget);
+      expect(find.byType(FlowExitSheet), findsOneWidget);
       await tap(tester, button(S.current.passwordExit));
       expect(find.byType(ChequeClearanceScreen), findsNothing);
       expect(button('Open cheque'), findsOneWidget);

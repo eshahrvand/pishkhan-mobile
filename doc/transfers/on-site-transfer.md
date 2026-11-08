@@ -90,7 +90,7 @@ a dismissed file. No Cubit disposal guards or BaseCubit were introduced.
 Reused `AppTopBar`, `AppStepper`, `CertificateSelect`, `CertificateInput`,
 `AppAddressCard`, the existing address editor, `AppTransferDestinationCard`,
 `AppFileUploadBase`, `AppRequestSummary`, `AppInvoice`, `DepositRequestFooter`,
-`AppAssistantButton`, `showAppServiceSheet` and `showFlowExitDialog`.
+`AppAssistantButton`, `showAppServiceSheet` and `showFlowExitSheet`.
 
 The existing address section and footer were promoted to `shared/widgets`;
 compatibility exports keep existing deposit callers unchanged. Additive parameters

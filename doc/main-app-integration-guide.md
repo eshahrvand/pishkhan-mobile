@@ -535,3 +535,19 @@ package's display interval and supports Close/swipe. Request-status transitions,
 prepared messages, command consumption, async mounted checks and retained-failure
 semantics remain unchanged. Tests use `AvpSnackBar` and the shared test-only close
 helper rather than `ScaffoldMessenger.clearSnackBars()`.
+
+
+## Flow-exit confirmation
+
+Use `showFlowExitSheet(context, title: optionalTitle)` for the existing flow-exit
+confirmation. It composes the shared `AppDecisionSheet` inside the root-navigator
+`showAppServiceSheet`, with the same drag handle/header, rounded surface, spacing
+and two-button layout as the other service sheets. It replaces the former
+`showFlowExitDialog` helper.
+
+The modal returns `true` for Exit, `false` for Stay, and `null` for system Back or
+outside dismissal. UI listeners pass that raw result back to the owning Cubit;
+the sheet does not decide whether the parent flow exits. Keep pending-request
+Back gates, form values and confirmation-command consumption unchanged. The
+shared decision sheet's existing default Cancel result remains `null` unless a
+caller supplies its explicit `onCancel` callback.

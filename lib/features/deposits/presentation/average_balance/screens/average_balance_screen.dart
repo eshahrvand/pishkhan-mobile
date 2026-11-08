@@ -3,7 +3,7 @@ import 'package:pishkhan_mobile/core/flow/service_registry.dart';
 
 import '../../shared/certificate_receipt_dialog.dart';
 
-import 'package:pishkhan_mobile/shared/widgets/flow_exit_dialog.dart';
+import 'package:pishkhan_mobile/shared/widgets/flow_exit_sheet.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_delete_address_sheet.dart';
 
@@ -84,7 +84,7 @@ class AverageBalanceScreen extends StatelessWidget {
             context
                 .read<AverageBalanceCubit>()
                 .consumeAverageBalanceInteraction();
-            final confirmed = await showFlowExitDialog(context);
+            final confirmed = await showFlowExitSheet(context);
             if (context.mounted) {
               context.read<AverageBalanceCubit>().applyExitConfirmation(
                 confirmed,

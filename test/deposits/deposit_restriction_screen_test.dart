@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/shared/widgets/flow_exit_sheet.dart';
+
 import '../support/snackbar_test_support.dart';
 
 import 'dart:async';
@@ -197,7 +199,7 @@ void main() {
       expect(repository.requests.length, 1);
       await tester.tap(find.byTooltip(S.current.backLabel));
       await tester.pump(const Duration(milliseconds: 300));
-      expect(find.byType(AlertDialog), findsNothing);
+      expect(find.byType(FlowExitSheet), findsNothing);
       // System Back also leaves the pending form alive.
       await tester.binding.handlePopRoute();
       await tester.pump(const Duration(milliseconds: 300));

@@ -7,7 +7,7 @@ import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
-import 'package:pishkhan_mobile/shared/widgets/flow_exit_dialog.dart';
+import 'package:pishkhan_mobile/shared/widgets/flow_exit_sheet.dart';
 
 import '../../shared/profile_submission_dialog.dart';
 import '../cubit/change_phone_cubit.dart';
@@ -32,7 +32,7 @@ class ChangePhoneScreen extends StatelessWidget {
     switch (state.effect) {
       case ChangePhoneEffect.confirmExit:
         context.read<ChangePhoneCubit>().consumeChangePhoneInteraction();
-        final confirmed = await showFlowExitDialog(context);
+        final confirmed = await showFlowExitSheet(context);
         if (context.mounted) {
           context.read<ChangePhoneCubit>().applyExitConfirmation(confirmed);
         }

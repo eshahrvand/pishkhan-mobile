@@ -4,7 +4,7 @@ import 'package:pishkhan_mobile/core/flow/service_registry.dart';
 import '../../shared/certificate_receipt_dialog.dart';
 import '../widgets/financial_certificate_content.dart';
 
-import 'package:pishkhan_mobile/shared/widgets/flow_exit_dialog.dart';
+import 'package:pishkhan_mobile/shared/widgets/flow_exit_sheet.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_delete_address_sheet.dart';
 
@@ -95,7 +95,7 @@ class FinancialCertificateScreen extends StatelessWidget {
             context
                 .read<FinancialCertificateCubit>()
                 .consumeFinancialCertificateInteraction();
-            final confirmed = await showFlowExitDialog(context);
+            final confirmed = await showFlowExitSheet(context);
             if (context.mounted) {
               context.read<FinancialCertificateCubit>().applyExitConfirmation(
                 confirmed,

@@ -12,7 +12,7 @@ import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_delete_address_sheet.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_service_sheet.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
-import 'package:pishkhan_mobile/shared/widgets/flow_exit_dialog.dart';
+import 'package:pishkhan_mobile/shared/widgets/flow_exit_sheet.dart';
 
 import '../cubit/on_site_transfer_cubit.dart';
 import '../widgets/transfer_destination_sheet.dart';
@@ -123,7 +123,7 @@ class _OnSiteTransferScreenState extends State<OnSiteTransferScreen> {
         });
       case OnSiteTransferEffect.confirmExit:
         context.read<OnSiteTransferCubit>().consumeOnSiteTransferInteraction();
-        final confirmed = await showFlowExitDialog(context);
+        final confirmed = await showFlowExitSheet(context);
         if (context.mounted) {
           context.read<OnSiteTransferCubit>().applyExitConfirmation(confirmed);
         }

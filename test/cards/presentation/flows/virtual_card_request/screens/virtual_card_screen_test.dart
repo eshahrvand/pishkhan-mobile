@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/shared/widgets/flow_exit_sheet.dart';
+
 import '../../../../../support/snackbar_test_support.dart';
 
 import 'package:pishkhan_mobile/core/presentation/mappers/request_error_message_mapper.dart';
@@ -178,7 +180,7 @@ void main() {
       await t.pumpAndSettle();
       expect(r.requests.single.quote.count, 4);
       expect(r.requests.single.quote.depositId, 'virtual-deposit-1');
-      expect(find.byType(AlertDialog), findsNothing);
+      expect(find.byType(FlowExitSheet), findsNothing);
     },
   );
   testWidgets('count edits reset consent and poor wallet prevents submit', (
@@ -381,7 +383,7 @@ void main() {
       await fill(t);
       await t.tap(cardControl(t, 'virtual_submit'));
       await t.pumpAndSettle();
-      expect(find.byType(AlertDialog), findsNothing);
+      expect(find.byType(FlowExitSheet), findsNothing);
       expect(find.byType(VirtualCardRequestScreen), findsNothing);
       expect(find.byType(CardListScreen), findsNothing);
       expect(find.text('Main page'), findsOneWidget);
@@ -419,7 +421,7 @@ void main() {
     },
   );
   testWidgets(
-    'same quote failure notifies on retry and exit dialog ignores retained errors',
+    'same quote failure notifies on retry and exit sheet ignores retained errors',
     (t) async {
       const failure = DataFailure('network.offline');
       final repository = TestVirtualRepository()..failure = failure;
@@ -443,7 +445,7 @@ void main() {
 
       await t.tap(find.byTooltip(S.current.backLabel));
       await t.pumpAndSettle();
-      expect(find.byType(AlertDialog), findsOneWidget);
+      expect(find.byType(FlowExitSheet), findsOneWidget);
       expect(find.text(message), findsNothing);
       await t.tap(find.text(S.current.passwordStay));
       await t.pumpAndSettle();

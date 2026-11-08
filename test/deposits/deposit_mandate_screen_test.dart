@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/shared/widgets/flow_exit_sheet.dart';
+
 import 'dart:async';
 import 'dart:io';
 
@@ -236,7 +238,7 @@ void main() {
       expect(repository.requests.length, 1);
       await tester.tap(find.byTooltip(S.current.backLabel));
       await tester.pump(const Duration(milliseconds: 300));
-      expect(find.byType(AlertDialog), findsNothing);
+      expect(find.byType(FlowExitSheet), findsNothing);
       await tester.binding.handlePopRoute();
       await tester.pump(const Duration(milliseconds: 300));
       repository.pending.complete(const Err(DataFailure('timeout')));

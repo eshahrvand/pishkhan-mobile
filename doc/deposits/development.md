@@ -89,7 +89,7 @@ management or registry verification. Local delivery changes last for the flow's
 lifetime unless a repository explicitly persists them.
 
 Existing selectors, fields, recipient/agent sections, summary, invoice, cards,
-headers, assistant, exit dialog and blurred sheet frame are reused. Common
+headers, assistant, exit sheet and blurred sheet frame are reused. Common
 certificate visuals live in `lib/shared/widgets`; stateful address editing stays
 in its own feature. All interactive selects keep their field visuals and open
 the shared avp_ui selection bottom sheet through AppSelect’s package-owned default behavior. The

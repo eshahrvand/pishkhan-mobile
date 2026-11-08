@@ -1,6 +1,6 @@
 import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
-import 'package:pishkhan_mobile/shared/widgets/flow_exit_dialog.dart';
+import 'package:pishkhan_mobile/shared/widgets/flow_exit_sheet.dart';
 
 import '../widgets/virtual_card_content.dart';
 import '../widgets/virtual_card_footer.dart';
@@ -53,7 +53,7 @@ class _VirtualCardRequestScreenState extends State<VirtualCardRequestScreen> {
     switch (state.navigation) {
       case FlowNavigation.confirmExit:
         context.read<VirtualCardCubit>().consumeVirtualCardInteraction();
-        final confirmed = await showFlowExitDialog(context);
+        final confirmed = await showFlowExitSheet(context);
         if (context.mounted) {
           context.read<VirtualCardCubit>().applyExitConfirmation(confirmed);
         }

@@ -7,7 +7,7 @@ import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
-import 'package:pishkhan_mobile/shared/widgets/flow_exit_dialog.dart';
+import 'package:pishkhan_mobile/shared/widgets/flow_exit_sheet.dart';
 
 import '../../shared/profile_actions_sheet.dart';
 
@@ -78,7 +78,7 @@ class JobInformationScreen extends StatelessWidget {
         );
       case JobInformationEffect.confirmExit:
         context.read<JobInformationCubit>().consumeJobInformationInteraction();
-        final confirmed = await showFlowExitDialog(context);
+        final confirmed = await showFlowExitSheet(context);
         if (context.mounted) {
           context.read<JobInformationCubit>().applyExitConfirmation(confirmed);
         }

@@ -1,5 +1,5 @@
 import 'package:pishkhan_mobile/core/config/constant.dart';
-import 'package:pishkhan_mobile/shared/widgets/flow_exit_dialog.dart';
+import 'package:pishkhan_mobile/shared/widgets/flow_exit_sheet.dart';
 
 import '../widgets/issuance_address_sheet.dart';
 import '../widgets/issuance_footer.dart';
@@ -60,7 +60,7 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
     switch (state.navigation) {
       case FlowNavigation.confirmExit:
         context.read<CardIssuanceCubit>().consumeCardIssuanceInteraction();
-        final confirmed = await showFlowExitDialog(context);
+        final confirmed = await showFlowExitSheet(context);
         if (context.mounted) {
           context.read<CardIssuanceCubit>().applyExitConfirmation(confirmed);
         }

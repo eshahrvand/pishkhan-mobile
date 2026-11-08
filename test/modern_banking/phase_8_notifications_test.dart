@@ -17,7 +17,7 @@ import 'package:pishkhan_mobile/features/modern_banking/presentation/deactivatio
 import 'package:pishkhan_mobile/features/modern_banking/presentation/shared/modern_bank_receipt.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
-import 'package:pishkhan_mobile/shared/widgets/flow_exit_dialog.dart';
+import 'package:pishkhan_mobile/shared/widgets/flow_exit_sheet.dart';
 
 import '../deposits/certificate_test_support.dart';
 
@@ -156,7 +156,7 @@ void main() {
       await repeatedFailure(tester, cubit.submitLimits);
       cubit.requestBack();
       await tester.pumpAndSettle();
-      expect(find.byType(FlowExitDialog), findsOneWidget);
+      expect(find.byType(FlowExitSheet), findsOneWidget);
       expect(find.byType(AvpSnackBar), findsNothing);
       await tester.tap(find.text(S.current.passwordStay));
       await tester.pumpAndSettle();
@@ -188,7 +188,7 @@ void main() {
       await repeatedFailure(tester, cubit.submitDeactivation);
       cubit.requestBack();
       await tester.pumpAndSettle();
-      expect(find.byType(FlowExitDialog), findsOneWidget);
+      expect(find.byType(FlowExitSheet), findsOneWidget);
       expect(find.byType(AvpSnackBar), findsNothing);
       await tester.tap(find.text(S.current.passwordStay));
       await tester.pumpAndSettle();

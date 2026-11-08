@@ -95,7 +95,7 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
         NavigationActions.returnHome(context);
       case PasswordExitConfirmationRequested():
         context.read<SecondPasswordCubit>().consumeSecondPasswordInteraction();
-        final confirmed = await showPasswordExitDialog(context);
+        final confirmed = await showPasswordExitSheet(context);
         if (context.mounted) {
           context.read<SecondPasswordCubit>().applyExitConfirmation(confirmed);
         }

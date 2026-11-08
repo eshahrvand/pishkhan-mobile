@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/shared/widgets/flow_exit_sheet.dart';
+
 import '../../support/snackbar_test_support.dart';
 
 import 'package:pishkhan_mobile/core/presentation/mappers/request_error_message_mapper.dart';
@@ -690,7 +692,7 @@ void main() {
         } else {
           changeCubit(t).requestBack();
           await t.pumpAndSettle();
-          expect(find.byType(AlertDialog), findsOneWidget);
+          expect(find.byType(FlowExitSheet), findsOneWidget);
           expect(find.text(message), findsNothing);
           await t.tap(button(S.current.passwordStay));
         }

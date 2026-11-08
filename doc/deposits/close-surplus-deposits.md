@@ -56,7 +56,7 @@ atomic transfer/closure and durable idempotency must be enforced by the bank.
 ## Reuse and verification
 
 Uses `CertificateSelect`, `AppCheckbox`, `AppButton`, `AppTopBar`,
-`AppAssistantButton`, the exit dialog and original empty-state artwork.
+`AppAssistantButton`, the exit sheet and original empty-state artwork.
 Tests: `test/deposits/close_surplus_deposits_cubit_test.dart` and
 `test/deposits/close_surplus_deposits_screen_test.dart`. Coverage includes catalog
 count branching, entry resolution, consent/reset, retry identity, mock review

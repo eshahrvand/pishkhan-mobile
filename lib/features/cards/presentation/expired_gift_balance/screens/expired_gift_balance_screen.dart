@@ -1,5 +1,5 @@
 import 'package:pishkhan_mobile/core/config/constant.dart';
-import 'package:pishkhan_mobile/shared/widgets/flow_exit_dialog.dart';
+import 'package:pishkhan_mobile/shared/widgets/flow_exit_sheet.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -52,7 +52,7 @@ class _ExpiredGiftBalanceScreenState extends State<ExpiredGiftBalanceScreen> {
         context
             .read<ExpiredGiftBalanceCubit>()
             .consumeExpiredGiftBalanceInteraction();
-        final confirmed = await showFlowExitDialog(context);
+        final confirmed = await showFlowExitSheet(context);
         if (context.mounted) {
           context.read<ExpiredGiftBalanceCubit>().applyExitConfirmation(
             confirmed,

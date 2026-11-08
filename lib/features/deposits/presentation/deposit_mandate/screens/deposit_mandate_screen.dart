@@ -7,7 +7,7 @@ import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
-import 'package:pishkhan_mobile/shared/widgets/flow_exit_dialog.dart';
+import 'package:pishkhan_mobile/shared/widgets/flow_exit_sheet.dart';
 
 import '../../deposit_list/widgets/deposit_ui.dart';
 import '../cubit/deposit_mandate_cubit.dart';
@@ -39,7 +39,7 @@ class DepositMandateScreen extends StatelessWidget {
     switch (state.effect) {
       case DepositMandateEffect.confirmExit:
         context.read<DepositMandateCubit>().consumeDepositMandateInteraction();
-        final confirmed = await showFlowExitDialog(context);
+        final confirmed = await showFlowExitSheet(context);
         if (context.mounted) {
           context.read<DepositMandateCubit>().applyExitConfirmation(confirmed);
         }

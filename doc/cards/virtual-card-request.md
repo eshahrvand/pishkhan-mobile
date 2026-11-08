@@ -93,7 +93,7 @@ in fa/en/ar, routes and returning home from the list footer without a receipt di
 UI tests verify disabled controls/Back during pending operations instead of
 requiring Cubit-side guards. No latest-catalog/disposal suppression is claimed.
 
-Phase 3 adds repeated-error/retained-error exit-dialog coverage and strengthens
+Phase 3 adds repeated-error/retained-error exit-sheet coverage and strengthens
 retry-success completion assertions. DI tests verify all three renamed UseCases
 use their own container’s Repository registrations. Earlier counts (14 targeted,
 30 regressions) belong to the original design implementation and are not current

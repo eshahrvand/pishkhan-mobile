@@ -47,7 +47,7 @@ Flutter navigation, dialogs and feedback. Application boundaries convert
 unexpected repository exceptions into the existing `UnexpectedFailure`.
 
 Reuses `CertificateSelect`, `CertificateInput`, `AppCheckbox`, `AppButton`,
-`AppTopBar`, `AppAssistantButton`, `DepositDivider` and the exit dialog.
+`AppTopBar`, `AppAssistantButton`, `DepositDivider` and the exit sheet.
 `DepositRequestFooter` is extracted from the existing restriction footer and
 used by both flows; the existing restriction Bloc subscription and callbacks
 remain at their owning feature boundary. `CertificateInput` gains an optional
