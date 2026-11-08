@@ -74,7 +74,7 @@ class PasswordRecordingSection extends StatelessWidget {
         Text(
           S.current.passwordMockKyc,
           style: Theme.of(context).textTheme.bodySmall!
-              .copyWith(color: context.colors.textTertiary, height: 18 / 12),
+              .copyWith(color: context.colors.textTertiary),
         ),
         AppCheckbox(
           value: state.isRecordingConfirmed,

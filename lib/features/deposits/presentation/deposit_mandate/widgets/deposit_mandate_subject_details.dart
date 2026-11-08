@@ -49,10 +49,8 @@ class DepositMandateSubjectDetails extends StatelessWidget {
               widthFactor: 1,
               child: Text(
                 S.current.rialCurrency,
-                style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                  color: context.colors.textTertiary,
-                  height: 24 / 16,
-                ),
+                style: Theme.of(context).textTheme.bodyLarge!
+                    .copyWith(color: context.colors.textTertiary),
               ),
             ),
           ),

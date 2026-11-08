@@ -33,7 +33,7 @@ class AuthServicesRow extends StatelessWidget {
                     ? AppLoginColors.serviceLabelMuted
                     : AppLoginColors.serviceLabel,
                 fontWeight: FontWeight.w600,
-                height: 16 / 10,
+
                 letterSpacing: 0,
               ),
             ),

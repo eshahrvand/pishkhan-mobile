@@ -88,14 +88,12 @@ class PasswordFlowFooter extends StatelessWidget {
                                     .copyWith(
                                       color: context.colors.primary,
                                       decoration: TextDecoration.underline,
-                                      height: 18 / 12,
                                     ),
                               ),
                             ),
                             Text(
                               S.current.issuanceTermsPrompt,
-                              style: Theme.of(context).textTheme.bodySmall!
-                                  .copyWith(height: 18 / 12),
+                              style: Theme.of(context).textTheme.bodySmall!,
                             ),
                           ],
                         ),

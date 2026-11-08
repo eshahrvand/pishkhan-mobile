@@ -48,7 +48,7 @@ class DashboardCategoryHeading extends StatelessWidget {
           style: AppTypography.bodyMedium.copyWith(
             color: color,
             fontWeight: active ? FontWeight.w600 : FontWeight.w500,
-            height: 20 / 14,
+
             letterSpacing: 0,
           ),
         ),

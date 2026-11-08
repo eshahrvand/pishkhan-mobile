@@ -77,7 +77,7 @@ class AppDrawerMenuItem extends StatelessWidget {
                               fontWeight: isActive
                                   ? FontWeight.w600
                                   : FontWeight.w400,
-                              height: 1.43,
+
                               letterSpacing: 0,
                             ),
                           ),

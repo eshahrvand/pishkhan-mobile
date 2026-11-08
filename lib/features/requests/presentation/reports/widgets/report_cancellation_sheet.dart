@@ -51,7 +51,7 @@ class ReportCancellationSheet extends StatelessWidget {
                     S.current.reportCancelPrompt,
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.w600,
-                      height: 20 / 14,
+
                       letterSpacing: 0,
                     ),
                   ),

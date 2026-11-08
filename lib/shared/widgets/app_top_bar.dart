@@ -71,7 +71,7 @@ class AppTopBar extends StatelessWidget {
               style: AppTypography.titleSmall.copyWith(
                 color: context.colors.textPrimary,
                 fontWeight: FontWeight.w600,
-                height: 20 / 14,
+
                 letterSpacing: 0,
               ),
             ),

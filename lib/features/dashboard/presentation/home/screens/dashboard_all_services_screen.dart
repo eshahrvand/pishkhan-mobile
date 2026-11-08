@@ -48,7 +48,6 @@ class DashboardAllServicesScreen extends StatelessWidget {
                       child: Text(
                         S.current.dashboardAllServices,
                         style: AppTypography.titleSmall.copyWith(
-                          height: 20 / 14,
                           letterSpacing: 0,
                         ),
                       ),
@@ -85,7 +84,7 @@ class DashboardAllServicesScreen extends StatelessWidget {
                                         .copyWith(
                                           color: AppDashboardColors.optionText,
                                           fontWeight: FontWeight.w500,
-                                          height: 18 / 12,
+
                                           letterSpacing: 0,
                                         ),
                                     item: AppServiceGridItem(

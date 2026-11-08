@@ -11,10 +11,7 @@ class IssuanceSummaryRow extends StatelessWidget {
   final String label, value, asset;
   @override
   Widget build(BuildContext context) {
-    final small = AppTypography.bodySmall.copyWith(
-      height: 18 / 12,
-      letterSpacing: 0,
-    );
+    final small = AppTypography.bodySmall.copyWith(letterSpacing: 0);
     return Row(
       textDirection: TextDirection.ltr,
       children: [

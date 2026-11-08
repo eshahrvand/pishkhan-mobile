@@ -76,7 +76,7 @@ class ProfileActionsSheet<T> extends StatelessWidget {
                         editLabel,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.w500,
-                          height: 22 / 14,
+
                           letterSpacing: 0,
                         ),
                       ),
@@ -115,7 +115,7 @@ class ProfileActionsSheet<T> extends StatelessWidget {
                         deleteLabel,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           fontWeight: FontWeight.w500,
-                          height: 22 / 14,
+
                           letterSpacing: 0,
                         ),
                       ),

@@ -50,7 +50,7 @@ class DashboardFavoritesCard extends StatelessWidget {
                   S.current.dashboardYourFavorites,
                   style: AppTypography.titleSmall.copyWith(
                     color: AppDashboardColors.sectionText,
-                    height: 20 / 14,
+
                     letterSpacing: 0,
                   ),
                 ),
@@ -144,7 +144,7 @@ class DashboardFavoritesCard extends StatelessWidget {
                               style: AppTypography.bodySmall.copyWith(
                                 color: AppLoginColors.noticeText,
                                 fontWeight: FontWeight.w500,
-                                height: 18 / 12,
+
                                 letterSpacing: 0,
                               ),
                             ),

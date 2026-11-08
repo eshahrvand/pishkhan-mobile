@@ -35,14 +35,13 @@ class ModernBankReceipt extends StatelessWidget {
           S.current.passwordStatusRegisteredTitle,
           textAlign: TextAlign.center,
           style: Theme.of(context).textTheme.bodyMedium!
-              .copyWith(fontWeight: FontWeight.w600, height: 20 / 14),
+              .copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 24),
         Text(
           message,
           textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.bodyMedium!
-              .copyWith(height: 20 / 14),
+          style: Theme.of(context).textTheme.bodyMedium!,
         ),
         if (trackingCode != null) ...[
           const SizedBox(height: 24),

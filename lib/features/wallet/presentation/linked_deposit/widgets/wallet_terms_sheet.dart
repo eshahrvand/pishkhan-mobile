@@ -22,10 +22,7 @@ class WalletTermsSheet extends StatelessWidget {
         ),
         Padding(
           padding: const EdgeInsets.all(24),
-          child: Text(
-            text,
-            style: AppTypography.bodyMedium.copyWith(height: 1.7),
-          ),
+          child: Text(text, style: AppTypography.bodyMedium),
         ),
       ],
     );

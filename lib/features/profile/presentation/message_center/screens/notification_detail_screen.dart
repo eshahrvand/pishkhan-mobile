@@ -15,12 +15,10 @@ class NotificationDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bodyStyle = AppTypography.bodySmall.copyWith(
-      height: 18 / 12,
       letterSpacing: 0,
       color: context.colors.textTertiary,
     );
     final dateStyle = AppTypography.caption.copyWith(
-      height: 16 / 10,
       fontWeight: FontWeight.w300,
       color: AppPalette.gray400,
     );
@@ -46,7 +44,6 @@ class NotificationDetailScreen extends StatelessWidget {
                             child: Text(
                               getNotificationTitle(message),
                               style: AppTypography.bodyMedium.copyWith(
-                                height: 20 / 14,
                                 letterSpacing: 0,
                                 color: context.colors.textSecondary,
                               ),

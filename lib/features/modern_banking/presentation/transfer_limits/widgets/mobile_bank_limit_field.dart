@@ -35,7 +35,7 @@ class MobileBankLimitField extends StatelessWidget {
         Text(
           label,
           style: Theme.of(context).textTheme.bodySmall!
-              .copyWith(height: 18 / 12, color: context.colors.textSecondary),
+              .copyWith(color: context.colors.textSecondary),
         ),
         const SizedBox(height: 8),
         AppTextField(
@@ -103,8 +103,7 @@ class MobileBankLimitField extends StatelessWidget {
                     S.current.modernMaximumLimit(
                       CurrencyFormatter.format(maximum),
                     ),
-                    style: Theme.of(context).textTheme.bodySmall!
-                        .copyWith(height: 18 / 12),
+                    style: Theme.of(context).textTheme.bodySmall!,
                   ),
                 ),
               ],

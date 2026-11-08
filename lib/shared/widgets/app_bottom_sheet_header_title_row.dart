@@ -42,7 +42,7 @@ class AppBottomSheetHeaderTitleRow extends StatelessWidget {
                     style: AppTypography.bodySmall.copyWith(
                       color: textActionColor ?? context.colors.primary,
                       fontWeight: FontWeight.w500,
-                      height: 18 / 12,
+
                       letterSpacing: 0,
                     ),
                   ),
@@ -79,7 +79,7 @@ class AppBottomSheetHeaderTitleRow extends StatelessWidget {
                       color: context.colors.textPrimary,
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      height: 20 / 14,
+
                       letterSpacing: 0,
                     ),
                   ),

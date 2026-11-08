@@ -28,10 +28,8 @@ class ModernBankNotice extends StatelessWidget {
           Expanded(
             child: Text(
               message,
-              style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                height: 18 / 12,
-                color: context.colors.textSecondary,
-              ),
+              style: Theme.of(context).textTheme.bodySmall!
+                  .copyWith(color: context.colors.textSecondary),
             ),
           ),
         ],

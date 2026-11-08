@@ -71,7 +71,6 @@ class PasswordInstructionSection extends StatelessWidget {
                 child: Text(
                   S.current.passwordCameraNotice,
                   style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                    height: 18 / 12,
                     fontWeight: FontWeight.w500,
                     color: AppPasswordServiceColors.body,
                   ),
@@ -85,7 +84,7 @@ class PasswordInstructionSection extends StatelessWidget {
           Text(
             S.current.passwordDemoVideo,
             style: Theme.of(context).textTheme.bodySmall!
-                .copyWith(color: context.colors.textTertiary, height: 18 / 12),
+                .copyWith(color: context.colors.textTertiary),
           ),
         ],
       ],

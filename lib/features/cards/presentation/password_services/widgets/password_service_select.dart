@@ -28,7 +28,6 @@ class PasswordServiceSelect<T> extends StatelessWidget {
       onChanged: change,
       labelSpacing: 8,
       labelStyle: Theme.of(context).textTheme.bodySmall!.copyWith(
-        height: 18 / 12,
         fontWeight: FontWeight.w500,
         color: context.colors.textSecondary,
         letterSpacing: 0,

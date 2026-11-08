@@ -24,7 +24,6 @@ class DepositOwnerDetailRow extends StatelessWidget {
             Text(
               label,
               style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                height: 18 / 12,
                 letterSpacing: 0,
                 color: context.colors.textSecondary,
               ),
@@ -48,7 +47,7 @@ class DepositOwnerDetailRow extends StatelessWidget {
                 textDirection: textDirection,
                 style: Theme.of(context).textTheme.bodySmall!.copyWith(
                   fontWeight: FontWeight.w600,
-                  height: 18 / 12,
+
                   letterSpacing: 0,
                   color: context.colors.textPrimary,
                 ),

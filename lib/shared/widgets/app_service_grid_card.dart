@@ -92,7 +92,7 @@ class AppServiceGridCard extends StatelessWidget {
             style: AppTypography.titleSmall.copyWith(
               color: titleColor ?? colors.textPrimary,
               fontWeight: FontWeight.w600,
-              height: 20 / 14,
+
               letterSpacing: 0,
             ),
           ),
@@ -147,7 +147,11 @@ class AppServiceGridCard extends StatelessWidget {
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              for (var column = 0; column < columns; column++) ...[
+                              for (
+                                var column = 0;
+                                column < columns;
+                                column++
+                              ) ...[
                                 if (column > 0) SizedBox(width: spacing),
                                 Expanded(
                                   child: start + column < items.length
@@ -236,7 +240,7 @@ class AppServiceGridItemView extends StatelessWidget {
                   color: colors.textPrimary,
                   fontSize: 10,
                   fontWeight: FontWeight.w400,
-                  height: 16 / 10,
+
                   letterSpacing: 0,
                 )
                 .merge(labelStyle),

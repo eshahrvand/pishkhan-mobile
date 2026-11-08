@@ -185,10 +185,7 @@ class CardListScreen extends StatelessWidget {
                                         size: AppButtonSize.lg,
                                         label: actionLabel(state.footerAction!),
                                         labelStyle: AppTypography.titleMedium
-                                            .copyWith(
-                                              height: 24 / 16,
-                                              letterSpacing: 0,
-                                            ),
+                                            .copyWith(letterSpacing: 0),
                                         contentGap: 10,
                                         constrainLabel: true,
                                         leadingIcon: cardFeatureIcon(

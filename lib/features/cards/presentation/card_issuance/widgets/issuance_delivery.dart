@@ -109,7 +109,7 @@ class _IssuanceDeliveryState extends State<IssuanceDelivery> {
                     label: S.current.issuanceAddAddress,
                     labelStyle: AppTypography.bodySmall.copyWith(
                       fontWeight: FontWeight.w500,
-                      height: 18 / 12,
+
                       letterSpacing: 0,
                     ),
                     contentGap: 8,

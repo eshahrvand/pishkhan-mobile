@@ -60,7 +60,7 @@ class AuthIdentityForm extends StatelessWidget {
               textDirection: TextDirection.rtl,
               textAlign: TextAlign.start,
               textStyle: Theme.of(context).textTheme.bodyMedium!
-                  .copyWith(height: 20 / 14, letterSpacing: 0),
+                  .copyWith(letterSpacing: 0),
               normalizeDigits: true,
               focusRing: AppTextFieldFocusRing.subtle,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -106,7 +106,7 @@ class AuthIdentityForm extends StatelessWidget {
               textDirection: TextDirection.rtl,
               textAlign: TextAlign.start,
               textStyle: Theme.of(context).textTheme.bodyMedium!
-                  .copyWith(height: 20 / 14, letterSpacing: 0),
+                  .copyWith(letterSpacing: 0),
               normalizeDigits: true,
               focusRing: AppTextFieldFocusRing.subtle,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -145,7 +145,7 @@ class AuthIdentityForm extends StatelessWidget {
                     style: Theme.of(context).textTheme.labelMedium!.copyWith(
                       color: AppLoginColors.noticeText,
                       fontWeight: FontWeight.w500,
-                      height: 18 / 12,
+
                       letterSpacing: 0,
                     ),
                   ),
@@ -177,7 +177,7 @@ class AuthIdentityForm extends StatelessWidget {
                       style: Theme.of(context).textTheme.titleSmall!.copyWith(
                         color: context.colors.primary,
                         fontWeight: FontWeight.w600,
-                        height: 20 / 14,
+
                         letterSpacing: 0,
                       ),
                     ),

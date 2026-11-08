@@ -78,7 +78,7 @@ class AppLoanCard extends StatelessWidget {
                         style: AppTypography.bodySmall.copyWith(
                           color: const Color(0xFF24292E),
                           fontWeight: FontWeight.w600,
-                          height: 18 / 12,
+
                           letterSpacing: 0,
                         ),
                       ),
@@ -228,20 +228,20 @@ class AppLoanCard extends StatelessWidget {
   TextStyle get _valueStyle => AppTypography.bodySmall.copyWith(
     color: AppPalette.gray800,
     fontWeight: FontWeight.w600,
-    height: 18 / 12,
+
     letterSpacing: 0,
   );
 
   TextStyle get _labelStyle => AppTypography.bodySmall.copyWith(
     color: AppPalette.gray700,
-    height: 18 / 12,
+
     letterSpacing: 0,
   );
 
   TextStyle get _mediumStyle => AppTypography.bodySmall.copyWith(
     color: AppPalette.gray700,
     fontWeight: FontWeight.w500,
-    height: 18 / 12,
+
     letterSpacing: 0,
   );
 
@@ -249,7 +249,7 @@ class AppLoanCard extends StatelessWidget {
     color: AppPalette.gray700,
     fontSize: 10,
     fontWeight: FontWeight.w500,
-    height: 20 / 10,
+
     letterSpacing: 0,
   );
 }

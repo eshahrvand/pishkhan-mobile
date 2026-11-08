@@ -115,7 +115,7 @@ class AppFileUploadBaseFileContent extends StatelessWidget {
   TextStyle get _bodyStyle => AppTypography.bodyMedium.copyWith(
     color: AppPalette.gray600,
     fontSize: 14,
-    height: 20 / 14,
+
     letterSpacing: 0,
   );
 }

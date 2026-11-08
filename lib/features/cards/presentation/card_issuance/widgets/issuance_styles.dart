@@ -13,7 +13,7 @@ TextStyle issuanceBody(BuildContext context, {bool medium = false}) =>
     AppTypography.bodyMedium.copyWith(
       color: context.colors.textPrimary,
       fontWeight: medium ? FontWeight.w500 : FontWeight.w400,
-      height: 20 / 14,
+
       letterSpacing: 0,
     );
 String issuanceTypeLabel(IssuanceType value) => switch (value) {

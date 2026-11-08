@@ -46,7 +46,6 @@ class GiftBalanceFilterSheet extends StatelessWidget {
                   labelSpacing: 8,
                   labelStyle: cardServiceSmall(context, medium: true),
                   textStyle: AppTypography.bodyMedium.copyWith(
-                    height: 20 / 14,
                     letterSpacing: 0,
                     color: context.colors.textPrimary,
                   ),

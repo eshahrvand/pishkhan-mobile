@@ -82,10 +82,8 @@ class _SerialFormState extends State<PasswordSerialForm> {
             Expanded(
               child: Text(
                 S.current.passwordSerialHelper,
-                style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                  color: context.colors.textSecondary,
-                  height: 18 / 12,
-                ),
+                style: Theme.of(context).textTheme.bodySmall!
+                    .copyWith(color: context.colors.textSecondary),
               ),
             ),
           ],

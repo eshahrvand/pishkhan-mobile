@@ -59,7 +59,7 @@ class DashboardBankServices extends StatelessWidget {
                           S.current.dashboardBankServices,
                           style: AppTypography.titleSmall.copyWith(
                             color: AppDashboardColors.sectionText,
-                            height: 20 / 14,
+
                             letterSpacing: 0,
                           ),
                         ),
@@ -113,7 +113,7 @@ class DashboardBankServices extends StatelessWidget {
                                   labelStyle: AppTypography.caption.copyWith(
                                     color: AppDashboardColors.serviceText,
                                     fontWeight: FontWeight.w400,
-                                    height: 16 / 10,
+
                                     letterSpacing: 0,
                                   ),
                                   width: width,

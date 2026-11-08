@@ -44,7 +44,7 @@ class AppDeleteAddressButton extends StatelessWidget {
                           : colors.textSecondary,
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      height: 20 / 14,
+
                       letterSpacing: 0,
                     ),
                   ),

@@ -86,19 +86,14 @@ class PasswordRecordSheet extends StatelessWidget {
                         child: Text(
                           S.current.passwordTracking,
                           style: Theme.of(context).textTheme.bodySmall!
-                              .copyWith(
-                                color: context.colors.textTertiary,
-                                height: 18 / 12,
-                              ),
+                              .copyWith(color: context.colors.textTertiary),
                         ),
                       ),
                       SelectableText(
                         record.trackingCode ?? '—',
                         textDirection: TextDirection.ltr,
-                        style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                          color: AppPasswordServiceColors.body,
-                          height: 18 / 12,
-                        ),
+                        style: Theme.of(context).textTheme.bodySmall!
+                            .copyWith(color: AppPasswordServiceColors.body),
                       ),
                     ],
                   ),
@@ -109,10 +104,8 @@ class PasswordRecordSheet extends StatelessWidget {
                 Text(
                   S.current.passwordMockReceipt,
                   textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                    color: context.colors.textTertiary,
-                    height: 18 / 12,
-                  ),
+                  style: Theme.of(context).textTheme.bodySmall!
+                      .copyWith(color: context.colors.textTertiary),
                 ),
               ],
             ],
@@ -178,10 +171,8 @@ class PasswordStatusContent extends StatelessWidget {
               Expanded(
                 child: Text(
                   S.current.passwordTracking,
-                  style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                    color: context.colors.textTertiary,
-                    height: 18 / 12,
-                  ),
+                  style: Theme.of(context).textTheme.bodySmall!
+                      .copyWith(color: context.colors.textTertiary),
                 ),
               ),
               SelectableText(
@@ -190,7 +181,6 @@ class PasswordStatusContent extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodySmall!.copyWith(
                   color: AppPasswordServiceColors.body,
                   fontWeight: FontWeight.w500,
-                  height: 18 / 12,
                 ),
               ),
             ],
@@ -202,7 +192,7 @@ class PasswordStatusContent extends StatelessWidget {
             S.current.passwordMockReceipt,
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodySmall!
-                .copyWith(color: context.colors.textTertiary, height: 18 / 12),
+                .copyWith(color: context.colors.textTertiary),
           ),
         ],
       ],

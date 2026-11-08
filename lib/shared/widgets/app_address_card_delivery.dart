@@ -58,7 +58,7 @@ class AppAddressCardDelivery extends StatelessWidget {
                 textAlign: TextAlign.right,
                 style: AppTypography.bodyMedium.copyWith(
                   color: context.colors.textPrimary,
-                  height: 20 / 14,
+
                   letterSpacing: 0,
                 ),
               ),

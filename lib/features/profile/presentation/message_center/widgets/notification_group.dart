@@ -23,7 +23,6 @@ class NotificationGroup extends StatelessWidget {
         Text(
           title,
           style: AppTypography.bodySmall.copyWith(
-            height: 18 / 12,
             letterSpacing: 0,
             color: context.colors.textTertiary,
           ),

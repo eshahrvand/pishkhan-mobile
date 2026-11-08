@@ -103,7 +103,6 @@ class AppAgentCard extends StatelessWidget {
                                 .copyWith(
                                   color: context.colors.textSecondary,
                                   fontWeight: FontWeight.w500,
-                                  height: 20 / 14,
                                 ),
                           )
                         else
@@ -144,7 +143,7 @@ class AppAgentCard extends StatelessWidget {
     color: const Color(0xFF181D27),
     fontSize: 14,
     fontWeight: FontWeight.w700,
-    height: 20 / 14,
+
     letterSpacing: 0,
   );
 }

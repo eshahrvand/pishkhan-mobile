@@ -57,7 +57,7 @@ class AppAgentCardStatusLine extends StatelessWidget {
     color: AppPalette.gray700,
     fontSize: 14,
     fontWeight: FontWeight.w500,
-    height: 20 / 14,
+
     letterSpacing: 0,
   );
 }

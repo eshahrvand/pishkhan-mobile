@@ -31,7 +31,7 @@ class AuthSectionHeading extends StatelessWidget {
                 style: Theme.of(context).textTheme.titleMedium!.copyWith(
                   color: context.colors.primary,
                   fontWeight: FontWeight.w600,
-                  height: 24 / 16,
+
                   letterSpacing: 0,
                 ),
               ),
@@ -42,11 +42,8 @@ class AuthSectionHeading extends StatelessWidget {
         Text(
           description,
           textAlign: TextAlign.start,
-          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-            color: context.colors.textTertiary,
-            height: 20 / 14,
-            letterSpacing: 0,
-          ),
+          style: Theme.of(context).textTheme.bodyMedium!
+              .copyWith(color: context.colors.textTertiary, letterSpacing: 0),
         ),
       ],
     );

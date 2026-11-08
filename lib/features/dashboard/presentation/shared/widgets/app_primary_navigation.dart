@@ -89,7 +89,7 @@ class AppPrimaryNavigation extends StatelessWidget {
                                     fontWeight: tab == selectedTab
                                         ? FontWeight.w600
                                         : FontWeight.w400,
-                                    height: 18 / 12,
+
                                     letterSpacing: 0,
                                   ),
                                 ),

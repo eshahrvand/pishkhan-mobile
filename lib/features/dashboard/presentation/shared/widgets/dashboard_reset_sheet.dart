@@ -27,53 +27,53 @@ class DashboardResetSheet extends StatelessWidget {
         child: SafeArea(
           top: false,
           child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                AppBottomSheetHeader(
-                  title: S.current.dashboardResetTitle,
-                  showRightIcon: false,
-                  showLeftAction: false,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AppBottomSheetHeader(
+                title: S.current.dashboardResetTitle,
+                showRightIcon: false,
+                showLeftAction: false,
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+                child: Text(
+                  S.current.dashboardResetDescription,
+                  style: AppTypography.bodyMedium.copyWith(
+                    fontWeight: FontWeight.w500,
+
+                    letterSpacing: 0,
+                    color: context.colors.textPrimary,
+                  ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
-                  child: Text(
-                    S.current.dashboardResetDescription,
-                    style: AppTypography.bodyMedium.copyWith(
-                      fontWeight: FontWeight.w500,
-                      height: 20 / 14,
-                      letterSpacing: 0,
-                      color: context.colors.textPrimary,
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+                child: Row(
+                  textDirection: TextDirection.ltr,
+                  children: [
+                    Expanded(
+                      child: AppButton(
+                        onPressed: () => Navigator.of(context).pop(true),
+                        label: S.current.dashboardResetConfirm,
+                        size: AppButtonSize.lg,
+                      ),
                     ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
-                  child: Row(
-                    textDirection: TextDirection.ltr,
-                    children: [
-                      Expanded(
-                        child: AppButton(
-                          onPressed: () => Navigator.of(context).pop(true),
-                          label: S.current.dashboardResetConfirm,
-                          size: AppButtonSize.lg,
-                        ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: AppButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        label: S.current.dashboardCancel,
+                        variant: AppButtonVariant.secondaryGray,
+                        size: AppButtonSize.lg,
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: AppButton(
-                          onPressed: () => Navigator.of(context).pop(false),
-                          label: S.current.dashboardCancel,
-                          variant: AppButtonVariant.secondaryGray,
-                          size: AppButtonSize.lg,
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
-      );
+      ),
+    );
   }
 }

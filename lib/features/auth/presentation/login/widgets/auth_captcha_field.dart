@@ -54,7 +54,7 @@ class AuthCaptchaField extends StatelessWidget {
                 textDirection: TextDirection.rtl,
                 textAlign: TextAlign.start,
                 textStyle: Theme.of(context).textTheme.bodyMedium!
-                    .copyWith(height: 20 / 14, letterSpacing: 0),
+                    .copyWith(letterSpacing: 0),
                 normalizeDigits: true,
                 focusRing: AppTextFieldFocusRing.subtle,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],

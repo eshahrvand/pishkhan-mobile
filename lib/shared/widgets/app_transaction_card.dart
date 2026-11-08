@@ -131,7 +131,7 @@ class AppTransactionCard extends StatelessWidget {
 
   TextStyle get _currencyStyle => AppTypography.bodySmall.copyWith(
     color: AppPalette.gray700,
-    height: 18 / 12,
+
     letterSpacing: 0,
   );
 
@@ -139,7 +139,7 @@ class AppTransactionCard extends StatelessWidget {
     color: AppPalette.gray900,
     fontSize: 14,
     fontWeight: FontWeight.w600,
-    height: 20 / 14,
+
     letterSpacing: 0,
   );
 

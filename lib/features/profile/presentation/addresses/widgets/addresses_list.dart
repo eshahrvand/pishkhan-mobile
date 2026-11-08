@@ -98,7 +98,7 @@ class AddressesList extends StatelessWidget {
                               style: Theme.of(context).textTheme.bodySmall
                                   ?.copyWith(
                                     fontWeight: FontWeight.w500,
-                                    height: 18 / 12,
+
                                     letterSpacing: 0,
                                     color: residenceStatusColor(address.status),
                                   ),
@@ -120,7 +120,7 @@ class AddressesList extends StatelessWidget {
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       decoration: TextDecoration.underline,
                       fontWeight: FontWeight.w500,
-                      height: 18 / 12,
+
                       letterSpacing: 0,
                       color: AppLoginColors.noticeText,
                     ),

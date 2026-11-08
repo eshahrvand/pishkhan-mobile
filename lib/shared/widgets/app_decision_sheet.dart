@@ -60,11 +60,8 @@ class AppDecisionSheet extends StatelessWidget {
             child: Text(
               message,
               textAlign: TextAlign.start,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w500,
-                height: 20 / 14,
-                letterSpacing: 0,
-              ),
+              style: Theme.of(context).textTheme.bodyMedium
+                  ?.copyWith(fontWeight: FontWeight.w500, letterSpacing: 0),
             ),
           ),
         ),

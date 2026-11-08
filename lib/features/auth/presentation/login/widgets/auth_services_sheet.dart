@@ -84,7 +84,7 @@ class AuthServicesSheet extends StatelessWidget {
                               .copyWith(
                                 color: AppLoginColors.sectionLabel,
                                 fontWeight: FontWeight.w600,
-                                height: 20 / 14,
+
                                 letterSpacing: 0,
                               ),
                         ),
@@ -136,7 +136,7 @@ class AuthServicesSheet extends StatelessWidget {
                               .copyWith(
                                 color: AppLoginColors.sectionLabel,
                                 fontWeight: FontWeight.w600,
-                                height: 20 / 14,
+
                                 letterSpacing: 0,
                               ),
                         ),

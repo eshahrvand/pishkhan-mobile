@@ -36,13 +36,13 @@ class AppConfirmerDetailsCardDetailRow extends StatelessWidget {
 
   TextStyle get _labelStyle => AppTypography.bodySmall.copyWith(
     color: const Color(0xFF181D27),
-    height: 18 / 12,
+
     letterSpacing: 0,
   );
   TextStyle get _valueStyle => AppTypography.bodySmall.copyWith(
     color: const Color(0xFF181D27),
     fontWeight: FontWeight.w500,
-    height: 18 / 12,
+
     letterSpacing: 0,
   );
 }

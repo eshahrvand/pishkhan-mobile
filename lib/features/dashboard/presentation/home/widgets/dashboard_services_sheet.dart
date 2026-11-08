@@ -79,7 +79,6 @@ class DashboardServicesSheet extends StatelessWidget {
                               ),
                               hintText: S.current.dashboardSearchHint,
                               textStyle: AppTypography.bodyMedium.copyWith(
-                                height: 20 / 14,
                                 letterSpacing: 0,
                               ),
                               searchIcon: SizedBox(

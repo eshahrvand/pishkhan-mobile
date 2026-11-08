@@ -65,7 +65,7 @@ class NotificationCard extends StatelessWidget {
                                 color: message.isRead
                                     ? context.colors.textSecondary
                                     : AppPalette.gray800,
-                                height: 20 / 14,
+
                                 letterSpacing: 0,
                               ),
                             ),
@@ -75,7 +75,7 @@ class NotificationCard extends StatelessWidget {
                             getNotificationDate(message),
                             style: AppTypography.caption.copyWith(
                               fontWeight: FontWeight.w300,
-                              height: 16 / 10,
+
                               letterSpacing: 0,
                               color: AppPalette.gray400,
                             ),
@@ -94,7 +94,7 @@ class NotificationCard extends StatelessWidget {
                         getNotificationSubtitle(message),
                         style: AppTypography.bodySmall.copyWith(
                           fontWeight: FontWeight.w300,
-                          height: 18 / 12,
+
                           letterSpacing: 0,
                           color: context.colors.textTertiary,
                         ),

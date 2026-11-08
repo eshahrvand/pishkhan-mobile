@@ -53,7 +53,6 @@ class GiftBalanceDestination extends StatelessWidget {
               labelStyle: cardServiceSmall(context, medium: true),
               labelSpacing: 8,
               textStyle: AppTypography.bodyMedium.copyWith(
-                height: 20 / 14,
                 letterSpacing: 0,
                 color: state.destination == null
                     ? context.colors.textDisabled

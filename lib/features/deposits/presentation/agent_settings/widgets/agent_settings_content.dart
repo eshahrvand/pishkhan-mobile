@@ -48,7 +48,6 @@ class AgentSettingsContent extends StatelessWidget {
                                       color: state.tab == tab
                                           ? context.colors.primary
                                           : context.colors.textTertiary,
-                                      height: 20 / 14,
                                     ),
                               ),
                             ),

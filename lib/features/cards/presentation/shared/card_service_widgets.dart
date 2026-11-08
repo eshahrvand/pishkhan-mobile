@@ -12,7 +12,6 @@ TextStyle cardServiceSmall(
   Color? color,
   bool medium = false,
 }) => AppTypography.bodySmall.copyWith(
-  height: 18 / 12,
   letterSpacing: 0,
   color: color ?? context.colors.textSecondary,
   fontWeight: medium ? FontWeight.w500 : FontWeight.w400,

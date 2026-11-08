@@ -86,11 +86,11 @@ class AppResalatCardSecurityDetails extends StatelessWidget {
     );
   }
 
-  TextStyle _detailStyle({double fontSize = 12, double height = 18 / 12}) =>
+  TextStyle _detailStyle({double fontSize = 12}) =>
       AppTypography.bodySmall.copyWith(
         color: AppPalette.brand100,
         fontSize: fontSize,
-        height: height,
+
         letterSpacing: 0,
       );
   bool get _isSingle => size == AppResalatCardSize.single;

@@ -19,7 +19,7 @@ class MobileBankDeactivationForm extends StatelessWidget {
         Text(
           S.current.modernDeactivationIntro,
           style: Theme.of(context).textTheme.bodyMedium!
-              .copyWith(fontWeight: FontWeight.w500, height: 20 / 14),
+              .copyWith(fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 30),
         AppTextField(

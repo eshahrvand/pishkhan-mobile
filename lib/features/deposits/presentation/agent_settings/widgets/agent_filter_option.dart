@@ -34,7 +34,6 @@ class AgentFilterOption extends StatelessWidget {
                 style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                   color: context.colors.textSecondary,
                   fontWeight: FontWeight.w500,
-                  height: 20 / 14,
                 ),
               ),
             ),

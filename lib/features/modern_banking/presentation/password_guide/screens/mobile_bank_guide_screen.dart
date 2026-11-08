@@ -107,7 +107,6 @@ class _MobileBankGuideScreenState extends State<MobileBankGuideScreen> {
                                                   .textTheme
                                                   .bodyMedium!
                                                   .copyWith(
-                                                    height: 20 / 14,
                                                     fontWeight: FontWeight.w500,
                                                   ),
                                             ),
