@@ -53,6 +53,8 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m13(amount) => "کارمزد صدور هر کارت ${amount} است";
 
+  static String m14(amount) => "${amount} تومان";
+
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "agentAddNext":
@@ -2132,8 +2134,164 @@ class MessageLookup extends MessageLookupByLibrary {
         "virtualRequestUnitFee": MessageLookupByLibrary.simpleMessage(
           "کارمزد صدور هر کارت",
         ),
+        "walletAmount": MessageLookupByLibrary.simpleMessage("مبلغ"),
+        "walletAmountFilter": MessageLookupByLibrary.simpleMessage("مبلغ"),
+        "walletAmountHint": MessageLookupByLibrary.simpleMessage(
+          "مبلغ را وارد کنید",
+        ),
+        "walletAmountInvalid": MessageLookupByLibrary.simpleMessage(
+          "مبلغ معتبر وارد کنید؛ مبلغ برداشت نباید بیشتر از موجودی باشد.",
+        ),
+        "walletApplyFilter":
+            MessageLookupByLibrary.simpleMessage("اعمال فیلتر"),
+        "walletBalanceAfter": MessageLookupByLibrary.simpleMessage(
+          "موجودی کیف پس از تراکنش",
+        ),
         "walletBalanceTitle": MessageLookupByLibrary.simpleMessage(
           "موجودی کیف پول",
+        ),
+        "walletCancel": MessageLookupByLibrary.simpleMessage("انصراف"),
+        "walletCharge": MessageLookupByLibrary.simpleMessage("شارژ"),
+        "walletChargeAmount": MessageLookupByLibrary.simpleMessage("مبلغ شارژ"),
+        "walletChargeComplete": MessageLookupByLibrary.simpleMessage(
+          "شارژ کیف پول با موفقیت انجام شد.",
+        ),
+        "walletChargeSuccess":
+            MessageLookupByLibrary.simpleMessage("شارژ موفق"),
+        "walletChargeTitle":
+            MessageLookupByLibrary.simpleMessage("شارژ کیف پول"),
+        "walletConfirmPayment": MessageLookupByLibrary.simpleMessage(
+          "تایید و پرداخت",
+        ),
+        "walletConfirmTransfer": MessageLookupByLibrary.simpleMessage(
+          "تایید و انتقال",
+        ),
+        "walletCopied": MessageLookupByLibrary.simpleMessage(
+          "شماره پیگیری کپی شد.",
+        ),
+        "walletCurrentBalance": MessageLookupByLibrary.simpleMessage(
+          "موجودی فعلی کیف پول",
+        ),
+        "walletCustomDate":
+            MessageLookupByLibrary.simpleMessage("تاریخ دلخواه"),
+        "walletDateFilter": MessageLookupByLibrary.simpleMessage("تاریخ"),
+        "walletDateInvalid": MessageLookupByLibrary.simpleMessage(
+          "تاریخ شمسی معتبر با قالب YYYY/MM/DD وارد کنید.",
+        ),
+        "walletDateSelection":
+            MessageLookupByLibrary.simpleMessage("انتخاب تاریخ"),
+        "walletDepositChanged": MessageLookupByLibrary.simpleMessage(
+          "سپرده متصل به کیف پول تغییر کرد.",
+        ),
+        "walletDepositHint": MessageLookupByLibrary.simpleMessage(
+          "سپرده مورد نظر را انتخاب کنید",
+        ),
+        "walletDestination": MessageLookupByLibrary.simpleMessage("کیف مقصد"),
+        "walletDestinationHint": MessageLookupByLibrary.simpleMessage(
+          "شماره کیف مقصد یا شماره همراه صاحب کیف",
+        ),
+        "walletEmptyTransactions": MessageLookupByLibrary.simpleMessage(
+          "تراکنشی با این مشخصات یافت نشد.",
+        ),
+        "walletEndDate": MessageLookupByLibrary.simpleMessage("تاریخ پایان"),
+        "walletFromDate": MessageLookupByLibrary.simpleMessage("از تاریخ"),
+        "walletFromDeposit": MessageLookupByLibrary.simpleMessage("از سپرده"),
+        "walletInquiryRetry": MessageLookupByLibrary.simpleMessage(
+          "استعلام مجدد مقصد",
+        ),
+        "walletLastMonth": MessageLookupByLibrary.simpleMessage("ماه گذشته"),
+        "walletLastThreeMonths": MessageLookupByLibrary.simpleMessage(
+          "۳ ماه گذشته",
+        ),
+        "walletLastWeek": MessageLookupByLibrary.simpleMessage("هفته گذشته"),
+        "walletLinkedDepositIntro": MessageLookupByLibrary.simpleMessage(
+          "سپرده مورد نظر جهت اتصال به کیف پول را انتخاب کنید.",
+        ),
+        "walletLinkedDepositShort": MessageLookupByLibrary.simpleMessage(
+          "تغییر سپرده متصل به کیف",
+        ),
+        "walletLinkedDepositTitle": MessageLookupByLibrary.simpleMessage(
+          "تغییر سپرده متصل به کیف",
+        ),
+        "walletMaxAmount": MessageLookupByLibrary.simpleMessage("تا مبلغ"),
+        "walletMinAmount": MessageLookupByLibrary.simpleMessage("از مبلغ"),
+        "walletOperations":
+            MessageLookupByLibrary.simpleMessage("عملیات کیف پول"),
+        "walletOtpHint": MessageLookupByLibrary.simpleMessage("وارد کردن رمز"),
+        "walletRangeInvalid": MessageLookupByLibrary.simpleMessage(
+          "ابتدای بازه نباید بیشتر از انتهای آن باشد.",
+        ),
+        "walletReceiptDestination": MessageLookupByLibrary.simpleMessage(
+          "واریز به",
+        ),
+        "walletReceiptSource":
+            MessageLookupByLibrary.simpleMessage("برداشت از"),
+        "walletReceiptTitle":
+            MessageLookupByLibrary.simpleMessage("رسید تراکنش"),
+        "walletRecipientInvalid": MessageLookupByLibrary.simpleMessage(
+          "شماره کیف یا همراه معتبر وارد کنید.",
+        ),
+        "walletRecipientName":
+            MessageLookupByLibrary.simpleMessage("نام کاربر"),
+        "walletRequestOtp": MessageLookupByLibrary.simpleMessage(
+          "درخواست رمز پویا",
+        ),
+        "walletResendOtp":
+            MessageLookupByLibrary.simpleMessage("درخواست مجدد رمز"),
+        "walletRetry": MessageLookupByLibrary.simpleMessage("تلاش مجدد"),
+        "walletSecondPassword": MessageLookupByLibrary.simpleMessage("رمز دوم"),
+        "walletSelectAll": MessageLookupByLibrary.simpleMessage("(انتخاب همه)"),
+        "walletShareReceipt": MessageLookupByLibrary.simpleMessage(
+          "اشتراک گذاری رسید",
+        ),
+        "walletShopping": MessageLookupByLibrary.simpleMessage("خرید"),
+        "walletStartDate": MessageLookupByLibrary.simpleMessage("تاریخ شروع"),
+        "walletTerms": MessageLookupByLibrary.simpleMessage("قوانین و مقررات"),
+        "walletTermsAcceptance": MessageLookupByLibrary.simpleMessage(
+          "درخواست را مطالعه و تایید می‌نمایم.",
+        ),
+        "walletTitle": MessageLookupByLibrary.simpleMessage("کیف پول"),
+        "walletToDate": MessageLookupByLibrary.simpleMessage("تا تاریخ"),
+        "walletToDeposit": MessageLookupByLibrary.simpleMessage("به سپرده"),
+        "walletToday": MessageLookupByLibrary.simpleMessage("امروز"),
+        "walletTomanAmount": m14,
+        "walletTrackingId":
+            MessageLookupByLibrary.simpleMessage("شماره پیگیری"),
+        "walletTransactionDate": MessageLookupByLibrary.simpleMessage(
+          "تاریخ تراکنش",
+        ),
+        "walletTransactionType":
+            MessageLookupByLibrary.simpleMessage("نوع تراکنش"),
+        "walletTransactionsTitle": MessageLookupByLibrary.simpleMessage(
+          "گزارش کیف پول",
+        ),
+        "walletTransfer":
+            MessageLookupByLibrary.simpleMessage("انتقال کیف به کیف"),
+        "walletTransferAmount":
+            MessageLookupByLibrary.simpleMessage("مبلغ انتقال"),
+        "walletTransferComplete": MessageLookupByLibrary.simpleMessage(
+          "انتقال به کیف مقصد با موفقیت انجام شد.",
+        ),
+        "walletTransferSuccess": MessageLookupByLibrary.simpleMessage(
+          "انتقال موفق",
+        ),
+        "walletTransferTitle": MessageLookupByLibrary.simpleMessage(
+          "انتقال کیف به کیف",
+        ),
+        "walletViewTransactions": MessageLookupByLibrary.simpleMessage(
+          "مشاهده گردش کیف پول",
+        ),
+        "walletWithdraw": MessageLookupByLibrary.simpleMessage("دشارژ"),
+        "walletWithdrawAmount":
+            MessageLookupByLibrary.simpleMessage("مبلغ دشارژ"),
+        "walletWithdrawComplete": MessageLookupByLibrary.simpleMessage(
+          "برداشت از کیف پول با موفقیت انجام شد.",
+        ),
+        "walletWithdrawSuccess": MessageLookupByLibrary.simpleMessage(
+          "برداشت موفق",
+        ),
+        "walletWithdrawTitle": MessageLookupByLibrary.simpleMessage(
+          "دشارژ کیف پول",
         ),
       };
 }

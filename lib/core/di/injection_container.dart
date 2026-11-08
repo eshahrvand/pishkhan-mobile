@@ -1,3 +1,6 @@
+import 'package:pishkhan_mobile/features/wallet/domain/usecases/wallet_usecase.dart';
+import 'package:pishkhan_mobile/features/wallet/domain/repositories/wallet_repository.dart';
+import 'package:pishkhan_mobile/features/wallet/data/repositories/mock_wallet_repository.dart';
 import 'package:pishkhan_mobile/features/requests/domain/usecases/request_reports_usecase.dart';
 import 'package:pishkhan_mobile/features/profile/domain/usecases/personal_information_usecase.dart';
 import 'package:pishkhan_mobile/features/deposits/domain/usecases/financial_certificate_usecase.dart';
@@ -81,6 +84,34 @@ final getIt = GetIt.instance;
 /// Register once before runApp. Tests may supply an isolated container.
 void configureDependencies({GetIt? container}) {
   final dependencies = container ?? getIt;
+  dependencies.registerLazySingleton<WalletRepository>(
+    MockWalletRepository.new,
+  );
+  dependencies.registerFactory<FetchWalletCatalogUseCase>(
+    () => FetchWalletCatalogUseCase(dependencies<WalletRepository>()),
+  );
+  dependencies.registerFactory<RequestWalletOtpUseCase>(
+    () => RequestWalletOtpUseCase(dependencies<WalletRepository>()),
+  );
+  dependencies.registerFactory<ChargeWalletUseCase>(
+    () => ChargeWalletUseCase(dependencies<WalletRepository>()),
+  );
+  dependencies.registerFactory<WithdrawWalletUseCase>(
+    () => WithdrawWalletUseCase(dependencies<WalletRepository>()),
+  );
+  dependencies.registerFactory<InquireWalletRecipientUseCase>(
+    () => InquireWalletRecipientUseCase(dependencies<WalletRepository>()),
+  );
+  dependencies.registerFactory<TransferWalletUseCase>(
+    () => TransferWalletUseCase(dependencies<WalletRepository>()),
+  );
+  dependencies.registerFactory<ChangeWalletLinkedDepositUseCase>(
+    () => ChangeWalletLinkedDepositUseCase(dependencies<WalletRepository>()),
+  );
+  dependencies.registerFactory<FetchWalletTransactionsUseCase>(
+    () => FetchWalletTransactionsUseCase(dependencies<WalletRepository>()),
+  );
+
   dependencies.registerLazySingleton(createBankDio);
   dependencies.registerLazySingleton(createAccessTokenStore);
   dependencies.registerLazySingleton<PostalOfficesRepository>(

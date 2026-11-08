@@ -52,6 +52,8 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m13(amount) => "The issuance fee per card is ${amount}";
 
+  static String m14(amount) => "${amount} toman";
+
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "agentAddNext":
@@ -2219,8 +2221,172 @@ class MessageLookup extends MessageLookupByLibrary {
         "virtualRequestUnitFee": MessageLookupByLibrary.simpleMessage(
           "Issuance fee per card",
         ),
+        "walletAmount": MessageLookupByLibrary.simpleMessage("Amount"),
+        "walletAmountFilter": MessageLookupByLibrary.simpleMessage("Amount"),
+        "walletAmountHint":
+            MessageLookupByLibrary.simpleMessage("Enter amount"),
+        "walletAmountInvalid": MessageLookupByLibrary.simpleMessage(
+          "Enter a valid amount within the available balance.",
+        ),
+        "walletApplyFilter":
+            MessageLookupByLibrary.simpleMessage("Apply filter"),
+        "walletBalanceAfter": MessageLookupByLibrary.simpleMessage(
+          "Balance after transaction",
+        ),
         "walletBalanceTitle": MessageLookupByLibrary.simpleMessage(
           "Wallet balance",
+        ),
+        "walletCancel": MessageLookupByLibrary.simpleMessage("Cancel"),
+        "walletCharge": MessageLookupByLibrary.simpleMessage("Charge"),
+        "walletChargeAmount":
+            MessageLookupByLibrary.simpleMessage("Charge amount"),
+        "walletChargeComplete": MessageLookupByLibrary.simpleMessage(
+          "Your wallet was charged successfully.",
+        ),
+        "walletChargeSuccess": MessageLookupByLibrary.simpleMessage(
+          "Charge successful",
+        ),
+        "walletChargeTitle":
+            MessageLookupByLibrary.simpleMessage("Charge wallet"),
+        "walletConfirmPayment": MessageLookupByLibrary.simpleMessage(
+          "Confirm and pay",
+        ),
+        "walletConfirmTransfer": MessageLookupByLibrary.simpleMessage(
+          "Confirm transfer",
+        ),
+        "walletCopied": MessageLookupByLibrary.simpleMessage(
+          "Tracking number copied.",
+        ),
+        "walletCurrentBalance": MessageLookupByLibrary.simpleMessage(
+          "Current wallet balance",
+        ),
+        "walletCustomDate":
+            MessageLookupByLibrary.simpleMessage("Custom dates"),
+        "walletDateFilter": MessageLookupByLibrary.simpleMessage("Date"),
+        "walletDateInvalid": MessageLookupByLibrary.simpleMessage(
+          "Enter a valid Jalali date as YYYY/MM/DD.",
+        ),
+        "walletDateSelection":
+            MessageLookupByLibrary.simpleMessage("Select date"),
+        "walletDepositChanged": MessageLookupByLibrary.simpleMessage(
+          "Linked deposit changed.",
+        ),
+        "walletDepositHint":
+            MessageLookupByLibrary.simpleMessage("Select deposit"),
+        "walletDestination": MessageLookupByLibrary.simpleMessage(
+          "Destination wallet",
+        ),
+        "walletDestinationHint": MessageLookupByLibrary.simpleMessage(
+          "Wallet number or owner mobile number",
+        ),
+        "walletEmptyTransactions": MessageLookupByLibrary.simpleMessage(
+          "No matching transactions.",
+        ),
+        "walletEndDate": MessageLookupByLibrary.simpleMessage("End date"),
+        "walletFromDate": MessageLookupByLibrary.simpleMessage("From date"),
+        "walletFromDeposit":
+            MessageLookupByLibrary.simpleMessage("From deposit"),
+        "walletInquiryRetry": MessageLookupByLibrary.simpleMessage(
+          "Retry recipient inquiry",
+        ),
+        "walletLastMonth": MessageLookupByLibrary.simpleMessage("Last month"),
+        "walletLastThreeMonths": MessageLookupByLibrary.simpleMessage(
+          "Last three months",
+        ),
+        "walletLastWeek": MessageLookupByLibrary.simpleMessage("Last week"),
+        "walletLinkedDepositIntro": MessageLookupByLibrary.simpleMessage(
+          "Select the deposit to link to your wallet.",
+        ),
+        "walletLinkedDepositShort": MessageLookupByLibrary.simpleMessage(
+          "Change linked deposit",
+        ),
+        "walletLinkedDepositTitle": MessageLookupByLibrary.simpleMessage(
+          "Change linked deposit",
+        ),
+        "walletMaxAmount":
+            MessageLookupByLibrary.simpleMessage("Maximum amount"),
+        "walletMinAmount":
+            MessageLookupByLibrary.simpleMessage("Minimum amount"),
+        "walletOperations": MessageLookupByLibrary.simpleMessage(
+          "Wallet operations",
+        ),
+        "walletOtpHint": MessageLookupByLibrary.simpleMessage("Enter code"),
+        "walletRangeInvalid": MessageLookupByLibrary.simpleMessage(
+          "The start of the range must not exceed the end.",
+        ),
+        "walletReceiptDestination": MessageLookupByLibrary.simpleMessage("To"),
+        "walletReceiptSource": MessageLookupByLibrary.simpleMessage("From"),
+        "walletReceiptTitle": MessageLookupByLibrary.simpleMessage(
+          "Transaction receipt",
+        ),
+        "walletRecipientInvalid": MessageLookupByLibrary.simpleMessage(
+          "Enter a valid wallet or mobile number.",
+        ),
+        "walletRecipientName":
+            MessageLookupByLibrary.simpleMessage("Owner name"),
+        "walletRequestOtp": MessageLookupByLibrary.simpleMessage(
+          "Request dynamic code",
+        ),
+        "walletResendOtp": MessageLookupByLibrary.simpleMessage("Resend code"),
+        "walletRetry": MessageLookupByLibrary.simpleMessage("Retry"),
+        "walletSecondPassword": MessageLookupByLibrary.simpleMessage(
+          "Second password",
+        ),
+        "walletSelectAll": MessageLookupByLibrary.simpleMessage("Select all"),
+        "walletShareReceipt":
+            MessageLookupByLibrary.simpleMessage("Share receipt"),
+        "walletShopping": MessageLookupByLibrary.simpleMessage("Purchase"),
+        "walletStartDate": MessageLookupByLibrary.simpleMessage("Start date"),
+        "walletTerms":
+            MessageLookupByLibrary.simpleMessage("Terms and conditions"),
+        "walletTermsAcceptance": MessageLookupByLibrary.simpleMessage(
+          "I have read and accept the request.",
+        ),
+        "walletTitle": MessageLookupByLibrary.simpleMessage("Wallet"),
+        "walletToDate": MessageLookupByLibrary.simpleMessage("To date"),
+        "walletToDeposit": MessageLookupByLibrary.simpleMessage("To deposit"),
+        "walletToday": MessageLookupByLibrary.simpleMessage("Today"),
+        "walletTomanAmount": m14,
+        "walletTrackingId":
+            MessageLookupByLibrary.simpleMessage("Tracking number"),
+        "walletTransactionDate": MessageLookupByLibrary.simpleMessage(
+          "Transaction date",
+        ),
+        "walletTransactionType": MessageLookupByLibrary.simpleMessage(
+          "Transaction type",
+        ),
+        "walletTransactionsTitle": MessageLookupByLibrary.simpleMessage(
+          "Wallet transactions",
+        ),
+        "walletTransfer":
+            MessageLookupByLibrary.simpleMessage("Wallet transfer"),
+        "walletTransferAmount": MessageLookupByLibrary.simpleMessage(
+          "Transfer amount",
+        ),
+        "walletTransferComplete": MessageLookupByLibrary.simpleMessage(
+          "Transfer to the destination wallet completed successfully.",
+        ),
+        "walletTransferSuccess": MessageLookupByLibrary.simpleMessage(
+          "Transfer successful",
+        ),
+        "walletTransferTitle": MessageLookupByLibrary.simpleMessage(
+          "Wallet transfer",
+        ),
+        "walletViewTransactions": MessageLookupByLibrary.simpleMessage(
+          "View wallet transactions",
+        ),
+        "walletWithdraw": MessageLookupByLibrary.simpleMessage("Withdrawal"),
+        "walletWithdrawAmount": MessageLookupByLibrary.simpleMessage(
+          "Withdrawal amount",
+        ),
+        "walletWithdrawComplete": MessageLookupByLibrary.simpleMessage(
+          "Your withdrawal completed successfully.",
+        ),
+        "walletWithdrawSuccess": MessageLookupByLibrary.simpleMessage(
+          "Withdrawal successful",
+        ),
+        "walletWithdrawTitle": MessageLookupByLibrary.simpleMessage(
+          "Withdraw from wallet",
         ),
       };
 }

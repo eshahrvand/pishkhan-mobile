@@ -65,6 +65,14 @@ void main() {
     final routes = router.configuration.routes.cast<GoRoute>();
     final paths = routes.map((r) => r.path).toList();
     const modulePaths = {
+      '/wallet/': [
+        AppRoutes.walletOverview,
+        AppRoutes.walletCharge,
+        AppRoutes.walletWithdraw,
+        AppRoutes.walletTransfer,
+        AppRoutes.walletLinkedDeposit,
+        AppRoutes.walletTransactions,
+      ],
       '/modern-banking/': [
         AppRoutes.mobileBank,
         AppRoutes.mobileBankPasswordRecovery,
@@ -123,6 +131,12 @@ void main() {
     'return destination accepts implemented local routes and rejects tampering',
     () {
       for (final value in [
+        AppRoutes.walletOverview,
+        AppRoutes.walletCharge,
+        AppRoutes.walletWithdraw,
+        AppRoutes.walletTransfer,
+        AppRoutes.walletLinkedDeposit,
+        AppRoutes.walletTransactions,
         AppRoutes.mobileBank,
         AppRoutes.mobileBankPasswordRecovery,
         AppRoutes.mobileBankPasswordGuide,

@@ -65,6 +65,9 @@ remain available in Git history.
   [surplus closure](doc/deposits/close-surplus-deposits.md),
   [restriction](doc/deposits/deposit-restriction.md) and
   [deposit mandate](doc/deposits/deposit-mandate.md)
+- Wallet: [information](doc/wallet/overview.md), [charge](doc/wallet/charge.md),
+  [withdrawal](doc/wallet/withdraw.md), [transfer](doc/wallet/transfer.md),
+  [linked deposit](doc/wallet/linked-deposit.md) and [transactions](doc/wallet/transactions.md)
 - [Personal information, addresses and jobs](doc/profile/personal-information.md)
 - [Modern banking](doc/modern-banking/mobile-bank.md),
   [on-site transfer](doc/transfers/on-site-transfer.md) and

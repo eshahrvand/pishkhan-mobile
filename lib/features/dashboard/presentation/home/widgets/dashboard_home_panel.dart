@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/features/dashboard/presentation/shared/dashboard_services.dart';
 import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -187,6 +188,11 @@ class _DashboardHomePanelState extends State<DashboardHomePanel> {
                                               CrossAxisAlignment.stretch,
                                           children: [
                                             AppWalletCard(
+                                              onTap: () => context
+                                                  .read<HomeCubit>()
+                                                  .requestService(
+                                                    DashboardService.walletInfo,
+                                                  ),
                                               title:
                                                   S.current.walletBalanceTitle,
                                               balance:

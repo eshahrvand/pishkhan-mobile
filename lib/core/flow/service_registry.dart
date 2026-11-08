@@ -28,6 +28,19 @@ abstract final class ServiceRegistry {
     String? initialDepositNumber,
     String? initialCardNumber,
   }) {
+    final walletPath = switch (id) {
+      'wallet-info' => AppRoutes.walletOverview,
+      'wallet-charge' => AppRoutes.walletCharge,
+      'wallet-withdraw' => AppRoutes.walletWithdraw,
+      'wallet-transfer' => AppRoutes.walletTransfer,
+      'wallet-deposit' => AppRoutes.walletLinkedDeposit,
+      'wallet-history' => AppRoutes.walletTransactions,
+      _ => null,
+    };
+    if (walletPath != null) {
+      context.push<void>(walletPath);
+      return true;
+    }
     final modernBankingPath = switch (id) {
       'modern-mobile' => AppRoutes.mobileBank,
       'modern-mobile-password-recovery' => AppRoutes.mobileBankPasswordRecovery,

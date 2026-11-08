@@ -46,7 +46,7 @@ class AppTransactionCard extends StatelessWidget {
     final content = Container(
       key: const Key('app_transaction_card'),
       width: 361,
-      height: 72,
+      constraints: const BoxConstraints(minHeight: 72),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: AppPalette.gray50,
@@ -75,6 +75,7 @@ class AppTransactionCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(

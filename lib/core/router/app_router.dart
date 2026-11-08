@@ -1,3 +1,9 @@
+import 'package:pishkhan_mobile/features/wallet/presentation/overview/screens/overview_screen.dart';
+import 'package:pishkhan_mobile/features/wallet/presentation/charge/screens/charge_screen.dart';
+import 'package:pishkhan_mobile/features/wallet/presentation/withdraw/screens/withdraw_screen.dart';
+import 'package:pishkhan_mobile/features/wallet/presentation/transfer/screens/transfer_screen.dart';
+import 'package:pishkhan_mobile/features/wallet/presentation/linked_deposit/screens/linked_deposit_screen.dart';
+import 'package:pishkhan_mobile/features/wallet/presentation/transactions/screens/transactions_screen.dart';
 import 'package:pishkhan_mobile/features/profile/presentation/change_phone/screens/change_phone_screen.dart';
 import 'package:pishkhan_mobile/features/profile/presentation/addresses/screens/addresses_screen.dart';
 import 'package:pishkhan_mobile/features/profile/presentation/job_information/screens/job_information_screen.dart';
@@ -60,6 +66,31 @@ GoRouter createAppRouter({
     refreshListenable: session,
     redirect: (context, state) => globalRedirect(session, state),
     routes: [
+      GoRoute(
+        path: AppRoutes.walletOverview,
+        builder: (context, state) => const WalletOverviewScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.walletCharge,
+        builder: (context, state) => const WalletChargeScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.walletWithdraw,
+        builder: (context, state) => const WalletWithdrawScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.walletTransfer,
+        builder: (context, state) => const WalletTransferScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.walletLinkedDeposit,
+        builder: (context, state) => const WalletLinkedDepositScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.walletTransactions,
+        builder: (context, state) => const WalletTransactionsScreen(),
+      ),
+
       // Modern banking: feature screens own their Providers and dependencies.
       GoRoute(
         path: AppRoutes.mobileBank,

@@ -6,6 +6,13 @@ abstract final class AppRoutes {
   static const allServices = '/dashboard/services';
   static const requestReports = '/requests/reports';
 
+  static const walletOverview = '/wallet/overview';
+  static const walletCharge = '/wallet/charge';
+  static const walletWithdraw = '/wallet/withdraw';
+  static const walletTransfer = '/wallet/transfer';
+  static const walletLinkedDeposit = '/wallet/linked-deposit';
+  static const walletTransactions = '/wallet/transactions';
+
   static const login = '/auth/login';
 
   static const mobileBank = '/modern-banking/mobile';

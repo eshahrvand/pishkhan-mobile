@@ -51,6 +51,8 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m13(amount) => "رسوم إصدار كل بطاقة هي ${amount}";
 
+  static String m14(amount) => "${amount} تومان";
+
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
         "agentSettingsActive": MessageLookupByLibrary.simpleMessage("نشط"),
@@ -2008,7 +2010,164 @@ class MessageLookup extends MessageLookupByLibrary {
         "virtualRequestUnitFee": MessageLookupByLibrary.simpleMessage(
           "رسوم إصدار كل بطاقة",
         ),
+        "walletAmount": MessageLookupByLibrary.simpleMessage("المبلغ"),
+        "walletAmountFilter": MessageLookupByLibrary.simpleMessage("المبلغ"),
+        "walletAmountHint": MessageLookupByLibrary.simpleMessage("أدخل المبلغ"),
+        "walletAmountInvalid": MessageLookupByLibrary.simpleMessage(
+          "أدخل مبلغاً صالحاً ضمن الرصيد المتاح.",
+        ),
+        "walletApplyFilter":
+            MessageLookupByLibrary.simpleMessage("تطبيق التصفية"),
+        "walletBalanceAfter": MessageLookupByLibrary.simpleMessage(
+          "الرصيد بعد العملية",
+        ),
         "walletBalanceTitle":
             MessageLookupByLibrary.simpleMessage("رصيد المحفظة"),
+        "walletCancel": MessageLookupByLibrary.simpleMessage("إلغاء"),
+        "walletCharge": MessageLookupByLibrary.simpleMessage("شحن"),
+        "walletChargeAmount":
+            MessageLookupByLibrary.simpleMessage("مبلغ الشحن"),
+        "walletChargeComplete": MessageLookupByLibrary.simpleMessage(
+          "تم شحن المحفظة بنجاح.",
+        ),
+        "walletChargeSuccess": MessageLookupByLibrary.simpleMessage("تم الشحن"),
+        "walletChargeTitle":
+            MessageLookupByLibrary.simpleMessage("شحن المحفظة"),
+        "walletConfirmPayment":
+            MessageLookupByLibrary.simpleMessage("تأكيد ودفع"),
+        "walletConfirmTransfer": MessageLookupByLibrary.simpleMessage(
+          "تأكيد التحويل",
+        ),
+        "walletCopied":
+            MessageLookupByLibrary.simpleMessage("تم نسخ رقم التتبع."),
+        "walletCurrentBalance": MessageLookupByLibrary.simpleMessage(
+          "رصيد المحفظة الحالي",
+        ),
+        "walletCustomDate": MessageLookupByLibrary.simpleMessage("تاريخ مخصص"),
+        "walletDateFilter": MessageLookupByLibrary.simpleMessage("التاريخ"),
+        "walletDateInvalid": MessageLookupByLibrary.simpleMessage(
+          "أدخل تاريخاً شمسياً صالحاً بصيغة YYYY/MM/DD.",
+        ),
+        "walletDateSelection": MessageLookupByLibrary.simpleMessage(
+          "اختيار التاريخ",
+        ),
+        "walletDepositChanged": MessageLookupByLibrary.simpleMessage(
+          "تم تغيير الحساب المرتبط.",
+        ),
+        "walletDepositHint":
+            MessageLookupByLibrary.simpleMessage("اختر الحساب"),
+        "walletDestination": MessageLookupByLibrary.simpleMessage(
+          "المحفظة المستلمة",
+        ),
+        "walletDestinationHint": MessageLookupByLibrary.simpleMessage(
+          "رقم المحفظة أو هاتف صاحبها",
+        ),
+        "walletEmptyTransactions": MessageLookupByLibrary.simpleMessage(
+          "لا توجد عمليات مطابقة.",
+        ),
+        "walletEndDate": MessageLookupByLibrary.simpleMessage("تاريخ النهاية"),
+        "walletFromDate": MessageLookupByLibrary.simpleMessage("من تاريخ"),
+        "walletFromDeposit": MessageLookupByLibrary.simpleMessage("من الحساب"),
+        "walletInquiryRetry": MessageLookupByLibrary.simpleMessage(
+          "إعادة الاستعلام",
+        ),
+        "walletLastMonth": MessageLookupByLibrary.simpleMessage("الشهر الماضي"),
+        "walletLastThreeMonths": MessageLookupByLibrary.simpleMessage(
+          "آخر ثلاثة أشهر",
+        ),
+        "walletLastWeek":
+            MessageLookupByLibrary.simpleMessage("الأسبوع الماضي"),
+        "walletLinkedDepositIntro": MessageLookupByLibrary.simpleMessage(
+          "اختر الحساب لربطه بالمحفظة.",
+        ),
+        "walletLinkedDepositShort": MessageLookupByLibrary.simpleMessage(
+          "تغيير الحساب المرتبط",
+        ),
+        "walletLinkedDepositTitle": MessageLookupByLibrary.simpleMessage(
+          "تغيير الحساب المرتبط",
+        ),
+        "walletMaxAmount": MessageLookupByLibrary.simpleMessage(
+          "الحد الأقصى للمبلغ",
+        ),
+        "walletMinAmount": MessageLookupByLibrary.simpleMessage(
+          "الحد الأدنى للمبلغ",
+        ),
+        "walletOperations":
+            MessageLookupByLibrary.simpleMessage("عمليات المحفظة"),
+        "walletOtpHint": MessageLookupByLibrary.simpleMessage("أدخل الرمز"),
+        "walletRangeInvalid": MessageLookupByLibrary.simpleMessage(
+          "يجب ألا تتجاوز البداية نهاية النطاق.",
+        ),
+        "walletReceiptDestination": MessageLookupByLibrary.simpleMessage("إلى"),
+        "walletReceiptSource": MessageLookupByLibrary.simpleMessage("من"),
+        "walletReceiptTitle":
+            MessageLookupByLibrary.simpleMessage("إيصال العملية"),
+        "walletRecipientInvalid": MessageLookupByLibrary.simpleMessage(
+          "أدخل رقم محفظة أو هاتف صالحاً.",
+        ),
+        "walletRecipientName": MessageLookupByLibrary.simpleMessage(
+          "اسم صاحب المحفظة",
+        ),
+        "walletRequestOtp":
+            MessageLookupByLibrary.simpleMessage("طلب رمز التحقق"),
+        "walletResendOtp": MessageLookupByLibrary.simpleMessage(
+          "إعادة إرسال الرمز",
+        ),
+        "walletRetry": MessageLookupByLibrary.simpleMessage("إعادة المحاولة"),
+        "walletSecondPassword":
+            MessageLookupByLibrary.simpleMessage("رمز التحقق"),
+        "walletSelectAll": MessageLookupByLibrary.simpleMessage("اختيار الكل"),
+        "walletShareReceipt": MessageLookupByLibrary.simpleMessage(
+          "مشاركة الإيصال",
+        ),
+        "walletShopping": MessageLookupByLibrary.simpleMessage("شراء"),
+        "walletStartDate":
+            MessageLookupByLibrary.simpleMessage("تاريخ البداية"),
+        "walletTerms": MessageLookupByLibrary.simpleMessage("الشروط والأحكام"),
+        "walletTermsAcceptance": MessageLookupByLibrary.simpleMessage(
+          "قرأت الطلب وأوافق عليه.",
+        ),
+        "walletTitle": MessageLookupByLibrary.simpleMessage("المحفظة"),
+        "walletToDate": MessageLookupByLibrary.simpleMessage("إلى تاريخ"),
+        "walletToDeposit": MessageLookupByLibrary.simpleMessage("إلى الحساب"),
+        "walletToday": MessageLookupByLibrary.simpleMessage("اليوم"),
+        "walletTomanAmount": m14,
+        "walletTrackingId": MessageLookupByLibrary.simpleMessage("رقم التتبع"),
+        "walletTransactionDate": MessageLookupByLibrary.simpleMessage(
+          "تاريخ العملية",
+        ),
+        "walletTransactionType": MessageLookupByLibrary.simpleMessage(
+          "نوع العملية",
+        ),
+        "walletTransactionsTitle": MessageLookupByLibrary.simpleMessage(
+          "حركات المحفظة",
+        ),
+        "walletTransfer":
+            MessageLookupByLibrary.simpleMessage("تحويل بين المحافظ"),
+        "walletTransferAmount": MessageLookupByLibrary.simpleMessage(
+          "مبلغ التحويل",
+        ),
+        "walletTransferComplete": MessageLookupByLibrary.simpleMessage(
+          "تم التحويل إلى المحفظة المستلمة بنجاح.",
+        ),
+        "walletTransferSuccess":
+            MessageLookupByLibrary.simpleMessage("تم التحويل"),
+        "walletTransferTitle": MessageLookupByLibrary.simpleMessage(
+          "تحويل بين المحافظ",
+        ),
+        "walletViewTransactions": MessageLookupByLibrary.simpleMessage(
+          "عرض حركات المحفظة",
+        ),
+        "walletWithdraw": MessageLookupByLibrary.simpleMessage("سحب"),
+        "walletWithdrawAmount":
+            MessageLookupByLibrary.simpleMessage("مبلغ السحب"),
+        "walletWithdrawComplete": MessageLookupByLibrary.simpleMessage(
+          "تم السحب من المحفظة بنجاح.",
+        ),
+        "walletWithdrawSuccess":
+            MessageLookupByLibrary.simpleMessage("تم السحب"),
+        "walletWithdrawTitle": MessageLookupByLibrary.simpleMessage(
+          "السحب من المحفظة",
+        ),
       };
 }

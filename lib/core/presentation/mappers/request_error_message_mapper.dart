@@ -3,10 +3,22 @@ import 'package:pishkhan_mobile/core/result/failure.dart';
 /// Prepared request-error text; no State publication or Flutter dependency.
 String getRequestErrorMessage(Failure failure) {
   switch (failure.code) {
+    case 'wallet.recipient.not-found':
+      return 'کیف مقصد یافت نشد.';
+    case 'wallet.recipient.self':
+      return 'کیف مقصد باید با کیف مبدأ متفاوت باشد.';
+    case 'wallet.amount.invalid':
+      return 'مبلغ تراکنش معتبر نیست.';
+    case 'wallet.deposit.invalid':
+      return 'سپرده انتخاب‌شده برای اتصال به کیف پول معتبر نیست.';
+
+    case 'wallet.otp.invalid':
     case 'profile.otp.invalid':
       return 'رمز تأیید صحیح نیست.';
+    case 'wallet.otp.expired':
     case 'profile.otp.expired':
       return 'اعتبار رمز تأیید تمام شده است. دوباره درخواست دهید.';
+    case 'wallet.balance.insufficient':
     case 'profile.wallet.insufficient':
     case 'deposit-restriction.wallet-insufficient':
       return 'موجودی کیف پول کافی نیست.';

@@ -8414,6 +8414,686 @@ class S {
       args: [],
     );
   }
+
+  /// `کیف پول`
+  String get walletTitle {
+    return Intl.message('کیف پول', name: 'walletTitle', desc: '', args: []);
+  }
+
+  /// `عملیات کیف پول`
+  String get walletOperations {
+    return Intl.message(
+      'عملیات کیف پول',
+      name: 'walletOperations',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `شارژ کیف پول`
+  String get walletChargeTitle {
+    return Intl.message(
+      'شارژ کیف پول',
+      name: 'walletChargeTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `دشارژ کیف پول`
+  String get walletWithdrawTitle {
+    return Intl.message(
+      'دشارژ کیف پول',
+      name: 'walletWithdrawTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `انتقال کیف به کیف`
+  String get walletTransferTitle {
+    return Intl.message(
+      'انتقال کیف به کیف',
+      name: 'walletTransferTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `تغییر سپرده متصل به کیف`
+  String get walletLinkedDepositTitle {
+    return Intl.message(
+      'تغییر سپرده متصل به کیف',
+      name: 'walletLinkedDepositTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `گزارش کیف پول`
+  String get walletTransactionsTitle {
+    return Intl.message(
+      'گزارش کیف پول',
+      name: 'walletTransactionsTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `مشاهده گردش کیف پول`
+  String get walletViewTransactions {
+    return Intl.message(
+      'مشاهده گردش کیف پول',
+      name: 'walletViewTransactions',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `موجودی فعلی کیف پول`
+  String get walletCurrentBalance {
+    return Intl.message(
+      'موجودی فعلی کیف پول',
+      name: 'walletCurrentBalance',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `موجودی کیف پس از تراکنش`
+  String get walletBalanceAfter {
+    return Intl.message(
+      'موجودی کیف پس از تراکنش',
+      name: 'walletBalanceAfter',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `مبلغ شارژ`
+  String get walletChargeAmount {
+    return Intl.message(
+      'مبلغ شارژ',
+      name: 'walletChargeAmount',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `مبلغ دشارژ`
+  String get walletWithdrawAmount {
+    return Intl.message(
+      'مبلغ دشارژ',
+      name: 'walletWithdrawAmount',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `مبلغ انتقال`
+  String get walletTransferAmount {
+    return Intl.message(
+      'مبلغ انتقال',
+      name: 'walletTransferAmount',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `مبلغ را وارد کنید`
+  String get walletAmountHint {
+    return Intl.message(
+      'مبلغ را وارد کنید',
+      name: 'walletAmountHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `مبلغ معتبر وارد کنید؛ مبلغ برداشت نباید بیشتر از موجودی باشد.`
+  String get walletAmountInvalid {
+    return Intl.message(
+      'مبلغ معتبر وارد کنید؛ مبلغ برداشت نباید بیشتر از موجودی باشد.',
+      name: 'walletAmountInvalid',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `رمز دوم`
+  String get walletSecondPassword {
+    return Intl.message(
+      'رمز دوم',
+      name: 'walletSecondPassword',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `وارد کردن رمز`
+  String get walletOtpHint {
+    return Intl.message(
+      'وارد کردن رمز',
+      name: 'walletOtpHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `درخواست رمز پویا`
+  String get walletRequestOtp {
+    return Intl.message(
+      'درخواست رمز پویا',
+      name: 'walletRequestOtp',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `درخواست مجدد رمز`
+  String get walletResendOtp {
+    return Intl.message(
+      'درخواست مجدد رمز',
+      name: 'walletResendOtp',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `تایید و پرداخت`
+  String get walletConfirmPayment {
+    return Intl.message(
+      'تایید و پرداخت',
+      name: 'walletConfirmPayment',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `تایید و انتقال`
+  String get walletConfirmTransfer {
+    return Intl.message(
+      'تایید و انتقال',
+      name: 'walletConfirmTransfer',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `کیف مقصد`
+  String get walletDestination {
+    return Intl.message(
+      'کیف مقصد',
+      name: 'walletDestination',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `شماره کیف مقصد یا شماره همراه صاحب کیف`
+  String get walletDestinationHint {
+    return Intl.message(
+      'شماره کیف مقصد یا شماره همراه صاحب کیف',
+      name: 'walletDestinationHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `نام کاربر`
+  String get walletRecipientName {
+    return Intl.message(
+      'نام کاربر',
+      name: 'walletRecipientName',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `شماره کیف یا همراه معتبر وارد کنید.`
+  String get walletRecipientInvalid {
+    return Intl.message(
+      'شماره کیف یا همراه معتبر وارد کنید.',
+      name: 'walletRecipientInvalid',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `استعلام مجدد مقصد`
+  String get walletInquiryRetry {
+    return Intl.message(
+      'استعلام مجدد مقصد',
+      name: 'walletInquiryRetry',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `سپرده مورد نظر جهت اتصال به کیف پول را انتخاب کنید.`
+  String get walletLinkedDepositIntro {
+    return Intl.message(
+      'سپرده مورد نظر جهت اتصال به کیف پول را انتخاب کنید.',
+      name: 'walletLinkedDepositIntro',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `از سپرده`
+  String get walletFromDeposit {
+    return Intl.message(
+      'از سپرده',
+      name: 'walletFromDeposit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `به سپرده`
+  String get walletToDeposit {
+    return Intl.message(
+      'به سپرده',
+      name: 'walletToDeposit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `سپرده مورد نظر را انتخاب کنید`
+  String get walletDepositHint {
+    return Intl.message(
+      'سپرده مورد نظر را انتخاب کنید',
+      name: 'walletDepositHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `قوانین و مقررات`
+  String get walletTerms {
+    return Intl.message(
+      'قوانین و مقررات',
+      name: 'walletTerms',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `درخواست را مطالعه و تایید می‌نمایم.`
+  String get walletTermsAcceptance {
+    return Intl.message(
+      'درخواست را مطالعه و تایید می‌نمایم.',
+      name: 'walletTermsAcceptance',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `سپرده متصل به کیف پول تغییر کرد.`
+  String get walletDepositChanged {
+    return Intl.message(
+      'سپرده متصل به کیف پول تغییر کرد.',
+      name: 'walletDepositChanged',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `رسید تراکنش`
+  String get walletReceiptTitle {
+    return Intl.message(
+      'رسید تراکنش',
+      name: 'walletReceiptTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `شارژ موفق`
+  String get walletChargeSuccess {
+    return Intl.message(
+      'شارژ موفق',
+      name: 'walletChargeSuccess',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `برداشت موفق`
+  String get walletWithdrawSuccess {
+    return Intl.message(
+      'برداشت موفق',
+      name: 'walletWithdrawSuccess',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `انتقال موفق`
+  String get walletTransferSuccess {
+    return Intl.message(
+      'انتقال موفق',
+      name: 'walletTransferSuccess',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `شارژ کیف پول با موفقیت انجام شد.`
+  String get walletChargeComplete {
+    return Intl.message(
+      'شارژ کیف پول با موفقیت انجام شد.',
+      name: 'walletChargeComplete',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `برداشت از کیف پول با موفقیت انجام شد.`
+  String get walletWithdrawComplete {
+    return Intl.message(
+      'برداشت از کیف پول با موفقیت انجام شد.',
+      name: 'walletWithdrawComplete',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `انتقال به کیف مقصد با موفقیت انجام شد.`
+  String get walletTransferComplete {
+    return Intl.message(
+      'انتقال به کیف مقصد با موفقیت انجام شد.',
+      name: 'walletTransferComplete',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `اشتراک گذاری رسید`
+  String get walletShareReceipt {
+    return Intl.message(
+      'اشتراک گذاری رسید',
+      name: 'walletShareReceipt',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `مبلغ`
+  String get walletAmount {
+    return Intl.message('مبلغ', name: 'walletAmount', desc: '', args: []);
+  }
+
+  /// `تاریخ تراکنش`
+  String get walletTransactionDate {
+    return Intl.message(
+      'تاریخ تراکنش',
+      name: 'walletTransactionDate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `برداشت از`
+  String get walletReceiptSource {
+    return Intl.message(
+      'برداشت از',
+      name: 'walletReceiptSource',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `واریز به`
+  String get walletReceiptDestination {
+    return Intl.message(
+      'واریز به',
+      name: 'walletReceiptDestination',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `شماره پیگیری`
+  String get walletTrackingId {
+    return Intl.message(
+      'شماره پیگیری',
+      name: 'walletTrackingId',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `نوع تراکنش`
+  String get walletTransactionType {
+    return Intl.message(
+      'نوع تراکنش',
+      name: 'walletTransactionType',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `تاریخ`
+  String get walletDateFilter {
+    return Intl.message('تاریخ', name: 'walletDateFilter', desc: '', args: []);
+  }
+
+  /// `مبلغ`
+  String get walletAmountFilter {
+    return Intl.message('مبلغ', name: 'walletAmountFilter', desc: '', args: []);
+  }
+
+  /// `(انتخاب همه)`
+  String get walletSelectAll {
+    return Intl.message(
+      '(انتخاب همه)',
+      name: 'walletSelectAll',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `شارژ`
+  String get walletCharge {
+    return Intl.message('شارژ', name: 'walletCharge', desc: '', args: []);
+  }
+
+  /// `دشارژ`
+  String get walletWithdraw {
+    return Intl.message('دشارژ', name: 'walletWithdraw', desc: '', args: []);
+  }
+
+  /// `انتقال کیف به کیف`
+  String get walletTransfer {
+    return Intl.message(
+      'انتقال کیف به کیف',
+      name: 'walletTransfer',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `خرید`
+  String get walletShopping {
+    return Intl.message('خرید', name: 'walletShopping', desc: '', args: []);
+  }
+
+  /// `امروز`
+  String get walletToday {
+    return Intl.message('امروز', name: 'walletToday', desc: '', args: []);
+  }
+
+  /// `هفته گذشته`
+  String get walletLastWeek {
+    return Intl.message(
+      'هفته گذشته',
+      name: 'walletLastWeek',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `ماه گذشته`
+  String get walletLastMonth {
+    return Intl.message(
+      'ماه گذشته',
+      name: 'walletLastMonth',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `۳ ماه گذشته`
+  String get walletLastThreeMonths {
+    return Intl.message(
+      '۳ ماه گذشته',
+      name: 'walletLastThreeMonths',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `تاریخ دلخواه`
+  String get walletCustomDate {
+    return Intl.message(
+      'تاریخ دلخواه',
+      name: 'walletCustomDate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `از تاریخ`
+  String get walletFromDate {
+    return Intl.message('از تاریخ', name: 'walletFromDate', desc: '', args: []);
+  }
+
+  /// `تا تاریخ`
+  String get walletToDate {
+    return Intl.message('تا تاریخ', name: 'walletToDate', desc: '', args: []);
+  }
+
+  /// `تاریخ شروع`
+  String get walletStartDate {
+    return Intl.message(
+      'تاریخ شروع',
+      name: 'walletStartDate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `تاریخ پایان`
+  String get walletEndDate {
+    return Intl.message(
+      'تاریخ پایان',
+      name: 'walletEndDate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `از مبلغ`
+  String get walletMinAmount {
+    return Intl.message('از مبلغ', name: 'walletMinAmount', desc: '', args: []);
+  }
+
+  /// `تا مبلغ`
+  String get walletMaxAmount {
+    return Intl.message('تا مبلغ', name: 'walletMaxAmount', desc: '', args: []);
+  }
+
+  /// `اعمال فیلتر`
+  String get walletApplyFilter {
+    return Intl.message(
+      'اعمال فیلتر',
+      name: 'walletApplyFilter',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `انصراف`
+  String get walletCancel {
+    return Intl.message('انصراف', name: 'walletCancel', desc: '', args: []);
+  }
+
+  /// `ابتدای بازه نباید بیشتر از انتهای آن باشد.`
+  String get walletRangeInvalid {
+    return Intl.message(
+      'ابتدای بازه نباید بیشتر از انتهای آن باشد.',
+      name: 'walletRangeInvalid',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `تراکنشی با این مشخصات یافت نشد.`
+  String get walletEmptyTransactions {
+    return Intl.message(
+      'تراکنشی با این مشخصات یافت نشد.',
+      name: 'walletEmptyTransactions',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `تلاش مجدد`
+  String get walletRetry {
+    return Intl.message('تلاش مجدد', name: 'walletRetry', desc: '', args: []);
+  }
+
+  /// `{amount} تومان`
+  String walletTomanAmount(String amount) {
+    return Intl.message(
+      '$amount تومان',
+      name: 'walletTomanAmount',
+      desc: '',
+      args: [amount],
+    );
+  }
+
+  /// `شماره پیگیری کپی شد.`
+  String get walletCopied {
+    return Intl.message(
+      'شماره پیگیری کپی شد.',
+      name: 'walletCopied',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `تغییر سپرده متصل به کیف`
+  String get walletLinkedDepositShort {
+    return Intl.message(
+      'تغییر سپرده متصل به کیف',
+      name: 'walletLinkedDepositShort',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `انتخاب تاریخ`
+  String get walletDateSelection {
+    return Intl.message(
+      'انتخاب تاریخ',
+      name: 'walletDateSelection',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `تاریخ شمسی معتبر با قالب YYYY/MM/DD وارد کنید.`
+  String get walletDateInvalid {
+    return Intl.message(
+      'تاریخ شمسی معتبر با قالب YYYY/MM/DD وارد کنید.',
+      name: 'walletDateInvalid',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {
