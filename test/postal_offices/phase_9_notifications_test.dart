@@ -48,10 +48,12 @@ void main() {
       await getIt.unregister<PostalOfficesRepository>();
       getIt.registerSingleton<PostalOfficesRepository>(repository);
       final shares = <String>[];
+      var failShare = false;
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
           .setMockMethodCallHandler(
             const MethodChannel('pishkhan/platform_share'),
             (call) async {
+              if (failShare) throw PlatformException(code: 'unavailable');
               shares.add(call.arguments as String);
               return null;
             },
@@ -108,6 +110,27 @@ void main() {
       expect(shares.toSet(), {cubit.state.postalShareText});
       expect(shares.first, contains(cubit.state.postalOffices.first.address));
       expect(find.byType(AvpSnackBar), findsNothing);
+      failShare = true;
+      for (var attempt = 0; attempt < 2; attempt++) {
+        cubit.requestPostalShare();
+        await tester.pumpAndSettle();
+        expect(cubit.state.shareStatus, RequestStatus.failure);
+        expect(cubit.state.failure?.code, 'platform.share.unavailable');
+        expect(find.byType(AvpSnackBar), findsOneWidget);
+        expect(
+          find.text('اشتراک‌گذاری در این دستگاه در دسترس نیست.'),
+          findsOneWidget,
+        );
+        await tester.pump(const Duration(seconds: 5));
+        await tester.pumpAndSettle();
+      }
+      failShare = false;
+      cubit.requestPostalShare();
+      await tester.pumpAndSettle();
+      expect(cubit.state.shareStatus, RequestStatus.success);
+      expect(cubit.state.message, 'اشتراک‌گذاری در این دستگاه در دسترس نیست.');
+      expect(find.byType(AvpSnackBar), findsNothing);
+      expect(shares, hasLength(3));
       expect(tester.takeException(), isNull);
     },
   );

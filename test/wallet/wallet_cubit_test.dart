@@ -63,6 +63,75 @@ void main() {
     getIt.registerSingleton<WalletRepository>(repository);
   });
   tearDown(() => getIt.reset());
+  test('charge share failures repeat independently of payment and success retains failure text', () async {
+    final cubit = WalletChargeCubit();
+    addTearDown(cubit.close);
+    for (var attempt = 0; attempt < 2; attempt++) {
+      cubit.requestShare();
+      expect(cubit.state.shareStatus, RequestStatus.loading);
+      cubit.consumeInteraction();
+      cubit.applyShareResult(
+        const Err(DataFailure('platform.share.unavailable')),
+      );
+      expect(cubit.state.shareStatus, RequestStatus.failure);
+      expect(cubit.state.failure?.code, 'platform.share.unavailable');
+      expect(cubit.state.message, 'اشتراک‌گذاری در این دستگاه در دسترس نیست.');
+      expect(cubit.state.submissionStatus, RequestStatus.initial);
+    }
+    final message = cubit.state.message;
+    cubit.requestShare();
+    cubit.consumeInteraction();
+    cubit.applyShareResult(const Success(null));
+    expect(cubit.state.shareStatus, RequestStatus.success);
+    expect(cubit.state.message, message);
+    expect(cubit.state.effect, isNull);
+  });
+  test('withdraw share failures repeat independently of payment and success retains failure text', () async {
+    final cubit = WalletWithdrawCubit();
+    addTearDown(cubit.close);
+    for (var attempt = 0; attempt < 2; attempt++) {
+      cubit.requestShare();
+      expect(cubit.state.shareStatus, RequestStatus.loading);
+      cubit.consumeInteraction();
+      cubit.applyShareResult(
+        const Err(DataFailure('platform.share.unavailable')),
+      );
+      expect(cubit.state.shareStatus, RequestStatus.failure);
+      expect(cubit.state.failure?.code, 'platform.share.unavailable');
+      expect(cubit.state.message, 'اشتراک‌گذاری در این دستگاه در دسترس نیست.');
+      expect(cubit.state.submissionStatus, RequestStatus.initial);
+    }
+    final message = cubit.state.message;
+    cubit.requestShare();
+    cubit.consumeInteraction();
+    cubit.applyShareResult(const Success(null));
+    expect(cubit.state.shareStatus, RequestStatus.success);
+    expect(cubit.state.message, message);
+    expect(cubit.state.effect, isNull);
+  });
+  test('transfer share failures repeat independently of payment and success retains failure text', () async {
+    final cubit = WalletTransferCubit();
+    addTearDown(cubit.close);
+    for (var attempt = 0; attempt < 2; attempt++) {
+      cubit.requestShare();
+      expect(cubit.state.shareStatus, RequestStatus.loading);
+      cubit.consumeInteraction();
+      cubit.applyShareResult(
+        const Err(DataFailure('platform.share.unavailable')),
+      );
+      expect(cubit.state.shareStatus, RequestStatus.failure);
+      expect(cubit.state.failure?.code, 'platform.share.unavailable');
+      expect(cubit.state.message, 'اشتراک‌گذاری در این دستگاه در دسترس نیست.');
+      expect(cubit.state.submissionStatus, RequestStatus.initial);
+    }
+    final message = cubit.state.message;
+    cubit.requestShare();
+    cubit.consumeInteraction();
+    cubit.applyShareResult(const Success(null));
+    expect(cubit.state.shareStatus, RequestStatus.success);
+    expect(cubit.state.message, message);
+    expect(cubit.state.effect, isNull);
+  });
   test('amount parsing accepts localized integer rial without accepting negatives or decimals', () {
     expect(WalletRules.amount('۱,۰۰۰,۰۰۰'), 1000000);
     expect(WalletRules.amount('١٠٠٠'), 1000);

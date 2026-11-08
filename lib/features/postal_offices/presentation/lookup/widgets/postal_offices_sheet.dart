@@ -1,6 +1,5 @@
 import 'package:pishkhan_mobile/core/config/constant.dart';
 
-import 'package:flutter/services.dart';
 import 'package:pishkhan_mobile/core/platform/platform_share.dart';
 
 import 'package:avp_ui/avp_ui.dart';
@@ -49,24 +48,9 @@ class PostalOfficesSheet extends StatelessWidget {
     switch (state.effect) {
       case PostalOfficesEffect.share:
         context.read<PostalOfficesCubit>().consumePostalOfficesInteraction();
-        try {
-          await PlatformShare.shareText(state.postalShareText!);
-        } on PlatformException {
-          if (context.mounted) {
-            avpSnackBar(
-              context: context,
-              type: AvpSnackBarType.error,
-              message: S.current.chequeShareUnavailable,
-            );
-          }
-        } on MissingPluginException {
-          if (context.mounted) {
-            avpSnackBar(
-              context: context,
-              type: AvpSnackBarType.error,
-              message: S.current.chequeShareUnavailable,
-            );
-          }
+        final result = await PlatformShare.shareText(state.postalShareText!);
+        if (context.mounted) {
+          context.read<PostalOfficesCubit>().applyShareResult(result);
         }
 
       case null:
@@ -78,6 +62,12 @@ class PostalOfficesSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocListener(
       listeners: [
+        BlocListener<PostalOfficesCubit, PostalOfficesState>(
+          listenWhen: (previous, current) =>
+              previous.shareStatus != current.shareStatus &&
+              current.shareStatus == RequestStatus.failure,
+          listener: _showRequestFailure,
+        ),
         BlocListener<PostalOfficesCubit, PostalOfficesState>(
           listenWhen: (previous, current) =>
               previous.provincesStatus != current.provincesStatus &&

@@ -7,6 +7,7 @@ enum PostalOfficesEffect { share }
 @Freezed(toStringOverride: false)
 abstract class PostalOfficesState with _$PostalOfficesState {
   const factory PostalOfficesState.initial({
+    @Default(RequestStatus.initial) RequestStatus shareStatus,
     @Default(RequestStatus.initial) RequestStatus provincesStatus,
     Failure? failure,
     String? message,

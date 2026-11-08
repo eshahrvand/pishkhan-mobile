@@ -3,6 +3,10 @@ import 'package:pishkhan_mobile/core/result/failure.dart';
 /// Prepared request-error text; no State publication or Flutter dependency.
 String getRequestErrorMessage(Failure failure) {
   switch (failure.code) {
+    case 'platform.share.unavailable':
+      return 'اشتراک‌گذاری در این دستگاه در دسترس نیست.';
+    case 'platform.browser.unavailable':
+      return 'باز کردن مرورگر در این دستگاه امکان‌پذیر نیست.';
     case 'wallet.recipient.not-found':
       return 'کیف مقصد یافت نشد.';
     case 'wallet.recipient.self':

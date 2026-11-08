@@ -3,7 +3,6 @@ import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/flow/service_registry.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/core/platform/external_links.dart';
 import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
@@ -67,25 +66,11 @@ class ChequeBookScreen extends StatelessWidget {
         }
       case ChequeBookEffect.registry:
         context.read<ChequeBookCubit>().consumeChequeBookInteraction();
-        try {
-          await ExternalLinks.openRegistry();
-        } on PlatformException {
-          if (context.mounted) {
-            avpSnackBar(
-              context: context,
-              type: AvpSnackBarType.error,
-              message: S.current.chequeBookLinkUnavailable,
-            );
-          }
-        } on MissingPluginException {
-          if (context.mounted) {
-            avpSnackBar(
-              context: context,
-              type: AvpSnackBarType.error,
-              message: S.current.chequeBookLinkUnavailable,
-            );
-          }
+        final result = await ExternalLinks.openRegistry();
+        if (context.mounted) {
+          context.read<ChequeBookCubit>().applyRegistryResult(result);
         }
+
       case ChequeBookEffect.contentUnavailable:
         context.read<ChequeBookCubit>().consumeChequeBookInteraction();
         avpSnackBar(
@@ -112,6 +97,12 @@ class ChequeBookScreen extends StatelessWidget {
             ..fetchCatalog(),
       child: MultiBlocListener(
         listeners: [
+          BlocListener<ChequeBookCubit, ChequeBookState>(
+            listenWhen: (previous, current) =>
+                previous.registryStatus != current.registryStatus &&
+                current.registryStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
           BlocListener<ChequeBookCubit, ChequeBookState>(
             listenWhen: (previous, current) =>
                 previous.catalogStatus != current.catalogStatus &&

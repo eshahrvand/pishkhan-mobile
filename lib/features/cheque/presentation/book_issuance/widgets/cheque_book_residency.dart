@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
@@ -75,7 +76,9 @@ class ChequeBookResidency extends StatelessWidget {
                 ),
               ),
               InkWell(
-                onTap: context.read<ChequeBookCubit>().requestRegistry,
+                onTap: state.registryStatus != RequestStatus.loading
+                    ? context.read<ChequeBookCubit>().requestRegistry
+                    : null,
                 child: Text(
                   S.current.chequeBookRegistryHost,
                   textDirection: TextDirection.ltr,

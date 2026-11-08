@@ -3,6 +3,7 @@ part of 'charge_cubit.dart';
 @Freezed(toStringOverride: false)
 abstract class WalletChargeState with _$WalletChargeState {
   const factory WalletChargeState.initial({
+    @Default(RequestStatus.initial) RequestStatus shareStatus,
     @Default(RequestStatus.initial) RequestStatus walletStatus,
     @Default(RequestStatus.initial) RequestStatus otpStatus,
     @Default(RequestStatus.initial) RequestStatus submissionStatus,

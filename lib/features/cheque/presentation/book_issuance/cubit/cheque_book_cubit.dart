@@ -465,8 +465,28 @@ class ChequeBookCubit extends Cubit<ChequeBookState> {
   void updateInvoiceExpansion(bool value) =>
       emit(state.copyWith(isInvoiceExpanded: value));
 
+  void applyRegistryResult(Result<void> result) {
+    switch (result) {
+      case Success():
+        emit(state.copyWith(registryStatus: RequestStatus.success));
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            registryStatus: RequestStatus.failure,
+            failure: failure,
+            message: getRequestErrorMessage(failure),
+          ),
+        );
+    }
+  }
+
   void requestRegistry() {
-    emit(state.copyWith(effect: ChequeBookEffect.registry));
+    emit(
+      state.copyWith(
+        registryStatus: RequestStatus.loading,
+        effect: ChequeBookEffect.registry,
+      ),
+    );
   }
 
   void requestUnavailableContent() {

@@ -3,6 +3,7 @@ part of 'withdraw_cubit.dart';
 @Freezed(toStringOverride: false)
 abstract class WalletWithdrawState with _$WalletWithdrawState {
   const factory WalletWithdrawState.initial({
+    @Default(RequestStatus.initial) RequestStatus shareStatus,
     @Default(RequestStatus.initial) RequestStatus walletStatus,
     @Default(RequestStatus.initial) RequestStatus otpStatus,
     @Default(RequestStatus.initial) RequestStatus submissionStatus,

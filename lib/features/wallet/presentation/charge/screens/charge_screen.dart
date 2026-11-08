@@ -8,7 +8,8 @@ import '../cubit/charge_cubit.dart';
 import '../widgets/charge_form.dart';
 import '../../shared/wallet_scaffold.dart';
 import '../../shared/wallet_receipt_card.dart';
-import '../../shared/wallet_platform_effects.dart';
+
+import 'package:pishkhan_mobile/core/platform/platform_share.dart';
 
 class WalletChargeScreen extends StatelessWidget {
   const WalletChargeScreen({super.key});
@@ -22,7 +23,10 @@ class WalletChargeScreen extends StatelessWidget {
 
   Future<void> _share(BuildContext context, WalletChargeState state) async {
     context.read<WalletChargeCubit>().consumeInteraction();
-    await shareWalletReceipt(context, state.shareText!);
+    final result = await PlatformShare.shareText(state.shareText!);
+    if (context.mounted) {
+      context.read<WalletChargeCubit>().applyShareResult(result);
+    }
   }
 
   @override
@@ -31,6 +35,12 @@ class WalletChargeScreen extends StatelessWidget {
       create: (_) => WalletChargeCubit()..fetchWallet(),
       child: MultiBlocListener(
         listeners: [
+          BlocListener<WalletChargeCubit, WalletChargeState>(
+            listenWhen: (previous, current) =>
+                previous.shareStatus != current.shareStatus &&
+                current.shareStatus == RequestStatus.failure,
+            listener: _showFailure,
+          ),
           BlocListener<WalletChargeCubit, WalletChargeState>(
             listenWhen: (previous, current) =>
                 previous.walletStatus != current.walletStatus &&
@@ -70,6 +80,8 @@ class WalletChargeScreen extends StatelessWidget {
               footer: state.receipt != null
                   ? AppButton(
                       label: S.current.walletShareReceipt,
+                      isLoading: state.shareStatus == RequestStatus.loading,
+                      isActive: state.shareStatus != RequestStatus.loading,
                       size: AppButtonSize.lg,
                       onPressed: context.read<WalletChargeCubit>().requestShare,
                     )

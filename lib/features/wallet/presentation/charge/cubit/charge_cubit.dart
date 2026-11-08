@@ -166,8 +166,28 @@ class WalletChargeCubit extends Cubit<WalletChargeState> {
   bool _canSubmit(bool isOtpValid, int remaining) =>
       state.isAmountValid && isOtpValid && remaining > 0;
 
+  void applyShareResult(Result<void> result) {
+    switch (result) {
+      case Success():
+        emit(state.copyWith(shareStatus: RequestStatus.success));
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            shareStatus: RequestStatus.failure,
+            failure: failure,
+            message: getRequestErrorMessage(failure),
+          ),
+        );
+    }
+  }
+
   void requestShare() {
-    emit(state.copyWith(effect: WalletReceiptEffect.share));
+    emit(
+      state.copyWith(
+        shareStatus: RequestStatus.loading,
+        effect: WalletReceiptEffect.share,
+      ),
+    );
   }
 
   void consumeInteraction() {

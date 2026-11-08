@@ -8,7 +8,8 @@ import '../cubit/withdraw_cubit.dart';
 import '../widgets/withdraw_form.dart';
 import '../../shared/wallet_scaffold.dart';
 import '../../shared/wallet_receipt_card.dart';
-import '../../shared/wallet_platform_effects.dart';
+
+import 'package:pishkhan_mobile/core/platform/platform_share.dart';
 
 class WalletWithdrawScreen extends StatelessWidget {
   const WalletWithdrawScreen({super.key});
@@ -22,7 +23,10 @@ class WalletWithdrawScreen extends StatelessWidget {
 
   Future<void> _share(BuildContext context, WalletWithdrawState state) async {
     context.read<WalletWithdrawCubit>().consumeInteraction();
-    await shareWalletReceipt(context, state.shareText!);
+    final result = await PlatformShare.shareText(state.shareText!);
+    if (context.mounted) {
+      context.read<WalletWithdrawCubit>().applyShareResult(result);
+    }
   }
 
   @override
@@ -31,6 +35,12 @@ class WalletWithdrawScreen extends StatelessWidget {
       create: (_) => WalletWithdrawCubit()..fetchWallet(),
       child: MultiBlocListener(
         listeners: [
+          BlocListener<WalletWithdrawCubit, WalletWithdrawState>(
+            listenWhen: (previous, current) =>
+                previous.shareStatus != current.shareStatus &&
+                current.shareStatus == RequestStatus.failure,
+            listener: _showFailure,
+          ),
           BlocListener<WalletWithdrawCubit, WalletWithdrawState>(
             listenWhen: (previous, current) =>
                 previous.walletStatus != current.walletStatus &&
@@ -70,6 +80,8 @@ class WalletWithdrawScreen extends StatelessWidget {
               footer: state.receipt != null
                   ? AppButton(
                       label: S.current.walletShareReceipt,
+                      isLoading: state.shareStatus == RequestStatus.loading,
+                      isActive: state.shareStatus != RequestStatus.loading,
                       size: AppButtonSize.lg,
                       onPressed: context
                           .read<WalletWithdrawCubit>()

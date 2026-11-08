@@ -72,9 +72,11 @@ void main() {
     'charge empty, filled, OTP and receipt states share and block duplicate submission',
     (tester) async {
       final shares = <String>[];
+      var failShare = false;
       tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
         const MethodChannel('pishkhan/platform_share'),
         (call) async {
+          if (failShare) throw PlatformException(code: 'unavailable');
           shares.add(call.arguments as String);
           return null;
         },
@@ -116,6 +118,27 @@ void main() {
       await tester.pumpAndSettle();
       expect(shares.length, 2);
       expect(shares.first, contains(cubit.state.receipt!.trackingId));
+      failShare = true;
+      for (var attempt = 0; attempt < 2; attempt++) {
+        await tester.tap(button(S.current.walletShareReceipt));
+        await tester.pumpAndSettle();
+        expect(cubit.state.shareStatus, RequestStatus.failure);
+        expect(cubit.state.submissionStatus, RequestStatus.success);
+        expect(
+          find.text('اشتراک‌گذاری در این دستگاه در دسترس نیست.'),
+          findsOneWidget,
+        );
+        await tester.pump(const Duration(seconds: 5));
+        await tester.pumpAndSettle();
+      }
+      failShare = false;
+      await tester.tap(button(S.current.walletShareReceipt));
+      await tester.pumpAndSettle();
+      expect(cubit.state.shareStatus, RequestStatus.success);
+      expect(cubit.state.message, 'اشتراک‌گذاری در این دستگاه در دسترس نیست.');
+      expect(find.byType(AvpSnackBar), findsNothing);
+      expect(shares, hasLength(3));
+
       expect(tester.takeException(), isNull);
     },
   );

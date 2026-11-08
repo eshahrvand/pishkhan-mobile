@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
@@ -103,6 +104,8 @@ class PostalOfficesResults extends StatelessWidget {
                 height: 20,
               ),
               size: AppButtonSize.lg,
+              isLoading: state.shareStatus == RequestStatus.loading,
+              isActive: state.shareStatus != RequestStatus.loading,
               onPressed: context.read<PostalOfficesCubit>().requestPostalShare,
             ),
           ],

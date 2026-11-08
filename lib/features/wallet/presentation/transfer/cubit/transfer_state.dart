@@ -3,6 +3,7 @@ part of 'transfer_cubit.dart';
 @Freezed(toStringOverride: false)
 abstract class WalletTransferState with _$WalletTransferState {
   const factory WalletTransferState.initial({
+    @Default(RequestStatus.initial) RequestStatus shareStatus,
     @Default(RequestStatus.initial) RequestStatus walletStatus,
     @Default(RequestStatus.initial) RequestStatus recipientStatus,
     @Default(RequestStatus.initial) RequestStatus submissionStatus,

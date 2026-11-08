@@ -22,6 +22,7 @@ abstract class ChequeBookState with _$ChequeBookState {
     @Default(ChequeBookStep.selection) ChequeBookStep step,
     @Default(1) int stepNumber,
     @Default(ChequeBookAction.next) ChequeBookAction primaryAction,
+    @Default(RequestStatus.initial) RequestStatus registryStatus,
     @Default(RequestStatus.initial) RequestStatus catalogStatus,
     @Default(RequestStatus.initial) RequestStatus residencyStatus,
     @Default(RequestStatus.initial) RequestStatus addressDeletionStatus,
