@@ -49,7 +49,7 @@ class AppTransactionCard extends StatelessWidget {
       constraints: const BoxConstraints(minHeight: 72),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: AppPalette.gray50,
+        color: context.colors.surface,
         borderRadius: AppRadius.borderMd,
       ),
       child: Row(
@@ -76,7 +76,7 @@ class AppTransactionCard extends StatelessWidget {
                 Expanded(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Text(
                         _title,
@@ -101,8 +101,8 @@ class AppTransactionCard extends StatelessWidget {
                   width: 48,
                   height: 48,
                   padding: const EdgeInsets.all(12),
-                  decoration: const BoxDecoration(
-                    color: AppPalette.white,
+                  decoration: BoxDecoration(
+                    color: context.colors.surface,
                     shape: BoxShape.circle,
                   ),
                   child: AvpImage(image: _icon),

@@ -16,59 +16,64 @@ class WalletTransactionFilters extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                AppChips(
-                  label: S.current.walletTransactionType,
-                  selected: state.filter.types.isNotEmpty,
-                  icon: AvpImage(
-                    image: state.filter.types.isEmpty
-                        ? '${AppConstants.baseImage}deposit_list_chevron.svg'
-                        : '${AppConstants.baseImage}deposit_list_clear.svg',
-                    width: 20,
-                    height: 20,
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: SingleChildScrollView(
+              reverse: true,
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                textDirection: TextDirection.rtl,
+                children: [
+                  AppChips(
+                    label: S.current.walletTransactionType,
+                    selected: state.filter.types.isNotEmpty,
+                    icon: AvpImage(
+                      image: state.filter.types.isEmpty
+                          ? '${AppConstants.baseImage}deposit_list_chevron.svg'
+                          : '${AppConstants.baseImage}deposit_list_clear.svg',
+                      width: 20,
+                      height: 20,
+                    ),
+                    onPressed: state.transactionsStatus != RequestStatus.loading
+                        ? context.read<WalletTransactionsCubit>().requestTypes
+                        : null,
                   ),
-                  onPressed: state.transactionsStatus != RequestStatus.loading
-                      ? context.read<WalletTransactionsCubit>().requestTypes
-                      : null,
-                ),
-                const SizedBox(width: 12),
-                AppChips(
-                  label: S.current.walletDateFilter,
-                  selected: state.filter.period != null,
-                  icon: AvpImage(
-                    image: state.filter.period == null
-                        ? '${AppConstants.baseImage}deposit_list_chevron.svg'
-                        : '${AppConstants.baseImage}deposit_list_clear.svg',
-                    width: 20,
-                    height: 20,
+                  const SizedBox(width: 12),
+                  AppChips(
+                    label: S.current.walletDateFilter,
+                    selected: state.filter.period != null,
+                    icon: AvpImage(
+                      image: state.filter.period == null
+                          ? '${AppConstants.baseImage}deposit_list_chevron.svg'
+                          : '${AppConstants.baseImage}deposit_list_clear.svg',
+                      width: 20,
+                      height: 20,
+                    ),
+                    onPressed: state.transactionsStatus != RequestStatus.loading
+                        ? context.read<WalletTransactionsCubit>().requestDate
+                        : null,
                   ),
-                  onPressed: state.transactionsStatus != RequestStatus.loading
-                      ? context.read<WalletTransactionsCubit>().requestDate
-                      : null,
-                ),
-                const SizedBox(width: 12),
-                AppChips(
-                  label: S.current.walletAmountFilter,
-                  selected:
-                      state.filter.minRial != null ||
-                      state.filter.maxRial != null,
-                  icon: AvpImage(
-                    image:
-                        state.filter.minRial == null &&
-                            state.filter.maxRial == null
-                        ? '${AppConstants.baseImage}deposit_list_chevron.svg'
-                        : '${AppConstants.baseImage}deposit_list_clear.svg',
-                    width: 20,
-                    height: 20,
+                  const SizedBox(width: 12),
+                  AppChips(
+                    label: S.current.walletAmountFilter,
+                    selected:
+                        state.filter.minRial != null ||
+                        state.filter.maxRial != null,
+                    icon: AvpImage(
+                      image:
+                          state.filter.minRial == null &&
+                              state.filter.maxRial == null
+                          ? '${AppConstants.baseImage}deposit_list_chevron.svg'
+                          : '${AppConstants.baseImage}deposit_list_clear.svg',
+                      width: 20,
+                      height: 20,
+                    ),
+                    onPressed: state.transactionsStatus != RequestStatus.loading
+                        ? context.read<WalletTransactionsCubit>().requestAmount
+                        : null,
                   ),
-                  onPressed: state.transactionsStatus != RequestStatus.loading
-                      ? context.read<WalletTransactionsCubit>().requestAmount
-                      : null,
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           const SizedBox(height: 16),

@@ -44,9 +44,12 @@ class WalletAmountField extends StatelessWidget {
           errorText: isError ? S.current.walletAmountInvalid : null,
           suffixIcon: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Text(
-              S.current.rialCurrency,
-              style: certificateValueStyle(context),
+            child: Center(
+              widthFactor: 1,
+              child: Text(
+                S.current.rialCurrency,
+                style: certificateValueStyle(context),
+              ),
             ),
           ),
         ),
