@@ -14,9 +14,7 @@ Historical multi-Cubit layouts, repository constructor parameters, generation
 counters, disposal guards and `.then` examples are superseded by the code and
 rules described here.
 
-The [phase-10 integrated review](../cubit-phase-10-review.md) retains this flow's
-behavior and DI bindings. Home's generic dependency fields now retain their
-complete class name: `loadDashboardItemsUseCaseForCards`,
+Home's generic dependency fields retain their complete class name: `loadDashboardItemsUseCaseForCards`,
 `loadDashboardItemsUseCaseForDeposits` and `loadDashboardItemsUseCaseForLoans`.
 Each still resolves the same `LoadDashboardItemsUseCase<T>` specialization;
 the qualifier distinguishes the three existing fields. No request, payload,

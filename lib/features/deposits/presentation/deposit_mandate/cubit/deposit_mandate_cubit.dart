@@ -10,27 +10,27 @@ import 'package:pishkhan_mobile/core/result/failure.dart';
 import 'package:pishkhan_mobile/core/result/result.dart';
 
 import '../../../domain/entities/listed_deposit.dart';
-import '../../../domain/entities/proxy_deposit.dart';
-import '../../../domain/usecases/proxy_deposits_usecase.dart';
+import '../../../domain/entities/deposit_mandate.dart';
+import '../../../domain/usecases/deposit_mandate_usecase.dart';
 
-part 'proxy_deposit_state.dart';
-part 'proxy_deposit_cubit.freezed.dart';
+part 'deposit_mandate_state.dart';
+part 'deposit_mandate_cubit.freezed.dart';
 
-class ProxyDepositCubit extends Cubit<ProxyDepositState> {
-  ProxyDepositCubit({
+class DepositMandateCubit extends Cubit<DepositMandateState> {
+  DepositMandateCubit({
     this.initialDepositNumber,
-    ProxyDepositState initialState = const ProxyDepositState.initial(),
+    DepositMandateState initialState = const DepositMandateState.initial(),
   }) : super(initialState);
   final String? initialDepositNumber;
-  final fetchProxyDepositCatalogUseCase =
-      getIt<FetchProxyDepositCatalogUseCase>();
-  final submitProxyDepositUseCase = getIt<SubmitProxyDepositUseCase>();
+  final fetchDepositMandateCatalogUseCase =
+      getIt<FetchDepositMandateCatalogUseCase>();
+  final submitDepositMandateUseCase = getIt<SubmitDepositMandateUseCase>();
 
   Future<void> fetchCatalog() async {
     emit(
       state.copyWith(catalogStatus: RequestStatus.loading, isEditable: false),
     );
-    final result = await fetchProxyDepositCatalogUseCase();
+    final result = await fetchDepositMandateCatalogUseCase();
     switch (result) {
       case Err(:final failure):
         emit(
@@ -55,7 +55,7 @@ class ProxyDepositCubit extends Cubit<ProxyDepositState> {
     }
   }
 
-  void selectCompany(ProxyCompany company) {
+  void selectCompany(DepositMandateCompany company) {
     emit(
       state.copyWith(
         company: company,
@@ -71,7 +71,7 @@ class ProxyDepositCubit extends Cubit<ProxyDepositState> {
     );
   }
 
-  void selectSubject(ProxySubject subject) {
+  void selectSubject(DepositMandateSubject subject) {
     final company = state.catalog!.companies.firstWhere(
       (company) => company.id == subject.companyId,
     );
@@ -119,8 +119,8 @@ class ProxyDepositCubit extends Cubit<ProxyDepositState> {
     );
   }
 
-  Future<void> submitProxyDeposit() async {
-    final request = ProxyDepositRequest(
+  Future<void> submitDepositMandate() async {
+    final request = DepositMandateRequest(
       companyId: state.company!.id,
       subjectId: state.subject!.id,
       depositId: state.deposit!.id,
@@ -133,7 +133,7 @@ class ProxyDepositCubit extends Cubit<ProxyDepositState> {
         isEditable: false,
       ),
     );
-    final result = await submitProxyDepositUseCase(request);
+    final result = await submitDepositMandateUseCase(request);
     switch (result) {
       case Err(:final failure):
         emit(
@@ -156,15 +156,15 @@ class ProxyDepositCubit extends Cubit<ProxyDepositState> {
   }
 
   void requestTerms() {
-    emit(state.copyWith(effect: ProxyDepositEffect.termsUnavailable));
+    emit(state.copyWith(effect: DepositMandateEffect.termsUnavailable));
   }
 
   void requestBack() {
     emit(
       state.copyWith(
         effect: state.hasChanges
-            ? ProxyDepositEffect.confirmExit
-            : ProxyDepositEffect.back,
+            ? DepositMandateEffect.confirmExit
+            : DepositMandateEffect.back,
         isExitToAssistant: false,
       ),
     );
@@ -174,8 +174,8 @@ class ProxyDepositCubit extends Cubit<ProxyDepositState> {
     emit(
       state.copyWith(
         effect: state.hasChanges
-            ? ProxyDepositEffect.confirmExit
-            : ProxyDepositEffect.assistant,
+            ? DepositMandateEffect.confirmExit
+            : DepositMandateEffect.assistant,
         isExitToAssistant: true,
       ),
     );
@@ -186,15 +186,15 @@ class ProxyDepositCubit extends Cubit<ProxyDepositState> {
       state.copyWith(
         effect: confirmed == true
             ? (state.isExitToAssistant
-                  ? ProxyDepositEffect.assistant
-                  : ProxyDepositEffect.back)
+                  ? DepositMandateEffect.assistant
+                  : DepositMandateEffect.back)
             : null,
       ),
     );
   }
 
   void applyReceiptDismissal() {
-    emit(state.copyWith(effect: ProxyDepositEffect.home));
+    emit(state.copyWith(effect: DepositMandateEffect.home));
   }
 
   ListedDeposit? _resolveInitialDeposit(List<ListedDeposit> deposits) {
@@ -207,9 +207,9 @@ class ProxyDepositCubit extends Cubit<ProxyDepositState> {
   String _normalizeDepositNumber(String number) =>
       DigitNormalizer.normalize(number).replaceAll(RegExp(r'[^0-9]'), '');
 
-  List<ProxySubject> _subjectsForCompany(ProxyCompany company) => state
-      .catalog!
-      .subjects
+  List<DepositMandateSubject> _subjectsForCompany(
+    DepositMandateCompany company,
+  ) => state.catalog!.subjects
       .where((subject) => subject.companyId == company.id)
       .toList();
 
@@ -224,7 +224,7 @@ class ProxyDepositCubit extends Cubit<ProxyDepositState> {
       'proxy-deposit-${DateTime.now().microsecondsSinceEpoch}-${Random.secure().nextInt(1 << 32)}';
 
   /// UI has accepted the pending interaction; data and request statuses stay intact.
-  void consumeProxyDepositInteraction() {
+  void consumeDepositMandateInteraction() {
     emit(state.copyWith(effect: null));
   }
 }

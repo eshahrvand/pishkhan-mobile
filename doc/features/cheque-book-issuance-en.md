@@ -66,8 +66,7 @@ CAPTURE_CERTIFICATE_PREVIEWS=1 flutter test test/cheque/cheque_book_screen_test.
 
 Images are written to `build/previews/certificates/chequebook-*.png` and are not product assets.
 
-The [phase-9 review](../cheque/phase-9-review.md) records current scoped commands
-and results. New regression coverage repeats failures for all six operations,
+`test/cheque/phase_9_notifications_test.dart` repeats failures for all six operations,
 recovers through registry deletion/address saving/quote, and submits the exact
 confirmed snapshot successfully after retries.
 
@@ -82,6 +81,6 @@ Figma file `nYQNyZdSs98lwymCpt5Sag`, node prefix `28060:`:
 The production bank/registry/document/payment adapters remain unconnected.
 A complete mock UI flow does not imply that actual bank issuance is available.
 
-Shared address editor migration is recorded in [phase 5](../profile/phase-5-review.md). Its
-`ServiceRegistry.openAddressEditor` entry/result contract and this flow’s existing
-address inputs, cancellation and validation remain unchanged.
+The shared address editor uses the `ServiceRegistry.openAddressEditor` entry/result
+contract. This flow’s existing address inputs, cancellation and validation are
+preserved; address editing remains independently owned by `features/address`.

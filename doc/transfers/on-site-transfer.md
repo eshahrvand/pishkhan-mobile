@@ -4,8 +4,8 @@
 Cubit → registered UseCase → Repository. Cubit imports/resolves UseCases only;
 `core/di` wires their repositories. Any earlier direct-Repository or optional-
 UseCase wording below is historical and superseded. Payloads, Result mapping,
-validation, retry identity and UI behavior remain unchanged. See the
-[UseCase-only migration review](../usecase-only-dependencies-review.md).
+validation, retry identity and UI behavior remain unchanged. The
+[UI/Cubit/State contract](../ui-cubit-state-agent-rules-en.md) defines the current rules.
 
 
 Implemented in `features/transfers`, independently of `features/cheque`.
@@ -157,10 +157,9 @@ Optional visual captures: `CAPTURE_CERTIFICATE_PREVIEWS=1 flutter test
  test/transfers/on_site_transfer_screen_test.dart`. PNGs are ignored under
 `build/previews/certificates/onsite-*.png`. Widget tests mock the native file
 selection result. Native document picker, Safari file chooser and iOS device
-execution remain unverified. See the [phase-8 review](../modern-banking/phase-8-review.md)
-for the actual combined scoped command and results; no application-wide test
-run or build is required by this migration.
+execution remain unverified. Use the flow and notification tests under
+`test/transfers` for current scoped verification.
 
-Shared address editor migration is recorded in [phase 5](../profile/phase-5-review.md). Its
-`ServiceRegistry.openAddressEditor` entry/result contract and this flow’s existing
-address inputs, cancellation and validation remain unchanged.
+The shared address editor uses the `ServiceRegistry.openAddressEditor` entry/result
+contract. This flow’s existing address inputs, cancellation and validation are
+preserved; address editing remains independently owned by `features/address`.

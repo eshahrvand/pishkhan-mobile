@@ -151,8 +151,8 @@ legal document or real bank success.
 ## Verification
 
 Tests cover the cheque and postal flows plus directly related DI, central routing
-and dashboard service navigation. The [phase-9 review](phase-9-review.md) records
-the actual commands and results.
+and dashboard service navigation. Select the relevant regression files when
+changing their shared boundaries.
 
 ```sh
 flutter test test/postal_offices test/cheque test/core/di test/core/router/app_router_test.dart test/dashboard/implemented_services_navigation_test.dart

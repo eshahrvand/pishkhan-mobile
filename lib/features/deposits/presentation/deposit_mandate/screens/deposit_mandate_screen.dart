@@ -10,13 +10,13 @@ import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
 import 'package:pishkhan_mobile/shared/widgets/flow_exit_dialog.dart';
 
 import '../../deposit_list/widgets/deposit_ui.dart';
-import '../cubit/proxy_deposit_cubit.dart';
-import '../widgets/proxy_deposit_footer.dart';
-import '../widgets/proxy_deposit_form.dart';
-import '../widgets/proxy_deposit_receipt_dialog.dart';
+import '../cubit/deposit_mandate_cubit.dart';
+import '../widgets/deposit_mandate_footer.dart';
+import '../widgets/deposit_mandate_form.dart';
+import '../widgets/deposit_mandate_receipt_dialog.dart';
 
-class ProxyDepositScreen extends StatelessWidget {
-  const ProxyDepositScreen({
+class DepositMandateScreen extends StatelessWidget {
+  const DepositMandateScreen({
     super.key,
     this.initialDepositNumber,
     this.onAssistantPressed,
@@ -24,34 +24,34 @@ class ProxyDepositScreen extends StatelessWidget {
   final String? initialDepositNumber;
   final VoidCallback? onAssistantPressed;
 
-  void _showRequestFailure(BuildContext context, ProxyDepositState state) {
+  void _showRequestFailure(BuildContext context, DepositMandateState state) {
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text(state.message!)));
   }
 
   Future<void> _handleEffect(
     BuildContext context,
-    ProxyDepositState state,
+    DepositMandateState state,
   ) async {
     switch (state.effect) {
-      case ProxyDepositEffect.confirmExit:
-        context.read<ProxyDepositCubit>().consumeProxyDepositInteraction();
+      case DepositMandateEffect.confirmExit:
+        context.read<DepositMandateCubit>().consumeDepositMandateInteraction();
         final confirmed = await showFlowExitDialog(context);
         if (context.mounted) {
-          context.read<ProxyDepositCubit>().applyExitConfirmation(confirmed);
+          context.read<DepositMandateCubit>().applyExitConfirmation(confirmed);
         }
-      case ProxyDepositEffect.back:
+      case DepositMandateEffect.back:
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (context.mounted) NavigationActions.back(context);
         });
-      case ProxyDepositEffect.home:
+      case DepositMandateEffect.home:
         NavigationActions.returnHome(context);
-      case ProxyDepositEffect.assistant:
-        context.read<ProxyDepositCubit>().consumeProxyDepositInteraction();
+      case DepositMandateEffect.assistant:
+        context.read<DepositMandateCubit>().consumeDepositMandateInteraction();
         NavigationActions.returnHome(context);
         onAssistantPressed?.call();
-      case ProxyDepositEffect.termsUnavailable:
-        context.read<ProxyDepositCubit>().consumeProxyDepositInteraction();
+      case DepositMandateEffect.termsUnavailable:
+        context.read<DepositMandateCubit>().consumeDepositMandateInteraction();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(S.current.issuanceTermsUnavailable)),
         );
@@ -62,11 +62,11 @@ class ProxyDepositScreen extends StatelessWidget {
 
   Future<void> _handleReceipt(
     BuildContext context,
-    ProxyDepositState state,
+    DepositMandateState state,
   ) async {
-    await showProxyDepositReceiptDialog(context, state.receipt!);
+    await showDepositMandateReceiptDialog(context, state.receipt!);
     if (context.mounted) {
-      context.read<ProxyDepositCubit>().applyReceiptDismissal();
+      context.read<DepositMandateCubit>().applyReceiptDismissal();
     }
   }
 
@@ -74,35 +74,35 @@ class ProxyDepositScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) =>
-          ProxyDepositCubit(initialDepositNumber: initialDepositNumber)
+          DepositMandateCubit(initialDepositNumber: initialDepositNumber)
             ..fetchCatalog(),
       child: MultiBlocListener(
         listeners: [
-          BlocListener<ProxyDepositCubit, ProxyDepositState>(
+          BlocListener<DepositMandateCubit, DepositMandateState>(
             listenWhen: (previous, current) =>
                 previous.submissionStatus != current.submissionStatus &&
                 current.submissionStatus == RequestStatus.success,
             listener: _handleReceipt,
           ),
-          BlocListener<ProxyDepositCubit, ProxyDepositState>(
+          BlocListener<DepositMandateCubit, DepositMandateState>(
             listenWhen: (previous, current) =>
                 previous.catalogStatus != current.catalogStatus &&
                 current.catalogStatus == RequestStatus.failure,
             listener: _showRequestFailure,
           ),
-          BlocListener<ProxyDepositCubit, ProxyDepositState>(
+          BlocListener<DepositMandateCubit, DepositMandateState>(
             listenWhen: (previous, current) =>
                 previous.submissionStatus != current.submissionStatus &&
                 current.submissionStatus == RequestStatus.failure,
             listener: _showRequestFailure,
           ),
-          BlocListener<ProxyDepositCubit, ProxyDepositState>(
+          BlocListener<DepositMandateCubit, DepositMandateState>(
             listenWhen: (previous, current) =>
                 previous.effect != current.effect && current.effect != null,
             listener: _handleEffect,
           ),
         ],
-        child: BlocBuilder<ProxyDepositCubit, ProxyDepositState>(
+        child: BlocBuilder<DepositMandateCubit, DepositMandateState>(
           builder: (context, state) {
             return Directionality(
               textDirection: TextDirection.rtl,
@@ -110,12 +110,12 @@ class ProxyDepositScreen extends StatelessWidget {
                 canPop:
                     (state.catalogStatus != RequestStatus.loading &&
                         state.submissionStatus != RequestStatus.loading) &&
-                    (state.effect == ProxyDepositEffect.back),
+                    (state.effect == DepositMandateEffect.back),
                 onPopInvokedWithResult: (didPop, _) {
                   if (!didPop &&
                       state.catalogStatus != RequestStatus.loading &&
                       state.submissionStatus != RequestStatus.loading) {
-                    context.read<ProxyDepositCubit>().requestBack();
+                    context.read<DepositMandateCubit>().requestBack();
                   }
                 },
                 child: Scaffold(
@@ -124,7 +124,7 @@ class ProxyDepositScreen extends StatelessWidget {
                     child: Column(
                       children: [
                         AppTopBar(
-                          title: S.current.proxyDeposit,
+                          title: S.current.depositMandate,
                           showLeadingActions: false,
                           leadingAction: const SizedBox.shrink(),
                           trailingIcon: depositIcon(
@@ -132,7 +132,7 @@ class ProxyDepositScreen extends StatelessWidget {
                           ),
                           trailingTooltip: S.current.backLabel,
                           onTrailingPressed: context
-                              .read<ProxyDepositCubit>()
+                              .read<DepositMandateCubit>()
                               .requestBack,
                           isTrailingActive:
                               (state.catalogStatus != RequestStatus.loading &&
@@ -142,20 +142,20 @@ class ProxyDepositScreen extends StatelessWidget {
                           child: Stack(
                             fit: StackFit.expand,
                             children: [
-                              const ProxyDepositForm(),
+                              const DepositMandateForm(),
                               Positioned(
                                 left: 16,
                                 bottom: 16,
                                 child: AppAssistantButton(
                                   onPressed: context
-                                      .read<ProxyDepositCubit>()
+                                      .read<DepositMandateCubit>()
                                       .requestAssistant,
                                 ),
                               ),
                             ],
                           ),
                         ),
-                        const ProxyDepositFooter(),
+                        const DepositMandateFooter(),
                       ],
                     ),
                   ),

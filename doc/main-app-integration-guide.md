@@ -7,8 +7,11 @@ Counter. Reuse its public components, tokens and input helpers before creating
 app widgets. For application ownership and State, the mandatory
 [UI/Cubit/State contract](ui-cubit-state-agent-rules-en.md) takes precedence over
 package API examples. Domain/Cubit owns decisions; UI renders and executes
-prepared Flutter effects. The [phase-10 review](cubit-phase-10-review.md) records
-current migration coverage; this guide adds no new rules.
+prepared Flutter effects. The Cubit migration is complete; current ownership and
+integration details live in each flow document. This guide adds no new rules.
+
+App-owned shared components and their open layout issues are documented in the
+[shared component / Figma mapping](shared-component-figma-mapping.md).
 
 ## First-use setup
 

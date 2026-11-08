@@ -4,17 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' show NumberFormat;
 import 'package:pishkhan_mobile/generated/l10n.dart';
 
-import '../../../domain/entities/proxy_deposit.dart';
+import '../../../domain/entities/deposit_mandate.dart';
 import '../../deposit_list/widgets/deposit_ui.dart';
 import '../../shared/certificate_fields.dart';
 
-class ProxySubjectDetails extends StatelessWidget {
-  const ProxySubjectDetails({
+class DepositMandateSubjectDetails extends StatelessWidget {
+  const DepositMandateSubjectDetails({
     super.key,
     required this.subject,
     required this.amountToman,
   });
-  final ProxySubject subject;
+  final DepositMandateSubject subject;
   final num amountToman;
 
   @override
@@ -28,7 +28,7 @@ class ProxySubjectDetails extends StatelessWidget {
         ),
         const SizedBox(height: 20),
         CertificateInput(
-          label: S.current.proxyBroker,
+          label: S.current.depositMandateBroker,
           hint: '',
           value: subject.brokerName,
           readOnly: true,
@@ -37,7 +37,7 @@ class ProxySubjectDetails extends StatelessWidget {
         ),
         const SizedBox(height: 20),
         CertificateInput(
-          label: S.current.proxyAmount,
+          label: S.current.depositMandateAmount,
           hint: '',
           value: CurrencyFormatter.format(subject.amountRial),
           readOnly: true,
@@ -68,7 +68,7 @@ class ProxySubjectDetails extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                S.current.proxyAmountToman(
+                S.current.depositMandateAmountToman(
                   NumberFormat.compact(
                     locale: Localizations.localeOf(context).languageCode,
                   ).format(amountToman),

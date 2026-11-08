@@ -2,18 +2,21 @@ import 'package:pishkhan_mobile/core/result/failure.dart';
 import 'package:pishkhan_mobile/core/result/result.dart';
 
 import '../../domain/entities/listed_deposit.dart';
-import '../../domain/entities/proxy_deposit.dart';
-import '../../domain/repositories/proxy_deposits_repository.dart';
+import '../../domain/entities/deposit_mandate.dart';
+import '../../domain/repositories/deposit_mandate_repository.dart';
 
-/// Preview data only; no real proxy mandate or balance reservation occurs.
-class MockProxyDepositsRepository implements ProxyDepositsRepository {
-  static final catalog = ProxyDepositCatalog(
+/// Preview data only; no real deposit mandate or balance reservation occurs.
+class MockDepositMandateRepository implements DepositMandateRepository {
+  static final catalog = DepositMandateCatalog(
     companies: const [
-      ProxyCompany(id: 'autonovin', name: 'خودرو وارداتی - سامانه اتونوین'),
-      ProxyCompany(id: 'demo', name: 'شرکت آزمایشی'),
+      DepositMandateCompany(
+        id: 'autonovin',
+        name: 'خودرو وارداتی - سامانه اتونوین',
+      ),
+      DepositMandateCompany(id: 'demo', name: 'شرکت آزمایشی'),
     ],
     subjects: [
-      ProxySubject(
+      DepositMandateSubject(
         id: 'imported-cars',
         companyId: 'autonovin',
         title: 'خودرو وارداتی',
@@ -21,7 +24,7 @@ class MockProxyDepositsRepository implements ProxyDepositsRepository {
         amountRial: 5000000000,
         depositIds: const ['proxy-1', 'proxy-2'],
       ),
-      ProxySubject(
+      DepositMandateSubject(
         id: 'demo-plan',
         companyId: 'demo',
         title: 'طرح آزمایشی',
@@ -36,15 +39,16 @@ class MockProxyDepositsRepository implements ProxyDepositsRepository {
     ],
     token: 'mock-proxy-catalog-v1',
   );
-  final _requests = <String, ProxyDepositRequest>{};
-  final _receipts = <String, ProxyDepositReceipt>{};
+  final _requests = <String, DepositMandateRequest>{};
+  final _receipts = <String, DepositMandateReceipt>{};
   final _mandates = <String>{};
   @override
-  Future<Result<ProxyDepositCatalog>> fetchCatalog() async => Success(catalog);
+  Future<Result<DepositMandateCatalog>> fetchCatalog() async =>
+      Success(catalog);
 
   @override
-  Future<Result<ProxyDepositReceipt>> submitProxyDeposit(
-    ProxyDepositRequest request,
+  Future<Result<DepositMandateReceipt>> submitDepositMandate(
+    DepositMandateRequest request,
   ) async {
     if (_requests.containsKey(request.idempotencyKey)) {
       return request == _requests[request.idempotencyKey]
@@ -64,7 +68,7 @@ class MockProxyDepositsRepository implements ProxyDepositsRepository {
     if (_mandates.contains('${request.subjectId}:${request.depositId}')) {
       return const Err(DataFailure('proxy.already-registered'));
     }
-    final receipt = ProxyDepositReceipt(
+    final receipt = DepositMandateReceipt(
       reference: 'DEMO-PROXY-${_receipts.length + 1}',
       isMock: true,
     );

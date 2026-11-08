@@ -55,7 +55,7 @@
   "introduceLoan": "تعريف القرض",
   "loanEstimate": "تقدير القرض",
   "selectedServices": "الخدمات المختارة",
-  "proxyDeposit": "الوديعة بالوكالة",
+  "depositMandate": "الوديعة بالوكالة",
   "issueChequeBook": "إصدار دفتر شيكات",
   "internetBankSettings": "إعدادات الخدمات المصرفية عبر الإنترنت",
   "mobileBankSettings": "إعدادات الخدمات المصرفية عبر الهاتف",
@@ -559,16 +559,16 @@
   "depositBlockedReason": "سبب الحظر",
   "depositBlockedDate": "تاريخ الحظر",
   "depositRestrictionMockComplete": "تمت محاكاة الطلب. لم تتغير أي وديعة أو محفظة حقيقية.",
-  "proxyCompany": "الشركة",
-  "proxyCompanyHint": "اختر الشركة المطلوبة",
-  "proxySubject": "الموضوع",
-  "proxySubjectHint": "اختر موضوع الوديعة بالتوكيل",
-  "proxyDepositHint": "اختر وديعتك",
-  "proxyBroker": "الوسيط",
-  "proxyAmount": "المبلغ",
-  "proxyAmountToman": "{amount} تومان",
-  "proxyDepositMockComplete": "تمت محاكاة طلب الوديعة بالتوكيل. لم يتم إنشاء توكيل أو حجز رصيد حقيقي.",
-  "@proxyAmountToman": {
+  "depositMandateCompany": "الشركة",
+  "depositMandateCompanyHint": "اختر الشركة المطلوبة",
+  "depositMandateSubject": "الموضوع",
+  "depositMandateSubjectHint": "اختر موضوع الوديعة بالتوكيل",
+  "depositMandateHint": "اختر وديعتك",
+  "depositMandateBroker": "الوسيط",
+  "depositMandateAmount": "المبلغ",
+  "depositMandateAmountToman": "{amount} تومان",
+  "depositMandateMockComplete": "تمت محاكاة طلب الوديعة بالتوكيل. لم يتم إنشاء توكيل أو حجز رصيد حقيقي.",
+  "@depositMandateAmountToman": {
     "placeholders": {
       "amount": {
         "type": "String"

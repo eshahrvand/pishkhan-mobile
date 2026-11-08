@@ -13,7 +13,7 @@ import 'package:pishkhan_mobile/features/deposits/domain/usecases/agent_settings
 import 'package:pishkhan_mobile/features/deposits/domain/usecases/deposit_list_usecase.dart';
 import 'package:pishkhan_mobile/features/deposits/domain/usecases/deposit_restrictions_usecase.dart';
 import 'package:pishkhan_mobile/features/deposits/domain/usecases/close_surplus_deposits_usecase.dart';
-import 'package:pishkhan_mobile/features/deposits/domain/usecases/proxy_deposits_usecase.dart';
+import 'package:pishkhan_mobile/features/deposits/domain/usecases/deposit_mandate_usecase.dart';
 import 'package:pishkhan_mobile/features/cards/domain/usecases/password_services_usecase.dart';
 import 'package:pishkhan_mobile/features/cards/domain/usecases/card_services_usecase.dart';
 import 'package:pishkhan_mobile/features/cards/domain/usecases/card_issuance_usecase.dart';
@@ -44,8 +44,8 @@ import 'package:pishkhan_mobile/features/deposits/domain/repositories/financial_
 import 'package:get_it/get_it.dart';
 import 'package:pishkhan_mobile/features/modern_banking/domain/repositories/modern_banking_repository.dart';
 import 'package:pishkhan_mobile/features/modern_banking/data/repositories/mock_modern_banking_repository.dart';
-import 'package:pishkhan_mobile/features/deposits/data/repositories/mock_proxy_deposits_repository.dart';
-import 'package:pishkhan_mobile/features/deposits/domain/repositories/proxy_deposits_repository.dart';
+import 'package:pishkhan_mobile/features/deposits/data/repositories/mock_deposit_mandate_repository.dart';
+import 'package:pishkhan_mobile/features/deposits/domain/repositories/deposit_mandate_repository.dart';
 import 'package:pishkhan_mobile/features/deposits/data/repositories/mock_deposit_restrictions_repository.dart';
 import 'package:pishkhan_mobile/features/deposits/domain/repositories/deposit_restrictions_repository.dart';
 import 'package:pishkhan_mobile/features/deposits/data/repositories/mock_surplus_deposits_repository.dart';
@@ -283,8 +283,8 @@ void configureDependencies({GetIt? container}) {
   dependencies.registerLazySingleton<ChequeClearanceRepository>(
     MockChequeClearanceRepository.new,
   );
-  dependencies.registerLazySingleton<ProxyDepositsRepository>(
-    MockProxyDepositsRepository.new,
+  dependencies.registerLazySingleton<DepositMandateRepository>(
+    MockDepositMandateRepository.new,
   );
   dependencies.registerLazySingleton<DepositRestrictionsRepository>(
     MockDepositRestrictionsRepository.new,
@@ -321,13 +321,13 @@ void configureDependencies({GetIt? container}) {
       dependencies<SurplusDepositsRepository>(),
     ),
   );
-  dependencies.registerLazySingleton<FetchProxyDepositCatalogUseCase>(
-    () => FetchProxyDepositCatalogUseCase(
-      dependencies<ProxyDepositsRepository>(),
+  dependencies.registerLazySingleton<FetchDepositMandateCatalogUseCase>(
+    () => FetchDepositMandateCatalogUseCase(
+      dependencies<DepositMandateRepository>(),
     ),
   );
-  dependencies.registerLazySingleton<SubmitProxyDepositUseCase>(
-    () => SubmitProxyDepositUseCase(dependencies<ProxyDepositsRepository>()),
+  dependencies.registerLazySingleton<SubmitDepositMandateUseCase>(
+    () => SubmitDepositMandateUseCase(dependencies<DepositMandateRepository>()),
   );
   // This operation retains a pending reviewed payload: each flow needs its own instance.
   dependencies.registerFactory<CloseRemainingDepositsUseCase>(

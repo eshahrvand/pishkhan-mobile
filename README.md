@@ -42,11 +42,10 @@ Include the relevant DI/router/service-entry regression files when their shared
 boundaries change. A full-application test run requires an explicit owner
 request; historical results do not authorize repeating it.
 
-The [migration plan](doc/cubit-migration-plan.md) tracks the ten phases. The
-[phase-10 review](doc/cubit-phase-10-review.md) accounts for all 31 Cubits and
-records its scoped verification separately from historical phase results. The
-[UseCase-only follow-up](doc/usecase-only-dependencies-review.md) records the
-subsequent owner amendment and all-Cubit dependency correction.
+The Cubit migration and UseCase-only follow-up are complete. Current ownership
+and operation details live in each flow document below; the coding contract
+defines the required rules. Completed migration plans and execution reports
+remain available in Git history.
 
 ## Flow documentation
 
@@ -65,7 +64,7 @@ subsequent owner amendment and all-Cubit dependency correction.
   [agent settings](doc/deposits/agent-settings.md),
   [surplus closure](doc/deposits/close-surplus-deposits.md),
   [restriction](doc/deposits/deposit-restriction.md) and
-  [proxy deposit](doc/deposits/proxy-deposit.md)
+  [deposit mandate](doc/deposits/deposit-mandate.md)
 - [Personal information, addresses and jobs](doc/profile/personal-information.md)
 - [Modern banking](doc/modern-banking/mobile-bank.md),
   [on-site transfer](doc/transfers/on-site-transfer.md) and

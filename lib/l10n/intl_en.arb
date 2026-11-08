@@ -55,7 +55,7 @@
   "introduceLoan": "Introduce loan",
   "loanEstimate": "Loan estimate",
   "selectedServices": "Selected services",
-  "proxyDeposit": "Proxy deposit",
+  "depositMandate": "Deposit mandate",
   "issueChequeBook": "Issue cheque book",
   "internetBankSettings": "Internet bank settings",
   "mobileBankSettings": "Mobile bank settings",
@@ -579,16 +579,16 @@
   "depositBlockedReason": "Blocking reason",
   "depositBlockedDate": "Date blocked",
   "depositRestrictionMockComplete": "The request was simulated. No real deposit or wallet has changed.",
-  "proxyCompany": "Company",
-  "proxyCompanyHint": "Select a company",
-  "proxySubject": "Subject",
-  "proxySubjectHint": "Select a proxy deposit subject",
-  "proxyDepositHint": "Select your deposit",
-  "proxyBroker": "Broker",
-  "proxyAmount": "Amount",
-  "proxyAmountToman": "{amount} tomans",
-  "proxyDepositMockComplete": "The proxy deposit request was simulated. No real mandate or balance reservation was created.",
-  "@proxyAmountToman": {
+  "depositMandateCompany": "Company",
+  "depositMandateCompanyHint": "Select a company",
+  "depositMandateSubject": "Subject",
+  "depositMandateSubjectHint": "Select a deposit mandate subject",
+  "depositMandateHint": "Select your deposit",
+  "depositMandateBroker": "Broker",
+  "depositMandateAmount": "Amount",
+  "depositMandateAmountToman": "{amount} tomans",
+  "depositMandateMockComplete": "The deposit mandate request was simulated. No real mandate or balance reservation was created.",
+  "@depositMandateAmountToman": {
     "placeholders": {
       "amount": {
         "type": "String"

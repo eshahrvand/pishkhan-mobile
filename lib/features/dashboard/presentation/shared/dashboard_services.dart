@@ -48,7 +48,7 @@ enum DashboardService {
   openCurrent('deposit-open-current'),
   closeExtras('deposit-close-extras'),
   agentSettings('deposit-representation-settings'),
-  proxy('deposit-proxy'),
+  depositMandate('deposit-proxy'),
   unblockDeposit('deposit-unblock'),
   blockDeposit('deposit-block'),
   walletInfo('wallet-info'),
@@ -111,7 +111,7 @@ enum DashboardService {
     closeExtras,
     blockDeposit,
     unblockDeposit,
-    proxy,
+    depositMandate,
   ];
   static const wallets = [
     walletInfo,
@@ -168,7 +168,7 @@ enum DashboardService {
     openCurrent => S.current.dashboardOpenCurrent,
     closeExtras => S.current.dashboardCloseExtras,
     agentSettings => S.current.dashboardAgentSettings,
-    proxy => S.current.proxyDeposit,
+    depositMandate => S.current.depositMandate,
     unblockDeposit => S.current.dashboardUnblockDeposit,
     blockDeposit => S.current.dashboardBlockDeposit,
     walletInfo => S.current.dashboardWalletInfo,
@@ -258,7 +258,7 @@ enum DashboardService {
         editing
             ? '${AppConstants.baseImage}dashboard_favorite_issue_edit.svg'
             : '${AppConstants.baseImage}dashboard_favorite_issue.svg',
-      proxy =>
+      depositMandate =>
         editing
             ? '${AppConstants.baseImage}dashboard_favorite_proxy_edit.svg'
             : '${AppConstants.baseImage}dashboard_favorite_proxy.svg',

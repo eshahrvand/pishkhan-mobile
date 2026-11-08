@@ -51,7 +51,7 @@ void main() {
       'deposit-block': AppRoutes.blockDeposit,
       'deposit-unblock': AppRoutes.unblockDeposit,
       'deposit-close-extras': AppRoutes.closeSurplusDeposits,
-      'deposit-proxy': AppRoutes.proxyDeposit,
+      'deposit-proxy': AppRoutes.depositMandate,
       'transfer-local': AppRoutes.onSiteTransfer,
       'card-issue': AppRoutes.cardIssuance,
       'card-virtual': AppRoutes.virtualCardRequest,

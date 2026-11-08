@@ -109,4 +109,4 @@ pending Back and 320px enlarged text. Opt-in captures use
 
 Phase-9 notification tests additionally repeat list and submission failures,
 then exercise review/reason effects and success with the unchanged request key.
-See the [review](phase-9-review.md) for current scoped results.
+Run the cancellation and notification test files listed above for current verification.

@@ -4,8 +4,8 @@
 Cubit → registered UseCase → Repository. Cubit imports/resolves UseCases only;
 `core/di` wires their repositories. Any earlier direct-Repository or optional-
 UseCase wording below is historical and superseded. Payloads, Result mapping,
-validation, retry identity and UI behavior remain unchanged. See the
-[UseCase-only migration review](../usecase-only-dependencies-review.md).
+validation, retry identity and UI behavior remain unchanged. The
+[UI/Cubit/State contract](../ui-cubit-state-agent-rules-en.md) defines the current rules.
 
 
 The independent `features/requests` module implements request history and
@@ -127,8 +127,7 @@ filter sheet.
 
 The additional notification regression repeats cancellation failures, opens a
 filter with retained error text, then retries successfully with the same key.
-Current scoped commands/results are in the
-[phase-8 review](../modern-banking/phase-8-review.md).
+Use the report-flow and notification tests under `test/requests` for current scoped verification.
 
 Visual captures can be reproduced using:
 

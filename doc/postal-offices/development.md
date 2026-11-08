@@ -29,7 +29,6 @@ location selection. Share uses prepared retrieved-address text and a consumed
 reusable effect, allowing repeated share attempts without effect IDs. UI owns the
 platform share operation and displays availability feedback on unsupported hosts.
 
-The [phase-9 review](../cheque/phase-9-review.md) records the flow/readers,
-scoped checks and results. Tests cover independent repeated province/search
+Tests in `test/postal_offices` cover independent repeated province/search
 failures, success after retry and repeated native share requests with retained
 error text; this does not verify a live postal service or device share chooser.

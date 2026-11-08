@@ -1,17 +1,23 @@
-part of 'proxy_deposit_cubit.dart';
+part of 'deposit_mandate_cubit.dart';
 
-enum ProxyDepositEffect { confirmExit, back, home, assistant, termsUnavailable }
+enum DepositMandateEffect {
+  confirmExit,
+  back,
+  home,
+  assistant,
+  termsUnavailable,
+}
 
 @Freezed(toStringOverride: false)
-abstract class ProxyDepositState with _$ProxyDepositState {
-  const factory ProxyDepositState.initial({
+abstract class DepositMandateState with _$DepositMandateState {
+  const factory DepositMandateState.initial({
     @Default(RequestStatus.initial) RequestStatus catalogStatus,
     @Default(RequestStatus.initial) RequestStatus submissionStatus,
-    ProxyDepositCatalog? catalog,
-    @Default(<ProxySubject>[]) List<ProxySubject> subjects,
+    DepositMandateCatalog? catalog,
+    @Default(<DepositMandateSubject>[]) List<DepositMandateSubject> subjects,
     @Default(<ListedDeposit>[]) List<ListedDeposit> deposits,
-    ProxyCompany? company,
-    ProxySubject? subject,
+    DepositMandateCompany? company,
+    DepositMandateSubject? subject,
     ListedDeposit? deposit,
     num? amountToman,
     @Default(false) bool termsAccepted,
@@ -23,7 +29,7 @@ abstract class ProxyDepositState with _$ProxyDepositState {
     String? message,
 
     String? idempotencyKey,
-    ProxyDepositReceipt? receipt,
-    ProxyDepositEffect? effect,
-  }) = _ProxyDepositState;
+    DepositMandateReceipt? receipt,
+    DepositMandateEffect? effect,
+  }) = _DepositMandateState;
 }

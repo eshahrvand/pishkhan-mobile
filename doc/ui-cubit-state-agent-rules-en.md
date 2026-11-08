@@ -140,9 +140,10 @@ UI command; it does not authorize changing unrelated State resets or data groups
   MultiBlocListener can group the distinct subscriptions; no generic effect
   framework, State publisher or extra State fields are introduced.
 
-**Adoption status, 2026-11-02:** phases 1–9 have migrated all 31 current Cubits;
-the [phase-10 review](cubit-phase-10-review.md) records integrated coverage and
-scoped verification. Focused request-failure listeners are separate from typed
+**Adoption status:** all ten migration phases and the subsequent UseCase-only
+dependency correction are complete. Current flow documents record operation
+ownership and integration limits; completed execution reports are available in
+Git history. Focused request-failure listeners are separate from typed
 effects and legacy blanket clears are removed. Login retains its documented
 inline guest-phone feedback lifecycle. This is an implementation-status update,
 not a new rule or permission to refactor unrelated future flows. When migrating

@@ -4,8 +4,8 @@
 Cubit → registered UseCase → Repository. Cubit imports/resolves UseCases only;
 `core/di` wires their repositories. Any earlier direct-Repository or optional-
 UseCase wording below is historical and superseded. Payloads, Result mapping,
-validation, retry identity and UI behavior remain unchanged. See the
-[UseCase-only migration review](../usecase-only-dependencies-review.md).
+validation, retry identity and UI behavior remain unchanged. The
+[UI/Cubit/State contract](../ui-cubit-state-agent-rules-en.md) defines the current rules.
 
 
 Updated: 2026-11-01. This is the entry document for the deposit module. It describes
@@ -26,7 +26,7 @@ including its owner amendments, governs new and modified presentation code.
 | Agent settings | `deposit-representation-settings` | `/deposits/representation-settings` | [Agent settings](agent-settings.md) |
 | Block / unblock | `deposit-block`, `deposit-unblock` | `/deposits/block`, `/deposits/unblock` | [Restrictions](deposit-restriction.md) |
 | Close surplus deposits | `deposit-close-extras` | `/deposits/close-surplus-deposits` | [Surplus deposits](close-surplus-deposits.md) |
-| Proxy deposit | `deposit-proxy` | `/deposits/proxy` | [Proxy deposit](proxy-deposit.md) |
+| Deposit mandate | `deposit-proxy` | `/deposits/proxy` | [Deposit mandate](deposit-mandate.md) |
 
 Paths and typed arguments live in `core/router`; `ServiceRegistry.openCardService`
 dispatches existing IDs. Supported deposit actions forward the selected account
@@ -66,7 +66,7 @@ UI renders and executes prepared Flutter effects.
   unavailable feedback.
 - Block/unblock: operation-specific eligibility, previous blocking information,
   consent and wallet/fee requirements.
-- Proxy deposit: company/subject/account dependencies and service-provided broker
+- Deposit mandate: company/subject/account dependencies and service-provided broker
   and amount; changing a selection resets dependent data and consent.
 - Surplus closure: more than one deposit shows the primary selector; zero or one
   shows the empty result. All other accounts automatically become surplus.
@@ -112,16 +112,13 @@ legal document or bank success.
 ## Verification
 
 Run the changed flow's unit/widget tests and directly related consumers only;
-full application testing requires an explicit owner request. Phase 6 covers the
-list, restrictions, surplus closure and proxy flows; its exact commands/results
-are in [phase 6 review](phase-6-review.md). Certificates, agent introduction
-and agent settings are migrated in [phase 7 review](phase-7-review.md), with
-separate scoped verification. This migration also checks the agent
-flow's direct consumption of the renamed shared list UseCase, without beginning
-its phase-7 rewrite. Historical broad verification commands are not instructions
-to rerun all deposit/application tests.
+full application testing requires an explicit owner request. Each detailed flow
+document lists its behavior and relevant tests under `test/deposits`. Include
+shared-editor, DI, routing and service-entry regressions only when the changed
+boundary affects those consumers. Historical broad verification commands are
+not instructions to rerun all deposit/application tests.
 
 Screen tests optionally export previews with `CAPTURE_CERTIFICATE_PREVIEWS=1` to
-ignored `build/previews/`. Test counts are not frozen here; use the execution
-report. The [dashboard document](../dashboard/development.md) retains its design
-audit and accepted dashboard-specific differences.
+ignored `build/previews/`. Use current scoped test output for verification, not
+historical totals. The [dashboard document](../dashboard/development.md) retains
+its design audit and accepted dashboard-specific differences.

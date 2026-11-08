@@ -93,9 +93,8 @@ selected-deposit action context, distinct sheets, authenticated
 routing, reference geometry and 320px screens with larger text in fa/en/ar.
 Existing router, shared deposit row, dashboard and asset tests are regressions.
 
-Historical test totals are superseded by the scoped execution recorded in
-[phase 6 review](phase-6-review.md). Unit/widget tests do not claim production
-bank integration.
+Run the deposit-list tests and directly related regressions for current
+verification. Unit/widget tests do not claim production bank integration.
 
 Optional captures:
 
@@ -132,5 +131,3 @@ Independent failure, typed-effect and receipt subscriptions share
 `MultiBlocListener`; rendering uses `BlocBuilder`. Effects never inspect a retained
 message before executing. Success uses the existing receipt, without replaying
 old failure text. Retry/empty sections, actual validation and loading gates stay.
-See [phase 6 review](phase-6-review.md) for operation ownership, preserved resets,
-UseCase wiring, integration limits and current scoped checks.

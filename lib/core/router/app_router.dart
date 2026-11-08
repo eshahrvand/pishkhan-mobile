@@ -29,7 +29,7 @@ import 'package:pishkhan_mobile/features/deposits/presentation/introduce_agent/s
 import 'package:pishkhan_mobile/features/deposits/presentation/agent_settings/screens/agent_settings_screen.dart';
 import 'package:pishkhan_mobile/features/deposits/presentation/close_surplus_deposits/screens/close_surplus_deposits_screen.dart';
 import 'package:pishkhan_mobile/features/deposits/presentation/deposit_restriction/screens/deposit_restriction_screen.dart';
-import 'package:pishkhan_mobile/features/deposits/presentation/proxy_deposit/screens/proxy_deposit_screen.dart';
+import 'package:pishkhan_mobile/features/deposits/presentation/deposit_mandate/screens/deposit_mandate_screen.dart';
 import 'package:pishkhan_mobile/features/deposits/domain/entities/deposit_restriction.dart';
 import 'package:pishkhan_mobile/core/notifications/notification_message.dart';
 import 'package:pishkhan_mobile/features/profile/presentation/message_center/screens/notifications_screen.dart';
@@ -258,12 +258,12 @@ GoRouter createAppRouter({
 
       // Deposits
       GoRoute(
-        path: AppRoutes.proxyDeposit,
+        path: AppRoutes.depositMandate,
         builder: (context, state) {
-          final args = state.extra is ProxyDepositRouteArguments
-              ? state.extra as ProxyDepositRouteArguments
+          final args = state.extra is DepositMandateRouteArguments
+              ? state.extra as DepositMandateRouteArguments
               : null;
-          return ProxyDepositScreen(
+          return DepositMandateScreen(
             initialDepositNumber: args?.initialDepositNumber,
             onAssistantPressed: args?.onAssistantPressed,
           );
@@ -418,8 +418,8 @@ class AllServicesRouteArguments {
   final ValueChanged<DashboardService>? onServiceRequested;
 }
 
-class ProxyDepositRouteArguments {
-  const ProxyDepositRouteArguments({
+class DepositMandateRouteArguments {
+  const DepositMandateRouteArguments({
     this.initialDepositNumber,
     this.onAssistantPressed,
   });

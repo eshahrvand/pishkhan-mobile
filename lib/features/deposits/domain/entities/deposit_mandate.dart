@@ -2,16 +2,16 @@ import 'package:equatable/equatable.dart';
 
 import 'listed_deposit.dart';
 
-class ProxyCompany extends Equatable {
-  const ProxyCompany({required this.id, required this.name});
+class DepositMandateCompany extends Equatable {
+  const DepositMandateCompany({required this.id, required this.name});
   final String id;
   final String name;
   @override
   List<Object?> get props => [id, name];
 }
 
-class ProxySubject extends Equatable {
-  ProxySubject({
+class DepositMandateSubject extends Equatable {
+  DepositMandateSubject({
     required this.id,
     required this.companyId,
     required this.title,
@@ -36,25 +36,25 @@ class ProxySubject extends Equatable {
   ];
 }
 
-class ProxyDepositCatalog extends Equatable {
-  ProxyDepositCatalog({
-    required Iterable<ProxyCompany> companies,
-    required Iterable<ProxySubject> subjects,
+class DepositMandateCatalog extends Equatable {
+  DepositMandateCatalog({
+    required Iterable<DepositMandateCompany> companies,
+    required Iterable<DepositMandateSubject> subjects,
     required Iterable<ListedDeposit> deposits,
     required this.token,
   }) : companies = List.unmodifiable(companies),
        subjects = List.unmodifiable(subjects),
        deposits = List.unmodifiable(deposits);
-  final List<ProxyCompany> companies;
-  final List<ProxySubject> subjects;
+  final List<DepositMandateCompany> companies;
+  final List<DepositMandateSubject> subjects;
   final List<ListedDeposit> deposits;
   final String token;
   @override
   List<Object?> get props => [companies, subjects, deposits, token];
 }
 
-class ProxyDepositRequest extends Equatable {
-  const ProxyDepositRequest({
+class DepositMandateRequest extends Equatable {
+  const DepositMandateRequest({
     required this.companyId,
     required this.subjectId,
     required this.depositId,
@@ -76,8 +76,8 @@ class ProxyDepositRequest extends Equatable {
   ];
 }
 
-class ProxyDepositReceipt extends Equatable {
-  const ProxyDepositReceipt({required this.reference, required this.isMock});
+class DepositMandateReceipt extends Equatable {
+  const DepositMandateReceipt({required this.reference, required this.isMock});
   final String reference;
   final bool isMock;
   @override

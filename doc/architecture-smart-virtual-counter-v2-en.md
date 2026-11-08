@@ -2001,14 +2001,19 @@ The complete list is provided in the separate document "Bank Requirements and De
 
 ## 21. Change Log
 
-**2026-11-02 migration status:** owner-approved phases 1–9 cover all 31 current
-Cubits. The [phase-10 review](cubit-phase-10-review.md) records request ownership,
-DI/State/listener coverage, documentation corrections and actual scoped checks.
-The UI skill and main-app integration guide now summarize contract v1.23;
-the [UI/Cubit/State contract](ui-cubit-state-agent-rules-en.md) remains authoritative.
-Historical adoption notes below describe their date, not today's remaining work.
-No new architecture or coding rule is introduced. Full-application tests still
-require an explicit owner request.
+**Completed Cubit migration:** all ten owner-approved phases and the subsequent
+UseCase-only dependency correction are complete. At completion, the inventory
+covered 31 Cubits, 69 request owners and 62 consumed UseCase class types.
+The follow-up moved 23 direct Repository calls in 13 Cubits behind registered
+UseCases, preserving their request payloads, emits, retry keys and operation
+ownership. Named certificate catalogs and generic dashboard UseCases retain
+their distinct DI bindings; the stateful surplus-closure UseCase remains a
+factory owned by its flow. Current responsibilities and integration limits live
+in the individual flow documents. The
+[UI/Cubit/State contract](ui-cubit-state-agent-rules-en.md) remains authoritative.
+Completed execution reports are available in Git history; historical adoption
+notes below do not describe remaining migration work or authorize a new full
+test run. Full-application tests still require an explicit owner request.
 
 **2026-11-01 status-driven notification amendment:** each operation's terminal
 status transition triggers request feedback; failure/message may retain the

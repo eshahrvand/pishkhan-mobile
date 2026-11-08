@@ -10,20 +10,20 @@ import 'package:pishkhan_mobile/core/di/injection_container.dart';
 import 'package:pishkhan_mobile/core/flow/service_registry.dart';
 import 'package:pishkhan_mobile/core/result/failure.dart';
 import 'package:pishkhan_mobile/core/result/result.dart';
-import 'package:pishkhan_mobile/features/deposits/data/repositories/mock_proxy_deposits_repository.dart';
+import 'package:pishkhan_mobile/features/deposits/data/repositories/mock_deposit_mandate_repository.dart';
 import 'package:pishkhan_mobile/features/deposits/domain/entities/listed_deposit.dart';
-import 'package:pishkhan_mobile/features/deposits/domain/entities/proxy_deposit.dart';
-import 'package:pishkhan_mobile/features/deposits/domain/repositories/proxy_deposits_repository.dart';
-import 'package:pishkhan_mobile/features/deposits/presentation/proxy_deposit/cubit/proxy_deposit_cubit.dart';
-import 'package:pishkhan_mobile/features/deposits/presentation/proxy_deposit/screens/proxy_deposit_screen.dart';
-import 'package:pishkhan_mobile/features/deposits/presentation/proxy_deposit/widgets/proxy_deposit_form.dart';
-import 'package:pishkhan_mobile/features/deposits/presentation/proxy_deposit/widgets/proxy_deposit_receipt_dialog.dart';
-import 'package:pishkhan_mobile/features/deposits/presentation/proxy_deposit/widgets/proxy_subject_details.dart';
+import 'package:pishkhan_mobile/features/deposits/domain/entities/deposit_mandate.dart';
+import 'package:pishkhan_mobile/features/deposits/domain/repositories/deposit_mandate_repository.dart';
+import 'package:pishkhan_mobile/features/deposits/presentation/deposit_mandate/cubit/deposit_mandate_cubit.dart';
+import 'package:pishkhan_mobile/features/deposits/presentation/deposit_mandate/screens/deposit_mandate_screen.dart';
+import 'package:pishkhan_mobile/features/deposits/presentation/deposit_mandate/widgets/deposit_mandate_form.dart';
+import 'package:pishkhan_mobile/features/deposits/presentation/deposit_mandate/widgets/deposit_mandate_receipt_dialog.dart';
+import 'package:pishkhan_mobile/features/deposits/presentation/deposit_mandate/widgets/deposit_mandate_subject_details.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 
 import 'certificate_test_support.dart';
 
-Future<void> captureProxy(WidgetTester tester, String name) async {
+Future<void> captureDepositMandate(WidgetTester tester, String name) async {
   if (Platform.environment['CAPTURE_CERTIFICATE_PREVIEWS'] != '1') return;
   for (var attempt = 0; attempt < 40; attempt++) {
     if (find
@@ -41,40 +41,40 @@ Future<void> captureProxy(WidgetTester tester, String name) async {
     );
     await tester.pumpAndSettle();
   }
-  await captureCertificate(tester, 'proxy-deposit-$name');
+  await captureCertificate(tester, 'deposit-mandate-$name');
 }
 
-Finder proxySubmitButton() => find.byWidgetPredicate(
+Finder depositMandateSubmitButton() => find.byWidgetPredicate(
   (widget) => widget is AppButton && widget.label == S.current.issuanceSubmit,
 );
 
-Future<void> selectProxySubject(WidgetTester tester) async {
-  await tester.tap(find.byType(AppSelect<ProxyCompany>));
+Future<void> selectDepositMandateSubject(WidgetTester tester) async {
+  await tester.tap(find.byType(AppSelect<DepositMandateCompany>));
   await tester.pumpAndSettle();
   await tester.tap(find.text('خودرو وارداتی - سامانه اتونوین').last);
   await tester.pumpAndSettle();
-  await tester.tap(find.byType(AppSelect<ProxySubject>));
+  await tester.tap(find.byType(AppSelect<DepositMandateSubject>));
   await tester.pumpAndSettle();
   await tester.tap(find.text('خودرو وارداتی').last);
   await tester.pumpAndSettle();
 }
 
-class PendingProxyRepository extends MockProxyDepositsRepository {
+class PendingDepositMandateRepository extends MockDepositMandateRepository {
   bool failsCatalog = true;
-  final pending = Completer<Result<ProxyDepositReceipt>>();
-  final requests = <ProxyDepositRequest>[];
+  final pending = Completer<Result<DepositMandateReceipt>>();
+  final requests = <DepositMandateRequest>[];
   @override
-  Future<Result<ProxyDepositCatalog>> fetchCatalog() => failsCatalog
+  Future<Result<DepositMandateCatalog>> fetchCatalog() => failsCatalog
       ? Future.value(const Err(DataFailure('unavailable')))
       : super.fetchCatalog();
   @override
-  Future<Result<ProxyDepositReceipt>> submitProxyDeposit(
-    ProxyDepositRequest request,
+  Future<Result<DepositMandateReceipt>> submitDepositMandate(
+    DepositMandateRequest request,
   ) {
     requests.add(request);
     return requests.length == 1
         ? pending.future
-        : super.submitProxyDeposit(request);
+        : super.submitDepositMandate(request);
   }
 }
 
@@ -86,23 +86,32 @@ void main() {
   testWidgets(
     'initial and filled design keep all three fields selectable and derived details read-only',
     (tester) async {
-      await mountCertificate(tester, const ProxyDepositScreen());
-      expect(tester.getTopLeft(find.byType(AppSelect<ProxyCompany>)).dy, 104);
-      expect(tester.getTopLeft(find.byType(AppSelect<ProxySubject>)).dy, 194);
+      await mountCertificate(tester, const DepositMandateScreen());
+      expect(
+        tester.getTopLeft(find.byType(AppSelect<DepositMandateCompany>)).dy,
+        104,
+      );
+      expect(
+        tester.getTopLeft(find.byType(AppSelect<DepositMandateSubject>)).dy,
+        194,
+      );
       expect(tester.getTopLeft(find.byType(AppSelect<ListedDeposit>)).dy, 284);
-      expect(find.byType(ProxySubjectDetails), findsNothing);
-      expect(tester.widget<AppButton>(proxySubmitButton()).isActive, isFalse);
-      await captureProxy(tester, 'initial');
-      await selectProxySubject(tester);
+      expect(find.byType(DepositMandateSubjectDetails), findsNothing);
+      expect(
+        tester.widget<AppButton>(depositMandateSubmitButton()).isActive,
+        isFalse,
+      );
+      await captureDepositMandate(tester, 'initial');
+      await selectDepositMandateSubject(tester);
       await tester.tap(find.byType(AppSelect<ListedDeposit>));
       await tester.pumpAndSettle();
       await tester.tap(find.text('10.1234567.2').last);
       await tester.pumpAndSettle();
-      expect(find.byType(ProxySubjectDetails), findsOneWidget);
+      expect(find.byType(DepositMandateSubjectDetails), findsOneWidget);
       expect(
         tester
-            .widget<AppSelect<ProxySubject>>(
-              find.byType(AppSelect<ProxySubject>),
+            .widget<AppSelect<DepositMandateSubject>>(
+              find.byType(AppSelect<DepositMandateSubject>),
             )
             .enabled,
         isTrue,
@@ -117,13 +126,16 @@ void main() {
       }
       await tester.tap(find.byType(AppCheckbox));
       await tester.pumpAndSettle();
-      expect(tester.widget<AppButton>(proxySubmitButton()).isActive, isTrue);
-      await captureProxy(tester, 'filled');
-      await tester.tap(proxySubmitButton());
-      await tester.pumpAndSettle();
-      expect(find.byType(ProxyDepositReceiptDialog), findsOneWidget);
       expect(
-        find.textContaining(S.current.proxyDepositMockComplete),
+        tester.widget<AppButton>(depositMandateSubmitButton()).isActive,
+        isTrue,
+      );
+      await captureDepositMandate(tester, 'filled');
+      await tester.tap(depositMandateSubmitButton());
+      await tester.pumpAndSettle();
+      expect(find.byType(DepositMandateReceiptDialog), findsOneWidget);
+      expect(
+        find.textContaining(S.current.depositMandateMockComplete),
         findsOneWidget,
       );
       expect(tester.takeException(), isNull);
@@ -135,21 +147,21 @@ void main() {
     (tester) async {
       await mountCertificate(
         tester,
-        const ProxyDepositScreen(initialDepositNumber: '10.1234567.2'),
+        const DepositMandateScreen(initialDepositNumber: '10.1234567.2'),
       );
-      await selectProxySubject(tester);
+      await selectDepositMandateSubject(tester);
       await tester.tap(find.byType(AppCheckbox));
       await tester.pumpAndSettle();
-      await tester.tap(find.byType(AppSelect<ProxyCompany>));
+      await tester.tap(find.byType(AppSelect<DepositMandateCompany>));
       await tester.pumpAndSettle();
       await tester.tap(find.text('شرکت آزمایشی').last);
       await tester.pumpAndSettle();
-      expect(find.byType(ProxySubjectDetails), findsNothing);
+      expect(find.byType(DepositMandateSubjectDetails), findsNothing);
       expect(
         tester.widget<AppCheckbox>(find.byType(AppCheckbox)).value,
         isFalse,
       );
-      await tester.tap(find.byType(AppSelect<ProxySubject>));
+      await tester.tap(find.byType(AppSelect<DepositMandateSubject>));
       await tester.pumpAndSettle();
       expect(find.text('خودرو وارداتی'), findsNothing);
       await tester.tap(find.text('طرح آزمایشی').last);
@@ -163,19 +175,22 @@ void main() {
             .value,
         isNull,
       );
-      expect(tester.widget<AppButton>(proxySubmitButton()).isActive, isFalse);
+      expect(
+        tester.widget<AppButton>(depositMandateSubmitButton()).isActive,
+        isFalse,
+      );
     },
   );
 
   testWidgets(
     'catalog retry, loading controls, Back and submission retry preserve the original request',
     (tester) async {
-      final repository = PendingProxyRepository();
-      getIt.unregister<ProxyDepositsRepository>();
-      getIt.registerSingleton<ProxyDepositsRepository>(repository);
+      final repository = PendingDepositMandateRepository();
+      getIt.unregister<DepositMandateRepository>();
+      getIt.registerSingleton<DepositMandateRepository>(repository);
       await mountCertificate(
         tester,
-        const ProxyDepositScreen(initialDepositNumber: '10.1234567.2'),
+        const DepositMandateScreen(initialDepositNumber: '10.1234567.2'),
       );
       expect(find.text('درخواست انجام نشد. دوباره تلاش کنید.'), findsOneWidget);
       await tester.pump(const Duration(seconds: 5));
@@ -183,24 +198,27 @@ void main() {
       repository.failsCatalog = false;
       await tester.tap(find.text(S.current.dashboardRetry));
       await tester.pumpAndSettle();
-      await selectProxySubject(tester);
+      await selectDepositMandateSubject(tester);
       await tester.tap(find.byType(AppCheckbox));
       await tester.pumpAndSettle();
-      await tester.tap(proxySubmitButton());
+      await tester.tap(depositMandateSubmitButton());
       await tester.pump();
-      expect(tester.widget<AppButton>(proxySubmitButton()).isLoading, isTrue);
+      expect(
+        tester.widget<AppButton>(depositMandateSubmitButton()).isLoading,
+        isTrue,
+      );
       expect(
         tester
-            .widget<AppSelect<ProxyCompany>>(
-              find.byType(AppSelect<ProxyCompany>),
+            .widget<AppSelect<DepositMandateCompany>>(
+              find.byType(AppSelect<DepositMandateCompany>),
             )
             .enabled,
         isFalse,
       );
       expect(
         tester
-            .widget<AppSelect<ProxySubject>>(
-              find.byType(AppSelect<ProxySubject>),
+            .widget<AppSelect<DepositMandateSubject>>(
+              find.byType(AppSelect<DepositMandateSubject>),
             )
             .enabled,
         isFalse,
@@ -213,7 +231,7 @@ void main() {
             .enabled,
         isFalse,
       );
-      await tester.tap(proxySubmitButton());
+      await tester.tap(depositMandateSubmitButton());
       await tester.pump();
       expect(repository.requests.length, 1);
       await tester.tap(find.byTooltip(S.current.backLabel));
@@ -226,10 +244,10 @@ void main() {
       expect(find.text('درخواست انجام نشد. دوباره تلاش کنید.'), findsOneWidget);
       await tester.pump(const Duration(seconds: 5));
       await tester.pumpAndSettle();
-      await tester.tap(proxySubmitButton());
+      await tester.tap(depositMandateSubmitButton());
       await tester.pumpAndSettle();
       expect(repository.requests.first, repository.requests.last);
-      expect(find.byType(ProxyDepositReceiptDialog), findsOneWidget);
+      expect(find.byType(DepositMandateReceiptDialog), findsOneWidget);
     },
   );
 
@@ -251,10 +269,10 @@ void main() {
       );
       await tester.tap(find.text('open'));
       await tester.pumpAndSettle();
-      expect(find.byType(ProxyDepositScreen), findsOneWidget);
+      expect(find.byType(DepositMandateScreen), findsOneWidget);
       final cubit = tester
-          .element(find.byType(ProxyDepositForm))
-          .read<ProxyDepositCubit>();
+          .element(find.byType(DepositMandateForm))
+          .read<DepositMandateCubit>();
       expect(cubit.state.deposit!.id, 'proxy-2');
     },
   );
@@ -265,14 +283,14 @@ void main() {
       (tester) async {
         await mountCertificate(
           tester,
-          const ProxyDepositScreen(initialDepositNumber: '10.1234567.2'),
+          const DepositMandateScreen(initialDepositNumber: '10.1234567.2'),
           size: const Size(320, 640),
           scale: 1.5,
           locale: locale,
         );
         final cubit = tester
-            .element(find.byType(ProxyDepositForm))
-            .read<ProxyDepositCubit>();
+            .element(find.byType(DepositMandateForm))
+            .read<DepositMandateCubit>();
         cubit.selectSubject(cubit.state.subjects.first);
         await tester.pumpAndSettle();
         await tester.drag(
@@ -280,9 +298,9 @@ void main() {
           const Offset(0, -500),
         );
         await tester.pumpAndSettle();
-        expect(find.byType(ProxySubjectDetails), findsOneWidget);
+        expect(find.byType(DepositMandateSubjectDetails), findsOneWidget);
         expect(
-          tester.getBottomRight(proxySubmitButton()).dy,
+          tester.getBottomRight(depositMandateSubmitButton()).dy,
           lessThanOrEqualTo(600),
         );
         expect(tester.takeException(), isNull);

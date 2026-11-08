@@ -86,5 +86,3 @@ Independent failure, typed-effect and receipt subscriptions share
 `MultiBlocListener`; rendering uses `BlocBuilder`. Effects never inspect a retained
 message before executing. Success uses the existing receipt, without replaying
 old failure text. Retry/empty sections, actual validation and loading gates stay.
-See [phase 6 review](phase-6-review.md) for operation ownership, preserved resets,
-UseCase wiring, integration limits and current scoped checks.

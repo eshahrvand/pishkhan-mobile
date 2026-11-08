@@ -114,8 +114,8 @@ abstract final class ServiceRegistry {
     }
     if (id == 'deposit-proxy') {
       context.push<void>(
-        AppRoutes.proxyDeposit,
-        extra: ProxyDepositRouteArguments(
+        AppRoutes.depositMandate,
+        extra: DepositMandateRouteArguments(
           initialDepositNumber: initialDepositNumber,
           onAssistantPressed: onAssistantPressed,
         ),
