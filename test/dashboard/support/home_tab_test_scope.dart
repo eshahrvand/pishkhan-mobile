@@ -1,3 +1,4 @@
+import 'package:avp_ui/avp_ui.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 
 import 'dart:async';
@@ -211,8 +212,11 @@ class _HomeTabTestScopeState extends State<HomeTabTestScope> {
   }
 
   void _showRequestFailure(BuildContext context, HomeState state) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   void _handleEffect(BuildContext context, HomeState state) {

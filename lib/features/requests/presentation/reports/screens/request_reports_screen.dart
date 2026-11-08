@@ -23,8 +23,11 @@ class RequestReportsScreen extends StatelessWidget {
   final VoidCallback? onAssistantPressed;
 
   void _showRequestFailure(BuildContext context, RequestReportsState state) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   Future<void> _handleEffect(

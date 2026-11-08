@@ -13,8 +13,11 @@ import '../../shared/wallet_platform_effects.dart';
 class WalletTransferScreen extends StatelessWidget {
   const WalletTransferScreen({super.key});
   void _showFailure(BuildContext context, WalletTransferState state) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   Future<void> _share(BuildContext context, WalletTransferState state) async {

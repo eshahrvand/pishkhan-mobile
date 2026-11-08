@@ -1,3 +1,5 @@
+import '../../../../../support/snackbar_test_support.dart';
+
 import 'package:pishkhan_mobile/features/auth/presentation/login/widgets/auth_services_sheet.dart';
 import 'package:pishkhan_mobile/core/config/constant.dart';
 
@@ -374,13 +376,16 @@ void main() {
       final repository = getIt<AuthRepository>() as FakeAuthRepository;
       repository.captchaFailure = const DataFailure('network.connection');
       final cubit = await mount(tester, keyboard: false);
-      expect(find.byType(SnackBar), findsOneWidget);
+      expect(find.byType(AvpSnackBar), findsOneWidget);
+      expect(
+        tester.widget<AvpSnackBar>(find.byType(AvpSnackBar)).type,
+        AvpSnackBarType.error,
+      );
       expect(
         find.text('ارتباط با سرور برقرار نشد. دوباره تلاش کنید.'),
         findsOneWidget,
       );
-      ScaffoldMessenger.of(tester.element(find.byType(Scaffold)))
-          .removeCurrentSnackBar();
+      await dismissAvpSnackBar(tester);
       await tester.pumpAndSettle();
 
       repository.captchaFailure = null;
@@ -397,7 +402,7 @@ void main() {
         'ارتباط با سرور برقرار نشد. دوباره تلاش کنید.',
       );
       expect(cubit.state.captchaImage, isNotNull);
-      expect(find.byType(SnackBar), findsNothing);
+      expect(find.byType(AvpSnackBar), findsNothing);
       await tester.pumpWidget(const SizedBox.shrink());
     },
   );
@@ -459,8 +464,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text(S.current.authOtpRejected), findsOneWidget);
       expect(completed, 0);
-      ScaffoldMessenger.of(tester.element(find.byType(Scaffold)))
-          .clearSnackBars();
+      await dismissAvpSnackBar(tester);
       await tester.pumpAndSettle();
       repository.loginResponse = null;
       await tester.tap(authControl(tester, 'submit_otp_button'));
@@ -470,7 +474,7 @@ void main() {
         cubit.state.message,
         'رمز تأیید صحیح نیست یا اعتبار آن تمام شده است.',
       );
-      expect(find.byType(SnackBar), findsNothing);
+      expect(find.byType(AvpSnackBar), findsNothing);
       await tester.pumpWidget(const SizedBox.shrink());
     },
   );
@@ -485,7 +489,7 @@ void main() {
     expect(repository.otpCalls, 0);
     expect(cubit.state.message, isNull);
     expect(cubit.state.effect, isNull);
-    expect(find.byType(SnackBar), findsNothing);
+    expect(find.byType(AvpSnackBar), findsNothing);
     expect(find.text(S.current.authChangePhoneUnavailable), findsOneWidget);
     await tester.pumpWidget(const SizedBox.shrink());
   });
@@ -498,9 +502,8 @@ void main() {
       repository.captchaFailure = const DataFailure('network.connection');
       await cubit.fetchCaptcha();
       await tester.pumpAndSettle();
-      expect(find.byType(SnackBar), findsOneWidget);
-      ScaffoldMessenger.of(tester.element(find.byType(Scaffold)))
-          .clearSnackBars();
+      expect(find.byType(AvpSnackBar), findsOneWidget);
+      await dismissAvpSnackBar(tester);
       await tester.pumpAndSettle();
 
       repository.captchaFailure = null;
@@ -515,13 +518,13 @@ void main() {
       await tester.pumpAndSettle();
       expect(repository.otpCalls, 0);
       expect(cubit.state.message, isNull);
-      expect(find.byType(SnackBar), findsNothing);
+      expect(find.byType(AvpSnackBar), findsNothing);
       expect(find.text(S.current.authChangePhoneUnavailable), findsOneWidget);
 
       await cubit.fetchCaptcha();
       await tester.pumpAndSettle();
       expect(find.text(S.current.authChangePhoneUnavailable), findsNothing);
-      expect(find.byType(SnackBar), findsNothing);
+      expect(find.byType(AvpSnackBar), findsNothing);
       await tester.pumpWidget(const SizedBox.shrink());
     },
   );
@@ -535,38 +538,36 @@ void main() {
 
       await tester.tap(authControl(tester, 'request_otp_button'));
       await tester.pumpAndSettle();
-      expect(find.byType(SnackBar), findsOneWidget);
+      expect(find.byType(AvpSnackBar), findsOneWidget);
       expect(find.text('کد امنیتی اشتباه است.'), findsOneWidget);
 
-      ScaffoldMessenger.of(tester.element(find.byType(Scaffold)))
-          .removeCurrentSnackBar();
+      await dismissAvpSnackBar(tester);
       await tester.pumpAndSettle();
       await tester.tap(authControl(tester, 'auth_menu_button'));
       await tester.pumpAndSettle();
       expect(find.byType(AuthServicesSheet), findsOneWidget);
       expect(cubit.state.message, 'کد امنیتی اشتباه است.');
-      expect(find.byType(SnackBar), findsNothing);
+      expect(find.byType(AvpSnackBar), findsNothing);
       await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
       expect(find.byType(AuthServicesSheet), findsNothing);
 
       cubit.updateCaptcha('654321');
       await tester.pumpAndSettle();
-      expect(find.byType(SnackBar), findsNothing);
+      expect(find.byType(AvpSnackBar), findsNothing);
 
       await tester.tap(authControl(tester, 'request_otp_button'));
       await tester.pumpAndSettle();
-      expect(find.byType(SnackBar), findsOneWidget);
+      expect(find.byType(AvpSnackBar), findsOneWidget);
       expect(find.text('کد امنیتی اشتباه است.'), findsOneWidget);
 
-      ScaffoldMessenger.of(tester.element(find.byType(Scaffold)))
-          .removeCurrentSnackBar();
+      await dismissAvpSnackBar(tester);
       repository.otpFailure = null;
       await tester.tap(authControl(tester, 'request_otp_button'));
       await tester.pumpAndSettle();
       expect(cubit.state.step, AuthStep.loginOtp);
       await tester.pump(const Duration(seconds: 2));
-      expect(find.byType(SnackBar), findsNothing);
+      expect(find.byType(AvpSnackBar), findsNothing);
       await tester.pumpWidget(const SizedBox.shrink());
     },
   );

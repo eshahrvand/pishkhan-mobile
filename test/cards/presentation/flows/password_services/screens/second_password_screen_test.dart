@@ -1,3 +1,5 @@
+import '../../../../../support/snackbar_test_support.dart';
+
 import 'package:pishkhan_mobile/core/result/failure.dart';
 import 'package:pishkhan_mobile/core/presentation/mappers/request_error_message_mapper.dart';
 
@@ -818,9 +820,7 @@ void main() {
       cubit.selectOperationType(PasswordOperation.changePassword);
       final message = getRequestErrorMessage(failure);
       Future<void> dismissMessage() async {
-        t
-            .state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger))
-            .clearSnackBars();
+        await dismissAvpSnackBar(t);
         await t.pumpAndSettle();
       }
 

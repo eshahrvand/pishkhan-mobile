@@ -13,13 +13,19 @@ import '../../shared/wallet_scaffold.dart';
 class WalletLinkedDepositScreen extends StatelessWidget {
   const WalletLinkedDepositScreen({super.key});
   void _showFailure(BuildContext context, WalletLinkedDepositState state) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   void _complete(BuildContext context, WalletLinkedDepositState state) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(S.current.walletDepositChanged)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.success,
+      message: S.current.walletDepositChanged,
+    );
     NavigationActions.back(context);
   }
 

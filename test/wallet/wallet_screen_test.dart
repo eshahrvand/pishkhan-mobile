@@ -1,3 +1,7 @@
+import 'package:pishkhan_mobile/core/enums/request_status.dart';
+
+import '../support/snackbar_test_support.dart';
+
 import 'package:pishkhan_mobile/features/wallet/presentation/withdraw/cubit/withdraw_cubit.dart';
 import 'package:pishkhan_mobile/features/wallet/presentation/withdraw/widgets/withdraw_form.dart';
 import 'package:pishkhan_mobile/features/wallet/presentation/transfer/cubit/transfer_cubit.dart';
@@ -113,6 +117,46 @@ void main() {
       expect(shares.length, 2);
       expect(shares.first, contains(cubit.state.receipt!.trackingId));
       expect(tester.takeException(), isNull);
+    },
+  );
+  testWidgets(
+    'linked-deposit success remains visible after returning to the entry route',
+    (tester) async {
+      await mountWallet(
+        tester,
+        Builder(
+          builder: (context) => AppButton(
+            label: 'open',
+            onPressed: () =>
+                ServiceRegistry.openCardService(context, 'wallet-deposit'),
+          ),
+        ),
+      );
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+      final cubit = tester
+          .element(find.byType(WalletLinkedDepositForm))
+          .read<WalletLinkedDepositCubit>();
+      cubit.selectDeposit(cubit.state.destinations.first);
+      cubit.updateTermsAcceptance(true);
+      await tester.pumpAndSettle();
+      expect(cubit.state.canSubmit, isTrue);
+      expect(
+        tester
+            .widget<AppButton>(button(S.current.walletConfirmPayment))
+            .isActive,
+        isTrue,
+      );
+      await tester.tap(button(S.current.walletConfirmPayment));
+      await tester.pumpAndSettle();
+      expect(cubit.state.submissionStatus, RequestStatus.success);
+      expect(find.byType(WalletLinkedDepositScreen), findsNothing);
+      expect(find.text(S.current.walletDepositChanged), findsOneWidget);
+      expect(
+        tester.widget<AvpSnackBar>(find.byType(AvpSnackBar)).type,
+        AvpSnackBarType.success,
+      );
+      await dismissAvpSnackBar(tester);
     },
   );
   testWidgets('pending payment disables editing, OTP and both back paths', (

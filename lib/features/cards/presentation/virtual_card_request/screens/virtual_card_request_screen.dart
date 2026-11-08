@@ -39,8 +39,11 @@ class _VirtualCardRequestScreenState extends State<VirtualCardRequestScreen> {
   }
 
   void _showRequestFailure(BuildContext context, VirtualCardState state) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   Future<void> _handleNavigation(

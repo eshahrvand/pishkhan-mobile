@@ -24,8 +24,11 @@ class JobInformationScreen extends StatelessWidget {
   const JobInformationScreen({super.key, this.onAssistantPressed});
   final VoidCallback? onAssistantPressed;
   void _showRequestFailure(BuildContext context, JobInformationState state) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   Future<void> _handleEffect(
@@ -98,8 +101,10 @@ class JobInformationScreen extends StatelessWidget {
         onAssistantPressed?.call();
       case JobInformationEffect.terms:
         context.read<JobInformationCubit>().consumeJobInformationInteraction();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(S.current.issuanceTermsUnavailable)),
+        avpSnackBar(
+          context: context,
+          type: AvpSnackBarType.error,
+          message: S.current.issuanceTermsUnavailable,
         );
       case null:
         break;

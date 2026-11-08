@@ -24,7 +24,7 @@ Show the current linked deposit → choose another eligible deposit → read and
 
 Existing `CertificateInput`, typed `CertificateSelect<WalletDeposit>`, `AppCheckbox`, shared modal launcher and header are reused. Terms open on the root navigator with reachable scrollable content. The CTA label follows the supplied design; the mock does not invent a fee or charge for changing a link. No payment receipt was supplied for this flow, so successful change returns to its entry rather than fabricating another receipt design.
 
-The submit key survives failure/retry and changes when the selected deposit changes. During submission the selection, acceptance, terms and Back actions are gated. Returning to wallet overview triggers its catalog refresh so the newly linked deposit appears immediately.
+The submit key survives failure/retry and changes when the selected deposit changes. During submission the selection, acceptance, terms and Back actions are gated. Returning to wallet overview triggers its catalog refresh so the newly linked deposit appears immediately. The success notification uses the root-overlay `avpSnackBar` and remains visible after returning.
 
 Eligible deposits and terms are demo data. The text is derived from the supplied design and explicitly marked as a sample; current bank-approved legal copy, eligibility, fee and authorization must be supplied by the real service. Other deposit features are not mutated by this mock.
 

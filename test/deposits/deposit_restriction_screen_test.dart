@@ -1,3 +1,5 @@
+import '../support/snackbar_test_support.dart';
+
 import 'dart:async';
 import 'dart:io';
 
@@ -161,9 +163,7 @@ void main() {
         ),
       );
       expect(find.text('درخواست انجام نشد. دوباره تلاش کنید.'), findsOneWidget);
-      tester
-          .state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger))
-          .clearSnackBars();
+      await dismissAvpSnackBar(tester);
       await tester.pumpAndSettle();
       repository.failsCatalog = false;
       await tester.tap(find.text(S.current.dashboardRetry));
@@ -204,9 +204,7 @@ void main() {
       repository.submission.complete(const Err(DataFailure('timeout')));
       await tester.pumpAndSettle();
       expect(find.text('درخواست انجام نشد. دوباره تلاش کنید.'), findsOneWidget);
-      tester
-          .state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger))
-          .clearSnackBars();
+      await dismissAvpSnackBar(tester);
       await tester.pumpAndSettle();
       await tester.tap(submitRestrictionButton());
       await tester.pumpAndSettle();

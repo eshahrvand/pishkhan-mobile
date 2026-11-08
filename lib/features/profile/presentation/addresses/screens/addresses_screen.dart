@@ -23,8 +23,11 @@ class AddressesScreen extends StatelessWidget {
   const AddressesScreen({super.key, this.onAssistantPressed});
   final VoidCallback? onAssistantPressed;
   void _showRequestFailure(BuildContext context, AddressesState state) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   Future<void> _handleEffect(BuildContext context, AddressesState state) async {

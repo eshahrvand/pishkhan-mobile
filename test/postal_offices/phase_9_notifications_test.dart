@@ -74,12 +74,12 @@ void main() {
       final cubit = tester
           .element(find.byType(PostalOfficesSheet))
           .read<PostalOfficesCubit>();
-      expect(find.byType(SnackBar), findsOneWidget);
+      expect(find.byType(AvpSnackBar), findsOneWidget);
       await tester.pump(const Duration(seconds: 5));
       await tester.pumpAndSettle();
       await cubit.fetchProvinces();
       await tester.pumpAndSettle();
-      expect(find.byType(SnackBar), findsOneWidget);
+      expect(find.byType(AvpSnackBar), findsOneWidget);
       await tester.pump(const Duration(seconds: 5));
       await tester.pumpAndSettle();
       repository.failProvinces = false;
@@ -90,7 +90,7 @@ void main() {
       for (var attempt = 0; attempt < 2; attempt++) {
         await cubit.searchPostalOffices();
         await tester.pumpAndSettle();
-        expect(find.byType(SnackBar), findsOneWidget);
+        expect(find.byType(AvpSnackBar), findsOneWidget);
         await tester.pump(const Duration(seconds: 5));
         await tester.pumpAndSettle();
       }
@@ -107,7 +107,7 @@ void main() {
       expect(shares, hasLength(2));
       expect(shares.toSet(), {cubit.state.postalShareText});
       expect(shares.first, contains(cubit.state.postalOffices.first.address));
-      expect(find.byType(SnackBar), findsNothing);
+      expect(find.byType(AvpSnackBar), findsNothing);
       expect(tester.takeException(), isNull);
     },
   );

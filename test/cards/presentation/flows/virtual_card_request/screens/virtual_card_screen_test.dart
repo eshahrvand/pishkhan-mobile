@@ -1,3 +1,5 @@
+import '../../../../../support/snackbar_test_support.dart';
+
 import 'package:pishkhan_mobile/core/presentation/mappers/request_error_message_mapper.dart';
 
 import 'dart:async';
@@ -260,9 +262,7 @@ void main() {
       await t.pumpAndSettle();
       await t.tap(retry);
       await t.pumpAndSettle();
-      t
-          .state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger))
-          .clearSnackBars();
+      await dismissAvpSnackBar(t);
       await t.pump(const Duration(seconds: 5));
       await t.pumpAndSettle();
       expect(cubit(t).state.quote, isNotNull);
@@ -273,9 +273,7 @@ void main() {
       await t.tap(cardControl(t, 'virtual_submit'));
       await t.pumpAndSettle();
       final lastError = cubit(t).state.message;
-      t
-          .state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger))
-          .clearSnackBars();
+      await dismissAvpSnackBar(t);
       await t.pumpAndSettle();
       repository.submitting = Completer<Result<VirtualCardReceipt>>();
       await t.ensureVisible(retry);
@@ -429,9 +427,7 @@ void main() {
       await fill(t);
       final message = getRequestErrorMessage(failure);
       expect(find.text(message), findsOneWidget);
-      t
-          .state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger))
-          .clearSnackBars();
+      await dismissAvpSnackBar(t);
       await t.pumpAndSettle();
       final retry = find.byWidgetPredicate(
         (widget) =>
@@ -442,9 +438,7 @@ void main() {
       await t.tap(retry);
       await t.pumpAndSettle();
       expect(find.text(message), findsOneWidget);
-      t
-          .state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger))
-          .clearSnackBars();
+      await dismissAvpSnackBar(t);
       await t.pumpAndSettle();
 
       await t.tap(find.byTooltip(S.current.backLabel));

@@ -18,8 +18,11 @@ class ChangePhoneScreen extends StatelessWidget {
   const ChangePhoneScreen({super.key, this.onAssistantPressed});
   final VoidCallback? onAssistantPressed;
   void _showRequestFailure(BuildContext context, ChangePhoneState state) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   Future<void> _handleEffect(
@@ -45,8 +48,10 @@ class ChangePhoneScreen extends StatelessWidget {
         onAssistantPressed?.call();
       case ChangePhoneEffect.terms:
         context.read<ChangePhoneCubit>().consumeChangePhoneInteraction();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(S.current.issuanceTermsUnavailable)),
+        avpSnackBar(
+          context: context,
+          type: AvpSnackBarType.error,
+          message: S.current.issuanceTermsUnavailable,
         );
       case ChangePhoneEffect.submitted:
         context.read<ChangePhoneCubit>().consumeChangePhoneInteraction();

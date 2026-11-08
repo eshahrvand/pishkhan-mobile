@@ -32,8 +32,11 @@ class AverageBalanceScreen extends StatelessWidget {
   final AverageBalanceState initialState;
   final ValueChanged<CertificateReceipt>? onCompleted;
   void _showRequestFailure(BuildContext context, AverageBalanceState state) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   Future<void> _handleEffect(
@@ -70,8 +73,10 @@ class AverageBalanceScreen extends StatelessWidget {
         );
       case CertificateAgentUnavailable():
         context.read<AverageBalanceCubit>().consumeAverageBalanceInteraction();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(S.current.certificateAgentUnavailable)),
+        avpSnackBar(
+          context: context,
+          type: AvpSnackBarType.error,
+          message: S.current.certificateAgentUnavailable,
         );
       case null:
         switch (state.navigation) {

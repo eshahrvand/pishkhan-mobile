@@ -30,8 +30,11 @@ class CloseSurplusDepositsScreen extends StatelessWidget {
     BuildContext context,
     CloseSurplusDepositsState state,
   ) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   Future<void> _handleEffect(
@@ -65,8 +68,10 @@ class CloseSurplusDepositsScreen extends StatelessWidget {
         context
             .read<CloseSurplusDepositsCubit>()
             .consumeCloseSurplusDepositsInteraction();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(S.current.issuanceTermsUnavailable)),
+        avpSnackBar(
+          context: context,
+          type: AvpSnackBarType.error,
+          message: S.current.issuanceTermsUnavailable,
         );
       case null:
         break;

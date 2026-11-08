@@ -31,8 +31,11 @@ class ChequeCancellationScreen extends StatelessWidget {
     BuildContext context,
     ChequeCancellationState state,
   ) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   Future<void> _handleEffect(
@@ -69,8 +72,10 @@ class ChequeCancellationScreen extends StatelessWidget {
         context
             .read<ChequeCancellationCubit>()
             .consumeChequeCancellationInteraction();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(S.current.chequeContentUnavailable)),
+        avpSnackBar(
+          context: context,
+          type: AvpSnackBarType.error,
+          message: S.current.chequeContentUnavailable,
         );
       case ChequeCancellationEffect.receipt:
         context

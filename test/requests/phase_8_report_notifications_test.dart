@@ -1,3 +1,4 @@
+import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -41,7 +42,7 @@ void main() {
       for (var attempt = 0; attempt < 2; attempt++) {
         await tester.tap(find.text(S.current.reportConfirmCancel));
         await tester.pumpAndSettle();
-        expect(find.byType(SnackBar), findsOneWidget);
+        expect(find.byType(AvpSnackBar), findsOneWidget);
         await tester.pump(const Duration(seconds: 5));
         await tester.pumpAndSettle();
       }
@@ -50,7 +51,7 @@ void main() {
       cubit.requestTypeFilter();
       await tester.pumpAndSettle();
       expect(find.byType(ReportTypeFilterSheet), findsOneWidget);
-      expect(find.byType(SnackBar), findsNothing);
+      expect(find.byType(AvpSnackBar), findsNothing);
       Navigator.of(tester.element(find.byType(ReportTypeFilterSheet))).pop();
       await tester.pumpAndSettle();
       cubit.requestDetails(report);
@@ -65,7 +66,7 @@ void main() {
       expect(cubit.state.failure, isNotNull);
       expect(repository.cancelKeys.toSet(), hasLength(1));
       expect(find.byType(ReportCancellationSheet), findsNothing);
-      expect(find.byType(SnackBar), findsNothing);
+      expect(find.byType(AvpSnackBar), findsNothing);
       expect(tester.takeException(), isNull);
     },
   );

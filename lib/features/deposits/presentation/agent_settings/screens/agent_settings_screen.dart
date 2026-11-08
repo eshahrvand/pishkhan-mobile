@@ -29,8 +29,11 @@ class AgentSettingsScreen extends StatelessWidget {
   final VoidCallback? onAssistantPressed;
 
   void _showRequestFailure(BuildContext context, AgentSettingsState state) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   Future<void> _handleEffect(
@@ -70,8 +73,10 @@ class AgentSettingsScreen extends StatelessWidget {
         );
       case AgentUnavailableRequested():
         context.read<AgentSettingsCubit>().consumeAgentSettingsInteraction();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(S.current.cardFeatureUnavailable)),
+        avpSnackBar(
+          context: context,
+          type: AvpSnackBarType.error,
+          message: S.current.cardFeatureUnavailable,
         );
       case AgentBackRequested():
         WidgetsBinding.instance.addPostFrameCallback((_) {

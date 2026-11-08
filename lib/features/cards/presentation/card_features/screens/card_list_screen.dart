@@ -32,8 +32,11 @@ class CardListScreen extends StatelessWidget {
   final VoidCallback? onAssistantPressed;
 
   void _showRequestFailure(BuildContext context, CardFeaturesState state) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   Future<void> _handleEffect(
@@ -71,8 +74,10 @@ class CardListScreen extends StatelessWidget {
             onAssistantPressed: onAssistantPressed,
           );
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(S.current.cardFeatureUnavailable)),
+          avpSnackBar(
+            context: context,
+            type: AvpSnackBarType.error,
+            message: S.current.cardFeatureUnavailable,
           );
         }
       case CardCategoryRevealRequested():

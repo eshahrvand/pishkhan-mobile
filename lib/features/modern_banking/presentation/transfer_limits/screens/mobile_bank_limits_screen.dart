@@ -21,8 +21,11 @@ import '../widgets/mobile_bank_limits_form.dart';
 class MobileBankLimitsScreen extends StatelessWidget {
   const MobileBankLimitsScreen({super.key});
   void _showRequestFailure(BuildContext context, TransferLimitsState state) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   Future<void> _handleNavigation(

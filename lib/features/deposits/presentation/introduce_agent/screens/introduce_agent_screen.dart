@@ -22,8 +22,11 @@ class IntroduceAgentScreen extends StatelessWidget {
   final String? initialDepositNumber;
 
   void _showRequestFailure(BuildContext context, AgentState state) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   Future<void> _handleEffect(BuildContext context, AgentState state) async {

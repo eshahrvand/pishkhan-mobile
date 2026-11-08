@@ -2559,12 +2559,16 @@ BlocListener<AuthCubit, AuthState>(
 void _showLoginResult(BuildContext context, AuthState state) {
   switch (state.loginStatus) {
     case RequestStatus.failure:
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(state.message!)),
+      avpSnackBar(
+        context: context,
+        type: AvpSnackBarType.error,
+        message: state.message!,
       );
     case RequestStatus.success:
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(successMessage)),
+      avpSnackBar(
+        context: context,
+        type: AvpSnackBarType.success,
+        message: successMessage,
       );
     default:
       break;
@@ -4036,7 +4040,9 @@ Before building a component:
 
 Layout widgets such as Row/Column/Padding/SafeArea and Text are used in screen composition. Raw controls such as TextField, Checkbox and ElevatedButton are not used when `avp_ui` provides an equivalent. This distinction prevents agents from inventing nonexistent components from another project for every Text.
 
-Check existing package APIs for dialogs and feedback first as well. `ScaffoldMessenger` examples show the location of side effects. If an approved public feedback API exists in the package, use it.
+The approved snackbar API is `avpSnackBar` from `avp_ui`. The application currently uses only `AvpSnackBarType.success` and `AvpSnackBarType.error`; request failures and unavailable-service feedback use `error`. Preserve the per-operation notification transitions and prepared messages when calling it.
+
+Check existing package APIs for dialogs and feedback first as well. Feedback examples show the location of UI side effects; use the approved public package API.
 
 ### 21.3 Typography and Colors
 

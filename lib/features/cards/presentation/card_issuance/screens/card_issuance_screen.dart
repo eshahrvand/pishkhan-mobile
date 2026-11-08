@@ -46,8 +46,11 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
   }
 
   void _showRequestFailure(BuildContext context, CardIssuanceState state) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   Future<void> _handleNavigation(
@@ -83,8 +86,10 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
         if (widget.onTermsRequested != null) {
           widget.onTermsRequested!();
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(S.current.issuanceTermsUnavailable)),
+          avpSnackBar(
+            context: context,
+            type: AvpSnackBarType.error,
+            message: S.current.issuanceTermsUnavailable,
           );
         }
       case IssuanceAddressRequested():

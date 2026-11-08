@@ -68,8 +68,11 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
   }
 
   void _showRequestFailure(BuildContext context, SecondPasswordState state) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   Future<void> _handleEffect(
@@ -79,9 +82,11 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
     switch (state.effect) {
       case PasswordUnsupportedRequested():
         context.read<SecondPasswordCubit>().consumeSecondPasswordInteraction();
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(S.current.passwordUnsupported)));
+        avpSnackBar(
+          context: context,
+          type: AvpSnackBarType.error,
+          message: S.current.passwordUnsupported,
+        );
       case PasswordExitRequested():
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (context.mounted) NavigationActions.back(context);

@@ -1,3 +1,4 @@
+import 'package:avp_ui/avp_ui.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:flutter/material.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
@@ -39,15 +40,20 @@ class DashboardScreen extends StatelessWidget {
       onAssistantPressed: home.requestAssistant,
     );
     if (!opened) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(S.current.cardFeatureUnavailable)));
+      avpSnackBar(
+        context: context,
+        type: AvpSnackBarType.error,
+        message: S.current.cardFeatureUnavailable,
+      );
     }
   }
 
   void _showRequestFailure(BuildContext context, HomeState state) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   Future<void> _handleHomeEffect(BuildContext context, HomeState state) async {
@@ -125,8 +131,10 @@ class DashboardScreen extends StatelessWidget {
       case HomeCardMoreRequested():
       case HomeLoanDetailsRequested():
         context.read<HomeCubit>().consumeHomeInteraction();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(S.current.cardFeatureUnavailable)),
+        avpSnackBar(
+          context: context,
+          type: AvpSnackBarType.error,
+          message: S.current.cardFeatureUnavailable,
         );
       case HomeTabRequested():
       case HomeAssistantRequested():

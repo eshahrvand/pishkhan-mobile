@@ -510,3 +510,28 @@ and eligibility. Independent screen feedback and typed effects share
 MultiBlocListener with rendering in BlocBuilder. Local carousels keep their
 controller synchronization. Supply adapters through core/di before resolution;
 there is no Screen repository prop or reload-on-replacement lifecycle hook.
+
+
+## Snackbar feedback
+
+Use the public `avp_ui` feedback API at the existing UI listener/effect boundary:
+
+```dart
+avpSnackBar(
+  context: context,
+  type: AvpSnackBarType.error,
+  message: state.message!,
+);
+```
+
+The application currently uses **success** and **error** only. Use success for an
+existing confirmed success/copy message; request failures and unavailable-service
+messages use error. Do not infer the type by inspecting translated text or add
+success notifications where the flow did not previously have one.
+
+Feedback is delivered through the root overlay, replacing an earlier top
+notification rather than queuing Scaffold snackbars. It auto-dismisses after the
+package's display interval and supports Close/swipe. Request-status transitions,
+prepared messages, command consumption, async mounted checks and retained-failure
+semantics remain unchanged. Tests use `AvpSnackBar` and the shared test-only close
+helper rather than `ScaffoldMessenger.clearSnackBars()`.

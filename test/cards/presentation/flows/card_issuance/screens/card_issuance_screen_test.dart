@@ -1,3 +1,5 @@
+import '../../../../../support/snackbar_test_support.dart';
+
 import 'package:pishkhan_mobile/core/presentation/mappers/request_error_message_mapper.dart';
 
 import 'dart:async';
@@ -572,9 +574,7 @@ void main() {
       cubit.updateTermsAcceptance(true);
       final message = getRequestErrorMessage(failure);
       Future<void> dismissMessage() async {
-        tester
-            .state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger))
-            .clearSnackBars();
+        await dismissAvpSnackBar(tester);
         await tester.pumpAndSettle();
       }
 

@@ -42,8 +42,11 @@ class _OnSiteTransferScreenState extends State<OnSiteTransferScreen> {
   }
 
   void _showRequestFailure(BuildContext context, OnSiteTransferState state) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   Future<void> _handleEffect(
@@ -137,8 +140,10 @@ class _OnSiteTransferScreenState extends State<OnSiteTransferScreen> {
         widget.onAssistantPressed?.call();
       case OnSiteTransferEffect.unavailable:
         context.read<OnSiteTransferCubit>().consumeOnSiteTransferInteraction();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(S.current.cardFeatureUnavailable)),
+        avpSnackBar(
+          context: context,
+          type: AvpSnackBarType.error,
+          message: S.current.cardFeatureUnavailable,
         );
       case OnSiteTransferEffect.receipt:
         context.read<OnSiteTransferCubit>().consumeOnSiteTransferInteraction();

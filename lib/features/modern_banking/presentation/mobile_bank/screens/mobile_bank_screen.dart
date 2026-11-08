@@ -26,8 +26,11 @@ class MobileBankScreen extends StatelessWidget {
   final MobileBankOperation operation;
 
   void _showRequestFailure(BuildContext context, MobileBankState state) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   Future<void> _handleEffect(

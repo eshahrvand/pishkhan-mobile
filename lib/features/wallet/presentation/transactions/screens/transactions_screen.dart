@@ -13,8 +13,11 @@ import '../../shared/wallet_scaffold.dart';
 class WalletTransactionsScreen extends StatelessWidget {
   const WalletTransactionsScreen({super.key});
   void _showFailure(BuildContext context, WalletTransactionsState state) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   Future<void> _openFilter(

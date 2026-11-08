@@ -75,7 +75,7 @@ class RetryingDepositMandateRepository extends MockDepositMandateRepository {
 Future<void> dismissFeedback(WidgetTester tester) async {
   await tester.pump(const Duration(seconds: 5));
   await tester.pumpAndSettle();
-  expect(find.byType(SnackBar), findsNothing);
+  expect(find.byType(AvpSnackBar), findsNothing);
 }
 
 void main() {
@@ -93,16 +93,16 @@ void main() {
       final cubit = tester
           .element(find.byType(AppTopBar))
           .read<DepositListCubit>();
-      expect(find.byType(SnackBar), findsOneWidget);
+      expect(find.byType(AvpSnackBar), findsOneWidget);
       await dismissFeedback(tester);
       await tester.tap(find.text(S.current.dashboardRetry));
       await tester.pumpAndSettle();
-      expect(find.byType(SnackBar), findsOneWidget);
+      expect(find.byType(AvpSnackBar), findsOneWidget);
       await dismissFeedback(tester);
       cubit.requestKindFilter();
       await tester.pumpAndSettle();
       expect(find.byType(AppSelectSheet<DepositKind>), findsOneWidget);
-      expect(find.byType(SnackBar), findsNothing);
+      expect(find.byType(AvpSnackBar), findsNothing);
       Navigator.of(tester.element(find.byType(AppSelectSheet<DepositKind>)))
           .pop();
       await tester.pumpAndSettle();
@@ -113,7 +113,7 @@ void main() {
       expect(cubit.state.depositsStatus, RequestStatus.success);
       expect(cubit.state.failure, isNotNull);
       expect(cubit.state.visibleDeposits, isNotEmpty);
-      expect(find.byType(SnackBar), findsNothing);
+      expect(find.byType(AvpSnackBar), findsNothing);
     },
   );
 
@@ -140,7 +140,7 @@ void main() {
         final submission = cubit.submitRestriction();
         await tester.pumpAndSettle();
         await submission;
-        expect(find.byType(SnackBar), findsOneWidget);
+        expect(find.byType(AvpSnackBar), findsOneWidget);
         await dismissFeedback(tester);
       }
       cubit.requestTerms();
@@ -155,7 +155,7 @@ void main() {
       expect(cubit.state.submissionStatus, RequestStatus.success);
       expect(cubit.state.failure, isNotNull);
       expect(find.byType(DepositRestrictionReceiptDialog), findsOneWidget);
-      expect(find.byType(SnackBar), findsNothing);
+      expect(find.byType(AvpSnackBar), findsNothing);
       await tester.pumpWidget(const SizedBox());
       await tester.pumpAndSettle();
     },
@@ -178,7 +178,7 @@ void main() {
         final submission = cubit.continueFlow();
         await tester.pumpAndSettle();
         await submission;
-        expect(find.byType(SnackBar), findsOneWidget);
+        expect(find.byType(AvpSnackBar), findsOneWidget);
         await dismissFeedback(tester);
       }
       cubit.requestTerms();
@@ -193,7 +193,7 @@ void main() {
       expect(cubit.state.submissionStatus, RequestStatus.success);
       expect(cubit.state.failure, isNotNull);
       expect(find.byType(SurplusDepositReceiptDialog), findsOneWidget);
-      expect(find.byType(SnackBar), findsNothing);
+      expect(find.byType(AvpSnackBar), findsNothing);
       await tester.pumpWidget(const SizedBox());
       await tester.pumpAndSettle();
     },
@@ -220,7 +220,7 @@ void main() {
         final submission = cubit.submitDepositMandate();
         await tester.pumpAndSettle();
         await submission;
-        expect(find.byType(SnackBar), findsOneWidget);
+        expect(find.byType(AvpSnackBar), findsOneWidget);
         await dismissFeedback(tester);
       }
       cubit.requestTerms();
@@ -236,7 +236,7 @@ void main() {
       expect(cubit.state.submissionStatus, RequestStatus.success);
       expect(cubit.state.failure, isNotNull);
       expect(find.byType(DepositMandateReceiptDialog), findsOneWidget);
-      expect(find.byType(SnackBar), findsNothing);
+      expect(find.byType(AvpSnackBar), findsNothing);
       await tester.pumpWidget(const SizedBox());
       await tester.pumpAndSettle();
     },

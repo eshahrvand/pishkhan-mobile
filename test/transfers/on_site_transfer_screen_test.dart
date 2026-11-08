@@ -145,10 +145,10 @@ void main() {
     for (var attempt = 0; attempt < 2; attempt++) {
       await tester.tap(find.text(S.current.transferUploadAction));
       await tester.pumpAndSettle();
-      expect(find.byType(SnackBar), findsOneWidget);
+      expect(find.byType(AvpSnackBar), findsOneWidget);
       await tester.pump(const Duration(seconds: 5));
       await tester.pumpAndSettle();
-      expect(find.byType(SnackBar), findsNothing);
+      expect(find.byType(AvpSnackBar), findsNothing);
     }
     expect(tester.takeException(), isNull);
   });

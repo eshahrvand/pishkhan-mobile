@@ -15,8 +15,11 @@ class WalletReceiptCard extends StatelessWidget {
   Future<void> _copyTracking(BuildContext context) async {
     await Clipboard.setData(ClipboardData(text: receipt.trackingId));
     if (context.mounted) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(S.current.walletCopied)));
+      avpSnackBar(
+        context: context,
+        type: AvpSnackBarType.success,
+        message: S.current.walletCopied,
+      );
     }
   }
 

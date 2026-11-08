@@ -28,8 +28,11 @@ class AuthScreen extends StatelessWidget {
   void _showRequestFailure(BuildContext context, AuthState state) {
     // Guest change-phone keeps its existing inline-only failure outcome.
     if (state.message != null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(state.message!)));
+      avpSnackBar(
+        context: context,
+        type: AvpSnackBarType.error,
+        message: state.message!,
+      );
     }
   }
 

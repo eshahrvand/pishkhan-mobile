@@ -36,8 +36,11 @@ class _ExpiredGiftBalanceScreenState extends State<ExpiredGiftBalanceScreen> {
     BuildContext context,
     ExpiredGiftBalanceState state,
   ) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   Future<void> _handleNavigation(

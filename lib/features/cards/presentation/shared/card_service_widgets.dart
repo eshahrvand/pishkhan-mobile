@@ -82,12 +82,10 @@ class CardServiceFooter extends StatelessWidget {
                           behavior: HitTestBehavior.opaque,
                           onTap:
                               onTermsRequested ??
-                              () => ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    S.current.issuanceTermsUnavailable,
-                                  ),
-                                ),
+                              () => avpSnackBar(
+                                context: context,
+                                type: AvpSnackBarType.error,
+                                message: S.current.issuanceTermsUnavailable,
                               ),
                           child: Text(
                             S.current.issuanceTerms,

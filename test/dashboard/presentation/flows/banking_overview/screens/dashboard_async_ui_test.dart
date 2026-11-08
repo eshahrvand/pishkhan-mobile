@@ -1,3 +1,5 @@
+import '../../../../../support/snackbar_test_support.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/features/dashboard/domain/entities/bank_card.dart';
 import 'package:pishkhan_mobile/features/dashboard/domain/entities/bank_deposit.dart';
@@ -134,9 +136,6 @@ void main() {
       final cubit = tester
           .element(find.byType(BlocBuilder<HomeCubit, HomeState>).first)
           .read<HomeCubit>();
-      final messenger = tester.state<ScaffoldMessengerState>(
-        find.byType(ScaffoldMessenger),
-      );
 
       cards.complete(const Err(DataFailure('network.offline')));
       await tester.pump();
@@ -145,18 +144,18 @@ void main() {
         find.text('ارتباط با سرور برقرار نشد. دوباره تلاش کنید.'),
         findsOneWidget,
       );
-      messenger.clearSnackBars();
+      await dismissAvpSnackBar(tester);
       await tester.pump();
 
       deposits.complete(const Err(DataFailure('unknown-bank-code')));
       await tester.pumpAndSettle();
       expect(find.text('درخواست انجام نشد. دوباره تلاش کنید.'), findsOneWidget);
-      messenger.clearSnackBars();
+      await dismissAvpSnackBar(tester);
       await tester.pumpAndSettle();
       cubit.requestMenu();
       await tester.pumpAndSettle();
       expect(find.byType(AppDrawer), findsOneWidget);
-      expect(find.byType(SnackBar), findsNothing);
+      expect(find.byType(AvpSnackBar), findsNothing);
       expect(cubit.state.message, 'درخواست انجام نشد. دوباره تلاش کنید.');
       await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
@@ -168,13 +167,13 @@ void main() {
       await tester.pumpAndSettle();
       await pendingCards;
       expect(cubit.state.message, 'درخواست انجام نشد. دوباره تلاش کنید.');
-      expect(find.byType(SnackBar), findsNothing);
+      expect(find.byType(AvpSnackBar), findsNothing);
 
       final depositRetry = Completer<Result<List<BankDeposit>>>();
       repository.depositQueue.add(depositRetry);
       final pendingDeposits = cubit.fetchDeposits();
       await tester.pump();
-      expect(find.byType(SnackBar), findsNothing);
+      expect(find.byType(AvpSnackBar), findsNothing);
       depositRetry.complete(const Err(DataFailure('unknown-bank-code')));
       await tester.pumpAndSettle();
       await pendingDeposits;
@@ -206,9 +205,7 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(dashboardButton(S.current.dashboardRetry), findsOneWidget);
-    tester
-        .state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger))
-        .clearSnackBars();
+    await dismissAvpSnackBar(tester);
     await tester.pumpAndSettle();
     await tester.tap(
       find

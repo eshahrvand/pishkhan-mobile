@@ -35,8 +35,11 @@ class FinancialCertificateScreen extends StatelessWidget {
     BuildContext context,
     FinancialCertificateState state,
   ) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   Future<void> _handleEffect(
@@ -81,8 +84,10 @@ class FinancialCertificateScreen extends StatelessWidget {
         context
             .read<FinancialCertificateCubit>()
             .consumeFinancialCertificateInteraction();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(S.current.certificateAgentUnavailable)),
+        avpSnackBar(
+          context: context,
+          type: AvpSnackBarType.error,
+          message: S.current.certificateAgentUnavailable,
         );
       case null:
         switch (state.navigation) {

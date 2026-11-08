@@ -28,8 +28,11 @@ class ChequeBookScreen extends StatelessWidget {
   final VoidCallback? onAssistantPressed;
 
   void _showRequestFailure(BuildContext context, ChequeBookState state) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   Future<void> _handleEffect(
@@ -68,21 +71,27 @@ class ChequeBookScreen extends StatelessWidget {
           await ExternalLinks.openRegistry();
         } on PlatformException {
           if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(S.current.chequeBookLinkUnavailable)),
+            avpSnackBar(
+              context: context,
+              type: AvpSnackBarType.error,
+              message: S.current.chequeBookLinkUnavailable,
             );
           }
         } on MissingPluginException {
           if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(S.current.chequeBookLinkUnavailable)),
+            avpSnackBar(
+              context: context,
+              type: AvpSnackBarType.error,
+              message: S.current.chequeBookLinkUnavailable,
             );
           }
         }
       case ChequeBookEffect.contentUnavailable:
         context.read<ChequeBookCubit>().consumeChequeBookInteraction();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(S.current.chequeContentUnavailable)),
+        avpSnackBar(
+          context: context,
+          type: AvpSnackBarType.error,
+          message: S.current.chequeContentUnavailable,
         );
       case ChequeBookEffect.receipt:
         context.read<ChequeBookCubit>().consumeChequeBookInteraction();

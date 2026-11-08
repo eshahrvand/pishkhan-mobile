@@ -48,12 +48,10 @@ class VirtualCardFooter extends StatelessWidget {
                       InkWell(
                         onTap:
                             onTermsRequested ??
-                            () => ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  S.current.issuanceTermsUnavailable,
-                                ),
-                              ),
+                            () => avpSnackBar(
+                              context: context,
+                              type: AvpSnackBarType.error,
+                              message: S.current.issuanceTermsUnavailable,
                             ),
                         child: Text(
                           S.current.issuanceTerms,

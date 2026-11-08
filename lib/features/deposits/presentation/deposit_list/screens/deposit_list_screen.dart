@@ -28,8 +28,11 @@ class DepositListScreen extends StatelessWidget {
   final ValueChanged<DepositListActionRequest>? onActionRequested;
   final VoidCallback? onAssistantPressed;
   void _showRequestFailure(BuildContext context, DepositListState state) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   Future<void> _handleEffect(
@@ -60,8 +63,10 @@ class DepositListScreen extends StatelessWidget {
             initialDepositNumber: request.deposit.number,
           );
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(S.current.depositListServiceUnavailable)),
+          avpSnackBar(
+            context: context,
+            type: AvpSnackBarType.error,
+            message: S.current.depositListServiceUnavailable,
           );
         }
       case DepositKindFilterRequested():

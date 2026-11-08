@@ -1,3 +1,4 @@
+import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pishkhan_mobile/core/platform/platform_share.dart';
@@ -8,15 +9,19 @@ Future<void> shareWalletReceipt(BuildContext context, String text) async {
     await PlatformShare.shareText(text);
   } on PlatformException {
     if (context.mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(S.current.chequeShareUnavailable)));
+      avpSnackBar(
+        context: context,
+        type: AvpSnackBarType.error,
+        message: S.current.chequeShareUnavailable,
+      );
     }
   } on MissingPluginException {
     if (context.mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(S.current.chequeShareUnavailable)));
+      avpSnackBar(
+        context: context,
+        type: AvpSnackBarType.error,
+        message: S.current.chequeShareUnavailable,
+      );
     }
   }
 }

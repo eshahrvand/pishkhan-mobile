@@ -25,8 +25,11 @@ class DepositMandateScreen extends StatelessWidget {
   final VoidCallback? onAssistantPressed;
 
   void _showRequestFailure(BuildContext context, DepositMandateState state) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   Future<void> _handleEffect(
@@ -52,8 +55,10 @@ class DepositMandateScreen extends StatelessWidget {
         onAssistantPressed?.call();
       case DepositMandateEffect.termsUnavailable:
         context.read<DepositMandateCubit>().consumeDepositMandateInteraction();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(S.current.issuanceTermsUnavailable)),
+        avpSnackBar(
+          context: context,
+          type: AvpSnackBarType.error,
+          message: S.current.issuanceTermsUnavailable,
         );
       case null:
         break;

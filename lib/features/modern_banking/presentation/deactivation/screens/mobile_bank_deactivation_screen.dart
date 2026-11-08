@@ -24,8 +24,11 @@ class MobileBankDeactivationScreen extends StatelessWidget {
     BuildContext context,
     MobileBankDeactivationState state,
   ) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   Future<void> _handleNavigation(

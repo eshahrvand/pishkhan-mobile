@@ -35,8 +35,11 @@ Future<void> showPostalOfficesSheet(BuildContext context) {
 class PostalOfficesSheet extends StatelessWidget {
   const PostalOfficesSheet({super.key});
   void _showRequestFailure(BuildContext context, PostalOfficesState state) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   Future<void> _handleEffect(
@@ -50,14 +53,18 @@ class PostalOfficesSheet extends StatelessWidget {
           await PlatformShare.shareText(state.postalShareText!);
         } on PlatformException {
           if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(S.current.chequeShareUnavailable)),
+            avpSnackBar(
+              context: context,
+              type: AvpSnackBarType.error,
+              message: S.current.chequeShareUnavailable,
             );
           }
         } on MissingPluginException {
           if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(S.current.chequeShareUnavailable)),
+            avpSnackBar(
+              context: context,
+              type: AvpSnackBarType.error,
+              message: S.current.chequeShareUnavailable,
             );
           }
         }

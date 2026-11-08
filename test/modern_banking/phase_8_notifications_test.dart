@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
@@ -71,10 +71,10 @@ Future<void> repeatedFailure(
     final request = submit();
     await tester.pumpAndSettle();
     await request;
-    expect(find.byType(SnackBar), findsOneWidget);
+    expect(find.byType(AvpSnackBar), findsOneWidget);
     await tester.pump(const Duration(seconds: 5));
     await tester.pumpAndSettle();
-    expect(find.byType(SnackBar), findsNothing);
+    expect(find.byType(AvpSnackBar), findsNothing);
   }
 }
 
@@ -121,7 +121,7 @@ void main() {
         cubit.requestRecordingAgain();
         await tester.pumpAndSettle();
         expect(cubit.state.step, MobileBankStep.instruction);
-        expect(find.byType(SnackBar), findsNothing);
+        expect(find.byType(AvpSnackBar), findsNothing);
         await cubit.continueFlow();
         repository.fail = false;
         final request = cubit.submitIdentity();
@@ -135,7 +135,7 @@ void main() {
           hasLength(1),
         );
         expect(find.byType(ModernBankReceipt), findsOneWidget);
-        expect(find.byType(SnackBar), findsNothing);
+        expect(find.byType(AvpSnackBar), findsNothing);
         expect(tester.takeException(), isNull);
       },
     );
@@ -157,7 +157,7 @@ void main() {
       cubit.requestBack();
       await tester.pumpAndSettle();
       expect(find.byType(FlowExitDialog), findsOneWidget);
-      expect(find.byType(SnackBar), findsNothing);
+      expect(find.byType(AvpSnackBar), findsNothing);
       await tester.tap(find.text(S.current.passwordStay));
       await tester.pumpAndSettle();
       repository.fail = false;
@@ -168,7 +168,7 @@ void main() {
       expect(cubit.state.failure, isNotNull);
       expect(repository.limits.toSet(), hasLength(1));
       expect(find.text(S.current.modernLimitsSaved), findsOneWidget);
-      expect(find.byType(SnackBar), findsNothing);
+      expect(find.byType(AvpSnackBar), findsNothing);
       expect(tester.takeException(), isNull);
     },
   );
@@ -189,7 +189,7 @@ void main() {
       cubit.requestBack();
       await tester.pumpAndSettle();
       expect(find.byType(FlowExitDialog), findsOneWidget);
-      expect(find.byType(SnackBar), findsNothing);
+      expect(find.byType(AvpSnackBar), findsNothing);
       await tester.tap(find.text(S.current.passwordStay));
       await tester.pumpAndSettle();
       repository.fail = false;
@@ -200,7 +200,7 @@ void main() {
       expect(cubit.state.failure, isNotNull);
       expect(repository.deactivations.toSet(), hasLength(1));
       expect(find.byType(ModernBankReceipt), findsOneWidget);
-      expect(find.byType(SnackBar), findsNothing);
+      expect(find.byType(AvpSnackBar), findsNothing);
       expect(tester.takeException(), isNull);
     },
   );

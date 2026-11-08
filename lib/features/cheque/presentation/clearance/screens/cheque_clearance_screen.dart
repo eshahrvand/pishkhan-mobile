@@ -21,8 +21,11 @@ class ChequeClearanceScreen extends StatelessWidget {
   final VoidCallback? onAssistantPressed;
 
   void _showRequestFailure(BuildContext context, ChequeClearanceState state) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   Future<void> _handleEffect(
@@ -59,8 +62,10 @@ class ChequeClearanceScreen extends StatelessWidget {
         context
             .read<ChequeClearanceCubit>()
             .consumeChequeClearanceInteraction();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(S.current.chequeContentUnavailable)),
+        avpSnackBar(
+          context: context,
+          type: AvpSnackBarType.error,
+          message: S.current.chequeContentUnavailable,
         );
       case null:
         break;

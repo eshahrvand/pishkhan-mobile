@@ -31,8 +31,11 @@ class DepositRestrictionScreen extends StatelessWidget {
     BuildContext context,
     DepositRestrictionState state,
   ) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   Future<void> _handleEffect(
@@ -66,8 +69,10 @@ class DepositRestrictionScreen extends StatelessWidget {
         context
             .read<DepositRestrictionCubit>()
             .consumeDepositRestrictionInteraction();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(S.current.issuanceTermsUnavailable)),
+        avpSnackBar(
+          context: context,
+          type: AvpSnackBarType.error,
+          message: S.current.issuanceTermsUnavailable,
         );
       case null:
         break;

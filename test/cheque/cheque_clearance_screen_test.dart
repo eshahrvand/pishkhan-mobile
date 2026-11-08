@@ -1,3 +1,5 @@
+import '../support/snackbar_test_support.dart';
+
 import 'package:pishkhan_mobile/features/postal_offices/domain/entities/postal_office.dart';
 
 import 'dart:async';
@@ -181,6 +183,7 @@ void main() {
       // Complete while the owner is alive; post-disposal errors are an accepted contract behavior.
       repository.submission.complete(const Err(DataFailure('timeout')));
       await tester.pumpAndSettle();
+      await dismissAvpSnackBar(tester);
       if (systemBack) {
         await tester.binding.handlePopRoute();
       } else {
@@ -307,8 +310,7 @@ void main() {
       ]) {
         await tap(tester, button(label));
         expect(find.text(S.current.chequeContentUnavailable), findsOneWidget);
-        ScaffoldMessenger.of(tester.element(find.byType(ChequeClearanceForm)))
-            .removeCurrentSnackBar();
+        await dismissAvpSnackBar(tester);
         await tester.pumpAndSettle();
       }
       await tap(tester, find.text(S.current.chequeTerms));
