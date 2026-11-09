@@ -969,5 +969,15 @@
       }
     }
   },
-  "walletDateInvalid": "أدخل تاريخاً شمسياً صالحاً بصيغة YYYY/MM/DD."
+  "walletDateInvalid": "أدخل تاريخاً شمسياً صالحاً بصيغة YYYY/MM/DD.",
+  "cardBlockIntro": "اختر البطاقة وسبب حظرها",
+  "cardUnblockIntro": "اختر البطاقة وسبب إلغاء حظرها",
+  "cardRestrictionLost": "فقدان البطاقة",
+  "cardRestrictionStolen": "سرقة البطاقة",
+  "cardRestrictionFound": "العثور على البطاقة",
+  "cardRestrictionOther": "أسباب أخرى",
+  "cardBlockConfirmation": "بعد حظر البطاقة لا يمكن استخدامها حتى إلغاء الحظر. هل أنت متأكد من حظرها؟",
+  "cardBlockConfirm": "نعم، احظر البطاقة",
+  "cardRestrictionRefresh": "تحديث البيانات والرسوم",
+  "cardRestrictionLinkedDeposit": "الوديعة المرتبطة بالبطاقة"
 }

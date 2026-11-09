@@ -32,6 +32,7 @@ void main() {
   final destinations = {
     AppPrimaryTab.cards: {
       'card-list': AppRoutes.cardList,
+      'card-block': AppRoutes.blockCard,
       'card-virtual-list': AppRoutes.cardList,
       'card-deposit': AppRoutes.changeCardDeposit,
       'card-reissue': AppRoutes.cardIssuance,

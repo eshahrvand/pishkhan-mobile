@@ -1,3 +1,6 @@
+import 'package:pishkhan_mobile/features/cards/data/repositories/mock_card_restrictions_repository.dart';
+import 'package:pishkhan_mobile/features/cards/domain/repositories/card_restrictions_repository.dart';
+import 'package:pishkhan_mobile/features/cards/domain/usecases/card_restrictions_usecase.dart';
 import 'package:pishkhan_mobile/features/wallet/domain/usecases/wallet_usecase.dart';
 import 'package:pishkhan_mobile/features/wallet/domain/repositories/wallet_repository.dart';
 import 'package:pishkhan_mobile/features/wallet/data/repositories/mock_wallet_repository.dart';
@@ -84,6 +87,19 @@ final getIt = GetIt.instance;
 /// Register once before runApp. Tests may supply an isolated container.
 void configureDependencies({GetIt? container}) {
   final dependencies = container ?? getIt;
+  dependencies.registerLazySingleton<CardRestrictionsRepository>(
+    MockCardRestrictionsRepository.new,
+  );
+  dependencies.registerLazySingleton<FetchCardRestrictionCatalogUseCase>(
+    () => FetchCardRestrictionCatalogUseCase(
+      dependencies<CardRestrictionsRepository>(),
+    ),
+  );
+  dependencies.registerLazySingleton<SubmitCardRestrictionUseCase>(
+    () => SubmitCardRestrictionUseCase(
+      dependencies<CardRestrictionsRepository>(),
+    ),
+  );
   dependencies.registerLazySingleton<WalletRepository>(
     MockWalletRepository.new,
   );

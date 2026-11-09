@@ -9094,6 +9094,106 @@ class S {
       args: [],
     );
   }
+
+  /// `کارت مورد نظر و علت مسدودی را انتخاب کنید`
+  String get cardBlockIntro {
+    return Intl.message(
+      'کارت مورد نظر و علت مسدودی را انتخاب کنید',
+      name: 'cardBlockIntro',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `کارت مورد نظر و علت رفع مسدودی را انتخاب کنید`
+  String get cardUnblockIntro {
+    return Intl.message(
+      'کارت مورد نظر و علت رفع مسدودی را انتخاب کنید',
+      name: 'cardUnblockIntro',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `مفقود شدن کارت`
+  String get cardRestrictionLost {
+    return Intl.message(
+      'مفقود شدن کارت',
+      name: 'cardRestrictionLost',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `سرقت کارت`
+  String get cardRestrictionStolen {
+    return Intl.message(
+      'سرقت کارت',
+      name: 'cardRestrictionStolen',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `پیدا شدن کارت`
+  String get cardRestrictionFound {
+    return Intl.message(
+      'پیدا شدن کارت',
+      name: 'cardRestrictionFound',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `سایر موارد`
+  String get cardRestrictionOther {
+    return Intl.message(
+      'سایر موارد',
+      name: 'cardRestrictionOther',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `پس از مسدود کردن کارت امکان استفاده از آن تا رفع مسدودی وجود ندارد، مطمئنید که می‌خواهید کارت را مسدود کنید؟`
+  String get cardBlockConfirmation {
+    return Intl.message(
+      'پس از مسدود کردن کارت امکان استفاده از آن تا رفع مسدودی وجود ندارد، مطمئنید که می‌خواهید کارت را مسدود کنید؟',
+      name: 'cardBlockConfirmation',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `بله مسدود شود`
+  String get cardBlockConfirm {
+    return Intl.message(
+      'بله مسدود شود',
+      name: 'cardBlockConfirm',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `به‌روزرسانی اطلاعات و هزینه`
+  String get cardRestrictionRefresh {
+    return Intl.message(
+      'به‌روزرسانی اطلاعات و هزینه',
+      name: 'cardRestrictionRefresh',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `سپرده متصل به کارت`
+  String get cardRestrictionLinkedDeposit {
+    return Intl.message(
+      'سپرده متصل به کارت',
+      name: 'cardRestrictionLinkedDeposit',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

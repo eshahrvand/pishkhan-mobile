@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/features/cards/domain/entities/card_restriction.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/card_restriction/screens/card_restriction_screen.dart';
 import 'package:pishkhan_mobile/features/wallet/presentation/overview/screens/overview_screen.dart';
 import 'package:pishkhan_mobile/features/wallet/presentation/charge/screens/charge_screen.dart';
 import 'package:pishkhan_mobile/features/wallet/presentation/withdraw/screens/withdraw_screen.dart';
@@ -66,6 +68,24 @@ GoRouter createAppRouter({
     refreshListenable: session,
     redirect: (context, state) => globalRedirect(session, state),
     routes: [
+      GoRoute(
+        path: AppRoutes.blockCard,
+        builder: (context, state) => CardRestrictionScreen(
+          operation: CardRestrictionOperation.block,
+          initialCardNumber: state.extra is CardRouteArguments
+              ? (state.extra as CardRouteArguments).initialCardNumber
+              : null,
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.unblockCard,
+        builder: (context, state) => CardRestrictionScreen(
+          operation: CardRestrictionOperation.unblock,
+          initialCardNumber: state.extra is CardRouteArguments
+              ? (state.extra as CardRouteArguments).initialCardNumber
+              : null,
+        ),
+      ),
       GoRoute(
         path: AppRoutes.walletOverview,
         builder: (context, state) => const WalletOverviewScreen(),

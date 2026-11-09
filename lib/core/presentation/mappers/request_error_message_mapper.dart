@@ -25,7 +25,12 @@ String getRequestErrorMessage(Failure failure) {
     case 'wallet.balance.insufficient':
     case 'profile.wallet.insufficient':
     case 'deposit-restriction.wallet-insufficient':
+    case 'card-restriction.wallet-insufficient':
       return 'موجودی کیف پول کافی نیست.';
+    case 'card-restriction.ineligible':
+      return 'کارت انتخاب‌شده برای این عملیات در دسترس نیست. اطلاعات را به‌روزرسانی کنید.';
+    case 'card-restriction.quote-expired':
+      return 'اطلاعات یا هزینه درخواست تغییر کرده است. اطلاعات را به‌روزرسانی کنید.';
     case 'cheque.not-found':
       return 'چک موردنظر یافت نشد.';
     case 'transfer.file.invalid':

@@ -114,11 +114,15 @@ assistant -> host override / return to dashboard prompt
 The screen exposes initialCategory, onActionRequested and onAssistantPressed. Cubit resolves its registered `LoadCardsUseCase` once in a final field; DI wires `CardsRepository` into the UseCase; no repository is passed through the screen. Initial category is applied on the first fetch only; subsequent category choices belong to Cubit and survive retries.
 
 Reissue, change-deposit, expired-gift and virtual-request use their existing
-mock service routes when no host override is supplied. Block remains unavailable
-without host integration. Category footer requests have no arbitrarily selected
-card. These paths do not claim live bank execution; see their individual flow docs.
+mock service routes when no host override is supplied. Block now opens the
+[card restriction flow](card-restriction.md); Unblock is available from the
+service catalog. Both use a dedicated in-memory demo adapter, not a bank API.
+Category footer requests have no arbitrarily selected card. These paths do not claim live bank execution; see their individual flow docs.
 
-No suspended bank request or idempotent submission is implemented. Filter drafts are local UI transactions.
+The card list itself submits no bank request and implements no suspended flow.
+Submission identity belongs to each destination service; the restriction demo
+ledger now preserves idempotency within its own flow. Filter drafts remain local
+UI transactions.
 
 ## 9. Security and Compliance Layer
 

@@ -52,7 +52,7 @@ remain available in Git history.
 - [Login](doc/login/development.md) and [API integration](doc/auth/login-api-integration.md)
 - [Dashboard](doc/dashboard/development.md), [cards tab](doc/cards/my-cards.md),
   [deposit services](doc/deposits/development.md) and [loans](doc/loans/development.md)
-- [Card services](doc/cards/card-services.md), [issuance](doc/cards/card-issuance.md),
+- [Card services](doc/cards/card-services.md), [blocking and unblocking](doc/cards/card-restriction.md), [issuance](doc/cards/card-issuance.md),
   [virtual requests](doc/cards/virtual-card-request.md),
   [linked deposit](doc/cards/change-card-deposit.md),
   [expired gift balance](doc/cards/expired-gift-balance.md) and

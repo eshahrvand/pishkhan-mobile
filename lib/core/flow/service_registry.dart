@@ -233,6 +233,13 @@ abstract final class ServiceRegistry {
       initialCardNumber: initialCardNumber,
       onAssistantPressed: onAssistantPressed,
     );
+    if (id == 'card-block' || id == 'card-unblock') {
+      context.push<void>(
+        id == 'card-block' ? AppRoutes.blockCard : AppRoutes.unblockCard,
+        extra: args,
+      );
+      return true;
+    }
     if (id == 'card-deposit') {
       context.push<void>(AppRoutes.changeCardDeposit, extra: args);
       return true;

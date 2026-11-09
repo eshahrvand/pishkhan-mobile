@@ -228,6 +228,7 @@ class CardFeaturesCubit extends Cubit<CardFeaturesState> {
       CardFeatureAction.changeDeposit => 'card-deposit',
       CardFeatureAction.expiredGiftBalance => 'card-expired-gift',
       CardFeatureAction.reissue => 'card-reissue',
+      CardFeatureAction.block => 'card-block',
       _ => null,
     };
   }

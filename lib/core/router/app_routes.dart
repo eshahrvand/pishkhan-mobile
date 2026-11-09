@@ -1,5 +1,7 @@
 /// Route paths and URL builders. This file has no feature dependencies.
 abstract final class AppRoutes {
+  static const blockCard = '/cards/block';
+  static const unblockCard = '/cards/unblock';
   static const splash = '/launch/splash';
 
   static const home = '/dashboard/home';

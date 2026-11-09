@@ -1041,5 +1041,15 @@
       }
     }
   },
-  "walletDateInvalid": "Enter a valid Jalali date as YYYY/MM/DD."
+  "walletDateInvalid": "Enter a valid Jalali date as YYYY/MM/DD.",
+  "cardBlockIntro": "Select the card and the reason for blocking it",
+  "cardUnblockIntro": "Select the card and the reason for unblocking it",
+  "cardRestrictionLost": "Lost card",
+  "cardRestrictionStolen": "Stolen card",
+  "cardRestrictionFound": "Card recovered",
+  "cardRestrictionOther": "Other",
+  "cardBlockConfirmation": "Once blocked, the card cannot be used until it is unblocked. Are you sure you want to block it?",
+  "cardBlockConfirm": "Yes, block the card",
+  "cardRestrictionRefresh": "Refresh details and fee",
+  "cardRestrictionLinkedDeposit": "Linked deposit"
 }

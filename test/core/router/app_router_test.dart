@@ -86,6 +86,8 @@ void main() {
       '/requests/': [AppRoutes.requestReports],
       '/auth/': [AppRoutes.login],
       '/cards/': [
+        AppRoutes.blockCard,
+        AppRoutes.unblockCard,
         AppRoutes.cardPasswords,
         AppRoutes.cardList,
         AppRoutes.cardIssuance,
@@ -144,6 +146,8 @@ void main() {
         AppRoutes.mobileBankDeactivation,
         AppRoutes.virtualCardRequest,
         AppRoutes.cardPasswords,
+        AppRoutes.blockCard,
+        AppRoutes.unblockCard,
         AppRoutes.changeCardDeposit,
         AppRoutes.expiredGiftBalance,
         AppRoutes.depositList,

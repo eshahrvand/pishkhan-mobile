@@ -1068,5 +1068,15 @@
       }
     }
   },
-  "walletDateInvalid": "تاریخ شمسی معتبر با قالب YYYY/MM/DD وارد کنید."
+  "walletDateInvalid": "تاریخ شمسی معتبر با قالب YYYY/MM/DD وارد کنید.",
+  "cardBlockIntro": "کارت مورد نظر و علت مسدودی را انتخاب کنید",
+  "cardUnblockIntro": "کارت مورد نظر و علت رفع مسدودی را انتخاب کنید",
+  "cardRestrictionLost": "مفقود شدن کارت",
+  "cardRestrictionStolen": "سرقت کارت",
+  "cardRestrictionFound": "پیدا شدن کارت",
+  "cardRestrictionOther": "سایر موارد",
+  "cardBlockConfirmation": "پس از مسدود کردن کارت امکان استفاده از آن تا رفع مسدودی وجود ندارد، مطمئنید که می‌خواهید کارت را مسدود کنید؟",
+  "cardBlockConfirm": "بله مسدود شود",
+  "cardRestrictionRefresh": "به‌روزرسانی اطلاعات و هزینه",
+  "cardRestrictionLinkedDeposit": "سپرده متصل به کارت"
 }

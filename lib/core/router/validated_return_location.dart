@@ -7,6 +7,8 @@ String validatedReturnLocation(String? location) {
     return AppRoutes.home;
   }
   const paths = {
+    AppRoutes.blockCard,
+    AppRoutes.unblockCard,
     AppRoutes.walletOverview,
     AppRoutes.walletCharge,
     AppRoutes.walletWithdraw,
