@@ -22,6 +22,26 @@ flutter run
 Dependency changes are separate work; the commands above use the checked-in
 project configuration. Follow [AGENTS.md](AGENTS.md) before editing feature code.
 
+## Device preview
+
+`device_preview: ^3.0.0` is enabled in Debug builds from `main`, before plugin
+initialization. Start the app with `flutter run`, open its Flutter DevTools link
+and select the **device_preview** extension. Enable the extension if DevTools
+asks, then choose a device to inspect screen size, safe areas, orientation,
+keyboard insets and text scaling. Version 3 uses DevTools rather than an in-app
+toolbar; no MaterialApp wrapper is needed. The app retains its Persian locale
+and RTL layout.
+
+After adding the package, stop and start the app; hot reload cannot replace its
+binding. To run Debug without simulation support:
+
+```sh
+flutter run --dart-define=DEVICE_PREVIEW=false
+```
+
+Preview is disabled in Profile and Release builds, regardless of the define.
+The integration follows the [package's version-3 guide](https://pub.dev/packages/device_preview/versions/3.0.0).
+
 ## Coding reference and verification
 
 The [UI/Cubit/State contract](doc/ui-cubit-state-agent-rules-en.md) is the

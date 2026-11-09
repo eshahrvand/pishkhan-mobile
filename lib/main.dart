@@ -1,3 +1,5 @@
+import 'package:device_preview/device_preview.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
 import 'package:pishkhan_mobile/core/router/app_router.dart';
@@ -8,7 +10,12 @@ import 'package:flutter/services.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  // Install the preview binding before any plugin or framework initialization.
+  DevicePreview.enable(
+    enabled:
+        kDebugMode &&
+        const bool.fromEnvironment('DEVICE_PREVIEW', defaultValue: true),
+  );
   configureDependencies();
   final session = await RouterSession.restore();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
