@@ -59,7 +59,15 @@ class _PishkhanAppState extends State<PishkhanApp> {
       theme: AppTheme.light(),
       builder: (context, child) => Directionality(
         textDirection: TextDirection.rtl,
-        child: child ?? const SizedBox.shrink(),
+        child: AnnotatedRegion<SystemUiOverlayStyle>(
+          value: SystemUiOverlayStyle(
+            statusBarColor: context.colors.surface,
+            statusBarIconBrightness: Brightness.dark,
+            statusBarBrightness: Brightness.light,
+            systemStatusBarContrastEnforced: false,
+          ),
+          child: child ?? const SizedBox.shrink(),
+        ),
       ),
     );
   }
