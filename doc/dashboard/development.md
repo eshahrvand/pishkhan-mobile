@@ -390,19 +390,19 @@ Dart Color integers are ARGB: the current md literals' alpha/channel ordering is
 
 Recommendation: allow a reviewed shadow/visual variant in AppDepositCard that uses bankCard, keeping its current default for compatibility. Do not change AppShadows.md globally; that token may affect other shared consumers.
 
-### 13.4 Known issue: AppPrimaryNavigation selected Deposits icon
+### 13.4 Resolved: AppPrimaryNavigation selected Deposits icon
 
-Source: `lib/features/dashboard/presentation/shared/widgets/app_primary_navigation.dart`. The deposit branch always resolves `${AppConstants.baseImage}dashboard_nav_deposit.svg` -> `assets/images/dashboard_nav_deposit.svg`. There is no active/inactive branch for that tab.
+Source: `lib/features/dashboard/presentation/shared/widgets/app_primary_navigation.dart`. On 2026-11-10, the owner supplied the filled SVG exports for the selected deposit and loan tabs. They are bundled as `dashboard_nav_deposit_active.svg` (money-bill) and `dashboard_nav_loan_active.svg` (Money transfer), retaining their original 21×20 viewports.
 
-The selected tab already gets the blue AppDashboardColors.navActive surface, white label and DemiBold text, but the bundled deposit icon remains gray. Both new frames require a white money-bill icon in the active deposit tab. This was deliberately preserved.
+Selected deposit/loan tabs now use those filled assets; inactive tabs retain `dashboard_nav_deposit.svg` and `dashboard_nav_loan.svg`. The existing white selected tint, disabled-text inactive tint, blue selected surface, typography and interaction behavior are preserved. This resolves the earlier retained navigation-icon differences; other component audit findings below remain historical or open as stated.
 
 DashboardScreen, CardsTab, DepositsTab and LoansTab all use this navigation component. DashboardHeader/cards/deposits use the same AppTopBar; no header correction was introduced. Before this task, AppDepositCard was implemented and tested as a shared component but had no feature-screen callsite; this task adds its DepositsTab use. Shared financial-card tests cover its existing single/multi variants.
 
-Recommendation: add an optional active deposit icon or reviewed selected-tab icon map to shared navigation, retaining default behavior. Avoid a global color filter on all icons: existing dashboard/card active and inactive assets have their own styling.
+The correction uses the existing selected-tab asset branches, matching the dashboard/card convention without introducing another navigation component.
 
 ### 13.5 Decision and accepted visual limits
 
-These issues remain because the user explicitly instructed “use exactly the current existing components” and requested documentation instead of correction. Existing shared tests and behavior remain the baseline. Exact pixel equality with the supplied frames is therefore not the acceptance criterion for those two components.
+At the original review, these issues were retained because the user explicitly instructed “use exactly the current existing components” and requested documentation instead of correction. The 2026-11-10 navigation-icon correction in Section 13.4 supersedes that limit for the selected deposit/loan icons. Other retained component differences remain outside that correction.
 
 The existing grid's row wrapping, max-two-line labels and text metrics are also preserved. Existing deposit card labels are Persian strings inside the shared component; full multilingual card labels require a separate reviewed shared API extension. This task localizes screen/group/action/empty-state copy without editing that component.
 
@@ -418,7 +418,7 @@ Loans reuses existing components; the progress primitive and AppLoanCard alignme
 | Header geometry | 54px header; padding left/right16, top14, bottom12 | Content at top16, 28px arrow row, then12px gap; body starts at56px relative to card | Retained 2px header/body offset and row-origin difference; introduce a reviewed optional layout variant |
 | Summary arrow | Existing AppArrowButton uses arrow_button_arrow_left.svg; rendered arrow is gray | Blue arrow inside the white 28px circle | Retained. A reviewed optional icon/color variant must preserve other AppArrowButton consumers |
 | Progress foreground | Fixed: visible blue fill, full 8px height, physical-left origin, derived paid/total width | Blue rounded 8px track from physical left, with paid counts authoritative | Resolved: 40% single, 30%/70%/90% multi |
-| Active Loans navigation | AppPrimaryNavigation always uses dashboard_nav_loan.svg (gray) | White active loan icon on the blue selected background | Retained. Add optional selected-loan asset mapping while preserving defaults |
+| Active Loans navigation | Selected uses dashboard_nav_loan_active.svg; inactive uses dashboard_nav_loan.svg | White filled active loan icon on the blue selected background | Resolved 2026-11-10 with the owner-supplied Money transfer SVG; see Section 13.4 |
 | Navbar shadow | Existing AppShadows.sm: alpha .06, offset(0,1), blur3/spread0 plus alpha .10, offset(0,1), blur2/spread-1 | Frame navbar uses alpha .08 with blur4/spread0 and alpha .04 with blur2/spread0 at offset(0,1) | Existing shared navigation difference retained across all tabs; use an optional instance elevation after review |
 | Arrow surface decoration | Shared compact AppArrowButton includes a surface-alpha .8 border and AppShadows.xs | Figma compact white button has no explicit border/shadow in the supplied context | Existing arrow decoration retained; review together with the blue-icon variant |
 | Labels/localization | Shared card owns Persian field/currency/footer strings | Persian frames match these labels; other locales require translated labels | Known pre-existing API limitation; add reviewed label parameters in a later shared change |

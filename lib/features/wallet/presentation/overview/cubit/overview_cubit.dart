@@ -10,6 +10,7 @@ import '../../../domain/entities/wallet.dart';
 import '../../../domain/usecases/wallet_usecase.dart';
 
 part 'overview_state.dart';
+
 part 'overview_cubit.freezed.dart';
 
 class WalletOverviewCubit extends Cubit<WalletOverviewState> {
@@ -17,6 +18,7 @@ class WalletOverviewCubit extends Cubit<WalletOverviewState> {
     WalletOverviewState initialState = const WalletOverviewState.initial(),
   }) : super(initialState);
   final fetchWalletCatalogUseCase = getIt<FetchWalletCatalogUseCase>();
+
   Future<void> fetchWallet() async {
     emit(state.copyWith(walletStatus: RequestStatus.loading));
     final result = await fetchWalletCatalogUseCase();

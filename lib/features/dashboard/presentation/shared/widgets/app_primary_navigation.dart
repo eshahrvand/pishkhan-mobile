@@ -63,9 +63,13 @@ class AppPrimaryNavigation extends StatelessWidget {
                                         ? '${AppConstants.baseImage}cards_nav_active.svg'
                                         : '${AppConstants.baseImage}dashboard_nav_card.svg',
                                   AppPrimaryTab.deposits =>
-                                    '${AppConstants.baseImage}dashboard_nav_deposit.svg',
+                                    tab == selectedTab
+                                        ? '${AppConstants.baseImage}dashboard_nav_deposit_active.svg'
+                                        : '${AppConstants.baseImage}dashboard_nav_deposit.svg',
                                   AppPrimaryTab.loans =>
-                                    '${AppConstants.baseImage}dashboard_nav_loan.svg',
+                                    tab == selectedTab
+                                        ? '${AppConstants.baseImage}dashboard_nav_loan_active.svg'
+                                        : '${AppConstants.baseImage}dashboard_nav_loan.svg',
                                 },
                               ),
                               const SizedBox(width: 2),
