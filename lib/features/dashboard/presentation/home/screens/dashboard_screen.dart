@@ -14,13 +14,16 @@ import '../cubit/home_cubit.dart';
 import '../cubit/home_effect.dart';
 import '../widgets/dashboard_home_panel.dart';
 import '../widgets/dashboard_drawer.dart';
-import '../../shared/dashboard_tab.dart';
 import '../../shared/dashboard_services.dart';
 import '../widgets/dashboard_services_sheet.dart';
 import '../../shared/widgets/dashboard_reset_sheet.dart';
 import 'cards_tab.dart';
 import 'deposits_tab.dart';
 import 'loans_tab.dart';
+import '../../shared/widgets/app_primary_navigation.dart';
+import '../../shared/widgets/dashboard_navigation_container.dart';
+
+import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -197,35 +200,67 @@ class DashboardScreen extends StatelessWidget {
                   state.loansStatus != RequestStatus.loading,
               child: TooltipVisibility(
                 visible: false,
-                child: IndexedStack(
-                  index: state.selectedTab.index,
+                child: Stack(
                   children: [
-                    TickerMode(
-                      enabled: state.selectedTab == AppPrimaryTab.dashboard,
-                      child: HeroMode(
-                        enabled: state.selectedTab == AppPrimaryTab.dashboard,
-                        child: const DashboardHomePanel(),
+                    IndexedStack(
+                      index: state.selectedTab.index,
+                      children: [
+                        TickerMode(
+                          enabled: state.selectedTab == AppPrimaryTab.dashboard,
+                          child: HeroMode(
+                            enabled:
+                                state.selectedTab == AppPrimaryTab.dashboard,
+                            child: const DashboardHomePanel(),
+                          ),
+                        ),
+                        TickerMode(
+                          enabled: state.selectedTab == AppPrimaryTab.cards,
+                          child: HeroMode(
+                            enabled: state.selectedTab == AppPrimaryTab.cards,
+                            child: const CardsTab(),
+                          ),
+                        ),
+                        TickerMode(
+                          enabled: state.selectedTab == AppPrimaryTab.deposits,
+                          child: HeroMode(
+                            enabled:
+                                state.selectedTab == AppPrimaryTab.deposits,
+                            child: const DepositsTab(),
+                          ),
+                        ),
+                        TickerMode(
+                          enabled: state.selectedTab == AppPrimaryTab.loans,
+                          child: HeroMode(
+                            enabled: state.selectedTab == AppPrimaryTab.loans,
+                            child: const LoansTab(),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Positioned(
+                      left: 16,
+                      bottom: MediaQuery.paddingOf(context).bottom + 82,
+                      child: AppAssistantButton(
+                        onPressed: () {
+                          context.read<HomeCubit>().requestAssistant();
+                        },
                       ),
                     ),
-                    TickerMode(
-                      enabled: state.selectedTab == AppPrimaryTab.cards,
-                      child: HeroMode(
-                        enabled: state.selectedTab == AppPrimaryTab.cards,
-                        child: const CardsTab(),
-                      ),
-                    ),
-                    TickerMode(
-                      enabled: state.selectedTab == AppPrimaryTab.deposits,
-                      child: HeroMode(
-                        enabled: state.selectedTab == AppPrimaryTab.deposits,
-                        child: const DepositsTab(),
-                      ),
-                    ),
-                    TickerMode(
-                      enabled: state.selectedTab == AppPrimaryTab.loans,
-                      child: HeroMode(
-                        enabled: state.selectedTab == AppPrimaryTab.loans,
-                        child: const LoansTab(),
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      child: DashboardNavigationContainer(
+                        bottomOffset:
+                            state.selectedTab == AppPrimaryTab.dashboard
+                            ? 14
+                            : 16,
+                        child: AppPrimaryNavigation(
+                          selectedTab: state.selectedTab,
+                          onSelected: (tab) {
+                            context.read<HomeCubit>().selectTab(tab);
+                          },
+                        ),
                       ),
                     ),
                   ],

@@ -400,6 +400,17 @@ DashboardScreen, CardsTab, DepositsTab and LoansTab all use this navigation comp
 
 The correction uses the existing selected-tab asset branches, matching the dashboard/card convention without introducing another navigation component.
 
+Owner update, 2026-11-11: all four navigation icons now render in fixed 20×20
+logical-pixel slots in both states. Source SVG viewports are retained; BoxFit.contain
+preserves their aspect ratios. This explicitly overrides the 21×20 display size
+of the card/deposit/loan icons in the referenced Figma frames. Each tab keeps its
+active and inactive SVG renderers mounted inside one IndexedStack, so switching
+selection does not replace the loader or collapse the icon slot while loading.
+Both variants begin loading on first mount; an initial asset-loading interval can
+still exist before they are ready. Only one variant is painted per tab. The
+selected-tab extra 16px width, typography, callbacks and outer SafeArea spacing
+remain unchanged. Coverage: test/dashboard/app_primary_navigation_test.dart.
+
 ### 13.5 Decision and accepted visual limits
 
 At the original review, these issues were retained because the user explicitly instructed “use exactly the current existing components” and requested documentation instead of correction. The 2026-11-10 navigation-icon correction in Section 13.4 supersedes that limit for the selected deposit/loan icons. Other retained component differences remain outside that correction.

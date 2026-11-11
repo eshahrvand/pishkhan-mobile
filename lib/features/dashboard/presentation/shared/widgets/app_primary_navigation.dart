@@ -49,28 +49,46 @@ class AppPrimaryNavigation extends StatelessWidget {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              AvpImage(
-                                color: tab == selectedTab
-                                    ? context.colors.textOnPrimary
-                                    : context.colors.textDisabled,
-                                image: switch (tab) {
-                                  AppPrimaryTab.dashboard =>
-                                    tab == selectedTab
-                                        ? '${AppConstants.baseImage}dashboard_nav_home.svg'
-                                        : '${AppConstants.baseImage}cards_nav_home.svg',
-                                  AppPrimaryTab.cards =>
-                                    tab == selectedTab
-                                        ? '${AppConstants.baseImage}cards_nav_active.svg'
-                                        : '${AppConstants.baseImage}dashboard_nav_card.svg',
-                                  AppPrimaryTab.deposits =>
-                                    tab == selectedTab
-                                        ? '${AppConstants.baseImage}dashboard_nav_deposit_active.svg'
-                                        : '${AppConstants.baseImage}dashboard_nav_deposit.svg',
-                                  AppPrimaryTab.loans =>
-                                    tab == selectedTab
-                                        ? '${AppConstants.baseImage}dashboard_nav_loan_active.svg'
-                                        : '${AppConstants.baseImage}dashboard_nav_loan.svg',
-                                },
+                              SizedBox.square(
+                                dimension: 20,
+                                // Keep both SVG renderers mounted so changing tabs
+                                // does not replace an icon with a loading placeholder.
+                                child: IndexedStack(
+                                  index: tab == selectedTab ? 1 : 0,
+                                  alignment: Alignment.center,
+                                  children: [
+                                    AvpImage(
+                                      width: 20,
+                                      height: 20,
+                                      color: context.colors.textDisabled,
+                                      image: switch (tab) {
+                                        AppPrimaryTab.dashboard =>
+                                          '${AppConstants.baseImage}cards_nav_home.svg',
+                                        AppPrimaryTab.cards =>
+                                          '${AppConstants.baseImage}dashboard_nav_card.svg',
+                                        AppPrimaryTab.deposits =>
+                                          '${AppConstants.baseImage}dashboard_nav_deposit.svg',
+                                        AppPrimaryTab.loans =>
+                                          '${AppConstants.baseImage}dashboard_nav_loan.svg',
+                                      },
+                                    ),
+                                    AvpImage(
+                                      width: 20,
+                                      height: 20,
+                                      color: context.colors.textOnPrimary,
+                                      image: switch (tab) {
+                                        AppPrimaryTab.dashboard =>
+                                          '${AppConstants.baseImage}dashboard_nav_home.svg',
+                                        AppPrimaryTab.cards =>
+                                          '${AppConstants.baseImage}cards_nav_active.svg',
+                                        AppPrimaryTab.deposits =>
+                                          '${AppConstants.baseImage}dashboard_nav_deposit_active.svg',
+                                        AppPrimaryTab.loans =>
+                                          '${AppConstants.baseImage}dashboard_nav_loan_active.svg',
+                                      },
+                                    ),
+                                  ],
+                                ),
                               ),
                               const SizedBox(width: 2),
                               Flexible(

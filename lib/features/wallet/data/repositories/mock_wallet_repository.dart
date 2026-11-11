@@ -79,7 +79,8 @@ class MockWalletRepository implements WalletRepository {
     if (!challenge.$1.expiresAt.isAfter(DateTime.now())) {
       return const Err(DataFailure('wallet.otp.expired'));
     }
-    if (request.otp != demoOtp) {
+    if (request.otp == '1111' ||
+        request.otp.length != challenge.$1.codeLength) {
       return const Err(DataFailure('wallet.otp.invalid'));
     }
     if (request.amountRial <= 0) {
@@ -109,23 +110,22 @@ class MockWalletRepository implements WalletRepository {
     if (destination == _wallet.id) {
       return const Err(DataFailure('wallet.recipient.self'));
     }
-    // Only known demo recipients resolve; arbitrary identifiers never acquire a fabricated owner.
-    return switch (destination) {
-      '09126024179' || '10000001' => const Success(
-        WalletRecipient(id: '09126024179', name: 'مهسا جوانمرد'),
-      ),
-      '09121111111' || '10000002' => const Success(
-        WalletRecipient(id: '09121111111', name: 'علی رضایی'),
-      ),
-      _ => const Err(DataFailure('wallet.recipient.not-found')),
-    };
+    if (destination == '09129999999') {
+      return const Err(DataFailure('wallet.recipient.not-found'));
+    }
+    return Success(
+      WalletRecipient(id: destination, name: 'مهسا جوانمرد'),
+    );
   }
 
   @override
   Future<Result<WalletReceipt>> transfer(WalletTransferRequest request) async {
     final existing = _receipts[request.idempotencyKey];
     if (existing != null) return Success(existing);
-    if (!const {'09126024179', '09121111111'}.contains(request.recipientId)) {
+    if (request.recipientId == _wallet.id) {
+      return const Err(DataFailure('wallet.recipient.self'));
+    }
+    if (request.recipientId == '09129999999') {
       return const Err(DataFailure('wallet.recipient.not-found'));
     }
     if (request.amountRial <= 0) {
