@@ -1,3 +1,6 @@
+import 'package:pishkhan_mobile/features/loans/domain/repositories/loan_application_repository.dart';
+import 'package:pishkhan_mobile/features/loans/data/repositories/mock_loan_application_repository.dart';
+import 'package:pishkhan_mobile/features/loans/domain/usecases/loan_request_usecase.dart';
 import 'package:pishkhan_mobile/features/cards/data/repositories/mock_card_restrictions_repository.dart';
 import 'package:pishkhan_mobile/features/cards/domain/repositories/card_restrictions_repository.dart';
 import 'package:pishkhan_mobile/features/cards/domain/usecases/card_restrictions_usecase.dart';
@@ -87,6 +90,40 @@ final getIt = GetIt.instance;
 /// Register once before runApp. Tests may supply an isolated container.
 void configureDependencies({GetIt? container}) {
   final dependencies = container ?? getIt;
+  dependencies.registerLazySingleton<LoanApplicationRepository>(
+    MockLoanApplicationRepository.new,
+  );
+  dependencies.registerFactory<FetchLoanCatalogUseCase>(
+    () => FetchLoanCatalogUseCase(dependencies<LoanApplicationRepository>()),
+  );
+  dependencies.registerFactory<QuoteLoanUseCase>(
+    () => QuoteLoanUseCase(dependencies<LoanApplicationRepository>()),
+  );
+  dependencies.registerFactory<FetchLoanInquiriesUseCase>(
+    () => FetchLoanInquiriesUseCase(dependencies<LoanApplicationRepository>()),
+  );
+  dependencies.registerFactory<CheckLoanGuarantorUseCase>(
+    () => CheckLoanGuarantorUseCase(dependencies<LoanApplicationRepository>()),
+  );
+  dependencies.registerFactory<CheckLoanCollateralUseCase>(
+    () => CheckLoanCollateralUseCase(dependencies<LoanApplicationRepository>()),
+  );
+  dependencies.registerFactory<SaveLoanDraftUseCase>(
+    () => SaveLoanDraftUseCase(dependencies<LoanApplicationRepository>()),
+  );
+  dependencies.registerFactory<RequestLoanSigningOtpUseCase>(
+    () =>
+        RequestLoanSigningOtpUseCase(dependencies<LoanApplicationRepository>()),
+  );
+  dependencies.registerFactory<SubmitLoanApplicationUseCase>(
+    () =>
+        SubmitLoanApplicationUseCase(dependencies<LoanApplicationRepository>()),
+  );
+  dependencies.registerFactory<CancelLoanApplicationUseCase>(
+    () =>
+        CancelLoanApplicationUseCase(dependencies<LoanApplicationRepository>()),
+  );
+
   dependencies.registerLazySingleton<CardRestrictionsRepository>(
     MockCardRestrictionsRepository.new,
   );

@@ -80,6 +80,7 @@ void main() {
         AppRoutes.mobileBankTransferLimits,
         AppRoutes.mobileBankDeactivation,
       ],
+      '/loans/': [AppRoutes.loanRequest],
       '/launch/': [AppRoutes.splash],
       '/dashboard/': [AppRoutes.home, AppRoutes.allServices],
       '/transfers/': [AppRoutes.onSiteTransfer],

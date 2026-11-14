@@ -9669,6 +9669,1236 @@ class S {
       args: [],
     );
   }
+
+  /// `درخواست وام`
+  String get loanRequestTitle {
+    return Intl.message(
+      'درخواست وام',
+      name: 'loanRequestTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `پیشنهاد می‌کنیم پیش از درخواست وام ویدئوی راهنما را تماشا کنید.`
+  String get loanRequestVideoHint {
+    return Intl.message(
+      'پیشنهاد می‌کنیم پیش از درخواست وام ویدئوی راهنما را تماشا کنید.',
+      name: 'loanRequestVideoHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `اعتبارسنجی و تعیین مبلغ وام`
+  String get loanRequestAssessment {
+    return Intl.message(
+      'اعتبارسنجی و تعیین مبلغ وام',
+      name: 'loanRequestAssessment',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `استعلامات`
+  String get loanRequestInquiries {
+    return Intl.message(
+      'استعلامات',
+      name: 'loanRequestInquiries',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `چک / سفته الکترونیک`
+  String get loanRequestCollateral {
+    return Intl.message(
+      'چک / سفته الکترونیک',
+      name: 'loanRequestCollateral',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `امضاء قرارداد`
+  String get loanRequestContract {
+    return Intl.message(
+      'امضاء قرارداد',
+      name: 'loanRequestContract',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `پایان`
+  String get loanRequestEnd {
+    return Intl.message(
+      'پایان',
+      name: 'loanRequestEnd',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `مرحله بعد`
+  String get loanRequestNext {
+    return Intl.message(
+      'مرحله بعد',
+      name: 'loanRequestNext',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `سپرده*`
+  String get loanRequestDeposit {
+    return Intl.message(
+      'سپرده*',
+      name: 'loanRequestDeposit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `سپرده خود را انتخاب کنید`
+  String get loanRequestDepositHint {
+    return Intl.message(
+      'سپرده خود را انتخاب کنید',
+      name: 'loanRequestDepositHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `نوع بازپرداخت:`
+  String get loanRequestRepayment {
+    return Intl.message(
+      'نوع بازپرداخت:',
+      name: 'loanRequestRepayment',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `قسطی`
+  String get loanRequestInstallments {
+    return Intl.message(
+      'قسطی',
+      name: 'loanRequestInstallments',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `یکجا`
+  String get loanRequestLumpSum {
+    return Intl.message(
+      'یکجا',
+      name: 'loanRequestLumpSum',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `مبلغ وام`
+  String get loanRequestAmount {
+    return Intl.message(
+      'مبلغ وام',
+      name: 'loanRequestAmount',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `مدت زمان بازپرداخت`
+  String get loanRequestMonths {
+    return Intl.message(
+      'مدت زمان بازپرداخت',
+      name: 'loanRequestMonths',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `ماه`
+  String get loanRequestMonthUnit {
+    return Intl.message(
+      'ماه',
+      name: 'loanRequestMonthUnit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `مبلغ قسط ماهانه`
+  String get loanRequestMonthly {
+    return Intl.message(
+      'مبلغ قسط ماهانه',
+      name: 'loanRequestMonthly',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `مجموع وام‌های جاری`
+  String get loanRequestCurrentTotal {
+    return Intl.message(
+      'مجموع وام‌های جاری',
+      name: 'loanRequestCurrentTotal',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `امتیاز ۱۰ ماهه`
+  String get loanRequestScore {
+    return Intl.message(
+      'امتیاز ۱۰ ماهه',
+      name: 'loanRequestScore',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `مشاهده جدول اقساط`
+  String get loanRequestTable {
+    return Intl.message(
+      'مشاهده جدول اقساط',
+      name: 'loanRequestTable',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `طبقه اعتباری`
+  String get loanRequestTier {
+    return Intl.message(
+      'طبقه اعتباری',
+      name: 'loanRequestTier',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `نامشخص`
+  String get loanRequestUnknown {
+    return Intl.message(
+      'نامشخص',
+      name: 'loanRequestUnknown',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `ممتاز`
+  String get loanRequestExcellent {
+    return Intl.message(
+      'ممتاز',
+      name: 'loanRequestExcellent',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `کاملاً متناسب`
+  String get loanRequestFullySuitable {
+    return Intl.message(
+      'کاملاً متناسب',
+      name: 'loanRequestFullySuitable',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `متناسب`
+  String get loanRequestSuitable {
+    return Intl.message(
+      'متناسب',
+      name: 'loanRequestSuitable',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `نامتناسب`
+  String get loanRequestUnsuitable {
+    return Intl.message(
+      'نامتناسب',
+      name: 'loanRequestUnsuitable',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `هسته اعتماد اجتماعی`
+  String get loanRequestSocialCore {
+    return Intl.message(
+      'هسته اعتماد اجتماعی',
+      name: 'loanRequestSocialCore',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `بررسی وضعیت:`
+  String get loanRequestStatusCheck {
+    return Intl.message(
+      'بررسی وضعیت:',
+      name: 'loanRequestStatusCheck',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `مانده وام قابل دریافت مجاز می‌باشد.`
+  String get loanRequestAvailability {
+    return Intl.message(
+      'مانده وام قابل دریافت مجاز می‌باشد.',
+      name: 'loanRequestAvailability',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `اعتبار مورد نیاز کافی است.`
+  String get loanRequestCreditEnough {
+    return Intl.message(
+      'اعتبار مورد نیاز کافی است.',
+      name: 'loanRequestCreditEnough',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `برای دریافت این مبلغ وام به ضامن و اسناد ضمانتی نیاز ندارید.`
+  String get loanRequestNoCollateral {
+    return Intl.message(
+      'برای دریافت این مبلغ وام به ضامن و اسناد ضمانتی نیاز ندارید.',
+      name: 'loanRequestNoCollateral',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `برای ضمانت وام خود، چک یا سفته الکترونیک معادل ۱۲۰٪ مبلغ وام در وجه بانک تهیه و شناسه آن را وارد کنید.`
+  String get loanRequestOwnCollateralHint {
+    return Intl.message(
+      'برای ضمانت وام خود، چک یا سفته الکترونیک معادل ۱۲۰٪ مبلغ وام در وجه بانک تهیه و شناسه آن را وارد کنید.',
+      name: 'loanRequestOwnCollateralHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `شما و ضامن هر کدام باید چک یا سفته الکترونیک معادل ۱۲۰٪ مبلغ وام تهیه و شناسه آن را وارد کنید.`
+  String get loanRequestGuarantorCollateralHint {
+    return Intl.message(
+      'شما و ضامن هر کدام باید چک یا سفته الکترونیک معادل ۱۲۰٪ مبلغ وام تهیه و شناسه آن را وارد کنید.',
+      name: 'loanRequestGuarantorCollateralHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `ارزیابی توان مالی شما در سامانه مرآت انجام نشده است. تا تعیین توان بازپرداخت ماهانه، امکان درخواست وام وجود ندارد.`
+  String get loanRequestUnknownHint {
+    return Intl.message(
+      'ارزیابی توان مالی شما در سامانه مرآت انجام نشده است. تا تعیین توان بازپرداخت ماهانه، امکان درخواست وام وجود ندارد.',
+      name: 'loanRequestUnknownHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `توان بازپرداخت برای مبلغ انتخاب‌شده کافی نیست. مبلغ وام را کاهش دهید یا مدت بازپرداخت را افزایش دهید.`
+  String get loanRequestUnsuitableHint {
+    return Intl.message(
+      'توان بازپرداخت برای مبلغ انتخاب‌شده کافی نیست. مبلغ وام را کاهش دهید یا مدت بازپرداخت را افزایش دهید.',
+      name: 'loanRequestUnsuitableHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `اعتبارسنجی مرآت`
+  String get loanRequestMerat {
+    return Intl.message(
+      'اعتبارسنجی مرآت',
+      name: 'loanRequestMerat',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `سیستم درحال بررسی استعلامات`
+  String get loanRequestReviewing {
+    return Intl.message(
+      'سیستم درحال بررسی استعلامات',
+      name: 'loanRequestReviewing',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `استعلام‌ها توسط سیستم بررسی شد.`
+  String get loanRequestReviewed {
+    return Intl.message(
+      'استعلام‌ها توسط سیستم بررسی شد.',
+      name: 'loanRequestReviewed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `در حال بررسی ...`
+  String get loanRequestProcessing {
+    return Intl.message(
+      'در حال بررسی ...',
+      name: 'loanRequestProcessing',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `تایید شد.`
+  String get loanRequestApproved {
+    return Intl.message(
+      'تایید شد.',
+      name: 'loanRequestApproved',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `استعلام تایید نشد. پس از رفع مشکل تلاش مجدد کنید.`
+  String get loanRequestRejected {
+    return Intl.message(
+      'استعلام تایید نشد. پس از رفع مشکل تلاش مجدد کنید.',
+      name: 'loanRequestRejected',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `چک برگشتی`
+  String get loanRequestReturnedCheque {
+    return Intl.message(
+      'چک برگشتی',
+      name: 'loanRequestReturnedCheque',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `بدهی بانکی`
+  String get loanRequestBankDebt {
+    return Intl.message(
+      'بدهی بانکی',
+      name: 'loanRequestBankDebt',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `مانده بدهی`
+  String get loanRequestOutstandingDebt {
+    return Intl.message(
+      'مانده بدهی',
+      name: 'loanRequestOutstandingDebt',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `نظام وظیفه`
+  String get loanRequestMilitary {
+    return Intl.message(
+      'نظام وظیفه',
+      name: 'loanRequestMilitary',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `مبلغ وام درخواستی:`
+  String get loanRequestRequestedAmount {
+    return Intl.message(
+      'مبلغ وام درخواستی:',
+      name: 'loanRequestRequestedAmount',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `مبلغ تضمین مورد نیاز:`
+  String get loanRequestCollateralAmount {
+    return Intl.message(
+      'مبلغ تضمین مورد نیاز:',
+      name: 'loanRequestCollateralAmount',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `کد ملی ضامن`
+  String get loanRequestGuarantorId {
+    return Intl.message(
+      'کد ملی ضامن',
+      name: 'loanRequestGuarantorId',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `کد ملی ضامن را وارد کنید`
+  String get loanRequestGuarantorIdHint {
+    return Intl.message(
+      'کد ملی ضامن را وارد کنید',
+      name: 'loanRequestGuarantorIdHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `بررسی`
+  String get loanRequestCheck {
+    return Intl.message(
+      'بررسی',
+      name: 'loanRequestCheck',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `نام ضامن`
+  String get loanRequestGuarantorName {
+    return Intl.message(
+      'نام ضامن',
+      name: 'loanRequestGuarantorName',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `ضامن معرفی‌شده مشتری بانک قرض‌الحسنه رسالت نیست. لطفاً فرد دیگری معرفی کنید.`
+  String get loanRequestGuarantorNotCustomer {
+    return Intl.message(
+      'ضامن معرفی‌شده مشتری بانک قرض‌الحسنه رسالت نیست. لطفاً فرد دیگری معرفی کنید.',
+      name: 'loanRequestGuarantorNotCustomer',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `ضامن معرفی‌شده سقف ضمانت کافی ندارد. لطفاً فرد دیگری معرفی کنید.`
+  String get loanRequestGuarantorFull {
+    return Intl.message(
+      'ضامن معرفی‌شده سقف ضمانت کافی ندارد. لطفاً فرد دیگری معرفی کنید.',
+      name: 'loanRequestGuarantorFull',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `اطلاعات شما:`
+  String get loanRequestOwnInfo {
+    return Intl.message(
+      'اطلاعات شما:',
+      name: 'loanRequestOwnInfo',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `اطلاعات ضامن:`
+  String get loanRequestGuarantorInfo {
+    return Intl.message(
+      'اطلاعات ضامن:',
+      name: 'loanRequestGuarantorInfo',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `سفته الکترونیک`
+  String get loanRequestNote {
+    return Intl.message(
+      'سفته الکترونیک',
+      name: 'loanRequestNote',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `چک الکترونیک`
+  String get loanRequestCheque {
+    return Intl.message(
+      'چک الکترونیک',
+      name: 'loanRequestCheque',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `شماره خزانه‌داری سفته الکترونیک`
+  String get loanRequestNoteNumber {
+    return Intl.message(
+      'شماره خزانه‌داری سفته الکترونیک',
+      name: 'loanRequestNoteNumber',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `شناسه چک الکترونیک`
+  String get loanRequestChequeNumber {
+    return Intl.message(
+      'شناسه چک الکترونیک',
+      name: 'loanRequestChequeNumber',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `شماره واردشده صحیح نیست.`
+  String get loanRequestInstrumentInvalid {
+    return Intl.message(
+      'شماره واردشده صحیح نیست.',
+      name: 'loanRequestInstrumentInvalid',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `پوشش بیمه عمر وام`
+  String get loanRequestInsurance {
+    return Intl.message(
+      'پوشش بیمه عمر وام',
+      name: 'loanRequestInsurance',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `این تسهیلات دارای پوشش بیمه عمر است.`
+  String get loanRequestInsuranceHint {
+    return Intl.message(
+      'این تسهیلات دارای پوشش بیمه عمر است.',
+      name: 'loanRequestInsuranceHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `مبلغ بیمه`
+  String get loanRequestInsuranceAmount {
+    return Intl.message(
+      'مبلغ بیمه',
+      name: 'loanRequestInsuranceAmount',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `جزئیات بیمه عمر وام`
+  String get loanRequestInsuranceDetails {
+    return Intl.message(
+      'جزئیات بیمه عمر وام',
+      name: 'loanRequestInsuranceDetails',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `مشاهده قرارداد`
+  String get loanRequestViewContract {
+    return Intl.message(
+      'مشاهده قرارداد',
+      name: 'loanRequestViewContract',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `مشاهده قرارداد و ادامه`
+  String get loanRequestContractContinue {
+    return Intl.message(
+      'مشاهده قرارداد و ادامه',
+      name: 'loanRequestContractContinue',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `تایید قوانین و مقررات`
+  String get loanRequestContractAccept {
+    return Intl.message(
+      'تایید قوانین و مقررات',
+      name: 'loanRequestContractAccept',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `دانلود قرارداد`
+  String get loanRequestDownloadContract {
+    return Intl.message(
+      'دانلود قرارداد',
+      name: 'loanRequestDownloadContract',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `پیش‌نمایش آزمایشی قرارداد درخواست تسهیلات. متن نهایی قرارداد مورد تایید بانک هنوز ارائه نشده است. تایید این نمونه فقط برای آزمایش جریان برنامه است و امضای بانکی ایجاد نمی‌کند.`
+  String get loanRequestMockContract {
+    return Intl.message(
+      'پیش‌نمایش آزمایشی قرارداد درخواست تسهیلات. متن نهایی قرارداد مورد تایید بانک هنوز ارائه نشده است. تایید این نمونه فقط برای آزمایش جریان برنامه است و امضای بانکی ایجاد نمی‌کند.',
+      name: 'loanRequestMockContract',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `متن نهایی پوشش و قرارداد بیمه باید توسط بانک ارائه شود. این صفحه صرفاً نمونه آزمایشی است.`
+  String get loanRequestMissingInsurance {
+    return Intl.message(
+      'متن نهایی پوشش و قرارداد بیمه باید توسط بانک ارائه شود. این صفحه صرفاً نمونه آزمایشی است.',
+      name: 'loanRequestMissingInsurance',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `کد تایید را وارد کنید`
+  String get loanRequestOtpTitle {
+    return Intl.message(
+      'کد تایید را وارد کنید',
+      name: 'loanRequestOtpTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `کد تایید ارسال‌شده به شماره زیر را وارد کنید.`
+  String get loanRequestOtpHint {
+    return Intl.message(
+      'کد تایید ارسال‌شده به شماره زیر را وارد کنید.',
+      name: 'loanRequestOtpHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `ثبت`
+  String get loanRequestSubmit {
+    return Intl.message(
+      'ثبت',
+      name: 'loanRequestSubmit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `ارسال مجدد`
+  String get loanRequestResend {
+    return Intl.message(
+      'ارسال مجدد',
+      name: 'loanRequestResend',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `کد تایید صحیح نیست یا منقضی شده است.`
+  String get loanRequestOtpInvalid {
+    return Intl.message(
+      'کد تایید صحیح نیست یا منقضی شده است.',
+      name: 'loanRequestOtpInvalid',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `درخواست تسهیلات شما با موفقیت ثبت شد. پرونده شما جهت بررسی در صف پردازش قرار دارد. نتیجه نهایی متعاقباً اعلام خواهد شد.`
+  String get loanRequestSuccess {
+    return Intl.message(
+      'درخواست تسهیلات شما با موفقیت ثبت شد. پرونده شما جهت بررسی در صف پردازش قرار دارد. نتیجه نهایی متعاقباً اعلام خواهد شد.',
+      name: 'loanRequestSuccess',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `کد پیگیری عملیات:`
+  String get loanRequestTracking {
+    return Intl.message(
+      'کد پیگیری عملیات:',
+      name: 'loanRequestTracking',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `آماده واریز`
+  String get loanRequestReady {
+    return Intl.message(
+      'آماده واریز',
+      name: 'loanRequestReady',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `درخواست جاری`
+  String get loanRequestCurrent {
+    return Intl.message(
+      'درخواست جاری',
+      name: 'loanRequestCurrent',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `در انتظار سفته`
+  String get loanRequestAwaitingCollateral {
+    return Intl.message(
+      'در انتظار سفته',
+      name: 'loanRequestAwaitingCollateral',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `در انتظار امضا`
+  String get loanRequestAwaitingSignature {
+    return Intl.message(
+      'در انتظار امضا',
+      name: 'loanRequestAwaitingSignature',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `ادامه فرآیند`
+  String get loanRequestContinue {
+    return Intl.message(
+      'ادامه فرآیند',
+      name: 'loanRequestContinue',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `انصراف`
+  String get loanRequestCancel {
+    return Intl.message(
+      'انصراف',
+      name: 'loanRequestCancel',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `از انصراف از درخواست جاری مطمئن هستید؟`
+  String get loanRequestCancelPrompt {
+    return Intl.message(
+      'از انصراف از درخواست جاری مطمئن هستید؟',
+      name: 'loanRequestCancelPrompt',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `محتوا یا سرویس مورد تایید بانک هنوز متصل نشده است.`
+  String get loanRequestUnavailable {
+    return Intl.message(
+      'محتوا یا سرویس مورد تایید بانک هنوز متصل نشده است.',
+      name: 'loanRequestUnavailable',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `طبقه اعتباری از ارزیابی توان مالی مرآت شما به دست می‌آید و مشخص‌کننده توان بازپرداخت اقساط وام توسط شماست. این طبقه اعتباری شامل سه بازه است.\n\n• ممتاز: در این بازه شما نیاز به ضامن ندارید و می‌توانید بدون گذاشتن چک یا سفته الکترونیک درخواست وام نمایید.\n\n• کاملاً متناسب: در این بازه شما نیاز به ضامن ندارید و خودتان می‌توانید با گذاشتن چک یا سفته الکترونیک درخواست وام نمایید.\n\n• متناسب: در این بازه شما نیاز به ضامن دارید و هم شما و هم ضامن باید معادل ۱۲۰٪ مبلغ وام درخواستی چک یا سفته الکترونیک تهیه کنید.`
+  String get loanRequestCreditInfo {
+    return Intl.message(
+      'طبقه اعتباری از ارزیابی توان مالی مرآت شما به دست می‌آید و مشخص‌کننده توان بازپرداخت اقساط وام توسط شماست. این طبقه اعتباری شامل سه بازه است.\n\n• ممتاز: در این بازه شما نیاز به ضامن ندارید و می‌توانید بدون گذاشتن چک یا سفته الکترونیک درخواست وام نمایید.\n\n• کاملاً متناسب: در این بازه شما نیاز به ضامن ندارید و خودتان می‌توانید با گذاشتن چک یا سفته الکترونیک درخواست وام نمایید.\n\n• متناسب: در این بازه شما نیاز به ضامن دارید و هم شما و هم ضامن باید معادل ۱۲۰٪ مبلغ وام درخواستی چک یا سفته الکترونیک تهیه کنید.',
+      name: 'loanRequestCreditInfo',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `گزارش درخواست‌ها`
+  String get loanRequestReports {
+    return Intl.message(
+      'گزارش درخواست‌ها',
+      name: 'loanRequestReports',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `تاریخ درخواست:`
+  String get loanRequestRequestDate {
+    return Intl.message(
+      'تاریخ درخواست:',
+      name: 'loanRequestRequestDate',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `شماره درخواست:`
+  String get loanRequestRequestNumber {
+    return Intl.message(
+      'شماره درخواست:',
+      name: 'loanRequestRequestNumber',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `راهکارها`
+  String get loanRequestSolution {
+    return Intl.message(
+      'راهکارها',
+      name: 'loanRequestSolution',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `تسویه وام‌های قبلی`
+  String get loanRequestSettle {
+    return Intl.message(
+      'تسویه وام‌های قبلی',
+      name: 'loanRequestSettle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `قوانین و مقررات درخواست را مطالعه و تایید می‌نمایم.`
+  String get loanRequestTerms {
+    return Intl.message(
+      'قوانین و مقررات درخواست را مطالعه و تایید می‌نمایم.',
+      name: 'loanRequestTerms',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `جدول اقساط`
+  String get loanRequestScheduleTitle {
+    return Intl.message(
+      'جدول اقساط',
+      name: 'loanRequestScheduleTitle',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `کارمزد`
+  String get loanRequestFee {
+    return Intl.message(
+      'کارمزد',
+      name: 'loanRequestFee',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `قسط`
+  String get loanRequestInstallment {
+    return Intl.message(
+      'قسط',
+      name: 'loanRequestInstallment',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `توان بازپرداخت ماهانه مورد نیاز:`
+  String get loanRequestNeededCapacity {
+    return Intl.message(
+      'توان بازپرداخت ماهانه مورد نیاز:',
+      name: 'loanRequestNeededCapacity',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `توان بازپرداخت ماهانه شما:`
+  String get loanRequestYourCapacity {
+    return Intl.message(
+      'توان بازپرداخت ماهانه شما:',
+      name: 'loanRequestYourCapacity',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `کسری توان بازپرداخت:`
+  String get loanRequestCapacityDeficit {
+    return Intl.message(
+      'کسری توان بازپرداخت:',
+      name: 'loanRequestCapacityDeficit',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `بالا بردن توان بازپرداخت با ارائه اسناد درآمدی در مرآت`
+  String get loanRequestIncomeSolution {
+    return Intl.message(
+      'بالا بردن توان بازپرداخت با ارائه اسناد درآمدی در مرآت',
+      name: 'loanRequestIncomeSolution',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `در صورت داشتن شرایط، با ارائه اسناد شغلی در سامانه مرآت می‌توانید درخواست افزایش توان مالی ثبت کنید.`
+  String get loanRequestIncomeExplanation {
+    return Intl.message(
+      'در صورت داشتن شرایط، با ارائه اسناد شغلی در سامانه مرآت می‌توانید درخواست افزایش توان مالی ثبت کنید.',
+      name: 'loanRequestIncomeExplanation',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `با تسویه وام‌های جاری می‌توانید برای ارزیابی مجدد توان بازپرداخت خود اقدام کنید.`
+  String get loanRequestSettleExplanation {
+    return Intl.message(
+      'با تسویه وام‌های جاری می‌توانید برای ارزیابی مجدد توان بازپرداخت خود اقدام کنید.',
+      name: 'loanRequestSettleExplanation',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `بعدی: `
+  String get loanRequestNextPrefix {
+    return Intl.message(
+      'بعدی: ',
+      name: 'loanRequestNextPrefix',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `مرحله جاری:`
+  String get loanRequestCurrentStage {
+    return Intl.message(
+      'مرحله جاری:',
+      name: 'loanRequestCurrentStage',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `درخواست جاری`
+  String get loanRequestCurrentHeader {
+    return Intl.message(
+      'درخواست جاری',
+      name: 'loanRequestCurrentHeader',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `برای ضمانت وام خود، لازم است سفته یا چک الکترونیک معادل ۱۲۰٪ مبلغ وام به ارزش {amount} تهیه کنید.`
+  String loanRequestCollateralDetails(String amount) {
+    return Intl.message(
+      'برای ضمانت وام خود، لازم است سفته یا چک الکترونیک معادل ۱۲۰٪ مبلغ وام به ارزش $amount تهیه کنید.',
+      name: 'loanRequestCollateralDetails',
+      desc: '',
+      args: [amount],
+    );
+  }
+
+  /// `همچنین ضامن شما باید همین مبلغ سند ضمانت تهیه کند. سفته را از سامانه آی‌کاپ خریداری و شماره خزانه‌داری آن را وارد کنید.`
+  String get loanRequestGuarantorDetails {
+    return Intl.message(
+      'همچنین ضامن شما باید همین مبلغ سند ضمانت تهیه کند. سفته را از سامانه آی‌کاپ خریداری و شماره خزانه‌داری آن را وارد کنید.',
+      name: 'loanRequestGuarantorDetails',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `سفته را از سامانه آی‌کاپ خریداری کنید یا چک الکترونیک در وجه بانک قرض‌الحسنه رسالت ثبت نمایید و شناسه آن را وارد کنید.`
+  String get loanRequestOwnDetails {
+    return Intl.message(
+      'سفته را از سامانه آی‌کاپ خریداری کنید یا چک الکترونیک در وجه بانک قرض‌الحسنه رسالت ثبت نمایید و شناسه آن را وارد کنید.',
+      name: 'loanRequestOwnDetails',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `سامانه آی‌کاپ`
+  String get loanRequestIcup {
+    return Intl.message(
+      'سامانه آی‌کاپ',
+      name: 'loanRequestIcup',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `کد خزانه‌داری سفته خود و سفته ضامن را وارد کنید.`
+  String get loanRequestEnterBoth {
+    return Intl.message(
+      'کد خزانه‌داری سفته خود و سفته ضامن را وارد کنید.',
+      name: 'loanRequestEnterBoth',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `برای دریافت این مبلغ به ضامن نیاز دارید. شما و ضامن هر کدام باید اسناد ضمانت معادل ۱۲۰٪ مبلغ وام تهیه کنید.`
+  String get loanRequestRaiseCollateral {
+    return Intl.message(
+      'برای دریافت این مبلغ به ضامن نیاز دارید. شما و ضامن هر کدام باید اسناد ضمانت معادل ۱۲۰٪ مبلغ وام تهیه کنید.',
+      name: 'loanRequestRaiseCollateral',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `بیمه عمر وام`
+  String get loanRequestInsuranceOptional {
+    return Intl.message(
+      'بیمه عمر وام',
+      name: 'loanRequestInsuranceOptional',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `با انتخاب این گزینه، وام شما تحت پوشش بیمه عمر قرار می‌گیرد.`
+  String get loanRequestInsuranceOptionalHint {
+    return Intl.message(
+      'با انتخاب این گزینه، وام شما تحت پوشش بیمه عمر قرار می‌گیرد.',
+      name: 'loanRequestInsuranceOptionalHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `مشاهده جزئیات`
+  String get loanRequestDetails {
+    return Intl.message(
+      'مشاهده جزئیات',
+      name: 'loanRequestDetails',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `کد OTP ارسال شده به شماره {phone} را وارد کنید.`
+  String loanRequestOtpMessage(String phone) {
+    return Intl.message(
+      'کد OTP ارسال شده به شماره $phone را وارد کنید.',
+      name: 'loanRequestOtpMessage',
+      desc: '',
+      args: [phone],
+    );
+  }
+
+  /// `شماره خزانه‌داری سفته را وارد کنید`
+  String get loanRequestNoteHint {
+    return Intl.message(
+      'شماره خزانه‌داری سفته را وارد کنید',
+      name: 'loanRequestNoteHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `شناسه چک الکترونیک را وارد کنید`
+  String get loanRequestChequeHint {
+    return Intl.message(
+      'شناسه چک الکترونیک را وارد کنید',
+      name: 'loanRequestChequeHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `پیش‌نمایش آزمایشی — طرفین قرارداد\nاطلاعات متقاضی، بانک و مشخصات سپرده در این قسمت از قرارداد نهایی قرار می‌گیرد. این متن نمونه جایگزین قرارداد بانک نیست.\n\nپیش‌نمایش آزمایشی — مبلغ و شرایط تسهیلات\nمبلغ تسهیلات، روش بازپرداخت، تعداد اقساط و سررسیدها باید از قرارداد رسمی و نتیجه بررسی درخواست دریافت شوند. مبالغ و تاریخ‌های نسخه Mock صرفاً برای آزمون رابط هستند.\n\nپیش‌نمایش آزمایشی — تضامین\nمشخصات اسناد ضمانت و ضامن، در صورت نیاز، پس از بررسی و تطبیق توسط بانک به قرارداد افزوده می‌شود. نمایش این بخش به معنی تأیید ضمانت نیست.\n\nپیش‌نمایش آزمایشی — پوشش بیمه\nشرح پوشش، شرایط و مبلغ بیمه باید از متن مصوب بانک دریافت شود. تغییر انتخاب بیمه در این نسخه فقط یک سناریوی آزمایشی است و خرید بیمه انجام نمی‌دهد.\n\nپیش‌نمایش آزمایشی — تعهدات و مقررات\nحقوق و تعهدات طرفین، مقررات بازپرداخت و سایر شرایط در متن نهایی مصوب بانک درج خواهد شد. برای نمایش و آزمون اسکرول، این قسمت نمونه‌ای از فضای متن قرارداد است.\n\nپیش‌نمایش آزمایشی — تأیید و امضا\nانتخاب تأیید و واردکردن کد آزمایشی صرفاً مسیر رابط را آزمایش می‌کند. این نسخه امضای الکترونیک یا قرارداد لازم‌الاجرا ایجاد نمی‌کند.`
+  String get loanRequestMockContractBody {
+    return Intl.message(
+      'پیش‌نمایش آزمایشی — طرفین قرارداد\nاطلاعات متقاضی، بانک و مشخصات سپرده در این قسمت از قرارداد نهایی قرار می‌گیرد. این متن نمونه جایگزین قرارداد بانک نیست.\n\nپیش‌نمایش آزمایشی — مبلغ و شرایط تسهیلات\nمبلغ تسهیلات، روش بازپرداخت، تعداد اقساط و سررسیدها باید از قرارداد رسمی و نتیجه بررسی درخواست دریافت شوند. مبالغ و تاریخ‌های نسخه Mock صرفاً برای آزمون رابط هستند.\n\nپیش‌نمایش آزمایشی — تضامین\nمشخصات اسناد ضمانت و ضامن، در صورت نیاز، پس از بررسی و تطبیق توسط بانک به قرارداد افزوده می‌شود. نمایش این بخش به معنی تأیید ضمانت نیست.\n\nپیش‌نمایش آزمایشی — پوشش بیمه\nشرح پوشش، شرایط و مبلغ بیمه باید از متن مصوب بانک دریافت شود. تغییر انتخاب بیمه در این نسخه فقط یک سناریوی آزمایشی است و خرید بیمه انجام نمی‌دهد.\n\nپیش‌نمایش آزمایشی — تعهدات و مقررات\nحقوق و تعهدات طرفین، مقررات بازپرداخت و سایر شرایط در متن نهایی مصوب بانک درج خواهد شد. برای نمایش و آزمون اسکرول، این قسمت نمونه‌ای از فضای متن قرارداد است.\n\nپیش‌نمایش آزمایشی — تأیید و امضا\nانتخاب تأیید و واردکردن کد آزمایشی صرفاً مسیر رابط را آزمایش می‌کند. این نسخه امضای الکترونیک یا قرارداد لازم‌الاجرا ایجاد نمی‌کند.',
+      name: 'loanRequestMockContractBody',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `برای ضمانت وام خود، لازم است سند الکترونیک معادل ۱۲۰٪ مبلغ وام، به ارزش `
+  String get loanRequestCollateralBefore {
+    return Intl.message(
+      'برای ضمانت وام خود، لازم است سند الکترونیک معادل ۱۲۰٪ مبلغ وام، به ارزش ',
+      name: 'loanRequestCollateralBefore',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// ` تهیه کنید.`
+  String get loanRequestCollateralAfter {
+    return Intl.message(
+      ' تهیه کنید.',
+      name: 'loanRequestCollateralAfter',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `مرآت`
+  String get loanRequestMeratLink {
+    return Intl.message(
+      'مرآت',
+      name: 'loanRequestMeratLink',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `مبلغ سفته مورد نیاز:`
+  String get loanRequestNoteAmount {
+    return Intl.message(
+      'مبلغ سفته مورد نیاز:',
+      name: 'loanRequestNoteAmount',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `برای دریافت این مبلغ به ضامن نیاز ندارید. کافیست یک فقره سفته الکترونیک به مبلغ ۱۲۰٪ مبلغ وام خود به ارزش {amount} از سامانه آی‌کاپ خریداری یا چک الکترونیک در وجه بانک قرض‌الحسنه رسالت ثبت نمایید.`
+  String loanRequestOwnAssessmentHint(String amount) {
+    return Intl.message(
+      'برای دریافت این مبلغ به ضامن نیاز ندارید. کافیست یک فقره سفته الکترونیک به مبلغ ۱۲۰٪ مبلغ وام خود به ارزش $amount از سامانه آی‌کاپ خریداری یا چک الکترونیک در وجه بانک قرض‌الحسنه رسالت ثبت نمایید.',
+      name: 'loanRequestOwnAssessmentHint',
+      desc: '',
+      args: [amount],
+    );
+  }
+
+  /// `برای دریافت این مبلغ به ضامن نیاز دارید. شما و ضامن هر کدام باید یک فقره سفته الکترونیک به مبلغ ۱۲۰٪ مبلغ وام درخواستی، به ارزش {amount} از سامانه آی‌کاپ خریداری یا چک الکترونیک در وجه بانک قرض‌الحسنه رسالت ثبت نمایید.`
+  String loanRequestBothAssessmentHint(String amount) {
+    return Intl.message(
+      'برای دریافت این مبلغ به ضامن نیاز دارید. شما و ضامن هر کدام باید یک فقره سفته الکترونیک به مبلغ ۱۲۰٪ مبلغ وام درخواستی، به ارزش $amount از سامانه آی‌کاپ خریداری یا چک الکترونیک در وجه بانک قرض‌الحسنه رسالت ثبت نمایید.',
+      name: 'loanRequestBothAssessmentHint',
+      desc: '',
+      args: [amount],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

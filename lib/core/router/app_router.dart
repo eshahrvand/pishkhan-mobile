@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/features/loans/presentation/request/screens/loan_request_screen.dart';
 import 'package:pishkhan_mobile/features/cards/domain/entities/card_restriction.dart';
 import 'package:pishkhan_mobile/features/cards/presentation/card_restriction/screens/card_restriction_screen.dart';
 import 'package:pishkhan_mobile/features/wallet/presentation/overview/screens/overview_screen.dart';
@@ -112,6 +113,10 @@ GoRouter createAppRouter({
       ),
 
       // Modern banking: feature screens own their Providers and dependencies.
+      GoRoute(
+        path: AppRoutes.loanRequest,
+        builder: (context, state) => const LoanRequestScreen(),
+      ),
       GoRoute(
         path: AppRoutes.mobileBank,
         builder: (context, state) => const MobileBankScreen(),

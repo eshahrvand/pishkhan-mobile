@@ -4,6 +4,8 @@ abstract final class AppRoutes {
   static const unblockCard = '/cards/unblock';
   static const splash = '/launch/splash';
 
+  static const loanRequest = '/loans/request';
+
   static const home = '/dashboard/home';
   static const allServices = '/dashboard/services';
   static const requestReports = '/requests/reports';

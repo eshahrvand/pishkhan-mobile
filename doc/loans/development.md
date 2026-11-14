@@ -1,5 +1,8 @@
 # Dashboard Loans development and review
 
+Loan-request follow-up: [live assessment slider and Figma verification,
+2026-11-14](loan-assessment-slider-2026-11-14.md).
+
 Reviewed: 2026-11-01 — Cubit migration, phase 2.
 
 LoansTab is a dashboard summary, not a standalone loan-request feature. It shares
@@ -73,3 +76,13 @@ snapshots, concurrent operations, context in action effects, copy/details,
 carousel behavior, Back, small screens and text scale. Numeric progress tests
 remain under test/dashboard/domain/entities. Dashboard development records the
 commands/results; historical 119-app/102-package totals are not current claims.
+
+## Loan application feature (2026-11-14)
+
+A separate `/loans/request` flow is now reachable from the loan services catalog.
+Its own screen-owned LoanRequestCubit and registered UseCases use the explicitly
+approved in-memory mock. See [loan application implementation and Figma audit](loan-request.md)
+for the supported stages, simulator inputs and tests. The subsequent
+[Figma corrections](figma-corrections-2026-11-14.md) cover the reviewed visual
+differences and the now-implemented social-credit-core mock path.
+This does not connect the dashboard loan repository or any live bank endpoint.

@@ -21,6 +21,7 @@ enum DashboardService {
   changePassword('card-pin-second-change'),
   cardDeposit('card-deposit'),
   block('card-block'),
+  requestLoan('loan-request'),
   estimate('loan-estimate'),
   introduce('loan-introduce'),
   consolidation('loan-consolidate'),
@@ -91,6 +92,7 @@ enum DashboardService {
   static const cheques = [clearCheque, issueCheque, cancelCheque];
   static const transfers = [localTransfer];
   static const loans = [
+    requestLoan,
     myLoans,
     introduce,
     consolidation,
@@ -141,6 +143,7 @@ enum DashboardService {
     changePassword => S.current.passwordChange,
     cardDeposit => S.current.changeCardDeposit,
     block => S.current.blockCard,
+    requestLoan => S.current.loanRequestTitle,
     estimate => S.current.loanEstimate,
     introduce => S.current.introduceLoan,
     consolidation => S.current.consolidateDepositCredit,
@@ -189,6 +192,7 @@ enum DashboardService {
     mobileBank => S.current.mobileBank,
     internetBank => S.current.internetBank,
     loanDeposit => S.current.dashboardManageInstallments,
+    requestLoan => S.current.loanRequestTitle,
     estimate => S.current.dashboardEstimateCredit,
     _ => label(),
   };
@@ -204,6 +208,7 @@ enum DashboardService {
     cardDeposit =>
       '${AppConstants.baseImage}dashboard_catalog_card_deposit.svg',
     block => '${AppConstants.baseImage}dashboard_catalog_block.svg',
+    requestLoan ||
     estimate => '${AppConstants.baseImage}dashboard_catalog_estimate.svg',
     introduce => '${AppConstants.baseImage}dashboard_catalog_introduce.svg',
     consolidation =>
@@ -228,6 +233,7 @@ enum DashboardService {
 
   String get fixedAsset => switch (this) {
     sms => '${AppConstants.baseImage}dashboard_fixed_sms.svg',
+    requestLoan ||
     estimate => '${AppConstants.baseImage}dashboard_fixed_estimate.svg',
     password ||
     forgotPassword ||

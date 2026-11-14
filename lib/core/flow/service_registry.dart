@@ -28,6 +28,10 @@ abstract final class ServiceRegistry {
     String? initialDepositNumber,
     String? initialCardNumber,
   }) {
+    if (id == 'loan-request') {
+      context.push<void>(AppRoutes.loanRequest);
+      return true;
+    }
     final walletPath = switch (id) {
       'wallet-info' => AppRoutes.walletOverview,
       'wallet-charge' => AppRoutes.walletCharge,
