@@ -33,6 +33,8 @@ The key survives retry. The repository checks current funds at commit. The recei
 
 Wallet fetch, recipient inquiry, transfer and receipt share all block system/header Back while pending. Destination or amount input requires Cubit-owned discard confirmation. Stay/dismissal preserves inputs; receipt Back/Close uses `go` to Dashboard Home.
 
+Back also cancels any not-yet-started recipient debounce before publishing the exit-confirmation command. Thus waiting on the sheet cannot start a new inquiry behind it. If the user stays or dismisses the sheet, Cubit delegates to the existing inquiry owner only for a stored valid destination whose inquiry has not started (`recipientStatus.initial`). Completed/failed inquiries are not repeated; invalid input is not queried. The destination validator still runs once on edit and stores its validity. Resumed inquiries use the ordinary loading/Back gates and stale-response handling.
+
 ## Verification
 
 Behavioral coverage is in `test/wallet/wallet_cubit_test.dart` and

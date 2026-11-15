@@ -24,6 +24,7 @@ class ControlledWalletRepository extends MockWalletRepository {
   bool throwCatalog = false;
   bool controlledInquiry = false;
   int chargeCalls = 0;
+  int recipientCalls = 0;
   final payments = <WalletPaymentRequest>[];
   final inquiries = <Completer<Result<WalletRecipient>>>[];
   @override
@@ -45,6 +46,7 @@ class ControlledWalletRepository extends MockWalletRepository {
 
   @override
   Future<Result<WalletRecipient>> inquireRecipient(String destination) {
+    recipientCalls++;
     if (!controlledInquiry) return super.inquireRecipient(destination);
     final pending = Completer<Result<WalletRecipient>>();
     inquiries.add(pending);
@@ -63,6 +65,38 @@ void main() {
     getIt.registerSingleton<WalletRepository>(repository);
   });
   tearDown(() => getIt.reset());
+  for (final destination in ['09126024179', '09128888888']) {
+    test(
+      'cancelled exit does not repeat a finished inquiry for $destination',
+      () async {
+        final cubit = WalletTransferCubit();
+        addTearDown(cubit.close);
+        await cubit.fetchWallet();
+        cubit.updateDestination(destination);
+        await cubit.inquireRecipient();
+        final previous = cubit.state;
+        cubit.requestBack();
+        cubit.consumeNavigation();
+        await cubit.applyExitConfirmation(false);
+        expect(repository.recipientCalls, 1);
+        expect(cubit.state.recipientStatus, previous.recipientStatus);
+        expect(cubit.state.recipient, previous.recipient);
+        expect(cubit.state.message, previous.message);
+      },
+    );
+  }
+  test('cancelled exit does not inquire an invalid destination', () async {
+    final cubit = WalletTransferCubit();
+    addTearDown(cubit.close);
+    await cubit.fetchWallet();
+    cubit.updateDestination('123');
+    cubit.requestBack();
+    cubit.consumeNavigation();
+    await cubit.applyExitConfirmation(null);
+    expect(repository.recipientCalls, 0);
+    expect(cubit.state.destination, '123');
+    expect(cubit.state.recipientStatus, RequestStatus.initial);
+  });
   test('charge share failures repeat independently of payment and success retains failure text', () async {
     final cubit = WalletChargeCubit();
     addTearDown(cubit.close);

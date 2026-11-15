@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
+import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/flow/service_registry.dart';
 import 'package:pishkhan_mobile/core/result/result.dart';
 import 'package:pishkhan_mobile/features/wallet/data/repositories/mock_wallet_repository.dart';
@@ -49,9 +50,12 @@ class DelayedTransactionsRepository extends MockWalletRepository {
 
 class DelayedRecipientRepository extends MockWalletRepository {
   final pending = Completer<Result<WalletRecipient>>();
+  int inquiries = 0;
   @override
-  Future<Result<WalletRecipient>> inquireRecipient(String destination) =>
-      pending.future;
+  Future<Result<WalletRecipient>> inquireRecipient(String destination) {
+    inquiries++;
+    return pending.future;
+  }
 }
 
 class DelayedOtpRepository extends MockWalletRepository {
@@ -83,6 +87,102 @@ void main() {
   setUpAll(loadWalletFonts);
   setUp(configureDependencies);
   tearDown(() => getIt.reset());
+
+  for (final systemBack in [false, true]) {
+    for (final decision in ['exit', 'stay', 'dismiss']) {
+      testWidgets(
+        'transfer debounce pauses for ${systemBack ? 'system' : 'header'} exit confirmation and $decision',
+        (tester) async {
+          final repository = DelayedRecipientRepository();
+          await getIt.unregister<WalletRepository>();
+          getIt.registerSingleton<WalletRepository>(repository);
+          await mountWallet(
+            tester,
+            Builder(
+              builder: (context) => AppButton(
+                label: 'transfer entry',
+                onPressed: () =>
+                    ServiceRegistry.openCardService(context, 'wallet-transfer'),
+              ),
+            ),
+          );
+          await tester.tap(find.text('transfer entry'));
+          await tester.pumpAndSettle();
+          final cubit = tester
+              .element(find.byType(WalletTransferForm))
+              .read<WalletTransferCubit>();
+          await tester.enterText(find.byType(TextField).first, '09126024179');
+          await tester.pump();
+          if (systemBack) {
+            await tester.binding.handlePopRoute();
+          } else {
+            await tester.tap(find.byTooltip(S.current.backLabel));
+          }
+          await tester.pump();
+          await tester.pump(const Duration(milliseconds: 500));
+          await tester.pump();
+          expect(find.byType(FlowExitSheet), findsOneWidget);
+          expect(
+            repository.inquiries,
+            0,
+            reason: 'A scheduled inquiry must not start behind the exit confirmation.',
+          );
+          expect(cubit.state.recipientStatus, RequestStatus.initial);
+          if (decision == 'exit') {
+            await tester.tap(find.text(S.current.passwordExit));
+            await tester.pumpAndSettle();
+            expect(find.byType(WalletTransferScreen), findsNothing);
+            expect(find.text('transfer entry'), findsOneWidget);
+            expect(repository.inquiries, 0);
+          } else {
+            if (decision == 'stay') {
+              await tester.tap(find.text(S.current.passwordStay));
+            } else {
+              await tester.binding.handlePopRoute();
+            }
+            await tester.pump();
+            await tester.pump(const Duration(milliseconds: 500));
+            await tester.pump();
+            expect(find.byType(FlowExitSheet), findsNothing);
+            expect(find.byType(WalletTransferScreen), findsOneWidget);
+            expect(cubit.state.destination, '09126024179');
+            expect(repository.inquiries, 1);
+            expect(cubit.state.recipientStatus, RequestStatus.loading);
+            expect(
+              tester.widget<AppTopBar>(find.byType(AppTopBar)).isTrailingActive,
+              isFalse,
+            );
+            await tester.binding.handlePopRoute();
+            await tester.pump();
+            expect(find.byType(FlowExitSheet), findsNothing);
+            expect(find.byType(WalletTransferScreen), findsOneWidget);
+            repository.pending.complete(
+              const Success(
+                WalletRecipient(id: '09126024179', name: 'مهسا جوانمرد'),
+              ),
+            );
+            await tester.pumpAndSettle();
+            expect(cubit.state.recipientStatus, RequestStatus.success);
+            await tester.enterText(find.byType(TextField).last, '100000');
+            await tester.pump();
+            expect(
+              tester
+                  .widget<AppButton>(
+                    find.widgetWithText(
+                      AppButton,
+                      S.current.walletConfirmTransfer,
+                    ),
+                  )
+                  .isActive,
+              isTrue,
+            );
+            expect(repository.inquiries, 1);
+          }
+          expect(tester.takeException(), isNull);
+        },
+      );
+    }
+  }
 
   for (final charge in [true, false]) {
     testWidgets(

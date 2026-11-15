@@ -41,7 +41,9 @@ class WalletTransferScreen extends StatelessWidget {
         context.read<WalletTransferCubit>().consumeNavigation();
         final confirmed = await showFlowExitSheet(context);
         if (context.mounted) {
-          context.read<WalletTransferCubit>().applyExitConfirmation(confirmed);
+          await context.read<WalletTransferCubit>().applyExitConfirmation(
+            confirmed,
+          );
         }
       case FlowNavigation.back:
         // Rebuild PopScope with the authorized exit before performing the pop.

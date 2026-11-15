@@ -9,6 +9,7 @@ abstract class WalletTransferState with _$WalletTransferState {
     @Default(RequestStatus.initial) RequestStatus submissionStatus,
     WalletSummary? wallet,
     @Default('') String destination,
+    @Default(false) bool isDestinationValid,
     @Default(false) bool isDestinationError,
     WalletRecipient? recipient,
     @Default('') String amount,

@@ -30,6 +30,8 @@ class WalletTransferCubit extends Cubit<WalletTransferState> {
   int _recipientRequestId = 0;
   Timer? _inquiryTimer;
   void requestBack() {
+    // A scheduled inquiry must not start behind the exit-confirmation sheet.
+    _inquiryTimer?.cancel();
     emit(
       state.copyWith(
         navigation: state.receipt != null
@@ -41,9 +43,12 @@ class WalletTransferCubit extends Cubit<WalletTransferState> {
     );
   }
 
-  void applyExitConfirmation(bool? confirmed) {
+  Future<void> applyExitConfirmation(bool? confirmed) async {
     if (confirmed == true) {
       emit(state.copyWith(navigation: FlowNavigation.back));
+    } else if (state.isDestinationValid &&
+        state.recipientStatus == RequestStatus.initial) {
+      await inquireRecipient();
     }
   }
 
@@ -83,6 +88,7 @@ class WalletTransferCubit extends Cubit<WalletTransferState> {
     emit(
       state.copyWith(
         destination: normalized,
+        isDestinationValid: valid,
         recipient: null,
         isDestinationError: value.isNotEmpty && !valid,
         canSubmit: false,
