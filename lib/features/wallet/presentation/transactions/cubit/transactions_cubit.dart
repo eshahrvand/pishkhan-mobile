@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/flow/flow_navigation.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:pishkhan_mobile/core/validators/jalali_date_parser.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -23,8 +24,9 @@ class WalletTransactionsCubit extends Cubit<WalletTransactionsState> {
   final fetchWalletTransactionsUseCase =
       getIt<FetchWalletTransactionsUseCase>();
 
-
-
+  void requestBack() {
+    emit(state.copyWith(navigation: FlowNavigation.back));
+  }
 
   Future<void> fetchTransactions() async {
     emit(state.copyWith(transactionsStatus: RequestStatus.loading));

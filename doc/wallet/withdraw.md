@@ -29,6 +29,10 @@ Amount edits invalidate the old challenge; expiry enables resend. The timer is d
 
 Demo OTP **2345**, validity **60 seconds**. Only an in-memory wallet balance changes; no actual deposit is credited. Bank payout eligibility, final limits and transaction authorization must come from the production API.
 
+## Back and exit ownership
+
+Wallet fetch, OTP, withdrawal and receipt share all block system/header Back while pending. An entered amount requires Cubit-owned discard confirmation. Stay/dismissal preserves inputs; receipt Back/Close uses `go` to Dashboard Home.
+
 ## Verification
 
 Behavioral coverage is in `test/wallet/wallet_cubit_test.dart` and

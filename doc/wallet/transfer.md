@@ -29,6 +29,10 @@ Known demo recipients are `09126024179` / wallet `10000001` (مهسا جوانم
 
 The key survives retry. The repository checks current funds at commit. The receipt replaces the form and shares its actual returned data. There is no OTP step in the supplied transfer designs; production authorization requirements remain an API integration decision.
 
+## Back and exit ownership
+
+Wallet fetch, recipient inquiry, transfer and receipt share all block system/header Back while pending. Destination or amount input requires Cubit-owned discard confirmation. Stay/dismissal preserves inputs; receipt Back/Close uses `go` to Dashboard Home.
+
 ## Verification
 
 Behavioral coverage is in `test/wallet/wallet_cubit_test.dart` and

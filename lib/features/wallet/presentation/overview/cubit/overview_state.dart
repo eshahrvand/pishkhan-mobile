@@ -14,6 +14,7 @@ abstract class WalletOverviewState with _$WalletOverviewState {
     @Default(RequestStatus.initial) RequestStatus walletStatus,
     WalletSummary? wallet,
     WalletDestination? destination,
+    FlowNavigation? navigation,
     Failure? failure,
     String? message,
   }) = _WalletOverviewState;

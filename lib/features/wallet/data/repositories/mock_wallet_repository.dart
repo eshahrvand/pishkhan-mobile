@@ -7,6 +7,12 @@ import '../../domain/repositories/wallet_repository.dart';
 /// In-memory demo ledger. No bank account or real funds are accessed.
 class MockWalletRepository implements WalletRepository {
   static const demoOtp = '2345';
+  static const _recipientNames = {
+    '09126024179': 'مهسا جوانمرد',
+    '10000001': 'مهسا جوانمرد',
+    '09121111111': 'علی رضایی',
+    '10000002': 'علی رضایی',
+  };
   static const deposits = [
     WalletDeposit('d1', '10.12003456.1'),
     WalletDeposit('d2', '10.12003456.2'),
@@ -79,8 +85,7 @@ class MockWalletRepository implements WalletRepository {
     if (!challenge.$1.expiresAt.isAfter(DateTime.now())) {
       return const Err(DataFailure('wallet.otp.expired'));
     }
-    if (request.otp == '1111' ||
-        request.otp.length != challenge.$1.codeLength) {
+    if (request.otp != demoOtp) {
       return const Err(DataFailure('wallet.otp.invalid'));
     }
     if (request.amountRial <= 0) {
@@ -107,26 +112,29 @@ class MockWalletRepository implements WalletRepository {
 
   @override
   Future<Result<WalletRecipient>> inquireRecipient(String destination) async {
+    return _resolveRecipient(destination);
+  }
+
+  Result<WalletRecipient> _resolveRecipient(String destination) {
     if (destination == _wallet.id) {
       return const Err(DataFailure('wallet.recipient.self'));
     }
-    if (destination == '09129999999') {
+    final name = _recipientNames[destination];
+    if (name == null) {
       return const Err(DataFailure('wallet.recipient.not-found'));
     }
-    return Success(
-      WalletRecipient(id: destination, name: 'مهسا جوانمرد'),
-    );
+    return Success(WalletRecipient(id: destination, name: name));
   }
 
   @override
   Future<Result<WalletReceipt>> transfer(WalletTransferRequest request) async {
     final existing = _receipts[request.idempotencyKey];
     if (existing != null) return Success(existing);
-    if (request.recipientId == _wallet.id) {
-      return const Err(DataFailure('wallet.recipient.self'));
-    }
-    if (request.recipientId == '09129999999') {
-      return const Err(DataFailure('wallet.recipient.not-found'));
+    switch (_resolveRecipient(request.recipientId)) {
+      case Err(:final failure):
+        return Err(failure);
+      case Success():
+        break;
     }
     if (request.amountRial <= 0) {
       return const Err(DataFailure('wallet.amount.invalid'));

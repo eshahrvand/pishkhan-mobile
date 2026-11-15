@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/flow/flow_navigation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
@@ -18,6 +19,10 @@ class WalletOverviewCubit extends Cubit<WalletOverviewState> {
     WalletOverviewState initialState = const WalletOverviewState.initial(),
   }) : super(initialState);
   final fetchWalletCatalogUseCase = getIt<FetchWalletCatalogUseCase>();
+
+  void requestBack() {
+    emit(state.copyWith(navigation: FlowNavigation.back));
+  }
 
   Future<void> fetchWallet() async {
     emit(state.copyWith(walletStatus: RequestStatus.loading));

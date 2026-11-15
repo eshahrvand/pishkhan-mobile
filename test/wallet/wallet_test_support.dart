@@ -33,6 +33,7 @@ Future<void> mountWallet(
   Size size = const Size(375, 812),
   String locale = 'fa',
   double scale = 1,
+  bool settle = true,
 }) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
@@ -64,7 +65,12 @@ Future<void> mountWallet(
       ),
     ),
   );
-  await tester.pumpAndSettle();
+  if (settle) {
+    await tester.pumpAndSettle();
+  } else {
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pump(const Duration(milliseconds: 300));
+  }
 }
 
 Future<void> captureWallet(WidgetTester tester, String name) async {

@@ -31,7 +31,7 @@ class LoanCreditStatus extends StatelessWidget {
               labelStyle: AppTypography.bodySmall.copyWith(
                 fontWeight: FontWeight.w500,
                 letterSpacing: 0,
-                color: const Color(0xFF454C52),
+                color: context.colors.textSecondary,
               ),
               padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 11),
               backgroundColor: AppPalette.gray25,

@@ -21,6 +21,7 @@ abstract class WalletTransferState with _$WalletTransferState {
     WalletReceipt? receipt,
     String? shareText,
     WalletReceiptEffect? effect,
+    FlowNavigation? navigation,
     Failure? failure,
     String? message,
   }) = _WalletTransferState;

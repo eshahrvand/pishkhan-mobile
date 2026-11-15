@@ -209,7 +209,9 @@ void main() {
     expect(repository.submissions, 1);
     final fields = tester.widgetList<AppTextField>(find.byType(AppTextField));
     expect(fields.every((f) => !f.enabled), true);
-    final pops = tester.widgetList<PopScope>(find.byType(PopScope));
+    final pops = tester.widgetList<PopScope>(
+      find.byWidgetPredicate((widget) => widget is PopScope),
+    );
     expect(pops.any((p) => !p.canPop), true);
     repository.pending.complete(
       Success(

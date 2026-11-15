@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/features/loans/presentation/request/screens/loan_request_screen.dart';
+
 import '../../support/auth_test_dependencies.dart';
 
 import 'package:pishkhan_mobile/features/dashboard/presentation/home/widgets/dashboard_home_panel.dart';
@@ -134,6 +136,7 @@ void main() {
     'return destination accepts implemented local routes and rejects tampering',
     () {
       for (final value in [
+        AppRoutes.loanRequest,
         AppRoutes.walletOverview,
         AppRoutes.walletCharge,
         AppRoutes.walletWithdraw,
@@ -228,64 +231,68 @@ void main() {
       },
     );
   }
-  testWidgets(
-    'protected deep link survives login; logout closes the protected flow',
-    (tester) async {
-      final session = RouterSession();
-      final router = createAppRouter(
-        session: session,
-        initialLocation: AppRoutes.virtualCardRequest,
-        homeBuilder: (_) => const Scaffold(body: Text('Home')),
-      );
-      addTearDown(() {
-        router.dispose();
-        session.dispose();
-      });
-      await tester.pumpWidget(app(router));
-      await tester.pumpAndSettle();
-      router.go(
-        AppRoutes.virtualCardRequest,
-        extra: const CardRouteArguments(initialDepositNumber: '10.123.1'),
-      );
-      await tester.pumpAndSettle();
-      expect(router.routeInformationProvider.value.uri.path, AppRoutes.login);
-      expect(
-        router.routeInformationProvider.value.uri.queryParameters['from'],
-        AppRoutes.virtualCardRequest,
-      );
-      final cubit = tester
-          .element(find.byType(BlocBuilder<AuthCubit, AuthState>).first)
-          .read<AuthCubit>();
-      cubit.updateNationalId('0081234562');
-      cubit.updatePhoneNumber('09121234567');
-      cubit.updateCaptcha('123456');
-      await cubit.submitOtpRequest();
-      cubit.updateOtp('123456');
-      await tester.pumpAndSettle();
-      await tester.tap(authControl(tester, 'submit_otp_button'));
-      await tester.pumpAndSettle();
-      expect(session.isAuthenticated, isTrue);
-      expect(
-        router.routeInformationProvider.value.uri.path,
-        AppRoutes.virtualCardRequest,
-      );
-      expect(find.byType(VirtualCardRequestScreen), findsOneWidget);
-      expect(
-        tester
-            .widget<VirtualCardRequestScreen>(
-              find.byType(VirtualCardRequestScreen),
-            )
-            .initialDepositNumber,
-        '10.123.1',
-      );
-      expect(router.canPop(), isFalse);
-      session.signOut();
-      await tester.pumpAndSettle();
-      expect(find.byType(AuthScreen), findsOneWidget);
-      expect(find.byType(VirtualCardRequestScreen), findsNothing);
-      await tester.pumpWidget(const SizedBox.shrink());
-    },
-  );
+  for (final (destination, screenType) in [
+    (AppRoutes.virtualCardRequest, VirtualCardRequestScreen),
+    (AppRoutes.loanRequest, LoanRequestScreen),
+  ]) {
+    testWidgets(
+      '$destination survives login; logout closes the protected flow',
+      (tester) async {
+        final session = RouterSession();
+        final router = createAppRouter(
+          session: session,
+          initialLocation: destination,
+          homeBuilder: (_) => const Scaffold(body: Text('Home')),
+        );
+        addTearDown(() {
+          router.dispose();
+          session.dispose();
+        });
+        await tester.pumpWidget(app(router));
+        await tester.pumpAndSettle();
+        router.go(
+          destination,
+          extra: destination == AppRoutes.virtualCardRequest
+              ? const CardRouteArguments(initialDepositNumber: '10.123.1')
+              : null,
+        );
+        await tester.pumpAndSettle();
+        expect(router.routeInformationProvider.value.uri.path, AppRoutes.login);
+        expect(
+          router.routeInformationProvider.value.uri.queryParameters['from'],
+          destination,
+        );
+        final cubit = tester
+            .element(find.byType(BlocBuilder<AuthCubit, AuthState>).first)
+            .read<AuthCubit>();
+        cubit.updateNationalId('0081234562');
+        cubit.updatePhoneNumber('09121234567');
+        cubit.updateCaptcha('123456');
+        await cubit.submitOtpRequest();
+        cubit.updateOtp('123456');
+        await tester.pumpAndSettle();
+        await tester.tap(authControl(tester, 'submit_otp_button'));
+        await tester.pumpAndSettle();
+        expect(session.isAuthenticated, isTrue);
+        expect(router.routeInformationProvider.value.uri.path, destination);
+        expect(find.byType(screenType), findsOneWidget);
+        if (destination == AppRoutes.virtualCardRequest) {
+          expect(
+            tester
+                .widget<VirtualCardRequestScreen>(find.byType(screenType))
+                .initialDepositNumber,
+            '10.123.1',
+          );
+        }
+        expect(router.canPop(), isFalse);
+        session.signOut();
+        await tester.pumpAndSettle();
+        expect(find.byType(AuthScreen), findsOneWidget);
+        expect(find.byType(screenType), findsNothing);
+        await tester.pumpWidget(const SizedBox.shrink());
+      },
+    );
+  }
   testWidgets('unsupported URL has a recoverable screen', (tester) async {
     final session = RouterSession(true);
     final router = createAppRouter(

@@ -31,7 +31,7 @@ class LoanCreditScale extends StatelessWidget {
                     style: AppTypography.caption.copyWith(
                       fontSize: 10,
                       color: assessment.range == band
-                          ? const Color(0xFF181D27)
+                          ? context.colors.textPrimary
                           : context.colors.textTertiary,
                       fontWeight: assessment.range == band
                           ? FontWeight.w600

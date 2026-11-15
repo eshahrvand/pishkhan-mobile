@@ -235,10 +235,9 @@ class AppServiceGridItemView extends StatelessWidget {
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.center,
-            style: AppTypography.labelSmall
+            style: AppTypography.caption
                 .copyWith(
                   color: colors.textPrimary,
-                  fontSize: 10,
                   fontWeight: FontWeight.w400,
 
                   letterSpacing: 0,

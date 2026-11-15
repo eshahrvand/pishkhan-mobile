@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/core/flow/flow_navigation.dart';
+
 import '../../shared/wallet_labels.dart';
 import '../../shared/wallet_receipt_effect.dart';
 
@@ -26,6 +28,28 @@ class WalletWithdrawCubit extends Cubit<WalletWithdrawState> {
   final requestWalletOtpUseCase = getIt<RequestWalletOtpUseCase>();
   final withdrawWalletUseCase = getIt<WithdrawWalletUseCase>();
   Timer? _timer;
+
+  void requestBack() {
+    emit(
+      state.copyWith(
+        navigation: state.receipt != null
+            ? FlowNavigation.home
+            : state.amount.isNotEmpty
+            ? FlowNavigation.confirmExit
+            : FlowNavigation.back,
+      ),
+    );
+  }
+
+  void applyExitConfirmation(bool? confirmed) {
+    if (confirmed == true) {
+      emit(state.copyWith(navigation: FlowNavigation.back));
+    }
+  }
+
+  void consumeNavigation() {
+    emit(state.copyWith(navigation: null));
+  }
 
   Future<void> fetchWallet() async {
     emit(state.copyWith(walletStatus: RequestStatus.loading));

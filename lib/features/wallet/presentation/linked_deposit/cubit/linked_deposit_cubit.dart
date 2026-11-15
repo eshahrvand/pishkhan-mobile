@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/core/flow/flow_navigation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
@@ -21,6 +22,26 @@ class WalletLinkedDepositCubit extends Cubit<WalletLinkedDepositState> {
   final fetchWalletCatalogUseCase = getIt<FetchWalletCatalogUseCase>();
   final changeWalletLinkedDepositUseCase =
       getIt<ChangeWalletLinkedDepositUseCase>();
+  void requestBack() {
+    emit(
+      state.copyWith(
+        navigation: state.deposit != null || state.termsAccepted
+            ? FlowNavigation.confirmExit
+            : FlowNavigation.back,
+      ),
+    );
+  }
+
+  void applyExitConfirmation(bool? confirmed) {
+    if (confirmed == true) {
+      emit(state.copyWith(navigation: FlowNavigation.back));
+    }
+  }
+
+  void consumeNavigation() {
+    emit(state.copyWith(navigation: null));
+  }
+
   Future<void> fetchCatalog() async {
     emit(state.copyWith(catalogStatus: RequestStatus.loading));
     final result = await fetchWalletCatalogUseCase();
@@ -86,6 +107,7 @@ class WalletLinkedDepositCubit extends Cubit<WalletLinkedDepositState> {
           state.copyWith(
             submissionStatus: RequestStatus.success,
             canSubmit: false,
+            navigation: FlowNavigation.back,
           ),
         );
     }

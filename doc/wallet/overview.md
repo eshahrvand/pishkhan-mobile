@@ -27,6 +27,10 @@ Existing `AppCreditCardMockup` (wallet, compact), `AppServiceGridCard`, top bar 
 
 The Dashboard home balance remains its existing independent dashboard fixture; it is not a subscription to the wallet demo ledger. Within `wallet`, all six flows read the same repository ledger and overview refreshes after returning. Production Home and wallet need a server-backed shared balance contract rather than cross-feature Cubit access.
 
+## Back and exit ownership
+
+The initial/refresh catalog request blocks system and header Back while loading. Both Back paths call the owning Cubit and execute its prepared navigation command.
+
 ## Verification
 
 Behavioral coverage is in `test/wallet/wallet_cubit_test.dart` and

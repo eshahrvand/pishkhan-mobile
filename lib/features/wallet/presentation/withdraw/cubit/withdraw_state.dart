@@ -23,6 +23,7 @@ abstract class WalletWithdrawState with _$WalletWithdrawState {
     WalletReceipt? receipt,
     String? shareText,
     WalletReceiptEffect? effect,
+    FlowNavigation? navigation,
     Failure? failure,
     String? message,
   }) = _WalletWithdrawState;

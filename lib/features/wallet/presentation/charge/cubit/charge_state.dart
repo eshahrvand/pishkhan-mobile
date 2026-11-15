@@ -23,6 +23,7 @@ abstract class WalletChargeState with _$WalletChargeState {
     WalletReceipt? receipt,
     String? shareText,
     WalletReceiptEffect? effect,
+    FlowNavigation? navigation,
     Failure? failure,
     String? message,
   }) = _WalletChargeState;

@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/shared/widgets/flow_exit_sheet.dart';
+import 'package:pishkhan_mobile/core/flow/flow_navigation.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -26,7 +28,31 @@ class WalletLinkedDepositScreen extends StatelessWidget {
       type: AvpSnackBarType.success,
       message: S.current.walletDepositChanged,
     );
-    NavigationActions.back(context);
+  }
+
+  Future<void> _handleNavigation(
+    BuildContext context,
+    WalletLinkedDepositState state,
+  ) async {
+    switch (state.navigation) {
+      case FlowNavigation.confirmExit:
+        context.read<WalletLinkedDepositCubit>().consumeNavigation();
+        final confirmed = await showFlowExitSheet(context);
+        if (context.mounted) {
+          context.read<WalletLinkedDepositCubit>().applyExitConfirmation(
+            confirmed,
+          );
+        }
+      case FlowNavigation.back:
+        // Rebuild PopScope with the authorized exit before performing the pop.
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (context.mounted) NavigationActions.back(context);
+        });
+      case FlowNavigation.home:
+        NavigationActions.returnHome(context);
+      case null:
+        break;
+    }
   }
 
   @override
@@ -35,6 +61,12 @@ class WalletLinkedDepositScreen extends StatelessWidget {
       create: (_) => WalletLinkedDepositCubit()..fetchCatalog(),
       child: MultiBlocListener(
         listeners: [
+          BlocListener<WalletLinkedDepositCubit, WalletLinkedDepositState>(
+            listenWhen: (previous, current) =>
+                previous.navigation != current.navigation &&
+                current.navigation != null,
+            listener: _handleNavigation,
+          ),
           BlocListener<WalletLinkedDepositCubit, WalletLinkedDepositState>(
             listenWhen: (previous, current) =>
                 previous.catalogStatus != current.catalogStatus &&
@@ -57,8 +89,12 @@ class WalletLinkedDepositScreen extends StatelessWidget {
         child: BlocBuilder<WalletLinkedDepositCubit, WalletLinkedDepositState>(
           builder: (context, state) {
             return WalletScaffold(
+              onBack: context.read<WalletLinkedDepositCubit>().requestBack,
+              canPop: state.navigation == FlowNavigation.back,
               title: S.current.walletLinkedDepositTitle,
-              busy: state.submissionStatus == RequestStatus.loading,
+              busy:
+                  state.catalogStatus == RequestStatus.loading ||
+                  state.submissionStatus == RequestStatus.loading,
               footer: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [

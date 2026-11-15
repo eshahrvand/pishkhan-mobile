@@ -36,6 +36,10 @@ Minimum/maximum amounts are optional integer rial bounds. Each edited bound is p
 
 The sheet closes when Apply starts the transaction fetch. Cancellation only discards the draft, avoiding an extra pop during route reversal. Root navigator delivery, keyboard insets, the empty state and independent category removal are covered by tests. The mock returns the complete filtered in-memory ledger; production paging/export parameters are not invented.
 
+## Back and exit ownership
+
+A pending transaction fetch blocks system/header Back. After completion, both Back paths call the owning Cubit; the existing filter-sheet dismissal semantics are preserved.
+
 ## Verification
 
 Behavioral coverage is in `test/wallet/wallet_cubit_test.dart` and

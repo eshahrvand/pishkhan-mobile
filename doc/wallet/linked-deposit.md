@@ -28,6 +28,10 @@ The submit key survives failure/retry and changes when the selected deposit chan
 
 Eligible deposits and terms are demo data. The text is derived from the supplied design and explicitly marked as a sample; current bank-approved legal copy, eligibility, fee and authorization must be supplied by the real service. Other deposit features are not mutated by this mock.
 
+## Back and exit ownership
+
+Catalog fetch and link submission both block system/header Back. A selected destination or accepted terms require Cubit-owned discard confirmation. Stay/dismissal preserves both fields. Successful change publishes its navigation command alongside success; notification and authorized return execute independently.
+
 ## Verification
 
 Behavioral coverage is in `test/wallet/wallet_cubit_test.dart` and

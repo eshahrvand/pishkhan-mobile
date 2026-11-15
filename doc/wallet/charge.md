@@ -31,6 +31,10 @@ The submit key survives failure/retry. A lost response after the demo ledger com
 
 The demo code is **2345**, valid for **60 seconds**. These are mock response values, not production bank policies. No bank account is debited. An actual funding/authorization API and its limits are still required.
 
+## Back and exit ownership
+
+All owning-flow pending operations (wallet fetch, OTP, payment and receipt share) block system and header Back. Back with an entered amount asks for discard confirmation through Cubit; Stay/dismissal preserves the form. Receipt Back/Close uses `go` to Dashboard Home, so the submitted form cannot reappear.
+
 ## Verification
 
 Behavioral coverage is in `test/wallet/wallet_cubit_test.dart` and

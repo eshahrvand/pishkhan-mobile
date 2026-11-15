@@ -2,6 +2,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/rendering.dart';
 import 'package:pishkhan_mobile/features/loans/presentation/request/widgets/loan_credit_scale.dart';
+import 'package:pishkhan_mobile/features/loans/presentation/request/widgets/loan_collateral_form.dart';
 
 import 'loan_preview_support.dart';
 
@@ -42,6 +43,7 @@ void main() {
     Size size = const Size(375, 812),
     LoanCreditTier tier = LoanCreditTier.excellent,
     MockLoanApplicationRepository? repository,
+    ThemeData? theme,
   }) async {
     tester.view.physicalSize = size;
     tester.view.devicePixelRatio = 1;
@@ -74,7 +76,7 @@ void main() {
         child: MaterialApp.router(
           routerConfig: router,
           debugShowCheckedModeBanner: false,
-          theme: AppTheme.light(),
+          theme: theme ?? AppTheme.light(),
           locale: const Locale('fa'),
           supportedLocales: S.delegate.supportedLocales,
           localizationsDelegates: const [
@@ -329,11 +331,65 @@ void main() {
           .position;
       expect(scroll.pixels, 0);
       await captureLoan(tester, 'current_request_resumed');
+      final resumed = tester
+          .element(find.byType(LoanCollateralForm))
+          .read<LoanRequestCubit>();
+      resumed.requestBack();
+      resumed.requestBack();
+      await tester.pumpAndSettle();
+      expect(find.byType(LoanAssessment), findsOneWidget);
+      expect(resumed.state.quoteStatus, RequestStatus.success);
+      expect(
+        tester
+            .widget<AppButton>(
+              find.widgetWithText(AppButton, S.current.loanRequestTable),
+            )
+            .isActive,
+        isTrue,
+      );
       expect(tester.takeException(), null);
       await tester.pumpWidget(const SizedBox());
       router.dispose();
     },
   );
+
+  testWidgets('assessment text follows configured semantic colors', (
+    tester,
+  ) async {
+    final colors = AppColors.light.copyWith(
+      textPrimary: AppPalette.brand700,
+      textSecondary: AppPalette.warning700,
+    );
+    final router = await mount(
+      tester,
+      theme: AppTheme.light().copyWith(extensions: [colors]),
+    );
+    await tester.tap(
+      find.widgetWithText(AppButton, S.current.loanRequestTitle),
+    );
+    await tester.pumpAndSettle();
+    final select = tester.widget<AppSelect<LoanDeposit>>(
+      find.byType(AppSelect<LoanDeposit>),
+    );
+    expect(select.textStyle?.color, colors.textPrimary);
+    final assessment = tester
+        .element(find.byType(LoanAssessment))
+        .read<LoanRequestCubit>();
+    await assessment.selectDeposit(assessment.state.catalog!.deposits.first);
+    await tester.pumpAndSettle();
+    final labels = tester.widgetList<Text>(
+      find.descendant(
+        of: find.byType(LoanCreditScale),
+        matching: find.byType(Text),
+      ),
+    );
+    expect(
+      labels.any((text) => text.style?.color == colors.textPrimary),
+      isTrue,
+    );
+    await tester.pumpWidget(const SizedBox());
+    router.dispose();
+  });
 
   testWidgets('schedule link is compact and opens typed installment cards', (
     tester,

@@ -1,3 +1,5 @@
+import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
+import 'package:pishkhan_mobile/core/flow/flow_navigation.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -37,12 +39,25 @@ class WalletOverviewScreen extends StatelessWidget {
     }
   }
 
+  void _handleNavigation(BuildContext context, WalletOverviewState state) {
+    // Rebuild PopScope with the authorized exit before performing the pop.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (context.mounted) NavigationActions.back(context);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => WalletOverviewCubit()..fetchWallet(),
       child: MultiBlocListener(
         listeners: [
+          BlocListener<WalletOverviewCubit, WalletOverviewState>(
+            listenWhen: (previous, current) =>
+                previous.navigation != current.navigation &&
+                current.navigation != null,
+            listener: _handleNavigation,
+          ),
           BlocListener<WalletOverviewCubit, WalletOverviewState>(
             listenWhen: (previous, current) =>
                 previous.walletStatus != current.walletStatus &&
@@ -59,6 +74,9 @@ class WalletOverviewScreen extends StatelessWidget {
         child: BlocBuilder<WalletOverviewCubit, WalletOverviewState>(
           builder: (context, state) {
             return WalletScaffold(
+              onBack: context.read<WalletOverviewCubit>().requestBack,
+              canPop: state.navigation == FlowNavigation.back,
+              busy: state.walletStatus == RequestStatus.loading,
               title: S.current.walletTitle,
               child: switch (state.walletStatus) {
                 RequestStatus.initial || RequestStatus.loading => const Center(

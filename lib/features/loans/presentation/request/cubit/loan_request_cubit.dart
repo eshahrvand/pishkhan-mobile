@@ -611,6 +611,7 @@ class LoanRequestCubit extends Cubit<LoanRequestState> {
         draft: draft,
         isInsuranceSelected: draft.insuranceSelected,
         quote: draft.quote,
+        quoteStatus: RequestStatus.success,
         assessment: assessMockLoanInput(
           draft.quote.input,
           minimumRial: state.catalog!.minimumRial,

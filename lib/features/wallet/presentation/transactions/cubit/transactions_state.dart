@@ -29,6 +29,7 @@ abstract class WalletTransactionsState with _$WalletTransactionsState {
     @Default(false) bool isAmountRangeError,
     @Default(false) bool isDateRangeError,
     @Default(true) bool canApply,
+    FlowNavigation? navigation,
     Failure? failure,
     String? message,
   }) = _WalletTransactionsState;

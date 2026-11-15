@@ -12,21 +12,27 @@ class WalletScaffold extends StatelessWidget {
     super.key,
     required this.title,
     required this.child,
+    required this.onBack,
+    required this.busy,
     this.footer,
-    this.busy = false,
+    this.canPop = false,
     this.showAssistant = true,
     this.showClose = false,
   });
   final String title;
   final Widget child;
   final Widget? footer;
-  final bool busy, showAssistant, showClose;
+  final bool busy, canPop, showAssistant, showClose;
+  final VoidCallback onBack;
   @override
   Widget build(BuildContext context) {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: PopScope(
-        canPop: !busy,
+        canPop: !busy && canPop,
+        onPopInvokedWithResult: (didPop, _) {
+          if (!didPop && !busy) onBack();
+        },
         child: Scaffold(
           backgroundColor: context.colors.surfaceSubtle,
           body: SafeArea(
@@ -45,7 +51,8 @@ class WalletScaffold extends StatelessWidget {
                             height: 24,
                           ),
                           variant: AppButtonVariant.text,
-                          onPressed: () => NavigationActions.back(context),
+                          isActive: !busy,
+                          onPressed: onBack,
                         )
                       : const SizedBox.shrink(),
                   trailingIcon: const AvpImage(
@@ -55,7 +62,7 @@ class WalletScaffold extends StatelessWidget {
                   ),
                   trailingTooltip: S.current.backLabel,
                   isTrailingActive: !busy,
-                  onTrailingPressed: () => NavigationActions.back(context),
+                  onTrailingPressed: onBack,
                 ),
                 Expanded(
                   child: Stack(

@@ -1,3 +1,6 @@
+import 'package:pishkhan_mobile/shared/widgets/flow_exit_sheet.dart';
+import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
+import 'package:pishkhan_mobile/core/flow/flow_navigation.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -29,12 +32,41 @@ class WalletTransferScreen extends StatelessWidget {
     }
   }
 
+  Future<void> _handleNavigation(
+    BuildContext context,
+    WalletTransferState state,
+  ) async {
+    switch (state.navigation) {
+      case FlowNavigation.confirmExit:
+        context.read<WalletTransferCubit>().consumeNavigation();
+        final confirmed = await showFlowExitSheet(context);
+        if (context.mounted) {
+          context.read<WalletTransferCubit>().applyExitConfirmation(confirmed);
+        }
+      case FlowNavigation.back:
+        // Rebuild PopScope with the authorized exit before performing the pop.
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (context.mounted) NavigationActions.back(context);
+        });
+      case FlowNavigation.home:
+        NavigationActions.returnHome(context);
+      case null:
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => WalletTransferCubit()..fetchWallet(),
       child: MultiBlocListener(
         listeners: [
+          BlocListener<WalletTransferCubit, WalletTransferState>(
+            listenWhen: (previous, current) =>
+                previous.navigation != current.navigation &&
+                current.navigation != null,
+            listener: _handleNavigation,
+          ),
           BlocListener<WalletTransferCubit, WalletTransferState>(
             listenWhen: (previous, current) =>
                 previous.shareStatus != current.shareStatus &&
@@ -69,10 +101,16 @@ class WalletTransferScreen extends StatelessWidget {
         child: BlocBuilder<WalletTransferCubit, WalletTransferState>(
           builder: (context, state) {
             return WalletScaffold(
+              onBack: context.read<WalletTransferCubit>().requestBack,
+              canPop: state.navigation == FlowNavigation.back,
               title: state.receipt != null
                   ? S.current.walletReceiptTitle
                   : S.current.walletTransferTitle,
-              busy: state.submissionStatus == RequestStatus.loading,
+              busy:
+                  state.walletStatus == RequestStatus.loading ||
+                  state.recipientStatus == RequestStatus.loading ||
+                  state.submissionStatus == RequestStatus.loading ||
+                  state.shareStatus == RequestStatus.loading,
               showAssistant: state.receipt == null,
               showClose: state.receipt != null,
               footer: state.receipt != null

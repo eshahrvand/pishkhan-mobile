@@ -30,7 +30,7 @@ class LoanAssessment extends StatelessWidget {
             height: 20 / 14,
             fontWeight: FontWeight.w400,
             letterSpacing: 0,
-            color: const Color(0xFF181D27),
+            color: context.colors.textPrimary,
           ),
           labelStyle: AppTypography.bodySmall.copyWith(
             fontWeight: FontWeight.w500,
@@ -110,7 +110,7 @@ class LoanAssessment extends StatelessWidget {
                         LoanMoney(
                           amountRial: state.assessment!.scoreRial,
                           fontSize: 14,
-                          color: const Color(0xFF181D27),
+                          color: context.colors.textPrimary,
                           unitSize: 20,
                           fontWeight: FontWeight.w500,
                         ),
@@ -146,7 +146,7 @@ class LoanAssessment extends StatelessWidget {
                         LoanMoney(
                           amountRial: state.assessment!.currentLoansRial,
                           fontSize: 14,
-                          color: const Color(0xFF181D27),
+                          color: context.colors.textPrimary,
                           unitSize: 20,
                           fontWeight: FontWeight.w500,
                         ),
@@ -187,7 +187,7 @@ class LoanAssessment extends StatelessWidget {
             labelStyle: AppTypography.bodySmall.copyWith(
               fontWeight: FontWeight.w500,
               letterSpacing: 0,
-              color: const Color(0xFF454C52),
+              color: context.colors.textSecondary,
             ),
             label: S.current.loanRequestAmount,
             valueContent: LoanMoney(
@@ -252,7 +252,7 @@ class LoanAssessment extends StatelessWidget {
             labelStyle: AppTypography.bodySmall.copyWith(
               fontWeight: FontWeight.w500,
               letterSpacing: 0,
-              color: const Color(0xFF454C52),
+              color: context.colors.textSecondary,
             ),
             label: S.current.loanRequestMonths,
             valueContent: Row(
@@ -335,7 +335,7 @@ class LoanAssessment extends StatelessWidget {
                   labelStyle: AppTypography.bodySmall.copyWith(
                     fontWeight: FontWeight.w500,
                     letterSpacing: 0,
-                    color: const Color(0xFF454C52),
+                    color: context.colors.textSecondary,
                   ),
                   label: S.current.loanRequestMonthly,
                   valueContent: LoanMoney(

@@ -11,6 +11,7 @@ abstract class WalletLinkedDepositState with _$WalletLinkedDepositState {
     @Default(false) bool termsAccepted,
     @Default(false) bool canSubmit,
     String? idempotencyKey,
+    FlowNavigation? navigation,
     Failure? failure,
     String? message,
   }) = _WalletLinkedDepositState;
