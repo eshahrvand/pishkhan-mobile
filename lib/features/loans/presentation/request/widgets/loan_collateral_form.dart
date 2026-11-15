@@ -3,7 +3,6 @@ import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 
 import '../../../domain/entities/loan_application.dart';
@@ -11,7 +10,7 @@ import '../cubit/loan_request_cubit.dart';
 import 'loan_value_row.dart';
 import 'loan_money.dart';
 import 'loan_collateral_notice.dart';
-import 'loan_guarantor_warning.dart';
+import 'loan_guarantor_form.dart';
 import 'loan_request_labels.dart';
 import 'loan_repayment_choices.dart';
 
@@ -24,13 +23,24 @@ class LoanCollateralForm extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         LoanValueRow(
+          height: 44,
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           label: S.current.loanRequestRequestedAmount,
-          valueContent: LoanMoney(amountRial: state.quote!.input.amountRial),
+          valueContent: LoanMoney(
+            amountRial: state.quote!.input.amountRial,
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            unitSize: 20,
+          ),
           bordered: false,
           icon: '${AppConstants.baseImage}loan_request_coins.svg',
         ),
         const SizedBox(height: 12),
         LoanValueRow(
+          height: 44,
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          valueFontSize: 12,
+          bordered: false,
           label: S.current.loanRequestTier,
           value: loanRangeLabel(state.quote!.range),
           icon: '${AppConstants.baseImage}loan_request_gauge.svg',
@@ -38,103 +48,41 @@ class LoanCollateralForm extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         LoanValueRow(
+          height: 44,
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           label: state.ownInstrument == LoanInstrument.promissoryNote
               ? S.current.loanRequestNoteAmount
               : S.current.loanRequestCollateralAmount,
           valueContent: LoanMoney(
             amountRial: state.quote!.collateralRial,
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            unitSize: 20,
             color: context.colors.warning,
           ),
           bordered: false,
           icon: '${AppConstants.baseImage}loan_request_cheque.svg',
           color: context.colors.warning,
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
         LoanCollateralNotice(quote: state.quote!),
         const SizedBox(height: 16),
-        Divider(height: 1, color: context.colors.borderSubtle),
-        if (state.quote!.needsGuarantor) ...[
-          const SizedBox(height: 24),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Expanded(
-                child: AppTextField(
-                  label: S.current.loanRequestGuarantorId,
-                  hintText: S.current.loanRequestGuarantorIdHint,
-                  value: state.guarantorNationalId,
-                  suffixIcon: state.guarantor != null
-                      ? InkWell(
-                          onTap: () {
-                            context
-                                .read<LoanRequestCubit>()
-                                .updateGuarantorNationalId('');
-                          },
-                          child: const AvpImage(
-                            image:
-                                '${AppConstants.baseImage}loan_request_clear.svg',
-                            width: 20,
-                            height: 20,
-                          ),
-                        )
-                      : null,
-                  onFocusLost: context
-                      .read<LoanRequestCubit>()
-                      .validateGuarantorNationalId,
-                  normalizeDigits: true,
-                  maxLength: 10,
-                  keyboardType: TextInputType.number,
-                  textDirection: TextDirection.ltr,
-                  textAlign: TextAlign.end,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  enabled: state.guarantorStatus != RequestStatus.loading,
-                  errorText: state.isGuarantorIdError
-                      ? S.current.authInvalidNationalId
-                      : null,
-                  onChanged: (value) {
-                    context.read<LoanRequestCubit>().updateGuarantorNationalId(
-                      value,
-                    );
-                  },
-                ),
-              ),
-              if (state.guarantor == null) ...[
-                const SizedBox(width: 12),
-                AppButton(
-                  label: S.current.loanRequestCheck,
-                  isActive: state.canCheckGuarantor,
-                  isLoading: state.guarantorStatus == RequestStatus.loading,
-                  onPressed: context.read<LoanRequestCubit>().checkGuarantor,
-                ),
-              ],
-            ],
-          ),
-          if (state.guarantor != null) ...[
-            const SizedBox(height: 12),
-            if (state.guarantor!.name != null)
-              LoanValueRow(
-                label: S.current.loanRequestGuarantorName,
-                value: state.guarantor!.name!,
-                backgroundColor: context.colors.surfaceSubtle,
-                bordered: false,
-                color: context.colors.textSecondary,
-              ),
-            if (state.guarantor!.outcome == LoanGuarantorOutcome.notCustomer)
-              LoanGuarantorWarning(
-                message: S.current.loanRequestGuarantorNotCustomer,
-              ),
-            if (state.guarantor!.outcome ==
-                LoanGuarantorOutcome.capacityExceeded)
-              LoanGuarantorWarning(message: S.current.loanRequestGuarantorFull),
-          ],
-        ],
+        const AvpImage(
+          image: '${AppConstants.baseImage}loan_request_divider.svg',
+          height: 1,
+          fit: BoxFit.fill,
+        ),
+        if (state.quote!.needsGuarantor) LoanGuarantorForm(state: state),
         if (!state.quote!.needsGuarantor ||
             state.guarantor?.outcome == LoanGuarantorOutcome.approved) ...[
           const SizedBox(height: 24),
           if (state.quote!.needsGuarantor) ...[
             Text(
               S.current.loanRequestEnterBoth,
-              style: AppTypography.titleSmall,
+              style: AppTypography.bodySmall.copyWith(
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0,
+              ),
             ),
             const SizedBox(height: 12),
           ],
@@ -143,13 +91,20 @@ class LoanCollateralForm extends StatelessWidget {
               if (state.quote!.needsGuarantor) ...[
                 Text(
                   S.current.loanRequestOwnInfo,
-                  style: AppTypography.labelSmall,
+                  style: AppTypography.bodySmall.copyWith(
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0,
+                  ),
                 ),
                 const SizedBox(width: 8),
               ],
               Expanded(
                 child: LoanRepaymentChoices(
                   checkMark: true,
+                  labelStyle: AppTypography.bodySmall.copyWith(
+                    color: AppPalette.gray700,
+                    letterSpacing: 0,
+                  ),
                   value: state.ownInstrument,
                   first: LoanInstrument.promissoryNote,
                   second: LoanInstrument.electronicCheque,
@@ -163,10 +118,20 @@ class LoanCollateralForm extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
+          if (!state.quote!.needsGuarantor) ...[
+            Text(
+              state.ownInstrument == LoanInstrument.promissoryNote
+                  ? S.current.loanRequestNoteNumber
+                  : S.current.loanRequestChequeNumber,
+              style: AppTypography.bodySmall.copyWith(
+                fontWeight: FontWeight.w500,
+                color: AppPalette.gray700,
+                letterSpacing: 0,
+              ),
+            ),
+            const SizedBox(height: 8),
+          ],
           AppTextField(
-            label: state.ownInstrument == LoanInstrument.promissoryNote
-                ? S.current.loanRequestNoteNumber
-                : S.current.loanRequestChequeNumber,
             hintText: state.ownInstrument == LoanInstrument.promissoryNote
                 ? S.current.loanRequestNoteHint
                 : S.current.loanRequestChequeHint,
@@ -176,7 +141,9 @@ class LoanCollateralForm extends StatelessWidget {
             maxLength: 20,
             keyboardType: TextInputType.number,
             textDirection: TextDirection.ltr,
-            textAlign: TextAlign.end,
+            textStyle: AppTypography.bodyMedium.copyWith(letterSpacing: 0),
+            hintTextDirection: TextDirection.rtl,
+            textAlign: TextAlign.right,
             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
             errorText: state.isOwnNumberError || state.isCollateralError
                 ? S.current.loanRequestInstrumentInvalid
@@ -191,12 +158,19 @@ class LoanCollateralForm extends StatelessWidget {
               children: [
                 Text(
                   S.current.loanRequestGuarantorInfo,
-                  style: AppTypography.labelSmall,
+                  style: AppTypography.bodySmall.copyWith(
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0,
+                  ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: LoanRepaymentChoices(
                     checkMark: true,
+                    labelStyle: AppTypography.bodySmall.copyWith(
+                      color: AppPalette.gray700,
+                      letterSpacing: 0,
+                    ),
                     value: state.guarantorInstrument,
                     first: LoanInstrument.promissoryNote,
                     second: LoanInstrument.electronicCheque,
@@ -213,9 +187,6 @@ class LoanCollateralForm extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             AppTextField(
-              label: state.guarantorInstrument == LoanInstrument.promissoryNote
-                  ? S.current.loanRequestNoteNumber
-                  : S.current.loanRequestChequeNumber,
               hintText:
                   state.guarantorInstrument == LoanInstrument.promissoryNote
                   ? S.current.loanRequestNoteHint
@@ -228,7 +199,9 @@ class LoanCollateralForm extends StatelessWidget {
               maxLength: 20,
               keyboardType: TextInputType.number,
               textDirection: TextDirection.ltr,
-              textAlign: TextAlign.end,
+              textStyle: AppTypography.bodyMedium.copyWith(letterSpacing: 0),
+              hintTextDirection: TextDirection.rtl,
+              textAlign: TextAlign.right,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               errorText: state.isGuarantorNumberError || state.isCollateralError
                   ? S.current.loanRequestInstrumentInvalid

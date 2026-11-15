@@ -1156,6 +1156,10 @@ class MessageLookup extends MessageLookupByLibrary {
             "ضامن معرفی‌شده مشتری بانک قرض‌الحسنه رسالت نیست. لطفاً فرد دیگری معرفی کنید."),
         "loanRequestIcup":
             MessageLookupByLibrary.simpleMessage("سامانه آی‌کاپ"),
+        "loanRequestIcupAfter": MessageLookupByLibrary.simpleMessage(
+            ", or register an electronic cheque payable to Resalat Bank, then enter its identifier."),
+        "loanRequestIcupBefore": MessageLookupByLibrary.simpleMessage(
+            "Buy the promissory note through "),
         "loanRequestIncomeExplanation": MessageLookupByLibrary.simpleMessage(
             "در صورت داشتن شرایط، با ارائه اسناد شغلی در سامانه مرآت می‌توانید درخواست افزایش توان مالی ثبت کنید."),
         "loanRequestIncomeSolution": MessageLookupByLibrary.simpleMessage(

@@ -16,12 +16,12 @@ class LoanCurrentRequestCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.fromLTRB(8, 8, 8, 12),
       decoration: BoxDecoration(
         color: context.colors.surface,
         border: Border.all(color: context.colors.borderSubtle),
         borderRadius: BorderRadius.circular(12),
-        boxShadow: AppShadows.cardList,
+        boxShadow: AppShadows.xs,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -29,29 +29,31 @@ class LoanCurrentRequestCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: context.colors.primarySubtle,
+              color: AppPalette.blueGray50,
               borderRadius: AppRadius.borderSm,
             ),
             child: Row(
               children: [
                 const AvpImage(
                   image: '${AppConstants.baseImage}loan_request_edit.svg',
-                  width: 20,
-                  height: 20,
+                  width: 18,
+                  height: 18,
                 ),
                 const SizedBox(width: 4),
                 Expanded(
                   child: Text(
                     S.current.loanRequestCurrentHeader,
                     style: AppTypography.bodySmall.copyWith(
-                      color: context.colors.primary,
+                      color: AppPalette.blueGray700,
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: 0,
                     ),
                   ),
                 ),
                 if (state.draftRemainingSeconds != null) ...[
                   Text(
                     loanCountdown(state.draftRemainingSeconds!),
-                    style: AppTypography.labelSmall,
+                    style: AppTypography.labelMedium.copyWith(letterSpacing: 0),
                   ),
                   const SizedBox(width: 4),
                   const AvpImage(
@@ -64,71 +66,88 @@ class LoanCurrentRequestCard extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           LoanValueRow(
+            height: 22,
             valueFontSize: 12,
             label: S.current.depositListNumber,
             value: state.catalog!.currentDraft!.quote.input.deposit.number,
             valueDirection: TextDirection.ltr,
             bordered: false,
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 8),
           ),
+          const SizedBox(height: 8),
           LoanValueRow(
+            height: 22,
             valueFontSize: 12,
             label: S.current.loanRequestAmount,
             valueContent: LoanMoney(
               amountRial: state.catalog!.currentDraft!.quote.input.amountRial,
               fontSize: 12,
+              fontWeight: FontWeight.w500,
             ),
             bordered: false,
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 8),
           ),
+          const SizedBox(height: 8),
           LoanValueRow(
+            height: 22,
             valueFontSize: 12,
             label: S.current.loanRequestCurrentStage,
             valueContent: AppBadge(
               label: loanDraftStageLabel(state.catalog!.currentDraft!.step),
-              color: AppBadgeColor.indigo,
+              color: AppBadgeColor.blueGray,
               corner: AppBadgeCorner.rounded,
             ),
             bordered: false,
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 8),
           ),
-          const SizedBox(height: 8),
-          Divider(height: 1, color: context.colors.borderSubtle),
-          Row(
-            children: [
-              Expanded(
-                child: AppButton(
-                  label: S.current.loanRequestCancel,
-                  variant: AppButtonVariant.text,
-                  isDestructive: true,
-                  labelStyle: AppTypography.bodySmall,
-                  isLoading: state.cancellationStatus == RequestStatus.loading,
-                  onPressed: context.read<LoanRequestCubit>().requestCancel,
+          const SizedBox(height: 12),
+          Divider(height: 0, thickness: .5, color: context.colors.borderSubtle),
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 20,
+            child: Row(
+              children: [
+                Expanded(
+                  child: AppButton(
+                    label: S.current.loanRequestCancel,
+                    variant: AppButtonVariant.text,
+                    isDestructive: true,
+                    horizontalPadding: 0,
+                    labelStyle: AppTypography.labelMedium.copyWith(
+                      letterSpacing: 0,
+                    ),
+                    isLoading:
+                        state.cancellationStatus == RequestStatus.loading,
+                    onPressed: context.read<LoanRequestCubit>().requestCancel,
+                  ),
                 ),
-              ),
-              SizedBox(
-                height: 18,
-                child: VerticalDivider(
-                  width: 1,
-                  color: context.colors.borderSubtle,
+                SizedBox(
+                  height: 18,
+                  child: VerticalDivider(
+                    width: 1,
+                    color: context.colors.borderSubtle,
+                  ),
                 ),
-              ),
-              Expanded(
-                child: AppButton(
-                  label: S.current.loanRequestContinue,
-                  variant: AppButtonVariant.text,
-                  labelStyle: AppTypography.bodySmall,
-                  isActive: state.cancellationStatus != RequestStatus.loading,
-                  onPressed: () {
-                    context.read<LoanRequestCubit>().resumeRequest(
-                      state.catalog!.currentDraft!,
-                    );
-                  },
+                Expanded(
+                  child: AppButton(
+                    label: S.current.loanRequestContinue,
+                    variant: AppButtonVariant.text,
+                    horizontalPadding: 0,
+                    labelStyle: AppTypography.labelMedium.copyWith(
+                      letterSpacing: 0,
+                    ),
+                    isActive: state.cancellationStatus != RequestStatus.loading,
+                    onPressed: () {
+                      context.read<LoanRequestCubit>().resumeRequest(
+                        state.catalog!.currentDraft!,
+                      );
+                    },
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),

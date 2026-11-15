@@ -82,12 +82,17 @@ class _LoanOtpDigitsState extends State<LoanOtpDigits> {
                             color: context.colors.surface,
                             borderRadius: AppRadius.borderSm,
                             border: Border.all(color: context.colors.border),
+                            boxShadow: AppShadows.xs,
                           ),
                           child: Text(
                             widget.value.length > index
                                 ? widget.value[index]
                                 : '',
-                            style: AppTypography.titleMedium,
+                            style: AppTypography.titleMedium.copyWith(
+                              fontWeight: FontWeight.w500,
+                              color: context.colors.textPrimary,
+                              letterSpacing: 0,
+                            ),
                           ),
                         ),
                       ),

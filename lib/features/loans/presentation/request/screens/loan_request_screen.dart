@@ -24,6 +24,7 @@ import '../widgets/loan_installments_sheet.dart';
 import '../widgets/loan_contract_sheet.dart';
 import '../widgets/loan_otp_sheet.dart';
 import '../widgets/loan_receipt_sheet.dart';
+import '../widgets/loan_request_labels.dart';
 
 class LoanRequestScreen extends StatefulWidget {
   const LoanRequestScreen({super.key});
@@ -288,12 +289,10 @@ class _LoanRequestScreenState extends State<LoanRequestScreen> {
                         Padding(
                           padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                           child: AppButton(
-                            label:
-                                state.step == LoanApplicationStep.introduction
-                                ? S.current.loanRequestTitle
-                                : state.step == LoanApplicationStep.contract
-                                ? S.current.loanRequestContractContinue
-                                : S.current.loanRequestNext,
+                            label: loanPrimaryActionLabel(
+                              state.step,
+                              state.assessment?.range,
+                            ),
                             trailingIcon:
                                 state.step == LoanApplicationStep.contract
                                 ? null

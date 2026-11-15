@@ -11,8 +11,7 @@ import 'loan_credit_scale.dart';
 import 'loan_request_labels.dart';
 import 'loan_value_row.dart';
 import 'loan_status_card.dart';
-import 'loan_money.dart';
-import 'loan_text_link.dart';
+import 'loan_capacity_details.dart';
 
 class LoanCreditStatus extends StatelessWidget {
   const LoanCreditStatus({super.key, required this.state});
@@ -43,7 +42,9 @@ class LoanCreditStatus extends StatelessWidget {
                 state.deposit!.creditTier,
                 state.assessment!.range,
               ),
-              color: state.assessment!.range == LoanCreditRange.unsuitable
+              color:
+                  state.assessment!.range == LoanCreditRange.unsuitable ||
+                      state.assessment!.range == LoanCreditRange.unknown
                   ? AppPalette.error500
                   : context.colors.primary,
               onInfoPressed: context.read<LoanRequestCubit>().requestCreditInfo,
@@ -109,84 +110,36 @@ class LoanCreditStatus extends StatelessWidget {
                     style: AppTypography.bodySmall.copyWith(
                       fontSize: 12,
                       height: 1.5,
+                      letterSpacing: 0,
                     ),
                   ),
-                if (state.assessment!.range == LoanCreditRange.unsuitable) ...[
-                  LoanValueRow(
-                    valueFontSize: 12,
-                    label: S.current.loanRequestNeededCapacity,
-                    valueContent: LoanMoney(
-                      amountRial: state.assessment!.requiredCapacityRial,
-                      fontSize: 12,
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    bordered: false,
-                  ),
-                  Divider(height: 1, color: context.colors.borderSubtle),
-                  LoanValueRow(
-                    valueFontSize: 12,
-                    label: S.current.loanRequestYourCapacity,
-                    valueContent: LoanMoney(
-                      amountRial: state.assessment!.availableCapacityRial,
-                      fontSize: 12,
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    bordered: false,
-                  ),
-                  Divider(height: 1, color: context.colors.borderSubtle),
-                  LoanValueRow(
-                    valueFontSize: 12,
-                    label: S.current.loanRequestCapacityDeficit,
-                    valueContent: LoanMoney(
-                      amountRial: state.assessment!.capacityDeficitRial,
-                      fontSize: 12,
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    bordered: false,
-                  ),
-                  Text(
-                    S.current.loanRequestSolution,
-                    style: AppTypography.labelSmall.copyWith(
-                      color: context.colors.primary,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Text(
-                    S.current.loanRequestIncomeSolution,
-                    style: AppTypography.labelSmall,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    S.current.loanRequestIncomeExplanation,
-                    style: AppTypography.bodySmall,
-                  ),
+                if (state.assessment!.range == LoanCreditRange.unknown) ...[
                   const SizedBox(height: 12),
-                  LoanTextLink(
-                    label: S.current.loanRequestMeratLink,
+                  AppButton(
+                    label: S.current.loanRequestMerat,
+                    size: AppButtonSize.sm,
+                    variant: AppButtonVariant.secondaryColor,
+                    foregroundColor: AppPalette.brand700,
+                    trailingIcon: const AvpImage(
+                      image:
+                          '${AppConstants.baseImage}loan_request_link_arrow.svg',
+                      width: 20,
+                      height: 20,
+                    ),
                     onPressed: context
                         .read<LoanRequestCubit>()
                         .requestUnavailable,
                   ),
-                  const SizedBox(height: 20),
-                  Text(
-                    S.current.loanRequestSettle,
-                    style: AppTypography.labelSmall,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    S.current.loanRequestSettleExplanation,
-                    style: AppTypography.bodySmall,
-                  ),
                 ],
+                if (state.assessment!.range == LoanCreditRange.unsuitable)
+                  LoanCapacityDetails(
+                    assessment: state.assessment!,
+                    onMeratPressed: context
+                        .read<LoanRequestCubit>()
+                        .requestUnavailable,
+                  ),
               ],
             ),
-          ),
-        ],
-        if (state.assessment!.range == LoanCreditRange.unknown) ...[
-          const SizedBox(height: 12),
-          LoanTextLink(
-            label: S.current.loanRequestMerat,
-            onPressed: context.read<LoanRequestCubit>().requestUnavailable,
           ),
         ],
       ],

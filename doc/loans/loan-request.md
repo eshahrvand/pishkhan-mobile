@@ -1,5 +1,9 @@
 # Loan request implementation
 
+**Latest UI review (2026-11-15):** [page-by-page visual corrections](ui-review-2026-11-15.md)
+records the renewed 105-frame Figma review, native-width renders, UI changes and
+scoped verification. Earlier comparison/correction reports below remain history.
+
 **Latest assessment update:** [live slider classification and native-size Figma
 verification](loan-assessment-slider-2026-11-14.md). Current scoped verification:
 47 loan tests, 19 related regression tests and 8 shared-slider tests passed.
@@ -95,7 +99,8 @@ variant remains separate from the implemented behavior and selected captures.
   Changing guarantor clears the previous guarantor's instrument binding.
 - Instrument 1111111111 is rejected. Other 8–20 digit values are simulated,
   not authoritative treasury/cheque ownership verification.
-- Signing code: 12345. Five digits, 60-second challenge, repeat request invalidates
+- Test-mode signing accepts any five-digit code. The 60-second challenge and
+  repeat request invalidation remain enforced; a repeat request invalidates
   the prior challenge. Submission is bound to the saved draft and idempotent by
   draft ID. A loan-data/insurance change resets consent to the old draft.
 - Installment amounts sum exactly to principal. Mock due dates are Gregorian/UTC

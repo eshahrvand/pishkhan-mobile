@@ -5,7 +5,6 @@ import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_bottom_sheet_header.dart';
 
 import '../../../domain/entities/loan_application.dart';
-import 'loan_value_row.dart';
 
 class LoanReceiptSheet extends StatelessWidget {
   const LoanReceiptSheet({super.key, required this.record});
@@ -18,7 +17,7 @@ class LoanReceiptSheet extends StatelessWidget {
       children: [
         const AppBottomSheetHeader(type: AppBottomSheetHeaderType.handleOnly),
         Padding(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
           child: Column(
             children: [
               const AvpImage(
@@ -26,23 +25,48 @@ class LoanReceiptSheet extends StatelessWidget {
                 width: 64,
                 height: 64,
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
               Text(
                 S.current.loanRequestSuccess,
+                textAlign: TextAlign.justify,
                 style: AppTypography.bodyMedium.copyWith(
                   fontWeight: FontWeight.w400,
-                  height: 1.5,
+                  letterSpacing: 0,
                 ),
               ),
-              const SizedBox(height: 24),
-              LoanValueRow(
-                label: S.current.loanRequestTracking,
-                value: record.id,
-                valueDirection: TextDirection.ltr,
+              const SizedBox(height: 20),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  border: Border.all(color: context.colors.border, width: .8),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        S.current.loanRequestTracking,
+                        style: AppTypography.bodySmall.copyWith(
+                          color: AppPalette.gray600,
+                          letterSpacing: 0,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      record.id,
+                      textDirection: TextDirection.ltr,
+                      style: AppTypography.titleSmall.copyWith(
+                        color: AppPalette.gray800,
+                        letterSpacing: 0,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 32),
               AppButton(
                 label: S.current.passwordUnderstood,
+                size: AppButtonSize.lg,
                 variant: AppButtonVariant.secondaryGray,
                 onPressed: () {
                   Navigator.of(context).pop();

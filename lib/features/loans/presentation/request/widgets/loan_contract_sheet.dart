@@ -6,8 +6,24 @@ import 'package:pishkhan_mobile/shared/widgets/app_bottom_sheet_header.dart';
 
 import '../cubit/loan_request_cubit.dart';
 
-class LoanContractSheet extends StatelessWidget {
+class LoanContractSheet extends StatefulWidget {
   const LoanContractSheet({super.key});
+
+  @override
+  State<LoanContractSheet> createState() {
+    return _LoanContractSheetState();
+  }
+}
+
+class _LoanContractSheetState extends State<LoanContractSheet> {
+  final _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<LoanRequestCubit, LoanRequestState>(
@@ -18,7 +34,7 @@ class LoanContractSheet extends StatelessWidget {
         return SizedBox(
           height:
               MediaQuery.sizeOf(context).height -
-              MediaQuery.viewPaddingOf(context).vertical,
+              MediaQueryData.fromView(View.of(context)).viewPadding.vertical,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -26,35 +42,54 @@ class LoanContractSheet extends StatelessWidget {
               AppBottomSheetHeader(
                 title: S.current.loanRequestContract,
                 showRightIcon: false,
-                onLeftAction: () {
-                  Navigator.of(context).pop();
-                },
+                showLeftAction: false,
               ),
               Expanded(
-                child: Scrollbar(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        if (state.catalog!.contractText == null) ...[
+                child: ScrollbarTheme(
+                  data: ScrollbarTheme.of(context).copyWith(
+                    thumbColor: WidgetStatePropertyAll(
+                      context.colors.borderSubtle,
+                    ),
+                    crossAxisMargin: 24,
+                    mainAxisMargin: 20,
+                  ),
+                  child: Scrollbar(
+                    controller: _scrollController,
+                    thumbVisibility: true,
+                    thickness: 8,
+                    radius: const Radius.circular(4),
+                    child: SingleChildScrollView(
+                      controller: _scrollController,
+                      padding: const EdgeInsetsDirectional.fromSTEB(
+                        20,
+                        20,
+                        48,
+                        20,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          if (state.catalog!.contractText == null) ...[
+                            Text(
+                              S.current.loanRequestMockContract,
+                              style: AppTypography.bodySmall.copyWith(
+                                color: context.colors.warning,
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                          ],
                           Text(
-                            S.current.loanRequestMockContract,
+                            state.catalog!.contractText ??
+                                S.current.loanRequestMockContractBody,
                             style: AppTypography.bodySmall.copyWith(
-                              color: context.colors.warning,
+                              height: 1.5,
+                              fontWeight: FontWeight.w400,
+                              letterSpacing: 0,
+                              color: AppPalette.gray700,
                             ),
                           ),
-                          const SizedBox(height: 20),
                         ],
-                        Text(
-                          state.catalog!.contractText ??
-                              S.current.loanRequestMockContractBody,
-                          style: AppTypography.bodyMedium.copyWith(
-                            height: 1.6,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                 ),
@@ -62,14 +97,32 @@ class LoanContractSheet extends StatelessWidget {
               Divider(height: 1, color: context.colors.borderSubtle),
               Padding(
                 padding: const EdgeInsets.all(20),
-                child: AppCheckbox(
-                  label: S.current.loanRequestTerms,
-                  value: state.termsAccepted,
-                  onChanged: (value) {
-                    context.read<LoanRequestCubit>().updateTermsAccepted(
-                      value == true,
-                    );
-                  },
+                child: MergeSemantics(
+                  child: Row(
+                    children: [
+                      AppCheckbox(
+                        value: state.termsAccepted,
+                        onChanged: context
+                            .read<LoanRequestCubit>()
+                            .updateTermsAccepted,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: InkWell(
+                          onTap: context
+                              .read<LoanRequestCubit>()
+                              .toggleTermsAcceptance,
+                          child: Text(
+                            S.current.loanRequestTerms,
+                            style: AppTypography.bodySmall.copyWith(
+                              letterSpacing: 0,
+                              color: context.colors.textPrimary,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
               Padding(
@@ -79,6 +132,8 @@ class LoanContractSheet extends StatelessWidget {
                     Expanded(
                       child: AppButton(
                         label: S.current.loanRequestDownloadContract,
+                        size: AppButtonSize.lg,
+                        horizontalPadding: 8,
                         constrainLabel: true,
                         variant: AppButtonVariant.secondaryGray,
                         onPressed: context
@@ -90,6 +145,14 @@ class LoanContractSheet extends StatelessWidget {
                     Expanded(
                       child: AppButton(
                         label: S.current.loanRequestContractAccept,
+                        size: AppButtonSize.lg,
+                        horizontalPadding: 8,
+                        labelStyle: MediaQuery.sizeOf(context).width < 360
+                            ? AppTypography.labelMedium.copyWith(
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 0,
+                              )
+                            : null,
                         constrainLabel: true,
                         isActive: state.termsAccepted,
                         onPressed: () {

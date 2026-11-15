@@ -56,6 +56,8 @@ class _LoanTrainingVideoState extends State<LoanTrainingVideo> {
               fit: BoxFit.cover,
             ),
           ),
+          ColoredBox(color: AppPalette.gray700.withValues(alpha: .08)),
+          ColoredBox(color: AppPalette.white.withValues(alpha: .14)),
           Center(
             child: const AvpImage(
               image: '${AppConstants.baseImage}modern_video_play.svg',

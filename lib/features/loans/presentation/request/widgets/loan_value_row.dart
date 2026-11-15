@@ -86,14 +86,19 @@ class LoanValueRow extends StatelessWidget {
               ),
             ),
             SizedBox(width: valueWidth == null ? 8 : 0),
-            Flexible(
-              flex: valueWidth == null ? 1 : 0,
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: valueWidth == null
+                    ? constraints.maxWidth / 2
+                    : constraints.maxWidth,
+              ),
               child: SizedBox(
                 // 315px is the inner width of the 343px reference field.
                 width: valueWidth == null
                     ? null
                     : valueWidth! * (constraints.maxWidth / 315).clamp(0, 1),
                 child: Align(
+                  widthFactor: 1,
                   alignment: Alignment.centerLeft,
                   child:
                       valueContent ??

@@ -38,7 +38,7 @@ class LoanOtpSheet extends StatelessWidget {
                   type: AppBottomSheetHeaderType.handleOnly,
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
@@ -53,10 +53,11 @@ class LoanOtpSheet extends StatelessWidget {
                         ),
                         style: AppTypography.bodyMedium.copyWith(
                           fontWeight: FontWeight.w400,
-                          height: 1.5,
+                          color: AppPalette.gray600,
+                          letterSpacing: 0,
                         ),
                       ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 20),
                       LoanOtpDigits(
                         value: state.otp,
                         length: state.challenge!.codeLength,
@@ -74,25 +75,31 @@ class LoanOtpSheet extends StatelessWidget {
                             color: context.colors.error,
                           ),
                         ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: 20),
                       Center(
                         child: state.remainingSeconds > 0
-                            ? Row(
-                                mainAxisSize: MainAxisSize.min,
-                                textDirection: TextDirection.ltr,
-                                children: [
-                                  const AvpImage(
-                                    image:
-                                        '${AppConstants.baseImage}loan_request_clock.svg',
-                                    width: 18,
-                                    height: 18,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    loanCountdown(state.remainingSeconds),
-                                    style: AppTypography.labelMedium,
-                                  ),
-                                ],
+                            ? SizedBox(
+                                height: 44,
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  textDirection: TextDirection.ltr,
+                                  children: [
+                                    const AvpImage(
+                                      image:
+                                          '${AppConstants.baseImage}loan_request_clock.svg',
+                                      width: 18,
+                                      height: 18,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      loanCountdown(state.remainingSeconds),
+                                      style: AppTypography.titleSmall.copyWith(
+                                        color: AppPalette.gray600,
+                                        letterSpacing: 0,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               )
                             : AppButton(
                                 label: S.current.loanRequestResend,
@@ -110,6 +117,7 @@ class LoanOtpSheet extends StatelessWidget {
                           Expanded(
                             child: AppButton(
                               label: S.current.backLabel,
+                              size: AppButtonSize.lg,
                               variant: AppButtonVariant.secondaryGray,
                               isActive:
                                   state.submissionStatus !=
@@ -123,6 +131,7 @@ class LoanOtpSheet extends StatelessWidget {
                           Expanded(
                             child: AppButton(
                               label: S.current.loanRequestSubmit,
+                              size: AppButtonSize.lg,
                               isActive: state.canSubmit,
                               isLoading:
                                   state.submissionStatus ==

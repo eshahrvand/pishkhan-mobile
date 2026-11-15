@@ -8,6 +8,7 @@ class LoanRepaymentChoices<T> extends StatelessWidget {
     super.key,
     required this.value,
     this.checkMark = false,
+    this.labelStyle,
     required this.first,
     required this.second,
     required this.firstLabel,
@@ -16,6 +17,7 @@ class LoanRepaymentChoices<T> extends StatelessWidget {
   });
   final T value;
   final bool checkMark;
+  final TextStyle? labelStyle;
   final T first;
   final T second;
   final String firstLabel;
@@ -31,6 +33,7 @@ class LoanRepaymentChoices<T> extends StatelessWidget {
           label: firstLabel,
           selected: value == first,
           checkMark: checkMark,
+          labelStyle: labelStyle,
           onPressed: onChanged == null
               ? null
               : () {
@@ -41,6 +44,7 @@ class LoanRepaymentChoices<T> extends StatelessWidget {
           label: secondLabel,
           selected: value == second,
           checkMark: checkMark,
+          labelStyle: labelStyle,
           onPressed: onChanged == null
               ? null
               : () {

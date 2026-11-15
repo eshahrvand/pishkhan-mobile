@@ -17,6 +17,17 @@ String loanStepLabel(LoanApplicationStep step) => switch (step) {
   LoanApplicationStep.collateral => S.current.loanRequestCollateral,
   LoanApplicationStep.contract => S.current.loanRequestContract,
 };
+
+String loanPrimaryActionLabel(
+  LoanApplicationStep step,
+  LoanCreditRange? range,
+) => switch (step) {
+  LoanApplicationStep.introduction => S.current.loanRequestTitle,
+  LoanApplicationStep.contract => S.current.loanRequestContractContinue,
+  LoanApplicationStep.assessment when range == LoanCreditRange.unknown =>
+    S.current.loanRequestTitle,
+  _ => S.current.loanRequestNext,
+};
 String loanNextLabel(LoanApplicationStep step) => switch (step) {
   LoanApplicationStep.assessment =>
     S.current.loanRequestNextPrefix + S.current.loanRequestInquiries,

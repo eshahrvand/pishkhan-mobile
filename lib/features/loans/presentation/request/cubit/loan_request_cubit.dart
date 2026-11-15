@@ -476,6 +476,10 @@ class LoanRequestCubit extends Cubit<LoanRequestState> {
   void updateTermsAccepted(bool value) =>
       emit(state.copyWith(termsAccepted: value));
 
+  void toggleTermsAcceptance() {
+    emit(state.copyWith(termsAccepted: !state.termsAccepted));
+  }
+
   Future<void> applyContractResult(bool? accepted) async {
     if (_isConfirmed(accepted)) {
       emit(state.copyWith(challenge: null));

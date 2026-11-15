@@ -7,7 +7,6 @@ import 'package:pishkhan_mobile/generated/l10n.dart';
 import '../../../domain/entities/loan_application.dart';
 import '../cubit/loan_request_cubit.dart';
 import 'loan_request_labels.dart';
-import 'loan_text_link.dart';
 
 class LoanCollateralNotice extends StatelessWidget {
   const LoanCollateralNotice({super.key, required this.quote});
@@ -15,7 +14,7 @@ class LoanCollateralNotice extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
         color: context.colors.surface,
         borderRadius: AppRadius.borderSm,
@@ -28,48 +27,56 @@ class LoanCollateralNotice extends StatelessWidget {
             width: 20,
             height: 20,
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 12),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text.rich(
+            child: Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(text: S.current.loanRequestCollateralBefore),
                   TextSpan(
-                    children: [
-                      TextSpan(text: S.current.loanRequestCollateralBefore),
-                      TextSpan(
-                        text: loanMoney(quote.collateralRial),
-                        style: TextStyle(
-                          color: context.colors.warning,
-                          fontWeight: FontWeight.w600,
+                    text: loanMoney(quote.collateralRial),
+                    style: AppTypography.bodySmall.copyWith(
+                      color: context.colors.warning,
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: 0,
+                    ),
+                  ),
+                  TextSpan(text: S.current.loanRequestCollateralAfter),
+                  const TextSpan(text: '\n'),
+                  TextSpan(text: S.current.loanRequestIcupBefore),
+                  WidgetSpan(
+                    alignment: PlaceholderAlignment.baseline,
+                    baseline: TextBaseline.alphabetic,
+                    child: InkWell(
+                      onTap: context
+                          .read<LoanRequestCubit>()
+                          .requestUnavailable,
+                      child: Text(
+                        S.current.loanRequestIcup,
+                        style: AppTypography.bodySmall.copyWith(
+                          color: context.colors.primary,
+                          fontWeight: FontWeight.w500,
+                          letterSpacing: 0,
+                          decoration: TextDecoration.underline,
+                          decorationColor: context.colors.primary,
                         ),
                       ),
-                      TextSpan(text: S.current.loanRequestCollateralAfter),
-                    ],
+                    ),
                   ),
-                  style: AppTypography.bodySmall.copyWith(
-                    fontSize: 12,
-                    height: 1.5,
-                  ),
-                ),
-                Text(
-                  quote.needsGuarantor
-                      ? S.current.loanRequestGuarantorDetails
-                      : S.current.loanRequestOwnDetails,
-                  style: AppTypography.bodySmall.copyWith(
-                    fontSize: 12,
-                    height: 1.5,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                LoanTextLink(
-                  label: S.current.loanRequestIcup,
-                  showArrow: false,
-                  onPressed: context
-                      .read<LoanRequestCubit>()
-                      .requestUnavailable,
-                ),
-              ],
+                  TextSpan(text: S.current.loanRequestIcupAfter),
+                  if (quote.needsGuarantor) ...[
+                    const TextSpan(text: '\n'),
+                    TextSpan(text: S.current.loanRequestGuarantorDetails),
+                  ],
+                ],
+              ),
+              style: AppTypography.bodySmall.copyWith(
+                fontSize: 12,
+                height: 1.5,
+                fontWeight: FontWeight.w500,
+                letterSpacing: 0,
+                color: context.colors.textPrimary,
+              ),
             ),
           ),
         ],

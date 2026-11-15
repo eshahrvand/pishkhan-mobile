@@ -1,14 +1,11 @@
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 
-import '../../../domain/entities/loan_application.dart';
 import '../cubit/loan_request_cubit.dart';
-import 'loan_request_labels.dart';
-import 'loan_text_link.dart';
+import 'loan_inquiry_card.dart';
 
 class LoanInquiries extends StatelessWidget {
   const LoanInquiries({super.key, required this.state});
@@ -18,83 +15,65 @@ class LoanInquiries extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          state.inquiryStatus == RequestStatus.loading
-              ? S.current.loanRequestReviewing
-              : S.current.loanRequestReviewed,
-          style: AppTypography.bodySmall.copyWith(fontWeight: FontWeight.w600),
-        ),
-        const SizedBox(height: 24),
-        for (final inquiry in state.inquiries) ...[
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            decoration: BoxDecoration(
-              color: context.colors.surface,
-              border: Border.all(
-                color: loanInquiryColor(
-                  context,
-                  inquiry.outcome,
-                ).withValues(alpha: .3),
-                width: .8,
-              ),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Row(
-                  children: [
-                    AvpImage(
-                      image: loanInquiryIcon(inquiry.outcome),
-                      width: 20,
-                      height: 20,
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        loanInquiryLabel(inquiry.kind),
-                        style: AppTypography.bodySmall.copyWith(
-                          color: loanInquiryColor(context, inquiry.outcome),
-                        ),
-                      ),
-                    ),
-                    if (inquiry.outcome == LoanInquiryOutcome.rejected)
-                      LoanTextLink(
-                        label: S.current.dashboardRetry,
-                        showArrow: false,
-                        trailingIcon: const AvpImage(
-                          image:
-                              '${AppConstants.baseImage}loan_request_retry.svg',
-                          width: 16,
-                          height: 16,
-                        ),
-                        isActive: state.canRetryInquiries,
-                        onPressed: context
-                            .read<LoanRequestCubit>()
-                            .fetchInquiries,
-                      )
-                    else
-                      Text(
-                        loanInquiryOutcomeLabel(inquiry.outcome),
-                        style: AppTypography.labelSmall.copyWith(
-                          color: loanInquiryColor(context, inquiry.outcome),
-                        ),
-                      ),
-                  ],
+        Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Flexible(
+              child: Text(
+                state.inquiryStatus == RequestStatus.loading
+                    ? S.current.loanRequestReviewing
+                    : S.current.loanRequestReviewed,
+                style: AppTypography.bodySmall.copyWith(
+                  fontWeight: state.inquiryStatus == RequestStatus.loading
+                      ? FontWeight.w300
+                      : FontWeight.w600,
+                  color: state.inquiryStatus == RequestStatus.loading
+                      ? AppPalette.gray400
+                      : AppPalette.gray700,
+                  letterSpacing: 0,
                 ),
-                if (inquiry.outcome == LoanInquiryOutcome.rejected) ...[
-                  const SizedBox(height: 10),
-                  Divider(height: 1, color: context.colors.borderSubtle),
-                  const SizedBox(height: 10),
-                  Text(
-                    S.current.loanRequestRejected,
-                    style: AppTypography.bodySmall.copyWith(
-                      color: context.colors.textSecondary,
-                    ),
-                  ),
-                ],
-              ],
+              ),
             ),
+            if (state.inquiryStatus == RequestStatus.loading) ...[
+              const SizedBox(width: 4),
+              Row(
+                textDirection: TextDirection.ltr,
+                children: [
+                  // Static waveform heights from the Figma inquiry heading.
+                  for (final height in const [
+                    2.0,
+                    2.0,
+                    2.0,
+                    6.0,
+                    12.0,
+                    4.0,
+                    10.0,
+                    4.0,
+                    6.0,
+                    2.0,
+                  ])
+                    Padding(
+                      padding: const EdgeInsets.only(right: 4),
+                      child: Container(
+                        width: 2,
+                        height: height,
+                        decoration: BoxDecoration(
+                          color: AppPalette.gray400,
+                          borderRadius: AppRadius.borderFull,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ],
+          ],
+        ),
+        const SizedBox(height: 16),
+        for (final inquiry in state.inquiries) ...[
+          LoanInquiryCard(
+            inquiry: inquiry,
+            canRetry: state.canRetryInquiries,
+            onRetry: context.read<LoanRequestCubit>().fetchInquiries,
           ),
           const SizedBox(height: 12),
         ],
@@ -107,23 +86,3 @@ class LoanInquiries extends StatelessWidget {
     );
   }
 }
-
-String loanInquiryOutcomeLabel(LoanInquiryOutcome outcome) => switch (outcome) {
-  LoanInquiryOutcome.processing => S.current.loanRequestProcessing,
-  LoanInquiryOutcome.approved => S.current.loanRequestApproved,
-  LoanInquiryOutcome.rejected => S.current.loanRequestRejected,
-};
-String loanInquiryIcon(LoanInquiryOutcome outcome) => switch (outcome) {
-  LoanInquiryOutcome.processing =>
-    '${AppConstants.baseImage}loan_request_inquiry_processing.svg',
-  LoanInquiryOutcome.approved =>
-    '${AppConstants.baseImage}loan_request_inquiry_approved.svg',
-  LoanInquiryOutcome.rejected =>
-    '${AppConstants.baseImage}loan_request_inquiry_rejected.svg',
-};
-Color loanInquiryColor(BuildContext context, LoanInquiryOutcome outcome) =>
-    switch (outcome) {
-      LoanInquiryOutcome.processing => context.colors.textTertiary,
-      LoanInquiryOutcome.approved => context.colors.success,
-      LoanInquiryOutcome.rejected => context.colors.error,
-    };

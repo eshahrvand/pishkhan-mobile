@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
+import 'package:pishkhan_mobile/core/result/failure.dart';
 import 'package:pishkhan_mobile/core/result/result.dart';
 import 'package:pishkhan_mobile/features/loans/data/repositories/mock_loan_application_repository.dart';
 import 'package:pishkhan_mobile/features/loans/domain/entities/loan_application.dart';
@@ -168,7 +169,7 @@ void main() {
   });
 
   test('excellent flow signs, retries same OTP failure, retains error and completes to introduction', () async {
-    final repo = MockLoanApplicationRepository(delay: Duration.zero);
+    final repo = RetryingSigningRepository();
     await installLoanDependencies(repo);
     final cubit = LoanRequestCubit();
     final failures = <LoanRequestState>[];
@@ -195,7 +196,7 @@ void main() {
     await cubit.submitLoan();
     await Future<void>.delayed(Duration.zero);
     expect(failures.length, 2);
-    cubit.updateOtp('12345');
+    cubit.updateOtp('54321');
     await cubit.submitLoan();
     expect(cubit.state.submissionStatus, RequestStatus.success);
     expect(cubit.state.message, error);
@@ -521,6 +522,23 @@ class DelayedQuoteRepository extends MockLoanApplicationRepository {
   }
 
   Future<Result<LoanQuote>> resolve(LoanQuoteInput input) => super.quote(input);
+}
+
+class RetryingSigningRepository extends MockLoanApplicationRepository {
+  RetryingSigningRepository() : super(delay: Duration.zero);
+  int attempts = 0;
+
+  @override
+  Future<Result<LoanRecord>> submit(
+    LoanDraft draft,
+    LoanSigningChallenge challenge,
+    String otp,
+  ) async {
+    if (++attempts <= 2) {
+      return const Err(DataFailure('loan.otp.invalid'));
+    }
+    return super.submit(draft, challenge, otp);
+  }
 }
 
 class ThrowingSigningRepository extends MockLoanApplicationRepository {

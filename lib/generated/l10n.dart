@@ -10860,6 +10860,26 @@ class S {
     );
   }
 
+  /// `سفته را از `
+  String get loanRequestIcupBefore {
+    return Intl.message(
+      'سفته را از ',
+      name: 'loanRequestIcupBefore',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// ` خریداری کنید یا چک الکترونیک در وجه بانک قرض‌الحسنه رسالت ثبت نمایید و شناسه آن را وارد کنید.`
+  String get loanRequestIcupAfter {
+    return Intl.message(
+      ' خریداری کنید یا چک الکترونیک در وجه بانک قرض‌الحسنه رسالت ثبت نمایید و شناسه آن را وارد کنید.',
+      name: 'loanRequestIcupAfter',
+      desc: '',
+      args: [],
+    );
+  }
+
   /// `مرآت`
   String get loanRequestMeratLink {
     return Intl.message(

@@ -8,11 +8,13 @@ class LoanRadioChoice extends StatelessWidget {
     required this.label,
     required this.selected,
     this.checkMark = false,
+    this.labelStyle,
     this.onPressed,
   });
   final String label;
   final bool selected;
   final bool checkMark;
+  final TextStyle? labelStyle;
   final VoidCallback? onPressed;
   @override
   Widget build(BuildContext context) {
@@ -63,13 +65,15 @@ class LoanRadioChoice extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 label,
-                style: AppTypography.bodyMedium.copyWith(
-                  fontSize: 14,
-                  height: 20 / 14,
-                  fontWeight: FontWeight.w500,
-                  color: AppPalette.gray700,
-                  letterSpacing: 0,
-                ),
+                style:
+                    labelStyle ??
+                    AppTypography.bodyMedium.copyWith(
+                      fontSize: 14,
+                      height: 20 / 14,
+                      fontWeight: FontWeight.w500,
+                      color: AppPalette.gray700,
+                      letterSpacing: 0,
+                    ),
               ),
             ],
           ),

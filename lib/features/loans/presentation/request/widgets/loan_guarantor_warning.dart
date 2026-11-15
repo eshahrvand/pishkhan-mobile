@@ -28,6 +28,8 @@ class LoanGuarantorWarning extends StatelessWidget {
               style: AppTypography.bodySmall.copyWith(
                 fontSize: 12,
                 height: 1.5,
+                fontWeight: FontWeight.w500,
+                letterSpacing: 0,
                 color: context.colors.textPrimary,
               ),
             ),

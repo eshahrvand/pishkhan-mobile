@@ -19,7 +19,8 @@ class LoanSummaryMoneyRow extends StatelessWidget {
         Text(
           label,
           style: AppTypography.bodySmall.copyWith(
-            color: context.colors.textSecondary,
+            color: AppPalette.gray700,
+            letterSpacing: 0,
           ),
         ),
         const SizedBox(width: 8),
@@ -31,7 +32,12 @@ class LoanSummaryMoneyRow extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 8),
-        Flexible(child: LoanMoney(amountRial: amountRial, fontSize: 12)),
+        LoanMoney(
+          amountRial: amountRial,
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+          unitSize: 20,
+        ),
       ],
     );
   }

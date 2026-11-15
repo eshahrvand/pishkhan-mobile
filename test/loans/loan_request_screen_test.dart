@@ -467,8 +467,9 @@ void main() {
       expect(find.byType(LoanContractSheet), findsOneWidget);
       await captureLoan(tester, 'contract_sheet');
       expect(tester.takeException(), null, reason: 'contract sheet');
-      flow.updateTermsAccepted(true);
+      await tester.tap(find.text(S.current.loanRequestTerms));
       await tester.pumpAndSettle();
+      expect(flow.state.termsAccepted, isTrue);
       await tester.tap(
         find.widgetWithText(AppButton, S.current.loanRequestContractAccept),
       );
@@ -485,9 +486,10 @@ void main() {
           of: find.byType(LoanOtpSheet),
           matching: find.byType(TextField),
         ),
-        '12345',
+        '98760',
       );
       await tester.pumpAndSettle();
+      await captureLoan(tester, 'otp_filled');
       await tester.tap(
         find.widgetWithText(AppButton, S.current.loanRequestSubmit),
       );
@@ -549,7 +551,10 @@ void main() {
       await tester.pumpAndSettle();
       flow.requestCreditInfo();
       await tester.pumpAndSettle();
-      expect(find.text(S.current.loanRequestCreditInfo), findsOneWidget);
+      expect(
+        find.textContaining(S.current.loanRequestCreditInfo.split('\n').first),
+        findsOneWidget,
+      );
       await captureLoan(tester, 'credit_guide_corrected');
       tester
           .widget<AppBottomSheetHeader>(find.byType(AppBottomSheetHeader))
@@ -608,7 +613,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text(S.current.loanRequestUnknownHint), findsOneWidget);
       await tester.tap(
-        find.widgetWithText(AppButton, S.current.loanRequestNext),
+        find.widgetWithText(AppButton, S.current.loanRequestTitle),
       );
       await tester.pumpAndSettle();
       expect(flow.state.step, LoanApplicationStep.assessment);

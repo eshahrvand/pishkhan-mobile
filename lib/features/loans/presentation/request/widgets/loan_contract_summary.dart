@@ -23,8 +23,8 @@ class LoanContractSummary extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: context.colors.primarySubtle,
-            borderRadius: AppRadius.borderSm,
+            color: AppPalette.brand25,
+            borderRadius: BorderRadius.circular(10),
             boxShadow: AppShadows.cardList,
           ),
           child: Column(
@@ -36,7 +36,11 @@ class LoanContractSummary extends StatelessWidget {
                     Expanded(
                       child: Text(
                         S.current.issuanceSummary,
-                        style: AppTypography.titleSmall,
+                        style: AppTypography.bodySmall.copyWith(
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0,
+                          color: AppCardIssuanceColors.summaryTitle,
+                        ),
                       ),
                     ),
                     RotatedBox(
@@ -64,7 +68,7 @@ class LoanContractSummary extends StatelessWidget {
                   label: S.current.loanRequestAmount,
                   amountRial: state.quote!.input.amountRial,
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 16),
                 LoanSummaryMoneyRow(
                   label: S.current.loanRequestInsuranceAmount,
                   amountRial: state.isInsuranceSelected
@@ -75,7 +79,20 @@ class LoanContractSummary extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 12),
+        const SizedBox(
+          height: 0,
+          child: OverflowBox(
+            minHeight: 1,
+            maxHeight: 1,
+            child: AvpImage(
+              image: '${AppConstants.baseImage}loan_request_divider.svg',
+              height: 1,
+              fit: BoxFit.fill,
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
@@ -87,13 +104,15 @@ class LoanContractSummary extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  const AvpImage(
-                    image:
-                        '${AppConstants.baseImage}loan_request_insurance_info.svg',
-                    width: 20,
-                    height: 20,
-                  ),
-                  const SizedBox(width: 8),
+                  if (!state.quote!.insuranceOptional) ...[
+                    const AvpImage(
+                      image:
+                          '${AppConstants.baseImage}loan_request_insurance_info.svg',
+                      width: 20,
+                      height: 20,
+                    ),
+                    const SizedBox(width: 8),
+                  ],
                   if (state.quote!.insuranceOptional) ...[
                     AppCheckbox(
                       value: state.isInsuranceSelected,
@@ -110,7 +129,11 @@ class LoanContractSummary extends StatelessWidget {
                       state.quote!.insuranceOptional
                           ? S.current.loanRequestInsuranceOptional
                           : S.current.loanRequestInsurance,
-                      style: AppTypography.bodyMedium,
+                      style: AppTypography.bodyMedium.copyWith(
+                        fontWeight: FontWeight.w500,
+                        color: AppPalette.gray700,
+                        letterSpacing: 0,
+                      ),
                     ),
                   ),
                   LoanTextLink(
@@ -125,11 +148,21 @@ class LoanContractSummary extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 12),
+              Divider(
+                height: 0,
+                thickness: .5,
+                color: context.colors.borderSubtle,
+              ),
+              const SizedBox(height: 12),
               Text(
                 state.quote!.insuranceOptional
                     ? S.current.loanRequestInsuranceOptionalHint
                     : S.current.loanRequestInsuranceHint,
-                style: AppTypography.bodySmall,
+                textAlign: TextAlign.justify,
+                style: AppTypography.bodyMedium.copyWith(
+                  color: AppPalette.gray600,
+                  letterSpacing: 0,
+                ),
               ),
               const SizedBox(height: 12),
               Row(
@@ -137,10 +170,18 @@ class LoanContractSummary extends StatelessWidget {
                   Expanded(
                     child: Text(
                       S.current.loanRequestInsuranceAmount,
-                      style: AppTypography.bodySmall,
+                      style: AppTypography.bodySmall.copyWith(
+                        color: AppPalette.gray700,
+                        letterSpacing: 0,
+                      ),
                     ),
                   ),
-                  LoanMoney(amountRial: state.quote!.insuranceRial),
+                  LoanMoney(
+                    amountRial: state.quote!.insuranceRial,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    unitSize: 20,
+                  ),
                 ],
               ),
             ],

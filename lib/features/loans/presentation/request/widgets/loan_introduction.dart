@@ -26,11 +26,11 @@ class LoanIntroduction extends StatelessWidget {
           ),
         ),
         if (state.catalog!.currentDraft != null) ...[
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
           LoanCurrentRequestCard(state: state),
         ],
         if (state.catalog!.latestRecord != null) ...[
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
           LoanCompletedRequestCard(state: state),
         ],
       ],

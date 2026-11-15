@@ -28,12 +28,20 @@ class LoanInformationSheet extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(title, style: AppTypography.titleSmall),
+              Text(
+                title,
+                style: AppTypography.titleSmall.copyWith(
+                  color: AppPalette.gray700,
+                  letterSpacing: 0,
+                ),
+              ),
               const SizedBox(height: 20),
               Text(
-                body,
+                body.replaceAll('\n\n', '\n'),
                 style: AppTypography.bodyMedium.copyWith(
-                  height: 1.6,
+                  height: 24 / 14,
+                  color: AppPalette.gray600,
+                  letterSpacing: 0,
                   fontWeight: FontWeight.w400,
                 ),
               ),

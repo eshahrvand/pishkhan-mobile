@@ -247,10 +247,10 @@ class MockLoanApplicationRepository implements LoanApplicationRepository {
     if (_draft != draft ||
         challenge.draftId != draft.id ||
         _challenges[challenge.id] != challenge ||
-        !challenge.expiresAt.isAfter(DateTime.now().toUtc()) ||
-        otp != '12345') {
+        !challenge.expiresAt.isAfter(DateTime.now().toUtc())) {
       return const Err(DataFailure('loan.otp.invalid'));
     }
+    // Test mode accepts any entered OTP; challenge safeguards still apply.
     final record = LoanRecord(
       id: 'MOCK-${++_serial}',
       depositNumber: draft.quote.input.deposit.number,
