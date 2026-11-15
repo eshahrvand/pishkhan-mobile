@@ -20,7 +20,6 @@ import 'package:pishkhan_mobile/features/dashboard/presentation/home/screens/dep
 import 'package:pishkhan_mobile/features/dashboard/presentation/home/screens/loans_tab.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/deposit_actions.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/loan_actions.dart';
-import 'package:pishkhan_mobile/features/dashboard/presentation/shared/dashboard_tab.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/app_primary_navigation.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_navigation_container.dart';

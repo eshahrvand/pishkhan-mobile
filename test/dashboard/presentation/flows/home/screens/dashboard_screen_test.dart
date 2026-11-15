@@ -511,7 +511,14 @@ void main() {
     );
     // Render the Cubit-driven enabled state before tapping the send action.
     await tester.pump();
-    await tap(tester, dashboardSemantic(S.current.dashboardSendPrompt));
+    final sendAction = find.ancestor(
+      of: dashboardSemantic(S.current.dashboardSendPrompt),
+      matching: find.byType(InkWell),
+    );
+    await tester.ensureVisible(sendAction);
+    await tester.pumpAndSettle();
+    expect(sendAction.hitTestable(), findsOneWidget);
+    await tap(tester, sendAction.hitTestable());
     expect(prompt, 'سوال من');
   });
 

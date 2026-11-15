@@ -525,8 +525,14 @@ void main() {
             widget is AvpImage &&
             widget.image?.endsWith('loan_request_copy.svg') == true,
       );
-      await tester.ensureVisible(copyIcon);
-      await tester.tap(copyIcon);
+      final copyAction = find.ancestor(
+        of: copyIcon,
+        matching: find.byType(InkWell),
+      );
+      await tester.ensureVisible(copyAction);
+      await tester.pumpAndSettle();
+      expect(copyAction.hitTestable(), findsOneWidget);
+      await tester.tap(copyAction.hitTestable());
       await tester.pumpAndSettle();
       expect(copied, flow.state.catalog!.latestRecord!.id);
 
