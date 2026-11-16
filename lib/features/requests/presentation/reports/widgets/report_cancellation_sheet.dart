@@ -51,7 +51,7 @@ class ReportCancellationSheet extends StatelessWidget {
                     S.current.reportCancelPrompt,
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.w600,
-                      height: 20 / 14,
+
                       letterSpacing: 0,
                     ),
                   ),
@@ -82,13 +82,12 @@ class ReportCancellationSheet extends StatelessWidget {
                       constrainLabel: true,
                       isLoading:
                           state.cancellationStatus == RequestStatus.loading,
-                      onPressed: state.canCancelRequest
-                          ? () {
-                              context
-                                  .read<RequestReportsCubit>()
-                                  .submitCancellation();
-                            }
-                          : null,
+                      onPressed: () {
+                        context
+                            .read<RequestReportsCubit>()
+                            .submitCancellation();
+                      },
+                      isActive: state.canCancelRequest,
                     ),
                   ),
                 ],

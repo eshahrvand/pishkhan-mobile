@@ -19,7 +19,7 @@ class MobileBankSerialForm extends StatelessWidget {
         Text(
           S.current.passwordSerialPrompt,
           style: Theme.of(context).textTheme.bodyMedium!
-              .copyWith(height: 20 / 14, fontWeight: FontWeight.w500),
+              .copyWith(fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 20),
         AppTextField(
@@ -60,10 +60,8 @@ class MobileBankSerialForm extends StatelessWidget {
             Expanded(
               child: Text(
                 S.current.passwordSerialHelper,
-                style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                  color: context.colors.textSecondary,
-                  height: 18 / 12,
-                ),
+                style: Theme.of(context).textTheme.bodySmall!
+                    .copyWith(color: context.colors.textSecondary),
               ),
             ),
           ],

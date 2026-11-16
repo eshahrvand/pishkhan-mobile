@@ -2,8 +2,6 @@ import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 
 import '../widgets/deposit_list_content.dart';
-import '../widgets/deposit_sheet.dart';
-import '../widgets/deposit_filter_options.dart';
 
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
@@ -30,8 +28,11 @@ class DepositListScreen extends StatelessWidget {
   final ValueChanged<DepositListActionRequest>? onActionRequested;
   final VoidCallback? onAssistantPressed;
   void _showRequestFailure(BuildContext context, DepositListState state) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   Future<void> _handleEffect(
@@ -62,39 +63,36 @@ class DepositListScreen extends StatelessWidget {
             initialDepositNumber: request.deposit.number,
           );
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(S.current.depositListServiceUnavailable)),
+          avpSnackBar(
+            context: context,
+            type: AvpSnackBarType.error,
+            message: S.current.depositListServiceUnavailable,
           );
         }
       case DepositKindFilterRequested():
         context.read<DepositListCubit>().consumeDepositListInteraction();
-        final value = await showDepositSheet<DepositKind>(
+        final value = await showAppSelectSheet<DepositKind>(
           context,
-          DepositFilterOptions(
-            title: S.current.depositListAccountType,
-            labels: [
-              for (final kind in DepositKind.values) depositKindLabel(kind),
-            ],
-            onSelected: (sheetContext, i) =>
-                Navigator.of(sheetContext).pop(DepositKind.values[i]),
-          ),
+          title: S.current.depositListAccountType,
+          selected: state.kind,
+          options: [
+            for (final kind in DepositKind.values)
+              AppSelectOption(value: kind, label: depositKindLabel(kind)),
+          ],
         );
         if (context.mounted) {
           context.read<DepositListCubit>().applyKindFilterSelection(value);
         }
       case DepositStatusFilterRequested():
         context.read<DepositListCubit>().consumeDepositListInteraction();
-        final value = await showDepositSheet<DepositStatus>(
+        final value = await showAppSelectSheet<DepositStatus>(
           context,
-          DepositFilterOptions(
-            title: S.current.depositListStatus,
-            labels: [
-              for (final status in DepositStatus.values)
-                depositStatusLabel(status),
-            ],
-            onSelected: (sheetContext, i) =>
-                Navigator.of(sheetContext).pop(DepositStatus.values[i]),
-          ),
+          title: S.current.depositListStatus,
+          selected: state.depositStatus,
+          options: [
+            for (final status in DepositStatus.values)
+              AppSelectOption(value: status, label: depositStatusLabel(status)),
+          ],
         );
         if (context.mounted) {
           context.read<DepositListCubit>().applyStatusFilterSelection(value);
@@ -149,12 +147,10 @@ class DepositListScreen extends StatelessWidget {
                             '${AppConstants.baseImage}deposit_list_back.svg',
                           ),
                           trailingTooltip: S.current.backLabel,
-                          onTrailingPressed:
-                              (state.depositsStatus != RequestStatus.loading)
-                              ? () => context
-                                    .read<DepositListCubit>()
-                                    .requestBack()
-                              : null,
+                          onTrailingPressed: () =>
+                              context.read<DepositListCubit>().requestBack(),
+                          isTrailingActive:
+                              (state.depositsStatus != RequestStatus.loading),
                         ),
                         Expanded(
                           child: Stack(

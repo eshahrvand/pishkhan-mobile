@@ -23,7 +23,7 @@ class FinancialLatinAddressField extends StatelessWidget {
       hintTextDirection: TextDirection.ltr,
       hintText: S.current.financialLatinAddressHint,
       textStyle: Theme.of(context).textTheme.bodyLarge!
-          .copyWith(fontFamily: 'CertificateLatin', height: 24 / 16),
+          .copyWith(fontFamily: 'CertificateLatin'),
       normalizeDigits: false,
       autocorrect: false,
       enableSuggestions: false,

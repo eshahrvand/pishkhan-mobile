@@ -30,9 +30,12 @@ explicit `emit(state.copyWith(...))` transitions, with no state-preparation
 wrapper. The operation uses async/await and a Result switch. Controls gate
 invocation; there is no disposal guard or speculative request ID.
 
-The initial list filters for Open status, matching the selected Status chip.
+The initial list has no status filter and shows deposits of every status.
 Account type and status filters combine. Pressing a selected chip clears that
-filter; pressing an unselected chip opens a package-button option sheet.
+filter; pressing an unselected chip opens the shared `avp_ui`
+`showAppSelectSheet` with typed account-kind or status options, matching the
+app's other selectors. The operation and account-details panels retain the
+shared app service-sheet route.
 Dismissing options leaves the previous selection unchanged. Loading, error,
 empty catalog and no matching deposits have separate views; errors offer Retry.
 
@@ -90,9 +93,8 @@ selected-deposit action context, distinct sheets, authenticated
 routing, reference geometry and 320px screens with larger text in fa/en/ar.
 Existing router, shared deposit row, dashboard and asset tests are regressions.
 
-Historical test totals are superseded by the scoped execution recorded in
-[phase 6 review](phase-6-review.md). Unit/widget tests do not claim production
-bank integration.
+Run the deposit-list tests and directly related regressions for current
+verification. Unit/widget tests do not claim production bank integration.
 
 Optional captures:
 
@@ -129,5 +131,3 @@ Independent failure, typed-effect and receipt subscriptions share
 `MultiBlocListener`; rendering uses `BlocBuilder`. Effects never inspect a retained
 message before executing. Success uses the existing receipt, without replaying
 old failure text. Retry/empty sections, actual validation and loading gates stay.
-See [phase 6 review](phase-6-review.md) for operation ownership, preserved resets,
-UseCase wiring, integration limits and current scoped checks.

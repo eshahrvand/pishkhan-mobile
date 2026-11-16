@@ -242,24 +242,35 @@ void main() {
     },
   );
 
-  test('suggestions remain uncommitted until confirmation', () async {
-    final cubit = createHome();
-    await cubit.fetchHome();
-    cubit.openFavoritesEditing();
-    expect(cubit.state.homeData!.favorites, isEmpty);
-    expect(cubit.state.favoriteServices, [
-      DashboardService.issue,
-      DashboardService.consolidation,
-      DashboardService.cardDeposit,
-    ]);
-    cubit.cancelFavorites();
-    expect(cubit.state.favoriteServices, isEmpty);
-    cubit.openFavoritesEditing();
-    cubit.applyFavorites();
-    expect(cubit.state.homeData!.favorites, [
-      'card-issue',
-      'loan-consolidate',
-      'card-deposit',
-    ]);
-  });
+  test(
+    'empty favorites editor starts empty and commits only explicit choices',
+    () async {
+      final cubit = createHome();
+      await cubit.fetchHome();
+      cubit.openFavoritesEditing();
+      expect(cubit.state.homeData!.favorites, isEmpty);
+      expect(cubit.state.favoriteServices, isEmpty);
+      expect(cubit.state.canAddFavorite, isTrue);
+      expect(cubit.state.canConfirmFavorites, isFalse);
+      cubit.addFavorite(DashboardService.issue);
+      expect(cubit.state.canConfirmFavorites, isTrue);
+      expect(cubit.state.homeData!.favorites, isEmpty);
+      cubit.removeFavorite(DashboardService.issue);
+      expect(cubit.state.canConfirmFavorites, isFalse);
+      cubit.addFavorite(DashboardService.cardDeposit);
+      cubit.cancelFavorites();
+      expect(cubit.state.favoriteServices, isEmpty);
+      cubit.openFavoritesEditing();
+      expect(cubit.state.favoriteServices, isEmpty);
+      expect(cubit.state.canConfirmFavorites, isFalse);
+      cubit.addFavorite(DashboardService.issue);
+      cubit.applyFavorites();
+      expect(cubit.state.homeData!.favorites, ['card-issue']);
+      cubit.openFavoritesEditing();
+      cubit.removeFavorite(DashboardService.issue);
+      expect(cubit.state.canConfirmFavorites, isTrue);
+      cubit.applyFavorites();
+      expect(cubit.state.homeData!.favorites, isEmpty);
+    },
+  );
 }

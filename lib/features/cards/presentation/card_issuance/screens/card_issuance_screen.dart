@@ -1,5 +1,5 @@
 import 'package:pishkhan_mobile/core/config/constant.dart';
-import 'package:pishkhan_mobile/shared/widgets/flow_exit_dialog.dart';
+import 'package:pishkhan_mobile/shared/widgets/flow_exit_sheet.dart';
 
 import '../widgets/issuance_address_sheet.dart';
 import '../widgets/issuance_footer.dart';
@@ -46,8 +46,11 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
   }
 
   void _showRequestFailure(BuildContext context, CardIssuanceState state) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   Future<void> _handleNavigation(
@@ -57,7 +60,7 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
     switch (state.navigation) {
       case FlowNavigation.confirmExit:
         context.read<CardIssuanceCubit>().consumeCardIssuanceInteraction();
-        final confirmed = await showFlowExitDialog(context);
+        final confirmed = await showFlowExitSheet(context);
         if (context.mounted) {
           context.read<CardIssuanceCubit>().applyExitConfirmation(confirmed);
         }
@@ -83,8 +86,10 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
         if (widget.onTermsRequested != null) {
           widget.onTermsRequested!();
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(S.current.issuanceTermsUnavailable)),
+          avpSnackBar(
+            context: context,
+            type: AvpSnackBarType.error,
+            message: S.current.issuanceTermsUnavailable,
           );
         }
       case IssuanceAddressRequested():
@@ -97,6 +102,7 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
         context.read<CardIssuanceCubit>().consumeCardIssuanceInteraction();
         await showModalBottomSheet<void>(
           context: context,
+          useRootNavigator: true,
           isScrollControlled: true,
           backgroundColor: context.colors.surfaceSubtle,
           builder: (sheetContext) => SafeArea(
@@ -198,14 +204,11 @@ class _CardIssuanceScreenState extends State<CardIssuanceScreen> {
                             size: 24,
                           ),
                           trailingTooltip: S.current.backLabel,
-                          onTrailingPressed:
+                          onTrailingPressed: () =>
+                              context.read<CardIssuanceCubit>().requestBack(),
+                          isTrailingActive:
                               (state.catalogStatus != RequestStatus.loading &&
-                                  state.submissionStatus !=
-                                      RequestStatus.loading)
-                              ? () => context
-                                    .read<CardIssuanceCubit>()
-                                    .requestBack()
-                              : null,
+                              state.submissionStatus != RequestStatus.loading),
                         ),
                         Expanded(
                           // The assistant and footer overlay the scroll viewport; a Column

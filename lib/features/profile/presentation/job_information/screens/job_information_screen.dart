@@ -7,7 +7,7 @@ import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
-import 'package:pishkhan_mobile/shared/widgets/flow_exit_dialog.dart';
+import 'package:pishkhan_mobile/shared/widgets/flow_exit_sheet.dart';
 
 import '../../shared/profile_actions_sheet.dart';
 
@@ -24,8 +24,11 @@ class JobInformationScreen extends StatelessWidget {
   const JobInformationScreen({super.key, this.onAssistantPressed});
   final VoidCallback? onAssistantPressed;
   void _showRequestFailure(BuildContext context, JobInformationState state) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   Future<void> _handleEffect(
@@ -75,7 +78,7 @@ class JobInformationScreen extends StatelessWidget {
         );
       case JobInformationEffect.confirmExit:
         context.read<JobInformationCubit>().consumeJobInformationInteraction();
-        final confirmed = await showFlowExitDialog(context);
+        final confirmed = await showFlowExitSheet(context);
         if (context.mounted) {
           context.read<JobInformationCubit>().applyExitConfirmation(confirmed);
         }
@@ -98,8 +101,10 @@ class JobInformationScreen extends StatelessWidget {
         onAssistantPressed?.call();
       case JobInformationEffect.terms:
         context.read<JobInformationCubit>().consumeJobInformationInteraction();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(S.current.issuanceTermsUnavailable)),
+        avpSnackBar(
+          context: context,
+          type: AvpSnackBarType.error,
+          message: S.current.issuanceTermsUnavailable,
         );
       case null:
         break;
@@ -176,19 +181,18 @@ class JobInformationScreen extends StatelessWidget {
                                 height: 24,
                               ),
                               trailingTooltip: S.current.backLabel,
-                              onTrailingPressed:
+                              onTrailingPressed: () {
+                                context
+                                    .read<JobInformationCubit>()
+                                    .requestBack();
+                              },
+                              isTrailingActive:
                                   (state.jobInformationStatus !=
-                                          RequestStatus.loading &&
-                                      state.submissionStatus !=
-                                          RequestStatus.loading &&
-                                      state.deletionStatus !=
-                                          RequestStatus.loading)
-                                  ? () {
-                                      context
-                                          .read<JobInformationCubit>()
-                                          .requestBack();
-                                    }
-                                  : null,
+                                      RequestStatus.loading &&
+                                  state.submissionStatus !=
+                                      RequestStatus.loading &&
+                                  state.deletionStatus !=
+                                      RequestStatus.loading),
                             ),
                             Expanded(
                               child: state.step == JobInformationStep.list

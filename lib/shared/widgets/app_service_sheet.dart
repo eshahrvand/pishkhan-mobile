@@ -12,7 +12,7 @@ Future<T?> showAppServiceSheet<T>(
   FocusManager.instance.primaryFocus?.unfocus();
   // The caller may be inside SafeArea, which has removed inherited padding.
   final insets = MediaQueryData.fromView(View.of(context)).viewPadding;
-  final navigator = Navigator.of(context);
+  final navigator = Navigator.of(context, rootNavigator: true);
   return navigator.push<T>(
     AppServiceSheetRoute<T>(
       modalBarrierColor:

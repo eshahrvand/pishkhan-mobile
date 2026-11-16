@@ -77,28 +77,23 @@ class PasswordFlowFooter extends StatelessWidget {
                             InkWell(
                               onTap:
                                   onTermsRequested ??
-                                  () => ScaffoldMessenger.of(context)
-                                      .showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                            S.current.issuanceTermsUnavailable,
-                                          ),
-                                        ),
-                                      ),
+                                  () => avpSnackBar(
+                                    context: context,
+                                    type: AvpSnackBarType.error,
+                                    message: S.current.issuanceTermsUnavailable,
+                                  ),
                               child: Text(
                                 '${S.current.issuanceTerms} ',
                                 style: Theme.of(context).textTheme.bodySmall!
                                     .copyWith(
                                       color: context.colors.primary,
                                       decoration: TextDecoration.underline,
-                                      height: 18 / 12,
                                     ),
                               ),
                             ),
                             Text(
                               S.current.issuanceTermsPrompt,
-                              style: Theme.of(context).textTheme.bodySmall!
-                                  .copyWith(height: 18 / 12),
+                              style: Theme.of(context).textTheme.bodySmall!,
                             ),
                           ],
                         ),
@@ -109,12 +104,11 @@ class PasswordFlowFooter extends StatelessWidget {
                 const SizedBox(height: 16),
               ],
               AppButton(
-                onPressed: state.canContinue
-                    ? () {
-                        FocusManager.instance.primaryFocus?.unfocus();
-                        context.read<SecondPasswordCubit>().submitCurrentStep();
-                      }
-                    : null,
+                onPressed: () {
+                  FocusManager.instance.primaryFocus?.unfocus();
+                  context.read<SecondPasswordCubit>().submitCurrentStep();
+                },
+                isActive: state.canContinue,
                 label: getPasswordContinueTitle(state),
                 isLoading:
                     state.existingRequestStatus == RequestStatus.loading ||

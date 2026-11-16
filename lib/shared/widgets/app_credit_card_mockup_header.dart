@@ -122,14 +122,11 @@ class AppCreditCardMockupHeader extends StatelessWidget {
   TextStyle get _walletRegularStyle => AppTypography.bodySmall.copyWith(
     color: AppPalette.gray800,
     fontSize: 12.752,
-    height: 19.128 / 12.752,
+
     letterSpacing: 0,
   );
-  TextStyle _regularStyle(Color color) => AppTypography.bodySmall.copyWith(
-    color: color,
-    height: 18 / 12,
-    letterSpacing: 0,
-  );
+  TextStyle _regularStyle(Color color) =>
+      AppTypography.bodySmall.copyWith(color: color, letterSpacing: 0);
   TextStyle _mediumStyle(Color color) =>
       _regularStyle(color).copyWith(fontWeight: FontWeight.w500);
   bool get _isWallet => state == AppCreditCardMockupState.wallet;

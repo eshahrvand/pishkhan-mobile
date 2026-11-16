@@ -7,7 +7,7 @@ import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
-import 'package:pishkhan_mobile/shared/widgets/flow_exit_dialog.dart';
+import 'package:pishkhan_mobile/shared/widgets/flow_exit_sheet.dart';
 
 import '../../deposit_list/widgets/deposit_ui.dart';
 import '../cubit/close_surplus_deposits_cubit.dart';
@@ -30,8 +30,11 @@ class CloseSurplusDepositsScreen extends StatelessWidget {
     BuildContext context,
     CloseSurplusDepositsState state,
   ) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   Future<void> _handleEffect(
@@ -43,7 +46,7 @@ class CloseSurplusDepositsScreen extends StatelessWidget {
         context
             .read<CloseSurplusDepositsCubit>()
             .consumeCloseSurplusDepositsInteraction();
-        final confirmed = await showFlowExitDialog(context);
+        final confirmed = await showFlowExitSheet(context);
         if (context.mounted) {
           context.read<CloseSurplusDepositsCubit>().applyExitConfirmation(
             confirmed,
@@ -65,8 +68,10 @@ class CloseSurplusDepositsScreen extends StatelessWidget {
         context
             .read<CloseSurplusDepositsCubit>()
             .consumeCloseSurplusDepositsInteraction();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(S.current.issuanceTermsUnavailable)),
+        avpSnackBar(
+          context: context,
+          type: AvpSnackBarType.error,
+          message: S.current.issuanceTermsUnavailable,
         );
       case null:
         break;
@@ -145,16 +150,14 @@ class CloseSurplusDepositsScreen extends StatelessWidget {
                             '${AppConstants.baseImage}deposit_list_back.svg',
                           ),
                           trailingTooltip: S.current.backLabel,
-                          onTrailingPressed:
+                          onTrailingPressed: context
+                              .read<CloseSurplusDepositsCubit>()
+                              .requestBack,
+                          isTrailingActive:
                               (state.depositsStatus != RequestStatus.loading &&
                                   state.submissionStatus !=
-                                      RequestStatus.loading)
-                              ? state.isEditable
-                                    ? context
-                                          .read<CloseSurplusDepositsCubit>()
-                                          .requestBack
-                                    : null
-                              : null,
+                                      RequestStatus.loading) &&
+                              state.isEditable,
                         ),
                         Expanded(
                           child: Stack(

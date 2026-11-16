@@ -72,7 +72,7 @@ class AppCreditCardMockup extends StatelessWidget {
             Positioned(
               left: -2,
               top: -1,
-              width: 272,
+              right: 73,
               height: isCompact ? 104 : 136,
               child: ColoredBox(
                 color: AppPalette.white,
@@ -118,7 +118,7 @@ class AppCreditCardMockup extends StatelessWidget {
               ),
             ),
             Positioned(
-              left: 286,
+              right: 17,
               top: isCompact ? 31 : 47,
               width: 40,
               height: 40,

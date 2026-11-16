@@ -38,7 +38,7 @@ class AppDeleteAddressSheet extends StatelessWidget {
     final bodyStyle = AppTypography.bodyMedium.copyWith(
       color: context.colors.textPrimary,
       fontSize: 14,
-      height: 20 / 14,
+
       letterSpacing: 0,
     );
 

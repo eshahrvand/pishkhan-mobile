@@ -1,3 +1,4 @@
+import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -8,27 +9,26 @@ import 'package:pishkhan_mobile/core/result/result.dart';
 import 'package:pishkhan_mobile/features/deposits/data/repositories/mock_deposits_repository.dart';
 import 'package:pishkhan_mobile/features/deposits/data/repositories/mock_deposit_restrictions_repository.dart';
 import 'package:pishkhan_mobile/features/deposits/data/repositories/mock_surplus_deposits_repository.dart';
-import 'package:pishkhan_mobile/features/deposits/data/repositories/mock_proxy_deposits_repository.dart';
+import 'package:pishkhan_mobile/features/deposits/data/repositories/mock_deposit_mandate_repository.dart';
 import 'package:pishkhan_mobile/features/deposits/domain/entities/listed_deposit.dart';
 import 'package:pishkhan_mobile/features/deposits/domain/entities/deposit_restriction.dart';
-import 'package:pishkhan_mobile/features/deposits/domain/entities/proxy_deposit.dart';
+import 'package:pishkhan_mobile/features/deposits/domain/entities/deposit_mandate.dart';
 import 'package:pishkhan_mobile/features/deposits/domain/entities/surplus_deposit_closure.dart';
 import 'package:pishkhan_mobile/features/deposits/domain/repositories/deposits_repository.dart';
 import 'package:pishkhan_mobile/features/deposits/domain/repositories/deposit_restrictions_repository.dart';
 import 'package:pishkhan_mobile/features/deposits/domain/repositories/surplus_deposits_repository.dart';
-import 'package:pishkhan_mobile/features/deposits/domain/repositories/proxy_deposits_repository.dart';
+import 'package:pishkhan_mobile/features/deposits/domain/repositories/deposit_mandate_repository.dart';
 import 'package:pishkhan_mobile/features/deposits/presentation/deposit_list/cubit/deposit_list_cubit.dart';
 import 'package:pishkhan_mobile/features/deposits/presentation/deposit_list/screens/deposit_list_screen.dart';
-import 'package:pishkhan_mobile/features/deposits/presentation/deposit_list/widgets/deposit_filter_options.dart';
 import 'package:pishkhan_mobile/features/deposits/presentation/deposit_restriction/cubit/deposit_restriction_cubit.dart';
 import 'package:pishkhan_mobile/features/deposits/presentation/deposit_restriction/screens/deposit_restriction_screen.dart';
 import 'package:pishkhan_mobile/features/deposits/presentation/deposit_restriction/widgets/deposit_restriction_receipt_dialog.dart';
 import 'package:pishkhan_mobile/features/deposits/presentation/close_surplus_deposits/cubit/close_surplus_deposits_cubit.dart';
 import 'package:pishkhan_mobile/features/deposits/presentation/close_surplus_deposits/screens/close_surplus_deposits_screen.dart';
 import 'package:pishkhan_mobile/features/deposits/presentation/close_surplus_deposits/widgets/surplus_deposit_receipt_dialog.dart';
-import 'package:pishkhan_mobile/features/deposits/presentation/proxy_deposit/cubit/proxy_deposit_cubit.dart';
-import 'package:pishkhan_mobile/features/deposits/presentation/proxy_deposit/screens/proxy_deposit_screen.dart';
-import 'package:pishkhan_mobile/features/deposits/presentation/proxy_deposit/widgets/proxy_deposit_receipt_dialog.dart';
+import 'package:pishkhan_mobile/features/deposits/presentation/deposit_mandate/cubit/deposit_mandate_cubit.dart';
+import 'package:pishkhan_mobile/features/deposits/presentation/deposit_mandate/screens/deposit_mandate_screen.dart';
+import 'package:pishkhan_mobile/features/deposits/presentation/deposit_mandate/widgets/deposit_mandate_receipt_dialog.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
 
@@ -62,20 +62,20 @@ class RetryingClosureRepository extends MockSurplusDepositsRepository {
       : super.closeSurplusDeposits(request);
 }
 
-class RetryingProxyRepository extends MockProxyDepositsRepository {
+class RetryingDepositMandateRepository extends MockDepositMandateRepository {
   bool fail = true;
   @override
-  Future<Result<ProxyDepositReceipt>> submitProxyDeposit(
-    ProxyDepositRequest request,
+  Future<Result<DepositMandateReceipt>> submitDepositMandate(
+    DepositMandateRequest request,
   ) => fail
       ? Future.value(const Err(DataFailure('timeout')))
-      : super.submitProxyDeposit(request);
+      : super.submitDepositMandate(request);
 }
 
 Future<void> dismissFeedback(WidgetTester tester) async {
   await tester.pump(const Duration(seconds: 5));
   await tester.pumpAndSettle();
-  expect(find.byType(SnackBar), findsNothing);
+  expect(find.byType(AvpSnackBar), findsNothing);
 }
 
 void main() {
@@ -93,17 +93,18 @@ void main() {
       final cubit = tester
           .element(find.byType(AppTopBar))
           .read<DepositListCubit>();
-      expect(find.byType(SnackBar), findsOneWidget);
+      expect(find.byType(AvpSnackBar), findsOneWidget);
       await dismissFeedback(tester);
       await tester.tap(find.text(S.current.dashboardRetry));
       await tester.pumpAndSettle();
-      expect(find.byType(SnackBar), findsOneWidget);
+      expect(find.byType(AvpSnackBar), findsOneWidget);
       await dismissFeedback(tester);
       cubit.requestKindFilter();
       await tester.pumpAndSettle();
-      expect(find.byType(DepositFilterOptions), findsOneWidget);
-      expect(find.byType(SnackBar), findsNothing);
-      Navigator.of(tester.element(find.byType(DepositFilterOptions))).pop();
+      expect(find.byType(AppSelectSheet<DepositKind>), findsOneWidget);
+      expect(find.byType(AvpSnackBar), findsNothing);
+      Navigator.of(tester.element(find.byType(AppSelectSheet<DepositKind>)))
+          .pop();
       await tester.pumpAndSettle();
       repository.fail = false;
       final retry = cubit.fetchDeposits();
@@ -112,7 +113,7 @@ void main() {
       expect(cubit.state.depositsStatus, RequestStatus.success);
       expect(cubit.state.failure, isNotNull);
       expect(cubit.state.visibleDeposits, isNotEmpty);
-      expect(find.byType(SnackBar), findsNothing);
+      expect(find.byType(AvpSnackBar), findsNothing);
     },
   );
 
@@ -139,7 +140,7 @@ void main() {
         final submission = cubit.submitRestriction();
         await tester.pumpAndSettle();
         await submission;
-        expect(find.byType(SnackBar), findsOneWidget);
+        expect(find.byType(AvpSnackBar), findsOneWidget);
         await dismissFeedback(tester);
       }
       cubit.requestTerms();
@@ -154,7 +155,7 @@ void main() {
       expect(cubit.state.submissionStatus, RequestStatus.success);
       expect(cubit.state.failure, isNotNull);
       expect(find.byType(DepositRestrictionReceiptDialog), findsOneWidget);
-      expect(find.byType(SnackBar), findsNothing);
+      expect(find.byType(AvpSnackBar), findsNothing);
       await tester.pumpWidget(const SizedBox());
       await tester.pumpAndSettle();
     },
@@ -177,7 +178,7 @@ void main() {
         final submission = cubit.continueFlow();
         await tester.pumpAndSettle();
         await submission;
-        expect(find.byType(SnackBar), findsOneWidget);
+        expect(find.byType(AvpSnackBar), findsOneWidget);
         await dismissFeedback(tester);
       }
       cubit.requestTerms();
@@ -192,34 +193,34 @@ void main() {
       expect(cubit.state.submissionStatus, RequestStatus.success);
       expect(cubit.state.failure, isNotNull);
       expect(find.byType(SurplusDepositReceiptDialog), findsOneWidget);
-      expect(find.byType(SnackBar), findsNothing);
+      expect(find.byType(AvpSnackBar), findsNothing);
       await tester.pumpWidget(const SizedBox());
       await tester.pumpAndSettle();
     },
   );
 
   testWidgets(
-    'proxy repeated failures keep selections and terms/receipt execute independently',
+    'deposit mandate repeated failures keep selections and terms/receipt execute independently',
     (tester) async {
-      final repository = RetryingProxyRepository();
-      await getIt.unregister<ProxyDepositsRepository>();
-      getIt.registerSingleton<ProxyDepositsRepository>(repository);
+      final repository = RetryingDepositMandateRepository();
+      await getIt.unregister<DepositMandateRepository>();
+      getIt.registerSingleton<DepositMandateRepository>(repository);
       await mountCertificate(
         tester,
-        const ProxyDepositScreen(initialDepositNumber: '10.1234567.2'),
+        const DepositMandateScreen(initialDepositNumber: '10.1234567.2'),
       );
       final cubit = tester
           .element(find.byType(AppTopBar))
-          .read<ProxyDepositCubit>();
+          .read<DepositMandateCubit>();
       cubit.selectSubject(cubit.state.subjects.first);
       cubit.updateTermsAcceptance(true);
       final key = cubit.state.idempotencyKey;
       final subject = cubit.state.subject;
       for (var i = 0; i < 2; i++) {
-        final submission = cubit.submitProxyDeposit();
+        final submission = cubit.submitDepositMandate();
         await tester.pumpAndSettle();
         await submission;
-        expect(find.byType(SnackBar), findsOneWidget);
+        expect(find.byType(AvpSnackBar), findsOneWidget);
         await dismissFeedback(tester);
       }
       cubit.requestTerms();
@@ -227,15 +228,15 @@ void main() {
       expect(find.text(S.current.issuanceTermsUnavailable), findsOneWidget);
       await dismissFeedback(tester);
       repository.fail = false;
-      final submission = cubit.submitProxyDeposit();
+      final submission = cubit.submitDepositMandate();
       await tester.pumpAndSettle();
       await submission;
       expect(cubit.state.idempotencyKey, key);
       expect(cubit.state.subject, subject);
       expect(cubit.state.submissionStatus, RequestStatus.success);
       expect(cubit.state.failure, isNotNull);
-      expect(find.byType(ProxyDepositReceiptDialog), findsOneWidget);
-      expect(find.byType(SnackBar), findsNothing);
+      expect(find.byType(DepositMandateReceiptDialog), findsOneWidget);
+      expect(find.byType(AvpSnackBar), findsNothing);
       await tester.pumpWidget(const SizedBox());
       await tester.pumpAndSettle();
     },

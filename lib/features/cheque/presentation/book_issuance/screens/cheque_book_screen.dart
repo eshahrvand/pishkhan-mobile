@@ -3,14 +3,13 @@ import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/core/flow/service_registry.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/core/platform/external_links.dart';
 import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
-import 'package:pishkhan_mobile/shared/widgets/flow_exit_dialog.dart';
+import 'package:pishkhan_mobile/shared/widgets/flow_exit_sheet.dart';
 
 import '../cubit/cheque_book_cubit.dart';
 import '../widgets/cheque_book_content.dart';
@@ -28,8 +27,11 @@ class ChequeBookScreen extends StatelessWidget {
   final VoidCallback? onAssistantPressed;
 
   void _showRequestFailure(BuildContext context, ChequeBookState state) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   Future<void> _handleEffect(
@@ -39,7 +41,7 @@ class ChequeBookScreen extends StatelessWidget {
     switch (state.effect) {
       case ChequeBookEffect.confirmExit:
         context.read<ChequeBookCubit>().consumeChequeBookInteraction();
-        final confirmed = await showFlowExitDialog(context);
+        final confirmed = await showFlowExitSheet(context);
         if (context.mounted) {
           context.read<ChequeBookCubit>().applyExitConfirmation(confirmed);
         }
@@ -64,25 +66,17 @@ class ChequeBookScreen extends StatelessWidget {
         }
       case ChequeBookEffect.registry:
         context.read<ChequeBookCubit>().consumeChequeBookInteraction();
-        try {
-          await ExternalLinks.openRegistry();
-        } on PlatformException {
-          if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(S.current.chequeBookLinkUnavailable)),
-            );
-          }
-        } on MissingPluginException {
-          if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(S.current.chequeBookLinkUnavailable)),
-            );
-          }
+        final result = await ExternalLinks.openRegistry();
+        if (context.mounted) {
+          context.read<ChequeBookCubit>().applyRegistryResult(result);
         }
+
       case ChequeBookEffect.contentUnavailable:
         context.read<ChequeBookCubit>().consumeChequeBookInteraction();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(S.current.chequeContentUnavailable)),
+        avpSnackBar(
+          context: context,
+          type: AvpSnackBarType.error,
+          message: S.current.chequeContentUnavailable,
         );
       case ChequeBookEffect.receipt:
         context.read<ChequeBookCubit>().consumeChequeBookInteraction();
@@ -103,6 +97,12 @@ class ChequeBookScreen extends StatelessWidget {
             ..fetchCatalog(),
       child: MultiBlocListener(
         listeners: [
+          BlocListener<ChequeBookCubit, ChequeBookState>(
+            listenWhen: (previous, current) =>
+                previous.registryStatus != current.registryStatus &&
+                current.registryStatus == RequestStatus.failure,
+            listener: _showRequestFailure,
+          ),
           BlocListener<ChequeBookCubit, ChequeBookState>(
             listenWhen: (previous, current) =>
                 previous.catalogStatus != current.catalogStatus &&
@@ -190,23 +190,22 @@ class ChequeBookScreen extends StatelessWidget {
                                   height: 24,
                                 ),
                                 trailingTooltip: S.current.backLabel,
-                                onTrailingPressed:
+                                onTrailingPressed: context
+                                    .read<ChequeBookCubit>()
+                                    .requestBack,
+                                isTrailingActive:
                                     (state.catalogStatus !=
-                                            RequestStatus.loading &&
-                                        state.residencyStatus !=
-                                            RequestStatus.loading &&
-                                        state.addressDeletionStatus !=
-                                            RequestStatus.loading &&
-                                        state.addressSaveStatus !=
-                                            RequestStatus.loading &&
-                                        state.quoteStatus !=
-                                            RequestStatus.loading &&
-                                        state.submissionStatus !=
-                                            RequestStatus.loading)
-                                    ? context
-                                          .read<ChequeBookCubit>()
-                                          .requestBack
-                                    : null,
+                                        RequestStatus.loading &&
+                                    state.residencyStatus !=
+                                        RequestStatus.loading &&
+                                    state.addressDeletionStatus !=
+                                        RequestStatus.loading &&
+                                    state.addressSaveStatus !=
+                                        RequestStatus.loading &&
+                                    state.quoteStatus !=
+                                        RequestStatus.loading &&
+                                    state.submissionStatus !=
+                                        RequestStatus.loading),
                               ),
                             const Expanded(child: ChequeBookContent()),
                             if (state.step != ChequeBookStep.checking)

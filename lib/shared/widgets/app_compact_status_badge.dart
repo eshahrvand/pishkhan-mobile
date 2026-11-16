@@ -38,7 +38,7 @@ class AppCompactStatusBadge extends StatelessWidget {
             color: foreground,
             fontSize: 10,
             fontWeight: FontWeight.w600,
-            height: 16 / 10,
+
             letterSpacing: 0,
           ),
         ),

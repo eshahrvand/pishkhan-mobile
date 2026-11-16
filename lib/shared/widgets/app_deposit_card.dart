@@ -91,7 +91,7 @@ class AppDepositCard extends StatelessWidget {
                       color: AppPalette.purple700,
                       fontSize: 10,
                       fontWeight: FontWeight.w600,
-                      height: 16 / 10,
+
                       letterSpacing: 0,
                     ),
                   ),

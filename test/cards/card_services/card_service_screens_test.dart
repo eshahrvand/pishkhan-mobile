@@ -1,3 +1,7 @@
+import 'package:pishkhan_mobile/shared/widgets/flow_exit_sheet.dart';
+
+import '../../support/snackbar_test_support.dart';
+
 import 'package:pishkhan_mobile/core/presentation/mappers/request_error_message_mapper.dart';
 import 'package:pishkhan_mobile/core/result/failure.dart';
 
@@ -130,8 +134,8 @@ void main() {
       await mount(t, const ChangeCardDepositScreen(), repository: repo);
       expect(find.byType(AppSelect<ServiceBankCard>), findsOneWidget);
       expect(
-        t.widget<AppButton>(button('تایید و ثبت درخواست')).onPressed,
-        isNull,
+        t.widget<AppButton>(button('تایید و ثبت درخواست')).isActive,
+        isFalse,
       );
       await capture(t, 'change-1-empty');
       await choose<ServiceBankCard>(t, 0, '\u200e5041 7212 2345 6787');
@@ -186,8 +190,8 @@ void main() {
     await t.tap(button('تایید و ثبت درخواست'));
     await t.pump();
     expect(
-      t.widget<AppButton>(button('تایید و ثبت درخواست')).onPressed,
-      isNull,
+      t.widget<AppButton>(button('تایید و ثبت درخواست')).isActive,
+      isFalse,
     );
     expect(t.widget<AppCheckbox>(find.byType(AppCheckbox)).onChanged, isNull);
     expect(
@@ -202,8 +206,8 @@ void main() {
       isTrue,
     );
     expect(
-      t.widget<AppTopBar>(find.byType(AppTopBar)).onTrailingPressed,
-      isNull,
+      t.widget<AppTopBar>(find.byType(AppTopBar)).isTrailingActive,
+      isFalse,
     );
     expect(repo.changes, hasLength(1));
     repo.pendingSubmit!.complete(
@@ -381,20 +385,20 @@ void main() {
       await t.tap(button(S.current.giftBalanceSubmit));
       await t.pump();
       expect(
-        t.widget<AppButton>(button(S.current.giftBalanceSubmit)).onPressed,
-        isNull,
+        t.widget<AppButton>(button(S.current.giftBalanceSubmit)).isActive,
+        isFalse,
       );
       expect(t.widget<AppCheckbox>(find.byType(AppCheckbox)).onChanged, isNull);
       expect(
-        t.widget<AppTopBar>(find.byType(AppTopBar)).onTrailingPressed,
-        isNull,
+        t.widget<AppTopBar>(find.byType(AppTopBar)).isTrailingActive,
+        isFalse,
       );
       final review = find.byWidgetPredicate(
         (widget) =>
             widget is AppButton &&
             widget.tooltip == S.current.giftBalanceSelectedList(1),
       );
-      expect(t.widget<AppButton>(review).onPressed, isNull);
+      expect(t.widget<AppButton>(review).isActive, isFalse);
       await t.tap(button(S.current.giftBalanceSubmit));
       await t.pump();
       expect(repository.transfers, hasLength(2));
@@ -426,7 +430,7 @@ void main() {
       await t.tap(button(S.current.backLabel));
       await t.pumpAndSettle();
       expect(giftCubit(t).state.step, GiftBalanceStep.selection);
-      expect(t.widget<AppButton>(button('مرحله بعد')).onPressed, isNull);
+      expect(t.widget<AppButton>(button('مرحله بعد')).isActive, isFalse);
     },
   );
   testWidgets('load failure retries and submission failure remains editable', (
@@ -656,9 +660,7 @@ void main() {
         }
 
         Future<void> dismissMessage() async {
-          t
-              .state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger))
-              .clearSnackBars();
+          await dismissAvpSnackBar(t);
           await t.pumpAndSettle();
         }
 
@@ -690,7 +692,7 @@ void main() {
         } else {
           changeCubit(t).requestBack();
           await t.pumpAndSettle();
-          expect(find.byType(AlertDialog), findsOneWidget);
+          expect(find.byType(FlowExitSheet), findsOneWidget);
           expect(find.text(message), findsNothing);
           await t.tap(button(S.current.passwordStay));
         }

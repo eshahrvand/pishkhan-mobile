@@ -111,10 +111,15 @@ void main() {
         tester,
         find.byKey(const Key('app_service_grid_icon_card-block')),
       );
+      // Card blocking now opens an implemented route; return before invoking it again.
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
       await tap(
         tester,
         find.byKey(const Key('app_service_grid_icon_card-block')),
       );
+      await tester.binding.handlePopRoute();
+      await tester.pumpAndSettle();
       expect(actions, hasLength(2));
       expect(actions.last.card.id, DashboardMockData.cards.first.id);
       await tap(

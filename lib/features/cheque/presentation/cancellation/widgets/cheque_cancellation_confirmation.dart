@@ -30,9 +30,8 @@ class ChequeCancellationConfirmation extends StatelessWidget {
             width: 20,
             height: 20,
           ),
-          onPressed: state.isEditable
-              ? context.read<ChequeCancellationCubit>().requestLetter
-              : null,
+          onPressed: context.read<ChequeCancellationCubit>().requestLetter,
+          isActive: state.isEditable,
         ),
         const SizedBox(height: 20),
         const AvpImage(

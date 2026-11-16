@@ -1,8 +1,5 @@
 import 'package:pishkhan_mobile/core/config/constant.dart';
 
-import 'dart:ui' as ui;
-
-import 'package:flutter/services.dart';
 import 'package:pishkhan_mobile/core/platform/platform_share.dart';
 
 import 'package:avp_ui/avp_ui.dart';
@@ -23,16 +20,13 @@ Future<void> showPostalOfficesSheet(BuildContext context) {
   FocusManager.instance.primaryFocus?.unfocus();
   return showModalBottomSheet<void>(
     context: context,
+    useRootNavigator: true,
     isScrollControlled: true,
-    useSafeArea: true,
     backgroundColor: Colors.transparent,
     barrierColor: context.colors.textPrimary.withValues(alpha: .4),
     builder: (_) => BlocProvider(
       create: (_) => PostalOfficesCubit()..fetchProvinces(),
-      child: BackdropFilter(
-        filter: ui.ImageFilter.blur(sigmaX: 1, sigmaY: 1),
-        child: const PostalOfficesSheet(),
-      ),
+      child: const PostalOfficesSheet(),
     ),
   );
 }
@@ -40,8 +34,11 @@ Future<void> showPostalOfficesSheet(BuildContext context) {
 class PostalOfficesSheet extends StatelessWidget {
   const PostalOfficesSheet({super.key});
   void _showRequestFailure(BuildContext context, PostalOfficesState state) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   Future<void> _handleEffect(
@@ -51,20 +48,9 @@ class PostalOfficesSheet extends StatelessWidget {
     switch (state.effect) {
       case PostalOfficesEffect.share:
         context.read<PostalOfficesCubit>().consumePostalOfficesInteraction();
-        try {
-          await PlatformShare.shareText(state.postalShareText!);
-        } on PlatformException {
-          if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(S.current.chequeShareUnavailable)),
-            );
-          }
-        } on MissingPluginException {
-          if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(S.current.chequeShareUnavailable)),
-            );
-          }
+        final result = await PlatformShare.shareText(state.postalShareText!);
+        if (context.mounted) {
+          context.read<PostalOfficesCubit>().applyShareResult(result);
         }
 
       case null:
@@ -76,6 +62,12 @@ class PostalOfficesSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocListener(
       listeners: [
+        BlocListener<PostalOfficesCubit, PostalOfficesState>(
+          listenWhen: (previous, current) =>
+              previous.shareStatus != current.shareStatus &&
+              current.shareStatus == RequestStatus.failure,
+          listener: _showRequestFailure,
+        ),
         BlocListener<PostalOfficesCubit, PostalOfficesState>(
           listenWhen: (previous, current) =>
               previous.provincesStatus != current.provincesStatus &&
@@ -240,11 +232,10 @@ class PostalOfficesSheet extends StatelessWidget {
                                   isLoading:
                                       state.postalOfficesStatus ==
                                       RequestStatus.loading,
-                                  onPressed: state.canSearchPostalOffices
-                                      ? context
-                                            .read<PostalOfficesCubit>()
-                                            .searchPostalOffices
-                                      : null,
+                                  onPressed: context
+                                      .read<PostalOfficesCubit>()
+                                      .searchPostalOffices,
+                                  isActive: state.canSearchPostalOffices,
                                 ),
                               ],
                             ),

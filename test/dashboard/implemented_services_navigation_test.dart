@@ -32,6 +32,7 @@ void main() {
   final destinations = {
     AppPrimaryTab.cards: {
       'card-list': AppRoutes.cardList,
+      'card-block': AppRoutes.blockCard,
       'card-virtual-list': AppRoutes.cardList,
       'card-deposit': AppRoutes.changeCardDeposit,
       'card-reissue': AppRoutes.cardIssuance,
@@ -51,7 +52,7 @@ void main() {
       'deposit-block': AppRoutes.blockDeposit,
       'deposit-unblock': AppRoutes.unblockDeposit,
       'deposit-close-extras': AppRoutes.closeSurplusDeposits,
-      'deposit-proxy': AppRoutes.proxyDeposit,
+      'deposit-proxy': AppRoutes.depositMandate,
       'transfer-local': AppRoutes.onSiteTransfer,
       'card-issue': AppRoutes.cardIssuance,
       'card-virtual': AppRoutes.virtualCardRequest,

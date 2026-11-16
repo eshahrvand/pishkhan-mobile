@@ -352,16 +352,17 @@ class HomeCubit extends Cubit<HomeState> {
     return services.length == maxFavorites;
   }
 
+  bool _canConfirmFavorites(List<DashboardService> services) {
+    return services.isNotEmpty || state.homeData!.favorites.isNotEmpty;
+  }
+
   void openFavoritesEditing() {
-    final services = _servicesForIds(
-      state.homeData!.favorites.isEmpty
-          ? state.homeData!.suggestedServiceIds.toSet().take(maxFavorites)
-          : state.homeData!.favorites,
-    );
+    final services = _servicesForIds(state.homeData!.favorites);
     emit(
       state.copyWith(
         isEditingFavorites: true,
         favoriteServices: services,
+        canConfirmFavorites: _canConfirmFavorites(services),
         canAddFavorite: _canAddFavorite(services),
         isFavoritesLimitReached: _isFavoritesLimitReached(services),
       ),
@@ -373,6 +374,7 @@ class HomeCubit extends Cubit<HomeState> {
     emit(
       state.copyWith(
         favoriteServices: services,
+        canConfirmFavorites: _canConfirmFavorites(services),
         canAddFavorite: _canAddFavorite(services),
         isFavoritesLimitReached: _isFavoritesLimitReached(services),
       ),
@@ -386,6 +388,7 @@ class HomeCubit extends Cubit<HomeState> {
     emit(
       state.copyWith(
         favoriteServices: services,
+        canConfirmFavorites: _canConfirmFavorites(services),
         canAddFavorite: _canAddFavorite(services),
         isFavoritesLimitReached: _isFavoritesLimitReached(services),
       ),

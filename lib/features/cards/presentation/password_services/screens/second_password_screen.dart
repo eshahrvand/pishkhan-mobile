@@ -68,8 +68,11 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
   }
 
   void _showRequestFailure(BuildContext context, SecondPasswordState state) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   Future<void> _handleEffect(
@@ -79,9 +82,11 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
     switch (state.effect) {
       case PasswordUnsupportedRequested():
         context.read<SecondPasswordCubit>().consumeSecondPasswordInteraction();
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(S.current.passwordUnsupported)));
+        avpSnackBar(
+          context: context,
+          type: AvpSnackBarType.error,
+          message: S.current.passwordUnsupported,
+        );
       case PasswordExitRequested():
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (context.mounted) NavigationActions.back(context);
@@ -90,7 +95,7 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
         NavigationActions.returnHome(context);
       case PasswordExitConfirmationRequested():
         context.read<SecondPasswordCubit>().consumeSecondPasswordInteraction();
-        final confirmed = await showPasswordExitDialog(context);
+        final confirmed = await showPasswordExitSheet(context);
         if (context.mounted) {
           context.read<SecondPasswordCubit>().applyExitConfirmation(confirmed);
         }
@@ -192,16 +197,13 @@ class _SecondPasswordScreenState extends State<SecondPasswordScreen> {
                             ),
                           ),
                           trailingTooltip: S.current.backLabel,
-                          onTrailingPressed:
+                          onTrailingPressed: () =>
+                              context.read<SecondPasswordCubit>().requestBack(),
+                          isTrailingActive:
                               (state.catalogStatus != RequestStatus.loading &&
-                                  state.existingRequestStatus !=
-                                      RequestStatus.loading &&
-                                  state.submissionStatus !=
-                                      RequestStatus.loading)
-                              ? () => context
-                                    .read<SecondPasswordCubit>()
-                                    .requestBack()
-                              : null,
+                              state.existingRequestStatus !=
+                                  RequestStatus.loading &&
+                              state.submissionStatus != RequestStatus.loading),
                         ),
                         Expanded(
                           child: PasswordFlowContent(

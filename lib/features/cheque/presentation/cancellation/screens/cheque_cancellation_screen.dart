@@ -7,7 +7,7 @@ import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
-import 'package:pishkhan_mobile/shared/widgets/flow_exit_dialog.dart';
+import 'package:pishkhan_mobile/shared/widgets/flow_exit_sheet.dart';
 
 import 'package:pishkhan_mobile/features/postal_offices/postal_offices.dart';
 
@@ -31,8 +31,11 @@ class ChequeCancellationScreen extends StatelessWidget {
     BuildContext context,
     ChequeCancellationState state,
   ) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   Future<void> _handleEffect(
@@ -69,8 +72,10 @@ class ChequeCancellationScreen extends StatelessWidget {
         context
             .read<ChequeCancellationCubit>()
             .consumeChequeCancellationInteraction();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(S.current.chequeContentUnavailable)),
+        avpSnackBar(
+          context: context,
+          type: AvpSnackBarType.error,
+          message: S.current.chequeContentUnavailable,
         );
       case ChequeCancellationEffect.receipt:
         context
@@ -84,7 +89,7 @@ class ChequeCancellationScreen extends StatelessWidget {
         context
             .read<ChequeCancellationCubit>()
             .consumeChequeCancellationInteraction();
-        final confirmed = await showFlowExitDialog(context);
+        final confirmed = await showFlowExitSheet(context);
         if (context.mounted) {
           context.read<ChequeCancellationCubit>().applyExitConfirmation(
             confirmed,
@@ -202,17 +207,16 @@ class ChequeCancellationScreen extends StatelessWidget {
                                 height: 24,
                               ),
                               trailingTooltip: S.current.backLabel,
-                              onTrailingPressed:
+                              onTrailingPressed: context
+                                  .read<ChequeCancellationCubit>()
+                                  .requestBack,
+                              isTrailingActive:
                                   (state.catalogStatus !=
-                                          RequestStatus.loading &&
-                                      state.chequesStatus !=
-                                          RequestStatus.loading &&
-                                      state.submissionStatus !=
-                                          RequestStatus.loading)
-                                  ? context
-                                        .read<ChequeCancellationCubit>()
-                                        .requestBack
-                                  : null,
+                                      RequestStatus.loading &&
+                                  state.chequesStatus !=
+                                      RequestStatus.loading &&
+                                  state.submissionStatus !=
+                                      RequestStatus.loading),
                             ),
                             const Expanded(child: ChequeCancellationContent()),
                             const ChequeCancellationFooter(),

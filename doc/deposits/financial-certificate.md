@@ -4,8 +4,8 @@
 Cubit → registered UseCase → Repository. Cubit imports/resolves UseCases only;
 `core/di` wires their repositories. Any earlier direct-Repository or optional-
 UseCase wording below is historical and superseded. Payloads, Result mapping,
-validation, retry identity and UI behavior remain unchanged. See the
-[UseCase-only migration review](../usecase-only-dependencies-review.md).
+validation, retry identity and UI behavior remain unchanged. The
+[UI/Cubit/State contract](../ui-cubit-state-agent-rules-en.md) defines the current rules.
 
 
 `FinancialCertificateScreen` implements the eleven Mobile Figma frames
@@ -95,9 +95,9 @@ boundaries and verification commands, and [Cheque development](../cheque/develop
 for cheque-book reuse of the same address feature. Postal-office lookup belongs
 to cheque presentation and does not own this address form's postal code.
 
-Shared address editor migration is recorded in [phase 5](../profile/phase-5-review.md). Its
-`ServiceRegistry.openAddressEditor` entry/result contract and this flow’s existing
-address inputs, cancellation and validation remain unchanged.
+The shared address editor uses the `ServiceRegistry.openAddressEditor` entry/result
+contract. This flow’s existing address inputs, cancellation and validation are
+preserved; address editing remains independently owned by `features/address`.
 
 ## Phase 7 adoption and current verification
 
@@ -114,9 +114,8 @@ that operation, including identical retries. Latest failure/message remain
 through loading, success and commands; effects do not gate on their presence.
 Success uses the existing receipt instead of displaying retained failure text.
 Actual form/draft/selection resets, validation, request identity and navigation
-remain. See [phase 7 review](phase-7-review.md) for flow readers, dependency wiring,
-consumer-driven clears and the final scoped commands/results. Historical broad
-verification statements are not permission to run the full application suite.
+remain. Historical broad verification statements are not permission to run the
+full application suite.
 
 The shared `LoadCertificateCatalogUseCase`, in `average_balance_usecase.dart`,
 has two named GetIt registrations: `average-balance` uses

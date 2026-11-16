@@ -21,7 +21,7 @@ class MobileBankLimitsForm extends StatelessWidget {
               ? S.current.modernLimitsEditIntro
               : S.current.modernLimitsIntro,
           style: Theme.of(context).textTheme.bodyMedium!
-              .copyWith(height: 20 / 14, fontWeight: FontWeight.w500),
+              .copyWith(fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 24),
         MobileBankLimitField(

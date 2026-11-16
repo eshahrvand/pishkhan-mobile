@@ -1,3 +1,4 @@
+import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -53,7 +54,7 @@ class RetryingBookRepository extends TestChequeBookRepository {
 Future<void> clearSnack(WidgetTester tester) async {
   await tester.pump(const Duration(seconds: 5));
   await tester.pumpAndSettle();
-  expect(find.byType(SnackBar), findsNothing);
+  expect(find.byType(AvpSnackBar), findsNothing);
 }
 
 Future<void> repeatFailure(
@@ -64,7 +65,7 @@ Future<void> repeatFailure(
     final request = action();
     await tester.pumpAndSettle();
     await request;
-    expect(find.byType(SnackBar), findsOneWidget);
+    expect(find.byType(AvpSnackBar), findsOneWidget);
     await clearSnack(tester);
   }
 }
@@ -93,7 +94,7 @@ void main() {
       cubit.requestPostalOffices();
       await tester.pumpAndSettle();
       expect(find.byType(PostalOfficesSheet), findsOneWidget);
-      expect(find.byType(SnackBar), findsNothing);
+      expect(find.byType(AvpSnackBar), findsNothing);
       Navigator.of(tester.element(find.byType(PostalOfficesSheet))).pop();
       await tester.pumpAndSettle();
       cubit.requestTerms();
@@ -108,7 +109,7 @@ void main() {
       expect(cubit.state.failure, isNotNull);
       expect(repository.submissions.toSet(), hasLength(1));
       expect(find.byType(ChequeClearanceReceiptDialog), findsOneWidget);
-      expect(find.byType(SnackBar), findsNothing);
+      expect(find.byType(AvpSnackBar), findsNothing);
       await tester.pumpWidget(const SizedBox());
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
@@ -142,7 +143,7 @@ void main() {
       await cubit.continueFlow();
       await tester.pumpAndSettle();
       expect(find.byType(ChequeCancellationReviewSheet), findsOneWidget);
-      expect(find.byType(SnackBar), findsNothing);
+      expect(find.byType(AvpSnackBar), findsNothing);
       Navigator.of(tester.element(find.byType(ChequeCancellationReviewSheet)))
           .pop(true);
       await tester.pumpAndSettle();
@@ -169,7 +170,7 @@ void main() {
       expect(cubit.state.failure, isNotNull);
       expect(repository.requests.toSet(), hasLength(1));
       expect(find.byType(ChequeCancellationReceiptDialog), findsOneWidget);
-      expect(find.byType(SnackBar), findsNothing);
+      expect(find.byType(AvpSnackBar), findsNothing);
       await tester.pumpWidget(const SizedBox());
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
@@ -186,11 +187,11 @@ void main() {
       final cubit = tester
           .element(find.byType(ChequeBookContent))
           .read<ChequeBookCubit>();
-      expect(find.byType(SnackBar), findsOneWidget);
+      expect(find.byType(AvpSnackBar), findsOneWidget);
       await clearSnack(tester);
       await cubit.fetchCatalog();
       await tester.pumpAndSettle();
-      expect(find.byType(SnackBar), findsOneWidget);
+      expect(find.byType(AvpSnackBar), findsOneWidget);
       await clearSnack(tester);
       repository.throwsCatalog = false;
       await cubit.fetchCatalog();
@@ -228,7 +229,7 @@ void main() {
       expect(cubit.state.failure, isNotNull);
       expect(repository.requests.toSet(), hasLength(1));
       expect(find.byType(ChequeBookReceiptDialog), findsOneWidget);
-      expect(find.byType(SnackBar), findsNothing);
+      expect(find.byType(AvpSnackBar), findsNothing);
       await tester.pumpWidget(const SizedBox());
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);

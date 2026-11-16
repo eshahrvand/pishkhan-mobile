@@ -134,12 +134,12 @@ class _DashboardResoBannerState extends State<DashboardResoBanner>
 
     return measure(
           S.current.dashboardResoTitle,
-          AppTypography.titleSmall.copyWith(height: 20 / 14, letterSpacing: 0),
+          AppTypography.titleSmall.copyWith(letterSpacing: 0),
         ) +
         6 +
         measure(
           S.current.dashboardResoDescription,
-          AppTypography.bodySmall.copyWith(height: 18 / 12, letterSpacing: 0),
+          AppTypography.bodySmall.copyWith(letterSpacing: 0),
         );
   }
 
@@ -204,7 +204,7 @@ class _DashboardResoBannerState extends State<DashboardResoBanner>
                                 textAlign: TextAlign.start,
                                 style: AppTypography.titleSmall.copyWith(
                                   color: AppDashboardColors.heroTitle,
-                                  height: 20 / 14,
+
                                   letterSpacing: 0,
                                 ),
                               ),
@@ -214,7 +214,7 @@ class _DashboardResoBannerState extends State<DashboardResoBanner>
                                 textAlign: TextAlign.justify,
                                 style: AppTypography.bodySmall.copyWith(
                                   color: AppDashboardColors.heroSupporting,
-                                  height: 18 / 12,
+
                                   letterSpacing: 0,
                                 ),
                               ),
@@ -231,7 +231,6 @@ class _DashboardResoBannerState extends State<DashboardResoBanner>
                               context.read<HomeCubit>().updatePrompt(value);
                             },
                             textStyle: AppTypography.bodyMedium.copyWith(
-                              height: 20 / 14,
                               letterSpacing: 0,
                             ),
                             onSubmitted: state.canSubmitPrompt

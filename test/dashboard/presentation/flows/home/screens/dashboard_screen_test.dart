@@ -1,3 +1,4 @@
+import 'package:pishkhan_mobile/shared/widgets/app_service_grid_card.dart';
 import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_drawer.dart';
@@ -232,6 +233,64 @@ void main() {
   );
 
   testWidgets(
+    'empty favorites editing shows only Add and disables confirmation',
+    (tester) async {
+      await render(tester, subject());
+      await tap(tester, dashboardButton(S.current.dashboardAddFavorites));
+      expect(dashboardSemantic(S.current.dashboardAddService), findsOneWidget);
+      expect(
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is AppServiceGridItemView &&
+              widget.item.id.startsWith('favorite-'),
+        ),
+        findsNothing,
+      );
+      expect(
+        tester
+            .widget<AppButton>(dashboardButton(S.current.dashboardConfirm))
+            .isActive,
+        isFalse,
+      );
+      expect(
+        tester.getCenter(dashboardSemantic(S.current.dashboardAddService)).dx,
+        greaterThan(250),
+      );
+      await tap(tester, dashboardSemantic(S.current.dashboardAddService));
+      await tester.enterText(
+        find.descendant(
+          of: find.byType(AppSearchField),
+          matching: find.byType(TextField),
+        ),
+        'برآورد',
+      );
+      await tester.pumpAndSettle();
+      await tap(
+        tester,
+        find.byWidgetPredicate(
+          (widget) =>
+              widget is DashboardServiceOption &&
+              widget.service.id == 'loan-estimate',
+        ),
+      );
+      expect(
+        tester
+            .widget<AppButton>(dashboardButton(S.current.dashboardConfirm))
+            .isActive,
+        isTrue,
+      );
+      await tap(tester, dashboardButton(S.current.dashboardCancel));
+      await tap(tester, dashboardButton(S.current.dashboardAddFavorites));
+      expect(
+        tester
+            .widget<AppButton>(dashboardButton(S.current.dashboardConfirm))
+            .isActive,
+        isFalse,
+      );
+    },
+  );
+
+  testWidgets(
     'adding, removing and cancelling shortcuts preserves committed favorites',
     (tester) async {
       List<String>? saved;
@@ -452,7 +511,14 @@ void main() {
     );
     // Render the Cubit-driven enabled state before tapping the send action.
     await tester.pump();
-    await tap(tester, dashboardSemantic(S.current.dashboardSendPrompt));
+    final sendAction = find.ancestor(
+      of: dashboardSemantic(S.current.dashboardSendPrompt),
+      matching: find.byType(InkWell),
+    );
+    await tester.ensureVisible(sendAction);
+    await tester.pumpAndSettle();
+    expect(sendAction.hitTestable(), findsOneWidget);
+    await tap(tester, sendAction.hitTestable());
     expect(prompt, 'سوال من');
   });
 

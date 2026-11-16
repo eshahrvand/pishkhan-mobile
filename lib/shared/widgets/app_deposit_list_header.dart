@@ -74,7 +74,7 @@ class AppDepositListHeader extends StatelessWidget {
   TextStyle _mediumStyle(Color color) => AppTypography.bodySmall.copyWith(
     color: color,
     fontWeight: FontWeight.w500,
-    height: 18 / 12,
+
     letterSpacing: 0,
   );
 }

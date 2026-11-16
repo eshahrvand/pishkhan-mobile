@@ -26,7 +26,7 @@ class GiftBalanceSelection extends StatelessWidget {
               S.current.giftBalanceIntro,
               style: AppTypography.bodyMedium.copyWith(
                 fontWeight: FontWeight.w500,
-                height: 20 / 14,
+
                 letterSpacing: 0,
                 color: context.colors.textPrimary,
               ),
@@ -56,7 +56,6 @@ class GiftBalanceSelection extends StatelessWidget {
                       FilteringTextInputFormatter.allow(RegExp(r'[0-9\s-]')),
                     ],
                     textStyle: AppTypography.bodyMedium.copyWith(
-                      height: 20 / 14,
                       letterSpacing: 0,
                     ),
                     hintColor: context.colors.textDisabled,
@@ -103,7 +102,7 @@ class GiftBalanceSelection extends StatelessWidget {
                   style: AppTypography.bodyMedium.copyWith(
                     fontWeight: FontWeight.w500,
                     color: context.colors.textPrimary,
-                    height: 20 / 14,
+
                     letterSpacing: 0,
                   ),
                 ),

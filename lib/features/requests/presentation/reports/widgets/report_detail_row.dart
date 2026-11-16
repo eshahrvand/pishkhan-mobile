@@ -35,7 +35,7 @@ class ReportDetailRow extends StatelessWidget {
             label,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: context.colors.textSecondary,
-              height: 20 / 14,
+
               letterSpacing: 0,
             ),
           ),
@@ -44,11 +44,8 @@ class ReportDetailRow extends StatelessWidget {
             child: Align(
               alignment: AlignmentDirectional.centerEnd,
               child: DefaultTextStyle(
-                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                  fontWeight: FontWeight.w500,
-                  height: 20 / 14,
-                  letterSpacing: 0,
-                ),
+                style: Theme.of(context).textTheme.bodyMedium!
+                    .copyWith(fontWeight: FontWeight.w500, letterSpacing: 0),
                 textAlign: TextAlign.end,
                 child: value,
               ),

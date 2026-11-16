@@ -7,7 +7,7 @@ abstract class DepositListState with _$DepositListState {
     @Default(<ListedDeposit>[]) List<ListedDeposit> deposits,
     @Default(<ListedDeposit>[]) List<ListedDeposit> visibleDeposits,
     DepositKind? kind,
-    @Default(DepositStatus.open) DepositStatus? depositStatus,
+    DepositStatus? depositStatus,
     Failure? failure,
     String? message,
     DepositListEffect? effect,

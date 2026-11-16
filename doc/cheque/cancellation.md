@@ -79,7 +79,7 @@ type yields an empty list. No real cheque is cancelled or posted.
 
 ## Reuse
 
-Public controls, app headers/assistant/exit dialog and blurred service-sheet frame
+Public controls, app headers/assistant/exit sheet and blurred service-sheet frame
 are reused. Identity rows are shared between cards and review. Circular reason
 choices use the original Figma check asset; installed avp_ui has no radio primitive.
 Postal search opens the independent `features/postal_offices` feature as documented in the
@@ -109,4 +109,4 @@ pending Back and 320px enlarged text. Opt-in captures use
 
 Phase-9 notification tests additionally repeat list and submission failures,
 then exercise review/reason effects and success with the unchanged request key.
-See the [review](phase-9-review.md) for current scoped results.
+Run the cancellation and notification test files listed above for current verification.

@@ -22,34 +22,47 @@ class MessageLookup extends MessageLookupByLibrary {
 
   static String m0(percentage) => "${percentage}٪";
 
-  static String m1(number) => "إزالة البطاقة ${number}";
+  static String m1(amount) => "${amount} تومان";
 
-  static String m2(count) => "البطاقات المختارة (${count})";
+  static String m2(number) => "إزالة البطاقة ${number}";
 
-  static String m3(current, total, title) =>
+  static String m3(count) => "البطاقات المختارة (${count})";
+
+  static String m4(current, total, title) =>
       "الخطوة ${current} من ${total}، ${title}";
 
-  static String m4(page) => "الخطوة ${page} من 4";
+  static String m5(amount) =>
+      "برای دریافت این مبلغ به ضامن نیاز دارید. شما و ضامن هر کدام باید یک فقره سفته الکترونیک به مبلغ ۱۲۰٪ مبلغ وام درخواستی، به ارزش ${amount} از سامانه آی‌کاپ خریداری یا چک الکترونیک در وجه بانک قرض‌الحسنه رسالت ثبت نمایید.";
 
-  static String m5(amount) => "الحد الأقصى للتحويل اليومي: ${amount} ريال";
+  static String m6(amount) =>
+      "برای ضمانت وام خود، لازم است سفته یا چک الکترونیک معادل ۱۲۰٪ مبلغ وام به ارزش ${amount} تهیه کنید.";
 
-  static String m6(amount) => "${amount} تومان";
+  static String m7(phone) => "کد OTP ارسال شده به شماره ${phone} را وارد کنید.";
 
-  static String m7(phone) => "أدخل الرمز الديناميكي المرسل إلى ${phone}.";
+  static String m8(amount) =>
+      "برای دریافت این مبلغ به ضامن نیاز ندارید. کافیست یک فقره سفته الکترونیک به مبلغ ۱۲۰٪ مبلغ وام خود به ارزش ${amount} از سامانه آی‌کاپ خریداری یا چک الکترونیک در وجه بانک قرض‌الحسنه رسالت ثبت نمایید.";
 
-  static String m8(occupation) => "هل أنت متأكد من حذف مهنتك (${occupation})؟";
+  static String m9(page) => "الخطوة ${page} من 4";
 
-  static String m9(selected, existing) =>
-      "المهنة المختارة (${selected}) غير متوافقة مع مهنتك الحالية (${existing}).";
-
-  static String m10(previous, selected) =>
-      "يتطلب التغيير من ${previous} إلى ${selected} مراجعة الموظف وستظهر التغييرات بعد الموافقة.";
+  static String m10(amount) => "الحد الأقصى للتحويل اليومي: ${amount} ريال";
 
   static String m11(amount) => "${amount} تومان";
 
-  static String m12(max) => "يجب أن يكون عدد البطاقات بين 1 و${max}.";
+  static String m12(phone) => "أدخل الرمز الديناميكي المرسل إلى ${phone}.";
 
-  static String m13(amount) => "رسوم إصدار كل بطاقة هي ${amount}";
+  static String m13(occupation) => "هل أنت متأكد من حذف مهنتك (${occupation})؟";
+
+  static String m14(selected, existing) =>
+      "المهنة المختارة (${selected}) غير متوافقة مع مهنتك الحالية (${existing}).";
+
+  static String m15(previous, selected) =>
+      "يتطلب التغيير من ${previous} إلى ${selected} مراجعة الموظف وستظهر التغييرات بعد الموافقة.";
+
+  static String m16(max) => "يجب أن يكون عدد البطاقات بين 1 و${max}.";
+
+  static String m17(amount) => "رسوم إصدار كل بطاقة هي ${amount}";
+
+  static String m18(amount) => "${amount} تومان";
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
@@ -118,6 +131,12 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("كشف متوسط الرصيد"),
         "blockCard": MessageLookupByLibrary.simpleMessage("حظر البطاقة"),
         "captchaHint": MessageLookupByLibrary.simpleMessage("أدخل الرمز"),
+        "cardBlockConfirm":
+            MessageLookupByLibrary.simpleMessage("نعم، احظر البطاقة"),
+        "cardBlockConfirmation": MessageLookupByLibrary.simpleMessage(
+            "بعد حظر البطاقة لا يمكن استخدامها حتى إلغاء الحظر. هل أنت متأكد من حظرها؟"),
+        "cardBlockIntro":
+            MessageLookupByLibrary.simpleMessage("اختر البطاقة وسبب حظرها"),
         "cardFeatureActive": MessageLookupByLibrary.simpleMessage("نشطة"),
         "cardFeatureAll": MessageLookupByLibrary.simpleMessage("الكل"),
         "cardFeatureApplyFilter":
@@ -159,6 +178,18 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("طلب بطاقة افتراضية"),
         "cardPasswordIssue": MessageLookupByLibrary.simpleMessage(
             "إصدار الرقم السري الأول / الثاني"),
+        "cardRestrictionFound":
+            MessageLookupByLibrary.simpleMessage("العثور على البطاقة"),
+        "cardRestrictionLinkedDeposit":
+            MessageLookupByLibrary.simpleMessage("الوديعة المرتبطة بالبطاقة"),
+        "cardRestrictionLost":
+            MessageLookupByLibrary.simpleMessage("فقدان البطاقة"),
+        "cardRestrictionOther":
+            MessageLookupByLibrary.simpleMessage("أسباب أخرى"),
+        "cardRestrictionRefresh":
+            MessageLookupByLibrary.simpleMessage("تحديث البيانات والرسوم"),
+        "cardRestrictionStolen":
+            MessageLookupByLibrary.simpleMessage("سرقة البطاقة"),
         "cardServiceCard": MessageLookupByLibrary.simpleMessage("البطاقة"),
         "cardServiceCardHint":
             MessageLookupByLibrary.simpleMessage("اختر البطاقة"),
@@ -183,6 +214,8 @@ class MessageLookup extends MessageLookupByLibrary {
         "cardServiceToDepositHint": MessageLookupByLibrary.simpleMessage(
             "اختر الحساب الذي تريد ربطه بالبطاقة"),
         "cardServices": MessageLookupByLibrary.simpleMessage("خدمات البطاقة"),
+        "cardUnblockIntro": MessageLookupByLibrary.simpleMessage(
+            "اختر البطاقة وسبب إلغاء حظرها"),
         "cardsBuyGift": MessageLookupByLibrary.simpleMessage("شراء بطاقة هدية"),
         "cardsChangeFirst":
             MessageLookupByLibrary.simpleMessage("تغيير الرقم السري الأول"),
@@ -624,6 +657,22 @@ class MessageLookup extends MessageLookupByLibrary {
         "depositListStatement":
             MessageLookupByLibrary.simpleMessage("كشف الحساب | متوسط الرصيد"),
         "depositListStatus": MessageLookupByLibrary.simpleMessage("الحالة"),
+        "depositMandate":
+            MessageLookupByLibrary.simpleMessage("الوديعة بالوكالة"),
+        "depositMandateAmount": MessageLookupByLibrary.simpleMessage("المبلغ"),
+        "depositMandateAmountToman": m1,
+        "depositMandateBroker": MessageLookupByLibrary.simpleMessage("الوسيط"),
+        "depositMandateCompany": MessageLookupByLibrary.simpleMessage("الشركة"),
+        "depositMandateCompanyHint":
+            MessageLookupByLibrary.simpleMessage("اختر الشركة المطلوبة"),
+        "depositMandateHint":
+            MessageLookupByLibrary.simpleMessage("اختر وديعتك"),
+        "depositMandateMockComplete": MessageLookupByLibrary.simpleMessage(
+            "تمت محاكاة طلب الوديعة بالتوكيل. لم يتم إنشاء توكيل أو حجز رصيد حقيقي."),
+        "depositMandateSubject":
+            MessageLookupByLibrary.simpleMessage("الموضوع"),
+        "depositMandateSubjectHint":
+            MessageLookupByLibrary.simpleMessage("اختر موضوع الوديعة بالتوكيل"),
         "depositRestrictionDescription":
             MessageLookupByLibrary.simpleMessage("الوصف"),
         "depositRestrictionDescriptionHint":
@@ -755,12 +804,12 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("التالي: اختيار حساب الإيداع"),
         "giftBalanceRemaining":
             MessageLookupByLibrary.simpleMessage("الرصيد المتبقي (ريال)"),
-        "giftBalanceRemoveCard": m1,
+        "giftBalanceRemoveCard": m2,
         "giftBalanceSearch":
             MessageLookupByLibrary.simpleMessage("البحث برقم البطاقة"),
         "giftBalanceSelectAll":
             MessageLookupByLibrary.simpleMessage("اختيار الكل"),
-        "giftBalanceSelectedList": m2,
+        "giftBalanceSelectedList": m3,
         "giftBalanceSelection":
             MessageLookupByLibrary.simpleMessage("اختيار البطاقات"),
         "giftBalanceSubmit":
@@ -857,7 +906,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("اختيار العنوان"),
         "issuanceSelectionTitle":
             MessageLookupByLibrary.simpleMessage("اختيار الحساب ونوع الإصدار"),
-        "issuanceStepSemantic": m3,
+        "issuanceStepSemantic": m4,
         "issuanceSubmit":
             MessageLookupByLibrary.simpleMessage("تأكيد الطلب وإرساله"),
         "issuanceSubmitError": MessageLookupByLibrary.simpleMessage(
@@ -888,6 +937,231 @@ class MessageLookup extends MessageLookupByLibrary {
         "latestUpdatedRequests":
             MessageLookupByLibrary.simpleMessage("آخر الطلبات المحدثة"),
         "loanEstimate": MessageLookupByLibrary.simpleMessage("تقدير القرض"),
+        "loanRequestAmount": MessageLookupByLibrary.simpleMessage("مبلغ وام"),
+        "loanRequestApproved":
+            MessageLookupByLibrary.simpleMessage("تایید شد."),
+        "loanRequestAssessment":
+            MessageLookupByLibrary.simpleMessage("اعتبارسنجی و تعیین مبلغ وام"),
+        "loanRequestAvailability": MessageLookupByLibrary.simpleMessage(
+            "مانده وام قابل دریافت مجاز می‌باشد."),
+        "loanRequestAwaitingCollateral":
+            MessageLookupByLibrary.simpleMessage("در انتظار سفته"),
+        "loanRequestAwaitingSignature":
+            MessageLookupByLibrary.simpleMessage("در انتظار امضا"),
+        "loanRequestBankDebt":
+            MessageLookupByLibrary.simpleMessage("بدهی بانکی"),
+        "loanRequestBothAssessmentHint": m5,
+        "loanRequestCancel": MessageLookupByLibrary.simpleMessage("انصراف"),
+        "loanRequestCancelPrompt": MessageLookupByLibrary.simpleMessage(
+            "از انصراف از درخواست جاری مطمئن هستید؟"),
+        "loanRequestCapacityDeficit":
+            MessageLookupByLibrary.simpleMessage("کسری توان بازپرداخت:"),
+        "loanRequestCheck": MessageLookupByLibrary.simpleMessage("بررسی"),
+        "loanRequestCheque":
+            MessageLookupByLibrary.simpleMessage("چک الکترونیک"),
+        "loanRequestChequeHint": MessageLookupByLibrary.simpleMessage(
+            "شناسه چک الکترونیک را وارد کنید"),
+        "loanRequestChequeNumber":
+            MessageLookupByLibrary.simpleMessage("شناسه چک الکترونیک"),
+        "loanRequestCollateral":
+            MessageLookupByLibrary.simpleMessage("چک / سفته الکترونیک"),
+        "loanRequestCollateralAfter":
+            MessageLookupByLibrary.simpleMessage(" تهیه کنید."),
+        "loanRequestCollateralAmount":
+            MessageLookupByLibrary.simpleMessage("مبلغ تضمین مورد نیاز:"),
+        "loanRequestCollateralBefore": MessageLookupByLibrary.simpleMessage(
+            "برای ضمانت وام خود، لازم است سند الکترونیک معادل ۱۲۰٪ مبلغ وام، به ارزش "),
+        "loanRequestCollateralDetails": m6,
+        "loanRequestContinue":
+            MessageLookupByLibrary.simpleMessage("ادامه فرآیند"),
+        "loanRequestContract":
+            MessageLookupByLibrary.simpleMessage("امضاء قرارداد"),
+        "loanRequestContractAccept":
+            MessageLookupByLibrary.simpleMessage("تایید قوانین و مقررات"),
+        "loanRequestContractContinue":
+            MessageLookupByLibrary.simpleMessage("مشاهده قرارداد و ادامه"),
+        "loanRequestCreditEnough":
+            MessageLookupByLibrary.simpleMessage("اعتبار مورد نیاز کافی است."),
+        "loanRequestCreditInfo": MessageLookupByLibrary.simpleMessage(
+            "طبقه اعتباری از ارزیابی توان مالی مرآت شما به دست می‌آید و مشخص‌کننده توان بازپرداخت اقساط وام توسط شماست. این طبقه اعتباری شامل سه بازه است.\n\n• ممتاز: در این بازه شما نیاز به ضامن ندارید و می‌توانید بدون گذاشتن چک یا سفته الکترونیک درخواست وام نمایید.\n\n• کاملاً متناسب: در این بازه شما نیاز به ضامن ندارید و خودتان می‌توانید با گذاشتن چک یا سفته الکترونیک درخواست وام نمایید.\n\n• متناسب: در این بازه شما نیاز به ضامن دارید و هم شما و هم ضامن باید معادل ۱۲۰٪ مبلغ وام درخواستی چک یا سفته الکترونیک تهیه کنید."),
+        "loanRequestCurrent":
+            MessageLookupByLibrary.simpleMessage("درخواست جاری"),
+        "loanRequestCurrentHeader":
+            MessageLookupByLibrary.simpleMessage("درخواست جاری"),
+        "loanRequestCurrentStage":
+            MessageLookupByLibrary.simpleMessage("مرحله جاری:"),
+        "loanRequestCurrentTotal":
+            MessageLookupByLibrary.simpleMessage("مجموع وام‌های جاری"),
+        "loanRequestDeposit": MessageLookupByLibrary.simpleMessage("سپرده*"),
+        "loanRequestDepositHint":
+            MessageLookupByLibrary.simpleMessage("سپرده خود را انتخاب کنید"),
+        "loanRequestDetails":
+            MessageLookupByLibrary.simpleMessage("مشاهده جزئیات"),
+        "loanRequestDownloadContract":
+            MessageLookupByLibrary.simpleMessage("دانلود قرارداد"),
+        "loanRequestEnd": MessageLookupByLibrary.simpleMessage("پایان"),
+        "loanRequestEnterBoth": MessageLookupByLibrary.simpleMessage(
+            "کد خزانه‌داری سفته خود و سفته ضامن را وارد کنید."),
+        "loanRequestExcellent": MessageLookupByLibrary.simpleMessage("ممتاز"),
+        "loanRequestFee": MessageLookupByLibrary.simpleMessage("کارمزد"),
+        "loanRequestFullySuitable":
+            MessageLookupByLibrary.simpleMessage("کاملاً متناسب"),
+        "loanRequestGuarantorCollateralHint": MessageLookupByLibrary.simpleMessage(
+            "شما و ضامن هر کدام باید چک یا سفته الکترونیک معادل ۱۲۰٪ مبلغ وام تهیه و شناسه آن را وارد کنید."),
+        "loanRequestGuarantorDetails": MessageLookupByLibrary.simpleMessage(
+            "همچنین ضامن شما باید همین مبلغ سند ضمانت تهیه کند. سفته را از سامانه آی‌کاپ خریداری و شماره خزانه‌داری آن را وارد کنید."),
+        "loanRequestGuarantorFull": MessageLookupByLibrary.simpleMessage(
+            "ضامن معرفی‌شده سقف ضمانت کافی ندارد. لطفاً فرد دیگری معرفی کنید."),
+        "loanRequestGuarantorId":
+            MessageLookupByLibrary.simpleMessage("کد ملی ضامن"),
+        "loanRequestGuarantorIdHint":
+            MessageLookupByLibrary.simpleMessage("کد ملی ضامن را وارد کنید"),
+        "loanRequestGuarantorInfo":
+            MessageLookupByLibrary.simpleMessage("اطلاعات ضامن:"),
+        "loanRequestGuarantorName":
+            MessageLookupByLibrary.simpleMessage("نام ضامن"),
+        "loanRequestGuarantorNotCustomer": MessageLookupByLibrary.simpleMessage(
+            "ضامن معرفی‌شده مشتری بانک قرض‌الحسنه رسالت نیست. لطفاً فرد دیگری معرفی کنید."),
+        "loanRequestIcup":
+            MessageLookupByLibrary.simpleMessage("سامانه آی‌کاپ"),
+        "loanRequestIcupAfter": MessageLookupByLibrary.simpleMessage(
+            " أو سجّل شيكاً إلكترونياً لأمر بنك رسالت، ثم أدخل معرّفه."),
+        "loanRequestIcupBefore":
+            MessageLookupByLibrary.simpleMessage("اشترِ السند الإلكتروني عبر "),
+        "loanRequestIncomeExplanation": MessageLookupByLibrary.simpleMessage(
+            "در صورت داشتن شرایط، با ارائه اسناد شغلی در سامانه مرآت می‌توانید درخواست افزایش توان مالی ثبت کنید."),
+        "loanRequestIncomeSolution": MessageLookupByLibrary.simpleMessage(
+            "بالا بردن توان بازپرداخت با ارائه اسناد درآمدی در مرآت"),
+        "loanRequestInquiries":
+            MessageLookupByLibrary.simpleMessage("استعلامات"),
+        "loanRequestInstallment": MessageLookupByLibrary.simpleMessage("قسط"),
+        "loanRequestInstallments": MessageLookupByLibrary.simpleMessage("قسطی"),
+        "loanRequestInstrumentInvalid":
+            MessageLookupByLibrary.simpleMessage("شماره واردشده صحیح نیست."),
+        "loanRequestInsurance":
+            MessageLookupByLibrary.simpleMessage("پوشش بیمه عمر وام"),
+        "loanRequestInsuranceAmount":
+            MessageLookupByLibrary.simpleMessage("مبلغ بیمه"),
+        "loanRequestInsuranceDetails":
+            MessageLookupByLibrary.simpleMessage("جزئیات بیمه عمر وام"),
+        "loanRequestInsuranceHint": MessageLookupByLibrary.simpleMessage(
+            "این تسهیلات دارای پوشش بیمه عمر است."),
+        "loanRequestInsuranceOptional":
+            MessageLookupByLibrary.simpleMessage("بیمه عمر وام"),
+        "loanRequestInsuranceOptionalHint":
+            MessageLookupByLibrary.simpleMessage(
+                "با انتخاب این گزینه، وام شما تحت پوشش بیمه عمر قرار می‌گیرد."),
+        "loanRequestLumpSum": MessageLookupByLibrary.simpleMessage("یکجا"),
+        "loanRequestMerat":
+            MessageLookupByLibrary.simpleMessage("اعتبارسنجی مرآت"),
+        "loanRequestMeratLink": MessageLookupByLibrary.simpleMessage("مرآت"),
+        "loanRequestMilitary":
+            MessageLookupByLibrary.simpleMessage("نظام وظیفه"),
+        "loanRequestMissingInsurance": MessageLookupByLibrary.simpleMessage(
+            "متن نهایی پوشش و قرارداد بیمه باید توسط بانک ارائه شود. این صفحه صرفاً نمونه آزمایشی است."),
+        "loanRequestMockContract": MessageLookupByLibrary.simpleMessage(
+            "پیش‌نمایش آزمایشی قرارداد درخواست تسهیلات. متن نهایی قرارداد مورد تایید بانک هنوز ارائه نشده است. تایید این نمونه فقط برای آزمایش جریان برنامه است و امضای بانکی ایجاد نمی‌کند."),
+        "loanRequestMockContractBody": MessageLookupByLibrary.simpleMessage(
+            "پیش‌نمایش آزمایشی — طرفین قرارداد\nاطلاعات متقاضی، بانک و مشخصات سپرده در این قسمت از قرارداد نهایی قرار می‌گیرد. این متن نمونه جایگزین قرارداد بانک نیست.\n\nپیش‌نمایش آزمایشی — مبلغ و شرایط تسهیلات\nمبلغ تسهیلات، روش بازپرداخت، تعداد اقساط و سررسیدها باید از قرارداد رسمی و نتیجه بررسی درخواست دریافت شوند. مبالغ و تاریخ‌های نسخه Mock صرفاً برای آزمون رابط هستند.\n\nپیش‌نمایش آزمایشی — تضامین\nمشخصات اسناد ضمانت و ضامن، در صورت نیاز، پس از بررسی و تطبیق توسط بانک به قرارداد افزوده می‌شود. نمایش این بخش به معنی تأیید ضمانت نیست.\n\nپیش‌نمایش آزمایشی — پوشش بیمه\nشرح پوشش، شرایط و مبلغ بیمه باید از متن مصوب بانک دریافت شود. تغییر انتخاب بیمه در این نسخه فقط یک سناریوی آزمایشی است و خرید بیمه انجام نمی‌دهد.\n\nپیش‌نمایش آزمایشی — تعهدات و مقررات\nحقوق و تعهدات طرفین، مقررات بازپرداخت و سایر شرایط در متن نهایی مصوب بانک درج خواهد شد. برای نمایش و آزمون اسکرول، این قسمت نمونه‌ای از فضای متن قرارداد است.\n\nپیش‌نمایش آزمایشی — تأیید و امضا\nانتخاب تأیید و واردکردن کد آزمایشی صرفاً مسیر رابط را آزمایش می‌کند. این نسخه امضای الکترونیک یا قرارداد لازم‌الاجرا ایجاد نمی‌کند."),
+        "loanRequestMonthUnit": MessageLookupByLibrary.simpleMessage("ماه"),
+        "loanRequestMonthly":
+            MessageLookupByLibrary.simpleMessage("مبلغ قسط ماهانه"),
+        "loanRequestMonths":
+            MessageLookupByLibrary.simpleMessage("مدت زمان بازپرداخت"),
+        "loanRequestNeededCapacity": MessageLookupByLibrary.simpleMessage(
+            "توان بازپرداخت ماهانه مورد نیاز:"),
+        "loanRequestNext": MessageLookupByLibrary.simpleMessage("مرحله بعد"),
+        "loanRequestNextPrefix": MessageLookupByLibrary.simpleMessage("بعدی: "),
+        "loanRequestNoCollateral": MessageLookupByLibrary.simpleMessage(
+            "برای دریافت این مبلغ وام به ضامن و اسناد ضمانتی نیاز ندارید."),
+        "loanRequestNote":
+            MessageLookupByLibrary.simpleMessage("سفته الکترونیک"),
+        "loanRequestNoteAmount":
+            MessageLookupByLibrary.simpleMessage("مبلغ سفته مورد نیاز:"),
+        "loanRequestNoteHint": MessageLookupByLibrary.simpleMessage(
+            "شماره خزانه‌داری سفته را وارد کنید"),
+        "loanRequestNoteNumber": MessageLookupByLibrary.simpleMessage(
+            "شماره خزانه‌داری سفته الکترونیک"),
+        "loanRequestOtpHint": MessageLookupByLibrary.simpleMessage(
+            "کد تایید ارسال‌شده به شماره زیر را وارد کنید."),
+        "loanRequestOtpInvalid": MessageLookupByLibrary.simpleMessage(
+            "کد تایید صحیح نیست یا منقضی شده است."),
+        "loanRequestOtpMessage": m7,
+        "loanRequestOtpTitle":
+            MessageLookupByLibrary.simpleMessage("کد تایید را وارد کنید"),
+        "loanRequestOutstandingDebt":
+            MessageLookupByLibrary.simpleMessage("مانده بدهی"),
+        "loanRequestOwnAssessmentHint": m8,
+        "loanRequestOwnCollateralHint": MessageLookupByLibrary.simpleMessage(
+            "برای ضمانت وام خود، چک یا سفته الکترونیک معادل ۱۲۰٪ مبلغ وام در وجه بانک تهیه و شناسه آن را وارد کنید."),
+        "loanRequestOwnDetails": MessageLookupByLibrary.simpleMessage(
+            "سفته را از سامانه آی‌کاپ خریداری کنید یا چک الکترونیک در وجه بانک قرض‌الحسنه رسالت ثبت نمایید و شناسه آن را وارد کنید."),
+        "loanRequestOwnInfo":
+            MessageLookupByLibrary.simpleMessage("اطلاعات شما:"),
+        "loanRequestProcessing":
+            MessageLookupByLibrary.simpleMessage("در حال بررسی ..."),
+        "loanRequestRaiseCollateral": MessageLookupByLibrary.simpleMessage(
+            "برای دریافت این مبلغ به ضامن نیاز دارید. شما و ضامن هر کدام باید اسناد ضمانت معادل ۱۲۰٪ مبلغ وام تهیه کنید."),
+        "loanRequestReady": MessageLookupByLibrary.simpleMessage("آماده واریز"),
+        "loanRequestRejected": MessageLookupByLibrary.simpleMessage(
+            "استعلام تایید نشد. پس از رفع مشکل تلاش مجدد کنید."),
+        "loanRequestRepayment":
+            MessageLookupByLibrary.simpleMessage("نوع بازپرداخت:"),
+        "loanRequestReports":
+            MessageLookupByLibrary.simpleMessage("گزارش درخواست‌ها"),
+        "loanRequestRequestDate":
+            MessageLookupByLibrary.simpleMessage("تاریخ درخواست:"),
+        "loanRequestRequestNumber":
+            MessageLookupByLibrary.simpleMessage("شماره درخواست:"),
+        "loanRequestRequestedAmount":
+            MessageLookupByLibrary.simpleMessage("مبلغ وام درخواستی:"),
+        "loanRequestResend": MessageLookupByLibrary.simpleMessage("ارسال مجدد"),
+        "loanRequestReturnedCheque":
+            MessageLookupByLibrary.simpleMessage("چک برگشتی"),
+        "loanRequestReviewed": MessageLookupByLibrary.simpleMessage(
+            "استعلام‌ها توسط سیستم بررسی شد."),
+        "loanRequestReviewing":
+            MessageLookupByLibrary.simpleMessage("سیستم درحال بررسی استعلامات"),
+        "loanRequestScheduleTitle":
+            MessageLookupByLibrary.simpleMessage("جدول اقساط"),
+        "loanRequestScore":
+            MessageLookupByLibrary.simpleMessage("امتیاز ۱۰ ماهه"),
+        "loanRequestSettle":
+            MessageLookupByLibrary.simpleMessage("تسویه وام‌های قبلی"),
+        "loanRequestSettleExplanation": MessageLookupByLibrary.simpleMessage(
+            "با تسویه وام‌های جاری می‌توانید برای ارزیابی مجدد توان بازپرداخت خود اقدام کنید."),
+        "loanRequestSocialCore":
+            MessageLookupByLibrary.simpleMessage("هسته اعتماد اجتماعی"),
+        "loanRequestSolution": MessageLookupByLibrary.simpleMessage("راهکارها"),
+        "loanRequestStatusCheck":
+            MessageLookupByLibrary.simpleMessage("بررسی وضعیت:"),
+        "loanRequestSubmit": MessageLookupByLibrary.simpleMessage("ثبت"),
+        "loanRequestSuccess": MessageLookupByLibrary.simpleMessage(
+            "درخواست تسهیلات شما با موفقیت ثبت شد. پرونده شما جهت بررسی در صف پردازش قرار دارد. نتیجه نهایی متعاقباً اعلام خواهد شد."),
+        "loanRequestSuitable": MessageLookupByLibrary.simpleMessage("متناسب"),
+        "loanRequestTable":
+            MessageLookupByLibrary.simpleMessage("مشاهده جدول اقساط"),
+        "loanRequestTerms": MessageLookupByLibrary.simpleMessage(
+            "قوانین و مقررات درخواست را مطالعه و تایید می‌نمایم."),
+        "loanRequestTier": MessageLookupByLibrary.simpleMessage("طبقه اعتباری"),
+        "loanRequestTitle": MessageLookupByLibrary.simpleMessage("درخواست وام"),
+        "loanRequestTracking":
+            MessageLookupByLibrary.simpleMessage("کد پیگیری عملیات:"),
+        "loanRequestUnavailable": MessageLookupByLibrary.simpleMessage(
+            "محتوا یا سرویس مورد تایید بانک هنوز متصل نشده است."),
+        "loanRequestUnknown": MessageLookupByLibrary.simpleMessage("نامشخص"),
+        "loanRequestUnknownHint": MessageLookupByLibrary.simpleMessage(
+            "ارزیابی توان مالی شما در سامانه مرآت انجام نشده است. تا تعیین توان بازپرداخت ماهانه، امکان درخواست وام وجود ندارد."),
+        "loanRequestUnsuitable":
+            MessageLookupByLibrary.simpleMessage("نامتناسب"),
+        "loanRequestUnsuitableHint": MessageLookupByLibrary.simpleMessage(
+            "توان بازپرداخت برای مبلغ انتخاب‌شده کافی نیست. مبلغ وام را کاهش دهید یا مدت بازپرداخت را افزایش دهید."),
+        "loanRequestVideoHint": MessageLookupByLibrary.simpleMessage(
+            "پیشنهاد می‌کنیم پیش از درخواست وام ویدئوی راهنما را تماشا کنید."),
+        "loanRequestViewContract":
+            MessageLookupByLibrary.simpleMessage("مشاهده قرارداد"),
+        "loanRequestYourCapacity":
+            MessageLookupByLibrary.simpleMessage("توان بازپرداخت ماهانه شما:"),
         "loanServices": MessageLookupByLibrary.simpleMessage("خدمات القروض"),
         "loansChangeDeposit":
             MessageLookupByLibrary.simpleMessage("تغيير وديعة خصم الأقساط"),
@@ -935,7 +1209,7 @@ class MessageLookup extends MessageLookupByLibrary {
             "لتغيير كلمة المرور، سجل الدخول أولاً إلى المصرف عبر الهاتف."),
         "modernGuideOther": MessageLookupByLibrary.simpleMessage(
             "اختر تغيير كلمة المرور من قسم أخرى."),
-        "modernGuidePage": m4,
+        "modernGuidePage": m9,
         "modernGuidePassword": MessageLookupByLibrary.simpleMessage(
             "أدخل كلمة المرور الحالية، ثم أدخل كلمة المرور الجديدة وكررها."),
         "modernIdentityNotice": MessageLookupByLibrary.simpleMessage(
@@ -953,7 +1227,7 @@ class MessageLookup extends MessageLookupByLibrary {
             "تم حفظ حدود التحويل في النسخة التجريبية. لم يتم تغيير الحساب المصرفي."),
         "modernLimitsTitle":
             MessageLookupByLibrary.simpleMessage("تغيير حدود التحويل"),
-        "modernMaximumLimit": m5,
+        "modernMaximumLimit": m10,
         "modernOperations":
             MessageLookupByLibrary.simpleMessage("خدمات المصرف عبر الهاتف"),
         "modernOtherReason": MessageLookupByLibrary.simpleMessage("أخرى"),
@@ -981,7 +1255,7 @@ class MessageLookup extends MessageLookupByLibrary {
             "الرقم التسلسلي للبطاقة الوطنية"),
         "modernTermsUnavailable": MessageLookupByLibrary.simpleMessage(
             "لم يتم توفير شروط هذه الخدمة بعد."),
-        "modernToman": m6,
+        "modernToman": m11,
         "modernUsername": MessageLookupByLibrary.simpleMessage("اسم المستخدم"),
         "modernUsernameNotice": MessageLookupByLibrary.simpleMessage(
             "اسم المستخدم الافتراضي هو رقم العميل المطبوع أعلى رقم بطاقتك المصرفية."),
@@ -1029,7 +1303,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "notificationYesterday": MessageLookupByLibrary.simpleMessage("أمس"),
         "notificationsLabel": MessageLookupByLibrary.simpleMessage("الإشعارات"),
         "otpHint": MessageLookupByLibrary.simpleMessage("أدخل الرمز"),
-        "otpSentMessage": m7,
+        "otpSentMessage": m12,
         "otpSentTitle": MessageLookupByLibrary.simpleMessage("تم إرسال الرمز."),
         "passwordApprovedBody": MessageLookupByLibrary.simpleMessage(
             "ستصلك رسالة ببيانات الدخول إلى البنك عبر الهاتف، ويمكنك تسجيل الدخول باستخدامها."),
@@ -1169,7 +1443,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("حذف العنوان"),
         "profileDeleteJobInformation":
             MessageLookupByLibrary.simpleMessage("حذف المهنة"),
-        "profileDeleteJobInformationPrompt": m8,
+        "profileDeleteJobInformationPrompt": m13,
         "profileDescription": MessageLookupByLibrary.simpleMessage("الوصف"),
         "profileDescriptionRequired":
             MessageLookupByLibrary.simpleMessage("أدخل وصف المهنة"),
@@ -1181,7 +1455,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "profileHome": MessageLookupByLibrary.simpleMessage("المنزل"),
         "profileHomemaker": MessageLookupByLibrary.simpleMessage("ربة منزل"),
         "profileJobInformation": MessageLookupByLibrary.simpleMessage("المهنة"),
-        "profileJobInformationConflict": m9,
+        "profileJobInformationConflict": m14,
         "profileJobInformationDescription":
             MessageLookupByLibrary.simpleMessage("وصف المهنة"),
         "profileJobInformationDescriptionHint":
@@ -1194,7 +1468,7 @@ class MessageLookup extends MessageLookupByLibrary {
             "ستظهر المهنة الجديدة خلال ٣ ساعات من تسجيل الطلب."),
         "profileJobInformationQueued": MessageLookupByLibrary.simpleMessage(
             "تم تسجيل طلب المهنة وسيظهر بعد المراجعة."),
-        "profileJobInformationReview": m10,
+        "profileJobInformationReview": m15,
         "profileLabel": MessageLookupByLibrary.simpleMessage("الملف الشخصي"),
         "profileMinimumAddress": MessageLookupByLibrary.simpleMessage(
             "يجب وجود عنوان منزل واحد على الأقل. سجّل عنوان منزل آخر قبل تغيير هذا العنوان إلى عنوان عمل أو حذفه."),
@@ -1243,20 +1517,6 @@ class MessageLookup extends MessageLookupByLibrary {
         "profileTitle": MessageLookupByLibrary.simpleMessage("العنوان"),
         "profileValid": MessageLookupByLibrary.simpleMessage("صالح"),
         "profileWork": MessageLookupByLibrary.simpleMessage("العمل"),
-        "proxyAmount": MessageLookupByLibrary.simpleMessage("المبلغ"),
-        "proxyAmountToman": m11,
-        "proxyBroker": MessageLookupByLibrary.simpleMessage("الوسيط"),
-        "proxyCompany": MessageLookupByLibrary.simpleMessage("الشركة"),
-        "proxyCompanyHint":
-            MessageLookupByLibrary.simpleMessage("اختر الشركة المطلوبة"),
-        "proxyDeposit":
-            MessageLookupByLibrary.simpleMessage("الوديعة بالوكالة"),
-        "proxyDepositHint": MessageLookupByLibrary.simpleMessage("اختر وديعتك"),
-        "proxyDepositMockComplete": MessageLookupByLibrary.simpleMessage(
-            "تمت محاكاة طلب الوديعة بالتوكيل. لم يتم إنشاء توكيل أو حجز رصيد حقيقي."),
-        "proxySubject": MessageLookupByLibrary.simpleMessage("الموضوع"),
-        "proxySubjectHint":
-            MessageLookupByLibrary.simpleMessage("اختر موضوع الوديعة بالتوكيل"),
         "refreshCaptcha":
             MessageLookupByLibrary.simpleMessage("تحديث رمز الأمان"),
         "relatedLinks": MessageLookupByLibrary.simpleMessage("روابط ذات صلة"),
@@ -1461,7 +1721,7 @@ class MessageLookup extends MessageLookupByLibrary {
         "updateGuide": MessageLookupByLibrary.simpleMessage("دليل التحديث"),
         "virtualRequestCount":
             MessageLookupByLibrary.simpleMessage("عدد البطاقات الافتراضية"),
-        "virtualRequestCountError": m12,
+        "virtualRequestCountError": m16,
         "virtualRequestCountHint": MessageLookupByLibrary.simpleMessage(
             "أدخل عدد البطاقات الافتراضية المطلوبة"),
         "virtualRequestDepositHint":
@@ -1470,7 +1730,7 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("الوديعة"),
         "virtualRequestEmpty": MessageLookupByLibrary.simpleMessage(
             "لا توجد ودائع متاحة لإصدار بطاقة افتراضية."),
-        "virtualRequestFeeNotice": m13,
+        "virtualRequestFeeNotice": m17,
         "virtualRequestMockReceipt": MessageLookupByLibrary.simpleMessage(
             "تم تسجيل طلب تجريبي. لم تُنشأ بطاقات افتراضية ولم تُدفع أي مبالغ."),
         "virtualRequestNotice": MessageLookupByLibrary.simpleMessage(
@@ -1489,7 +1749,131 @@ class MessageLookup extends MessageLookupByLibrary {
             MessageLookupByLibrary.simpleMessage("طلب بطاقة افتراضية"),
         "virtualRequestUnitFee":
             MessageLookupByLibrary.simpleMessage("رسوم إصدار كل بطاقة"),
+        "walletAmount": MessageLookupByLibrary.simpleMessage("المبلغ"),
+        "walletAmountFilter": MessageLookupByLibrary.simpleMessage("المبلغ"),
+        "walletAmountHint": MessageLookupByLibrary.simpleMessage("أدخل المبلغ"),
+        "walletAmountInvalid": MessageLookupByLibrary.simpleMessage(
+            "أدخل مبلغاً صالحاً ضمن الرصيد المتاح."),
+        "walletApplyFilter":
+            MessageLookupByLibrary.simpleMessage("تطبيق التصفية"),
+        "walletBalanceAfter":
+            MessageLookupByLibrary.simpleMessage("الرصيد بعد العملية"),
         "walletBalanceTitle":
-            MessageLookupByLibrary.simpleMessage("رصيد المحفظة")
+            MessageLookupByLibrary.simpleMessage("رصيد المحفظة"),
+        "walletCancel": MessageLookupByLibrary.simpleMessage("إلغاء"),
+        "walletCharge": MessageLookupByLibrary.simpleMessage("شحن"),
+        "walletChargeAmount":
+            MessageLookupByLibrary.simpleMessage("مبلغ الشحن"),
+        "walletChargeComplete":
+            MessageLookupByLibrary.simpleMessage("تم شحن المحفظة بنجاح."),
+        "walletChargeSuccess": MessageLookupByLibrary.simpleMessage("تم الشحن"),
+        "walletChargeTitle":
+            MessageLookupByLibrary.simpleMessage("شحن المحفظة"),
+        "walletConfirmPayment":
+            MessageLookupByLibrary.simpleMessage("تأكيد ودفع"),
+        "walletConfirmTransfer":
+            MessageLookupByLibrary.simpleMessage("تأكيد التحويل"),
+        "walletCopied":
+            MessageLookupByLibrary.simpleMessage("تم نسخ رقم التتبع."),
+        "walletCurrentBalance":
+            MessageLookupByLibrary.simpleMessage("رصيد المحفظة الحالي"),
+        "walletCustomDate": MessageLookupByLibrary.simpleMessage("تاريخ مخصص"),
+        "walletDateFilter": MessageLookupByLibrary.simpleMessage("التاريخ"),
+        "walletDateInvalid": MessageLookupByLibrary.simpleMessage(
+            "أدخل تاريخاً شمسياً صالحاً بصيغة YYYY/MM/DD."),
+        "walletDateSelection":
+            MessageLookupByLibrary.simpleMessage("اختيار التاريخ"),
+        "walletDepositChanged":
+            MessageLookupByLibrary.simpleMessage("تم تغيير الحساب المرتبط."),
+        "walletDepositHint":
+            MessageLookupByLibrary.simpleMessage("اختر الحساب"),
+        "walletDestination":
+            MessageLookupByLibrary.simpleMessage("المحفظة المستلمة"),
+        "walletDestinationHint":
+            MessageLookupByLibrary.simpleMessage("رقم المحفظة أو هاتف صاحبها"),
+        "walletEmptyTransactions":
+            MessageLookupByLibrary.simpleMessage("لا توجد عمليات مطابقة."),
+        "walletEndDate": MessageLookupByLibrary.simpleMessage("تاريخ النهاية"),
+        "walletFromDate": MessageLookupByLibrary.simpleMessage("من تاريخ"),
+        "walletFromDeposit": MessageLookupByLibrary.simpleMessage("من الحساب"),
+        "walletInquiryRetry":
+            MessageLookupByLibrary.simpleMessage("إعادة الاستعلام"),
+        "walletLastMonth": MessageLookupByLibrary.simpleMessage("الشهر الماضي"),
+        "walletLastThreeMonths":
+            MessageLookupByLibrary.simpleMessage("آخر ثلاثة أشهر"),
+        "walletLastWeek":
+            MessageLookupByLibrary.simpleMessage("الأسبوع الماضي"),
+        "walletLinkedDepositIntro":
+            MessageLookupByLibrary.simpleMessage("اختر الحساب لربطه بالمحفظة."),
+        "walletLinkedDepositShort":
+            MessageLookupByLibrary.simpleMessage("تغيير الحساب المرتبط"),
+        "walletLinkedDepositTitle":
+            MessageLookupByLibrary.simpleMessage("تغيير الحساب المرتبط"),
+        "walletMaxAmount":
+            MessageLookupByLibrary.simpleMessage("الحد الأقصى للمبلغ"),
+        "walletMinAmount":
+            MessageLookupByLibrary.simpleMessage("الحد الأدنى للمبلغ"),
+        "walletOperations":
+            MessageLookupByLibrary.simpleMessage("عمليات المحفظة"),
+        "walletOtpHint": MessageLookupByLibrary.simpleMessage("أدخل الرمز"),
+        "walletRangeInvalid": MessageLookupByLibrary.simpleMessage(
+            "يجب ألا تتجاوز البداية نهاية النطاق."),
+        "walletReceiptDestination": MessageLookupByLibrary.simpleMessage("إلى"),
+        "walletReceiptSource": MessageLookupByLibrary.simpleMessage("من"),
+        "walletReceiptTitle":
+            MessageLookupByLibrary.simpleMessage("إيصال العملية"),
+        "walletRecipientInvalid": MessageLookupByLibrary.simpleMessage(
+            "أدخل رقم محفظة أو هاتف صالحاً."),
+        "walletRecipientName":
+            MessageLookupByLibrary.simpleMessage("اسم صاحب المحفظة"),
+        "walletRequestOtp":
+            MessageLookupByLibrary.simpleMessage("طلب رمز التحقق"),
+        "walletResendOtp":
+            MessageLookupByLibrary.simpleMessage("إعادة إرسال الرمز"),
+        "walletRetry": MessageLookupByLibrary.simpleMessage("إعادة المحاولة"),
+        "walletSecondPassword":
+            MessageLookupByLibrary.simpleMessage("رمز التحقق"),
+        "walletSelectAll": MessageLookupByLibrary.simpleMessage("اختيار الكل"),
+        "walletShareReceipt":
+            MessageLookupByLibrary.simpleMessage("مشاركة الإيصال"),
+        "walletShopping": MessageLookupByLibrary.simpleMessage("شراء"),
+        "walletStartDate":
+            MessageLookupByLibrary.simpleMessage("تاريخ البداية"),
+        "walletTerms": MessageLookupByLibrary.simpleMessage("الشروط والأحكام"),
+        "walletTermsAcceptance":
+            MessageLookupByLibrary.simpleMessage("قرأت الطلب وأوافق عليه."),
+        "walletTitle": MessageLookupByLibrary.simpleMessage("المحفظة"),
+        "walletToDate": MessageLookupByLibrary.simpleMessage("إلى تاريخ"),
+        "walletToDeposit": MessageLookupByLibrary.simpleMessage("إلى الحساب"),
+        "walletToday": MessageLookupByLibrary.simpleMessage("اليوم"),
+        "walletTomanAmount": m18,
+        "walletTrackingId": MessageLookupByLibrary.simpleMessage("رقم التتبع"),
+        "walletTransactionDate":
+            MessageLookupByLibrary.simpleMessage("تاريخ العملية"),
+        "walletTransactionType":
+            MessageLookupByLibrary.simpleMessage("نوع العملية"),
+        "walletTransactionsTitle":
+            MessageLookupByLibrary.simpleMessage("حركات المحفظة"),
+        "walletTransfer":
+            MessageLookupByLibrary.simpleMessage("تحويل بين المحافظ"),
+        "walletTransferAmount":
+            MessageLookupByLibrary.simpleMessage("مبلغ التحويل"),
+        "walletTransferComplete": MessageLookupByLibrary.simpleMessage(
+            "تم التحويل إلى المحفظة المستلمة بنجاح."),
+        "walletTransferSuccess":
+            MessageLookupByLibrary.simpleMessage("تم التحويل"),
+        "walletTransferTitle":
+            MessageLookupByLibrary.simpleMessage("تحويل بين المحافظ"),
+        "walletViewTransactions":
+            MessageLookupByLibrary.simpleMessage("عرض حركات المحفظة"),
+        "walletWithdraw": MessageLookupByLibrary.simpleMessage("سحب"),
+        "walletWithdrawAmount":
+            MessageLookupByLibrary.simpleMessage("مبلغ السحب"),
+        "walletWithdrawComplete":
+            MessageLookupByLibrary.simpleMessage("تم السحب من المحفظة بنجاح."),
+        "walletWithdrawSuccess":
+            MessageLookupByLibrary.simpleMessage("تم السحب"),
+        "walletWithdrawTitle":
+            MessageLookupByLibrary.simpleMessage("السحب من المحفظة")
       };
 }

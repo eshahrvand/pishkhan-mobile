@@ -83,11 +83,10 @@ class TransferUploadSheet extends StatelessWidget {
                             size: AppButtonSize.lg,
                             disabledAppearance:
                                 AppButtonDisabledAppearance.service,
-                            onPressed: state.canReviewFile
-                                ? () {
-                                    Navigator.of(context).pop(true);
-                                  }
-                                : null,
+                            onPressed: () {
+                              Navigator.of(context).pop(true);
+                            },
+                            isActive: state.canReviewFile,
                           ),
                         ),
                         const SizedBox(width: 12),

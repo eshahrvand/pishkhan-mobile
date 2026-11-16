@@ -8,15 +8,11 @@ TextStyle chequeLabelStyle(BuildContext context) =>
     AppTypography.bodySmall.copyWith(
       color: context.colors.textSecondary,
       fontWeight: FontWeight.w500,
-      height: 18 / 12,
+
       letterSpacing: 0,
     );
-TextStyle chequeValueStyle(BuildContext context) =>
-    AppTypography.bodyMedium.copyWith(
-      color: context.colors.textPrimary,
-      height: 20 / 14,
-      letterSpacing: 0,
-    );
+TextStyle chequeValueStyle(BuildContext context) => AppTypography.bodyMedium
+    .copyWith(color: context.colors.textPrimary, letterSpacing: 0);
 
 String chequeReasonLabel(ChequeClearanceReason reason) => switch (reason) {
   ChequeClearanceReason.depositAndBlock =>

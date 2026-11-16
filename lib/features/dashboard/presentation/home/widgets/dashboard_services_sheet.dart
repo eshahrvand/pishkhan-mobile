@@ -1,4 +1,3 @@
-import 'dart:ui' as ui;
 import 'dart:math' as math;
 
 import 'package:avp_ui/avp_ui.dart';
@@ -15,16 +14,13 @@ import 'dashboard_service_group_section.dart';
 Future<DashboardService?> showDashboardServicesSheet(BuildContext context) =>
     showModalBottomSheet<DashboardService>(
       context: context,
+      useRootNavigator: true,
       isScrollControlled: true,
-      useSafeArea: true,
       backgroundColor: Colors.transparent,
       barrierColor: AppDashboardColors.sheetScrim.withValues(alpha: .64),
       builder: (_) => BlocProvider.value(
         value: context.read<HomeCubit>(),
-        child: BackdropFilter(
-          filter: ui.ImageFilter.blur(sigmaX: 1, sigmaY: 1),
-          child: const DashboardServicesSheet(),
-        ),
+        child: const DashboardServicesSheet(),
       ),
     );
 
@@ -83,7 +79,6 @@ class DashboardServicesSheet extends StatelessWidget {
                               ),
                               hintText: S.current.dashboardSearchHint,
                               textStyle: AppTypography.bodyMedium.copyWith(
-                                height: 20 / 14,
                                 letterSpacing: 0,
                               ),
                               searchIcon: SizedBox(

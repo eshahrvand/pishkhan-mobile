@@ -1,15 +1,15 @@
+import 'package:pishkhan_mobile/features/dashboard/presentation/shared/dashboard_services.dart';
+import '../../shared/dashboard_tab.dart';
 import 'package:pishkhan_mobile/core/config/constant.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/home/cubit/home_cubit.dart';
-import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/app_primary_navigation.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_async_view.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_bank_services.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_reso_banner.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
-import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_wallet_card.dart';
 
@@ -79,6 +79,7 @@ class _DashboardHomePanelState extends State<DashboardHomePanel> {
                 ? Scaffold(
                     backgroundColor: context.colors.surfaceSubtle,
                     body: SafeArea(
+                      bottom: false,
                       child: Column(
                         children: [
                           AppTopBar(
@@ -93,36 +94,21 @@ class _DashboardHomePanelState extends State<DashboardHomePanel> {
                             },
                           ),
                           Expanded(
-                            child: Stack(
-                              children: [
-                                DashboardAsyncView(
-                                  loading:
-                                      state.homeStatus ==
-                                          RequestStatus.initial ||
-                                      state.homeStatus == RequestStatus.loading,
-                                  emptyMessage:
-                                      state.homeStatus ==
-                                              RequestStatus.success &&
-                                          state.homeData == null
-                                      ? S.current.dashboardEmpty
-                                      : null,
-                                  onRetry:
-                                      state.homeStatus == RequestStatus.failure
-                                      ? context.read<HomeCubit>().fetchHome
-                                      : null,
-                                ),
-                                Positioned(
-                                  left: 16,
-                                  right: 16,
-                                  bottom: 14,
-                                  child: AppPrimaryNavigation(
-                                    selectedTab: AppPrimaryTab.dashboard,
-                                    onSelected: (tab) {
-                                      context.read<HomeCubit>().selectTab(tab);
-                                    },
-                                  ),
-                                ),
-                              ],
+                            child: DashboardAsyncView(
+                              loading:
+                                  state.homeStatus ==
+                                      RequestStatus.initial ||
+                                  state.homeStatus == RequestStatus.loading,
+                              emptyMessage:
+                                  state.homeStatus ==
+                                          RequestStatus.success &&
+                                      state.homeData == null
+                                  ? S.current.dashboardEmpty
+                                  : null,
+                              onRetry:
+                                  state.homeStatus == RequestStatus.failure
+                                  ? context.read<HomeCubit>().fetchHome
+                                  : null,
                             ),
                           ),
                         ],
@@ -132,6 +118,7 @@ class _DashboardHomePanelState extends State<DashboardHomePanel> {
                 : Scaffold(
                     backgroundColor: context.colors.surfaceSubtle,
                     body: SafeArea(
+                      bottom: false,
                       child: Column(
                         children: [
                           AppTopBar(
@@ -146,11 +133,9 @@ class _DashboardHomePanelState extends State<DashboardHomePanel> {
                             },
                           ),
                           Expanded(
-                            child: Stack(
-                              children: [
-                                SingleChildScrollView(
-                                  keyboardDismissBehavior:
-                                      ScrollViewKeyboardDismissBehavior.onDrag,
+                            child: SingleChildScrollView(
+                              keyboardDismissBehavior:
+                                  ScrollViewKeyboardDismissBehavior.onDrag,
                                   child: Stack(
                                     children: [
                                       Positioned(
@@ -187,6 +172,11 @@ class _DashboardHomePanelState extends State<DashboardHomePanel> {
                                               CrossAxisAlignment.stretch,
                                           children: [
                                             AppWalletCard(
+                                              onTap: () => context
+                                                  .read<HomeCubit>()
+                                                  .requestService(
+                                                    DashboardService.walletInfo,
+                                                  ),
                                               title:
                                                   S.current.walletBalanceTitle,
                                               balance:
@@ -241,36 +231,12 @@ class _DashboardHomePanelState extends State<DashboardHomePanel> {
                                     ],
                                   ),
                                 ),
-                                Positioned(
-                                  left: 16,
-                                  bottom: 82,
-                                  child: AppAssistantButton(
-                                    onPressed: () {
-                                      context
-                                          .read<HomeCubit>()
-                                          .requestAssistant();
-                                    },
-                                  ),
-                                ),
-                                Positioned(
-                                  left: 16,
-                                  right: 16,
-                                  bottom: 14,
-                                  child: AppPrimaryNavigation(
-                                    selectedTab: AppPrimaryTab.dashboard,
-                                    onSelected: (tab) {
-                                      context.read<HomeCubit>().selectTab(tab);
-                                    },
-                                  ),
-                                ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
-                        ],
+                        ),
                       ),
-                    ),
-                  ),
-          );
+              );
         },
       ),
     );

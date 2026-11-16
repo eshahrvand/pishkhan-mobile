@@ -18,7 +18,7 @@ class CertificateSummaryRow extends StatelessWidget {
         Text(
           label,
           style: Theme.of(context).textTheme.bodySmall!
-              .copyWith(color: context.colors.textSecondary, height: 18 / 12),
+              .copyWith(color: context.colors.textSecondary),
         ),
         const SizedBox(width: 8),
         Expanded(
@@ -32,7 +32,7 @@ class CertificateSummaryRow extends StatelessWidget {
           child: Text(
             value,
             style: Theme.of(context).textTheme.bodySmall!
-                .copyWith(fontWeight: FontWeight.w500, height: 18 / 12),
+                .copyWith(fontWeight: FontWeight.w500),
             textAlign: TextAlign.end,
           ),
         ),

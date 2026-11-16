@@ -42,7 +42,7 @@ the existing application boundary.
 
 Reuses `CertificateSelect`, `CertificateInput`, `AppInvoice`, `AppCheckbox`,
 `AppButton`, `AppAgentCardDetailRow`, `AppTopBar`, `AppAssistantButton`,
-`JalaliDateFormatter`, the exit dialog and local SVG assets. `DepositDivider`
+`JalaliDateFormatter`, the exit sheet and local SVG assets. `DepositDivider`
 gains an optional thickness while preserving its existing half-pixel default.
 The dashed section divider is byte-identical to `issuance_divider.svg`; the
 half-pixel blocking-details divider is the original Figma export.
@@ -86,5 +86,3 @@ Independent failure, typed-effect and receipt subscriptions share
 `MultiBlocListener`; rendering uses `BlocBuilder`. Effects never inspect a retained
 message before executing. Success uses the existing receipt, without replaying
 old failure text. Retry/empty sections, actual validation and loading gates stay.
-See [phase 6 review](phase-6-review.md) for operation ownership, preserved resets,
-UseCase wiring, integration limits and current scoped checks.

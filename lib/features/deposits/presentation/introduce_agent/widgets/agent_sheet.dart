@@ -11,7 +11,7 @@ import 'agent_form.dart';
 Future<void> showAgentSheet(BuildContext context, AgentCubit cubit) {
   return showModalBottomSheet<void>(
     context: context,
-    useSafeArea: true,
+    useRootNavigator: true,
     isScrollControlled: true,
     backgroundColor: context.colors.surfaceSubtle,
     shape: const RoundedRectangleBorder(
@@ -74,9 +74,8 @@ class AgentSheet extends StatelessWidget {
                                 size: AppButtonSize.lg,
                                 disabledAppearance:
                                     AppButtonDisabledAppearance.service,
-                                onPressed: state.canSaveDraft
-                                    ? context.read<AgentCubit>().saveDraft
-                                    : null,
+                                onPressed: context.read<AgentCubit>().saveDraft,
+                                isActive: state.canSaveDraft,
                               );
                             },
                           ),

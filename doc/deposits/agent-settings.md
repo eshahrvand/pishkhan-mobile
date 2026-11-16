@@ -93,6 +93,5 @@ that operation, including identical retries. Latest failure/message remain
 through loading, success and commands; effects do not gate on their presence.
 Success uses the existing receipt instead of displaying retained failure text.
 Actual form/draft/selection resets, validation, request identity and navigation
-remain. See [phase 7 review](phase-7-review.md) for flow readers, dependency wiring,
-consumer-driven clears and the final scoped commands/results. Historical broad
-verification statements are not permission to run the full application suite.
+remain. Historical broad verification statements are not permission to run the
+full application suite.

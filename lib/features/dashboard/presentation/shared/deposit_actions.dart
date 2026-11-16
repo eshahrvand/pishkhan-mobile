@@ -23,7 +23,7 @@ enum DepositAction {
   localTransfer('transfer-local'),
   estimateLoan('loan-estimate'),
   introduceLoan('loan-introduce'),
-  proxy('deposit-proxy'),
+  depositMandate('deposit-proxy'),
   mobileBank('modern-mobile'),
   internetBank('modern-internet'),
   phoneBank('modern-phone');
@@ -47,7 +47,7 @@ enum DepositAction {
   static const cheques = [issueCheque, cancelCheque, clearCheque];
   static const quick = [
     issueCard,
-    proxy,
+    depositMandate,
     localTransfer,
     estimateLoan,
     introduceLoan,
@@ -76,7 +76,7 @@ enum DepositAction {
     localTransfer => S.current.depositsLocalTransfer,
     estimateLoan => S.current.loanEstimate,
     introduceLoan => S.current.introduceLoan,
-    proxy => S.current.proxyDeposit,
+    depositMandate => S.current.depositMandate,
     mobileBank => S.current.depositsMobileBank,
     internetBank => S.current.internetBank,
     phoneBank => S.current.dashboardPhoneBank,
@@ -102,7 +102,7 @@ enum DepositAction {
     localTransfer => '${AppConstants.baseImage}deposits_quick_transfer.svg',
     estimateLoan => '${AppConstants.baseImage}deposits_quick_estimate.svg',
     introduceLoan => '${AppConstants.baseImage}deposits_quick_introduce.svg',
-    proxy => '${AppConstants.baseImage}deposits_quick_proxy.svg',
+    depositMandate => '${AppConstants.baseImage}deposits_quick_proxy.svg',
     mobileBank => '${AppConstants.baseImage}deposits_quick_mobile.svg',
     internetBank => '${AppConstants.baseImage}deposits_quick_internet.svg',
     phoneBank => '${AppConstants.baseImage}deposits_quick_phone.svg',

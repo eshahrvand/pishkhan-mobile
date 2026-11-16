@@ -28,8 +28,11 @@ class AuthScreen extends StatelessWidget {
   void _showRequestFailure(BuildContext context, AuthState state) {
     // Guest change-phone keeps its existing inline-only failure outcome.
     if (state.message != null) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(state.message!)));
+      avpSnackBar(
+        context: context,
+        type: AvpSnackBarType.error,
+        message: state.message!,
+      );
     }
   }
 
@@ -161,15 +164,15 @@ class AuthScreen extends StatelessWidget {
                           child: Column(
                             children: [
                               AuthHeader(
-                                onMenu:
+                                onMenu: context
+                                    .read<AuthCubit>()
+                                    .requestServices,
+                                isMenuActive:
                                     state.captchaStatus !=
-                                            RequestStatus.loading &&
-                                        state.otpRequestStatus !=
-                                            RequestStatus.loading &&
-                                        state.loginStatus !=
-                                            RequestStatus.loading
-                                    ? context.read<AuthCubit>().requestServices
-                                    : null,
+                                        RequestStatus.loading &&
+                                    state.otpRequestStatus !=
+                                        RequestStatus.loading &&
+                                    state.loginStatus != RequestStatus.loading,
                               ),
                               Expanded(
                                 child: SingleChildScrollView(

@@ -48,12 +48,10 @@ class VirtualCardFooter extends StatelessWidget {
                       InkWell(
                         onTap:
                             onTermsRequested ??
-                            () => ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  S.current.issuanceTermsUnavailable,
-                                ),
-                              ),
+                            () => avpSnackBar(
+                              context: context,
+                              type: AvpSnackBarType.error,
+                              message: S.current.issuanceTermsUnavailable,
                             ),
                         child: Text(
                           S.current.issuanceTerms,
@@ -79,12 +77,11 @@ class VirtualCardFooter extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           AppButton(
-            onPressed: state.canSubmit
-                ? () {
-                    FocusManager.instance.primaryFocus?.unfocus();
-                    context.read<VirtualCardCubit>().submitVirtualCards();
-                  }
-                : null,
+            onPressed: () {
+              FocusManager.instance.primaryFocus?.unfocus();
+              context.read<VirtualCardCubit>().submitVirtualCards();
+            },
+            isActive: state.canSubmit,
             label: S.current.virtualRequestSubmit,
             size: AppButtonSize.lg,
             constrainLabel: true,

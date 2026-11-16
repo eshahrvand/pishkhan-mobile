@@ -54,7 +54,6 @@ class IssuanceFooter extends StatelessWidget {
                               child: Text(
                                 S.current.issuanceTerms,
                                 style: AppTypography.bodySmall.copyWith(
-                                  height: 18 / 12,
                                   letterSpacing: 0,
                                   fontWeight: FontWeight.w500,
                                   color: context.colors.primaryHover,
@@ -65,7 +64,6 @@ class IssuanceFooter extends StatelessWidget {
                             Text(
                               S.current.issuanceTermsPrompt,
                               style: AppTypography.bodySmall.copyWith(
-                                height: 18 / 12,
                                 letterSpacing: 0,
                                 color: context.colors.textPrimary,
                               ),
@@ -85,14 +83,13 @@ class IssuanceFooter extends StatelessWidget {
                     : S.current.issuanceNext,
                 labelStyle: AppTypography.titleSmall.copyWith(
                   fontWeight: FontWeight.w600,
-                  height: 20 / 14,
+
                   letterSpacing: 0,
                 ),
                 constrainLabel: true,
                 isLoading: state.submissionStatus == RequestStatus.loading,
-                onPressed: state.canContinue
-                    ? context.read<CardIssuanceCubit>().continueFlow
-                    : null,
+                onPressed: context.read<CardIssuanceCubit>().continueFlow,
+                isActive: state.canContinue,
               ),
             ],
           ),

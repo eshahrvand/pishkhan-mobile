@@ -4,7 +4,7 @@ import 'package:pishkhan_mobile/core/flow/service_registry.dart';
 import '../../shared/certificate_receipt_dialog.dart';
 import '../widgets/financial_certificate_content.dart';
 
-import 'package:pishkhan_mobile/shared/widgets/flow_exit_dialog.dart';
+import 'package:pishkhan_mobile/shared/widgets/flow_exit_sheet.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_delete_address_sheet.dart';
 
@@ -35,8 +35,11 @@ class FinancialCertificateScreen extends StatelessWidget {
     BuildContext context,
     FinancialCertificateState state,
   ) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   Future<void> _handleEffect(
@@ -61,8 +64,8 @@ class FinancialCertificateScreen extends StatelessWidget {
         final cubit = context.read<FinancialCertificateCubit>();
         await showModalBottomSheet<void>(
           context: context,
+          useRootNavigator: true,
           isScrollControlled: true,
-          useSafeArea: true,
           builder: (sheetContext) => AppDeleteAddressSheet(
             address: address.detail,
             postalCode: address.postalCode,
@@ -81,8 +84,10 @@ class FinancialCertificateScreen extends StatelessWidget {
         context
             .read<FinancialCertificateCubit>()
             .consumeFinancialCertificateInteraction();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(S.current.certificateAgentUnavailable)),
+        avpSnackBar(
+          context: context,
+          type: AvpSnackBarType.error,
+          message: S.current.certificateAgentUnavailable,
         );
       case null:
         switch (state.navigation) {
@@ -90,7 +95,7 @@ class FinancialCertificateScreen extends StatelessWidget {
             context
                 .read<FinancialCertificateCubit>()
                 .consumeFinancialCertificateInteraction();
-            final confirmed = await showFlowExitDialog(context);
+            final confirmed = await showFlowExitSheet(context);
             if (context.mounted) {
               context.read<FinancialCertificateCubit>().applyExitConfirmation(
                 confirmed,
@@ -188,14 +193,12 @@ class FinancialCertificateScreen extends StatelessWidget {
                             '${AppConstants.baseImage}deposit_list_back.svg',
                           ),
                           trailingTooltip: S.current.backLabel,
-                          onTrailingPressed:
+                          onTrailingPressed: context
+                              .read<FinancialCertificateCubit>()
+                              .requestBack,
+                          isTrailingActive:
                               (state.catalogStatus != RequestStatus.loading &&
-                                  state.submissionStatus !=
-                                      RequestStatus.loading)
-                              ? context
-                                    .read<FinancialCertificateCubit>()
-                                    .requestBack
-                              : null,
+                              state.submissionStatus != RequestStatus.loading),
                         ),
                         Expanded(
                           child: Stack(
@@ -277,11 +280,10 @@ class FinancialCertificateScreen extends StatelessWidget {
                                 isLoading:
                                     state.submissionStatus ==
                                     RequestStatus.loading,
-                                onPressed: state.canContinue
-                                    ? context
-                                          .read<FinancialCertificateCubit>()
-                                          .continueFlow
-                                    : null,
+                                onPressed: context
+                                    .read<FinancialCertificateCubit>()
+                                    .continueFlow,
+                                isActive: state.canContinue,
                               ),
                             );
                           },

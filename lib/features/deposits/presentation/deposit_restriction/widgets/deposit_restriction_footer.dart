@@ -24,9 +24,8 @@ class DepositRestrictionFooter extends StatelessWidget {
           onTermsRequested: context
               .read<DepositRestrictionCubit>()
               .requestTerms,
-          onSubmit: state.canSubmit
-              ? context.read<DepositRestrictionCubit>().submitRestriction
-              : null,
+          onSubmit: context.read<DepositRestrictionCubit>().submitRestriction,
+          isActive: state.canSubmit,
           isLoading: state.submissionStatus == RequestStatus.loading,
         );
       },

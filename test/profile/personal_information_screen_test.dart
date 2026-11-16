@@ -84,8 +84,8 @@ void main() {
     await tester.pump();
     await tester.pump();
     expect(
-      tester.widget<AppTopBar>(find.byType(AppTopBar)).onTrailingPressed,
-      isNull,
+      tester.widget<AppTopBar>(find.byType(AppTopBar)).isTrailingActive,
+      isFalse,
     );
     await tester.binding.handlePopRoute();
     await tester.pump();
@@ -96,8 +96,8 @@ void main() {
     await firstRequest;
     await tester.pump();
     expect(
-      tester.widget<AppTopBar>(find.byType(AppTopBar)).onTrailingPressed,
-      isNull,
+      tester.widget<AppTopBar>(find.byType(AppTopBar)).isTrailingActive,
+      isFalse,
     );
     await tester.binding.handlePopRoute();
     await tester.pump();
@@ -112,15 +112,15 @@ void main() {
       RequestStatus.failure,
     );
     expect(
-      tester.widget<AppTopBar>(find.byType(AppTopBar)).onTrailingPressed,
-      isNotNull,
+      tester.widget<AppTopBar>(find.byType(AppTopBar)).isTrailingActive,
+      isTrue,
     );
     await tester.pump(const Duration(seconds: 5));
     await tester.pumpAndSettle();
     cubit.requestAddressActions(first);
     await tester.pumpAndSettle();
     expect(find.text(S.current.profileEditAddress), findsOneWidget);
-    expect(find.byType(SnackBar), findsNothing);
+    expect(find.byType(AvpSnackBar), findsNothing);
     Navigator.of(tester.element(find.text(S.current.profileEditAddress))).pop();
     await tester.pumpAndSettle();
     await tester.binding.handlePopRoute();
@@ -147,7 +147,7 @@ void main() {
         await tester.pumpAndSettle();
         await submission;
         expect(cubit.state.submissionStatus, RequestStatus.failure);
-        expect(find.byType(SnackBar), findsOneWidget);
+        expect(find.byType(AvpSnackBar), findsOneWidget);
         await tester.pump(const Duration(seconds: 5));
         await tester.pumpAndSettle();
       }
@@ -163,7 +163,7 @@ void main() {
       expect(cubit.state.submissionStatus, RequestStatus.success);
       expect(cubit.state.failure, isNotNull);
       expect(find.byType(AlertDialog), findsOneWidget);
-      expect(find.byType(SnackBar), findsNothing);
+      expect(find.byType(AvpSnackBar), findsNothing);
       expect(cubit.state.otp, isEmpty);
       await tester.pumpWidget(const SizedBox());
       await tester.pumpAndSettle();
@@ -190,7 +190,7 @@ void main() {
         final submission = cubit.submitJobInformation();
         await tester.pumpAndSettle();
         await submission;
-        expect(find.byType(SnackBar), findsOneWidget);
+        expect(find.byType(AvpSnackBar), findsOneWidget);
         await tester.pump(const Duration(seconds: 5));
         await tester.pumpAndSettle();
       }
@@ -207,7 +207,7 @@ void main() {
       expect(cubit.state.jobInformation, jobInformation);
       expect(cubit.state.failure, isNotNull);
       expect(find.text(S.current.profileJobInformationQueued), findsOneWidget);
-      expect(find.byType(SnackBar), findsNothing);
+      expect(find.byType(AvpSnackBar), findsNothing);
       await tester.tap(
         find.descendant(
           of: find.byType(AlertDialog),
@@ -232,11 +232,11 @@ void main() {
     for (var attempt = 0; attempt < 2; attempt++) {
       await tester.tap(find.text(S.current.profileReview));
       await tester.pumpAndSettle();
-      expect(find.byType(SnackBar), findsOneWidget);
+      expect(find.byType(AvpSnackBar), findsOneWidget);
       expect(find.text(S.current.profileReviewError), findsNothing);
       await tester.pump(const Duration(seconds: 5));
       await tester.pumpAndSettle();
-      expect(find.byType(SnackBar), findsNothing);
+      expect(find.byType(AvpSnackBar), findsNothing);
     }
     expect(tester.takeException(), isNull);
   });
@@ -324,7 +324,7 @@ void main() {
       await tester.pumpAndSettle();
       await capture(tester, 'phone-ready');
       final submit = find.widgetWithText(AppButton, S.current.issuanceSubmit);
-      expect(tester.widget<AppButton>(submit).onPressed, isNotNull);
+      expect(tester.widget<AppButton>(submit).isActive, isTrue);
       await tester.tap(submit);
       await tester.pump();
       expect(
@@ -545,8 +545,8 @@ void main() {
             .widget<AppButton>(
               find.widgetWithText(AppButton, S.current.profileSubmit),
             )
-            .onPressed,
-        isNull,
+            .isActive,
+        isFalse,
       );
       cubit.selectKind(JobInformationKind.teacher);
       cubit.updateDescription('مدرس');

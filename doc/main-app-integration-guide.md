@@ -7,8 +7,11 @@ Counter. Reuse its public components, tokens and input helpers before creating
 app widgets. For application ownership and State, the mandatory
 [UI/Cubit/State contract](ui-cubit-state-agent-rules-en.md) takes precedence over
 package API examples. Domain/Cubit owns decisions; UI renders and executes
-prepared Flutter effects. The [phase-10 review](cubit-phase-10-review.md) records
-current migration coverage; this guide adds no new rules.
+prepared Flutter effects. The Cubit migration is complete; current ownership and
+integration details live in each flow document. This guide adds no new rules.
+
+App-owned shared components and their open layout issues are documented in the
+[shared component / Figma mapping](shared-component-figma-mapping.md).
 
 ## First-use setup
 
@@ -292,13 +295,13 @@ See [Cards architecture](cards/card-services.md). Import features/cards/cards.da
 | --- | --- | --- | --- |
 | Stepper / stepper | `27984:8986` | `AppStepper` | `lib/widgets/layout/app_stepper.dart` |
 
-Use `AppStepper(currentStep: 1, totalSteps: 3, title: title, supportingText: nextLabel)`. Step numbers are one-based; total must be positive. State, navigation, validation, localized title/next/end labels and accessibility copy belong to the app. The 42px ring stays on the physical left in RTL, with a 24px gap, 4px warning dot, 12px/18px DemiBold title and 10px/16px Light supporting copy. The original 42px Figma ring SVGs live in package assets; dynamic progress clips the full foreground ring. Default progress is current/total. `progress` optionally reproduces authored samples: the library first 1/5 frame uses .1, and issuance frames use .3/.6/1 despite displaying 1/3, 2/3, 3/3. This visual override does not alter step numbering or validation. Long copy wraps and can increase the component height.
+Use `AppStepper(currentStep: 1, totalSteps: 3, title: title, supportingText: nextLabel)`. Step numbers are one-based; total must be positive. State, navigation, validation, localized title/next/end labels and accessibility copy belong to the app. The 42px ring stays on the physical left in RTL, with a 24px gap, 4px warning dot, 12px/18px DemiBold title and 12px/18px Light supporting copy in Gray/500. The original 42px Figma ring SVGs live in package assets; dynamic progress clips the full foreground ring. Default progress is current/total. `progress` optionally reproduces authored samples: the library first 1/5 frame uses .1, and issuance frames use .3/.6/1 despite displaying 1/3, 2/3, 3/3. This visual override does not alter step numbering or validation. Long copy wraps and can increase the component height.
 
 The title row hugs its content so the warning dot stays adjacent to the title. The title column explicitly uses physical-right alignment under RTL; supporting text is inset 8px from that edge, with a 6px vertical gap. This shared fix also applies to the [expired gift balance flow](cards/expired-gift-balance.md).
 
 The example gallery's `FigmaNameMapper` registers Stepper → AppStepper and previews it; the Components tab also renders first/last variants.
 
-`AppToggle.appearance: AppToggleAppearance.issuance` opts into Gray/100 off track, the two Shadow/sm thumb layers and physical off-left/on-right alignment. Default `standard` retains existing colors, shadow and direction-aware alignment. Disabled behavior is unchanged.
+`AppToggle.appearance: AppToggleAppearance.issuance` uses the updated Gray/200 off track, the two Shadow/sm thumb layers and physical off-left/on-right alignment. Default `standard` retains existing colors, shadow and direction-aware alignment. Disabled toggles use a Gray/200 track and Gray/50 thumb in both positions.
 
 `AppCardIssuanceColors` owns the summary Brand/25 surface, summary title, terms surface and input hint instance tokens. The main app composes them with existing semantic colors. No bank workflow or payment behavior lives in avp_ui.
 
@@ -507,3 +510,44 @@ and eligibility. Independent screen feedback and typed effects share
 MultiBlocListener with rendering in BlocBuilder. Local carousels keep their
 controller synchronization. Supply adapters through core/di before resolution;
 there is no Screen repository prop or reload-on-replacement lifecycle hook.
+
+
+## Snackbar feedback
+
+Use the public `avp_ui` feedback API at the existing UI listener/effect boundary:
+
+```dart
+avpSnackBar(
+  context: context,
+  type: AvpSnackBarType.error,
+  message: state.message!,
+);
+```
+
+The application currently uses **success** and **error** only. Use success for an
+existing confirmed success/copy message; request failures and unavailable-service
+messages use error. Do not infer the type by inspecting translated text or add
+success notifications where the flow did not previously have one.
+
+Feedback is delivered through the root overlay, replacing an earlier top
+notification rather than queuing Scaffold snackbars. It auto-dismisses after the
+package's display interval and supports Close/swipe. Request-status transitions,
+prepared messages, command consumption, async mounted checks and retained-failure
+semantics remain unchanged. Tests use `AvpSnackBar` and the shared test-only close
+helper rather than `ScaffoldMessenger.clearSnackBars()`.
+
+
+## Flow-exit confirmation
+
+Use `showFlowExitSheet(context, title: optionalTitle)` for the existing flow-exit
+confirmation. It composes the shared `AppDecisionSheet` inside the root-navigator
+`showAppServiceSheet`, with the same drag handle/header, rounded surface, spacing
+and two-button layout as the other service sheets. It replaces the former
+`showFlowExitDialog` helper.
+
+The modal returns `true` for Exit, `false` for Stay, and `null` for system Back or
+outside dismissal. UI listeners pass that raw result back to the owning Cubit;
+the sheet does not decide whether the parent flow exits. Keep pending-request
+Back gates, form values and confirmation-command consumption unchanged. The
+shared decision sheet's existing default Cancel result remains `null` unless a
+caller supplies its explicit `onCancel` callback.

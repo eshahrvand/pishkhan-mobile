@@ -37,9 +37,8 @@ class AuthCaptchaField extends StatelessWidget {
                   width: 48,
                   height: 44,
                   child: AppButton(
-                    isLoading:
-                        state.captchaStatus == RequestStatus.loading ||
-                        state.otpRequestStatus == RequestStatus.loading,
+                    isLoading: state.captchaStatus == RequestStatus.loading,
+                    isActive: state.otpRequestStatus != RequestStatus.loading,
                     onPressed: context.read<AuthCubit>().fetchCaptcha,
                     icon: AvpImage(
                       image: '${AppConstants.baseImage}auth_refresh.svg',
@@ -55,7 +54,7 @@ class AuthCaptchaField extends StatelessWidget {
                 textDirection: TextDirection.rtl,
                 textAlign: TextAlign.start,
                 textStyle: Theme.of(context).textTheme.bodyMedium!
-                    .copyWith(height: 20 / 14, letterSpacing: 0),
+                    .copyWith(letterSpacing: 0),
                 normalizeDigits: true,
                 focusRing: AppTextFieldFocusRing.subtle,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],

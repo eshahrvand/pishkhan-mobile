@@ -71,11 +71,10 @@ class AgentList extends StatelessWidget {
                     horizontalPadding: 0,
                     contentGap: 8,
                     labelStyle: Theme.of(context).textTheme.bodySmall!
-                        .copyWith(fontWeight: FontWeight.w500, height: 18 / 12),
+                        .copyWith(fontWeight: FontWeight.w500),
                     constrainLabel: true,
-                    onPressed: state.isEditable
-                        ? context.read<AgentCubit>().requestNextAgent
-                        : null,
+                    onPressed: context.read<AgentCubit>().requestNextAgent,
+                    isActive: state.isEditable,
                   ),
                 ),
               ),

@@ -57,10 +57,10 @@ Future<void> repeatFailure(
     final request = action();
     await tester.pumpAndSettle();
     await request;
-    expect(find.byType(SnackBar), findsOneWidget);
+    expect(find.byType(AvpSnackBar), findsOneWidget);
     await tester.pump(const Duration(seconds: 5));
     await tester.pumpAndSettle();
-    expect(find.byType(SnackBar), findsNothing);
+    expect(find.byType(AvpSnackBar), findsNothing);
   }
 }
 
@@ -123,7 +123,7 @@ void main() {
       await lookup;
       expect(find.byType(TransferDestinationSheet), findsNothing);
       expect(cubit.state.destinations, hasLength(1));
-      expect(find.byType(SnackBar), findsNothing);
+      expect(find.byType(AvpSnackBar), findsNothing);
       cubit.requestUnavailable();
       await tester.pumpAndSettle();
       expect(find.text(S.current.cardFeatureUnavailable), findsOneWidget);
@@ -140,7 +140,7 @@ void main() {
       expect(cubit.state.failure, isNotNull);
       expect(repository.requests.toSet(), hasLength(1));
       expect(find.byType(TransferReceiptDialog), findsOneWidget);
-      expect(find.byType(SnackBar), findsNothing);
+      expect(find.byType(AvpSnackBar), findsNothing);
       await tester.pumpWidget(const SizedBox());
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);

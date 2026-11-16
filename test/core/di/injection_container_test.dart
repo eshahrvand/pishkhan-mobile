@@ -23,8 +23,8 @@ import 'package:pishkhan_mobile/features/auth/domain/entities/login_identity.dar
 import 'package:pishkhan_mobile/features/auth/domain/repositories/auth_repository.dart';
 import 'package:pishkhan_mobile/features/auth/domain/usecases/login_usecase.dart';
 
-import 'package:pishkhan_mobile/features/deposits/domain/repositories/proxy_deposits_repository.dart';
-import 'package:pishkhan_mobile/features/deposits/presentation/proxy_deposit/cubit/proxy_deposit_cubit.dart';
+import 'package:pishkhan_mobile/features/deposits/domain/repositories/deposit_mandate_repository.dart';
+import 'package:pishkhan_mobile/features/deposits/presentation/deposit_mandate/cubit/deposit_mandate_cubit.dart';
 
 import 'package:pishkhan_mobile/features/deposits/domain/repositories/deposit_restrictions_repository.dart';
 import 'package:pishkhan_mobile/features/deposits/presentation/deposit_restriction/cubit/deposit_restriction_cubit.dart';
@@ -70,10 +70,10 @@ void main() {
   });
 
   test('locator does not register presentation Cubits', () {
-    expect(container.isRegistered<ProxyDepositCubit>(), isFalse);
+    expect(container.isRegistered<DepositMandateCubit>(), isFalse);
     expect(
-      container<ProxyDepositsRepository>(),
-      same(container<ProxyDepositsRepository>()),
+      container<DepositMandateRepository>(),
+      same(container<DepositMandateRepository>()),
     );
     expect(container.isRegistered<DepositRestrictionCubit>(), isFalse);
     expect(

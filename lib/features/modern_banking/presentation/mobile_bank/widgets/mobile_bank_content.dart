@@ -49,7 +49,7 @@ class MobileBankContent extends StatelessWidget {
           Text(
             S.current.modernActivationIntro,
             style: Theme.of(context).textTheme.bodyMedium!
-                .copyWith(height: 22 / 14, fontWeight: FontWeight.w500),
+                .copyWith(fontWeight: FontWeight.w500),
           ),
           const SizedBox(height: 24),
           ModernBankNotice(message: S.current.modernUsernameNotice),
@@ -64,7 +64,7 @@ class MobileBankContent extends StatelessWidget {
           Text(
             S.current.passwordInstructionPrompt,
             style: Theme.of(context).textTheme.bodyMedium!
-                .copyWith(height: 20 / 14, fontWeight: FontWeight.w500),
+                .copyWith(fontWeight: FontWeight.w500),
           ),
           const SizedBox(height: 20),
           ModernBankVideo(
@@ -90,8 +90,7 @@ class MobileBankContent extends StatelessWidget {
                 Expanded(
                   child: Text(
                     S.current.passwordCameraNotice,
-                    style: Theme.of(context).textTheme.bodySmall!
-                        .copyWith(height: 18 / 12),
+                    style: Theme.of(context).textTheme.bodySmall!,
                   ),
                 ),
               ],
@@ -102,7 +101,7 @@ class MobileBankContent extends StatelessWidget {
           Text(
             S.current.passwordRecordingPrompt,
             style: Theme.of(context).textTheme.bodyMedium!
-                .copyWith(height: 20 / 14, fontWeight: FontWeight.w500),
+                .copyWith(fontWeight: FontWeight.w500),
           ),
           const SizedBox(height: 20),
           ModernBankVideo(

@@ -301,7 +301,7 @@ snapshot preservation and initial-account normalization. Widget cases cover
 geometry, selectors/nonphysical/terms/mock completion, address validation,
 fa/en/ar large text, routing, Back/delete confirmation and nested reissue/assistant
 return. Phase 4 adds repeated-failure, retained-error terms and retry-completion
-coverage. Current app verification is in [phase-4-review.md](phase-4-review.md).
+coverage. Run the relevant tests listed here for current verification.
 
 Frame assertions check Stepper y104/42px, body/summary y172 and footer y712/44px. Actual pixels in the ring slot must contain the foreground and, before completion, the gray track. Explicit rootBundle loads catch missing package assets. Previews load real fonts and enable native shadows during capture. Existing global asset tests check unique paths and non-empty bundling.
 
@@ -419,4 +419,4 @@ existing progress/receipt handling in MultiBlocListener; BlocBuilder renders.
 Progress still scrolls at the same transitions and completion still fires on
 success. Removed 14 blanket failure/message clears. Catalog-derived form initialization
 keeps step, validity and the confirmed snapshot aligned with the replacement draft. Other address, consent, snapshot and command resets retain
-actual readers. See [phase-4 verification](phase-4-review.md).
+actual readers.

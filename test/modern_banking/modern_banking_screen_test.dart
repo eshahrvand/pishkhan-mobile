@@ -17,7 +17,7 @@ import 'package:pishkhan_mobile/features/modern_banking/presentation/transfer_li
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/widgets/deposit_request_footer.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
-import 'package:pishkhan_mobile/shared/widgets/flow_exit_dialog.dart';
+import 'package:pishkhan_mobile/shared/widgets/flow_exit_sheet.dart';
 
 import '../deposits/certificate_test_support.dart';
 
@@ -74,8 +74,8 @@ void main() {
             .widget<AppButton>(
               find.widgetWithText(AppButton, S.current.issuanceNext),
             )
-            .onPressed,
-        isNull,
+            .isActive,
+        isFalse,
       );
       await tester.enterText(find.byType(TextField), '۳R۱۲۳۴۵۶۷۸');
       await tester.pumpAndSettle();
@@ -189,9 +189,9 @@ void main() {
     expect(find.text(S.current.modernActivate), findsOneWidget);
     await tester.binding.handlePopRoute();
     await tester.pumpAndSettle();
-    expect(find.byType(AlertDialog), findsOneWidget);
+    expect(find.byType(FlowExitSheet), findsOneWidget);
     await tapLabel(tester, S.current.passwordStay);
-    expect(find.byType(AlertDialog), findsNothing);
+    expect(find.byType(FlowExitSheet), findsNothing);
     expect(find.text(S.current.modernActivate), findsOneWidget);
   });
 
@@ -227,9 +227,9 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.byType(AppAssistantButton));
       await tester.pumpAndSettle();
-      expect(find.byType(FlowExitDialog), findsOneWidget);
+      expect(find.byType(FlowExitSheet), findsOneWidget);
       await tapLabel(tester, S.current.passwordStay);
-      expect(find.byType(FlowExitDialog), findsNothing);
+      expect(find.byType(FlowExitSheet), findsNothing);
       expect(
         tester.widget<TextField>(find.byType(TextField)).controller!.text,
         '3R12345678',
@@ -253,8 +253,8 @@ void main() {
       expect(
         tester
             .widget<DepositRequestFooter>(find.byType(DepositRequestFooter))
-            .onSubmit,
-        isNull,
+            .isActive,
+        isFalse,
       );
       await captureModern(tester, 'modern_deactivation_empty');
       await tester.tap(find.byType(AppSelect<DeactivationReason>));
@@ -266,8 +266,8 @@ void main() {
       expect(
         tester
             .widget<DepositRequestFooter>(find.byType(DepositRequestFooter))
-            .onSubmit,
-        isNotNull,
+            .isActive,
+        isTrue,
       );
       await captureModern(tester, 'modern_deactivation_filled');
       await tapLabel(tester, S.current.passwordChangeSubmit);

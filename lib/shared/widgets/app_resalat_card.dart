@@ -112,7 +112,7 @@ class AppResalatCard extends StatelessWidget {
                             color: AppPalette.brand700,
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
-                            height: 16 / 10,
+
                             letterSpacing: 0,
                           ),
                         ),
@@ -172,7 +172,7 @@ class AppResalatCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       textDirection: TextDirection.ltr,
-                      style: _detailStyle(fontSize: 14, height: 20 / 14),
+                      style: _detailStyle(fontSize: 14),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -228,15 +228,15 @@ class AppResalatCard extends StatelessWidget {
     color: AppPalette.white,
     fontSize: 16,
     fontWeight: FontWeight.w600,
-    height: 24 / 16,
+
     letterSpacing: 0,
   );
 
-  TextStyle _detailStyle({double fontSize = 12, double height = 18 / 12}) =>
+  TextStyle _detailStyle({double fontSize = 12}) =>
       AppTypography.bodySmall.copyWith(
         color: AppPalette.brand100,
         fontSize: fontSize,
-        height: height,
+
         letterSpacing: 0,
       );
 }

@@ -91,11 +91,30 @@ class PostalOfficesCubit extends Cubit<PostalOfficesState> {
     emit(state.copyWith(postalStep: PostalOfficesStep.location));
   }
 
+  void applyShareResult(Result<void> result) {
+    switch (result) {
+      case Success():
+        emit(state.copyWith(shareStatus: RequestStatus.success));
+      case Err(:final failure):
+        emit(
+          state.copyWith(
+            shareStatus: RequestStatus.failure,
+            failure: failure,
+            message: getRequestErrorMessage(failure),
+          ),
+        );
+    }
+  }
+
   void requestPostalShare() {
     final text =
         '${state.province!.name} - ${state.city!.name}\n${state.postalOffices.map((office) => '• ${office.address}').join('\n')}';
     emit(
-      state.copyWith(postalShareText: text, effect: PostalOfficesEffect.share),
+      state.copyWith(
+        postalShareText: text,
+        shareStatus: RequestStatus.loading,
+        effect: PostalOfficesEffect.share,
+      ),
     );
   }
 

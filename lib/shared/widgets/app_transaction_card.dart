@@ -46,10 +46,10 @@ class AppTransactionCard extends StatelessWidget {
     final content = Container(
       key: const Key('app_transaction_card'),
       width: 361,
-      height: 72,
+      constraints: const BoxConstraints(minHeight: 72),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: AppPalette.gray50,
+        color: context.colors.surface,
         borderRadius: AppRadius.borderMd,
       ),
       child: Row(
@@ -75,7 +75,8 @@ class AppTransactionCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Text(
                         _title,
@@ -100,8 +101,8 @@ class AppTransactionCard extends StatelessWidget {
                   width: 48,
                   height: 48,
                   padding: const EdgeInsets.all(12),
-                  decoration: const BoxDecoration(
-                    color: AppPalette.white,
+                  decoration: BoxDecoration(
+                    color: context.colors.surface,
                     shape: BoxShape.circle,
                   ),
                   child: AvpImage(image: _icon),
@@ -130,7 +131,7 @@ class AppTransactionCard extends StatelessWidget {
 
   TextStyle get _currencyStyle => AppTypography.bodySmall.copyWith(
     color: AppPalette.gray700,
-    height: 18 / 12,
+
     letterSpacing: 0,
   );
 
@@ -138,7 +139,7 @@ class AppTransactionCard extends StatelessWidget {
     color: AppPalette.gray900,
     fontSize: 14,
     fontWeight: FontWeight.w600,
-    height: 20 / 14,
+
     letterSpacing: 0,
   );
 

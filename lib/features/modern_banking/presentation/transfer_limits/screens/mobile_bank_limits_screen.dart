@@ -11,7 +11,7 @@ import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
 import 'package:pishkhan_mobile/shared/widgets/deposit_request_footer.dart';
-import 'package:pishkhan_mobile/shared/widgets/flow_exit_dialog.dart';
+import 'package:pishkhan_mobile/shared/widgets/flow_exit_sheet.dart';
 
 import '../../shared/modern_bank_receipt.dart';
 import '../../shared/modern_bank_terms.dart';
@@ -21,8 +21,11 @@ import '../widgets/mobile_bank_limits_form.dart';
 class MobileBankLimitsScreen extends StatelessWidget {
   const MobileBankLimitsScreen({super.key});
   void _showRequestFailure(BuildContext context, TransferLimitsState state) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   Future<void> _handleNavigation(
@@ -32,7 +35,7 @@ class MobileBankLimitsScreen extends StatelessWidget {
     switch (state.navigation) {
       case FlowNavigation.confirmExit:
         context.read<TransferLimitsCubit>().consumeTransferLimitsInteraction();
-        final result = await showFlowExitDialog(context);
+        final result = await showFlowExitSheet(context);
         if (context.mounted) {
           context.read<TransferLimitsCubit>().applyExitConfirmation(result);
         }
@@ -102,15 +105,12 @@ class MobileBankLimitsScreen extends StatelessWidget {
                           ),
                         ),
                         trailingTooltip: S.current.backLabel,
-                        onTrailingPressed:
+                        onTrailingPressed: () {
+                          context.read<TransferLimitsCubit>().requestBack();
+                        },
+                        isTrailingActive:
                             (state.catalogStatus != RequestStatus.loading &&
-                                state.submissionStatus != RequestStatus.loading)
-                            ? () {
-                                context
-                                    .read<TransferLimitsCubit>()
-                                    .requestBack();
-                              }
-                            : null,
+                            state.submissionStatus != RequestStatus.loading),
                       ),
                       Expanded(
                         child: Stack(
@@ -191,13 +191,12 @@ class MobileBankLimitsScreen extends StatelessWidget {
                             onTermsRequested: () {
                               showModernBankTerms(context);
                             },
-                            onSubmit: state.canSubmit
-                                ? () {
-                                    context
-                                        .read<TransferLimitsCubit>()
-                                        .submitLimits();
-                                  }
-                                : null,
+                            onSubmit: () {
+                              context
+                                  .read<TransferLimitsCubit>()
+                                  .submitLimits();
+                            },
+                            isActive: state.canSubmit,
                             isLoading:
                                 state.submissionStatus == RequestStatus.loading,
 

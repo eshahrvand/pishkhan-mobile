@@ -1,3 +1,5 @@
+import '../support/snackbar_test_support.dart';
+
 import 'package:pishkhan_mobile/features/postal_offices/domain/entities/postal_office.dart';
 
 import 'dart:async';
@@ -16,7 +18,7 @@ import 'package:pishkhan_mobile/core/result/failure.dart';
 import 'package:pishkhan_mobile/core/result/result.dart';
 import 'package:pishkhan_mobile/features/cheque/data/repositories/mock_cheque_clearance_repository.dart';
 import 'package:pishkhan_mobile/features/cheque/domain/repositories/cheque_clearance_repository.dart';
-import 'package:pishkhan_mobile/shared/widgets/flow_exit_dialog.dart';
+import 'package:pishkhan_mobile/shared/widgets/flow_exit_sheet.dart';
 import 'package:pishkhan_mobile/features/cheque/domain/entities/cheque_clearance.dart';
 import 'package:pishkhan_mobile/features/cheque/presentation/clearance/cubit/cheque_clearance_cubit.dart';
 import 'package:pishkhan_mobile/features/cheque/presentation/clearance/screens/cheque_clearance_screen.dart';
@@ -175,19 +177,20 @@ void main() {
       }
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 300));
-      expect(find.byType(FlowExitDialog), findsNothing);
+      expect(find.byType(FlowExitSheet), findsNothing);
       expect(cubit(tester).state.chequeNumber, '123/123456');
       expect(cubit(tester).state.submissionStatus, RequestStatus.loading);
       // Complete while the owner is alive; post-disposal errors are an accepted contract behavior.
       repository.submission.complete(const Err(DataFailure('timeout')));
       await tester.pumpAndSettle();
+      await dismissAvpSnackBar(tester);
       if (systemBack) {
         await tester.binding.handlePopRoute();
       } else {
         await tester.tap(find.byTooltip(S.current.backLabel));
       }
       await tester.pumpAndSettle();
-      expect(find.byType(FlowExitDialog), findsOneWidget);
+      expect(find.byType(FlowExitSheet), findsOneWidget);
       await tap(tester, button(S.current.passwordExit));
       expect(find.byType(ChequeClearanceScreen), findsNothing);
       expect(button('Open cheque'), findsOneWidget);
@@ -200,8 +203,8 @@ void main() {
     (tester) async {
       await mount(tester);
       expect(
-        tester.widget<AppButton>(button(S.current.chequeSubmit)).onPressed,
-        isNull,
+        tester.widget<AppButton>(button(S.current.chequeSubmit)).isActive,
+        isFalse,
       );
       expect(find.text(S.current.chequeNoPostRequired), findsNothing);
       await fill(tester, S.current.chequeReasonDepositAndBlock);
@@ -214,8 +217,8 @@ void main() {
       );
       await tap(tester, find.byType(AppCheckbox));
       expect(
-        tester.widget<AppButton>(button(S.current.chequeSubmit)).onPressed,
-        isNotNull,
+        tester.widget<AppButton>(button(S.current.chequeSubmit)).isActive,
+        isTrue,
       );
       await tap(tester, button(S.current.chequeSubmit));
       expect(find.byType(ChequeClearanceReceiptDialog), findsOneWidget);
@@ -240,14 +243,14 @@ void main() {
       await tap(tester, button(S.current.chequeSubmit));
       expect(find.text(S.current.chequeNumberNotFound), findsOneWidget);
       expect(
-        tester.widget<AppButton>(button(S.current.chequeSubmit)).onPressed,
-        isNull,
+        tester.widget<AppButton>(button(S.current.chequeSubmit)).isActive,
+        isFalse,
       );
       await enter(tester, S.current.chequeNumberHint, '۱۲۳/۱۲۳۴۵۶');
       expect(find.text(S.current.chequeNumberNotFound), findsNothing);
       expect(
-        tester.widget<AppButton>(button(S.current.chequeSubmit)).onPressed,
-        isNotNull,
+        tester.widget<AppButton>(button(S.current.chequeSubmit)).isActive,
+        isTrue,
       );
       expect(tester.takeException(), isNull);
     },
@@ -278,13 +281,13 @@ void main() {
       expect(find.text(S.current.chequeJudicialNumber), findsOneWidget);
       await tap(tester, find.byType(AppCheckbox));
       expect(
-        tester.widget<AppButton>(button(S.current.chequeSubmit)).onPressed,
-        isNull,
+        tester.widget<AppButton>(button(S.current.chequeSubmit)).isActive,
+        isFalse,
       );
       await enter(tester, S.current.chequeJudicialNumberHint, '۱۰۰۳۴۵۶۷۸');
       expect(
-        tester.widget<AppButton>(button(S.current.chequeSubmit)).onPressed,
-        isNotNull,
+        tester.widget<AppButton>(button(S.current.chequeSubmit)).isActive,
+        isTrue,
       );
       await choose<ChequeClearanceReason>(
         tester,
@@ -307,8 +310,7 @@ void main() {
       ]) {
         await tap(tester, button(label));
         expect(find.text(S.current.chequeContentUnavailable), findsOneWidget);
-        ScaffoldMessenger.of(tester.element(find.byType(ChequeClearanceForm)))
-            .removeCurrentSnackBar();
+        await dismissAvpSnackBar(tester);
         await tester.pumpAndSettle();
       }
       await tap(tester, find.text(S.current.chequeTerms));
@@ -329,10 +331,8 @@ void main() {
       await tap(tester, find.text(S.current.chequePostalAction));
       expect(find.byType(PostalOfficesSheet), findsOneWidget);
       expect(
-        tester
-            .widget<AppButton>(button(S.current.chequePostalSearch))
-            .onPressed,
-        isNull,
+        tester.widget<AppButton>(button(S.current.chequePostalSearch)).isActive,
+        isFalse,
       );
       await choose<PostalProvince>(tester, 'تهران');
       await choose<PostalCity>(tester, 'منطقه پستی شمال شرق');
@@ -359,10 +359,8 @@ void main() {
         isNull,
       );
       expect(
-        tester
-            .widget<AppButton>(button(S.current.chequePostalSearch))
-            .onPressed,
-        isNull,
+        tester.widget<AppButton>(button(S.current.chequePostalSearch)).isActive,
+        isFalse,
       );
       await choose<PostalCity>(tester, 'اصفهان');
       await tap(tester, button(S.current.chequePostalSearch));
@@ -389,8 +387,8 @@ void main() {
       await tap(tester, find.byKey(const Key('app_bottom_sheet_left_action')));
       await tap(tester, find.byType(AppCheckbox));
       expect(
-        tester.widget<AppButton>(button(S.current.chequeSubmit)).onPressed,
-        isNotNull,
+        tester.widget<AppButton>(button(S.current.chequeSubmit)).isActive,
+        isTrue,
       );
       expect(tester.takeException(), isNull);
     },

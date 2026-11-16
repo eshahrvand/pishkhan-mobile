@@ -1,5 +1,5 @@
 import 'package:pishkhan_mobile/core/config/constant.dart';
-import 'package:pishkhan_mobile/shared/widgets/flow_exit_dialog.dart';
+import 'package:pishkhan_mobile/shared/widgets/flow_exit_sheet.dart';
 import 'package:avp_ui/avp_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -32,8 +32,11 @@ class ChangeCardDepositScreen extends StatefulWidget {
 
 class _ChangeCardDepositScreenState extends State<ChangeCardDepositScreen> {
   void _showRequestFailure(BuildContext context, ChangeCardDepositState state) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   Future<void> _handleNavigation(
@@ -45,7 +48,7 @@ class _ChangeCardDepositScreenState extends State<ChangeCardDepositScreen> {
         context
             .read<ChangeCardDepositCubit>()
             .consumeChangeCardDepositInteraction();
-        final confirmed = await showFlowExitDialog(context);
+        final confirmed = await showFlowExitSheet(context);
         if (context.mounted) {
           context.read<ChangeCardDepositCubit>().applyExitConfirmation(
             confirmed,
@@ -127,14 +130,12 @@ class _ChangeCardDepositScreenState extends State<ChangeCardDepositScreen> {
                             size: 24,
                           ),
                           trailingTooltip: S.current.backLabel,
-                          onTrailingPressed:
+                          onTrailingPressed: context
+                              .read<ChangeCardDepositCubit>()
+                              .requestBack,
+                          isTrailingActive:
                               (state.catalogStatus != RequestStatus.loading &&
-                                  state.submissionStatus !=
-                                      RequestStatus.loading)
-                              ? context
-                                    .read<ChangeCardDepositCubit>()
-                                    .requestBack
-                              : null,
+                              state.submissionStatus != RequestStatus.loading),
                         ),
                         Expanded(
                           child:
@@ -158,11 +159,10 @@ class _ChangeCardDepositScreenState extends State<ChangeCardDepositScreen> {
                             label: S.current.cardServiceSubmit,
                             loading:
                                 state.submissionStatus == RequestStatus.loading,
-                            onSubmit: state.canSubmit
-                                ? context
-                                      .read<ChangeCardDepositCubit>()
-                                      .submitDepositChange
-                                : null,
+                            onSubmit: context
+                                .read<ChangeCardDepositCubit>()
+                                .submitDepositChange,
+                            isActive: state.canSubmit,
                             termsAccepted: state.termsAccepted,
                             onTermsChanged: state.isEditable
                                 ? context

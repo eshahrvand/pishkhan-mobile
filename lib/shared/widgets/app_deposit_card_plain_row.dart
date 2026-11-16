@@ -39,12 +39,12 @@ class AppDepositCardPlainRow extends StatelessWidget {
   TextStyle get _valueStyle => AppTypography.bodySmall.copyWith(
     color: AppPalette.white,
     fontWeight: FontWeight.w500,
-    height: 18 / 12,
+
     letterSpacing: 0,
   );
   TextStyle get _labelStyle => AppTypography.bodySmall.copyWith(
     color: AppPalette.white,
-    height: 18 / 12,
+
     letterSpacing: 0,
   );
 }

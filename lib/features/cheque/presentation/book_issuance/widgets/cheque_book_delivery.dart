@@ -90,7 +90,7 @@ class ChequeBookDelivery extends StatelessWidget {
                   child: AppButton(
                     labelStyle: AppTypography.bodySmall.copyWith(
                       fontWeight: FontWeight.w500,
-                      height: 18 / 12,
+
                       letterSpacing: 0,
                     ),
                     contentGap: 8,

@@ -28,7 +28,7 @@ class DashboardFavoritesGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final columns = constraints.maxWidth >= 274 ? 4 : 3;
+        final columns = constraints.maxWidth >= 290 ? 4 : 3;
         final width = (constraints.maxWidth - (columns - 1) * 6) / columns;
         return Wrap(
           spacing: 6,
@@ -57,7 +57,7 @@ class DashboardFavoritesGrid extends StatelessWidget {
                       labelStyle: AppTypography.caption.copyWith(
                         color: AppDashboardColors.serviceText,
                         fontWeight: FontWeight.w400,
-                        height: 16 / 10,
+
                         letterSpacing: 0,
                       ),
                     ),
@@ -139,7 +139,7 @@ class DashboardFavoritesGrid extends StatelessWidget {
                             style: AppTypography.bodySmall.copyWith(
                               color: AppDashboardColors.addText,
                               fontWeight: FontWeight.w500,
-                              height: 18 / 12,
+
                               letterSpacing: 0,
                             ),
                           ),

@@ -10,7 +10,7 @@ Future<T?> showCardServiceSheet<T>(
 }) {
   FocusManager.instance.primaryFocus?.unfocus();
   final insets = MediaQuery.viewPaddingOf(context);
-  final navigator = Navigator.of(context);
+  final navigator = Navigator.of(context, rootNavigator: true);
   return navigator.push<T>(
     AppServiceSheetRoute<T>(
       modalBarrierColor: AppDashboardColors.sheetScrim.withValues(alpha: .64),

@@ -1,3 +1,7 @@
+import 'package:pishkhan_mobile/shared/widgets/flow_exit_sheet.dart';
+
+import '../../../../../support/snackbar_test_support.dart';
+
 import 'package:pishkhan_mobile/core/presentation/mappers/request_error_message_mapper.dart';
 
 import 'dart:async';
@@ -176,7 +180,7 @@ void main() {
       await t.pumpAndSettle();
       expect(r.requests.single.quote.count, 4);
       expect(r.requests.single.quote.depositId, 'virtual-deposit-1');
-      expect(find.byType(AlertDialog), findsNothing);
+      expect(find.byType(FlowExitSheet), findsNothing);
     },
   );
   testWidgets('count edits reset consent and poor wallet prevents submit', (
@@ -260,9 +264,7 @@ void main() {
       await t.pumpAndSettle();
       await t.tap(retry);
       await t.pumpAndSettle();
-      t
-          .state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger))
-          .clearSnackBars();
+      await dismissAvpSnackBar(t);
       await t.pump(const Duration(seconds: 5));
       await t.pumpAndSettle();
       expect(cubit(t).state.quote, isNotNull);
@@ -273,9 +275,7 @@ void main() {
       await t.tap(cardControl(t, 'virtual_submit'));
       await t.pumpAndSettle();
       final lastError = cubit(t).state.message;
-      t
-          .state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger))
-          .clearSnackBars();
+      await dismissAvpSnackBar(t);
       await t.pumpAndSettle();
       repository.submitting = Completer<Result<VirtualCardReceipt>>();
       await t.ensureVisible(retry);
@@ -291,12 +291,12 @@ void main() {
         isNull,
       );
       expect(
-        t.widget<AppButton>(cardControl(t, 'virtual_submit')).onPressed,
-        isNull,
+        t.widget<AppButton>(cardControl(t, 'virtual_submit')).isActive,
+        isFalse,
       );
       expect(
-        t.widget<AppTopBar>(find.byType(AppTopBar)).onTrailingPressed,
-        isNull,
+        t.widget<AppTopBar>(find.byType(AppTopBar)).isTrailingActive,
+        isFalse,
       );
       await t.tap(cardControl(t, 'virtual_submit'));
       await t.pump();
@@ -383,7 +383,7 @@ void main() {
       await fill(t);
       await t.tap(cardControl(t, 'virtual_submit'));
       await t.pumpAndSettle();
-      expect(find.byType(AlertDialog), findsNothing);
+      expect(find.byType(FlowExitSheet), findsNothing);
       expect(find.byType(VirtualCardRequestScreen), findsNothing);
       expect(find.byType(CardListScreen), findsNothing);
       expect(find.text('Main page'), findsOneWidget);
@@ -421,7 +421,7 @@ void main() {
     },
   );
   testWidgets(
-    'same quote failure notifies on retry and exit dialog ignores retained errors',
+    'same quote failure notifies on retry and exit sheet ignores retained errors',
     (t) async {
       const failure = DataFailure('network.offline');
       final repository = TestVirtualRepository()..failure = failure;
@@ -429,9 +429,7 @@ void main() {
       await fill(t);
       final message = getRequestErrorMessage(failure);
       expect(find.text(message), findsOneWidget);
-      t
-          .state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger))
-          .clearSnackBars();
+      await dismissAvpSnackBar(t);
       await t.pumpAndSettle();
       final retry = find.byWidgetPredicate(
         (widget) =>
@@ -442,14 +440,12 @@ void main() {
       await t.tap(retry);
       await t.pumpAndSettle();
       expect(find.text(message), findsOneWidget);
-      t
-          .state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger))
-          .clearSnackBars();
+      await dismissAvpSnackBar(t);
       await t.pumpAndSettle();
 
       await t.tap(find.byTooltip(S.current.backLabel));
       await t.pumpAndSettle();
-      expect(find.byType(AlertDialog), findsOneWidget);
+      expect(find.byType(FlowExitSheet), findsOneWidget);
       expect(find.text(message), findsNothing);
       await t.tap(find.text(S.current.passwordStay));
       await t.pumpAndSettle();

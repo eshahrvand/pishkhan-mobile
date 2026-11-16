@@ -38,7 +38,7 @@ class ProfileNotice extends StatelessWidget {
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: AppLoginColors.noticeText,
                 fontWeight: FontWeight.w500,
-                height: 18 / 12,
+
                 letterSpacing: 0,
               ),
             ),

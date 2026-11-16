@@ -51,6 +51,16 @@ void main() {
             () => DepositListCubit(),
           );
       await cubit.fetchDeposits();
+      expect(cubit.state.depositStatus, isNull);
+      expect(cubit.state.visibleDeposits.map((d) => d.id), [
+        's',
+        'c',
+        'closed',
+      ]);
+      cubit.selectKindFilter(DepositKind.current);
+      expect(cubit.state.visibleDeposits.map((d) => d.id), ['c', 'closed']);
+      cubit.selectKindFilter(null);
+      cubit.selectStatusFilter(DepositStatus.open);
       expect(cubit.state.visibleDeposits.map((d) => d.id), ['s', 'c']);
       cubit.selectKindFilter(DepositKind.current);
       expect(cubit.state.visibleDeposits.single.id, 'c');

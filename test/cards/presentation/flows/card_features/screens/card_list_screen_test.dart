@@ -1,3 +1,5 @@
+import '../../../../../support/snackbar_test_support.dart';
+
 import 'package:pishkhan_mobile/core/presentation/mappers/request_error_message_mapper.dart';
 
 import '../../../../../support/cards_ui_finders.dart';
@@ -405,15 +407,11 @@ void main() {
           .read<CardFeaturesCubit>();
       final message = getRequestErrorMessage(failure);
       expect(find.text(message), findsOneWidget);
-      tester
-          .state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger))
-          .clearSnackBars();
+      await dismissAvpSnackBar(tester);
       await tester.pumpAndSettle();
       await tap(tester, cardControl(tester, 'card_features_retry'));
       expect(find.text(message), findsOneWidget);
-      tester
-          .state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger))
-          .clearSnackBars();
+      await dismissAvpSnackBar(tester);
       await tester.pumpAndSettle();
 
       await tap(tester, cardControl(tester, 'card_features_filter_button'));

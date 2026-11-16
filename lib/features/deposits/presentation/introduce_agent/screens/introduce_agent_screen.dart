@@ -7,7 +7,7 @@ import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
-import 'package:pishkhan_mobile/shared/widgets/flow_exit_dialog.dart';
+import 'package:pishkhan_mobile/shared/widgets/flow_exit_sheet.dart';
 
 import '../../deposit_list/widgets/deposit_ui.dart';
 import '../cubit/agent_cubit.dart';
@@ -22,8 +22,11 @@ class IntroduceAgentScreen extends StatelessWidget {
   final String? initialDepositNumber;
 
   void _showRequestFailure(BuildContext context, AgentState state) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   Future<void> _handleEffect(BuildContext context, AgentState state) async {
@@ -33,7 +36,7 @@ class IntroduceAgentScreen extends StatelessWidget {
         await showAgentSheet(context, context.read<AgentCubit>());
       case AgentEffect.confirmExit:
         context.read<AgentCubit>().consumeAgentInteraction();
-        final confirmed = await showFlowExitDialog(context);
+        final confirmed = await showFlowExitSheet(context);
         if (context.mounted) {
           context.read<AgentCubit>().applyExitConfirmation(confirmed);
         }
@@ -116,12 +119,12 @@ class IntroduceAgentScreen extends StatelessWidget {
                             '${AppConstants.baseImage}deposit_list_back.svg',
                           ),
                           trailingTooltip: S.current.backLabel,
-                          onTrailingPressed:
+                          onTrailingPressed: context
+                              .read<AgentCubit>()
+                              .requestBack,
+                          isTrailingActive:
                               (state.depositsStatus != RequestStatus.loading &&
-                                  state.submissionStatus !=
-                                      RequestStatus.loading)
-                              ? context.read<AgentCubit>().requestBack
-                              : null,
+                              state.submissionStatus != RequestStatus.loading),
                         ),
                         Expanded(
                           child: Stack(

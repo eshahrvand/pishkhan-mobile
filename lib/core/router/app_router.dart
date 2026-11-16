@@ -1,3 +1,12 @@
+import 'package:pishkhan_mobile/features/loans/presentation/request/screens/loan_request_screen.dart';
+import 'package:pishkhan_mobile/features/cards/domain/entities/card_restriction.dart';
+import 'package:pishkhan_mobile/features/cards/presentation/card_restriction/screens/card_restriction_screen.dart';
+import 'package:pishkhan_mobile/features/wallet/presentation/overview/screens/overview_screen.dart';
+import 'package:pishkhan_mobile/features/wallet/presentation/charge/screens/charge_screen.dart';
+import 'package:pishkhan_mobile/features/wallet/presentation/withdraw/screens/withdraw_screen.dart';
+import 'package:pishkhan_mobile/features/wallet/presentation/transfer/screens/transfer_screen.dart';
+import 'package:pishkhan_mobile/features/wallet/presentation/linked_deposit/screens/linked_deposit_screen.dart';
+import 'package:pishkhan_mobile/features/wallet/presentation/transactions/screens/transactions_screen.dart';
 import 'package:pishkhan_mobile/features/profile/presentation/change_phone/screens/change_phone_screen.dart';
 import 'package:pishkhan_mobile/features/profile/presentation/addresses/screens/addresses_screen.dart';
 import 'package:pishkhan_mobile/features/profile/presentation/job_information/screens/job_information_screen.dart';
@@ -29,7 +38,7 @@ import 'package:pishkhan_mobile/features/deposits/presentation/introduce_agent/s
 import 'package:pishkhan_mobile/features/deposits/presentation/agent_settings/screens/agent_settings_screen.dart';
 import 'package:pishkhan_mobile/features/deposits/presentation/close_surplus_deposits/screens/close_surplus_deposits_screen.dart';
 import 'package:pishkhan_mobile/features/deposits/presentation/deposit_restriction/screens/deposit_restriction_screen.dart';
-import 'package:pishkhan_mobile/features/deposits/presentation/proxy_deposit/screens/proxy_deposit_screen.dart';
+import 'package:pishkhan_mobile/features/deposits/presentation/deposit_mandate/screens/deposit_mandate_screen.dart';
 import 'package:pishkhan_mobile/features/deposits/domain/entities/deposit_restriction.dart';
 import 'package:pishkhan_mobile/core/notifications/notification_message.dart';
 import 'package:pishkhan_mobile/features/profile/presentation/message_center/screens/notifications_screen.dart';
@@ -60,7 +69,54 @@ GoRouter createAppRouter({
     refreshListenable: session,
     redirect: (context, state) => globalRedirect(session, state),
     routes: [
+      GoRoute(
+        path: AppRoutes.blockCard,
+        builder: (context, state) => CardRestrictionScreen(
+          operation: CardRestrictionOperation.block,
+          initialCardNumber: state.extra is CardRouteArguments
+              ? (state.extra as CardRouteArguments).initialCardNumber
+              : null,
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.unblockCard,
+        builder: (context, state) => CardRestrictionScreen(
+          operation: CardRestrictionOperation.unblock,
+          initialCardNumber: state.extra is CardRouteArguments
+              ? (state.extra as CardRouteArguments).initialCardNumber
+              : null,
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.walletOverview,
+        builder: (context, state) => const WalletOverviewScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.walletCharge,
+        builder: (context, state) => const WalletChargeScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.walletWithdraw,
+        builder: (context, state) => const WalletWithdrawScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.walletTransfer,
+        builder: (context, state) => const WalletTransferScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.walletLinkedDeposit,
+        builder: (context, state) => const WalletLinkedDepositScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.walletTransactions,
+        builder: (context, state) => const WalletTransactionsScreen(),
+      ),
+
       // Modern banking: feature screens own their Providers and dependencies.
+      GoRoute(
+        path: AppRoutes.loanRequest,
+        builder: (context, state) => const LoanRequestScreen(),
+      ),
       GoRoute(
         path: AppRoutes.mobileBank,
         builder: (context, state) => const MobileBankScreen(),
@@ -258,12 +314,12 @@ GoRouter createAppRouter({
 
       // Deposits
       GoRoute(
-        path: AppRoutes.proxyDeposit,
+        path: AppRoutes.depositMandate,
         builder: (context, state) {
-          final args = state.extra is ProxyDepositRouteArguments
-              ? state.extra as ProxyDepositRouteArguments
+          final args = state.extra is DepositMandateRouteArguments
+              ? state.extra as DepositMandateRouteArguments
               : null;
-          return ProxyDepositScreen(
+          return DepositMandateScreen(
             initialDepositNumber: args?.initialDepositNumber,
             onAssistantPressed: args?.onAssistantPressed,
           );
@@ -418,8 +474,8 @@ class AllServicesRouteArguments {
   final ValueChanged<DashboardService>? onServiceRequested;
 }
 
-class ProxyDepositRouteArguments {
-  const ProxyDepositRouteArguments({
+class DepositMandateRouteArguments {
+  const DepositMandateRouteArguments({
     this.initialDepositNumber,
     this.onAssistantPressed,
   });

@@ -82,6 +82,27 @@ void main() {
       postal.requestPostalShare();
       expect(postal.state.effect, PostalOfficesEffect.share);
       expect(postal.state.postalShareText, shareText);
+      for (var attempt = 0; attempt < 2; attempt++) {
+        postal.requestPostalShare();
+        expect(postal.state.shareStatus, RequestStatus.loading);
+        postal.consumePostalOfficesInteraction();
+        postal.applyShareResult(
+          const Err(DataFailure('platform.share.unavailable')),
+        );
+        expect(postal.state.shareStatus, RequestStatus.failure);
+        expect(
+          postal.state.message,
+          'اشتراک‌گذاری در این دستگاه در دسترس نیست.',
+        );
+        expect(postal.state.postalOfficesStatus, RequestStatus.success);
+      }
+      final message = postal.state.message;
+      postal.requestPostalShare();
+      postal.consumePostalOfficesInteraction();
+      postal.applyShareResult(const Success(null));
+      expect(postal.state.shareStatus, RequestStatus.success);
+      expect(postal.state.message, message);
+      expect(postal.state.effect, isNull);
       postal.requestPostalSearch();
       expect(postal.state.postalStep, PostalOfficesStep.location);
     },

@@ -85,7 +85,7 @@ class AgentDetails extends StatelessWidget {
         Text(
           S.current.agentSettingsConfirmers,
           style: Theme.of(context).textTheme.titleSmall!
-              .copyWith(fontWeight: FontWeight.w600, height: 20 / 14),
+              .copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 20),
         for (final confirmer in agent.confirmers) ...[

@@ -32,8 +32,11 @@ class CardListScreen extends StatelessWidget {
   final VoidCallback? onAssistantPressed;
 
   void _showRequestFailure(BuildContext context, CardFeaturesState state) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   Future<void> _handleEffect(
@@ -71,8 +74,10 @@ class CardListScreen extends StatelessWidget {
             onAssistantPressed: onAssistantPressed,
           );
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(S.current.cardFeatureUnavailable)),
+          avpSnackBar(
+            context: context,
+            type: AvpSnackBarType.error,
+            message: S.current.cardFeatureUnavailable,
           );
         }
       case CardCategoryRevealRequested():
@@ -130,10 +135,10 @@ class CardListScreen extends StatelessWidget {
                             size: 24,
                           ),
                           trailingTooltip: S.current.backLabel,
-                          onTrailingPressed:
-                              (state.cardsStatus != RequestStatus.loading)
-                              ? () => NavigationActions.back(context)
-                              : null,
+                          onTrailingPressed: () =>
+                              NavigationActions.back(context),
+                          isTrailingActive:
+                              (state.cardsStatus != RequestStatus.loading),
                         ),
                         Expanded(
                           // The assistant and footer overlay the scroll viewport; a Column
@@ -180,10 +185,7 @@ class CardListScreen extends StatelessWidget {
                                         size: AppButtonSize.lg,
                                         label: actionLabel(state.footerAction!),
                                         labelStyle: AppTypography.titleMedium
-                                            .copyWith(
-                                              height: 24 / 16,
-                                              letterSpacing: 0,
-                                            ),
+                                            .copyWith(letterSpacing: 0),
                                         contentGap: 10,
                                         constrainLabel: true,
                                         leadingIcon: cardFeatureIcon(

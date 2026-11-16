@@ -43,7 +43,7 @@ void main() {
       for (final entry in {
         CardFeatureAction.reissue: 'card-reissue',
         CardFeatureAction.changeDeposit: 'card-deposit',
-        CardFeatureAction.block: null,
+        CardFeatureAction.block: 'card-block',
       }.entries) {
         cubit.selectCardAction(entry.key, card: card);
         final effect = cubit.state.effect as CardServiceRequested;

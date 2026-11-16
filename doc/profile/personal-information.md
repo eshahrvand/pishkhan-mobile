@@ -4,8 +4,8 @@
 Cubit → registered UseCase → Repository. Cubit imports/resolves UseCases only;
 `core/di` wires their repositories. Any earlier direct-Repository or optional-
 UseCase wording below is historical and superseded. Payloads, Result mapping,
-validation, retry identity and UI behavior remain unchanged. See the
-[UseCase-only migration review](../usecase-only-dependencies-review.md).
+validation, retry identity and UI behavior remain unchanged. The
+[UI/Cubit/State contract](../ui-cubit-state-agent-rules-en.md) defines the current rules.
 
 
 ## Entry points and implementation
@@ -168,8 +168,7 @@ eligibility use shared pure calculations; each independent action retains its
 explicit emit. Each application/data operation uses its own registered UseCase; Cubits resolve
 final UseCase fields and never import or directly invoke the repository. The local inbox has
 no repository/request and retains its existing inbox-replacement, read-status and
-detail-navigation behavior. See [phase 5 review](phase-5-review.md) for operation
-ownership, flow readers, retained resets and scoped verification.
+detail-navigation behavior.
 
 Tests cover live validation, normalization, challenge invalidation and expiry,
 consent/wallet gating, retry identity, single mock charging, address inquiry and

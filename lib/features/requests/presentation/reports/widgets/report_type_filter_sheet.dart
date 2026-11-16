@@ -63,7 +63,6 @@ class ReportTypeFilterSheet extends StatelessWidget {
                             hintText: S.current.reportSearchTypes,
                             textStyle: Theme.of(context).textTheme.bodyMedium
                                 ?.copyWith(
-                                  height: 20 / 14,
                                   fontWeight: FontWeight.w400,
                                   letterSpacing: 0,
                                 ),

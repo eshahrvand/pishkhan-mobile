@@ -28,6 +28,23 @@ abstract final class ServiceRegistry {
     String? initialDepositNumber,
     String? initialCardNumber,
   }) {
+    if (id == 'loan-request') {
+      context.push<void>(AppRoutes.loanRequest);
+      return true;
+    }
+    final walletPath = switch (id) {
+      'wallet-info' => AppRoutes.walletOverview,
+      'wallet-charge' => AppRoutes.walletCharge,
+      'wallet-withdraw' => AppRoutes.walletWithdraw,
+      'wallet-transfer' => AppRoutes.walletTransfer,
+      'wallet-deposit' => AppRoutes.walletLinkedDeposit,
+      'wallet-history' => AppRoutes.walletTransactions,
+      _ => null,
+    };
+    if (walletPath != null) {
+      context.push<void>(walletPath);
+      return true;
+    }
     final modernBankingPath = switch (id) {
       'modern-mobile' => AppRoutes.mobileBank,
       'modern-mobile-password-recovery' => AppRoutes.mobileBankPasswordRecovery,
@@ -114,8 +131,8 @@ abstract final class ServiceRegistry {
     }
     if (id == 'deposit-proxy') {
       context.push<void>(
-        AppRoutes.proxyDeposit,
-        extra: ProxyDepositRouteArguments(
+        AppRoutes.depositMandate,
+        extra: DepositMandateRouteArguments(
           initialDepositNumber: initialDepositNumber,
           onAssistantPressed: onAssistantPressed,
         ),
@@ -220,6 +237,13 @@ abstract final class ServiceRegistry {
       initialCardNumber: initialCardNumber,
       onAssistantPressed: onAssistantPressed,
     );
+    if (id == 'card-block' || id == 'card-unblock') {
+      context.push<void>(
+        id == 'card-block' ? AppRoutes.blockCard : AppRoutes.unblockCard,
+        extra: args,
+      );
+      return true;
+    }
     if (id == 'card-deposit') {
       context.push<void>(AppRoutes.changeCardDeposit, extra: args);
       return true;

@@ -32,6 +32,7 @@ abstract class HomeState with _$HomeState {
     @Default(<DashboardService>[]) List<DashboardService> favoriteServices,
     @Default(<DashboardService>[]) List<DashboardService> fixedServices,
     @Default(true) bool canAddFavorite,
+    @Default(false) bool canConfirmFavorites,
     @Default(false) bool isFavoritesLimitReached,
     @Default(RequestStatus.initial) RequestStatus homeStatus,
     DashboardHomeData? homeData,

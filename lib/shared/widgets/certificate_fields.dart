@@ -5,18 +5,13 @@ import 'package:flutter/material.dart';
 TextStyle certificateLabelStyle(BuildContext context) =>
     Theme.of(context).textTheme.bodySmall!.copyWith(
       fontWeight: FontWeight.w500,
-      height: 18 / 12,
+
       letterSpacing: 0,
       color: context.colors.textSecondary,
     );
-TextStyle certificateValueStyle(BuildContext context) => Theme.of(context)
-    .textTheme
-    .bodyMedium!
-    .copyWith(
-      height: 20 / 14,
-      letterSpacing: 0,
-      color: context.colors.textPrimary,
-    );
+TextStyle certificateValueStyle(BuildContext context) =>
+    Theme.of(context).textTheme.bodyMedium!
+        .copyWith(letterSpacing: 0, color: context.colors.textPrimary);
 
 class CertificateSelect<T> extends StatelessWidget {
   const CertificateSelect({

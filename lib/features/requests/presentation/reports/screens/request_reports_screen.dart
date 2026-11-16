@@ -23,8 +23,11 @@ class RequestReportsScreen extends StatelessWidget {
   final VoidCallback? onAssistantPressed;
 
   void _showRequestFailure(BuildContext context, RequestReportsState state) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   Future<void> _handleEffect(
@@ -120,17 +123,16 @@ class RequestReportsScreen extends StatelessWidget {
                                         '${AppConstants.baseImage}deposit_list_back.svg',
                                   ),
                                   trailingTooltip: S.current.backLabel,
-                                  onTrailingPressed:
+                                  onTrailingPressed: () {
+                                    context
+                                        .read<RequestReportsCubit>()
+                                        .requestBack();
+                                  },
+                                  isTrailingActive:
                                       (state.reportsStatus !=
-                                              RequestStatus.loading &&
-                                          state.cancellationStatus !=
-                                              RequestStatus.loading)
-                                      ? () {
-                                          context
-                                              .read<RequestReportsCubit>()
-                                              .requestBack();
-                                        }
-                                      : null,
+                                          RequestStatus.loading &&
+                                      state.cancellationStatus !=
+                                          RequestStatus.loading),
                                 );
                               },
                             ),

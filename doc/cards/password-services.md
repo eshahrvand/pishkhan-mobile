@@ -301,4 +301,3 @@ The screen has four independent listeners (three entering-failure subscriptions
 and typed effects) under MultiBlocListener with BlocBuilder rendering. Local
 scroll/controller consumers remain local. Removed 34 blanket failure/message
 clears; actual State.initial subform resets and secret clearing remain unchanged.
-See [phase-4 verification](phase-4-review.md).

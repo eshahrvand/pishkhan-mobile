@@ -1,3 +1,5 @@
+import '../support/snackbar_test_support.dart';
+
 import 'dart:async';
 import 'dart:io';
 
@@ -172,6 +174,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text(S.current.cardFeatureUnavailable), findsOneWidget);
       expect(cubit.state.agents.length, 5);
+      await dismissAvpSnackBar(tester);
       await tester.tap(find.byTooltip(S.current.backLabel));
       await tester.pumpAndSettle();
       expect(find.byType(AgentSettingsContent), findsOneWidget);

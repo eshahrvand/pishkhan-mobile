@@ -18,10 +18,7 @@ class IssuanceConfirmation extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<CardIssuanceCubit, CardIssuanceState>(
       builder: (context, state) {
-        final small = AppTypography.bodySmall.copyWith(
-          height: 18 / 12,
-          letterSpacing: 0,
-        );
+        final small = AppTypography.bodySmall.copyWith(letterSpacing: 0);
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

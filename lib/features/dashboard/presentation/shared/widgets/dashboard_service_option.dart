@@ -55,7 +55,7 @@ class DashboardServiceOption extends StatelessWidget {
                             ? context.colors.textPrimary
                             : AppDashboardColors.optionText,
                         fontWeight: FontWeight.w500,
-                        height: 18 / 12,
+
                         letterSpacing: 0,
                       ),
                     ),

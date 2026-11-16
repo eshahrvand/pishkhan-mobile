@@ -4,9 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
-import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
-
-import '../../shared/widgets/app_primary_navigation.dart';
 import '../../shared/widgets/dashboard_async_view.dart';
 import '../cubit/home_cubit.dart';
 import '../widgets/dashboard_deposits_carousel.dart';
@@ -29,6 +26,7 @@ class DepositsTab extends StatelessWidget {
           child: Scaffold(
             backgroundColor: context.colors.surfaceSubtle,
             body: SafeArea(
+              bottom: false,
               child: Column(
                 children: [
                   AppTopBar(
@@ -41,11 +39,9 @@ class DepositsTab extends StatelessWidget {
                   if (state.visibleDeposits.isNotEmpty)
                     const DashboardDepositsCarousel(),
                   Expanded(
-                    child: Stack(
-                      children: [
-                        SingleChildScrollView(
-                          padding: const EdgeInsets.fromLTRB(16, 16, 16, 126),
-                          child: Column(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 126),
+                      child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
                               if (state.depositsStatus ==
@@ -105,29 +101,7 @@ class DepositsTab extends StatelessWidget {
                             ],
                           ),
                         ),
-                        Positioned(
-                          left: 16,
-                          bottom: 84,
-                          child: AppAssistantButton(
-                            onPressed: () {
-                              context.read<HomeCubit>().requestAssistant();
-                            },
-                          ),
-                        ),
-                        Positioned(
-                          left: 16,
-                          right: 16,
-                          bottom: 16,
-                          child: AppPrimaryNavigation(
-                            selectedTab: AppPrimaryTab.deposits,
-                            onSelected: (tab) {
-                              context.read<HomeCubit>().selectTab(tab);
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                      ),
                 ],
               ),
             ),

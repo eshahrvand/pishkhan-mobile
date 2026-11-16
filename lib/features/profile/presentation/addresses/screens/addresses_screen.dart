@@ -23,8 +23,11 @@ class AddressesScreen extends StatelessWidget {
   const AddressesScreen({super.key, this.onAssistantPressed});
   final VoidCallback? onAssistantPressed;
   void _showRequestFailure(BuildContext context, AddressesState state) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   Future<void> _handleEffect(BuildContext context, AddressesState state) async {
@@ -165,22 +168,18 @@ class AddressesScreen extends StatelessWidget {
                                 height: 24,
                               ),
                               trailingTooltip: S.current.backLabel,
-                              onTrailingPressed:
+                              onTrailingPressed: () {
+                                context.read<AddressesCubit>().requestBack();
+                              },
+                              isTrailingActive:
                                   (state.addressesStatus !=
-                                          RequestStatus.loading &&
-                                      state.saveStatus !=
-                                          RequestStatus.loading &&
-                                      state.deletionStatus !=
-                                          RequestStatus.loading &&
-                                      !state.reviewStatuses.containsValue(
-                                        RequestStatus.loading,
-                                      ))
-                                  ? () {
-                                      context
-                                          .read<AddressesCubit>()
-                                          .requestBack();
-                                    }
-                                  : null,
+                                      RequestStatus.loading &&
+                                  state.saveStatus != RequestStatus.loading &&
+                                  state.deletionStatus !=
+                                      RequestStatus.loading &&
+                                  !state.reviewStatuses.containsValue(
+                                    RequestStatus.loading,
+                                  )),
                             );
                           },
                         ),
@@ -215,14 +214,13 @@ class AddressesScreen extends StatelessWidget {
                             isLoading:
                                 state.saveStatus == RequestStatus.loading ||
                                 state.deletionStatus == RequestStatus.loading,
-                            onPressed:
-                                state.addressesStatus == RequestStatus.success
-                                ? () {
-                                    context
-                                        .read<AddressesCubit>()
-                                        .requestNewAddress();
-                                  }
-                                : null,
+                            onPressed: () {
+                              context
+                                  .read<AddressesCubit>()
+                                  .requestNewAddress();
+                            },
+                            isActive:
+                                state.addressesStatus == RequestStatus.success,
                           ),
                         ),
                       ],

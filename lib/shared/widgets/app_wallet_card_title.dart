@@ -14,7 +14,7 @@ class AppWalletCardTitle extends StatelessWidget {
       textAlign: TextAlign.start,
       style: AppTypography.bodySmall.copyWith(
         color: context.colors.textPrimary,
-        height: 18 / 12,
+
         letterSpacing: 0,
       ),
     );

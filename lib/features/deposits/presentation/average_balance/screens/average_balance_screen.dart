@@ -3,7 +3,7 @@ import 'package:pishkhan_mobile/core/flow/service_registry.dart';
 
 import '../../shared/certificate_receipt_dialog.dart';
 
-import 'package:pishkhan_mobile/shared/widgets/flow_exit_dialog.dart';
+import 'package:pishkhan_mobile/shared/widgets/flow_exit_sheet.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_delete_address_sheet.dart';
 
@@ -32,8 +32,11 @@ class AverageBalanceScreen extends StatelessWidget {
   final AverageBalanceState initialState;
   final ValueChanged<CertificateReceipt>? onCompleted;
   void _showRequestFailure(BuildContext context, AverageBalanceState state) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   Future<void> _handleEffect(
@@ -52,8 +55,8 @@ class AverageBalanceScreen extends StatelessWidget {
         final cubit = context.read<AverageBalanceCubit>();
         await showModalBottomSheet<void>(
           context: context,
+          useRootNavigator: true,
           isScrollControlled: true,
-          useSafeArea: true,
           builder: (sheetContext) => AppDeleteAddressSheet(
             address: address.detail,
             postalCode: address.postalCode,
@@ -70,8 +73,10 @@ class AverageBalanceScreen extends StatelessWidget {
         );
       case CertificateAgentUnavailable():
         context.read<AverageBalanceCubit>().consumeAverageBalanceInteraction();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(S.current.certificateAgentUnavailable)),
+        avpSnackBar(
+          context: context,
+          type: AvpSnackBarType.error,
+          message: S.current.certificateAgentUnavailable,
         );
       case null:
         switch (state.navigation) {
@@ -79,7 +84,7 @@ class AverageBalanceScreen extends StatelessWidget {
             context
                 .read<AverageBalanceCubit>()
                 .consumeAverageBalanceInteraction();
-            final confirmed = await showFlowExitDialog(context);
+            final confirmed = await showFlowExitSheet(context);
             if (context.mounted) {
               context.read<AverageBalanceCubit>().applyExitConfirmation(
                 confirmed,
@@ -177,12 +182,12 @@ class AverageBalanceScreen extends StatelessWidget {
                             '${AppConstants.baseImage}deposit_list_back.svg',
                           ),
                           trailingTooltip: S.current.backLabel,
-                          onTrailingPressed:
+                          onTrailingPressed: context
+                              .read<AverageBalanceCubit>()
+                              .requestBack,
+                          isTrailingActive:
                               (state.catalogStatus != RequestStatus.loading &&
-                                  state.submissionStatus !=
-                                      RequestStatus.loading)
-                              ? context.read<AverageBalanceCubit>().requestBack
-                              : null,
+                              state.submissionStatus != RequestStatus.loading),
                         ),
                         Expanded(
                           child: Stack(
@@ -262,11 +267,10 @@ class AverageBalanceScreen extends StatelessWidget {
                                 isLoading:
                                     state.submissionStatus ==
                                     RequestStatus.loading,
-                                onPressed: state.canContinue
-                                    ? context
-                                          .read<AverageBalanceCubit>()
-                                          .continueFlow
-                                    : null,
+                                onPressed: context
+                                    .read<AverageBalanceCubit>()
+                                    .continueFlow,
+                                isActive: state.canContinue,
                               ),
                             );
                           },

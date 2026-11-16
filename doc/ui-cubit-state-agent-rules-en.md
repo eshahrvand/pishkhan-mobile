@@ -6,6 +6,38 @@
 **Scope:** Presentation coding style, State management and readability rules  
 **Status:** Authoritative coding contract. Historical examples do not override the mandatory ownership rules or the owner amendments below. Implementation status is recorded in the feature documentation.
 
+**Owner confirmation, 2026-11-08 — Reviewed modal routing and safe area:** the
+owner explicitly requested and accepts the `useRootNavigator: true` routing and
+removal of `useSafeArea: true` in the modal changes of commit `66f00d5`, including
+the address editor's edge-to-edge top on compact/notched viewports. Preserve
+that behavior; do not restore top safe-area padding to satisfy a historical
+test expectation. Tests should cover root-navigator delivery, reachable form
+controls and dismissal. This scoped decision does not remove keyboard or bottom
+inset handling and is not a blanket rule for future modal designs.
+
+**Owner update, 2026-11-07 — Login loading indicators:** show loading only on
+the control whose operation is running. Requesting OTP loads the request button,
+not the CAPTCHA refresh control. Verifying OTP loads the login button, not the
+countdown/resend control. Secondary controls remain disabled during the other
+operation through their callback gates, without showing another spinner. This
+supersedes the older Login resend-isLoading requirement below.
+
+**Owner update, 2026-11-07 — Button gating with `isActive`:** Design-system buttons
+(`AppButton`) provide `isActive` (defaulting to true) and automatically block taps
+and apply disabled styling when `isActive: false` or `isLoading: true`. Do not write
+redundant ternary expressions on `onPressed` (`onPressed: condition ? callback : null`).
+Bind the action directly to `onPressed: context.read<...>().action` and pass the
+enablement condition to `isActive: state.canX`. This supersedes the older
+`onPressed: state.canX ? ... : null` syntax.
+
+Shared app footers and headers must forward enablement to `isActive` separately
+from the action callback; moving the same conditional into `onSubmit`,
+`onTrailingPressed` or `onMenu` at the caller is not adoption.
+Keep `isLoading` for the operation represented by the button; use `isActive` to
+disable a secondary button during another pending operation without showing a
+second spinner. Controls such as `AppChips` that do not expose these parameters
+retain their supported callback/enablement gate.
+
 This document turns the project owner's requirements and supplied examples into explicit rules. A team member opening a screen should be able to see how the UI is built, how State is read and how Cubit is called, without navigating through multiple wrappers and files to understand a simple form.
 
 “Required” and “prohibited” in this document are owner-approved style instructions. Only sections explicitly marked “recommendation” or “pending review” remain unapproved; those labels never weaken a mandatory rule elsewhere. The approved principles consolidated in Section 2.3 are mandatory, not recommendations. This document does not authorize agents to change code automatically or automatically rewrite the [architecture document](architecture-smart-virtual-counter-v2-en.md) or the [current UI skill](../.agents/skills/flutter-widget-ui-style/SKILL.md). When styles conflict, the owner's explicit instructions recorded here take precedence over older examples. Boundaries and open decisions are recorded in Section 25.
@@ -108,9 +140,10 @@ UI command; it does not authorize changing unrelated State resets or data groups
   MultiBlocListener can group the distinct subscriptions; no generic effect
   framework, State publisher or extra State fields are introduced.
 
-**Adoption status, 2026-11-02:** phases 1–9 have migrated all 31 current Cubits;
-the [phase-10 review](cubit-phase-10-review.md) records integrated coverage and
-scoped verification. Focused request-failure listeners are separate from typed
+**Adoption status:** all ten migration phases and the subsequent UseCase-only
+dependency correction are complete. Current flow documents record operation
+ownership and integration limits; completed execution reports are available in
+Git history. Focused request-failure listeners are separate from typed
 effects and legacy blanket clears are removed. Login retains its documented
 inline guest-phone feedback lifecycle. This is an implementation-status update,
 not a new rule or permission to refactor unrelated future flows. When migrating
@@ -212,13 +245,14 @@ unsolicited rewrite of untouched code.
    in the same change or an identifiable service contract (Section 5.5). Do not
    add "just in case" methods, pass-through helpers or duplicate State
    (`selectedId` **and** `selectedCard`).
-8. **Buttons use `isLoading:`; `onPressed` checks one flag.** Pass the operation
-   status to the button's loading parameter
-   (`isLoading: state.xStatus == RequestStatus.loading`); the button ignores taps
-   while loading. Write `onPressed: state.canX ? ... : null`. Do not add
-   `!= loading` or `!= success` to `onPressed`: loading is covered by `isLoading`,
-   and the success emit sets `canX: false`. A control without a loading parameter
-   (for example a text field's `enabled:`) uses the status check instead.
+8. **Buttons use `isLoading:` and `isActive:`.** Pass the operation status to
+   the button's loading parameter (`isLoading: state.xStatus == RequestStatus.loading`);
+   the button ignores taps while loading. Pass the enablement flag to
+   `isActive: state.canX` and bind the action directly to
+   `onPressed: context.read<XCubit>().action`. Do not write ternary conditions on
+   `onPressed` (`onPressed: state.canX ? ... : null`) or redundant `!= loading`
+   checks. Controls without an `isActive`/`isLoading` parameter (such as text fields)
+   use `enabled:`.
 9. **Naming.** Actions use the verb vocabulary and State fields use the naming
    scheme in Section 6.6. No `get*`, `set*`, `load`, `handle*`, `process*`, `init*`.
 10. **Target level of simplicity.** One `emit` per user event, except an action
@@ -412,8 +446,9 @@ remain unchanged.
    OTP request and verification. UI gates system/in-screen Back consistently;
    Cubit does not duplicate the gate with defensive action-entry checks. This
    policy now applies to every request-driven flow under the amendment above.
-7. The OTP resend button uses `isLoading` for pending verification and only
-   `canResendOtp` in onPressed. It does not introduce a fictitious resend endpoint
+7. Under the 2026-11-07 owner update, the OTP countdown/resend button stays visible
+   without loading during verification; its callback is disabled while verification
+   is pending and otherwise follows `canResendOtp`. It does not introduce a fictitious resend endpoint
    or status: resend still returns to identity and fetches a fresh CAPTCHA.
 8. Keep the CAPTCHA image and its SessionId together in LoginCaptcha. Do not
    duplicate sessionId in AuthState. Cubit constructs the request with
@@ -2253,11 +2288,8 @@ class _AverageBalanceScreenState extends State<AverageBalanceScreen> {
                         label: getAverageBalanceButtonTitle(state.step),
                         isLoading:
                             state.submissionStatus == RequestStatus.loading,
-                        onPressed: state.canContinue
-                            ? () {
-                                context.read<AverageBalanceCubit>().continueFlow();
-                              }
-                            : null,
+                        isActive: state.canContinue,
+                        onPressed: context.read<AverageBalanceCubit>().continueFlow,
                       ),
                     );
                   },
@@ -2405,11 +2437,8 @@ This use of `Builder` solves a context need; it is not a replacement for every `
 AppButton(
   label: S.current.issuanceSubmit,
   isLoading: state.submissionStatus == RequestStatus.loading,
-  onPressed: state.canSubmit
-      ? () {
-          context.read<ChangeCardDepositCubit>().submit();
-        }
-      : null,
+  isActive: state.canSubmit,
+  onPressed: context.read<ChangeCardDepositCubit>().submit,
 ),
 ```
 
@@ -2497,11 +2526,8 @@ BlocBuilder<AuthCubit, AuthState>(
     return AppButton(
       label: S.current.issuanceSubmit,
       isLoading: state.loginStatus == RequestStatus.loading,
-      onPressed: state.canSubmitLogin
-          ? () {
-              context.read<AuthCubit>().submitLogin();
-            }
-          : null,
+      isActive: state.canSubmitLogin,
+      onPressed: context.read<AuthCubit>().submitLogin,
     );
   },
 ),
@@ -2533,12 +2559,16 @@ BlocListener<AuthCubit, AuthState>(
 void _showLoginResult(BuildContext context, AuthState state) {
   switch (state.loginStatus) {
     case RequestStatus.failure:
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(state.message!)),
+      avpSnackBar(
+        context: context,
+        type: AvpSnackBarType.error,
+        message: state.message!,
       );
     case RequestStatus.success:
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(successMessage)),
+      avpSnackBar(
+        context: context,
+        type: AvpSnackBarType.success,
+        message: successMessage,
       );
     default:
       break;
@@ -3957,11 +3987,8 @@ Future<void> continueFlow() async {
 UI:
 
 ```dart
-onPressed: state.canContinue
-    ? () {
-        context.read<CardIssuanceCubit>().continueFlow();
-      }
-    : null,
+isActive: state.canContinue,
+onPressed: context.read<CardIssuanceCubit>().continueFlow,
 ```
 
 Cubit determines the next step; UI selects the form for the current step. The form-selection builder reads only `step`; independent forms read their own fields.
@@ -4013,7 +4040,9 @@ Before building a component:
 
 Layout widgets such as Row/Column/Padding/SafeArea and Text are used in screen composition. Raw controls such as TextField, Checkbox and ElevatedButton are not used when `avp_ui` provides an equivalent. This distinction prevents agents from inventing nonexistent components from another project for every Text.
 
-Check existing package APIs for dialogs and feedback first as well. `ScaffoldMessenger` examples show the location of side effects. If an approved public feedback API exists in the package, use it.
+The approved snackbar API is `avpSnackBar` from `avp_ui`. The application currently uses only `AvpSnackBarType.success` and `AvpSnackBarType.error`; request failures and unavailable-service feedback use `error`. Preserve the per-operation notification transitions and prepared messages when calling it.
+
+Check existing package APIs for dialogs and feedback first as well. Feedback examples show the location of UI side effects; use the approved public package API.
 
 ### 21.3 Typography and Colors
 
@@ -4463,7 +4492,7 @@ it catches what the agent misses.
 | BaseCubit | Listed in the architecture tree (`core/cubit/base_cubit.dart`) | Removed (owner decision 2026-10-18) |
 | Field validation | Aggregate flags re-ran every validator on every change | Validate once per field; aggregates read stored `isXValid` flags |
 | Initial emit | Initial action published the default State | No initial action without a real fetch; never re-emit defaults |
-| Button gating | `canX && != loading && != success` inside `onPressed` | `isLoading:` parameter + `onPressed: state.canX ? ... : null` |
+| Button gating | `canX && != loading && != success` inside `onPressed` or ternary `? callback : null` | `isLoading:` parameter + `isActive: state.canX` + direct `onPressed` |
 | Naming | `load`, `set*`, `get*`, `handle*`, ID + object pairs | Verb vocabulary and State naming (Section 6.6) |
 
 ### 25.1.1 Final Status of Reviewed Items: Do Not Turn Proposals into New Requirements

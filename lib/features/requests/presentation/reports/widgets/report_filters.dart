@@ -106,11 +106,8 @@ class ReportFilters extends StatelessWidget {
               AppTextField(
                 value: state.trackingQuery,
                 hintText: S.current.reportSearchIdentifier,
-                textStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  height: 20 / 14,
-                  fontWeight: FontWeight.w400,
-                  letterSpacing: 0,
-                ),
+                textStyle: Theme.of(context).textTheme.bodyMedium
+                    ?.copyWith(fontWeight: FontWeight.w400, letterSpacing: 0),
                 normalizeDigits: true,
                 prefixIcon: const SizedBox(
                   width: 48,

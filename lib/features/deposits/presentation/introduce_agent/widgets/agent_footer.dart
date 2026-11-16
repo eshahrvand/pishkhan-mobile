@@ -46,14 +46,11 @@ class AgentFooter extends StatelessWidget {
                       child: Wrap(
                         children: [
                           InkWell(
-                            onTap: () => ScaffoldMessenger.of(context)
-                                .showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      S.current.issuanceTermsUnavailable,
-                                    ),
-                                  ),
-                                ),
+                            onTap: () => avpSnackBar(
+                              context: context,
+                              type: AvpSnackBarType.error,
+                              message: S.current.issuanceTermsUnavailable,
+                            ),
                             child: Text(
                               S.current.issuanceTerms,
                               style: certificateLabelStyle(context).copyWith(
@@ -92,9 +89,8 @@ class AgentFooter extends StatelessWidget {
                     size: AppButtonSize.lg,
                     disabledAppearance: AppButtonDisabledAppearance.service,
                     isLoading: state.submissionStatus == RequestStatus.loading,
-                    onPressed: state.canSubmit
-                        ? context.read<AgentCubit>().submitAgents
-                        : null,
+                    onPressed: context.read<AgentCubit>().submitAgents,
+                    isActive: state.canSubmit,
                   ),
                 ],
               );

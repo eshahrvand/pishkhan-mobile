@@ -20,7 +20,6 @@ class CardDetailsRow extends StatelessWidget {
           Text(
             label,
             style: AppTypography.bodySmall.copyWith(
-              height: 18 / 12,
               letterSpacing: 0,
               color: context.colors.textTertiary,
             ),
@@ -34,7 +33,6 @@ class CardDetailsRow extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: AppTypography.labelMedium.copyWith(
-                height: 18 / 12,
                 letterSpacing: 0,
                 color: context.colors.textPrimary,
               ),

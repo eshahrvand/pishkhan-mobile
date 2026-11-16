@@ -50,7 +50,7 @@ class DashboardFavoritesCard extends StatelessWidget {
                   S.current.dashboardYourFavorites,
                   style: AppTypography.titleSmall.copyWith(
                     color: AppDashboardColors.sectionText,
-                    height: 20 / 14,
+
                     letterSpacing: 0,
                   ),
                 ),
@@ -106,6 +106,7 @@ class DashboardFavoritesCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   DashboardFavoritesGrid(
                     state: state,
@@ -143,7 +144,7 @@ class DashboardFavoritesCard extends StatelessWidget {
                               style: AppTypography.bodySmall.copyWith(
                                 color: AppLoginColors.noticeText,
                                 fontWeight: FontWeight.w500,
-                                height: 18 / 12,
+
                                 letterSpacing: 0,
                               ),
                             ),
@@ -163,6 +164,8 @@ class DashboardFavoritesCard extends StatelessWidget {
                   width: 100,
                   child: AppButton(
                     onPressed: onConfirm,
+                    isActive: state.canConfirmFavorites,
+                    disabledAppearance: AppButtonDisabledAppearance.service,
                     label: S.current.dashboardConfirm,
                     size: AppButtonSize.sm,
                   ),

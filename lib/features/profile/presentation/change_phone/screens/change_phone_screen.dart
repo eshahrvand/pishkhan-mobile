@@ -7,7 +7,7 @@ import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
-import 'package:pishkhan_mobile/shared/widgets/flow_exit_dialog.dart';
+import 'package:pishkhan_mobile/shared/widgets/flow_exit_sheet.dart';
 
 import '../../shared/profile_submission_dialog.dart';
 import '../cubit/change_phone_cubit.dart';
@@ -18,8 +18,11 @@ class ChangePhoneScreen extends StatelessWidget {
   const ChangePhoneScreen({super.key, this.onAssistantPressed});
   final VoidCallback? onAssistantPressed;
   void _showRequestFailure(BuildContext context, ChangePhoneState state) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   Future<void> _handleEffect(
@@ -29,7 +32,7 @@ class ChangePhoneScreen extends StatelessWidget {
     switch (state.effect) {
       case ChangePhoneEffect.confirmExit:
         context.read<ChangePhoneCubit>().consumeChangePhoneInteraction();
-        final confirmed = await showFlowExitDialog(context);
+        final confirmed = await showFlowExitSheet(context);
         if (context.mounted) {
           context.read<ChangePhoneCubit>().applyExitConfirmation(confirmed);
         }
@@ -45,8 +48,10 @@ class ChangePhoneScreen extends StatelessWidget {
         onAssistantPressed?.call();
       case ChangePhoneEffect.terms:
         context.read<ChangePhoneCubit>().consumeChangePhoneInteraction();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(S.current.issuanceTermsUnavailable)),
+        avpSnackBar(
+          context: context,
+          type: AvpSnackBarType.error,
+          message: S.current.issuanceTermsUnavailable,
         );
       case ChangePhoneEffect.submitted:
         context.read<ChangePhoneCubit>().consumeChangePhoneInteraction();
@@ -129,19 +134,16 @@ class ChangePhoneScreen extends StatelessWidget {
                                 height: 24,
                               ),
                               trailingTooltip: S.current.backLabel,
-                              onTrailingPressed:
+                              onTrailingPressed: () {
+                                context.read<ChangePhoneCubit>().requestBack();
+                              },
+                              isTrailingActive:
                                   (state.settingsStatus !=
-                                          RequestStatus.loading &&
-                                      state.otpRequestStatus !=
-                                          RequestStatus.loading &&
-                                      state.submissionStatus !=
-                                          RequestStatus.loading)
-                                  ? () {
-                                      context
-                                          .read<ChangePhoneCubit>()
-                                          .requestBack();
-                                    }
-                                  : null,
+                                      RequestStatus.loading &&
+                                  state.otpRequestStatus !=
+                                      RequestStatus.loading &&
+                                  state.submissionStatus !=
+                                      RequestStatus.loading),
                             ),
                             Expanded(child: const ChangePhoneForm()),
                             const ChangePhoneFooter(),

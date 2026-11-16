@@ -21,6 +21,7 @@ enum DashboardService {
   changePassword('card-pin-second-change'),
   cardDeposit('card-deposit'),
   block('card-block'),
+  requestLoan('loan-request'),
   estimate('loan-estimate'),
   introduce('loan-introduce'),
   consolidation('loan-consolidate'),
@@ -48,7 +49,7 @@ enum DashboardService {
   openCurrent('deposit-open-current'),
   closeExtras('deposit-close-extras'),
   agentSettings('deposit-representation-settings'),
-  proxy('deposit-proxy'),
+  depositMandate('deposit-proxy'),
   unblockDeposit('deposit-unblock'),
   blockDeposit('deposit-block'),
   walletInfo('wallet-info'),
@@ -91,6 +92,7 @@ enum DashboardService {
   static const cheques = [clearCheque, issueCheque, cancelCheque];
   static const transfers = [localTransfer];
   static const loans = [
+    requestLoan,
     myLoans,
     introduce,
     consolidation,
@@ -111,7 +113,7 @@ enum DashboardService {
     closeExtras,
     blockDeposit,
     unblockDeposit,
-    proxy,
+    depositMandate,
   ];
   static const wallets = [
     walletInfo,
@@ -141,6 +143,7 @@ enum DashboardService {
     changePassword => S.current.passwordChange,
     cardDeposit => S.current.changeCardDeposit,
     block => S.current.blockCard,
+    requestLoan => S.current.loanRequestTitle,
     estimate => S.current.loanEstimate,
     introduce => S.current.introduceLoan,
     consolidation => S.current.consolidateDepositCredit,
@@ -168,7 +171,7 @@ enum DashboardService {
     openCurrent => S.current.dashboardOpenCurrent,
     closeExtras => S.current.dashboardCloseExtras,
     agentSettings => S.current.dashboardAgentSettings,
-    proxy => S.current.proxyDeposit,
+    depositMandate => S.current.depositMandate,
     unblockDeposit => S.current.dashboardUnblockDeposit,
     blockDeposit => S.current.dashboardBlockDeposit,
     walletInfo => S.current.dashboardWalletInfo,
@@ -189,6 +192,7 @@ enum DashboardService {
     mobileBank => S.current.mobileBank,
     internetBank => S.current.internetBank,
     loanDeposit => S.current.dashboardManageInstallments,
+    requestLoan => S.current.loanRequestTitle,
     estimate => S.current.dashboardEstimateCredit,
     _ => label(),
   };
@@ -204,6 +208,7 @@ enum DashboardService {
     cardDeposit =>
       '${AppConstants.baseImage}dashboard_catalog_card_deposit.svg',
     block => '${AppConstants.baseImage}dashboard_catalog_block.svg',
+    requestLoan ||
     estimate => '${AppConstants.baseImage}dashboard_catalog_estimate.svg',
     introduce => '${AppConstants.baseImage}dashboard_catalog_introduce.svg',
     consolidation =>
@@ -228,6 +233,7 @@ enum DashboardService {
 
   String get fixedAsset => switch (this) {
     sms => '${AppConstants.baseImage}dashboard_fixed_sms.svg',
+    requestLoan ||
     estimate => '${AppConstants.baseImage}dashboard_fixed_estimate.svg',
     password ||
     forgotPassword ||
@@ -258,7 +264,7 @@ enum DashboardService {
         editing
             ? '${AppConstants.baseImage}dashboard_favorite_issue_edit.svg'
             : '${AppConstants.baseImage}dashboard_favorite_issue.svg',
-      proxy =>
+      depositMandate =>
         editing
             ? '${AppConstants.baseImage}dashboard_favorite_proxy_edit.svg'
             : '${AppConstants.baseImage}dashboard_favorite_proxy.svg',

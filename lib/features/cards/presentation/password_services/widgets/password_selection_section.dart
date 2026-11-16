@@ -120,7 +120,7 @@ class PasswordSelectionSection extends StatelessWidget {
                   S.current.passwordOperation,
                   style: Theme.of(context).textTheme.bodySmall!.copyWith(
                     fontWeight: FontWeight.w500,
-                    height: 18 / 12,
+
                     color: context.colors.textSecondary,
                   ),
                 ),

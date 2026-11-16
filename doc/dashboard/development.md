@@ -14,9 +14,7 @@ Historical multi-Cubit layouts, repository constructor parameters, generation
 counters, disposal guards and `.then` examples are superseded by the code and
 rules described here.
 
-The [phase-10 integrated review](../cubit-phase-10-review.md) retains this flow's
-behavior and DI bindings. Home's generic dependency fields now retain their
-complete class name: `loadDashboardItemsUseCaseForCards`,
+Home's generic dependency fields retain their complete class name: `loadDashboardItemsUseCaseForCards`,
 `loadDashboardItemsUseCaseForDeposits` and `loadDashboardItemsUseCaseForLoans`.
 Each still resolves the same `LoadDashboardItemsUseCase<T>` specialization;
 the qualifier distinguishes the three existing fields. No request, payload,
@@ -109,7 +107,7 @@ There are no request-ID counters: no new overlap policy is introduced.
 | Open a banking tab | Tab, carousel and service groups | selectedTab changes; other selections, drafts and privacy survive. |
 | Retry banking data | Tab loading/empty/error branches and selection reconciliation | Old visible list/selection/actions are invalidated by the owner; success restores the prior selection by ID when available, otherwise first item. |
 | Select a card/deposit/loan | Carousel and operation groups | Cubit stores the rendered object and its index together; the next action uses that selected record. |
-| Edit favorites | Home service editor, limit notice and add control | Saved favorites remain in homeData; draft list and flags change. Empty saved favorites start from suggestions, capped at eight. |
+| Edit favorites | Home service editor, limit notice and add control | Saved favorites remain in homeData; draft list and flags change. Empty saved favorites start with an empty draft and only the Add control (Figma 28236:13944); confirmation stays disabled until an explicit choice. Clearing an existing saved list remains supported. |
 | Apply / Cancel / Reset | Home service section | Apply commits draft locally; Cancel restores saved IDs; confirmed Reset clears saved/draft favorites. No server save exists. |
 | Favorite picker | Home-owned sheet query, groups, collapse and selection | Opening resets picker inputs; selected favorites are disabled; dismissal retains the draft. |
 | Drawer | Home-owned groups/query/selection | Opening resets the drawer; raw result returns to Cubit for Home/service intent. |
@@ -392,19 +390,30 @@ Dart Color integers are ARGB: the current md literals' alpha/channel ordering is
 
 Recommendation: allow a reviewed shadow/visual variant in AppDepositCard that uses bankCard, keeping its current default for compatibility. Do not change AppShadows.md globally; that token may affect other shared consumers.
 
-### 13.4 Known issue: AppPrimaryNavigation selected Deposits icon
+### 13.4 Resolved: AppPrimaryNavigation selected Deposits icon
 
-Source: `lib/features/dashboard/presentation/shared/widgets/app_primary_navigation.dart`. The deposit branch always resolves `${AppConstants.baseImage}dashboard_nav_deposit.svg` -> `assets/images/dashboard_nav_deposit.svg`. There is no active/inactive branch for that tab.
+Source: `lib/features/dashboard/presentation/shared/widgets/app_primary_navigation.dart`. On 2026-11-10, the owner supplied the filled SVG exports for the selected deposit and loan tabs. They are bundled as `dashboard_nav_deposit_active.svg` (money-bill) and `dashboard_nav_loan_active.svg` (Money transfer), retaining their original 21×20 viewports.
 
-The selected tab already gets the blue AppDashboardColors.navActive surface, white label and DemiBold text, but the bundled deposit icon remains gray. Both new frames require a white money-bill icon in the active deposit tab. This was deliberately preserved.
+Selected deposit/loan tabs now use those filled assets; inactive tabs retain `dashboard_nav_deposit.svg` and `dashboard_nav_loan.svg`. The existing white selected tint, disabled-text inactive tint, blue selected surface, typography and interaction behavior are preserved. This resolves the earlier retained navigation-icon differences; other component audit findings below remain historical or open as stated.
 
 DashboardScreen, CardsTab, DepositsTab and LoansTab all use this navigation component. DashboardHeader/cards/deposits use the same AppTopBar; no header correction was introduced. Before this task, AppDepositCard was implemented and tested as a shared component but had no feature-screen callsite; this task adds its DepositsTab use. Shared financial-card tests cover its existing single/multi variants.
 
-Recommendation: add an optional active deposit icon or reviewed selected-tab icon map to shared navigation, retaining default behavior. Avoid a global color filter on all icons: existing dashboard/card active and inactive assets have their own styling.
+The correction uses the existing selected-tab asset branches, matching the dashboard/card convention without introducing another navigation component.
+
+Owner update, 2026-11-11: all four navigation icons now render in fixed 20×20
+logical-pixel slots in both states. Source SVG viewports are retained; BoxFit.contain
+preserves their aspect ratios. This explicitly overrides the 21×20 display size
+of the card/deposit/loan icons in the referenced Figma frames. Each tab keeps its
+active and inactive SVG renderers mounted inside one IndexedStack, so switching
+selection does not replace the loader or collapse the icon slot while loading.
+Both variants begin loading on first mount; an initial asset-loading interval can
+still exist before they are ready. Only one variant is painted per tab. The
+selected-tab extra 16px width, typography, callbacks and outer SafeArea spacing
+remain unchanged. Coverage: test/dashboard/app_primary_navigation_test.dart.
 
 ### 13.5 Decision and accepted visual limits
 
-These issues remain because the user explicitly instructed “use exactly the current existing components” and requested documentation instead of correction. Existing shared tests and behavior remain the baseline. Exact pixel equality with the supplied frames is therefore not the acceptance criterion for those two components.
+At the original review, these issues were retained because the user explicitly instructed “use exactly the current existing components” and requested documentation instead of correction. The 2026-11-10 navigation-icon correction in Section 13.4 supersedes that limit for the selected deposit/loan icons. Other retained component differences remain outside that correction.
 
 The existing grid's row wrapping, max-two-line labels and text metrics are also preserved. Existing deposit card labels are Persian strings inside the shared component; full multilingual card labels require a separate reviewed shared API extension. This task localizes screen/group/action/empty-state copy without editing that component.
 
@@ -420,7 +429,7 @@ Loans reuses existing components; the progress primitive and AppLoanCard alignme
 | Header geometry | 54px header; padding left/right16, top14, bottom12 | Content at top16, 28px arrow row, then12px gap; body starts at56px relative to card | Retained 2px header/body offset and row-origin difference; introduce a reviewed optional layout variant |
 | Summary arrow | Existing AppArrowButton uses arrow_button_arrow_left.svg; rendered arrow is gray | Blue arrow inside the white 28px circle | Retained. A reviewed optional icon/color variant must preserve other AppArrowButton consumers |
 | Progress foreground | Fixed: visible blue fill, full 8px height, physical-left origin, derived paid/total width | Blue rounded 8px track from physical left, with paid counts authoritative | Resolved: 40% single, 30%/70%/90% multi |
-| Active Loans navigation | AppPrimaryNavigation always uses dashboard_nav_loan.svg (gray) | White active loan icon on the blue selected background | Retained. Add optional selected-loan asset mapping while preserving defaults |
+| Active Loans navigation | Selected uses dashboard_nav_loan_active.svg; inactive uses dashboard_nav_loan.svg | White filled active loan icon on the blue selected background | Resolved 2026-11-10 with the owner-supplied Money transfer SVG; see Section 13.4 |
 | Navbar shadow | Existing AppShadows.sm: alpha .06, offset(0,1), blur3/spread0 plus alpha .10, offset(0,1), blur2/spread-1 | Frame navbar uses alpha .08 with blur4/spread0 and alpha .04 with blur2/spread0 at offset(0,1) | Existing shared navigation difference retained across all tabs; use an optional instance elevation after review |
 | Arrow surface decoration | Shared compact AppArrowButton includes a surface-alpha .8 border and AppShadows.xs | Figma compact white button has no explicit border/shadow in the supplied context | Existing arrow decoration retained; review together with the blue-icon variant |
 | Labels/localization | Shared card owns Persian field/currency/footer strings | Persian frames match these labels; other locales require translated labels | Known pre-existing API limitation; add reviewed label parameters in a later shared change |
@@ -485,3 +494,58 @@ The shared phase-1/2/3 regression command passed 385 tests after the card-list a
 virtual-request screen composition change. This flow’s existing composition and
 local resource/modal consumers were preserved. See the command and final checks
 in [the follow-up report](../cards/virtual-card-request.md#listener-composition-follow-up-verification).
+
+## Design corrections — 2026-11-03
+
+Empty favorite editing follows frame `28236:13944`, without auto-populating suggested services. Draft confirmation eligibility is Cubit-owned; Cancel discards draft additions. Bottom-navigation icon tint follows the selected label (white selected, disabled text color otherwise). Drawer groups highlight only while expanded, with matching title/icon colors; closing restores both, including request-icon normalization.
+
+### Verification for the design corrections
+
+Final Home/Drawer regression:
+
+```sh
+flutter test --no-pub test/dashboard/presentation/flows/home test/app_drawer_test.dart
+```
+
+Result: **46 passed, 0 failed**. Covers empty editing, disabled confirmation,
+explicit addition, cancellation/reopening, clearing saved favorites, filters,
+retained drafts and collapsed Drawer title/icon colors.
+
+Shared-package checks, run from `../avp_ui`:
+
+```sh
+flutter test --no-pub test/widgets/app_stepper_test.dart test/widgets/app_toggle_test.dart
+flutter analyze lib/widgets/layout/app_stepper.dart lib/widgets/fields/app_toggle.dart test/widgets/app_stepper_test.dart test/widgets/app_toggle_test.dart
+```
+
+Result: **8 passed, 0 failed; analysis found no issues**. Existing issuance,
+average-balance and financial-certificate screen checks also passed in the
+broader directly related run below. That run passed 146 tests but initially
+could not compile dashboard_screen_test due to a missing test import; the import
+was corrected and the complete Home/Drawer command above passes afterward.
+
+```sh
+flutter test test/dashboard/presentation test/dashboard/modern_banking_drawer_test.dart test/app_drawer_test.dart test/cards/presentation/flows/card_issuance test/deposits/average_balance_screen_test.dart test/deposits/financial_certificate_screen_test.dart
+```
+
+Final app analysis scope:
+
+```sh
+flutter analyze --no-pub lib/features/dashboard/presentation/home/cubit lib/features/dashboard/presentation/shared/widgets/app_primary_navigation.dart lib/features/dashboard/presentation/shared/widgets/dashboard_favorites_card.dart lib/shared/widgets/app_drawer_menu_item.dart test/app_drawer_test.dart test/dashboard/presentation/flows/home/cubit/home_cubit_test.dart test/dashboard/presentation/flows/home/screens/dashboard_screen_test.dart
+```
+
+Result: **No issues found**. Final diff checks passed in both repositories.
+
+Visual review rendered the real components with package fonts and loaded SVGs:
+first/last Stepper, enabled/disabled Toggle, all four selected navigation tabs,
+expanded/collapsed Drawer, unselected Requests and the right-aligned empty
+favorites editor. Preview output is temporary and is not an app asset. No
+full-application suite, bank operation or device run was performed.
+
+The four Home request owners remain unchanged: fetchHome, fetchCards,
+fetchDeposits and fetchLoans, each retaining one dependency call and Result
+switch. Favorite edits remain independent local actions with explicit emits.
+Confirmation eligibility is a shared pure predicate; no clearing was added.
+
+Duplication review: 1 repeated predicate found, 1 resolved (_canConfirmFavorites).
+Flow review: 0 clears removed.

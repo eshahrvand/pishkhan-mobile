@@ -1,10 +1,21 @@
 /// Route paths and URL builders. This file has no feature dependencies.
 abstract final class AppRoutes {
+  static const blockCard = '/cards/block';
+  static const unblockCard = '/cards/unblock';
   static const splash = '/launch/splash';
+
+  static const loanRequest = '/loans/request';
 
   static const home = '/dashboard/home';
   static const allServices = '/dashboard/services';
   static const requestReports = '/requests/reports';
+
+  static const walletOverview = '/wallet/overview';
+  static const walletCharge = '/wallet/charge';
+  static const walletWithdraw = '/wallet/withdraw';
+  static const walletTransfer = '/wallet/transfer';
+  static const walletLinkedDeposit = '/wallet/linked-deposit';
+  static const walletTransactions = '/wallet/transactions';
 
   static const login = '/auth/login';
 
@@ -32,7 +43,8 @@ abstract final class AppRoutes {
   static const closeSurplusDeposits = '/deposits/close-surplus-deposits';
   static const blockDeposit = '/deposits/block';
   static const unblockDeposit = '/deposits/unblock';
-  static const proxyDeposit = '/deposits/proxy';
+  // Keep the existing public URL when renaming the flow implementation.
+  static const depositMandate = '/deposits/proxy';
 
   static const onSiteTransfer = '/transfers/on-site';
 

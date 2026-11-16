@@ -42,7 +42,7 @@ class NotificationHeader extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: AppTypography.titleSmall.copyWith(
                       color: context.colors.textPrimary,
-                      height: 20 / 14,
+
                       letterSpacing: 0,
                     ),
                   ),

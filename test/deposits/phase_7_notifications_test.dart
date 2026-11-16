@@ -50,7 +50,7 @@ class RetryingAgentRepository extends MockAgentRepository {
 Future<void> dismissFeedback(WidgetTester tester) async {
   await tester.pump(const Duration(seconds: 5));
   await tester.pumpAndSettle();
-  expect(find.byType(SnackBar), findsNothing);
+  expect(find.byType(AvpSnackBar), findsNothing);
 }
 
 void main() {
@@ -118,7 +118,7 @@ void main() {
             find.widgetWithText(AppButton, S.current.issuanceSubmit),
           );
           await tester.pumpAndSettle();
-          expect(find.byType(SnackBar), findsOneWidget);
+          expect(find.byType(AvpSnackBar), findsOneWidget);
           expect(completions, 0);
           await dismissFeedback(tester);
         }
@@ -159,7 +159,7 @@ void main() {
         expect(completions, 1);
         expect(find.byType(CertificateReceiptDialog), findsOneWidget);
         expect(find.textContaining('phase7-success'), findsOneWidget);
-        expect(find.byType(SnackBar), findsNothing);
+        expect(find.byType(AvpSnackBar), findsNothing);
         if (financial) {
           expect(
             solvency.requests.map((r) => r.idempotencyKey).toSet(),
@@ -200,13 +200,13 @@ void main() {
           find.widgetWithText(AppButton, S.current.issuanceSubmit),
         );
         await tester.pumpAndSettle();
-        expect(find.byType(SnackBar), findsOneWidget);
+        expect(find.byType(AvpSnackBar), findsOneWidget);
         await dismissFeedback(tester);
       }
       await tester.tap(find.text(S.current.agentAddNext));
       await tester.pumpAndSettle();
       expect(find.byType(AgentSheet), findsOneWidget);
-      expect(find.byType(SnackBar), findsNothing);
+      expect(find.byType(AvpSnackBar), findsNothing);
       fillAgent(cubit, date: '۱۴۱۱/۰۱/۰۱');
       await tester.pumpAndSettle();
       await tester.tap(find.text(S.current.agentCancel));
@@ -221,7 +221,7 @@ void main() {
       expect(repository.requests.toSet(), hasLength(1));
       expect(cubit.state.failure, isNotNull);
       expect(find.byType(AgentReceiptDialog), findsOneWidget);
-      expect(find.byType(SnackBar), findsNothing);
+      expect(find.byType(AvpSnackBar), findsNothing);
       await tester.pumpWidget(const SizedBox());
       await tester.pumpAndSettle();
       expect(tester.takeException(), isNull);
@@ -238,11 +238,11 @@ void main() {
       final cubit = tester
           .element(find.byType(AppTopBar))
           .read<AgentSettingsCubit>();
-      expect(find.byType(SnackBar), findsOneWidget);
+      expect(find.byType(AvpSnackBar), findsOneWidget);
       await dismissFeedback(tester);
       await tester.tap(find.text(S.current.dashboardRetry));
       await tester.pumpAndSettle();
-      expect(find.byType(SnackBar), findsOneWidget);
+      expect(find.byType(AvpSnackBar), findsOneWidget);
       await dismissFeedback(tester);
       repository.fails = false;
       final retry = cubit.fetchAgents();
@@ -250,7 +250,7 @@ void main() {
       await retry;
       final visible = cubit.state.visibleAgents;
       expect(cubit.state.failure, isNotNull);
-      expect(find.byType(SnackBar), findsNothing);
+      expect(find.byType(AvpSnackBar), findsNothing);
       cubit.requestKindFilter();
       await tester.pumpAndSettle();
       expect(find.byType(AgentKindFilter), findsOneWidget);
@@ -260,7 +260,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(cubit.state.kindFilter, isNull);
       expect(cubit.state.visibleAgents, visible);
-      expect(find.byType(SnackBar), findsNothing);
+      expect(find.byType(AvpSnackBar), findsNothing);
       expect(tester.takeException(), isNull);
     },
   );

@@ -12,7 +12,6 @@ TextStyle cardServiceSmall(
   Color? color,
   bool medium = false,
 }) => AppTypography.bodySmall.copyWith(
-  height: 18 / 12,
   letterSpacing: 0,
   color: color ?? context.colors.textSecondary,
   fontWeight: medium ? FontWeight.w500 : FontWeight.w400,
@@ -33,14 +32,17 @@ class CardServiceFooter extends StatelessWidget {
     required this.label,
     required this.onSubmit,
     required this.loading,
+    required this.isActive,
     this.termsAccepted,
     this.onTermsChanged,
     this.onTermsRequested,
     this.termsSpacing = 16,
   });
   final String label;
-  final VoidCallback? onSubmit, onTermsRequested;
+  final VoidCallback onSubmit;
+  final VoidCallback? onTermsRequested;
   final bool loading;
+  final bool isActive;
   final double termsSpacing;
   final bool? termsAccepted;
   final ValueChanged<bool>? onTermsChanged;
@@ -79,12 +81,10 @@ class CardServiceFooter extends StatelessWidget {
                           behavior: HitTestBehavior.opaque,
                           onTap:
                               onTermsRequested ??
-                              () => ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    S.current.issuanceTermsUnavailable,
-                                  ),
-                                ),
+                              () => avpSnackBar(
+                                context: context,
+                                type: AvpSnackBarType.error,
+                                message: S.current.issuanceTermsUnavailable,
                               ),
                           child: Text(
                             S.current.issuanceTerms,
@@ -116,6 +116,7 @@ class CardServiceFooter extends StatelessWidget {
             disabledAppearance: AppButtonDisabledAppearance.service,
             label: label,
             isLoading: loading,
+            isActive: isActive,
             onPressed: onSubmit,
           ),
         ],

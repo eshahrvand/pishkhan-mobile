@@ -22,6 +22,26 @@ flutter run
 Dependency changes are separate work; the commands above use the checked-in
 project configuration. Follow [AGENTS.md](AGENTS.md) before editing feature code.
 
+## Device preview
+
+`device_preview: ^3.0.0` is enabled in Debug builds from `main`, before plugin
+initialization. Start the app with `flutter run`, open its Flutter DevTools link
+and select the **device_preview** extension. Enable the extension if DevTools
+asks, then choose a device to inspect screen size, safe areas, orientation,
+keyboard insets and text scaling. Version 3 uses DevTools rather than an in-app
+toolbar; no MaterialApp wrapper is needed. The app retains its Persian locale
+and RTL layout.
+
+After adding the package, stop and start the app; hot reload cannot replace its
+binding. To run Debug without simulation support:
+
+```sh
+flutter run --dart-define=DEVICE_PREVIEW=false
+```
+
+Preview is disabled in Profile and Release builds, regardless of the define.
+The integration follows the [package's version-3 guide](https://pub.dev/packages/device_preview/versions/3.0.0).
+
 ## Coding reference and verification
 
 The [UI/Cubit/State contract](doc/ui-cubit-state-agent-rules-en.md) is the
@@ -42,18 +62,17 @@ Include the relevant DI/router/service-entry regression files when their shared
 boundaries change. A full-application test run requires an explicit owner
 request; historical results do not authorize repeating it.
 
-The [migration plan](doc/cubit-migration-plan.md) tracks the ten phases. The
-[phase-10 review](doc/cubit-phase-10-review.md) accounts for all 31 Cubits and
-records its scoped verification separately from historical phase results. The
-[UseCase-only follow-up](doc/usecase-only-dependencies-review.md) records the
-subsequent owner amendment and all-Cubit dependency correction.
+The Cubit migration and UseCase-only follow-up are complete. Current ownership
+and operation details live in each flow document below; the coding contract
+defines the required rules. Completed migration plans and execution reports
+remain available in Git history.
 
 ## Flow documentation
 
 - [Login](doc/login/development.md) and [API integration](doc/auth/login-api-integration.md)
 - [Dashboard](doc/dashboard/development.md), [cards tab](doc/cards/my-cards.md),
   [deposit services](doc/deposits/development.md) and [loans](doc/loans/development.md)
-- [Card services](doc/cards/card-services.md), [issuance](doc/cards/card-issuance.md),
+- [Card services](doc/cards/card-services.md), [blocking and unblocking](doc/cards/card-restriction.md), [issuance](doc/cards/card-issuance.md),
   [virtual requests](doc/cards/virtual-card-request.md),
   [linked deposit](doc/cards/change-card-deposit.md),
   [expired gift balance](doc/cards/expired-gift-balance.md) and
@@ -65,7 +84,10 @@ subsequent owner amendment and all-Cubit dependency correction.
   [agent settings](doc/deposits/agent-settings.md),
   [surplus closure](doc/deposits/close-surplus-deposits.md),
   [restriction](doc/deposits/deposit-restriction.md) and
-  [proxy deposit](doc/deposits/proxy-deposit.md)
+  [deposit mandate](doc/deposits/deposit-mandate.md)
+- Wallet: [information](doc/wallet/overview.md), [charge](doc/wallet/charge.md),
+  [withdrawal](doc/wallet/withdraw.md), [transfer](doc/wallet/transfer.md),
+  [linked deposit](doc/wallet/linked-deposit.md) and [transactions](doc/wallet/transactions.md)
 - [Personal information, addresses and jobs](doc/profile/personal-information.md)
 - [Modern banking](doc/modern-banking/mobile-bank.md),
   [on-site transfer](doc/transfers/on-site-transfer.md) and

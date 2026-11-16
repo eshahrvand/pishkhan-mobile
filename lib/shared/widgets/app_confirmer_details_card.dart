@@ -122,7 +122,7 @@ class AppConfirmerDetailsCard extends StatelessWidget {
     color: const Color(0xFF181D27),
     fontSize: 14,
     fontWeight: FontWeight.w700,
-    height: 20 / 14,
+
     letterSpacing: 0,
   );
 
@@ -130,7 +130,7 @@ class AppConfirmerDetailsCard extends StatelessWidget {
     color: AppPalette.gray700,
     fontSize: 14,
     fontWeight: FontWeight.w500,
-    height: 20 / 14,
+
     letterSpacing: 0,
   );
 }

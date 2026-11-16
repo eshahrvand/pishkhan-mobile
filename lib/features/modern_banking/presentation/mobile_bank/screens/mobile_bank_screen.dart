@@ -11,7 +11,7 @@ import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
 import 'package:pishkhan_mobile/shared/widgets/deposit_request_footer.dart';
-import 'package:pishkhan_mobile/shared/widgets/flow_exit_dialog.dart';
+import 'package:pishkhan_mobile/shared/widgets/flow_exit_sheet.dart';
 
 import '../../../domain/entities/mobile_bank.dart';
 import '../../shared/modern_bank_terms.dart';
@@ -26,8 +26,11 @@ class MobileBankScreen extends StatelessWidget {
   final MobileBankOperation operation;
 
   void _showRequestFailure(BuildContext context, MobileBankState state) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   Future<void> _handleEffect(
@@ -53,7 +56,7 @@ class MobileBankScreen extends StatelessWidget {
       switch (state.navigation) {
         case FlowNavigation.confirmExit:
           context.read<MobileBankCubit>().consumeMobileBankInteraction();
-          final confirmed = await showFlowExitDialog(context);
+          final confirmed = await showFlowExitSheet(context);
           if (context.mounted) {
             context.read<MobileBankCubit>().applyExitConfirmation(confirmed);
           }
@@ -128,13 +131,12 @@ class MobileBankScreen extends StatelessWidget {
                           ),
                         ),
                         trailingTooltip: S.current.backLabel,
-                        onTrailingPressed:
+                        onTrailingPressed: () {
+                          context.read<MobileBankCubit>().requestBack();
+                        },
+                        isTrailingActive:
                             (state.catalogStatus != RequestStatus.loading &&
-                                state.submissionStatus != RequestStatus.loading)
-                            ? () {
-                                context.read<MobileBankCubit>().requestBack();
-                              }
-                            : null,
+                            state.submissionStatus != RequestStatus.loading),
                       ),
                       Expanded(
                         child: Stack(
@@ -199,13 +201,10 @@ class MobileBankScreen extends StatelessWidget {
                             onTermsRequested: () {
                               showModernBankTerms(context);
                             },
-                            onSubmit: state.canContinue
-                                ? () {
-                                    context
-                                        .read<MobileBankCubit>()
-                                        .continueFlow();
-                                  }
-                                : null,
+                            onSubmit: () {
+                              context.read<MobileBankCubit>().continueFlow();
+                            },
+                            isActive: state.canContinue,
                             isLoading:
                                 state.submissionStatus == RequestStatus.loading,
                             submitLabel: S.current.issuanceNext,
@@ -249,13 +248,10 @@ class MobileBankScreen extends StatelessWidget {
                               isLoading:
                                   state.submissionStatus ==
                                   RequestStatus.loading,
-                              onPressed: state.canContinue
-                                  ? () {
-                                      context
-                                          .read<MobileBankCubit>()
-                                          .continueFlow();
-                                    }
-                                  : null,
+                              onPressed: () {
+                                context.read<MobileBankCubit>().continueFlow();
+                              },
+                              isActive: state.canContinue,
                             ),
                           ),
                       ],

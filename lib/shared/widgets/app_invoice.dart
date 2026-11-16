@@ -217,14 +217,20 @@ class AppWalletBalanceStatus extends StatelessWidget {
     return Semantics(
       liveRegion: true,
       label: isSufficient ? sufficientLabel : insufficientLabel,
-      child: Text(
-        isSufficient ? sufficientLabel : insufficientLabel,
-        textAlign: TextAlign.center,
-        style: getInvoiceTextStyle(
-          AppTypography.bodySmall,
-          color: isSufficient ? colors.success : colors.error,
-          fontWeight: FontWeight.w500,
-          height: 22 / 12,
+      child: ConstrainedBox(
+        // Preserve the authored 22px status row without overriding token line height.
+        constraints: const BoxConstraints(minHeight: 22),
+        child: Align(
+          heightFactor: 1,
+          child: Text(
+            isSufficient ? sufficientLabel : insufficientLabel,
+            textAlign: TextAlign.center,
+            style: getInvoiceTextStyle(
+              AppTypography.bodySmall,
+              color: isSufficient ? colors.success : colors.error,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
         ),
       ),
     );

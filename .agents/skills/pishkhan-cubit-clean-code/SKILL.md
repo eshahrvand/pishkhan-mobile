@@ -195,6 +195,10 @@ A condition used only **once**: one/two lines stay inline in `copyWith`; longer 
 
 ## Always (Minimal Cubit Rules)
 
+- UI buttons bind their callback directly, using `isLoading` for the operation
+  and `isActive` for enablement. Shared footers forward `isActive` separately;
+  do not move eligibility into a conditional `onSubmit` callback or repeat it
+  as a Cubit entry guard.
 - No `isClosed`, no `BaseCubit`/`safeEmit`, no `catchError`/`try-catch` in Cubit actions. Use `async/await`; do not use `.then` chains.
 - A private method is extracted only when it owns a truly independent responsibility or a calculation used in 2+ places. Do not split a single operation into `submitX` → `_submitXRequest` just to shorten methods.
 - A one-line boolean expression used only once stays inline in `copyWith`. Extract it to a named `_canX(...)` only when it appears in 2+ places.

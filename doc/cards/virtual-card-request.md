@@ -4,8 +4,8 @@
 Cubit → registered UseCase → Repository. Cubit imports/resolves UseCases only;
 `core/di` wires their repositories. Any earlier direct-Repository or optional-
 UseCase wording below is historical and superseded. Payloads, Result mapping,
-validation, retry identity and UI behavior remain unchanged. See the
-[UseCase-only migration review](../usecase-only-dependencies-review.md).
+validation, retry identity and UI behavior remain unchanged. The
+[UI/Cubit/State contract](../ui-cubit-state-agent-rules-en.md) defines the current rules.
 
 
 Reviewed: 2026-11-01 — phase 3, contract v1.20.
@@ -93,7 +93,7 @@ in fa/en/ar, routes and returning home from the list footer without a receipt di
 UI tests verify disabled controls/Back during pending operations instead of
 requiring Cubit-side guards. No latest-catalog/disposal suppression is claimed.
 
-Phase 3 adds repeated-error/retained-error exit-dialog coverage and strengthens
+Phase 3 adds repeated-error/retained-error exit-sheet coverage and strengthens
 retry-success completion assertions. DI tests verify all three renamed UseCases
 use their own container’s Repository registrations. Earlier counts (14 targeted,
 30 regressions) belong to the original design implementation and are not current
@@ -172,9 +172,8 @@ owners). Flow review: 20 clears removed (16 failure/message, 3 initial eligibili
 resets, 1 exit-only retry target). Existing request identity and mandatory
 quote/form/modal invalidation remain intact.
 
-Scope remains phase 3; phase 4 requires owner review/approval. This phase is not
-committed automatically. The recovered ten-phase plan is in
-[cubit-migration-plan.md](../cubit-migration-plan.md).
+The Cubit migration is complete. The results above are historical verification
+of this flow, not pending implementation or permission to repeat a full-suite run.
 
 ## Listener-composition follow-up verification
 

@@ -84,6 +84,6 @@ The delivery-address editor and postal-code validation remain in the separate
 
 Tests: `test/cheque/cheque_clearance_cubit_test.dart` and
 `test/cheque/cheque_clearance_screen_test.dart`.
-The [phase-9 review](cheque/phase-9-review.md) records scoped verification,
-including repeated failure, postal/content effects after errors and success
-after retry with the same request key.
+Notification coverage in `test/cheque/phase_9_notifications_test.dart` includes
+repeated failure, postal/content effects after errors and success after retry
+with the same request key.

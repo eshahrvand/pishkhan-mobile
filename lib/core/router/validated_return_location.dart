@@ -7,6 +7,15 @@ String validatedReturnLocation(String? location) {
     return AppRoutes.home;
   }
   const paths = {
+    AppRoutes.loanRequest,
+    AppRoutes.blockCard,
+    AppRoutes.unblockCard,
+    AppRoutes.walletOverview,
+    AppRoutes.walletCharge,
+    AppRoutes.walletWithdraw,
+    AppRoutes.walletTransfer,
+    AppRoutes.walletLinkedDeposit,
+    AppRoutes.walletTransactions,
     AppRoutes.mobileBank,
     AppRoutes.mobileBankPasswordRecovery,
     AppRoutes.mobileBankPasswordGuide,
@@ -25,7 +34,7 @@ String validatedReturnLocation(String? location) {
     AppRoutes.closeSurplusDeposits,
     AppRoutes.blockDeposit,
     AppRoutes.unblockDeposit,
-    AppRoutes.proxyDeposit,
+    AppRoutes.depositMandate,
     AppRoutes.cardIssuance,
     AppRoutes.virtualCardRequest,
     AppRoutes.changeCardDeposit,

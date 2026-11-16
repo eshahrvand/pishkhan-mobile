@@ -187,9 +187,8 @@ class VirtualCardContent extends StatelessWidget {
                 state.catalogStatus == RequestStatus.loading ||
                 state.quoteStatus == RequestStatus.loading ||
                 state.submissionStatus == RequestStatus.loading,
-            onPressed: state.canRetry
-                ? context.read<VirtualCardCubit>().submitRetry
-                : null,
+            onPressed: context.read<VirtualCardCubit>().submitRetry,
+            isActive: state.canRetry,
             label: S.current.dashboardRetry,
             variant: AppButtonVariant.text,
           ),

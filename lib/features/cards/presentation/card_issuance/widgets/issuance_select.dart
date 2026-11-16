@@ -39,7 +39,7 @@ class IssuanceSelect<T> extends StatelessWidget {
       labelStyle: AppTypography.bodySmall.copyWith(
         fontWeight: FontWeight.w500,
         color: context.colors.textSecondary,
-        height: 18 / 12,
+
         letterSpacing: 0,
       ),
       trailing: issuanceIcon(

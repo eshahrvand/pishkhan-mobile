@@ -7,7 +7,7 @@ import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
-import 'package:pishkhan_mobile/shared/widgets/flow_exit_dialog.dart';
+import 'package:pishkhan_mobile/shared/widgets/flow_exit_sheet.dart';
 
 import '../cubit/cheque_clearance_cubit.dart';
 import '../widgets/cheque_clearance_form.dart';
@@ -21,8 +21,11 @@ class ChequeClearanceScreen extends StatelessWidget {
   final VoidCallback? onAssistantPressed;
 
   void _showRequestFailure(BuildContext context, ChequeClearanceState state) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   Future<void> _handleEffect(
@@ -34,7 +37,7 @@ class ChequeClearanceScreen extends StatelessWidget {
         context
             .read<ChequeClearanceCubit>()
             .consumeChequeClearanceInteraction();
-        final confirmed = await showFlowExitDialog(context);
+        final confirmed = await showFlowExitSheet(context);
         if (context.mounted) {
           context.read<ChequeClearanceCubit>().applyExitConfirmation(confirmed);
         }
@@ -59,8 +62,10 @@ class ChequeClearanceScreen extends StatelessWidget {
         context
             .read<ChequeClearanceCubit>()
             .consumeChequeClearanceInteraction();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(S.current.chequeContentUnavailable)),
+        avpSnackBar(
+          context: context,
+          type: AvpSnackBarType.error,
+          message: S.current.chequeContentUnavailable,
         );
       case null:
         break;
@@ -150,17 +155,16 @@ class ChequeClearanceScreen extends StatelessWidget {
                                 height: 24,
                               ),
                               trailingTooltip: S.current.backLabel,
-                              onTrailingPressed:
+                              onTrailingPressed: () {
+                                context
+                                    .read<ChequeClearanceCubit>()
+                                    .requestBack();
+                              },
+                              isTrailingActive:
                                   (state.catalogStatus !=
-                                          RequestStatus.loading &&
-                                      state.submissionStatus !=
-                                          RequestStatus.loading)
-                                  ? () {
-                                      context
-                                          .read<ChequeClearanceCubit>()
-                                          .requestBack();
-                                    }
-                                  : null,
+                                      RequestStatus.loading &&
+                                  state.submissionStatus !=
+                                      RequestStatus.loading),
                             ),
                             const Expanded(child: ChequeClearanceForm()),
                             const ChequeClearanceFooter(),

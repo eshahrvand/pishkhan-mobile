@@ -27,9 +27,8 @@ class ChequeBookFooter extends StatelessWidget {
                     state.submissionStatus == RequestStatus.loading ||
                     state.addressDeletionStatus == RequestStatus.loading ||
                     state.addressSaveStatus == RequestStatus.loading,
-                onPressed: state.canContinue
-                    ? context.read<ChequeBookCubit>().continueFlow
-                    : null,
+                onPressed: context.read<ChequeBookCubit>().continueFlow,
+                isActive: state.canContinue,
               ),
             ],
           ),

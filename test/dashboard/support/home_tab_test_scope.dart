@@ -1,3 +1,4 @@
+import 'package:avp_ui/avp_ui.dart';
 import 'package:pishkhan_mobile/core/enums/request_status.dart';
 
 import 'dart:async';
@@ -19,7 +20,9 @@ import 'package:pishkhan_mobile/features/dashboard/presentation/home/screens/dep
 import 'package:pishkhan_mobile/features/dashboard/presentation/home/screens/loans_tab.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/deposit_actions.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/shared/loan_actions.dart';
-import 'package:pishkhan_mobile/features/dashboard/presentation/shared/dashboard_tab.dart';
+import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
+import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/app_primary_navigation.dart';
+import 'package:pishkhan_mobile/features/dashboard/presentation/shared/widgets/dashboard_navigation_container.dart';
 
 import 'dashboard_test_repositories.dart';
 
@@ -204,15 +207,45 @@ class _HomeTabTestScopeState extends State<HomeTabTestScope> {
               previous.homeData!.favorites != current.homeData!.favorites,
           listener: (context, state) =>
               widget.onFavoritesChanged?.call(state.homeData!.favorites),
-          child: widget.child,
+          child: Stack(
+            children: [
+              widget.child,
+              Positioned(
+                left: 16,
+                bottom: 84,
+                child: AppAssistantButton(
+                  onPressed: () {
+                    _cubit.requestAssistant();
+                  },
+                ),
+              ),
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: DashboardNavigationContainer(
+                  bottomOffset: 16,
+                  child: AppPrimaryNavigation(
+                    selectedTab: _cubit.state.selectedTab,
+                    onSelected: (tab) {
+                      _cubit.selectTab(tab);
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
   void _showRequestFailure(BuildContext context, HomeState state) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   void _handleEffect(BuildContext context, HomeState state) {

@@ -114,12 +114,10 @@ class CardFilterSheet extends StatelessWidget {
 }
 
 TextStyle _label(BuildContext context) => AppTypography.labelMedium.copyWith(
-  height: 18 / 12,
   letterSpacing: 0,
   color: context.colors.textSecondary,
 );
 TextStyle _value(BuildContext context) => AppTypography.bodyMedium.copyWith(
-  height: 20 / 14,
   letterSpacing: 0,
   color: context.colors.textPrimary,
 );

@@ -12,7 +12,7 @@ import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_delete_address_sheet.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_service_sheet.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
-import 'package:pishkhan_mobile/shared/widgets/flow_exit_dialog.dart';
+import 'package:pishkhan_mobile/shared/widgets/flow_exit_sheet.dart';
 
 import '../cubit/on_site_transfer_cubit.dart';
 import '../widgets/transfer_destination_sheet.dart';
@@ -42,8 +42,11 @@ class _OnSiteTransferScreenState extends State<OnSiteTransferScreen> {
   }
 
   void _showRequestFailure(BuildContext context, OnSiteTransferState state) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   Future<void> _handleEffect(
@@ -120,7 +123,7 @@ class _OnSiteTransferScreenState extends State<OnSiteTransferScreen> {
         });
       case OnSiteTransferEffect.confirmExit:
         context.read<OnSiteTransferCubit>().consumeOnSiteTransferInteraction();
-        final confirmed = await showFlowExitDialog(context);
+        final confirmed = await showFlowExitSheet(context);
         if (context.mounted) {
           context.read<OnSiteTransferCubit>().applyExitConfirmation(confirmed);
         }
@@ -137,8 +140,10 @@ class _OnSiteTransferScreenState extends State<OnSiteTransferScreen> {
         widget.onAssistantPressed?.call();
       case OnSiteTransferEffect.unavailable:
         context.read<OnSiteTransferCubit>().consumeOnSiteTransferInteraction();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(S.current.cardFeatureUnavailable)),
+        avpSnackBar(
+          context: context,
+          type: AvpSnackBarType.error,
+          message: S.current.cardFeatureUnavailable,
         );
       case OnSiteTransferEffect.receipt:
         context.read<OnSiteTransferCubit>().consumeOnSiteTransferInteraction();
@@ -223,20 +228,16 @@ class _OnSiteTransferScreenState extends State<OnSiteTransferScreen> {
                                   '${AppConstants.baseImage}deposit_list_back.svg',
                             ),
                             trailingTooltip: S.current.backLabel,
-                            onTrailingPressed:
+                            onTrailingPressed: () {
+                              context.read<OnSiteTransferCubit>().requestBack();
+                            },
+                            isTrailingActive:
                                 (state.catalogStatus != RequestStatus.loading &&
-                                    state.destinationStatus !=
-                                        RequestStatus.loading &&
-                                    state.uploadStatus !=
-                                        RequestStatus.loading &&
-                                    state.submissionStatus !=
-                                        RequestStatus.loading)
-                                ? () {
-                                    context
-                                        .read<OnSiteTransferCubit>()
-                                        .requestBack();
-                                  }
-                                : null,
+                                state.destinationStatus !=
+                                    RequestStatus.loading &&
+                                state.uploadStatus != RequestStatus.loading &&
+                                state.submissionStatus !=
+                                    RequestStatus.loading),
                           ),
                           Expanded(child: TransferForm(controller: _scroll)),
                           const TransferFooter(),

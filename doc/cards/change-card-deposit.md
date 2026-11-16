@@ -4,8 +4,8 @@
 Cubit → registered UseCase → Repository. Cubit imports/resolves UseCases only;
 `core/di` wires their repositories. Any earlier direct-Repository or optional-
 UseCase wording below is historical and superseded. Payloads, Result mapping,
-validation, retry identity and UI behavior remain unchanged. See the
-[UseCase-only migration review](../usecase-only-dependencies-review.md).
+validation, retry identity and UI behavior remain unchanged. The
+[UI/Cubit/State contract](../ui-cubit-state-agent-rules-en.md) defines the current rules.
 
 
 Reviewed: 2026-11-01 — phase 4, contract v1.21.
@@ -102,4 +102,4 @@ mapping without a Repository dependency in Cubit; no endpoint is added.
 There are four independent screen listeners: catalog failure, submission failure,
 navigation and successful completion. Removed 10 blanket failure/message clears.
 Destination, consent, submission-status and command clears retain their actual
-form/modal readers. See [phase-4 verification](phase-4-review.md).
+form/modal readers.

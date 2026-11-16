@@ -122,7 +122,6 @@ class _CardFeaturesFiltersState extends State<CardFeaturesFilters> {
                       hintColor: AppCardFeatureColors.searchHint,
                       focusRing: AppTextFieldFocusRing.none,
                       textStyle: AppTypography.bodyMedium.copyWith(
-                        height: 20 / 14,
                         letterSpacing: 0,
                       ),
                       searchIcon: cardFeatureIcon(

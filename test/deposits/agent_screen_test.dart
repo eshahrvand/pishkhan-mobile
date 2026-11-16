@@ -60,18 +60,15 @@ void main() {
     (tester) async {
       await mountCertificate(tester, const IntroduceAgentScreen());
       expect(tester.getTopLeft(find.byType(AppSelect<ListedDeposit>)).dy, 104);
-      expect(button(tester, S.current.agentPreliminarySave).onPressed, isNull);
-      expect(button(tester, S.current.issuanceSubmit).onPressed, isNull);
+      expect(button(tester, S.current.agentPreliminarySave).isActive, isFalse);
+      expect(button(tester, S.current.issuanceSubmit).isActive, isFalse);
       await captureAgent(tester, 'agent-initial');
       final cubit = tester
           .element(find.byType(AgentInitialForm))
           .read<AgentCubit>();
       fillAgent(cubit);
       await tester.pumpAndSettle();
-      expect(
-        button(tester, S.current.agentPreliminarySave).onPressed,
-        isNotNull,
-      );
+      expect(button(tester, S.current.agentPreliminarySave).isActive, isTrue);
       await tester.tap(find.text(S.current.agentPreliminarySave));
       await tester.pumpAndSettle();
       expect(find.byType(AgentList), findsOneWidget);
@@ -84,7 +81,7 @@ void main() {
       await tester.tap(find.text(S.current.agentAddNext));
       await tester.pumpAndSettle();
       expect(find.byType(AgentSheet), findsOneWidget);
-      expect(button(tester, S.current.agentSave).onPressed, isNull);
+      expect(button(tester, S.current.agentSave).isActive, isFalse);
       await captureAgent(tester, 'agent-sheet-empty');
       fillAgent(cubit, date: '۱۴۱۱/۰۱/۰۱');
       await tester.pumpAndSettle();
@@ -96,7 +93,7 @@ void main() {
       await captureAgent(tester, 'agent-two-pending');
       await tester.tap(find.byType(AppCheckbox));
       await tester.pumpAndSettle();
-      expect(button(tester, S.current.issuanceSubmit).onPressed, isNotNull);
+      expect(button(tester, S.current.issuanceSubmit).isActive, isTrue);
       expect(tester.takeException(), isNull);
     },
   );
@@ -128,7 +125,7 @@ void main() {
       await tester.tap(find.bySemanticsLabel(S.current.agentRemove));
       await tester.pumpAndSettle();
       expect(find.byType(AgentInitialForm), findsOneWidget);
-      expect(button(tester, S.current.agentPreliminarySave).onPressed, isNull);
+      expect(button(tester, S.current.agentPreliminarySave).isActive, isFalse);
       expect(tester.takeException(), isNull);
     },
   );
@@ -148,7 +145,7 @@ void main() {
     await tester.enterText(find.byType(TextField).first, '۱۲۳۴۵۶۷۸۹۱');
     await tester.enterText(find.byType(TextField).last, '۱۴۱۰/۰۶/۳۰');
     await tester.pumpAndSettle();
-    expect(button(tester, S.current.agentPreliminarySave).onPressed, isNotNull);
+    expect(button(tester, S.current.agentPreliminarySave).isActive, isTrue);
     await tester.tap(find.text(S.current.agentPreliminarySave));
     await tester.pumpAndSettle();
     expect(find.byType(AppAgentCard), findsOneWidget);
@@ -219,7 +216,7 @@ void main() {
       await tester.tap(find.text(S.current.issuanceSubmit));
       await tester.pumpAndSettle();
       expect(find.textContaining(S.current.agentMockComplete), findsOneWidget);
-      expect(button(tester, S.current.issuanceSubmit).onPressed, isNull);
+      expect(button(tester, S.current.issuanceSubmit).isActive, isFalse);
       await tester.tap(find.text(S.current.backLabel));
       await tester.pumpAndSettle();
       expect(find.byType(IntroduceAgentScreen), findsNothing);

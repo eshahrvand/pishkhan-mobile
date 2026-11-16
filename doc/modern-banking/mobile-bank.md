@@ -4,8 +4,8 @@
 Cubit → registered UseCase → Repository. Cubit imports/resolves UseCases only;
 `core/di` wires their repositories. Any earlier direct-Repository or optional-
 UseCase wording below is historical and superseded. Payloads, Result mapping,
-validation, retry identity and UI behavior remain unchanged. See the
-[UseCase-only migration review](../usecase-only-dependencies-review.md).
+validation, retry identity and UI behavior remain unchanged. The
+[UI/Cubit/State contract](../ui-cubit-state-agent-rules-en.md) defines the current rules.
 
 
 The requested services live under `lib/features/modern_banking/`, with shared
@@ -154,8 +154,7 @@ Arabic guide layouts are included. Optional captures use the existing ignored
 `build/previews/certificates/modern_*.png` test output with
 `CAPTURE_CERTIFICATE_PREVIEWS=1`; no preview images are stored in doc.
 
-Current scoped commands and results are recorded in the
-[phase-8 review](phase-8-review.md). Regression coverage includes repeated
+The tests under `test/modern_banking` include repeated
 failures, effects after an error, success after retry and stable submission
 identity for activation/recovery, limits and deactivation. Device camera/KYC,
 banking APIs and actual training-video playback remain outside this prototype

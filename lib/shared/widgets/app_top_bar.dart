@@ -13,6 +13,7 @@ class AppTopBar extends StatelessWidget {
     this.trailingIcon,
     this.trailingTooltip,
     this.onTrailingPressed,
+    this.isTrailingActive = true,
     this.title,
     this.showLeadingActions = true,
     this.leadingAction,
@@ -25,6 +26,7 @@ class AppTopBar extends StatelessWidget {
   final Widget? trailingIcon;
   final String? trailingTooltip;
   final VoidCallback? onTrailingPressed;
+  final bool isTrailingActive;
   final bool showLeadingActions;
   final Widget? leadingAction;
   final VoidCallback? onProfilePressed;
@@ -69,7 +71,7 @@ class AppTopBar extends StatelessWidget {
               style: AppTypography.titleSmall.copyWith(
                 color: context.colors.textPrimary,
                 fontWeight: FontWeight.w600,
-                height: 20 / 14,
+
                 letterSpacing: 0,
               ),
             ),
@@ -82,6 +84,7 @@ class AppTopBar extends StatelessWidget {
             icon: trailingIcon,
             tooltip: trailingTooltip ?? S.current.servicesMenuLabel,
             onPressed: onTrailingPressed ?? onMenuPressed,
+            isActive: isTrailingActive,
           ),
         ],
       ),

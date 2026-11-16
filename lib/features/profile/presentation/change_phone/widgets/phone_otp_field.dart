@@ -89,7 +89,7 @@ class PhoneOtpField extends StatelessWidget {
                                 style: Theme.of(context).textTheme.titleSmall
                                     ?.copyWith(
                                       color: context.colors.primary,
-                                      height: 20 / 14,
+
                                       letterSpacing: 0,
                                     ),
                               ),
@@ -110,13 +110,10 @@ class PhoneOtpField extends StatelessWidget {
                           constrainLabel: true,
                           isLoading:
                               state.otpRequestStatus == RequestStatus.loading,
-                          onPressed: state.canRequestOtp
-                              ? () {
-                                  context
-                                      .read<ChangePhoneCubit>()
-                                      .submitOtpRequest();
-                                }
-                              : null,
+                          onPressed: () {
+                            context.read<ChangePhoneCubit>().submitOtpRequest();
+                          },
+                          isActive: state.canRequestOtp,
                         ),
                 ),
               ],

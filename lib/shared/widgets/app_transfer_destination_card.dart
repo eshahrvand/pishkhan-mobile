@@ -168,7 +168,7 @@ class AppTransferDestinationCard extends StatelessWidget {
   TextStyle get _nameStyle => AppTypography.bodySmall.copyWith(
     color: AppPalette.gray900,
     fontWeight: FontWeight.w700,
-    height: 18 / 12,
+
     letterSpacing: 0,
   );
 }

@@ -1,0 +1,157 @@
+import 'package:pishkhan_mobile/shared/widgets/flow_exit_sheet.dart';
+import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
+import 'package:pishkhan_mobile/core/flow/flow_navigation.dart';
+import 'package:avp_ui/avp_ui.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pishkhan_mobile/core/enums/request_status.dart';
+import 'package:pishkhan_mobile/generated/l10n.dart';
+
+import '../cubit/charge_cubit.dart';
+import '../widgets/charge_form.dart';
+import '../../shared/wallet_scaffold.dart';
+import '../../shared/wallet_receipt_card.dart';
+
+import 'package:pishkhan_mobile/core/platform/platform_share.dart';
+
+class WalletChargeScreen extends StatelessWidget {
+  const WalletChargeScreen({super.key});
+  void _showFailure(BuildContext context, WalletChargeState state) {
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
+  }
+
+  Future<void> _share(BuildContext context, WalletChargeState state) async {
+    context.read<WalletChargeCubit>().consumeInteraction();
+    final result = await PlatformShare.shareText(state.shareText!);
+    if (context.mounted) {
+      context.read<WalletChargeCubit>().applyShareResult(result);
+    }
+  }
+
+  Future<void> _handleNavigation(
+    BuildContext context,
+    WalletChargeState state,
+  ) async {
+    switch (state.navigation) {
+      case FlowNavigation.confirmExit:
+        context.read<WalletChargeCubit>().consumeNavigation();
+        final confirmed = await showFlowExitSheet(context);
+        if (context.mounted) {
+          context.read<WalletChargeCubit>().applyExitConfirmation(confirmed);
+        }
+      case FlowNavigation.back:
+        // Rebuild PopScope with the authorized exit before performing the pop.
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (context.mounted) NavigationActions.back(context);
+        });
+      case FlowNavigation.home:
+        NavigationActions.returnHome(context);
+      case null:
+        break;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => WalletChargeCubit()..fetchWallet(),
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<WalletChargeCubit, WalletChargeState>(
+            listenWhen: (previous, current) =>
+                previous.navigation != current.navigation &&
+                current.navigation != null,
+            listener: _handleNavigation,
+          ),
+          BlocListener<WalletChargeCubit, WalletChargeState>(
+            listenWhen: (previous, current) =>
+                previous.shareStatus != current.shareStatus &&
+                current.shareStatus == RequestStatus.failure,
+            listener: _showFailure,
+          ),
+          BlocListener<WalletChargeCubit, WalletChargeState>(
+            listenWhen: (previous, current) =>
+                previous.walletStatus != current.walletStatus &&
+                current.walletStatus == RequestStatus.failure,
+            listener: _showFailure,
+          ),
+          BlocListener<WalletChargeCubit, WalletChargeState>(
+            listenWhen: (previous, current) =>
+                previous.submissionStatus != current.submissionStatus &&
+                current.submissionStatus == RequestStatus.failure,
+            listener: _showFailure,
+          ),
+          BlocListener<WalletChargeCubit, WalletChargeState>(
+            listenWhen: (previous, current) =>
+                previous.otpStatus != current.otpStatus &&
+                current.otpStatus == RequestStatus.failure,
+            listener: _showFailure,
+          ),
+
+          BlocListener<WalletChargeCubit, WalletChargeState>(
+            listenWhen: (previous, current) =>
+                previous.effect != current.effect && current.effect != null,
+            listener: _share,
+          ),
+        ],
+        child: BlocBuilder<WalletChargeCubit, WalletChargeState>(
+          builder: (context, state) {
+            return WalletScaffold(
+              onBack: context.read<WalletChargeCubit>().requestBack,
+              canPop: state.navigation == FlowNavigation.back,
+              title: state.receipt != null
+                  ? S.current.walletReceiptTitle
+                  : S.current.walletChargeTitle,
+              busy:
+                  state.walletStatus == RequestStatus.loading ||
+                  state.otpStatus == RequestStatus.loading ||
+                  state.submissionStatus == RequestStatus.loading ||
+                  state.shareStatus == RequestStatus.loading,
+              showAssistant: state.receipt == null,
+              showClose: state.receipt != null,
+              footer: state.receipt != null
+                  ? AppButton(
+                      label: S.current.walletShareReceipt,
+                      isLoading: state.shareStatus == RequestStatus.loading,
+                      isActive: state.shareStatus != RequestStatus.loading,
+                      size: AppButtonSize.lg,
+                      onPressed: context.read<WalletChargeCubit>().requestShare,
+                    )
+                  : AppButton(
+                      label: S.current.walletConfirmPayment,
+                      size: AppButtonSize.lg,
+                      isLoading:
+                          state.submissionStatus == RequestStatus.loading,
+                      isActive:
+                          state.canSubmit &&
+                          state.otpStatus != RequestStatus.loading,
+                      onPressed: context
+                          .read<WalletChargeCubit>()
+                          .submitPayment,
+                    ),
+              child: state.receipt != null
+                  ? WalletReceiptCard(receipt: state.receipt!)
+                  : switch (state.walletStatus) {
+                      RequestStatus.initial || RequestStatus.loading =>
+                        const Center(child: CircularProgressIndicator()),
+                      RequestStatus.failure => Center(
+                        child: AppButton(
+                          label: S.current.dashboardRetry,
+                          onPressed: context
+                              .read<WalletChargeCubit>()
+                              .fetchWallet,
+                        ),
+                      ),
+                      RequestStatus.success => WalletChargeForm(state: state),
+                    },
+            );
+          },
+        ),
+      ),
+    );
+  }
+}

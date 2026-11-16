@@ -40,7 +40,6 @@ class CardActionsSheet extends StatelessWidget {
                           child: Text(
                             actionLabel(action),
                             style: AppTypography.labelLarge.copyWith(
-                              height: 18 / 14,
                               letterSpacing: 0,
                               color: AppDashboardColors.sectionText,
                             ),

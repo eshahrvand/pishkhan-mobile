@@ -7,7 +7,7 @@ import 'package:pishkhan_mobile/core/router/navigation_actions.dart';
 import 'package:pishkhan_mobile/generated/l10n.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_assistant_button.dart';
 import 'package:pishkhan_mobile/shared/widgets/app_top_bar.dart';
-import 'package:pishkhan_mobile/shared/widgets/flow_exit_dialog.dart';
+import 'package:pishkhan_mobile/shared/widgets/flow_exit_sheet.dart';
 
 import '../../../domain/entities/deposit_restriction.dart';
 import '../../deposit_list/widgets/deposit_ui.dart';
@@ -31,8 +31,11 @@ class DepositRestrictionScreen extends StatelessWidget {
     BuildContext context,
     DepositRestrictionState state,
   ) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(state.message!)));
+    avpSnackBar(
+      context: context,
+      type: AvpSnackBarType.error,
+      message: state.message!,
+    );
   }
 
   Future<void> _handleEffect(
@@ -44,7 +47,7 @@ class DepositRestrictionScreen extends StatelessWidget {
         context
             .read<DepositRestrictionCubit>()
             .consumeDepositRestrictionInteraction();
-        final confirmed = await showFlowExitDialog(context);
+        final confirmed = await showFlowExitSheet(context);
         if (context.mounted) {
           context.read<DepositRestrictionCubit>().applyExitConfirmation(
             confirmed,
@@ -66,8 +69,10 @@ class DepositRestrictionScreen extends StatelessWidget {
         context
             .read<DepositRestrictionCubit>()
             .consumeDepositRestrictionInteraction();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(S.current.issuanceTermsUnavailable)),
+        avpSnackBar(
+          context: context,
+          type: AvpSnackBarType.error,
+          message: S.current.issuanceTermsUnavailable,
         );
       case null:
         break;
@@ -151,14 +156,12 @@ class DepositRestrictionScreen extends StatelessWidget {
                             '${AppConstants.baseImage}deposit_list_back.svg',
                           ),
                           trailingTooltip: S.current.backLabel,
-                          onTrailingPressed:
+                          onTrailingPressed: context
+                              .read<DepositRestrictionCubit>()
+                              .requestBack,
+                          isTrailingActive:
                               (state.catalogStatus != RequestStatus.loading &&
-                                  state.submissionStatus !=
-                                      RequestStatus.loading)
-                              ? context
-                                    .read<DepositRestrictionCubit>()
-                                    .requestBack
-                              : null,
+                              state.submissionStatus != RequestStatus.loading),
                         ),
                         Expanded(
                           child: Stack(

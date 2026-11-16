@@ -71,11 +71,9 @@ class NotificationsScreen extends StatelessWidget {
                             image:
                                 '${AppConstants.baseImage}notification_read_all.svg',
                           ),
-                          onPressed: state.unreadMessages.isEmpty
-                              ? null
-                              : () => context
-                                    .read<NotificationsCubit>()
-                                    .markAllRead(),
+                          onPressed: () =>
+                              context.read<NotificationsCubit>().markAllRead(),
+                          isActive: state.unreadMessages.isNotEmpty,
                         ),
                       ),
                       Expanded(child: NotificationsList(messages: messages)),

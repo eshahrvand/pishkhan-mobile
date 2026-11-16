@@ -96,7 +96,7 @@ class ReportDateFilterSheet extends StatelessWidget {
                                       ?.copyWith(
                                         color: context.colors.textSecondary,
                                         fontWeight: FontWeight.w500,
-                                        height: 20 / 14,
+
                                         letterSpacing: 0,
                                       ),
                                 ),

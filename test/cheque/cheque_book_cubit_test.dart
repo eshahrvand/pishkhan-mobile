@@ -33,6 +33,30 @@ void main() {
     await cubit.continueFlow();
   }
 
+  test('registry failure repeats and success preserves feedback without changing submission', () {
+    final cubit = create(TestChequeBookRepository());
+    for (var attempt = 0; attempt < 2; attempt++) {
+      cubit.requestRegistry();
+      expect(cubit.state.registryStatus, RequestStatus.loading);
+      cubit.consumeChequeBookInteraction();
+      cubit.applyRegistryResult(
+        const Err(DataFailure('platform.browser.unavailable')),
+      );
+      expect(cubit.state.registryStatus, RequestStatus.failure);
+      expect(
+        cubit.state.message,
+        'باز کردن مرورگر در این دستگاه امکان‌پذیر نیست.',
+      );
+      expect(cubit.state.submissionStatus, RequestStatus.initial);
+    }
+    final message = cubit.state.message;
+    cubit.requestRegistry();
+    cubit.consumeChequeBookInteraction();
+    cubit.applyRegistryResult(const Success(null));
+    expect(cubit.state.registryStatus, RequestStatus.success);
+    expect(cubit.state.message, message);
+    expect(cubit.state.effect, isNull);
+  });
   test('constructor stays initial; entry number and per-deposit leaf eligibility resolve on fetch', () async {
     final cubit = create(
       TestChequeBookRepository(),

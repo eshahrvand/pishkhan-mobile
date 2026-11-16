@@ -1,3 +1,7 @@
+import 'package:pishkhan_mobile/shared/widgets/flow_exit_sheet.dart';
+
+import '../support/snackbar_test_support.dart';
+
 import 'dart:async';
 import 'dart:io';
 
@@ -86,8 +90,8 @@ void main() {
           DepositRestrictionScreen(operation: operation),
         );
         expect(
-          tester.widget<AppButton>(submitRestrictionButton()).onPressed,
-          isNull,
+          tester.widget<AppButton>(submitRestrictionButton()).isActive,
+          isFalse,
         );
         expect(
           tester
@@ -131,8 +135,8 @@ void main() {
         await tester.tap(find.byType(AppCheckbox));
         await tester.pumpAndSettle();
         expect(
-          tester.widget<AppButton>(submitRestrictionButton()).onPressed,
-          isNotNull,
+          tester.widget<AppButton>(submitRestrictionButton()).isActive,
+          isTrue,
         );
         await captureRestriction(tester, '${operation.name}-filled');
         await tester.tap(submitRestrictionButton());
@@ -161,9 +165,7 @@ void main() {
         ),
       );
       expect(find.text('درخواست انجام نشد. دوباره تلاش کنید.'), findsOneWidget);
-      tester
-          .state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger))
-          .clearSnackBars();
+      await dismissAvpSnackBar(tester);
       await tester.pumpAndSettle();
       repository.failsCatalog = false;
       await tester.tap(find.text(S.current.dashboardRetry));
@@ -197,16 +199,14 @@ void main() {
       expect(repository.requests.length, 1);
       await tester.tap(find.byTooltip(S.current.backLabel));
       await tester.pump(const Duration(milliseconds: 300));
-      expect(find.byType(AlertDialog), findsNothing);
+      expect(find.byType(FlowExitSheet), findsNothing);
       // System Back also leaves the pending form alive.
       await tester.binding.handlePopRoute();
       await tester.pump(const Duration(milliseconds: 300));
       repository.submission.complete(const Err(DataFailure('timeout')));
       await tester.pumpAndSettle();
       expect(find.text('درخواست انجام نشد. دوباره تلاش کنید.'), findsOneWidget);
-      tester
-          .state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger))
-          .clearSnackBars();
+      await dismissAvpSnackBar(tester);
       await tester.pumpAndSettle();
       await tester.tap(submitRestrictionButton());
       await tester.pumpAndSettle();

@@ -79,14 +79,14 @@ void main() {
       final repository = TestChequeBookRepository();
       install(repository);
       await mountCertificate(tester, const ChequeBookScreen());
-      expect(tester.widget<AppButton>(nextButton()).onPressed, isNull);
+      expect(tester.widget<AppButton>(nextButton()).isActive, isFalse);
       await captureBook(tester, 'chequebook-initial');
       await selectBook(tester);
       await captureBook(tester, 'chequebook-selected');
       await tester.tap(nextButton());
       await tester.pumpAndSettle();
       expect(find.byType(ChequeBookDelivery), findsOneWidget);
-      expect(tester.widget<AppButton>(nextButton()).onPressed, isNull);
+      expect(tester.widget<AppButton>(nextButton()).isActive, isFalse);
       await captureBook(tester, 'chequebook-individual-delivery');
       await tester.tap(find.byType(AppSelect<DeliveryAddress>));
       await tester.pumpAndSettle();
@@ -123,10 +123,10 @@ void main() {
       await tester.enterText(find.byType(AppTextField).last, '008');
       await tester.pumpAndSettle();
       expect(find.text(S.current.authInvalidNationalId), findsOneWidget);
-      expect(tester.widget<AppButton>(nextButton()).onPressed, isNull);
+      expect(tester.widget<AppButton>(nextButton()).isActive, isFalse);
       await tester.enterText(find.byType(AppTextField).last, '0081234562');
       await tester.pumpAndSettle();
-      expect(tester.widget<AppButton>(nextButton()).onPressed, isNotNull);
+      expect(tester.widget<AppButton>(nextButton()).isActive, isTrue);
       await captureBook(tester, 'chequebook-legal-filled');
       expect(tester.takeException(), isNull);
     },
@@ -193,7 +193,7 @@ void main() {
       expect(find.byType(AddressEditorForm), findsOneWidget);
       await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();
-      expect(tester.widget<AppButton>(nextButton()).onPressed, isNull);
+      expect(tester.widget<AppButton>(nextButton()).isActive, isFalse);
       expect(tester.takeException(), isNull);
     },
   );

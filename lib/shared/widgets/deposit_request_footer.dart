@@ -12,6 +12,7 @@ class DepositRequestFooter extends StatelessWidget {
     required this.onTermsRequested,
     required this.onSubmit,
     required this.isLoading,
+    required this.isActive,
     this.errorText,
     this.submitLabel,
     this.bottomPadding = 20,
@@ -19,8 +20,9 @@ class DepositRequestFooter extends StatelessWidget {
   final bool termsAccepted;
   final ValueChanged<bool>? onTermsChanged;
   final VoidCallback onTermsRequested;
-  final VoidCallback? onSubmit;
+  final VoidCallback onSubmit;
   final bool isLoading;
+  final bool isActive;
   final String? errorText;
   final String? submitLabel;
   final double bottomPadding;
@@ -88,6 +90,7 @@ class DepositRequestFooter extends StatelessWidget {
             constrainLabel: true,
             disabledAppearance: AppButtonDisabledAppearance.service,
             isLoading: isLoading,
+            isActive: isActive,
             onPressed: onSubmit,
           ),
         ],

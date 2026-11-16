@@ -22,13 +22,10 @@ class JobInformationFooter extends StatelessWidget {
               isLoading:
                   state.deletionStatus == RequestStatus.loading ||
                   state.submissionStatus == RequestStatus.loading,
-              onPressed: state.jobInformationStatus == RequestStatus.success
-                  ? () {
-                      context
-                          .read<JobInformationCubit>()
-                          .requestNewJobInformation();
-                    }
-                  : null,
+              onPressed: () {
+                context.read<JobInformationCubit>().requestNewJobInformation();
+              },
+              isActive: state.jobInformationStatus == RequestStatus.success,
             ),
           );
         }
@@ -48,11 +45,10 @@ class JobInformationFooter extends StatelessWidget {
           submitLabel: S.current.profileSubmit,
           isLoading: state.submissionStatus == RequestStatus.loading,
 
-          onSubmit: state.canSubmit
-              ? () {
-                  context.read<JobInformationCubit>().submitJobInformation();
-                }
-              : null,
+          onSubmit: () {
+            context.read<JobInformationCubit>().submitJobInformation();
+          },
+          isActive: state.canSubmit,
         );
       },
     );

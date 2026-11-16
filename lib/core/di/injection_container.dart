@@ -1,3 +1,12 @@
+import 'package:pishkhan_mobile/features/loans/domain/repositories/loan_application_repository.dart';
+import 'package:pishkhan_mobile/features/loans/data/repositories/mock_loan_application_repository.dart';
+import 'package:pishkhan_mobile/features/loans/domain/usecases/loan_request_usecase.dart';
+import 'package:pishkhan_mobile/features/cards/data/repositories/mock_card_restrictions_repository.dart';
+import 'package:pishkhan_mobile/features/cards/domain/repositories/card_restrictions_repository.dart';
+import 'package:pishkhan_mobile/features/cards/domain/usecases/card_restrictions_usecase.dart';
+import 'package:pishkhan_mobile/features/wallet/domain/usecases/wallet_usecase.dart';
+import 'package:pishkhan_mobile/features/wallet/domain/repositories/wallet_repository.dart';
+import 'package:pishkhan_mobile/features/wallet/data/repositories/mock_wallet_repository.dart';
 import 'package:pishkhan_mobile/features/requests/domain/usecases/request_reports_usecase.dart';
 import 'package:pishkhan_mobile/features/profile/domain/usecases/personal_information_usecase.dart';
 import 'package:pishkhan_mobile/features/deposits/domain/usecases/financial_certificate_usecase.dart';
@@ -13,7 +22,7 @@ import 'package:pishkhan_mobile/features/deposits/domain/usecases/agent_settings
 import 'package:pishkhan_mobile/features/deposits/domain/usecases/deposit_list_usecase.dart';
 import 'package:pishkhan_mobile/features/deposits/domain/usecases/deposit_restrictions_usecase.dart';
 import 'package:pishkhan_mobile/features/deposits/domain/usecases/close_surplus_deposits_usecase.dart';
-import 'package:pishkhan_mobile/features/deposits/domain/usecases/proxy_deposits_usecase.dart';
+import 'package:pishkhan_mobile/features/deposits/domain/usecases/deposit_mandate_usecase.dart';
 import 'package:pishkhan_mobile/features/cards/domain/usecases/password_services_usecase.dart';
 import 'package:pishkhan_mobile/features/cards/domain/usecases/card_services_usecase.dart';
 import 'package:pishkhan_mobile/features/cards/domain/usecases/card_issuance_usecase.dart';
@@ -44,8 +53,8 @@ import 'package:pishkhan_mobile/features/deposits/domain/repositories/financial_
 import 'package:get_it/get_it.dart';
 import 'package:pishkhan_mobile/features/modern_banking/domain/repositories/modern_banking_repository.dart';
 import 'package:pishkhan_mobile/features/modern_banking/data/repositories/mock_modern_banking_repository.dart';
-import 'package:pishkhan_mobile/features/deposits/data/repositories/mock_proxy_deposits_repository.dart';
-import 'package:pishkhan_mobile/features/deposits/domain/repositories/proxy_deposits_repository.dart';
+import 'package:pishkhan_mobile/features/deposits/data/repositories/mock_deposit_mandate_repository.dart';
+import 'package:pishkhan_mobile/features/deposits/domain/repositories/deposit_mandate_repository.dart';
 import 'package:pishkhan_mobile/features/deposits/data/repositories/mock_deposit_restrictions_repository.dart';
 import 'package:pishkhan_mobile/features/deposits/domain/repositories/deposit_restrictions_repository.dart';
 import 'package:pishkhan_mobile/features/deposits/data/repositories/mock_surplus_deposits_repository.dart';
@@ -81,6 +90,81 @@ final getIt = GetIt.instance;
 /// Register once before runApp. Tests may supply an isolated container.
 void configureDependencies({GetIt? container}) {
   final dependencies = container ?? getIt;
+  dependencies.registerLazySingleton<LoanApplicationRepository>(
+    MockLoanApplicationRepository.new,
+  );
+  dependencies.registerFactory<FetchLoanCatalogUseCase>(
+    () => FetchLoanCatalogUseCase(dependencies<LoanApplicationRepository>()),
+  );
+  dependencies.registerFactory<QuoteLoanUseCase>(
+    () => QuoteLoanUseCase(dependencies<LoanApplicationRepository>()),
+  );
+  dependencies.registerFactory<FetchLoanInquiriesUseCase>(
+    () => FetchLoanInquiriesUseCase(dependencies<LoanApplicationRepository>()),
+  );
+  dependencies.registerFactory<CheckLoanGuarantorUseCase>(
+    () => CheckLoanGuarantorUseCase(dependencies<LoanApplicationRepository>()),
+  );
+  dependencies.registerFactory<CheckLoanCollateralUseCase>(
+    () => CheckLoanCollateralUseCase(dependencies<LoanApplicationRepository>()),
+  );
+  dependencies.registerFactory<SaveLoanDraftUseCase>(
+    () => SaveLoanDraftUseCase(dependencies<LoanApplicationRepository>()),
+  );
+  dependencies.registerFactory<RequestLoanSigningOtpUseCase>(
+    () =>
+        RequestLoanSigningOtpUseCase(dependencies<LoanApplicationRepository>()),
+  );
+  dependencies.registerFactory<SubmitLoanApplicationUseCase>(
+    () =>
+        SubmitLoanApplicationUseCase(dependencies<LoanApplicationRepository>()),
+  );
+  dependencies.registerFactory<CancelLoanApplicationUseCase>(
+    () =>
+        CancelLoanApplicationUseCase(dependencies<LoanApplicationRepository>()),
+  );
+
+  dependencies.registerLazySingleton<CardRestrictionsRepository>(
+    MockCardRestrictionsRepository.new,
+  );
+  dependencies.registerLazySingleton<FetchCardRestrictionCatalogUseCase>(
+    () => FetchCardRestrictionCatalogUseCase(
+      dependencies<CardRestrictionsRepository>(),
+    ),
+  );
+  dependencies.registerLazySingleton<SubmitCardRestrictionUseCase>(
+    () => SubmitCardRestrictionUseCase(
+      dependencies<CardRestrictionsRepository>(),
+    ),
+  );
+  dependencies.registerLazySingleton<WalletRepository>(
+    MockWalletRepository.new,
+  );
+  dependencies.registerFactory<FetchWalletCatalogUseCase>(
+    () => FetchWalletCatalogUseCase(dependencies<WalletRepository>()),
+  );
+  dependencies.registerFactory<RequestWalletOtpUseCase>(
+    () => RequestWalletOtpUseCase(dependencies<WalletRepository>()),
+  );
+  dependencies.registerFactory<ChargeWalletUseCase>(
+    () => ChargeWalletUseCase(dependencies<WalletRepository>()),
+  );
+  dependencies.registerFactory<WithdrawWalletUseCase>(
+    () => WithdrawWalletUseCase(dependencies<WalletRepository>()),
+  );
+  dependencies.registerFactory<InquireWalletRecipientUseCase>(
+    () => InquireWalletRecipientUseCase(dependencies<WalletRepository>()),
+  );
+  dependencies.registerFactory<TransferWalletUseCase>(
+    () => TransferWalletUseCase(dependencies<WalletRepository>()),
+  );
+  dependencies.registerFactory<ChangeWalletLinkedDepositUseCase>(
+    () => ChangeWalletLinkedDepositUseCase(dependencies<WalletRepository>()),
+  );
+  dependencies.registerFactory<FetchWalletTransactionsUseCase>(
+    () => FetchWalletTransactionsUseCase(dependencies<WalletRepository>()),
+  );
+
   dependencies.registerLazySingleton(createBankDio);
   dependencies.registerLazySingleton(createAccessTokenStore);
   dependencies.registerLazySingleton<PostalOfficesRepository>(
@@ -283,8 +367,8 @@ void configureDependencies({GetIt? container}) {
   dependencies.registerLazySingleton<ChequeClearanceRepository>(
     MockChequeClearanceRepository.new,
   );
-  dependencies.registerLazySingleton<ProxyDepositsRepository>(
-    MockProxyDepositsRepository.new,
+  dependencies.registerLazySingleton<DepositMandateRepository>(
+    MockDepositMandateRepository.new,
   );
   dependencies.registerLazySingleton<DepositRestrictionsRepository>(
     MockDepositRestrictionsRepository.new,
@@ -321,13 +405,13 @@ void configureDependencies({GetIt? container}) {
       dependencies<SurplusDepositsRepository>(),
     ),
   );
-  dependencies.registerLazySingleton<FetchProxyDepositCatalogUseCase>(
-    () => FetchProxyDepositCatalogUseCase(
-      dependencies<ProxyDepositsRepository>(),
+  dependencies.registerLazySingleton<FetchDepositMandateCatalogUseCase>(
+    () => FetchDepositMandateCatalogUseCase(
+      dependencies<DepositMandateRepository>(),
     ),
   );
-  dependencies.registerLazySingleton<SubmitProxyDepositUseCase>(
-    () => SubmitProxyDepositUseCase(dependencies<ProxyDepositsRepository>()),
+  dependencies.registerLazySingleton<SubmitDepositMandateUseCase>(
+    () => SubmitDepositMandateUseCase(dependencies<DepositMandateRepository>()),
   );
   // This operation retains a pending reviewed payload: each flow needs its own instance.
   dependencies.registerFactory<CloseRemainingDepositsUseCase>(

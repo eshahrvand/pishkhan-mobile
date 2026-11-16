@@ -30,6 +30,16 @@ they do not change the public API of `avp_ui`.
 | Request report card | `15934:32160` | `AppRequestReportCard` | `lib/shared/widgets/app_request_report_card.dart` | Optional details row, date, status badge, and more action. |
 | Transaction card | `15924:41539` | `AppTransactionCard` | `lib/shared/widgets/app_transaction_card.dart` | Discharge, charge, transfer, and shopping variants. |
 
+## Open service-grid layout issue
+
+The 2026-11-08 review found that `AppServiceGridCard` still accepts
+`stretchItems`, but its column calculation no longer reads that parameter.
+A two-item row with `stretchItems: true` at card width 343 now leaves unused
+column slots: the item centers are 79.25 pixels apart, versus 151.5 before
+commit `66f00d5`. This remains an open app-owned component issue; the intended
+short-row behavior or parameter retirement needs an explicit decision. No
+layout correction was included in the button-gating change.
+
 ## Usage rules
 
 - Render image assets with the public `AvpImage` primitive from `avp_ui`; the shared component continues to own its asset and composition. `AvpImage` does not introduce new Figma artwork.

@@ -4,6 +4,8 @@ import 'package:pishkhan_mobile/core/result/result.dart';
 import 'package:pishkhan_mobile/features/dashboard/presentation/home/cubit/home_cubit.dart';
 import 'package:pishkhan_mobile/core/di/injection_container.dart';
 
+import '../../../../../support/snackbar_test_support.dart';
+
 import '../../../../support/home_tab_test_scope.dart';
 import '../../../../support/dashboard_ui_finders.dart';
 
@@ -425,6 +427,8 @@ void main() {
         find.byKey(Key('app_service_grid_icon_loans-loan-defer')),
       );
       expect(ids.last, 'loan-defer');
+      // The approved top snackbar temporarily covers the header interaction.
+      await dismissAvpSnackBar(tester);
       await tap(tester, find.byKey(Key('dashboard_menu_button')));
       expect(find.byType(AppDrawer), findsOneWidget);
       expect(

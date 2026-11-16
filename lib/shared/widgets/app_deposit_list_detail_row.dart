@@ -32,9 +32,6 @@ class AppDepositListDetailRow extends StatelessWidget {
     );
   }
 
-  TextStyle _regularStyle(Color color) => AppTypography.bodySmall.copyWith(
-    color: color,
-    height: 18 / 12,
-    letterSpacing: 0,
-  );
+  TextStyle _regularStyle(Color color) =>
+      AppTypography.bodySmall.copyWith(color: color, letterSpacing: 0);
 }
